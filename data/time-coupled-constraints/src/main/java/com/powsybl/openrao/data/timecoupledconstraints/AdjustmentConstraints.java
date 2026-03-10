@@ -70,41 +70,41 @@ public final class AdjustmentConstraints {
         return Optional.ofNullable(downwardPowerGradient);
     }
 
-    public static GeneratorConstraintsBuilder create() {
-        return new GeneratorConstraintsBuilder();
+    public static AdjustmentConstraintsBuilder create() {
+        return new AdjustmentConstraintsBuilder();
     }
 
-    public static final class GeneratorConstraintsBuilder {
-        private String generatorId;
+    public static final class AdjustmentConstraintsBuilder {
+        private String rangeActionId;
         private Double minimumAdjustmentTime;
         private Double upwardPowerGradient;
         private Double downwardPowerGradient;
 
-        private GeneratorConstraintsBuilder() {
+        private AdjustmentConstraintsBuilder() {
         }
 
-        public GeneratorConstraintsBuilder withGeneratorId(String generatorId) {
-            this.generatorId = generatorId;
+        public AdjustmentConstraintsBuilder withRangeActionId(String rangeActionId) {
+            this.rangeActionId = rangeActionId;
             return this;
         }
 
-        public GeneratorConstraintsBuilder withMinimumAdjustmentTime(Double minimumAdjustmentTime) {
+        public AdjustmentConstraintsBuilder withMinimumAdjustmentTime(Double minimumAdjustmentTime) {
             this.minimumAdjustmentTime = minimumAdjustmentTime;
             return this;
         }
 
-        public GeneratorConstraintsBuilder withUpwardPowerGradient(Double upwardPowerGradient) {
+        public AdjustmentConstraintsBuilder withUpwardPowerGradient(Double upwardPowerGradient) {
             this.upwardPowerGradient = upwardPowerGradient;
             return this;
         }
 
-        public GeneratorConstraintsBuilder withDownwardPowerGradient(Double downwardPowerGradient) {
+        public AdjustmentConstraintsBuilder withDownwardPowerGradient(Double downwardPowerGradient) {
             this.downwardPowerGradient = downwardPowerGradient;
             return this;
         }
 
         public AdjustmentConstraints build() {
-            if (generatorId == null) {
+            if (rangeActionId == null) {
                 throw new OpenRaoException("The id of the generator is mandatory.");
             }
             if (minimumAdjustmentTime != null && minimumAdjustmentTime < 0) {
@@ -116,7 +116,7 @@ public final class AdjustmentConstraints {
             if (downwardPowerGradient != null && downwardPowerGradient > 0) {
                 throw new OpenRaoException("The downward power gradient of the generator must be negative.");
             }
-            return new AdjustmentConstraints(generatorId, minimumAdjustmentTime, upwardPowerGradient, downwardPowerGradient);
+            return new AdjustmentConstraints(rangeActionId, minimumAdjustmentTime, upwardPowerGradient, downwardPowerGradient);
         }
     }
 }

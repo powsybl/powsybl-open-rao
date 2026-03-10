@@ -19,6 +19,7 @@ public class TimeCoupledConstraints {
 
     public TimeCoupledConstraints() {
         this.generatorConstraints = new HashSet<>();
+        this.adjustmentConstraints = new HashSet<>();
     }
 
     public void addGeneratorConstraints(GeneratorConstraints generatorConstraints) {
@@ -27,5 +28,13 @@ public class TimeCoupledConstraints {
 
     public Set<GeneratorConstraints> getGeneratorConstraints() {
         return generatorConstraints;
+    }
+
+    public void addAdjustmentConstraints(AdjustmentConstraints adjustmentConstraints) {
+        this.adjustmentConstraints.add(adjustmentConstraints);
+    }
+
+    public Set<AdjustmentConstraints> getAdjustmentConstraints() {
+        return adjustmentConstraints;
     }
 }

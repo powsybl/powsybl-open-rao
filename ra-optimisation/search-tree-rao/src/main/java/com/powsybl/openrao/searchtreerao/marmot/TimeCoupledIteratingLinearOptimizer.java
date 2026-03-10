@@ -23,6 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.AdjustmentConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -163,7 +164,21 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // TODO: add tipe-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new GeneratorConstraintsFiller(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network), preventiveStates, preventiveInjectionRangeActions, input.timeCoupledConstraints().getGeneratorConstraints()));
+        return List.of(
+            new GeneratorConstraintsFiller(
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
+                preventiveStates,
+                preventiveInjectionRangeActions,
+                input.timeCoupledConstraints().getGeneratorConstraints()
+            ),
+            new AdjustmentConstraintsFiller(
+                input.iteratingLinearOptimizerInputs().map(tsInput -> tsInput.optimizationPerimeter().getRangeActions()),
+                preventiveStates,
+                preventiveInjectionRangeActions,
+                input.timeCoupledConstraints().getAdjustmentConstraints(),
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints)
+            )
+        );
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {

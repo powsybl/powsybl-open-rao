@@ -7,27 +7,22 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.AdjustmentConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -38,19 +33,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.AbstractCoreProblemFiller.RANGE_ACTION_SETPOINT_EPSILON;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.BoundExtension.LOWER_BOUND;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.BoundExtension.UPPER_BOUND;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.DOWNWARD;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.UPWARD;
 
 /**
- * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
- * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class AdjustmentConstraintsFiller implements ProblemFiller {
-    private final TemporalData<Network> networks;
+    private final TemporalData<Set<RangeAction<?>>> rangeActions;
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
+    private final TemporalData<RangeActionSetpointResult> prePerimeterSetpoints;
     private final Set<AdjustmentConstraints> adjustmentConstraints;
     private final List<OffsetDateTime> timestamps;
     private final double timestampDuration;
@@ -60,13 +56,14 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private static final double OFF_POWER_THRESHOLD = 1.0;
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
-    public AdjustmentConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<AdjustmentConstraints> adjustmentConstraints) {
-        this.networks = networks;
+    public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActions, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints) {
+        this.rangeActions = rangeActions;
         this.preventiveStates = preventiveStates;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.adjustmentConstraints = adjustmentConstraints;
-        this.timestampDuration = computeTimestampDuration(networks.getTimestamps());
-        this.timestamps = networks.getTimestamps();
+        this.prePerimeterSetpoints = prePerimeterSetpoints;
+        this.timestampDuration = computeTimestampDuration(rangeActions.getTimestamps());
+        this.timestamps = rangeActions.getTimestamps();
     }
 
     // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
@@ -87,7 +84,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        int numberOfTimestamps = networks.getTimestamps().size();
+        int numberOfTimestamps = rangeActions.getTimestamps().size();
         for (AdjustmentConstraints individualAdjustmentConstraints : adjustmentConstraints) {
             String rangeActionId = individualAdjustmentConstraints.getRangeActionId();
             Optional<Double> minimumAdjustmentTime = individualAdjustmentConstraints.getMinimumAdjustmentTime();
@@ -105,6 +102,8 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                 // Add constraints
                 for (int timestampIndex = 0; timestampIndex < numberOfTimestamps; timestampIndex++) {
                     OffsetDateTime timestamp = timestamps.get(timestampIndex);
+                    // Constraints not involving state transition variables
+                    addUniqueAdjustmentStateConstraint(linearProblem, rangeActionId, timestamp);
 
                     // Constraints involving state transition variables, defined on indexes [0, numberOfTimestamps - 2]
                     if (timestampIndex < numberOfTimestamps - 1) {
@@ -113,47 +112,56 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                         addStateFromTransitionConstraints(linearProblem, rangeActionId, timestamp);
                         // link transition to next state
                         addStateToTransitionConstraints(linearProblem, rangeActionId, timestamp, nextTimestamp);
-
-                        // For t' between ceil(t + 1 - leadTime) and t, T(OFF->ON)(t) <= OFF(t')
-                        /*if (leadTime.isPresent() && leadTime.get() > timestampDuration) {
-                            int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(leadTime.get() / timestampDuration));
-                            for (int earlierTimestampIndex = timestampIndex; earlierTimestampIndex >= firstTimestampIndex; earlierTimestampIndex--) {
-                                addLeadTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(earlierTimestampIndex));
-                            }
-                        }*/
-
-                        // For t' between t+1 and ceil(t + lagTime) and t, T(ON->OFF)(t) <= OFF(t')
-                        if (minimumAdjustmentTime.isPresent() && minimumAdjustmentTime.get() > timestampDuration) {
-                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(minimumAdjustmentTime.get() / timestampDuration));
-                            for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex <= lastTimestampIndex; laterTimestampIndex++) {
-                                addLagTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex));
-                            }
+                        // link state to power variation
+                        addStateConstraints(linearProblem, individualAdjustmentConstraints, timestamp, nextTimestamp);
+                        // add constant ramp constraints
+                        addConstantRampConstraints(linearProblem, individualAdjustmentConstraints, timestamp, nextTimestamp);
+                        // add minAdjustmentTime constraint
+                        if (minimumAdjustmentTime.isPresent()) {
+                            addMinAdjustmentTimeConstraints(linearProblem, individualAdjustmentConstraints, timestamp);
                         }
-                        addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
                     }
-                    addPowerToInjectionConstraint(linearProblem, generatorId, timestamp, associatedInjections.get().getData(timestamps.get(timestampIndex)).orElseThrow(), preventiveStates.getData(timestamp).orElseThrow(), networks.getData(timestamp).orElseThrow());
                 }
             }
         }
     }
 
     private void addStateVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+        linearProblem.addAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP);
+        linearProblem.addAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN);
+        linearProblem.addAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT);
+        linearProblem.addAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.OFF);
         State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
-        if (!Objects.isNull(linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveState))) {
+        if (Objects.isNull(linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveState))) {
             //TODO: CREATE VARIABLE
             throw new OpenRaoException("range action variation binary should have been created by CostCoreProblemFiller");
-
         }
     }
 
     private static void addStateTransitionVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
-        linearProblem.addGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON);
-        linearProblem.addGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF);
-        linearProblem.addGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
-        linearProblem.addGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
+        for (LinearProblem.AdjustmentState stateFrom : LinearProblem.AdjustmentState.values()) {
+            for (LinearProblem.AdjustmentState stateTo : LinearProblem.AdjustmentState.values()) {
+                if (stateFrom == stateTo || !Set.of(stateFrom, stateTo).equals(Set.of(LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.DOWN))) {
+                    linearProblem.addAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo);
+                }
+            }
+        }
     }
 
     // ---- Constraints
+
+    /**
+     * C1 - The adjustment must and can only be in one state.
+     * <br/>
+     * ON + OFF = 1
+     */
+    private static void addUniqueAdjustmentStateConstraint(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+        OpenRaoMPConstraint uniqueAdjustmentStateConstraint = linearProblem.addUniqueAdjustmentStateConstraint(rangeActionId, timestamp);
+        uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP), 1);
+        uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN), 1);
+        uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT), 1);
+        uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.OFF), 1);
+    }
 
     /**
      * C2 - The previous state of the generator must match the transition.
@@ -161,21 +169,15 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
      * state_j{t} = /Sigma T{state_i -> state_j}
      */
     private void addStateFromTransitionConstraints(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
-        State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
-        // ON = Tr(ON->ON) + Tr(ON->OFF)
-        OpenRaoMPConstraint fromOnConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(rangeActionId, timestamp, LinearProblem.GeneratorState.ON);
-        fromOnConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveState), 1);
-        fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON), -1);
-        fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
-
-        // OFF = Tr(OFF->OFF) +  Tr(OFF->ON)
-        // <=> 1 - ON = Tr(OFF->OFF) +  Tr(OFF->ON)
-        // <=> 1 = Tr(OFF->OFF) +  Tr(OFF->ON) + ON
-        OpenRaoMPConstraint fromOffConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF);
-        fromOffConstraint.setBounds(1.0, 1.0);
-        fromOffConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveState), 1);
-        fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF), 1);
-        fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1);
+        for (LinearProblem.AdjustmentState stateFrom : LinearProblem.AdjustmentState.values()) {
+            OpenRaoMPConstraint fromConstraint = linearProblem.addAdjustmentStateFromTransitionConstraint(rangeActionId, timestamp, stateFrom);
+            fromConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, stateFrom), 1);
+            for (LinearProblem.AdjustmentState stateTo : LinearProblem.AdjustmentState.values()) {
+                if (stateFrom == stateTo || !Set.of(stateFrom, stateTo).equals(Set.of(LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.DOWN))) {
+                    fromConstraint.setCoefficient(linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo), -1);
+                }
+            }
+        }
     }
 
     /**
@@ -184,96 +186,210 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
      * state_j{t+1} = /Sigma T{state_j -> state_i}
      */
     private void addStateToTransitionConstraints(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
+        for (LinearProblem.AdjustmentState stateTo : LinearProblem.AdjustmentState.values()) {
+            OpenRaoMPConstraint toConstraint = linearProblem.addAdjustmentStateToTransitionConstraint(rangeActionId, timestamp, stateTo);
+            toConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, nextTimestamp, stateTo), 1);
+            for (LinearProblem.AdjustmentState stateFrom : LinearProblem.AdjustmentState.values()) {
+                if (stateFrom == stateTo || !Set.of(stateFrom, stateTo).equals(Set.of(LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.DOWN))) {
+                    toConstraint.setCoefficient(linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo), -1);
+                }
+            }
+        }
+    }
+
+    /**
+     * C6 - Constraints linking power variations to adjustment states
+     * <br/>
+     */
+    private void addStateConstraints(LinearProblem linearProblem, AdjustmentConstraints adjustmentConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
+        String rangeActionId = adjustmentConstraints.getRangeActionId();
+        State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
         State nextPreventiveState = preventiveStates.getData(nextTimestamp).orElseThrow();
-        // ON
-        // ON = ON = Tr(ON->ON) + Tr(OFF->ON)
-        OpenRaoMPConstraint toOnConstraint = linearProblem.addGeneratorStateToTransitionConstraint(rangeActionId, timestamp, LinearProblem.GeneratorState.ON);
-        toOnConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(rangeActionId, nextPreventiveState), 1);
-        toOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON), -1);
-        toOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), -1);
+        RangeAction<?> rangeAction = rangeActions.getData(timestamp).orElseThrow().stream()
+            .filter(ra -> ra.getId().equals(rangeActionId))
+            .findFirst().orElseThrow();
+        double prePerimeterSetpoint = prePerimeterSetpoints.getData(timestamp).orElseThrow().getSetpoint(rangeAction);
+        RangeAction<?> nextRangeAction = rangeActions.getData(nextTimestamp).orElseThrow().stream()
+            .filter(ra -> ra.getId().equals(rangeActionId))
+            .findFirst().orElseThrow();
+        double nextPrePerimeterSetpoint = prePerimeterSetpoints.getData(nextTimestamp).orElseThrow().getSetpoint(nextRangeAction);
+        double maxChange = getMaxChange(rangeAction);
 
-        // OFF
-        // OFF = OFF = Tr(OFF->OFF) + Tr(ON->OFF)
-        // <=> 1 - ON = Tr(OFF->OFF) +  Tr(ON->OFF)
-        // <=> 1 = Tr(OFF->OFF) +  Tr(ON->OFF) + ON
-        OpenRaoMPConstraint toOffConstraint = linearProblem.addGeneratorStateToTransitionConstraint(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF);
-        toOffConstraint.setBounds(1.0, 1.0);
-        toOffConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(rangeActionId, nextPreventiveState), 1);
-        toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF), -1);
-        toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(rangeActionId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
+        OpenRaoMPVariable setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, preventiveState);
+        OpenRaoMPVariable nextSetpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, nextPreventiveState);
+        OpenRaoMPVariable offVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.OFF);
+        OpenRaoMPVariable upVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP);
+        OpenRaoMPVariable downVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN);
+        OpenRaoMPVariable flatVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable rangeActionVariationBinary = linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveState);
+        OpenRaoMPVariable nextRangeActionVariationBinary = linearProblem.getRangeActionVariationBinary(rangeActionId, nextPreventiveState);
+
+        double upwardPowerGradient = Math.min(adjustmentConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT), maxChange);
+        double downwardPowerGradient = Math.max(adjustmentConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT), -maxChange);
+
+        // UP : If Pt+1 > Pt then UP or OFF is true
+        // Pt+1 - Pt <= OFF * maxChange + UP * gradientMax i.e. Pt+1 - Pt - UP * gradientMax - OFF * maxChange <= 0
+        OpenRaoMPConstraint upConstraint = linearProblem.addAdjustmentStateConstraint(-linearProblem.infinity(), 0., rangeActionId, timestamp, LinearProblem.AdjustmentState.UP);
+        upConstraint.setCoefficient(nextSetpoint, 1.0);
+        upConstraint.setCoefficient(setpoint, -1.0);
+        upConstraint.setCoefficient(upVariable, -upwardPowerGradient);
+        upConstraint.setCoefficient(offVariable, -maxChange);
+        if (rangeActionId.contains("_CT")) {
+            upConstraint.setUb(upConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
+        // DOWN : If Pt+1 < Pt then DOWN or OFF is true
+        // Pt+1 - Pt >= -OFF * maxChange + DOWN * gradientMin i.e. Pt+1 - Pt - DOWN * gradientMin + OFF * maxChange >= 0
+        OpenRaoMPConstraint downConstraint = linearProblem.addAdjustmentStateConstraint(0., linearProblem.infinity(), rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN);
+        downConstraint.setCoefficient(nextSetpoint, 1.0);
+        downConstraint.setCoefficient(setpoint, -1.0);
+        downConstraint.setCoefficient(downVariable, -downwardPowerGradient);
+        downConstraint.setCoefficient(offVariable, maxChange);
+        if (rangeActionId.contains("_CT")) {
+            downConstraint.setLb(downConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
+        // OFF : range action is not used at timestamp or next timestamp
+        // bt = 1 or bt-1 = 1 => OFF = false
+        // OFF <= 1 - (bt + bt+1) / 2 i.e. OFF + (bt + bt+1) / 2 <= 1
+        OpenRaoMPConstraint offConstraint = linearProblem.addAdjustmentStateConstraint(-linearProblem.infinity(), 1., rangeActionId, timestamp, LinearProblem.AdjustmentState.OFF);
+        offConstraint.setCoefficient(offVariable, 1.0);
+        offConstraint.setCoefficient(nextRangeActionVariationBinary, 0.5);
+        offConstraint.setCoefficient(rangeActionVariationBinary, 0.5);
+
+        //FLAT : sum of states is 1 constraint should be sufficient
     }
 
     /**
-     * C4 - Lead time
+     * C7 - ramp should be constant while ramping up or down (equal to gradient)
      * <br/>
-     * For t' between floor(t+1 - leadTime) and t, T(OFF->ON)(t) <= OFF(t')
      */
-    private static void addLeadTimeConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime startingUpTimestamp, OffsetDateTime previousTimestamp) {
-        OpenRaoMPConstraint leadTimeConstraint = linearProblem.addGeneratorStartingUpConstraint(generatorId, startingUpTimestamp, previousTimestamp);
-        leadTimeConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorId, startingUpTimestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1.0);
-        leadTimeConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorId, previousTimestamp, LinearProblem.GeneratorState.OFF), -1.0);
+    private void addConstantRampConstraints(LinearProblem linearProblem, AdjustmentConstraints adjustmentConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
+        String rangeActionId = adjustmentConstraints.getRangeActionId();
+        State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
+        State nextPreventiveState = preventiveStates.getData(nextTimestamp).orElseThrow();
+        RangeAction<?> rangeAction = rangeActions.getData(timestamp).orElseThrow().stream()
+            .filter(ra -> ra.getId().equals(rangeActionId))
+            .findFirst().orElseThrow();
+        double prePerimeterSetpoint = prePerimeterSetpoints.getData(timestamp).orElseThrow().getSetpoint(rangeAction);
+        RangeAction<?> nextRangeAction = rangeActions.getData(nextTimestamp).orElseThrow().stream()
+            .filter(ra -> ra.getId().equals(rangeActionId))
+            .findFirst().orElseThrow();
+        double nextPrePerimeterSetpoint = prePerimeterSetpoints.getData(nextTimestamp).orElseThrow().getSetpoint(nextRangeAction);
+        double maxChange = getMaxChange(rangeAction);
+
+        OpenRaoMPVariable setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, preventiveState);
+        OpenRaoMPVariable nextSetpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, nextPreventiveState);
+
+        OpenRaoMPVariable upUpTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.UP);
+        OpenRaoMPVariable downDownTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN, LinearProblem.AdjustmentState.DOWN);
+
+        double upwardPowerGradient = Math.min(adjustmentConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT), maxChange);
+        double downwardPowerGradient = Math.max(adjustmentConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT), maxChange);
+
+        // If Tr(UP, UP), Pt+1 - Pt = gradientUp
+        // i.e. gradientUp - 2*maxChange * (1-Tr(Up, UP)) <= Pt+1 - Pt <= gradientUp + maxChange * (1-Tr(UP, UP))
+        // i.e. Pt+1 - Pt + 2*maxChange * Tr(UP, UP) <= gradientUp + 2*maxChange
+        // and  Pt+1 - Pt - 2*maxChange * Tr(UP, UP) >= gradientUp - 2*maxChange
+        // If CT, then Pt+1 - P0t+1 - Pt + POt instead i.e. add P0t+1 - P0t to upper and lower bounds
+        OpenRaoMPConstraint constantRampUpwardUpperConstraint = linearProblem.addAdjustmentConstantRampConstraint(-linearProblem.infinity(), upwardPowerGradient + 2 * maxChange, rangeActionId, timestamp, UPWARD, UPPER_BOUND);
+        constantRampUpwardUpperConstraint.setCoefficient(nextSetpoint, 1.);
+        constantRampUpwardUpperConstraint.setCoefficient(setpoint, -1.);
+        constantRampUpwardUpperConstraint.setCoefficient(upUpTransitionVariable, 2 * maxChange);
+        if (rangeActionId.contains("_CT")) {
+            constantRampUpwardUpperConstraint.setUb(constantRampUpwardUpperConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
+        OpenRaoMPConstraint constantRampUpwardLowerConstraint = linearProblem.addAdjustmentConstantRampConstraint(upwardPowerGradient - 2 * maxChange, linearProblem.infinity(), rangeActionId, timestamp, UPWARD, LOWER_BOUND);
+        constantRampUpwardLowerConstraint.setCoefficient(nextSetpoint, 1.);
+        constantRampUpwardLowerConstraint.setCoefficient(setpoint, -1.);
+        constantRampUpwardLowerConstraint.setCoefficient(upUpTransitionVariable, -2 * maxChange);
+        if (rangeActionId.contains("_CT")) {
+            constantRampUpwardLowerConstraint.setLb(constantRampUpwardLowerConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
+        // If Tr(DOWN, DOWN), Pt+1 - Pt = gradientDown
+        // i.e. gradientDown - maxChange * (1-Tr(DOWN, DOWN)) <= Pt+1 - Pt <= gradientDown + maxChange * (1-Tr(DOWN, DOWN))
+        // i.e. Pt+1 - Pt + maxChange * Tr(DOWN, DOWN) <= gradientDown + maxChange
+        // and  Pt+1 - Pt - maxChange * Tr(DOWN, DOWN) >= gradientDown - maxChange
+        // If CT, then Pt+1 - P0t+1 - Pt + POt instead i.e. add P0t+1 - P0t to upper and lower bounds
+        OpenRaoMPConstraint constantRampDownwardUpperConstraint = linearProblem.addAdjustmentConstantRampConstraint(-linearProblem.infinity(), downwardPowerGradient + 2 * maxChange, rangeActionId, timestamp, DOWNWARD, UPPER_BOUND);
+        constantRampDownwardUpperConstraint.setCoefficient(nextSetpoint, 1.);
+        constantRampDownwardUpperConstraint.setCoefficient(setpoint, -1.);
+        constantRampDownwardUpperConstraint.setCoefficient(downDownTransitionVariable, 2 * maxChange);
+        if (rangeActionId.contains("_CT")) {
+            constantRampDownwardUpperConstraint.setUb(constantRampDownwardUpperConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
+        OpenRaoMPConstraint constantRampDownwardLowerConstraint = linearProblem.addAdjustmentConstantRampConstraint(downwardPowerGradient - 2 * maxChange, linearProblem.infinity(), rangeActionId, timestamp, DOWNWARD, LOWER_BOUND);
+        constantRampDownwardLowerConstraint.setCoefficient(nextSetpoint, 1.);
+        constantRampDownwardLowerConstraint.setCoefficient(setpoint, -1.);
+        constantRampDownwardLowerConstraint.setCoefficient(downDownTransitionVariable, -2 * maxChange);
+        if (rangeActionId.contains("_CT")) {
+            constantRampDownwardLowerConstraint.setLb(constantRampDownwardLowerConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
+        }
+
     }
 
     /**
-     * C5 - Lag time
+     * C8 - min adjustment time constraint
+     * if Tr(UP,FLAT) or Tr(DOWN,FLAT) then the for the next few timestamps t', FLAT(t') = 1
+     * i.e. FLAT(t') >= Tr(UP,FLAT) + Tr(DOWN,FLAT)
      * <br/>
-     * For t' between t+1 and ceil(t + lagTime) and t, T(ON->OFF)(t) <= OFF(t')
      */
-    private static void addLagTimeConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime shuttingDownTimestamp, OffsetDateTime nextTimestamp) {
-        OpenRaoMPConstraint lagTimeConstraint = linearProblem.addGeneratorShuttingDownConstraint(generatorId, shuttingDownTimestamp, nextTimestamp);
-        lagTimeConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorId, shuttingDownTimestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), 1.0);
-        lagTimeConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorId, nextTimestamp, LinearProblem.GeneratorState.OFF), -1.0);
+    private void addMinAdjustmentTimeConstraints(LinearProblem linearProblem, AdjustmentConstraints adjustmentConstraints, OffsetDateTime toFlatTimestamp) {
+        String rangeActionId = adjustmentConstraints.getRangeActionId();
+
+        OpenRaoMPVariable upFlatTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable downFlatTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.DOWN, LinearProblem.AdjustmentState.FLAT);
+
+        timestamps.stream()
+            .filter(t -> t.isAfter(toFlatTimestamp))
+            .filter(t -> t.isBefore(toFlatTimestamp.plusSeconds(Math.round(3600 * adjustmentConstraints.getMinimumAdjustmentTime().orElseThrow()))))
+            .forEach(flatTimestamp -> {
+                OpenRaoMPConstraint minAdjustmentTimeConstraint = linearProblem.addAdjustmentMinTimeConstraint(0., linearProblem.infinity(), rangeActionId, toFlatTimestamp, flatTimestamp);
+                OpenRaoMPVariable flatVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, flatTimestamp, LinearProblem.AdjustmentState.FLAT);
+                minAdjustmentTimeConstraint.setCoefficient(flatVariable, 1.0);
+                minAdjustmentTimeConstraint.setCoefficient(upFlatTransitionVariable, -1.0);
+                minAdjustmentTimeConstraint.setCoefficient(downFlatTransitionVariable, -1.0);
+            });
+
+        OpenRaoMPVariable upOffTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.OFF);
+        OpenRaoMPVariable downOffTransitionVariable = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.DOWN, LinearProblem.AdjustmentState.OFF);
+
+        timestamps.stream()
+            .filter(t -> t.isAfter(toFlatTimestamp))
+            .filter(t -> t.isBefore(toFlatTimestamp.plusSeconds(Math.round(3600 * adjustmentConstraints.getMinimumAdjustmentTime().orElseThrow()))))
+            .forEach(flatTimestamp -> {
+                OpenRaoMPConstraint minAdjustmentOffTimeConstraint = linearProblem.addAdjustmentMinOffTimeConstraint(0., linearProblem.infinity(), rangeActionId, toFlatTimestamp, flatTimestamp);
+                OpenRaoMPVariable offVariable = linearProblem.getAdjustmentStateVariable(rangeActionId, flatTimestamp, LinearProblem.AdjustmentState.OFF);
+                minAdjustmentOffTimeConstraint.setCoefficient(offVariable, 1.0);
+                minAdjustmentOffTimeConstraint.setCoefficient(upOffTransitionVariable, -1.0);
+                minAdjustmentOffTimeConstraint.setCoefficient(downOffTransitionVariable, -1.0);
+            });
+
+        //TODO: manage OFF -> FLAT and FLAT -> OFF transitions
+        linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.OFF, LinearProblem.AdjustmentState.FLAT).setUb(0.);
+        linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, toFlatTimestamp, LinearProblem.AdjustmentState.FLAT, LinearProblem.AdjustmentState.OFF).setUb(0.);
     }
 
     /**
      * C7 - Constraints linking power variations to state transitions
      * <br/>
      */
-    private void addPowerVariationConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
-        double upwardPowerGradient = generatorConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT);
-        double downwardPowerGradient = generatorConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT);
-        double pMin = getMinP(generatorConstraints.getGeneratorId(), networks.getData(timestamp).orElseThrow());
+    private void addPowerVariationConstraints(LinearProblem linearProblem, AdjustmentConstraints adjustmentConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
+        //TODO
+        double upwardPowerGradient = adjustmentConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT);
+        double downwardPowerGradient = adjustmentConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT);
+    }
 
-        OpenRaoMPConstraint powerTransitionConstraintInf = linearProblem.addGeneratorPowerTransitionConstraint(generatorConstraints.getGeneratorId(), 0, linearProblem.infinity(), timestamp, LinearProblem.AbsExtension.POSITIVE);
-        powerTransitionConstraintInf.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), nextTimestamp), 1.0);
-        powerTransitionConstraintInf.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), timestamp), -1.0);
-
-        OpenRaoMPConstraint powerTransitionConstraintSup = linearProblem.addGeneratorPowerTransitionConstraint(generatorConstraints.getGeneratorId(), -linearProblem.infinity(), 0, timestamp, LinearProblem.AbsExtension.NEGATIVE);
-        powerTransitionConstraintSup.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), nextTimestamp), 1.0);
-        powerTransitionConstraintSup.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), timestamp), -1.0);
-
-        // ON -> ON
-        OpenRaoMPVariable onOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON);
-        powerTransitionConstraintInf.setCoefficient(onOnTransitionVariable, -downwardPowerGradient * timestampDuration);
-        powerTransitionConstraintSup.setCoefficient(onOnTransitionVariable, -upwardPowerGradient * timestampDuration);
-
-        // OFF -> OFF
-        OpenRaoMPVariable offOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF);
-        powerTransitionConstraintInf.setCoefficient(offOffTransitionVariable, OFF_POWER_THRESHOLD);
-        powerTransitionConstraintSup.setCoefficient(offOffTransitionVariable, -OFF_POWER_THRESHOLD);
-
-        // OFF -> ON
-        double nextPMin = getMinP(generatorConstraints.getGeneratorId(), networks.getData(nextTimestamp).orElseThrow());
-        OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
-        powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(nextPMin - OFF_POWER_THRESHOLD));
-        if (generatorConstraints.getLeadTime().isPresent()) {
-            // if the generator has a lead time, ON state starts at Pmin on a timestamp before power increases
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin);
-        } else {
-            // otherwise the power is simply constrained by the power gradient
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin - upwardPowerGradient * timestampDuration);
+    private double getMaxChange(RangeAction<?> rangeAction) {
+        // TODO: calculate this properly somehow? This works if there's only one range but not when you mix relative and absolute ranges, and the ranges dont change between ts
+        //return rangeAction.getMaxAdmissibleSetpoint(0.) - rangeAction.getMinAdmissibleSetpoint(0.);
+        if (rangeAction.getId().contains("_CT")) {
+            return 10000.;
         }
-
-        // ON -> OFF
-        OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
-        if (generatorConstraints.getLagTime().isPresent()) {
-            // if the generator has a lag time, ON state finishes at Pmin on a timestamp before power decreases
-            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
-        } else {
-            // otherwise the power is simply constrained by the power gradient
-            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin - downwardPowerGradient * timestampDuration);
-        }
-        powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, pMin - OFF_POWER_THRESHOLD);
+        return 1000.;
     }
 
     // ** Utility methods
@@ -299,36 +415,8 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         return Optional.of(new TemporalDataImpl<>(injectionRangeActionPerTimestamp));
     }
 
-    private static void addPowerToInjectionConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp, InjectionRangeAction injectionRangeAction, State state, Network network) {
-        OpenRaoMPConstraint powerToInjectionConstraint = linearProblem.addGeneratorToInjectionConstraint(generatorId, injectionRangeAction, timestamp);
-        powerToInjectionConstraint.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorId, timestamp), 1.0);
-        powerToInjectionConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state), -getDistributionKey(generatorId, injectionRangeAction));
-    }
-
     private static Optional<InjectionRangeAction> getInjectionRangeAction(String rangeActionId, Set<InjectionRangeAction> allInjectionRangeActions) {
         return allInjectionRangeActions.stream().filter(injectionRangeAction -> injectionRangeAction.getId().contains(rangeActionId)).min(Comparator.comparing(Identifiable::getId));
-    }
-
-    private static double getDistributionKey(String generatorId, InjectionRangeAction injectionRangeAction) {
-        NetworkElement networkElement = injectionRangeAction.getNetworkElements().stream().filter(element -> element.getId().equals(generatorId)).findFirst().orElseThrow();
-        return injectionRangeAction.getInjectionDistributionKeys().get(networkElement);
-    }
-
-    private static double getMinP(String generatorId, Network network) {
-        return getGenerator(generatorId, network).getMinP();
-    }
-
-    private static double getMaxP(String generatorId, Network network) {
-        return getGenerator(generatorId, network).getMaxP();
-    }
-
-    // TODO: import generator data in the GeneratorConstraint directly
-    private static Generator getGenerator(String generatorId, Network network) {
-        Generator generator = network.getGenerator(generatorId);
-        if (generator == null) {
-            throw new OpenRaoException("Network element %s is not a generator.".formatted(generatorId));
-        }
-        return generator;
     }
 
     @Override

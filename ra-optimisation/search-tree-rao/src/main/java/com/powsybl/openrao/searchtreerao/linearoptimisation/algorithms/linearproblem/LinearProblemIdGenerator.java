@@ -61,6 +61,16 @@ public final class LinearProblemIdGenerator {
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
+
+    private static final String ADJUSTMENT_STATE = "adjustmentstate";
+    private static final String UNIQUE_ADJUSTMENT_STATE = "uniqueadjustmentstate";
+    private static final String ADJUSTMENT_STATE_TRANSITION = "adjustmentstatetransition";
+    private static final String ADJUSTMENT_STATE_FROM = "adjustmentstatefrom";
+    private static final String ADJUSTMENT_STATE_TO = "adjustmentstateto";
+    private static final String ADJUSTMENT_CONSTANT_RAMP = "adjustmentconstantramp";
+    private static final String ADJUSTMENT_MIN_TIME = "adjustmentmintime";
+    private static final String ADJUSTMENT_MIN_OFF_TIME = "adjustmentminofftime";
+
     private static final String GENERATOR_STATE = "generatorstate";
     private static final String UNIQUE_GENERATOR_STATE = "uniquegeneratorstate";
     private static final String GENERATOR_STATE_TRANSITION = "generatorstatetransition";
@@ -81,6 +91,12 @@ public final class LinearProblemIdGenerator {
     private static String formatName(Optional<OffsetDateTime> timestamp, String... substrings) {
         String name = String.join(SEPARATOR, substrings).replace("__", "_"); // remove empty strings
         return timestamp.map(time -> name + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
+    }
+
+    private static String formatName(Optional<OffsetDateTime> timestamp, Optional<OffsetDateTime> otherTimestamp, String... substrings) {
+        String name = String.join(SEPARATOR, substrings).replace("__", "_"); // remove empty strings
+        String nameWithTimestamp = timestamp.map(time -> name + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
+        return otherTimestamp.map(time -> nameWithTimestamp + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
     }
 
     private static String formatName(String... substrings) {
@@ -291,6 +307,42 @@ public final class LinearProblemIdGenerator {
 
     public static String minMarginShiftedViolationConstraintId(Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentStateVariableId(String adjustmentId, LinearProblem.AdjustmentState adjustmentState, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_STATE, adjustmentId, adjustmentState.toString(), VARIABLE_SUFFIX);
+    }
+
+    public static String adjustmentStateConstraintId(String adjustmentId, LinearProblem.AdjustmentState adjustmentState, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_STATE, adjustmentId, adjustmentState.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String uniqueAdjustmentStateConstraintId(String adjustmentId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), UNIQUE_ADJUSTMENT_STATE, adjustmentId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentStateTransitionVariableId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_STATE_TRANSITION, adjustmentId, adjustmentStateFrom.toString(), adjustmentStateTo.toString(), VARIABLE_SUFFIX);
+    }
+
+    public static String adjustmentStateFromTransitionConstraintId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateFrom, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_STATE_FROM, adjustmentId, adjustmentStateFrom.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentStateToTransitionConstraintId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateTo, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_STATE_TO, adjustmentId, adjustmentStateTo.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentConstantRampConstraintId(String adjustmentId, LinearProblem.VariationDirectionExtension direction, LinearProblem.BoundExtension lbOrUb, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), ADJUSTMENT_CONSTANT_RAMP, adjustmentId, direction.toString(), lbOrUb.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentMinTimeConstraintId(String adjustmentId, OffsetDateTime transitionTs, OffsetDateTime flatTs) {
+        return formatName(Optional.of(transitionTs), Optional.of(flatTs), ADJUSTMENT_MIN_TIME, adjustmentId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String adjustmentMinOffTimeConstraintId(String adjustmentId, OffsetDateTime transitionTs, OffsetDateTime flatTs) {
+        return formatName(Optional.of(transitionTs), Optional.of(flatTs), ADJUSTMENT_MIN_OFF_TIME, adjustmentId, CONSTRAINT_SUFFIX);
     }
 
     public static String generatorStateVariableId(String generatorId, LinearProblem.GeneratorState generatorState, OffsetDateTime timestamp) {
