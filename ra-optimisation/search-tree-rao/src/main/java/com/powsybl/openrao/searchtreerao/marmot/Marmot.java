@@ -113,7 +113,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         applyPreventiveTopologicalActionsOnNetworks(timeCoupledRaoInput.getRaoInputs(), preventiveTopologicalActions);
 
         // 6. Create and iteratively solve MIP to find optimal range actions' set-points
-        // Get the curative ations applied in the individual results to be able to apply them during sensitivity computations
+        // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(timeCoupledRaoInput.getRaoInputs(), topologicalOptimizationResults);
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");

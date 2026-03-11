@@ -51,6 +51,7 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+        raoResult.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
 
         // --------------------
         // --- Cost results ---

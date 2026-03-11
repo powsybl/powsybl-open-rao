@@ -125,7 +125,6 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        LinearProblemStatus status = solver.solve();
         return solver.solve();
     }
 
@@ -558,6 +557,22 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addGeneratorPowerTransitionConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addGeneratorShutDownProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(0, 0, prohibitGeneratorShuttingDownConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorShutDownOnFirstTimestampProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, prohibitGeneratorShuttingDownOnFirstConstraintConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStartUpProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(0, 0, prohibitGeneratorStartingUpConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStartUpOnFirstTimestampProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, prohibitGeneratorStartingUpOnFirstTimestampConstraintId(generatorId, timestamp));
     }
 
     public OpenRaoMPConstraint getGeneratorPowerTransitionConstraint(String generatorId, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {

@@ -633,7 +633,7 @@ class GeneratorConstraintsFillerTest {
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (73):
+        // - CONSTRAINTS (75):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -651,7 +651,7 @@ class GeneratorConstraintsFillerTest {
         //   - lag time constraint
 
         assertEquals(51, linearProblem.numVariables());
-        assertEquals(73, linearProblem.numConstraints());
+        assertEquals(75, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
@@ -679,7 +679,7 @@ class GeneratorConstraintsFillerTest {
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (73):
+        // - CONSTRAINTS (75):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -697,54 +697,7 @@ class GeneratorConstraintsFillerTest {
         //   - lag time constraint
 
         assertEquals(51, linearProblem.numVariables());
-        assertEquals(73, linearProblem.numConstraints());
-
-        checkInjectionKey();
-        checkUpwardGradient();
-        checkDownwardGradient();
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-    }
-
-    @Test
-    void testLongLeadAndShortLagTimesAndPowerGradients() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(1.2).withLagTime(0.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
-
-        // For each timestamp:
-
-        // - VARIABLES (51):
-        //   - flow
-        //   - redispatching set-point
-        //   - upward set-point variation
-        //   - downward set-point variation
-        //   - generator power
-        //   - ON state
-        //   - OFF state
-        //   - ON -> ON transition (except for last timestamp)
-        //   - ON -> OFF transition (except for last timestamp)
-        //   - OFF -> OFF transition (except for last timestamp)
-        //   - OFF -> ON transition (except for last timestamp)
-
-        // - CONSTRAINTS (66):
-        //   - flow
-        //   - set-point variation
-        //   - network balancing
-        //   - generator power to redispatching
-        //   - ON / OFF power (lower bound)
-        //   - ON / OFF power (upper bound)
-        //   - only one state
-        //   - state from ON (except for last timestamp)
-        //   - state from OFF (except for last timestamp)
-        //   - state to ON (except for last timestamp)
-        //   - state to OFF (except for last timestamp)
-        //   - power transition (lower bound; except for last timestamp)
-        //   - power transition (upper bound; except for last timestamp)
-        //   - lead time constraint
-
-        assertEquals(51, linearProblem.numVariables());
-        assertEquals(66, linearProblem.numConstraints());
+        assertEquals(75, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkUpwardGradient();
@@ -792,6 +745,153 @@ class GeneratorConstraintsFillerTest {
 
         assertEquals(51, linearProblem.numVariables());
         assertEquals(66, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (70):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - shut down prohibited constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(70, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndStartUpProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (71):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - start up prohibited constraint
+        //   - start up prohibited first timestamp constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(71, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownAndStartUpProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (75):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - shut down prohibited constraint
+        //   - start up prohibited constraint
+        //   - start up prohibited first timestamp constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(75, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkUpwardGradient();

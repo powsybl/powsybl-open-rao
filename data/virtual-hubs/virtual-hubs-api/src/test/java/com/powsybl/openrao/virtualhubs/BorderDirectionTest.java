@@ -7,11 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
@@ -19,29 +16,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BorderDirectionTest {
     @Test
     void checkThatBorderDirectionIsCorrectlyCreated() {
-        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", true);
-        assertEquals("Paris", borderDirection.from());
-        assertEquals("Berlin", borderDirection.to());
-        assertTrue(borderDirection.isAhc());
+        final BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", true);
+        Assertions.assertThat(borderDirection.from()).isEqualTo("Paris");
+        Assertions.assertThat(borderDirection.to()).isEqualTo("Berlin");
+        Assertions.assertThat(borderDirection.isAhc()).isTrue();
     }
 
     @Test
     void checkThatBorderDirectionCreationThrowsWhenFromIsNull() {
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new BorderDirection(null, "To", false),
-            "Null 'from' in BorderDirection creation should throw but does not"
-        );
-        assertEquals("BorderDirection creation does not allow null attribute 'from'", thrown.getMessage());
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new BorderDirection(null, "To", false))
+            .withMessage("BorderDirection creation does not allow null attribute 'from'");
     }
 
     @Test
     void checkThatBorderDirectionCreationThrowsWhenToIsNull() {
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new BorderDirection("From", null, false),
-            "Null 'to' in BorderDirection creation should throw but does not"
-        );
-        assertEquals("BorderDirection creation does not allow null attribute 'to'", thrown.getMessage());
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new BorderDirection("From", null, false))
+            .withMessage("BorderDirection creation does not allow null attribute 'to'");
     }
 }

@@ -10,6 +10,7 @@ package com.powsybl.openrao.tests.steps;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -19,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
@@ -61,8 +63,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -79,6 +80,7 @@ public final class TimeCoupledRaoSteps {
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
     static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
+    static final double TOLERANCE_REDISPATCHING_VALUE = 1.0;
 
     public TimeCoupledRaoSteps() {
         // should not be instantiated
@@ -513,15 +515,19 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
+        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
-            timeCoupledRaoResult.getGlobalFunctionalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
+            timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
+        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
-            timeCoupledRaoResult.getGlobalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
+            timeCoupledRaoResult.getGlobalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -551,14 +557,53 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
-    @Then("the preventive power of generator {string} at state timestamp {string} is {double} MW")
+    @Then("the preventive power of generator {string} at timestamp {string} is {double} MW")
     public static void getGeneratorPower(String networkElementId, String timestamp, double expectedPower) {
         assertPowerValue(networkElementId, timestamp, expectedPower);
     }
 
-    @Then("the preventive power of load {string} at state timestamp {string} is {double} MW")
+    @Then("the preventive power of load {string} at timestamp {string} is {double} MW")
     public static void getLoadPower(String networkElementId, String timestamp, double expectedPower) {
         assertPowerValue(networkElementId, timestamp, -expectedPower);
+    }
+
+    @Then("the remedial action {string} is used at timestamp {string} in preventive")
+    public static void remedialActionUsedInPreventive(String remedialActionId, String timestamp) {
+        assertTrue(isRemedialActionUsed(remedialActionId, timestamp, "", "preventive"));
+    }
+
+    @Then("the remedial action {string} is used at timestamp {string} after {string} at {string}")
+    public void remedialActionUsedPostContingency(String remedialActionId, String timestamp, String contingencyId, String instant) {
+        assertTrue(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
+    }
+
+    @Then("the remedial action {string} is not used at timestamp {string} in preventive")
+    public static void remedialActionNotUsedInPreventive(String remedialActionId, String timestamp) {
+        assertFalse(isRemedialActionUsed(remedialActionId, timestamp, "", "preventive"));
+    }
+
+    @Then("the remedial action {string} is not used at timestamp {string} after {string} at {string}")
+    public void remedialActionNotUsedPostContingency(String remedialActionId, String timestamp, String contingencyId, String instant) {
+        assertFalse(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
+    }
+
+    @Then("its time coupled security status should be {string}")
+    public void statusShouldBe(String status) {
+        assertEquals(status.equalsIgnoreCase("secured"), timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW));
+    }
+
+    @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")
+    public void theTapOfPstRangeActionPostContingencyShouldBe(String pstRangeActionId, String timestamp, String contingencyId, String instant, int chosenPstTap) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+    }
+
+    @Then("the preventive tap of PstRangeAction {string} at timestamp {string} should be {int}")
+    public void theTapOfPreventivePstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {
@@ -573,6 +618,21 @@ public final class TimeCoupledRaoSteps {
             .findFirst();
         assertTrue(injectionRangeAction.isPresent());
         NetworkElement networkElement = injectionRangeAction.get().getNetworkElements().stream().filter(ne -> ne.getId().equals(networkElementId)).findFirst().orElseThrow();
-        assertEquals(expectedPower, timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement), 1e-3);
+        assertEquals(expectedPower, timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement), TOLERANCE_REDISPATCHING_VALUE);
+    }
+
+    private static boolean isRemedialActionUsed(String rangeActionId, String timestamp, String contingencyId, String instant) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        State state = getState(crac, contingencyId, instant);
+        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
+    }
+
+    private static State getState(Crac crac, String contingencyId, String instantId) {
+        if (instantId.equalsIgnoreCase("preventive")) {
+            return crac.getPreventiveState();
+        } else {
+            return crac.getState(contingencyId, crac.getInstant(instantId));
+        }
     }
 }
