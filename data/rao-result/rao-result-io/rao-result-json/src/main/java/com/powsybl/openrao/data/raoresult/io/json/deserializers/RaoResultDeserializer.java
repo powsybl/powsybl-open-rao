@@ -60,7 +60,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         }
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case INFO:
                     //no need to import this
                     jsonParser.nextToken();
@@ -127,7 +127,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.currentName()));
             }
         }
         extensions.forEach(extension -> raoResult.addExtension((Class) extension.getClass(), extension));

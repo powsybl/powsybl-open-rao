@@ -45,7 +45,7 @@ public final class JsonRelativeMarginsParameters {
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(PTDF_BOUNDARIES)) {
+            if (jsonParser.currentName().equals(PTDF_BOUNDARIES)) {
                 if (jsonParser.getCurrentToken() == JsonToken.START_ARRAY) {
                     List<String> boundaries = new ArrayList<>();
                     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -54,7 +54,7 @@ public final class JsonRelativeMarginsParameters {
                     relativeMarginsParameters.setPtdfBoundariesFromString(boundaries);
                 }
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize relative margins parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize relative margins parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, jsonParser.currentName()));
             }
         }
         raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
