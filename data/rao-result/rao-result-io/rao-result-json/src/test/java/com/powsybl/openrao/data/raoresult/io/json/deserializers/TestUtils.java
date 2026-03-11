@@ -15,7 +15,11 @@ import java.io.IOException;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class TestUtils {
+public final class TestUtils {
+    private TestUtils() {
+        // should not be used
+    }
+
     public static JsonParser parserFrom(String json) throws IOException {
         JsonParser p = new JsonFactory().createParser(json);
         p.nextToken();
