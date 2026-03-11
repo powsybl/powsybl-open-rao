@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -36,7 +37,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final double MAX_GRADIENT = 1000.0;
-    private static final double ON_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
+    private static final double ON_POWER_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
 
     // TODO : either parametrize this or set it to true. May have to change the way it works to import for all curative instants instead of only the last one
     public static boolean importCurative = false;
@@ -56,6 +57,8 @@ public final class IcsImporter {
     public static final String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
     public static final String LEAD_TIME = "Lead time [h]";
     public static final String LAG_TIME = "Lag time [h]";
+    public static final String STARTUP_ALLOWED = "Startup allowed";
+    public static final String SHUTDOWN_ALLOWED = "Shutdown allowed";
     public static final String P_MIN_RD = "Pmin_RD";
     public static final String RA_RD_ID = "RA RD ID";
     public static final String RDP_UP = "RDP+";
@@ -66,12 +69,12 @@ public final class IcsImporter {
     public static final String PREVENTIVE = "Preventive";
     public static final String CURATIVE = "Curative";
     public static final String TRUE = "TRUE";
+    public static final String FALSE = "FALSE";
     public static final String RD_DESCRIPTION_MODE = "RD description mode";
     public static final String NODE = "NODE";
     public static final String GENERATOR_NAME = "Generator Name";
     public static final String RD_SUFFIX = "_RD";
     public static final String GENERATOR_SUFFIX = "_GENERATOR";
-    public static final String LOAD_SUFFIX = "_LOAD";
 
     private IcsImporter() {
         //should only be used statically
@@ -194,6 +197,18 @@ public final class IcsImporter {
             if (!staticRecord.get(LAG_TIME).isEmpty()) {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
+            if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
+                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+            }
+            if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+            }
             timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
         }
     }
@@ -267,6 +282,18 @@ public final class IcsImporter {
         if (!staticRecord.get(LAG_TIME).isEmpty()) {
             builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
         }
+        if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
+            !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+            throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for raId " + raId);
+        } else {
+            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+        }
+        if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+            !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+            throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for raId " + raId);
+        } else {
+            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+        }
         timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
     }
 
@@ -314,7 +341,7 @@ public final class IcsImporter {
             }
             Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(entry.getKey().getHour() + OFFSET)) * shiftKey;
             Optional<Double> pMinRd = parseValue(seriesPerType, P_MIN_RD, entry.getKey(), shiftKey);
-            processBus(bus, generatorId, p0, pMinRd.orElse(ON_THRESHOLD));
+            processBus(bus, generatorId, p0, pMinRd.orElse(ON_POWER_THRESHOLD));
         }
         return generatorId;
     }
