@@ -103,7 +103,7 @@ public class SweCne {
     private void addReason(Point point) {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
+        boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
         try {
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
@@ -111,9 +111,9 @@ public class SweCne {
             // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
         }
-        if (isDivergent) {
-            reason.setCode(DIVERGENCE_CODE);
-            reason.setText(DIVERGENCE_TEXT);
+        if (isFailure) {
+            reason.setCode(RAO_FAILURE_CODE);
+            reason.setText(RAO_FAILURE_TEXT);
         } else if (isUnsecure) {
             reason.setCode(UNSECURE_CODE);
             reason.setText(UNSECURE_TEXT);
