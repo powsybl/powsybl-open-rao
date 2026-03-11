@@ -49,6 +49,12 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
             jsonGenerator.writeNumberField(JsonTimeCoupledConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
         }
 
+        boolean isShutDownAllowed = generatorConstraints.isShutDownAllowed();
+        jsonGenerator.writeBooleanField(JsonTimeCoupledConstraints.SHUTDOWN_ALLOWED, isShutDownAllowed);
+
+        boolean isStartUpAllowed = generatorConstraints.isStartUpAllowed();
+        jsonGenerator.writeBooleanField(JsonTimeCoupledConstraints.STARTUP_ALLOWED, isStartUpAllowed);
+
         jsonGenerator.writeEndObject();
     }
 }
