@@ -110,10 +110,7 @@ public class NcCracImporter implements Importer {
 
             });
 
-            tempFile.withReadStream(is -> {
-                tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, zipEntry.getName());
-                return null;
-            });
+            tempFile.withReadStreamVoid(is -> tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, zipEntry.getName()));
         }
     }
 
@@ -123,10 +120,7 @@ public class NcCracImporter implements Importer {
             return false;
         }
         TripleStore tripleStoreNcProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
-        inputFile.withReadStream(is -> {
-            tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, "");
-            return null;
-        });
+        inputFile.withReadStreamVoid(is -> tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, ""));
         return true;
     }
 

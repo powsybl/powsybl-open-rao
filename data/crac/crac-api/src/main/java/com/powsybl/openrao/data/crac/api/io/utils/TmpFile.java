@@ -100,6 +100,13 @@ public class TmpFile implements AutoCloseable {
         }
     }
 
+    public void withReadStreamVoid(ThrowingFunctions.VoidRunner<InputStream> runn) {
+        withReadStream(is -> {
+            runn.run(is);
+            return null;
+        });
+    }
+
     public <T> T withReadStream(ThrowingFunctions.Runner<InputStream, T> runn) {
         return SafeFileReader.create(tempFile, buffer).withReadStream(runn);
     }

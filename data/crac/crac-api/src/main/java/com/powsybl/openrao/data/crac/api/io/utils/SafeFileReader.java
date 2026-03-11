@@ -55,6 +55,14 @@ public class SafeFileReader {
         }
     }
 
+    public void withReadStreamVoid(ThrowingFunctions.VoidRunner<InputStream> runn)
+        throws RunException {
+        withReadStream(is -> {
+            runn.run(is);
+            return null;
+        });
+    }
+
     public <T> T withReadStream(ThrowingFunctions.Runner<InputStream, T> runn)
         throws RunException {
 
@@ -129,6 +137,10 @@ public class SafeFileReader {
 
     public String getFileName() {
         return file.getFileName().toString();
+    }
+
+    public long getFileSize() {
+        return IOUtils.getSafeFileSize(file);
     }
 
     public boolean hasFileExtension(String extension) {

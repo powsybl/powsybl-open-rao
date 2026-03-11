@@ -2,6 +2,7 @@
 package com.powsybl.openrao.data.crac.api.io.utils;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +29,20 @@ public final class IOUtils {
         try {
             if (null != is) {
                 is.close();
+            }
+        } catch (IOException e) {
+            // empty
+        }
+    }
+
+    public static void safeDelete(File... files) {
+        Arrays.stream(files).forEach(IOUtils::safeDelete);
+    }
+
+    public static void safeDelete(File f) {
+        try {
+            if (null != f) {
+                Files.delete(f.toPath());
             }
         } catch (IOException e) {
             // empty

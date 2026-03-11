@@ -128,14 +128,13 @@ class RaoResultArchiveManagerTest extends TestBase {
     private static Set<String> extractZipEntriesFromFile(Path zipFile) throws IOException {
         Set<String> archiveContent = new HashSet<>();
 
-        SafeFileReader.create(zipFile, BufferSize.MEDIUM).withReadStream(is ->  {
+        SafeFileReader.create(zipFile, BufferSize.MEDIUM).withReadStreamVoid(is ->  {
             try (ZipInputStream zis = new ZipInputStream(is)) {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
                     archiveContent.add(entry.getName());
                 }
             }
-            return null;
         });
 
         return archiveContent;
