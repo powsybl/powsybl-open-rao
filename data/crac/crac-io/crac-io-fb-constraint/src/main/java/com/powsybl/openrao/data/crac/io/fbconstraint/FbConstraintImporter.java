@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class FbConstraintImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
     private static final String XML_SCHEMA_VERSION = "flowbasedconstraintdocument-";
-    private static final String FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-23.xsd";
+    private static final String FLOWBASED_CONSTRAINT_V25_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-25.xsd";
     private static final String ETSO_CODE_LIST_SCHEMA_FILE = "/xsd/etso-code-lists.xsd";
     private static final String ETSO_CORE_CMPTS_SCHEMA_FILE = "/xsd/etso-core-cmpts.xsd";
 
@@ -101,8 +100,6 @@ public class FbConstraintImporter implements Importer {
                 LOGGER.debug("The schema can't be validated because no xsd file is available. Validity check is skipped.");
                 return false;
             }
-        } catch (MalformedURLException e) {
-            throw new OpenRaoException("URL error");
         } catch (SAXException e) {
             LOGGER.debug("FlowBased Constraint Document format is NOT valid. Reason: {}", e.getMessage());
             return false;
@@ -134,7 +131,7 @@ public class FbConstraintImporter implements Importer {
 
     private String schemaVersion(int flowBasedDocumentVersion) {
         if (flowBasedDocumentVersion >= 17) {
-            return FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE;
+            return FLOWBASED_CONSTRAINT_V25_SCHEMA_FILE;
         } else {
             LOGGER.debug("Flow-based constraint document with version {} are not handled by the FbConstraintImporter", flowBasedDocumentVersion);
             return null;

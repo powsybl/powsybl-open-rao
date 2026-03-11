@@ -10,8 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -214,6 +213,107 @@ class LinearProblemResultTest {
         assertEquals(200., linearProblemResult.getOptimizedSetpoint(ra3, aCurativeState), DOUBLE_TOLERANCE);
         assertEquals(700., linearProblemResult.getOptimizedSetpoint(ra4, aCurativeState), DOUBLE_TOLERANCE);
         assertEquals(Set.of(ra3, ra4), linearProblemResult.getActivatedRangeActions(aCurativeState));
+    }
+
+    @Test
+    void testGetOptimizedSetPointWithExtremelySmallRangeActionsVariation() {
+
+        PstRangeAction pst = Mockito.mock(PstRangeAction.class);
+        Mockito.when(pst.getId()).thenReturn("pst");
+        NetworkElement pst1NE = Mockito.mock(NetworkElement.class);
+        Mockito.when(pst1NE.getId()).thenReturn("pst1NE");
+        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(pst1NE));
+        InjectionRangeAction injection = Mockito.mock(InjectionRangeAction.class);
+        Mockito.when(injection.getId()).thenReturn("injection");
+        NetworkElement injectionNE = Mockito.mock(NetworkElement.class);
+        Mockito.when(injectionNE.getId()).thenReturn("injectionNE");
+        Mockito.when(injection.getNetworkElements()).thenReturn(Set.of(injectionNE));
+        HvdcRangeAction hvdc = Mockito.mock(HvdcRangeAction.class);
+        Mockito.when(hvdc.getId()).thenReturn("hvdc");
+        NetworkElement hvdcNE = Mockito.mock(NetworkElement.class);
+        Mockito.when(hvdcNE.getId()).thenReturn("hvdcNE");
+        Mockito.when(hvdc.getNetworkElements()).thenReturn(Set.of(hvdcNE));
+        CounterTradeRangeAction counterTrade = Mockito.mock(CounterTradeRangeAction.class);
+        Mockito.when(counterTrade.getId()).thenReturn("counterTrade");
+        NetworkElement counterTradeNE = Mockito.mock(NetworkElement.class);
+        Mockito.when(counterTradeNE.getId()).thenReturn("counterTradeNE");
+        Mockito.when(counterTrade.getNetworkElements()).thenReturn(Set.of(counterTradeNE));
+
+        linearProblem = Mockito.mock(LinearProblem.class);
+        rangeActionsPerState = Map.of(
+            preventiveState, Set.of(pst, injection, hvdc, counterTrade));
+
+        prePerimeterRangeActionSetpoints = new RangeActionSetpointResultImpl(Map.of(
+            pst, 0.8,
+            injection, 5.4,
+            hvdc, 600.,
+            counterTrade, -200.
+        ));
+
+        // pst1 activated in preventive
+        // pst2 not activated
+        // ra3 activated in curative
+        // ra4 activated in preventive and curative
+
+        Map<State, Map<RangeAction<?>, Double>> setPointPerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst, 0.800001, // variation of 1e-6
+                injection, 5.401, // variation 1e-3
+                hvdc, -601.0, // variation 1
+                counterTrade, -200.8)); // variation 0.8
+
+        Map<State, Map<RangeAction<?>, Double>> setPointVariationPerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst, 1e-6,
+                injection, 1e-3,
+                hvdc, 1.0,
+                counterTrade, 0.8));
+
+        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> setPointVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst, Mockito.mock(OpenRaoMPVariable.class),
+                injection, Mockito.mock(OpenRaoMPVariable.class),
+                hvdc, Mockito.mock(OpenRaoMPVariable.class),
+                counterTrade, Mockito.mock(OpenRaoMPVariable.class)));
+
+        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> upwardSetPointVariationVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst, Mockito.mock(OpenRaoMPVariable.class),
+                injection, Mockito.mock(OpenRaoMPVariable.class),
+                hvdc, Mockito.mock(OpenRaoMPVariable.class),
+                counterTrade, Mockito.mock(OpenRaoMPVariable.class)));
+
+        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> downwardSetPointVariationVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst, Mockito.mock(OpenRaoMPVariable.class),
+                injection, Mockito.mock(OpenRaoMPVariable.class),
+                hvdc, Mockito.mock(OpenRaoMPVariable.class),
+                counterTrade, Mockito.mock(OpenRaoMPVariable.class)));
+
+        rangeActionsPerState.get(preventiveState).forEach(ra -> {
+            OpenRaoMPVariable setPointVariable = setPointVariablePerRangeAction.get(preventiveState).get(ra);
+            Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, preventiveState)).thenReturn(setPointVariable);
+            Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(preventiveState).get(ra));
+
+            OpenRaoMPVariable upwardSetPointVariationVariable = upwardSetPointVariationVariablePerRangeAction.get(preventiveState).get(ra);
+            OpenRaoMPVariable downwardSetPointVariationVariable = downwardSetPointVariationVariablePerRangeAction.get(preventiveState).get(ra);
+            Mockito.when(linearProblem.getRangeActionVariationVariable(ra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD)).thenReturn(upwardSetPointVariationVariable);
+            Mockito.when(linearProblem.getRangeActionVariationVariable(ra, preventiveState, LinearProblem.VariationDirectionExtension.DOWNWARD)).thenReturn(downwardSetPointVariationVariable);
+            Mockito.when(upwardSetPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(preventiveState).get(ra));
+            Mockito.when(downwardSetPointVariationVariable.solutionValue()).thenReturn(0.0);
+        });
+
+        Mockito.when(pst.convertAngleToTap(0.800001)).thenReturn(3);
+
+        // Checks that if
+        // - the injection, hvdc and counter trading range action's variation output by the MIP is <= 1 MW
+        // - or if pst variation <= 1e-6
+        // it is not considered as activated in LinearProblemResult.
+        OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
+            preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
+
+        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
+        assertEquals(Set.of(), linearProblemResult.getActivatedRangeActions(preventiveState)); // None of the range actions are activated
     }
 
 }

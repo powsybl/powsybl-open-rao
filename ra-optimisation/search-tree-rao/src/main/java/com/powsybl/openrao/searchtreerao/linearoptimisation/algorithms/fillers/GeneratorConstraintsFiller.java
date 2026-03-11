@@ -49,7 +49,8 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
     private static final double DEFAULT_P_MAX = 10000.0;
-    private static final double OFF_POWER_THRESHOLD = 1.0;
+    private static final double OFF_POWER_THRESHOLD = 0.499;
+    private static final double ON_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
     public GeneratorConstraintsFiller(TemporalData<Network> networks,
@@ -86,8 +87,9 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         for (GeneratorConstraints individualGeneratorConstraints : generatorConstraints) {
             String generatorId = individualGeneratorConstraints.getGeneratorId();
             Optional<Double> leadTime = individualGeneratorConstraints.getLeadTime();
-            Optional<Double> lagTime = individualGeneratorConstraints.getLagTime();
-            Optional<TemporalData<InjectionRangeAction>> associatedInjections = getInjectionRangeActionOfGenerator(individualGeneratorConstraints.getGeneratorId());
+            // We add leadTime to lagTime : after shutdown, we need to be OFF for at least lagTime + leadTime
+            Optional<Double> lagTimeWithLeadTime = addLeadAndLag(leadTime, individualGeneratorConstraints.getLagTime());
+            Optional<TemporalData<InjectionRangeAction>> associatedInjections = getInjectionRangeActionOfGenerator(generatorId);
             if (associatedInjections.isPresent()) {
                 // Add variables
                 for (int timestampIndex = 0; timestampIndex < numberOfTimestamps; timestampIndex++) {
@@ -117,18 +119,18 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         if (leadTime.isPresent() && leadTime.get() > timestampDuration) {
                             int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(leadTime.get() / timestampDuration));
                             for (int earlierTimestampIndex = timestampIndex; earlierTimestampIndex >= firstTimestampIndex; earlierTimestampIndex--) {
-                                addLeadTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(earlierTimestampIndex));
+                                addLeadTimeConstraint(linearProblem, generatorId, timestamps.get(timestampIndex), timestamps.get(earlierTimestampIndex));
                             }
                         }
 
                         // For t' between t+1 and ceil(t + lagTime) and t, T(ON->OFF)(t) <= OFF(t')
-                        if (lagTime.isPresent() && lagTime.get() > timestampDuration) {
-                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(lagTime.get() / timestampDuration));
+                        if (lagTimeWithLeadTime.isPresent() && lagTimeWithLeadTime.get() > timestampDuration) {
+                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(lagTimeWithLeadTime.get() / timestampDuration));
                             for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex <= lastTimestampIndex; laterTimestampIndex++) {
-                                addLagTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex));
+                                addLagTimeConstraint(linearProblem, generatorId, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex));
                             }
                         }
-                        addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
+                        addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, lagTimeWithLeadTime, timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
                     }
                     addPowerToInjectionConstraint(
                         linearProblem,
@@ -265,7 +267,11 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
      * C7 - Constraints linking power variations to state transitions
      * <br/>
      */
-    private void addPowerVariationConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
+    private void addPowerVariationConstraints(LinearProblem linearProblem,
+                                              GeneratorConstraints generatorConstraints,
+                                              Optional<Double> lagTimeWithLeadTime,
+                                              OffsetDateTime timestamp,
+                                              OffsetDateTime nextTimestamp) {
         double upwardPowerGradient = generatorConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT);
         double downwardPowerGradient = generatorConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT);
         double pMin = getMinP(generatorConstraints.getGeneratorId(), networks.getData(timestamp).orElseThrow());
@@ -307,8 +313,9 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
         // ON -> OFF
         OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
-            generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
-        if (generatorConstraints.getLagTime().isPresent()) {
+            generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF
+        );
+        if (lagTimeWithLeadTime.isPresent()) {
             // if the generator has a lag time, ON state finishes at Pmin on a timestamp before power decreases
             powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
         } else {
@@ -366,7 +373,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private static double getMinP(String generatorId, Network network) {
-        return getGenerator(generatorId, network).getMinP();
+        return Math.max(ON_THRESHOLD, getGenerator(generatorId, network).getMinP());
     }
 
     private static double getMaxP(String generatorId, Network network) {
@@ -380,6 +387,14 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             throw new OpenRaoException("Network element %s is not a generator.".formatted(generatorId));
         }
         return generator;
+    }
+
+    private Optional<Double> addLeadAndLag(Optional<Double> lead, Optional<Double> lag) {
+        if (lag.isPresent()) {
+            return lead.map(aDouble -> lag.get() + aDouble).or(() -> lag);
+        } else {
+            return lag;
+        }
     }
 
     @Override

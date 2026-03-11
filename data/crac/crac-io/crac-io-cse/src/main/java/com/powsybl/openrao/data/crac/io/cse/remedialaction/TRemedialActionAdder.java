@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteGeneratorHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UctePstHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteTopologicalElementHelper;
@@ -89,12 +90,7 @@ public class TRemedialActionAdder {
                     } catch (OpenRaoException e) {
                         // unsupported remedial action type
                         cseCracCreationContext.addRemedialActionCreationContext(
-                            StandardElementaryCreationContext.notImported(
-                                tRemedialAction.getName().getV(),
-                                null,
-                                ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
-                                e.getMessage()
-                            )
+                            StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, e.getMessage())
                         );
                     }
                 });
@@ -130,8 +126,8 @@ public class TRemedialActionAdder {
                 tRemedialAction.getName().getV(),
                 null,
                 ImportStatus.INCOMPLETE_DATA,
-                "field 'Status' of a topological remedial action cannot be empty")
-            );
+                "field 'Status' of a topological remedial action cannot be empty"
+            ));
             return;
         }
 
@@ -163,8 +159,7 @@ public class TRemedialActionAdder {
             } else {
                 throw new OpenRaoImportException(
                     ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                    "CSE topological action " + createdRAId + " should be on branch or on switch, not on "
-                        + network.getIdentifiable(branchHelper.getIdInNetwork()).getType()
+                    "CSE topological action " + createdRAId + " should be on branch or on switch, not on " + network.getIdentifiable(branchHelper.getIdInNetwork()).getType()
                 );
             }
             actionAdder.withNetworkElement(branchHelper.getIdInNetwork()).add();
@@ -204,7 +199,7 @@ public class TRemedialActionAdder {
                 return;
             }
 
-            GeneratorHelper generatorHelper = new GeneratorHelper(tNode.getName().getV(), ucteNetworkAnalyzer);
+            UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper(tNode.getName().getV(), ucteNetworkAnalyzer);
             if (!generatorHelper.isValid()) {
                 cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(
                     tRemedialAction.getName().getV(),
@@ -224,16 +219,10 @@ public class TRemedialActionAdder {
             try {
                 Identifiable<?> networkElement = network.getIdentifiable(generatorHelper.getGeneratorId());
                 if (Objects.isNull(networkElement)) {
-                    throw new OpenRaoImportException(
-                        ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                        String.format("%s not found in network", generatorHelper.getGeneratorId())
-                    );
+                    throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", generatorHelper.getGeneratorId()));
                 }
                 if (networkElement.getType() != IdentifiableType.GENERATOR) {
-                    throw new OpenRaoImportException(
-                        ImportStatus.INCONSISTENCY_IN_DATA,
-                        "CSE injection action " + createdRAId + " should be on generator, not on " + networkElement.getType()
-                    );
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSE injection action " + createdRAId + " should be on generator, not on " + networkElement.getType());
                 }
                 networkActionAdder.newGeneratorAction()
                     .withNetworkElement(generatorHelper.getGeneratorId())
@@ -264,58 +253,65 @@ public class TRemedialActionAdder {
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {
         String raId = tRemedialAction.getName().getV();
-        tRemedialAction.getPstRange().getBranch().forEach(tBranch -> {
-            importPstRangeActionFromTBranch(tRemedialAction, tBranch, raId);
-        });
-    }
-
-    private void importPstRangeActionFromTBranch(TRemedialAction tRemedialAction, TBranch tBranch, String raId) {
-        UctePstHelper pstHelper = new UctePstHelper(
-            tBranch.getFromNode().getV(),
-            tBranch.getToNode().getV(),
-            String.valueOf(tBranch.getOrder().getV()),
-            raId,
-            ucteNetworkAnalyzer
-        );
-        if (!pstHelper.isValid()) {
-            cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.notImported(
-                tRemedialAction,
-                pstHelper.getUcteId(),
-                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                pstHelper.getInvalidReason())
+        for (TBranch tBranch : tRemedialAction.getPstRange().getBranch()) {
+            UctePstHelper pstHelper = new UctePstHelper(
+                tBranch.getFromNode().getV(),
+                tBranch.getToNode().getV(),
+                String.valueOf(tBranch.getOrder().getV()),
+                raId,
+                ucteNetworkAnalyzer
             );
-            return;
+            if (!pstHelper.isValid()) {
+                cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.notImported(
+                    tRemedialAction,
+                    pstHelper.getUcteId(),
+                    ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                    pstHelper.getInvalidReason()
+                ));
+                continue;
+            }
+            String id = "PST_" + raId + "_" + pstHelper.getIdInNetwork();
+            int pstInitialTap = pstHelper.getInitialTap();
+            Map<Integer, Double> conversionMap = pstHelper.getTapToAngleConversionMap();
+
+            PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+                .withId(id)
+                .withName(tRemedialAction.getName().getV())
+                .withOperator(tRemedialAction.getOperator().getV())
+                .withNetworkElement(pstHelper.getIdInNetwork())
+                .withInitialTap(pstInitialTap)
+                .withTapToAngleConversionMap(conversionMap)
+                .newTapRange()
+                .withMinTap(tRemedialAction.getPstRange().getMin().getV())
+                .withMaxTap(tRemedialAction.getPstRange().getMax().getV())
+                .withRangeType(convertRangeType(tRemedialAction.getPstRange().getVariationType()))
+                .add();
+
+            addUsageRules(pstRangeActionAdder, tRemedialAction);
+            pstRangeActionAdder.add();
+            String nativeNetworkElementId = String.format(
+                "%1$-8s %2$-8s %3$s",
+                pstHelper.getOriginalFrom(),
+                pstHelper.getOriginalTo(),
+                pstHelper.getSuffix()
+            );
+            cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(
+                tRemedialAction,
+                nativeNetworkElementId,
+                id,
+                false,
+                null
+            ));
         }
-        String id = "PST_" + raId + "_" + pstHelper.getIdInNetwork();
-        int pstInitialTap = pstHelper.getInitialTap();
-        Map<Integer, Double> conversionMap = pstHelper.getTapToAngleConversionMap();
-
-        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-            .withId(id)
-            .withName(tRemedialAction.getName().getV())
-            .withOperator(tRemedialAction.getOperator().getV())
-            .withNetworkElement(pstHelper.getIdInNetwork())
-            .withInitialTap(pstInitialTap)
-            .withTapToAngleConversionMap(conversionMap)
-            .newTapRange()
-            .withMinTap(tRemedialAction.getPstRange().getMin().getV())
-            .withMaxTap(tRemedialAction.getPstRange().getMax().getV())
-            .withRangeType(convertRangeType(tRemedialAction.getPstRange().getVariationType()))
-            .add();
-
-        addUsageRules(pstRangeActionAdder, tRemedialAction);
-        pstRangeActionAdder.add();
-        String nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", pstHelper.getOriginalFrom(), pstHelper.getOriginalTo(), pstHelper.getSuffix());
-        cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(tRemedialAction, nativeNetworkElementId, id, false, null));
     }
 
     private void importHvdcRangeAction(TRemedialAction tRemedialAction) {
         String raId = tRemedialAction.getName().getV();
 
         // ----  HVDC Nodes
-        THVDCNode hvdcNodes = tRemedialAction.getHVDCRange().getHVDCNode().get(0);
-        GeneratorHelper generatorFromHelper = new GeneratorHelper(hvdcNodes.getFromNode().getV(), ucteNetworkAnalyzer);
-        GeneratorHelper generatorToHelper = new GeneratorHelper(hvdcNodes.getToNode().getV(), ucteNetworkAnalyzer);
+        THVDCNode hvdcNodes = tRemedialAction.getHVDCRange().getHVDCNode().getFirst();
+        UcteGeneratorHelper generatorFromHelper = new UcteGeneratorHelper(hvdcNodes.getFromNode().getV(), ucteNetworkAnalyzer);
+        UcteGeneratorHelper generatorToHelper = new UcteGeneratorHelper(hvdcNodes.getToNode().getV(), ucteNetworkAnalyzer);
 
         // ---- Only handle ABSOLUTE variation type
         if (!tRemedialAction.getHVDCRange().getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
@@ -394,12 +390,10 @@ public class TRemedialActionAdder {
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
                 .toList();
             if (groups.size() == 1) {
-                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
+                injectionRangeActionAdder.withGroupId(groups.getFirst().toString());
             } else if (groups.size() > 1) {
-                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
-                cseCracCreationContext.getCreationReport().warn(
-                    String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0))
-                );
+                injectionRangeActionAdder.withGroupId(groups.getFirst().toString());
+                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.getFirst()));
             }
         }
 
@@ -414,12 +408,10 @@ public class TRemedialActionAdder {
     }
 
     private static ActionType convertActionType(TStatusType tStatusType) {
-        switch (tStatusType.getV()) {
-            case "CLOSE":
-                return ActionType.CLOSE;
-            case "OPEN":
-            default:
-                return ActionType.OPEN;
+        if (tStatusType.getV().equals("CLOSE")) {
+            return ActionType.CLOSE;
+        } else {
+            return ActionType.OPEN;
         }
     }
 
@@ -432,16 +424,13 @@ public class TRemedialActionAdder {
     }
 
     private Instant getInstant(TApplication tApplication) {
-        switch (tApplication.getV()) {
-            case "PREVENTIVE":
-                return crac.getPreventiveInstant();
-            case "SPS":
-                return crac.getInstant(InstantKind.AUTO);
-            case "CURATIVE":
-                return crac.getInstant(InstantKind.CURATIVE);
-            default:
+        return switch (tApplication.getV()) {
+            case "PREVENTIVE" -> crac.getPreventiveInstant();
+            case "SPS" -> crac.getInstant(InstantKind.AUTO);
+            case "CURATIVE" -> crac.getInstant(InstantKind.CURATIVE);
+            default ->
                 throw new OpenRaoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        }
+        };
     }
 
     void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {
@@ -547,8 +536,7 @@ public class TRemedialActionAdder {
         }
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.imported(
-            tRemedialAction.getName().getV(), null, raId, false, null));
+        cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.imported(tRemedialAction.getName().getV(), null, raId, false, null));
     }
 
     private void assertIsSwitch(String switchId) {

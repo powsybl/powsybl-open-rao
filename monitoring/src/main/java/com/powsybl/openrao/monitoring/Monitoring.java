@@ -33,6 +33,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -48,6 +49,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -190,25 +192,11 @@ public class Monitoring {
             Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()),
             true
         )) {
-            List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
-                networkPool.submit(() -> {
-                    Network networkClone = networkPool.getAvailableNetwork();
-
-                    Contingency contingency = state.getContingency().orElseThrow();
-                    if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
-                        networkPool.releaseUsedNetwork(networkClone);
-                        return null;
-                    }
-                    contingency.toModification().apply(networkClone, (ComputationManager) null);
-                    applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
-                    Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
-                    MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
-                    currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
-                    monitoringResult.combine(currentStateMonitoringResult);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    return null;
-                })).toList();
+            List<ForkJoinTask<Object>> tasks = contingencyStates.stream()
+                .map(state -> networkPool.submit(
+                    () -> optimizeOneContingencyState(monitoringInput, state, networkPool, crac, monitoringResult, physicalParameter, raoResult))
+                )
+                .toList();
 
             for (ForkJoinTask<Object> task : tasks) {
                 try {
@@ -226,6 +214,46 @@ public class Monitoring {
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
         monitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
         return monitoringResult;
+    }
+
+    private @Nullable Object optimizeOneContingencyState(MonitoringInput monitoringInput,
+                                       State state,
+                                       AbstractNetworkPool networkPool,
+                                       Crac crac,
+                                       MonitoringResult monitoringResult,
+                                       PhysicalParameter physicalParameter,
+                                       RaoResult raoResult) throws InterruptedException {
+        Network networkClone = networkPool.getAvailableNetwork();
+        Contingency contingency = state.getContingency().orElseThrow();
+
+        // For a given contingency, cnec state's intant == last curative instant optimized for contingency.
+        Instant lastCurativeInstant = crac.getLastInstant();
+
+        if (state.getInstant().comesBefore(lastCurativeInstant)) {
+            TECHNICAL_LOGS.warn(String.format(
+                "State %s is not valid. Monitoring is only allowed on preventive state or curative states defined on the last curative instant %s.",
+                state.getId(), lastCurativeInstant
+            ));
+            networkPool.releaseUsedNetwork(networkClone);
+            return null;
+        }
+
+        if (!contingency.isValid(networkClone)) {
+            monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(
+                monitoringInput,
+                physicalParameter,
+                state, "Unable to apply contingency " + contingency.getId()));
+            networkPool.releaseUsedNetwork(networkClone);
+            return null;
+        }
+        contingency.toModification().apply(networkClone, (ComputationManager) null);
+        applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
+        Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
+        MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
+        currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+        monitoringResult.combine(currentStateMonitoringResult);
+        networkPool.releaseUsedNetwork(networkClone);
+        return null;
     }
 
     private MonitoringResult monitorCnecs(State state, Set<Cnec> cnecs, Network network, MonitoringInput monitoringInput) {
@@ -508,7 +536,9 @@ public class Monitoring {
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
         CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        monitoringInput.getCrac().getCnecs(state).stream()
+            .filter(cnec -> cnec.getPhysicalParameter() == physicalParameter)
+            .forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
     }
 
