@@ -64,6 +64,7 @@
         <module>data</module>
         <module>distribution</module>
         <module>loopflow-computation</module>
+        <module>pst-regulation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
         <module>util</module>
