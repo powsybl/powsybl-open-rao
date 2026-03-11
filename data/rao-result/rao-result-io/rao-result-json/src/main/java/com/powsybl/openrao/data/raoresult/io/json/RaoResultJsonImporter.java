@@ -7,20 +7,20 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.io.Importer;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.io.json.deserializers.RaoResultDeserializer;
+import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import com.google.auto.service.AutoService;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.io.Importer;
+import com.powsybl.openrao.data.raoresult.io.json.deserializers.RaoResultDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -49,6 +49,7 @@ public class RaoResultJsonImporter implements Importer {
 
     @Override
     public RaoResult importData(InputStream inputStream, Crac crac) {
+        return OpenTelemetryReporter.withSpan("rao.importJsonRaoResult", cx -> {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
@@ -58,5 +59,6 @@ public class RaoResultJsonImporter implements Importer {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        });
     }
 }
