@@ -7,21 +7,25 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -114,39 +118,45 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
-        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, unit);
+        for (FlowCnec cnec : validFlowCnecs) {
+            for (TwoSides side : cnec.getMonitoredSides()) {
+                double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, unit);
 
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
-            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp));
-
-            Optional<Double> minFlow;
-            Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(side, unit);
-            maxFlow = cnec.getUpperBound(side, unit);
-
-            if (minFlow.isPresent()) {
-                OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
-                    prePerimeterMargin + minFlow.get(),
-                    linearProblem.infinity(), cnec, side,
-                    LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(
+                    cnec,
+                    side,
                     Optional.ofNullable(timestamp)
                 );
-                decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
-                decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
-            }
 
-            if (maxFlow.isPresent()) {
-                OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
-                    prePerimeterMargin - maxFlow.get(),
-                    linearProblem.infinity(), cnec, side,
-                    LinearProblem.MarginExtension.ABOVE_THRESHOLD,
-                    Optional.ofNullable(timestamp)
-                );
-                decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
-                decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
+                Optional<Double> minFlow;
+                Optional<Double> maxFlow;
+                minFlow = cnec.getLowerBound(side, unit);
+                maxFlow = cnec.getUpperBound(side, unit);
+
+                if (minFlow.isPresent()) {
+                    OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
+                        prePerimeterMargin + minFlow.get(),
+                        linearProblem.infinity(), cnec, side,
+                        LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
+                    decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
+                    decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
+                }
+
+                if (maxFlow.isPresent()) {
+                    OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
+                        prePerimeterMargin - maxFlow.get(),
+                        linearProblem.infinity(), cnec, side,
+                        LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
+                    decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
+                    decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
+                }
             }
-        }));
+        }
     }
 
     /**
@@ -158,45 +168,71 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      */
     private void updateMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         double bigM = 2 * highestThresholdValue;
-        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp));
-            try {
-                updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp)),
-                    optimizeCnecBinaryVariable,
-                    bigM
+        for (FlowCnec cnec : validFlowCnecs) {
+            for (TwoSides side : cnec.getMonitoredSides()) {
+                OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(
+                    cnec,
+                    side,
+                    Optional.ofNullable(timestamp)
                 );
-            } catch (OpenRaoException ignored) {
-                //exception is ignored
+                try {
+                    updateMinimumMarginConstraint(
+                        linearProblem.getMinimumMarginConstraint(
+                            cnec,
+                            side,
+                            LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                            Optional.ofNullable(timestamp)
+                        ),
+                        optimizeCnecBinaryVariable,
+                        bigM
+                    );
+                } catch (OpenRaoException ignored) {
+                    //exception is ignored
+                }
+                try {
+                    updateMinimumMarginConstraint(
+                        linearProblem.getMinimumMarginConstraint(
+                            cnec,
+                            side,
+                            LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                            Optional.ofNullable(timestamp)
+                        ),
+                        optimizeCnecBinaryVariable,
+                        bigM
+                    );
+                } catch (OpenRaoException ignored) {
+                    //exception is ignored
+                }
+                try {
+                    updateMinimumMarginConstraint(
+                        linearProblem.getMinimumRelativeMarginConstraint(
+                            cnec,
+                            side,
+                            LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                            Optional.ofNullable(timestamp)
+                        ),
+                        optimizeCnecBinaryVariable,
+                        bigM
+                    );
+                } catch (OpenRaoException ignored) {
+                    //exception is ignored
+                }
+                try {
+                    updateMinimumMarginConstraint(
+                        linearProblem.getMinimumRelativeMarginConstraint(
+                            cnec,
+                            side,
+                            LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                            Optional.ofNullable(timestamp)
+                        ),
+                        optimizeCnecBinaryVariable,
+                        bigM
+                    );
+                } catch (OpenRaoException ignored) {
+                    //exception is ignored
+                }
             }
-            try {
-                updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp)),
-                    optimizeCnecBinaryVariable,
-                    bigM
-                );
-            } catch (OpenRaoException ignored) {
-                //exception is ignored
-            }
-            try {
-                updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp)),
-                    optimizeCnecBinaryVariable,
-                    bigM
-                );
-            } catch (OpenRaoException ignored) {
-                //exception is ignored
-            }
-            try {
-                updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp)),
-                    optimizeCnecBinaryVariable,
-                    bigM
-                );
-            } catch (OpenRaoException ignored) {
-                //exception is ignored
-            }
-        }));
+        }
     }
 
     /**

@@ -51,13 +51,19 @@ public class RaoResultWithVoltageMonitoringTest {
 
         // if optimizationInstant == null,  throw an error
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getCnecResult(null, voltageCnec).get());
-        assertEquals("Unexpected optimization instant for voltage monitoring result: initial. Only optimization instant equal to voltage cnec's instant is accepted: preventive", exception.getMessage());
+        assertEquals(
+            "Unexpected optimization instant for voltage monitoring result: initial. Only optimization instant equal to voltage cnec's instant is accepted: preventive",
+            exception.getMessage()
+        );
 
         // if optimizationInstant != cnec's instant, throw an error
         Instant optimizationInstant = Mockito.mock(Instant.class);
         when(optimizationInstant.getId()).thenReturn("curative");
         exception = assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getCnecResult(optimizationInstant, voltageCnec).get());
-        assertEquals("Unexpected optimization instant for voltage monitoring result: curative. Only optimization instant equal to voltage cnec's instant is accepted: preventive", exception.getMessage());
+        assertEquals(
+            "Unexpected optimization instant for voltage monitoring result: curative. Only optimization instant equal to voltage cnec's instant is accepted: preventive",
+            exception.getMessage()
+        );
 
         // If we give a voltage cnec that was not monitored ex. an outage cnec or if monitoring didn't return a result for the cnec for some reason
         // => should return an optional.empty (if optimizationInstant == CNEC instant)

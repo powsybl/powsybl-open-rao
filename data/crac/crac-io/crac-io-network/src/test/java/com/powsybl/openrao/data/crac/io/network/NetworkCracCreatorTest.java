@@ -296,7 +296,10 @@ class NetworkCracCreatorTest {
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(1, creationContext.getCreationReport().getReport().size());
-        assertEquals("[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.", creationContext.getCreationReport().getReport().get(0));
+        assertEquals(
+            "[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.",
+            creationContext.getCreationReport().getReport().get(0)
+        );
         assertTrue(crac.getInjectionRangeActions().isEmpty());
     }
 
@@ -321,7 +324,10 @@ class NetworkCracCreatorTest {
         assertEquals(Optional.of(20.), ra.getVariationCost(VariationDirection.UP));
         assertEquals(Optional.of(30.), ra.getVariationCost(VariationDirection.DOWN));
         assertEquals(1, creationContext.getCreationReport().getReport().size());
-        assertEquals("[ALTERED] Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.", creationContext.getCreationReport().getReport().get(0));
+        assertEquals(
+            "[ALTERED] Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.",
+            creationContext.getCreationReport().getReport().get(0)
+        );
     }
 
     @Test

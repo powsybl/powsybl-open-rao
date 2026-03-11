@@ -61,7 +61,13 @@ public final class Utils {
         return countries.contains(substation.getCountry().orElseThrow());
     }
 
-    public static void addInjectionRangeAction(NetworkCracCreationContext creationContext, Set<Generator> consideredGenerators, String raIdPrefix, Instant instant, MinAndMax<Double> range, boolean relativeRange, InjectionRangeActionCosts costs) {
+    public static void addInjectionRangeAction(NetworkCracCreationContext creationContext,
+                                               Set<Generator> consideredGenerators,
+                                               String raIdPrefix,
+                                               Instant instant,
+                                               MinAndMax<Double> range,
+                                               boolean relativeRange,
+                                               InjectionRangeActionCosts costs) {
         if (consideredGenerators.isEmpty()) {
             return;
         }
@@ -100,7 +106,12 @@ public final class Utils {
         if (consideredGenerators.size() > 1) {
             if (initialTotalP < 1.) {
                 throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.", raIdPrefix, instant));
+                    String.format(
+                        "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
+                        raIdPrefix,
+                        instant
+                    )
+                );
             }
             consideredGenerators.forEach(generator -> {
                 injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId());

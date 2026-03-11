@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_BOUNDARIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

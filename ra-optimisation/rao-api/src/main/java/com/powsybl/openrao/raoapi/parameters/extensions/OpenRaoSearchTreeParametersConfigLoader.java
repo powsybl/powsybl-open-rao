@@ -16,7 +16,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SECOND_PREVENTIVE_RAO_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_COSTLY_MIN_MARGIN_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_LOOP_FLOW_PARAMETERS_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_MNEC_PARAMETERS_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCTION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RANGE_ACTIONS_OPTIMIZATION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RELATIVE_MARGINS_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
@@ -27,7 +38,19 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
     @Override
     public OpenRaoSearchTreeParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        List<String> searchTreeParams = Arrays.asList(ST_OBJECTIVE_FUNCTION_SECTION, ST_RANGE_ACTIONS_OPTIMIZATION_SECTION, ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION, MULTI_THREADING_SECTION, SECOND_PREVENTIVE_RAO_SECTION, LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION, ST_MNEC_PARAMETERS_SECTION, ST_RELATIVE_MARGINS_SECTION, ST_LOOP_FLOW_PARAMETERS_SECTION, ST_COSTLY_MIN_MARGIN_SECTION, ST_PST_REGULATION_SECTION);
+        List<String> searchTreeParams = Arrays.asList(
+            ST_OBJECTIVE_FUNCTION_SECTION,
+            ST_RANGE_ACTIONS_OPTIMIZATION_SECTION,
+            ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION,
+            MULTI_THREADING_SECTION,
+            SECOND_PREVENTIVE_RAO_SECTION,
+            LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION,
+            ST_MNEC_PARAMETERS_SECTION,
+            ST_RELATIVE_MARGINS_SECTION,
+            ST_LOOP_FLOW_PARAMETERS_SECTION,
+            ST_COSTLY_MIN_MARGIN_SECTION,
+            ST_PST_REGULATION_SECTION
+        );
         boolean anySearchTreeParams = searchTreeParams.stream().map(platformConfig::getOptionalModuleConfig).anyMatch(Optional::isPresent);
         if (!anySearchTreeParams) {
             return null;

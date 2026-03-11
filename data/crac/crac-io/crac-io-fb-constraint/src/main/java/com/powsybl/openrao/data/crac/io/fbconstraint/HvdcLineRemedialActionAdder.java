@@ -40,7 +40,10 @@ class HvdcLineRemedialActionAdder {
 
     private boolean isValid;
 
-    HvdcLineRemedialActionAdder(final HvdcLine hvdcLine, final UcteNetworkAnalyzer ucteNetworkAnalyzer, final Map<String, ComplexVariantReader> complexVariantReadersByElementId, final Map<String, String> nodeToStationMap) {
+    HvdcLineRemedialActionAdder(final HvdcLine hvdcLine,
+                                final UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                final Map<String, ComplexVariantReader> complexVariantReadersByElementId,
+                                final Map<String, String> nodeToStationMap) {
         this.nodeToStationMap = nodeToStationMap;
 
         this.fromNodeName = hvdcLine.from();

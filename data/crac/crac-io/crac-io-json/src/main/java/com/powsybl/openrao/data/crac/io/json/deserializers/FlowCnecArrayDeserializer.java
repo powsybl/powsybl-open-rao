@@ -7,22 +7,24 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
-import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
+import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
@@ -33,7 +35,12 @@ public final class FlowCnecArrayDeserializer {
     private FlowCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser,
+                                   DeserializationContext deserializationContext,
+                                   String version,
+                                   Crac crac,
+                                   Map<String, String> networkElementsNamesPerId,
+                                   Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.FLOW_CNECS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -97,7 +104,9 @@ public final class FlowCnecArrayDeserializer {
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
                         if (networkElementId == null) {
-                            throw new OpenRaoException("Cannot deserialize %s before %s for FlowCNECs.".formatted(JsonSerializationConstants.THRESHOLDS, JsonSerializationConstants.NETWORK_ELEMENT_ID));
+                            throw new OpenRaoException(
+                                "Cannot deserialize %s before %s for FlowCNECs.".formatted(JsonSerializationConstants.THRESHOLDS, JsonSerializationConstants.NETWORK_ELEMENT_ID)
+                            );
                         }
                         IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
                         if (!cnecElementHelper.isValid()) {

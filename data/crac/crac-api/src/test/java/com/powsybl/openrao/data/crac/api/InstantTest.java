@@ -26,7 +26,7 @@ class InstantTest {
         private final int order;
         private final InstantKind instantKind;
 
-        public InstantImplTest(int order, InstantKind instantKind) {
+        InstantImplTest(int order, InstantKind instantKind) {
             this.order = order;
             this.instantKind = instantKind;
         }

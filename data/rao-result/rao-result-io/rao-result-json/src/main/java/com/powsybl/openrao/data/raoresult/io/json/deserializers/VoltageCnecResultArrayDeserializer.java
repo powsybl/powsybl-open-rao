@@ -7,20 +7,29 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.KILOVOLT_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MAX_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MIN_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

@@ -7,9 +7,13 @@
 
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.networkextension.AssignedVirtualHubAdder;
-import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
