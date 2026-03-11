@@ -85,9 +85,7 @@ public final class HvdcUtils {
                 } else {
                     // If the network action already exists, just update the usage rules by adding hvdcRangeAction's ones.
                     NetworkAction acEmulationDeactivationAction = acEmulationDeactivationActionOnHvdcLine.iterator().next();
-                    hvdcRangeAction.getUsageRules().stream().forEach(
-                        usageRule -> acEmulationDeactivationAction.addUsageRule(usageRule)
-                    );
+                    hvdcRangeAction.getUsageRules().forEach(acEmulationDeactivationAction::addUsageRule);
                 }
             }
         }
@@ -119,9 +117,7 @@ public final class HvdcUtils {
                 OnFlowConstraintInCountryAdder<NetworkActionAdder> usageRuleAdder = acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
                     .withCountry(onFlowConstraintInCountry.getCountry())
                     .withInstant(onFlowConstraintInCountry.getInstant().getId());
-                if (onFlowConstraintInCountry.getContingency().isPresent()) {
-                    usageRuleAdder.withContingency(onFlowConstraintInCountry.getContingency().get().getId());
-                }
+                onFlowConstraintInCountry.getContingency().ifPresent(contingency -> usageRuleAdder.withContingency(contingency.getId()));
                 usageRuleAdder.add();
             }
         }
@@ -230,10 +226,7 @@ public final class HvdcUtils {
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
 
             if (isValid) {
-                TECHNICAL_LOGS.debug(String.format(
-                    "" +
-                        "HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint
-                ));
+                TECHNICAL_LOGS.debug(String.format("HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint));
 
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
