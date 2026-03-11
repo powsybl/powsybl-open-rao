@@ -75,6 +75,9 @@ public class PostContingencyState implements State {
         }
         State state = (State) o;
         Optional<Contingency> oContingency = state.getContingency();
+        if (oContingency.isEmpty()) {
+            return false;
+        }
         // Check for contingency ID & elements IDs equality, because two same contingencies can have
         // different implementations (e.g. LineContingency & BranchContingency)
         Set<String> oContingencyElementIds = oContingency.get().getElements().stream()
@@ -85,7 +88,7 @@ public class PostContingencyState implements State {
             .collect(Collectors.toSet());
 
         return state.getInstant().equals(instant)
-            && oContingency.isPresent() && oContingency.get().getId().equals(contingency.getId())
+            && oContingency.get().getId().equals(contingency.getId())
             && oContingencyElementIds.equals(contingencyElementIds)
             && state.getTimestamp().equals(Optional.ofNullable(timestamp));
     }

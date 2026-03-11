@@ -26,11 +26,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.crac.impl.OnConstraintImpl;
-import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
-import com.powsybl.openrao.data.crac.impl.OnFlowConstraintInCountryImpl;
-import com.powsybl.openrao.data.crac.impl.OnInstantImpl;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -103,29 +101,28 @@ public final class HvdcUtils {
      */
     static void addAllUsageRules(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
         for (UsageRule usageRule : hvdcRangeAction.getUsageRules()) {
-            if (usageRule.getClass().equals(OnInstantImpl.class)) {
+            if (usageRule instanceof OnInstant) {
                 acEmulationDeactivationActionAdder.newOnInstantUsageRule()
                     .withInstant(usageRule.getInstant().getId())
                     .add();
-            } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
-                OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
+            } else if (usageRule instanceof OnConstraint<?> onConstraint) {
                 acEmulationDeactivationActionAdder.newOnConstraintUsageRule()
                     .withInstant(onConstraint.getInstant().getId())
                     .withCnec(onConstraint.getCnec().getId())
                     .add();
-            } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
-                OnContingencyState onContingencyState = (OnContingencyState) usageRule;
+            } else if (usageRule instanceof OnContingencyState onContingencyState) {
                 acEmulationDeactivationActionAdder.newOnContingencyStateUsageRule()
                     .withContingency(onContingencyState.getContingency().getId())
                     .withInstant(onContingencyState.getInstant().getId())
                     .add();
-            } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
-                OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
-                acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
+            } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+                OnFlowConstraintInCountryAdder<NetworkActionAdder> usageRuleAdder = acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
                     .withCountry(onFlowConstraintInCountry.getCountry())
-                    .withInstant(onFlowConstraintInCountry.getInstant().getId())
-                    .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
-                    .add();
+                    .withInstant(onFlowConstraintInCountry.getInstant().getId());
+                if (onFlowConstraintInCountry.getContingency().isPresent()) {
+                    usageRuleAdder.withContingency(onFlowConstraintInCountry.getContingency().get().getId());
+                }
+                usageRuleAdder.add();
             }
         }
     }
@@ -158,9 +155,7 @@ public final class HvdcUtils {
             );
         }
 
-        activePowerSetpoints.forEach((hvdcRa, activePowerSetpoint) -> {
-            hvdcRa.setInitialSetpoint(activePowerSetpoint);
-        });
+        activePowerSetpoints.forEach(HvdcRangeAction::setInitialSetpoint);
     }
 
     /**
