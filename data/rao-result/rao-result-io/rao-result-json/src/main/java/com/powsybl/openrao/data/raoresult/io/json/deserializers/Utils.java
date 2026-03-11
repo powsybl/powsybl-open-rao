@@ -23,7 +23,7 @@ public final class Utils {
     }
 
     static void checkDeprecatedField(JsonParser jsonParser, String parentName, String jsonFileVersion, String lastSupportedVersion) throws IOException {
-        checkDeprecatedField(jsonParser.getCurrentName(), parentName, jsonFileVersion, lastSupportedVersion);
+        checkDeprecatedField(jsonParser.currentName(), parentName, jsonFileVersion, lastSupportedVersion);
     }
 
     static void checkDeprecatedField(String fieldName, String parentName, String jsonFileVersion, String lastSupportedVersion) {

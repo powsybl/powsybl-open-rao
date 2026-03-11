@@ -33,12 +33,12 @@ final class JsonMultiThreadingParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(AVAILABLE_CPUS)) {
+            if (jsonParser.currentName().equals(AVAILABLE_CPUS)) {
                 jsonParser.nextToken();
                 int availableCpus = jsonParser.getIntValue();
                 searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(availableCpus);
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize multi-threading parameters: unexpected field in %s (%s)", MULTI_THREADING, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize multi-threading parameters: unexpected field in %s (%s)", MULTI_THREADING, jsonParser.currentName()));
             }
         }
     }

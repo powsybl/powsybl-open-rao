@@ -51,7 +51,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
     @Override
     public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
                     JsonObjectiveFunctionParameters.deserialize(parser, parameters);
@@ -97,7 +97,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                     JsonSearchTreeRaoPstRegulationParameters.deserialize(parser, parameters);
                 }
                 default ->
-                    throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.currentName());
             }
         }
         return parameters;
