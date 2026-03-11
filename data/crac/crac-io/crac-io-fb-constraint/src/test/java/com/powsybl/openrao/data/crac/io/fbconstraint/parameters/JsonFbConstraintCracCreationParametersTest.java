@@ -156,7 +156,7 @@ class JsonFbConstraintCracCreationParametersTest {
 
     @Test
     void importNokTest() throws IOException {
-        try (final InputStream inputStream = getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_nok.json")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_nok.json")) {
             assertThrows(DateTimeParseException.class, () -> JsonCracCreationParameters.read(inputStream));
         }
     }

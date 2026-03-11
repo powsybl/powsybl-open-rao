@@ -142,7 +142,11 @@ public final class JsonCracCreationParametersConstants {
                     raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.currentName()));
+                    throw new OpenRaoException(String.format(
+                        "Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)",
+                        RA_USAGE_LIMITS_PER_INSTANT,
+                        jsonParser.currentName()
+                    ));
             }
         }
         return Pair.of(instant, raUsageLimits);

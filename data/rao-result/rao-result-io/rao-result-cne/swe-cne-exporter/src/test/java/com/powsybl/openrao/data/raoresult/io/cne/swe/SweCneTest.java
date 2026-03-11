@@ -32,7 +32,13 @@ import org.xmlunit.diff.DefaultComparisonFormatter;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;

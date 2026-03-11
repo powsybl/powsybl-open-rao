@@ -21,7 +21,17 @@ import java.util.Map;
  */
 public class CriticalBranchCreationContext extends StandardCriticalBranchCreationContext {
     CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {
-        super(criticalBranchReader.getCriticalBranch().getId(), criticalBranchReader.getNativeBranch(), criticalBranchReader.isBaseCase(), null, new HashMap<>(), criticalBranchReader.isInvertedInNetwork(), criticalBranchReader.getImportStatus(), criticalBranchReader.getImportStatusDetail());
+        super(
+            criticalBranchReader.getCriticalBranch().getId(),
+            criticalBranchReader.getNativeBranch(),
+            criticalBranchReader.isBaseCase(),
+            null,
+            new HashMap<>(),
+            criticalBranchReader.isInvertedInNetwork(),
+            criticalBranchReader.getImportStatus(),
+            criticalBranchReader.getImportStatusDetail()
+        );
+
         if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
             this.createdCnecIds.put(crac.getPreventiveInstant().getId(), criticalBranchReader.getBaseCaseCnecId());
         } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
@@ -33,7 +43,14 @@ public class CriticalBranchCreationContext extends StandardCriticalBranchCreatio
         }
     }
 
-    private CriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, Map<String, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
+    private CriticalBranchCreationContext(String criticalBranchId,
+                                          NativeBranch nativeBranch,
+                                          boolean isBaseCase,
+                                          String contingencyId,
+                                          Map<String, String> createdCnecIds,
+                                          boolean isDirectionInverted,
+                                          ImportStatus importStatus,
+                                          String importStatusDetail) {
         super(criticalBranchId, nativeBranch, isBaseCase, contingencyId, createdCnecIds, isDirectionInverted, importStatus, importStatusDetail);
     }
 

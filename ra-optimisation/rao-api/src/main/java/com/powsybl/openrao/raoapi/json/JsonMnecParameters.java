@@ -16,7 +16,8 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_MARGIN_DECREASE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

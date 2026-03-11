@@ -7,14 +7,17 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -47,7 +50,11 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.currentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize range action optimization parameters: unexpected field in %s (%s)",
+                    RANGE_ACTIONS_OPTIMIZATION,
+                    jsonParser.currentName()
+                ));
             }
         }
     }

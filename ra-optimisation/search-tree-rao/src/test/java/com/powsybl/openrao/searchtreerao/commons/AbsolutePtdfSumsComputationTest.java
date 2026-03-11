@@ -7,21 +7,22 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.time.Instant;
@@ -45,30 +46,31 @@ class AbsolutePtdfSumsComputationTest {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(SensitivityVariableSet.class), Mockito.any(FlowCnec.class), Mockito.any(TwoSides.class)))
-            .thenAnswer(
-                (Answer<Double>) invocation -> {
-                    SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
-                    FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
-                    if (branchCnec.getId().contains("cnec1")) {
-                        return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                            case "10YFR-RTE------C", "22Y201903144---9" -> 0.1;
-                            case "10YBE----------2" -> 0.2;
-                            case "10YCB-GERMANY--8" -> 0.3;
-                            case "22Y201903145---4" -> 0.4;
-                            default -> 0.;
-                        };
-                    } else if (branchCnec.getId().contains("cnec2")) {
-                        return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                            case "10YFR-RTE------C", "10YBE----------2" -> 0.3;
-                            case "10YCB-GERMANY--8" -> 0.2;
-                            case "22Y201903145---4" -> 0.1;
-                            case "22Y201903144---9" -> 0.9;
-                            default -> 0.;
-                        };
-                    } else {
-                        return 0.;
-                    }
-                });
+            .thenAnswer((Answer<Double>) AbsolutePtdfSumsComputationTest::mockSensitivityDependingOnCnecAndGlsk);
+    }
+
+    private static double mockSensitivityDependingOnCnecAndGlsk(InvocationOnMock invocation) {
+        SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
+        FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
+        if (branchCnec.getId().contains("cnec1")) {
+            return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                case "10YFR-RTE------C", "22Y201903144---9" -> 0.1;
+                case "10YBE----------2" -> 0.2;
+                case "10YCB-GERMANY--8" -> 0.3;
+                case "22Y201903145---4" -> 0.4;
+                default -> 0.;
+            };
+        } else if (branchCnec.getId().contains("cnec2")) {
+            return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                case "10YFR-RTE------C", "10YBE----------2" -> 0.3;
+                case "10YCB-GERMANY--8" -> 0.2;
+                case "22Y201903145---4" -> 0.1;
+                case "22Y201903144---9" -> 0.9;
+                default -> 0.;
+            };
+        } else {
+            return 0.;
+        }
     }
 
     @Test
@@ -90,8 +92,10 @@ class AbsolutePtdfSumsComputationTest {
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // test results
-        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
-        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
+        // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
+        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE);
+        // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
+        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -115,7 +119,9 @@ class AbsolutePtdfSumsComputationTest {
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
-        assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
-        assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
+        // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
+        assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE);
+        // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
+        assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE);
     }
 }

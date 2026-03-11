@@ -7,13 +7,20 @@
 
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.action.*;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -24,10 +31,6 @@ import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
@@ -38,7 +41,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
@@ -51,10 +57,19 @@ import io.cucumber.java.en.When;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Marjorie Cosson {@literal <marjorie.cosson at rte-france.com>}
@@ -466,8 +481,10 @@ public class CracImportSteps {
             InjectionRangeAction rangeAction = crac.getInjectionRangeAction(id);
             assertNotNull(rangeAction);
             assertEquals(expectedRA.get("RangeActionName"), rangeAction.getName());
-            String minRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().isPresent() ? String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().getAsDouble()) : "null";
-            String maxRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().isPresent() ? String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().getAsDouble()) : "null";
+            String minRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().isPresent() ?
+                String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().getAsDouble()) : "null";
+            String maxRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().isPresent() ?
+                String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().getAsDouble()) : "null";
             assertEquals(expectedRA.get("MaxRange"), maxRange);
             assertEquals(expectedRA.get("MinRange"), minRange);
             String groupId = rangeAction.getGroupId().isPresent() ? rangeAction.getGroupId().get() : "null";
@@ -733,7 +750,7 @@ public class CracImportSteps {
     @Then("groupId for range action {string} should be {string}")
     public void rangeActionGroupIdShouldBe(String rangeActionId, String expectedGroupId) {
         assertNotNull(crac.getRangeAction(rangeActionId));
-        if (expectedGroupId.equals("null")) {
+        if ("null".equals(expectedGroupId)) {
             assertTrue(crac.getRangeAction(rangeActionId).getGroupId().isEmpty());
         } else {
             assertTrue(crac.getRangeAction(rangeActionId).getGroupId().isPresent());

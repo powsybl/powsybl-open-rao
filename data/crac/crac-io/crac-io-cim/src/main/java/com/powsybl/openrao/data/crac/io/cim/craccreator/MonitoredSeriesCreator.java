@@ -7,31 +7,48 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.io.cim.xsd.Analog;
 import com.powsybl.openrao.data.crac.io.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.crac.io.cim.xsd.Series;
 import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.*;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.AMPERES_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_AUTO_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_CURATIVE_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_DIRECT_DIRECTION_FLOW;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_MNEC_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_N_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_OPPOSITE_DIRECTION_FLOW;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_OUTAGE_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_PATL_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_SERIES_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.MEGAWATT_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE;
 import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracUtils.getContingencyFromCrac;
 
 /**
@@ -102,11 +119,25 @@ public class MonitoredSeriesCreator {
         String nativeName = monitoredSeries.getName();
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
-            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(
+                nativeId,
+                nativeName,
+                null,
+                null,
+                ImportStatus.INCOMPLETE_DATA,
+                "No registered resources"
+            ));
             return;
         }
         if (monitoredRegisteredResources.size() > 1) {
-            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(
+                nativeId,
+                nativeName,
+                null,
+                null,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                "More than one registered resources"
+            ));
             return;
         }
 
@@ -118,8 +149,14 @@ public class MonitoredSeriesCreator {
         //Get network element
         CgmesBranchHelper branchHelper = new CgmesBranchHelper(monitoredRegisteredResource.getMRID().getValue(), network);
         if (!branchHelper.isValid()) {
-            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
-                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(
+                nativeId,
+                nativeName,
+                resourceId,
+                resourceName,
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())
+            ));
             return;
         }
 
@@ -128,20 +165,25 @@ public class MonitoredSeriesCreator {
         try {
             isMnec = isMnec(optimizationStatus);
         } catch (OpenRaoException e) {
-            saveMonitoredSeriesCreationContexts(nativeId,
-                MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
-                    ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
-            );
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(
+                nativeId,
+                nativeName,
+                resourceId,
+                resourceName,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                e.getMessage()
+            ));
             return;
         }
 
         MonitoredSeriesCreationContext monitoredSeriesCreationContext;
         if (invalidContingencies.isEmpty()) {
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName, false, "");
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(
+                nativeId, nativeName, resourceId, resourceName, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName,
-                true, String.format("Contingencies %s were not imported", contingencyList));
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(
+                nativeId, nativeName, resourceId, resourceName, true, String.format("Contingencies %s were not imported", contingencyList));
         }
 
         // Read measurements
@@ -224,7 +266,11 @@ public class MonitoredSeriesCreator {
         throw new OpenRaoException(String.format("Unrecognized positiveFlowIn: %s", measurement.getPositiveFlowIn()));
     }
 
-    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecNativeId, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies) {
+    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement,
+                                                                 String cnecNativeId,
+                                                                 boolean isMnec,
+                                                                 CgmesBranchHelper branchHelper,
+                                                                 List<Contingency> contingencies) {
         Instant instant;
         Unit unit;
         String direction;
@@ -233,7 +279,8 @@ public class MonitoredSeriesCreator {
             instant = crac.getInstant(getMeasurementInstant(measurement));
             unit = getMeasurementUnit(measurement);
             direction = getMeasurementDirection(measurement);
-            threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // Open RAO uses relative convention for %Imax (0 <= threshold <= 1)
+            // Open RAO uses relative convention for %Imax (0 <= threshold <= 1)
+            threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue();
         } catch (OpenRaoException e) {
             return MeasurementCreationContext.notImported(ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
         }
@@ -256,10 +303,12 @@ public class MonitoredSeriesCreator {
 
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
-                measurementCreationContext.addCnecCreationContext(null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()));
+                measurementCreationContext.addCnecCreationContext(
+                    null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage())
+                );
             } else {
-                contingencies.forEach(contingency ->
-                    measurementCreationContext.addCnecCreationContext(contingency.getId(), instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()))
+                contingencies.forEach(contingency -> measurementCreationContext.addCnecCreationContext(
+                    contingency.getId(), instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()))
                 );
             }
             return measurementCreationContext;
@@ -287,7 +336,12 @@ public class MonitoredSeriesCreator {
         return measurementCreationContext;
     }
 
-    private void addCnecsOnState(FlowCnecAdder flowCnecAdder, String cnecIdWithContingency, Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext, String networkElementId) {
+    private void addCnecsOnState(FlowCnecAdder flowCnecAdder,
+                                 String cnecIdWithContingency,
+                                 Contingency contingency,
+                                 Instant instant,
+                                 MeasurementCreationContext measurementCreationContext,
+                                 String networkElementId) {
         String contingencyId = Objects.isNull(contingency) ? "" : contingency.getId();
         String fullCnecId = cnecIdWithContingency + " - " + instant.getId();
 
@@ -299,9 +353,13 @@ public class MonitoredSeriesCreator {
             // (we know network element and state are the same, we assume that thresholds are the same.
             // This is true if the TSO is consistent in the definition of its CNECs; and two different TSOs can only
             // share tielines, but those are distinguished by the TWO/ONE label)
-            cracCreationContext.getCreationReport().warn(
-                String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", networkElementId, contingencyId, Objects.isNull(contingency) ? "" : " - ", instant)
-            );
+            cracCreationContext.getCreationReport().warn(String.format(
+                "Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.",
+                networkElementId,
+                contingencyId,
+                Objects.isNull(contingency) ? "" : " - ",
+                instant
+            ));
         }
         measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(fullCnecId));
     }
@@ -322,7 +380,10 @@ public class MonitoredSeriesCreator {
             // If unit is %Imax, check that Imax exists
             monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side)).collect(Collectors.toSet());
             if (monitoredSides.isEmpty()) {
-                throw new OpenRaoException(String.format("Cannot create any PERCENT_IMAX threshold on branch %s, as it holds no current limit at the wanted side", branchHelper.getIdInNetwork()));
+                throw new OpenRaoException(String.format(
+                    "Cannot create any PERCENT_IMAX threshold on branch %s, as it holds no current limit at the wanted side",
+                    branchHelper.getIdInNetwork()
+                ));
             }
         }
 

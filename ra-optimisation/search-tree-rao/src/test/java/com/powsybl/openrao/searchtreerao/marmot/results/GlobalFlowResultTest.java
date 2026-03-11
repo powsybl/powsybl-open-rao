@@ -55,7 +55,11 @@ class GlobalFlowResultTest {
 
     @Test
     void testFlow() {
-        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, flowResultTimestamp1, TestsUtils.TIMESTAMP_2, flowResultTimestamp2, TestsUtils.TIMESTAMP_3, flowResultTimestamp3)));
+        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, flowResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, flowResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, flowResultTimestamp3
+        )));
         assertEquals(100., globalFlowResult.getFlow(flowCnecTimestamp1, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(200., globalFlowResult.getFlow(flowCnecTimestamp2, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(300., globalFlowResult.getFlow(flowCnecTimestamp3, TwoSides.ONE, Unit.MEGAWATT));
@@ -63,7 +67,11 @@ class GlobalFlowResultTest {
 
     @Test
     void testMargin() {
-        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, flowResultTimestamp1, TestsUtils.TIMESTAMP_2, flowResultTimestamp2, TestsUtils.TIMESTAMP_3, flowResultTimestamp3)));
+        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, flowResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, flowResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, flowResultTimestamp3
+        )));
         assertEquals(10., globalFlowResult.getMargin(flowCnecTimestamp1, Unit.MEGAWATT));
         assertEquals(20., globalFlowResult.getMargin(flowCnecTimestamp2, Unit.MEGAWATT));
         assertEquals(30., globalFlowResult.getMargin(flowCnecTimestamp3, Unit.MEGAWATT));
@@ -71,7 +79,11 @@ class GlobalFlowResultTest {
 
     @Test
     void testComputationStatusWithFailure() {
-        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, flowResultTimestamp1, TestsUtils.TIMESTAMP_2, flowResultTimestamp2, TestsUtils.TIMESTAMP_3, flowResultTimestamp3)));
+        FlowResult globalFlowResult = new GlobalFlowResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, flowResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, flowResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, flowResultTimestamp3
+        )));
         assertEquals(ComputationStatus.FAILURE, globalFlowResult.getComputationStatus());
     }
 

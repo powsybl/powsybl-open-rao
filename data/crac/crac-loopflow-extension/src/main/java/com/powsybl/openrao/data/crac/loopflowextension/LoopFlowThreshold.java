@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.loopflowextension;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.commons.extensions.Extension;
 
 /**
  * A loopFlowThreshold limits the loop-flow on a given FlowCnec

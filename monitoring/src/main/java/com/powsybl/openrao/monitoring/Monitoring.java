@@ -7,13 +7,24 @@
 
 package com.powsybl.openrao.monitoring;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -33,16 +44,32 @@ import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
-import com.powsybl.openrao.monitoring.results.*;
+import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -76,7 +103,10 @@ public class Monitoring {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
+                                                       LoadFlowParameters loadFlowParameters,
+                                                       int numberOfLoadFlowsInParallel,
+                                                       MonitoringInput monitoringInput) throws OpenRaoException {
         final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
     }
@@ -85,7 +115,11 @@ public class Monitoring {
      * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
-    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
+                                                       LoadFlowParameters loadFlowParameters,
+                                                       ComputationManager computationManager,
+                                                       int numberOfLoadFlowsInParallel,
+                                                       MonitoringInput monitoringInput) throws OpenRaoException {
         final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
     }
@@ -94,7 +128,10 @@ public class Monitoring {
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
-    public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
+    public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
+                                                         LoadFlowParameters loadFlowParameters,
+                                                         int numberOfLoadFlowsInParallel,
+                                                         MonitoringInput monitoringInput) {
         final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
     }
@@ -103,8 +140,16 @@ public class Monitoring {
      * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
-    public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
-        final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+    public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
+                                                         LoadFlowParameters loadFlowParameters,
+                                                         ComputationManager computationManager,
+                                                         int numberOfLoadFlowsInParallel,
+                                                         MonitoringInput monitoringInput) {
+        final MonitoringResult voltageMonitoringResult = new Monitoring(
+            loadFlowProvider,
+            loadFlowParameters,
+            computationManager
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
     }
 
@@ -141,35 +186,17 @@ public class Monitoring {
             return monitoringResult;
         }
 
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
-            List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
-                networkPool.submit(() -> {
-                    Network networkClone = networkPool.getAvailableNetwork();
-                    Contingency contingency = state.getContingency().orElseThrow();
-
-                    // For a given contingency, cnec state's intant == last curative instant optimized for contingency.
-                    Instant lastCurativeInstant = crac.getLastInstant();
-
-                    if (state.getInstant().comesBefore(lastCurativeInstant)) {
-                        TECHNICAL_LOGS.warn(String.format("State %s is not valid. Monitoring is only allowed on preventive state or curative states defined on the last curative instant %s.", state.getId(), lastCurativeInstant));
-                        networkPool.releaseUsedNetwork(networkClone);
-                        return null;
-                    }
-
-                    if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
-                        networkPool.releaseUsedNetwork(networkClone);
-                        return null;
-                    }
-                    contingency.toModification().apply(networkClone, (ComputationManager) null);
-                    applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
-                    Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
-                    MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
-                    currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
-                    monitoringResult.combine(currentStateMonitoringResult);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    return null;
-                })).toList();
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(
+            inputNetwork,
+            inputNetwork.getVariantManager().getWorkingVariantId(),
+            Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()),
+            true
+        )) {
+            List<ForkJoinTask<Object>> tasks = contingencyStates.stream()
+                .map(state -> networkPool.submit(
+                    () -> optimizeOneContingencyState(monitoringInput, state, networkPool, crac, monitoringResult, physicalParameter, raoResult))
+                )
+                .toList();
 
             for (ForkJoinTask<Object> task : tasks) {
                 try {
@@ -179,7 +206,7 @@ public class Monitoring {
                 }
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
-        } catch (Exception e) {
+        } catch (InterruptedException | OpenRaoException e) {
             Thread.currentThread().interrupt();
             monitoringResult.setStatusToFailure();
         }
@@ -187,6 +214,46 @@ public class Monitoring {
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
         monitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
         return monitoringResult;
+    }
+
+    private @Nullable Object optimizeOneContingencyState(MonitoringInput monitoringInput,
+                                       State state,
+                                       AbstractNetworkPool networkPool,
+                                       Crac crac,
+                                       MonitoringResult monitoringResult,
+                                       PhysicalParameter physicalParameter,
+                                       RaoResult raoResult) throws InterruptedException {
+        Network networkClone = networkPool.getAvailableNetwork();
+        Contingency contingency = state.getContingency().orElseThrow();
+
+        // For a given contingency, cnec state's intant == last curative instant optimized for contingency.
+        Instant lastCurativeInstant = crac.getLastInstant();
+
+        if (state.getInstant().comesBefore(lastCurativeInstant)) {
+            TECHNICAL_LOGS.warn(String.format(
+                "State %s is not valid. Monitoring is only allowed on preventive state or curative states defined on the last curative instant %s.",
+                state.getId(), lastCurativeInstant
+            ));
+            networkPool.releaseUsedNetwork(networkClone);
+            return null;
+        }
+
+        if (!contingency.isValid(networkClone)) {
+            monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(
+                monitoringInput,
+                physicalParameter,
+                state, "Unable to apply contingency " + contingency.getId()));
+            networkPool.releaseUsedNetwork(networkClone);
+            return null;
+        }
+        contingency.toModification().apply(networkClone, (ComputationManager) null);
+        applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
+        Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
+        MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
+        currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+        monitoringResult.combine(currentStateMonitoringResult);
+        networkPool.releaseUsedNetwork(networkClone);
+        return null;
     }
 
     private MonitoringResult monitorCnecs(State state, Set<Cnec> cnecs, Network network, MonitoringInput monitoringInput) {
@@ -350,7 +417,15 @@ public class Monitoring {
             for (NetworkAction na : availableNetworkActions) {
                 EnumMap<Country, Double> tempPowerToBeRedispatched = new EnumMap<>(powerToBeRedispatched);
                 for (Action ea : na.getElementaryActions()) {
-                    networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.getScalableZonalData());
+                    networkActionOk = checkElementaryActionAndStoreInjection(
+                        ea,
+                        network,
+                        cnecId,
+                        na.getId(),
+                        networkElementsToBeExcluded,
+                        tempPowerToBeRedispatched,
+                        monitoringInput.getScalableZonalData()
+                    );
                     if (!networkActionOk) {
                         break;
                     }
@@ -364,7 +439,11 @@ public class Monitoring {
             appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
                 .withNetworkElementsToBeExcluded(networkElementsToBeExcluded).withPowerToBeRedispatched(powerToBeRedispatched).build();
         }
-        BUSINESS_LOGS.info("Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.crac.api.Identifiable::getId).collect(Collectors.joining(", ")));
+        BUSINESS_LOGS.info(
+            "Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}",
+            cnecId,
+            appliedNetworkActions.stream().map(com.powsybl.openrao.data.crac.api.Identifiable::getId).collect(Collectors.joining(", "))
+        );
         return appliedNetworkActionsResult;
     }
 
@@ -374,7 +453,13 @@ public class Monitoring {
      * 2) Stores applied injections on network
      * Returns false if network action must be filtered.
      */
-    private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
+    private boolean checkElementaryActionAndStoreInjection(Action ea,
+                                                           Network network,
+                                                           String angleCnecId,
+                                                           String naId,
+                                                           Set<String> networkElementsToBeExcluded,
+                                                           Map<Country, Double> powerToBeRedispatched,
+                                                           ZonalData<Scalable> scalableZonalData) {
         if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
             BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
             return false;
@@ -441,14 +526,19 @@ public class Monitoring {
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
         if (!glskCountries.contains(country)) {
-            throw new OpenRaoException(String.format("INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.", country.getName(), naId, angleCnecId));
+            throw new OpenRaoException(String.format(
+                "INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.",
+                country.getName(), naId, angleCnecId
+            ));
         }
     }
 
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
         CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        monitoringInput.getCrac().getCnecs(state).stream().filter(cnec -> cnec.getPhysicalParameter() == physicalParameter).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        monitoringInput.getCrac().getCnecs(state).stream()
+            .filter(cnec -> cnec.getPhysicalParameter() == physicalParameter)
+            .forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
     }
 

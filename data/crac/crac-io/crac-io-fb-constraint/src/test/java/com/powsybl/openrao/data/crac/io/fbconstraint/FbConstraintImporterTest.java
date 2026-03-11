@@ -215,7 +215,10 @@ class FbConstraintImporterTest {
     @Test
     void testImportHvdcDisconnectedFromMainComponent() {
         // Given
-        final Network networkHvdcDisconnectedFromMainComponent = Network.read("network_mini2_hvdc_disconnected_from_main_connected_component.uct", getClass().getResourceAsStream("/hvdc/network_with_hvdc_disconnected_from_main_connected_component.uct"));
+        final Network networkHvdcDisconnectedFromMainComponent = Network.read(
+            "network_mini2_hvdc_disconnected_from_main_connected_component.uct",
+            getClass().getResourceAsStream("/hvdc/network_with_hvdc_disconnected_from_main_connected_component.uct")
+        );
 
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(

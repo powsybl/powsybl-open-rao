@@ -55,7 +55,10 @@ class CostEvaluatorUtilsTest {
 
     @Test
     void testGroupFlowCnecsPerState() {
-        assertEquals(Map.of(state1, Set.of(flowCnec1, flowCnec2), state2, Set.of(flowCnec3, flowCnec4), state3, Set.of(flowCnec5)), groupFlowCnecsPerState(Set.of(flowCnec1, flowCnec2, flowCnec3, flowCnec4, flowCnec5)));
+        assertEquals(
+            Map.of(state1, Set.of(flowCnec1, flowCnec2), state2, Set.of(flowCnec3, flowCnec4), state3, Set.of(flowCnec5)),
+            groupFlowCnecsPerState(Set.of(flowCnec1, flowCnec2, flowCnec3, flowCnec4, flowCnec5))
+        );
     }
 
     @Test

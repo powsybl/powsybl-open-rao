@@ -7,19 +7,25 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MAX_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MIN_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeUnit;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -33,7 +39,8 @@ final class VoltageCnecResultArraySerializer {
 
         // We serialize only voltage cnecs defined on preventive or last instant
         List<VoltageCnec> sortedListOfVoltageCnecs = crac.getVoltageCnecs().stream()
-            .filter(voltageCnec -> voltageCnec.getState().getInstant() == crac.getPreventiveInstant() || voltageCnec.getState().getInstant() == crac.getLastInstant() && voltageCnec.getState().getInstant().isCurative())
+            .filter(voltageCnec -> voltageCnec.getState().getInstant() == crac.getPreventiveInstant()
+                || voltageCnec.getState().getInstant() == crac.getLastInstant() && voltageCnec.getState().getInstant().isCurative())
             .sorted(Comparator.comparing(VoltageCnec::getId))
             .toList();
 
@@ -62,7 +69,11 @@ final class VoltageCnecResultArraySerializer {
         }
     }
 
-    private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant,
+                                                                              Unit unit,
+                                                                              VoltageCnec voltageCnec,
+                                                                              RaoResult raoResult,
+                                                                              JsonGenerator jsonGenerator) throws IOException {
 
         double minVoltage = raoResult.getMinVoltage(optInstant, voltageCnec, unit);
         double maxVoltage = raoResult.getMaxVoltage(optInstant, voltageCnec, unit);
