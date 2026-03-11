@@ -65,7 +65,7 @@ final class RangeActionResultArrayDeserializer {
 
             RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction);
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
 
                     case DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID:
                         checkDeprecatedField(DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, "1.1");
@@ -116,7 +116,7 @@ final class RangeActionResultArrayDeserializer {
                         }
 
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.currentName()));
                 }
             }
         }
@@ -128,7 +128,7 @@ final class RangeActionResultArrayDeserializer {
         Double setpoint = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
 
                     case INSTANT:
                         String stringValue = jsonParser.nextTextValue();
@@ -163,7 +163,7 @@ final class RangeActionResultArrayDeserializer {
                         }
 
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.currentName()));
                 }
             }
 

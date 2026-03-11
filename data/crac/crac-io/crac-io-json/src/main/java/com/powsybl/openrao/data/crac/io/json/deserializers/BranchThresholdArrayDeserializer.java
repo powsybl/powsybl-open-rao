@@ -35,7 +35,7 @@ public final class BranchThresholdArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.UNIT:
                         Unit unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         branchThresholdAdder.withUnit(unit);

@@ -38,7 +38,7 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
 
         List<Extension<CracCreationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case JsonCracCreationParametersConstants.CRAC_FACTORY:
                     parameters.setCracFactoryName(parser.nextTextValue());
                     break;
@@ -58,7 +58,7 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
                     }
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + parser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + parser.currentName());
             }
         }
 

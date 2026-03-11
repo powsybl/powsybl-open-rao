@@ -38,7 +38,7 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case LOAD_FLOW_PROVIDER -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider(jsonParser.getValueAsString());
@@ -55,7 +55,7 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)", LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)", LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, jsonParser.currentName()));
             }
         }
     }
