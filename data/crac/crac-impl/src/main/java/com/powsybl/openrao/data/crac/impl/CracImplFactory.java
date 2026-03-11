@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.google.auto.service.AutoService;
 
 import java.time.OffsetDateTime;
 

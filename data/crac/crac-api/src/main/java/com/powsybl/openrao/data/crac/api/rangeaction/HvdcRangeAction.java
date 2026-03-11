@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 /**
  * A range action interface specifying an action on a HVDC

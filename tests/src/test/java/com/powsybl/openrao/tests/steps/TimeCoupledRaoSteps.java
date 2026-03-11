@@ -14,7 +14,11 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -25,13 +29,15 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.util.IcsImporter;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
-import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.TimeCoupledRao;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -46,24 +52,47 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.MDC;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.tests.steps.CommonTestData.*;
-import static com.powsybl.openrao.tests.utils.Helpers.*;
+import static com.powsybl.openrao.tests.steps.CommonTestData.buildConfig;
+import static com.powsybl.openrao.tests.steps.CommonTestData.cracPath;
+import static com.powsybl.openrao.tests.steps.CommonTestData.getRaoParameters;
+import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
+import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
+import static com.powsybl.openrao.tests.steps.CommonTestData.raoParametersPath;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
+import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
+import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -229,7 +258,14 @@ public final class TimeCoupledRaoSteps {
             TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
             fbConstraintParameters = new FbConstraintCracCreationParameters();
         }
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)), gskInputStream, fbConstraintParameters.getIcsCostUp(), fbConstraintParameters.getIcsCostDown());
+        IcsImporter.populateInputWithICS(
+            timeCoupledRaoInputWithNetworkPaths,
+            new FileInputStream(getFile(icsStaticPath)),
+            new FileInputStream(getFile(icsSeriesPath)),
+            gskInputStream,
+            fbConstraintParameters.getIcsCostUp(),
+            fbConstraintParameters.getIcsCostDown()
+        );
     }
 
     @When("I launch marmot")
@@ -268,11 +304,14 @@ public final class TimeCoupledRaoSteps {
                 // Load redispatching volumes
                 Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac();
                 Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
-                Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
+                Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream()
+                    .filter(InjectionRangeAction.class::isInstance)
+                    .map(InjectionRangeAction.class::cast)
+                    .collect(Collectors.toSet());
                 redispatchingRangeActions.forEach(rangeAction -> {
                     double redispatchedVolumeForRa = raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction) - rangeAction.getInitialSetpoint();
                     for (String subString : rangeAction.getId().toUpperCase().split("_")) {
-                        if (subString.equals("RA")) {
+                        if ("RA".equals(subString)) {
                             continue;
                         } else if (DE_TSOS.contains(subString)) {
                             rdVolumes.get(offsetDateTime).put("DE", rdVolumes.get(offsetDateTime).getOrDefault("DE", 0.) + redispatchedVolumeForRa);
@@ -365,20 +404,21 @@ public final class TimeCoupledRaoSteps {
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
         try {
             for (OffsetDateTime offsetDateTime : timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun()) {
+                State preventiveState = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getPreventiveState();
 
                 String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
                 FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
-                Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-                Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(preventiveState);
+                Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(preventiveState);
                 Network modifiedNetwork = Network.read(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
                 Network initialNetwork = Network.read(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
 
                 // Apply PRAs on modified network
                 preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
                 preventiveRangeActions.forEach(rangeAction -> {
-                    double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                    double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction);
                     if (rangeAction instanceof InjectionRangeAction) {
                         applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
                     } else {
@@ -417,15 +457,16 @@ public final class TimeCoupledRaoSteps {
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 
         for (OffsetDateTime offsetDateTime : timeCoupledRaoResult.getTimestamps()) {
-            Set<NetworkAction> preventiveNetworkActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Set<RangeAction<?>> preventiveRangeActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+            State preventiveState = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getPreventiveState();
+            Set<NetworkAction> preventiveNetworkActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(preventiveState);
+            Set<RangeAction<?>> preventiveRangeActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(preventiveState);
             Network modifiedNetwork = Network.read(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
             Network initialNetwork = Network.read(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
 
             // Apply PRAs on modified network
             preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
             preventiveRangeActions.forEach(rangeAction -> {
-                double optimizedSetpoint = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                double optimizedSetpoint = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(preventiveState, rangeAction);
                 if (rangeAction instanceof InjectionRangeAction) {
                     applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
                 } else {
@@ -535,7 +576,12 @@ public final class TimeCoupledRaoSteps {
     public static void exportF711(String businessDate) {
         Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
         timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, timeCoupledRaoResult.getIndividualRaoResult(timestamp)));
-        F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("raoresults/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
+        F711Utils.write(
+            new TemporalDataImpl<>(raoResults),
+            new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast),
+            cracPath,
+            getResourcesPath().concat("raoresults/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate)
+        );
     }
 
     @When("I export F711 for business date {string} based on raoResults zip {string}") // expected format yyyyMMdd
@@ -551,7 +597,12 @@ public final class TimeCoupledRaoSteps {
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
                 raoResults.put(timestamp, raoResult);
             }
-            F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("generatedF711/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
+            F711Utils.write(
+                new TemporalDataImpl<>(raoResults),
+                new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast),
+                cracPath,
+                getResourcesPath().concat("generatedF711/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate)
+            );
         } finally {
             deleteDirectoryRecursively(tempDir);
         }
@@ -618,7 +669,11 @@ public final class TimeCoupledRaoSteps {
             .findFirst();
         assertTrue(injectionRangeAction.isPresent());
         NetworkElement networkElement = injectionRangeAction.get().getNetworkElements().stream().filter(ne -> ne.getId().equals(networkElementId)).findFirst().orElseThrow();
-        assertEquals(expectedPower, timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement), TOLERANCE_REDISPATCHING_VALUE);
+        assertEquals(
+            expectedPower,
+            timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement),
+            TOLERANCE_REDISPATCHING_VALUE
+        );
     }
 
     private static boolean isRemedialActionUsed(String rangeActionId, String timestamp, String contingencyId, String instant) {

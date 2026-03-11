@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.iidm.network.Country;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class ZoneToZonePtdfDefinition {
-    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.";
+    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... " +
+        "where Code_i are 16-characters EI codes or 2-characters country codes.";
 
     private final List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs;
     private String zoneToZonePtdfAsString;

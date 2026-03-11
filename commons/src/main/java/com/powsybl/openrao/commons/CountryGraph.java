@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.commons;
 
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.HashSet;
 import java.util.Optional;

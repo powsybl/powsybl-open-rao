@@ -103,7 +103,9 @@ public final class InjectionSetpointArrayDeserializer {
                     shuntCompensatorPositionActionAdder.add();
                     break;
                 default:
-                    throw new OpenRaoException("InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, and here it is " + identifiable.getType());
+                    throw new OpenRaoException(
+                        "InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, but here it is " + identifiable.getType()
+                    );
             }
         }
     }

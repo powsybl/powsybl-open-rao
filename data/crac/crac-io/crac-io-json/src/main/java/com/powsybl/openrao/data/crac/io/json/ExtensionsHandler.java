@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
-import java.util.function.Supplier;
-
 import com.google.common.base.Suppliers;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.openrao.data.crac.api.Identifiable;
+
+import java.util.function.Supplier;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

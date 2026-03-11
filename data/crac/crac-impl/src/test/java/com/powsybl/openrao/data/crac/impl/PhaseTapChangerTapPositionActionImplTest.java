@@ -10,10 +10,10 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
@@ -169,8 +171,10 @@ class PhaseTapChangerTapPositionActionImplTest {
             .add();
         assertEquals(2, dummy4.getElementaryActions().size());
 
-        PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction = new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId("T1").withTapPosition(-9).withRelativeValue(false).build();
-        PhaseTapChangerTapPositionAction samePhaseTapChangerTapPositionAction = new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId("T1").withTapPosition(-9).withRelativeValue(false).build();
+        PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction = new PhaseTapChangerTapPositionActionBuilder()
+            .withId("id").withNetworkElementId("T1").withTapPosition(-9).withRelativeValue(false).build();
+        PhaseTapChangerTapPositionAction samePhaseTapChangerTapPositionAction = new PhaseTapChangerTapPositionActionBuilder()
+            .withId("id").withNetworkElementId("T1").withTapPosition(-9).withRelativeValue(false).build();
         assertEquals(phaseTapChangerTapPositionAction, samePhaseTapChangerTapPositionAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
             new HashSet<>(List.of(phaseTapChangerTapPositionAction, samePhaseTapChangerTapPositionAction)), 0, null, Set.of());

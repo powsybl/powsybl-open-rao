@@ -7,14 +7,15 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.AVAILABLE_CPUS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

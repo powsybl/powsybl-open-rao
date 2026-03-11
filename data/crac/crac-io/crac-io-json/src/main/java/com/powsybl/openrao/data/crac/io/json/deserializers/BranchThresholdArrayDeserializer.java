@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
@@ -30,6 +30,7 @@ public final class BranchThresholdArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, CnecElementHelper cnecElementHelper, String version) throws IOException {
+        //TODO: Refactor this method
         boolean iMaxFetched = false;
         Pair<Double, Double> nominalV = readAndAddNominalV(cnecElementHelper, ownerAdder);
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -62,11 +63,19 @@ public final class BranchThresholdArrayDeserializer {
                         break;
                     case JsonSerializationConstants.SIDE:
                         JsonToken side = jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 3) {
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 3) {
                             if (side == JsonToken.VALUE_NUMBER_INT) {
                                 branchThresholdAdder.withSide(JsonSerializationConstants.deserializeSide(jsonParser.getIntValue()));
-                            } else if (Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.LEFT_SIDE) || Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.RIGHT_SIDE)) {
-                                throw new OpenRaoException(String.format("Side should be %d/%d and not %s/%s since CRAC version 2.4", JsonSerializationConstants.SIDE_ONE, JsonSerializationConstants.SIDE_TWO, JsonSerializationConstants.LEFT_SIDE, JsonSerializationConstants.RIGHT_SIDE));
+                            } else if (Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.LEFT_SIDE)
+                                || Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.RIGHT_SIDE)) {
+                                throw new OpenRaoException(String.format(
+                                    "Side should be %d/%d and not %s/%s since CRAC version 2.4",
+                                    JsonSerializationConstants.SIDE_ONE,
+                                    JsonSerializationConstants.SIDE_TWO,
+                                    JsonSerializationConstants.LEFT_SIDE,
+                                    JsonSerializationConstants.RIGHT_SIDE
+                                ));
                             } else {
                                 throw new OpenRaoException(String.format("Unrecognized side %s", jsonParser.getValueAsString()));
                             }

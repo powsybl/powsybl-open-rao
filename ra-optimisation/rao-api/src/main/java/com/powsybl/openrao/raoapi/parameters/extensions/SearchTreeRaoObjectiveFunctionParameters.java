@@ -11,7 +11,8 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_MIN_OBJ_IMPROVEMENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCTION_SECTION;
 
 /**
  * Objective function parameters for RAO
@@ -36,7 +37,11 @@ public class SearchTreeRaoObjectiveFunctionParameters {
 
     public void setCurativeMinObjImprovement(double curativeRaoMinObjImprovement) {
         if (curativeRaoMinObjImprovement < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+            BUSINESS_WARNS.warn(
+                "The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}",
+                curativeRaoMinObjImprovement,
+                -curativeRaoMinObjImprovement
+            );
         }
         this.curativeMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }

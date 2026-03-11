@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
