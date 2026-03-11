@@ -58,7 +58,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     @Override
     public NcCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, NcCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case CAPACITY_CALCULATION_REGION_EIC_CODE:
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
@@ -84,7 +84,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                     parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
 
@@ -195,7 +195,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
             String name = null;
             Integer applicationTime = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                if (NAME.equals(jsonParser.getCurrentName())) {
+                if (NAME.equals(jsonParser.currentName())) {
                     name = jsonParser.nextTextValue();
                 } else if (APPLICATION_TIME.equals(jsonParser.getCurrentName())) {
                     applicationTime = jsonParser.nextIntValue(0);

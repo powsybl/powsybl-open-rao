@@ -27,7 +27,7 @@ public final class TapRangeArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             TapRangeAdder adder = ownerAdder.newTapRange();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.MIN:
                         adder.withMinTap(jsonParser.nextIntValue(Integer.MIN_VALUE));
                         break;

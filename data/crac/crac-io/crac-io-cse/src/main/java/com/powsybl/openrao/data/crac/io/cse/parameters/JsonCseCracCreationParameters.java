@@ -53,7 +53,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     @Override
     public CseCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CseCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case RANGE_ACTION_GROUPS:
                     jsonParser.nextToken();
                     parameters.setRangeActionGroupsAsString(jsonParser.readValueAs(ArrayList.class));

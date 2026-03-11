@@ -54,7 +54,7 @@ final class JsonRangeActionsOptimizationParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case MAX_MIP_ITERATIONS -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setMaxMipIterations(jsonParser.getIntValue());

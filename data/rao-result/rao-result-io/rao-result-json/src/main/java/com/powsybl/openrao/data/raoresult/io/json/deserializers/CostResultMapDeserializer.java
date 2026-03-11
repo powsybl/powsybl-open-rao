@@ -30,7 +30,7 @@ final class CostResultMapDeserializer {
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion, crac);
+            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             deserializeCostResult(jsonParser, raoResult, optimizedInstantId);
         }
@@ -41,7 +41,7 @@ final class CostResultMapDeserializer {
         CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(optInstantId);
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
 
                 case FUNCTIONAL_COST:
                     jsonParser.nextToken();
@@ -54,7 +54,7 @@ final class CostResultMapDeserializer {
                     break;
 
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", COST_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", COST_RESULTS, jsonParser.currentName()));
             }
         }
     }
@@ -62,7 +62,7 @@ final class CostResultMapDeserializer {
     private static void deserializeVirtualCosts(JsonParser jsonParser, CostResult costResult) throws IOException {
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            String costName = jsonParser.getCurrentName();
+            String costName = jsonParser.currentName();
             jsonParser.nextToken();
             double costValue = jsonParser.getDoubleValue();
             costResult.setVirtualCost(costName, costValue);

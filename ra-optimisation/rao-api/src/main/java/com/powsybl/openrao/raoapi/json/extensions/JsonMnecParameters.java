@@ -41,7 +41,7 @@ public final class JsonMnecParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoMnecParameters mnecParameters = new SearchTreeRaoMnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case VIOLATION_COST -> {
                     jsonParser.nextToken();
                     mnecParameters.setViolationCost(jsonParser.getDoubleValue());
@@ -50,7 +50,7 @@ public final class JsonMnecParameters {
                     jsonParser.nextToken();
                     mnecParameters.setConstraintAdjustmentCoefficient(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.currentName()));
             }
         }
         searchTreeParameters.setMnecParameters(mnecParameters);

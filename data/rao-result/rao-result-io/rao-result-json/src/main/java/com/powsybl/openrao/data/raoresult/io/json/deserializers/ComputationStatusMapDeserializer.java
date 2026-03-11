@@ -41,7 +41,7 @@ final class ComputationStatusMapDeserializer {
             String instantId = null;
             String contingencyId = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case RaoResultJsonConstants.INSTANT:
                         String stringValue = jsonParser.nextTextValue();
                         instantId = stringValue;
@@ -53,7 +53,7 @@ final class ComputationStatusMapDeserializer {
                         throw new OpenRaoException(String.format(
                             "Cannot deserialize RaoResult: unexpected field in %s (%s)",
                             RaoResultJsonConstants.COMPUTATION_STATUS_MAP,
-                            jsonParser.getCurrentName()
+                            jsonParser.currentName()
                         ));
                 }
             }
