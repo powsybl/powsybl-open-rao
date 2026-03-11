@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -25,13 +25,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class NetworkActionResultArrayDeserializerTest {
-
-    private static JsonParser parserFrom(String json) throws IOException {
-        JsonParser p = new JsonFactory().createParser(json);
-        p.nextToken();
-        return p;
-    }
-
     @Test
     void deserializeWithEmptyStatesCallsGetAndCreate() {
         String json = "[{\"networkActionId\":\"na1\",\"activatedStates\":[]}]";

@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
-    <description>A toolbox based on the powsybl framework dedicated to power systems coordinated capacity calculation and security analysis projects</description>
+    <description>A toolbox based on the PowSyBl framework dedicated to power systems coordinated capacity calculation and security analysis projects</description>
     <url>https://powsybl.readthedocs.io/projects/openrao</url>
 
     <licenses>

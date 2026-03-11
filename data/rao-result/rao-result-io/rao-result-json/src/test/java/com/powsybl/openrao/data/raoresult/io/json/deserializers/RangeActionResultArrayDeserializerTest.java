@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -20,6 +19,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,14 +27,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RangeActionResultArrayDeserializerTest {
-
-    private static JsonParser parserFrom(String json) throws IOException {
-        JsonParser p = new JsonFactory().createParser(json);
-        // Position the parser on the first token (START_ARRAY for our payloads)
-        p.nextToken();
-        return p;
-    }
-
     @Test
     void deserializeSuccessWithInitialSetpointOnly() throws Exception {
         // Version 1.7 accepts initialSetpoint for all range actions

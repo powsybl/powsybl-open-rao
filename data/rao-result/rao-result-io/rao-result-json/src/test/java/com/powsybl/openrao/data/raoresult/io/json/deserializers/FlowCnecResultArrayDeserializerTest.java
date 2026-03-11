@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -21,6 +20,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -28,13 +28,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class FlowCnecResultArrayDeserializerTest {
-
-    private static JsonParser parserFrom(String json) throws IOException {
-        JsonParser p = new JsonFactory().createParser(json);
-        p.nextToken();
-        return p;
-    }
-
     @Test
     void deserializeSuccessWithSideOneAndSideTwo() throws Exception {
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"margin\":100.0,\"side1\":{\"flow\":500.0,\"commercialFlow\":50.0},\"side2\":{\"flow\":490.0}}}}]";

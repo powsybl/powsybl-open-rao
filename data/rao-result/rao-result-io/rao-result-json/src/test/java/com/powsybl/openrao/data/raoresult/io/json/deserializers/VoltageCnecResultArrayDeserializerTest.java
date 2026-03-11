@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -20,6 +19,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,12 +27,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class VoltageCnecResultArrayDeserializerTest {
-
-    private static JsonParser parserFrom(String json) throws IOException {
-        JsonParser p = new JsonFactory().createParser(json);
-        p.nextToken();
-        return p;
-    }
 
     @Test
     void deserializeSuccessWithMinMaxVoltage() throws Exception {
