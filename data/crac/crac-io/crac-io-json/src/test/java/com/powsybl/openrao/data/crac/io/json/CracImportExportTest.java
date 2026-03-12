@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.implicitJsonRoundTrip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -487,41 +488,41 @@ class CracImportExportTest {
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
         Action pstAction = crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next();
-        assertTrue(pstAction instanceof PhaseTapChangerTapPositionAction);
+        assertInstanceOf(PhaseTapChangerTapPositionAction.class, pstAction);
         assertEquals("pst", ((PhaseTapChangerTapPositionAction) pstAction).getTransformerId());
 
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
         Action ra1Action = crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next();
-        assertTrue(ra1Action instanceof GeneratorAction);
+        assertInstanceOf(GeneratorAction.class, ra1Action);
         assertEquals("injection", ((GeneratorAction) ra1Action).getGeneratorId());
 
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
-        List<Action> raComplexActions = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().stream().toList();
-        assertTrue(raComplexActions.get(0) instanceof PhaseTapChangerTapPositionAction);
+        List<Action> raComplexActions = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().stream().sorted(Comparator.comparing(Action::getId)).toList();
+        assertInstanceOf(PhaseTapChangerTapPositionAction.class, raComplexActions.get(0));
         assertEquals("pst", ((PhaseTapChangerTapPositionAction) raComplexActions.get(0)).getTransformerId());
-        assertTrue(raComplexActions.get(1) instanceof TerminalsConnectionAction);
+        assertInstanceOf(TerminalsConnectionAction.class, raComplexActions.get(1));
         assertEquals("ne1Id", ((TerminalsConnectionAction) raComplexActions.get(1)).getElementId());
 
         assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
-        List<Action> raComplex2Actions = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().stream().toList();
-        assertTrue(raComplex2Actions.get(0) instanceof BoundaryLineAction);
+        List<Action> raComplex2Actions = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().stream().sorted(Comparator.comparing(Action::getId)).toList();
+        assertInstanceOf(BoundaryLineAction.class, raComplex2Actions.get(0));
         assertEquals("BL1", ((BoundaryLineAction) raComplex2Actions.get(0)).getBoundaryLineId());
-        assertTrue(raComplex2Actions.get(1) instanceof LoadAction);
+        assertInstanceOf(LoadAction.class, raComplex2Actions.get(1));
         assertEquals("LD1", ((LoadAction) raComplex2Actions.get(1)).getLoadId());
-        assertTrue(raComplex2Actions.get(2) instanceof SwitchAction);
-        assertEquals("BR1", ((SwitchAction) raComplex2Actions.get(2)).getSwitchId());
-        assertTrue(raComplex2Actions.get(3) instanceof ShuntCompensatorPositionAction);
-        assertEquals("SC1", ((ShuntCompensatorPositionAction) raComplex2Actions.get(3)).getShuntCompensatorId());
+        assertInstanceOf(ShuntCompensatorPositionAction.class, raComplex2Actions.get(2));
+        assertEquals("SC1", ((ShuntCompensatorPositionAction) raComplex2Actions.get(2)).getShuntCompensatorId());
+        assertInstanceOf(SwitchAction.class, raComplex2Actions.get(3));
+        assertEquals("BR1", ((SwitchAction) raComplex2Actions.get(3)).getSwitchId());
 
         assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().size());
         Action hvdcAction = crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().iterator().next();
-        assertTrue(hvdcAction instanceof HvdcAction);
+        assertInstanceOf(HvdcAction.class, hvdcAction);
         assertEquals("hvdc", ((HvdcAction) hvdcAction).getHvdcId());
         assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId").getUsageRules().size());
 
         assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId2").getElementaryActions().size());
         Action hvdcAction2 = crac.getNetworkAction("acEmulationDeactivationId2").getElementaryActions().iterator().next();
-        assertTrue(hvdcAction2 instanceof HvdcAction);
+        assertInstanceOf(HvdcAction.class, hvdcAction2);
         assertEquals("hvdc2", ((HvdcAction) hvdcAction2).getHvdcId());
         assertEquals(3, crac.getNetworkAction("acEmulationDeactivationId2").getUsageRules().size());
 
