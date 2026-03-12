@@ -381,8 +381,8 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Reason>
-                    <code>B40</code>
-                    <text>Load flow divergence</text>
+                    <code>B18</code>
+                    <text>Rao failure</text>
                 </Reason>
             </Point>
         </Period>
