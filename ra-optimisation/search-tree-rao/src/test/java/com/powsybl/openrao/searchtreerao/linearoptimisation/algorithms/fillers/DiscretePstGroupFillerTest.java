@@ -80,6 +80,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
+            false,
             false);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
