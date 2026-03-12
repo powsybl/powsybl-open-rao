@@ -31,7 +31,7 @@ public final class JsonSchemaProvider {
 
     private static final String SCHEMAS_DIRECTORY = "/schemas/crac/";
     private static final String SCHEMAS_NAME_PATTERN = "crac-v%s.%s.json";
-    private static final String MINIMUM_VIABLE_CRAC_SCHEMA = "minimum-viable-crac.json";
+
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
@@ -50,8 +50,10 @@ public final class JsonSchemaProvider {
     }
 
     public static boolean isCracFile(InputStream cracInputStream) throws IOException {
-        var schema = getSchema(getSchemaAsStream(MINIMUM_VIABLE_CRAC_SCHEMA));
-        return getValidationErrors(schema, cracInputStream).isEmpty();
+        var start = System.currentTimeMillis();
+        var isCrac = MinimalCracParser.parseMinimalCracFile(cracInputStream);
+        LOGGER.debug("IsCrac={}. Time={}", isCrac, System.currentTimeMillis() - start);
+        return isCrac;
     }
 
     public static JsonSchema getSchema(Version version) throws IOException {

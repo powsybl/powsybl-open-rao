@@ -62,6 +62,8 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
@@ -69,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -624,4 +627,39 @@ class CracImportExportTest extends TestBase {
         assertEquals(1, logsList.size());
         assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
     }
+
+    @Test
+    void testCustomCracs() throws IOException {
+        Path dir = Path.of("src/test/huge_crac/");
+        if (Files.isDirectory(dir)) {
+
+            var network = Network.read(dir.resolve("network.xiidm"));
+
+            Files.list(dir)
+                .filter(p -> p.toString().endsWith(".json"))
+                .forEach(f -> {
+
+                    //given
+                    // Note: also try adjusting  buffer size !
+                    var cracJson = SafeFileReader.create(f, BufferSize.LARGE);
+
+                    //when
+                    var isCrac = new JsonImport().exists(cracJson);
+                    //then
+                    Assertions.assertTrue(isCrac);
+
+                    // and when
+                    var context = new JsonImport().importData(cracJson, new CracCreationParameters(),
+                        network);
+                    //then
+                    assertTrue(context.isCreationSuccessful());
+                    assertNull(context.getTimeStamp());
+                    assertEquals("68a86c65dbd9ab18c51adba8", context.getNetworkName());
+
+                });
+
+
+        }
+    }
+
 }

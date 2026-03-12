@@ -41,6 +41,11 @@ public class SafeFileReader {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Source=" + file.getFileName();
+    }
+
     public static SafeFileReader create(File f, BufferSize bufferSize) throws OpenRaoException {
         return create(f.toPath(), bufferSize);
     }
@@ -66,6 +71,8 @@ public class SafeFileReader {
     public <T> T withReadStream(ThrowingFunctions.Runner<InputStream, T> runn)
         throws RunException {
 
+        LOGGER.debug("Starting read operation. {}", this);
+
         InputStream is = null;
         CountingInputStream cis = null;
         try {
@@ -86,8 +93,8 @@ public class SafeFileReader {
                 throw new RunException(e);
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Read done. Read={}. Time={}",
-                    IOUtils.humanReadableBytes(cis.getCount()), System.currentTimeMillis() - start);
+                LOGGER.debug("Read done. Read={}. Time={}. {}",
+                    IOUtils.humanReadableBytes(cis.getCount()), System.currentTimeMillis() - start, this);
             }
             return ret;
 
@@ -102,6 +109,8 @@ public class SafeFileReader {
 
     public void withWriteStream(ThrowingFunctions.VoidRunner<OutputStream> runn)
         throws RunException {
+
+        LOGGER.debug("Starting write operation. {}", this);
 
         OutputStream os = null;
         CountingOutputStream cos = null;
@@ -122,8 +131,8 @@ public class SafeFileReader {
                 throw new RunException(e);
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Write done. Written={}. Time={}",
-                    IOUtils.humanReadableBytes(cos.getCount()), System.currentTimeMillis() - start);
+                LOGGER.debug("Write done. Written={}. Time={}. {}",
+                    IOUtils.humanReadableBytes(cos.getCount()), System.currentTimeMillis() - start, this);
             }
 
         } finally {

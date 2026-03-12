@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -35,7 +37,9 @@ import java.util.regex.Pattern;
 @AutoService(Importer.class)
 public class JsonImport implements Importer {
 
-    private final static Pattern JSON_VERSION_PATTERN = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
+
+    private static final Pattern JSON_VERSION_PATTERN = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
 
     @Override
     public String getFormat() {
@@ -49,12 +53,13 @@ public class JsonImport implements Importer {
         }
         try {
 
-            // // TODO THOMAS: necessary? disable for large files?
-            if (!inputFile.withReadStream(JsonSchemaProvider::isCracFile)) {
+            if (Boolean.FALSE.equals(inputFile.withReadStream(JsonSchemaProvider::isCracFile))) {
                 return false;
             }
 
             var cracVersion  = inputFile.withReadStream(this::readVersion);
+            LOGGER.debug("Got Crac version: {}", cracVersion);
+
             var jsonSchema = JsonSchemaProvider.getSchema(cracVersion);
 
             var validationError = inputFile.withReadStream(is -> JsonSchemaProvider.getValidationErrors(jsonSchema, is));
@@ -73,9 +78,12 @@ public class JsonImport implements Importer {
     @Override
     public CracCreationContext importData(SafeFileReader inputFile,
         CracCreationParameters cracCreationParameters, Network network) {
+
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
+
+        LOGGER.debug("Starting import");
 
         var objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -98,6 +106,8 @@ public class JsonImport implements Importer {
 
     private Version readVersion(InputStream is) {
         final int maxLines = 10;
+
+        LOGGER.debug("Searching for version. maxLines={}", maxLines);
 
         try (var isr = new InputStreamReader(is, StandardCharsets.UTF_8); var br = new BufferedReader(isr)) {
             String line;

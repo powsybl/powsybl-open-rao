@@ -1,4 +1,8 @@
 
+data/crac/crac-io/crac-io-json/src/test/huge_crac/*
+!data/crac/crac-io/crac-io-json/src/test/huge_crac/*.txt
+
+
 tests/src/test/resources/files/raoresults/*.zip
 
 # ignore Intellij files
