@@ -14,9 +14,9 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - move the PST to -15 in curative2
   - and then -16 in curative 3 to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3"
   Moving the PST to -15 in curative2 and then -16 in curative3 is considered as using two RAs at two different instants.
-  Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
+  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
   Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_1.json"
-  Given configuration file is "epic91/RaoParameters_case_15_2_secure_2PRAO.json"
+  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
       # Preventive
@@ -42,9 +42,9 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   However the situation is more complex than for 91.12.5, since we want to check that the limitations are also respected in second preventive where all the curative range actions are optimized at once.
   The MIP in 2P should be able to move the PST one time to -16 directly in curative2 to secure both the "Contingency DE2 DE3 1 - curative2" and "Contingency DE2 DE3 1 - curative3".
   The final situation is the same as 15.2.2.
-  Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
-  Given crac file is "epic91/crac_91_12_24_with_ra_limitations.json"
-  Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
+  Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_2_with_ra_limitations.json"
+  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
   Then 1 remedial actions are used in preventive
@@ -65,9 +65,9 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 16)
   We add a max-tso limit: 1 in curative1 and 1 in curative 2 => only one of the PST can be used
   The best solution is to use PST_BE in curative 1 (using PST_FR in curative 2 => cost = 66)
-  Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
-  Given crac file is "epic91/crac_91_12_26_max_tso.json"
-  Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+  Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_3_max_tso.json"
+  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
   Then 1 remedial actions are used in preventive
@@ -87,9 +87,9 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
   and for FR: 1 in curative1 and 1 curative2
   => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
-  Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
-  Given crac file is "epic91/crac_91_12_27_max_ra_per_tso.json"
-  Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+  Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_4_max_ra_per_tso.json"
+  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
   And the initial tap of PstRangeAction "CRA_PST_FR" should be 0
@@ -108,16 +108,16 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   Same case as 15.2.4, but both PST are from TSO "FR" and slightly different threshold.
   Solution without any limit:
   - network action(s) activated : PRA_CLOSE_NL2_BE3_3
-  - range action(s): CRA_PST_FR_1@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative1: 1 (var: 1), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative2: 11 (var: 10)
+  - range action(s): CRA_PST_FR_1@Contingency DE2 DE3 1 - curative1: -14 (var: -14), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative1: 16 (var: 16), CRA_PST_FR_1@Contingency DE2 DE3 1 - curative2: -16 (var: -2)
   - worst margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
   Now we set a max number of elementary actions per TSO for "FR": curative1 = 17 and curative2 = 30.
   We expect the 2P MIP to:
   - use the full curative1 budget by moving 17 taps in total to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" as much as possible;
-  -  move another 10 taps so that "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"'s margin goes slightly below the curative1 cnec's margin.
+  - move another 10 taps so that "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"'s margin goes slightly below the curative1 cnec's margin.
   We don't reach the curative2 limit because no need to move more in curative2 since the limiting cnec's is in curative1.
-  Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
-  Given crac file is "epic91/crac_91_12_28_max_elementary_actions_per_tso.json"
-  Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+  Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_5_max_elementary_actions_per_tso.json"
+  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
   And the initial tap of PstRangeAction "CRA_PST_FR_1" should be 0
@@ -131,9 +131,3 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative2"
   And the tap of PstRangeAction "CRA_PST_FR_2" should be 11 after "Contingency DE2 DE3 1" at "curative2"
   And the value of the objective function after CRA should be 9.17
-
-    #TODO: add a step that check margin after curative1...
-    #And the margin on cnec "NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative1" after CRA should be -9.17 MW
-    #And the margin on cnec "NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2" after CRA should be -7.36 MW
-
-
