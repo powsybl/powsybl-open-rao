@@ -7,19 +7,24 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -46,7 +51,7 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getContingencies(network),
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters);
-        } catch (Exception e) {
+        } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
@@ -92,7 +97,7 @@ final class SystematicSensitivityAdapter {
                 contingenciesWithoutRa,
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters), outageInstant.getOrder());
-        } catch (Exception e) {
+        } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
@@ -130,7 +135,7 @@ final class SystematicSensitivityAdapter {
                     contingencyList,
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters), state.getInstant().getOrder());
-            } catch (Exception e) {
+            } catch (PowsyblException | OpenRaoException | CompletionException e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
                 SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
                     cnecSensitivityProvider.getContingencyFactors(network, contingencyList),

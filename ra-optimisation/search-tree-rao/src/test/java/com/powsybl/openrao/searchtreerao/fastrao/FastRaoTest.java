@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.fastrao;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -31,7 +32,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -132,9 +135,8 @@ class FastRaoTest {
     @Test
     void testErrorInitData() throws ExecutionException, InterruptedException {
         RaoInput raoInput = Mockito.mock(RaoInput.class);
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
+        when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         // Run RAO
         RaoResult raoResult = new FastRao().run(raoInput, raoParameters).get();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);

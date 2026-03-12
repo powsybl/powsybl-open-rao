@@ -35,7 +35,9 @@ public class RangeActionGroup {
     public static List<String> parse(String concatenatedIds) {
         String[] seperatedIds = concatenatedIds.split(Pattern.quote(SEPARATOR));
         if (seperatedIds.length < 2) {
-            throw new OpenRaoException(String.format("ParallelRangeActions configuration %s cannot be interpreted, it should contains at least two ids seperated with '%s'", concatenatedIds, SEPARATOR));
+            throw new OpenRaoException(
+                String.format("ParallelRangeActions configuration %s cannot be interpreted, it should contains at least two ids seperated with '%s'", concatenatedIds, SEPARATOR)
+            );
         } else {
             return Arrays.asList(seperatedIds);
         }

@@ -7,19 +7,19 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +31,16 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private final VoltageLimit nativeVoltageLimit;
 
-    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+    public VoltageCnecCreator(Crac crac,
+                              Network network,
+                              AssessedElement nativeAssessedElement,
+                              VoltageLimit nativeVoltageLimit,
+                              Set<Contingency> linkedContingencies,
+                              Set<ElementaryCreationContext> ncCnecCreationContexts,
+                              String rejectedLinksAssessedElementContingency,
+                              CracCreationParameters cracCreationParameters,
+                              Map<String, String> borderPerTso,
+                              Map<String, String> borderPerEic) {
         super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
         this.nativeVoltageLimit = nativeVoltageLimit;
     }
@@ -64,13 +73,19 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     private void addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(nativeVoltageLimit.equipment());
         if (networkElement == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + nativeVoltageLimit.equipment() + " is missing in network"));
+            throw new OpenRaoImportException(
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + nativeVoltageLimit.equipment() + " is missing in network")
+            );
         }
 
         voltageCnecAdder.withNetworkElement(getVoltageLevel(networkElement).getId());
 
         if (!nativeVoltageLimit.isInfiniteDuration()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled"));
+            throw new OpenRaoImportException(
+                ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled")
+            );
         }
 
         addVoltageLimitThreshold(voltageCnecAdder);
@@ -86,7 +101,10 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                 .withUnit(Unit.KILOVOLT)
                 .withMin(nativeVoltageLimit.value()).add();
         } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("a voltage limit can only be of kind highVoltage or lowVoltage"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                writeAssessedElementIgnoredReasonMessage("a voltage limit can only be of kind highVoltage or lowVoltage")
+            );
         }
     }
 }

@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.Optional;

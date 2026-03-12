@@ -11,7 +11,7 @@ package com.powsybl.openrao.virtualhubs.xml;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigProcessingException extends RuntimeException {
-    public VirtualHubsConfigProcessingException(Throwable cause) {
+    VirtualHubsConfigProcessingException(Throwable cause) {
         super(cause);
     }
 }

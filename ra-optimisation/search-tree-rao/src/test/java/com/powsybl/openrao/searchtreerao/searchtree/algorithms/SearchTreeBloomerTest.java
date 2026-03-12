@@ -73,7 +73,13 @@ class SearchTreeBloomerTest {
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
-        SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
+        SearchTreeBloomer bloomer = initBloomer(
+            List.of(
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na1, na2), true)
+            ), Map.of(P_STATE.getInstant(), new RaUsageLimits())
+        );
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));

@@ -7,14 +7,15 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.AVAILABLE_CPUS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -33,12 +34,12 @@ final class JsonMultiThreadingParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(AVAILABLE_CPUS)) {
+            if (jsonParser.currentName().equals(AVAILABLE_CPUS)) {
                 jsonParser.nextToken();
                 int availableCpus = jsonParser.getIntValue();
                 searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(availableCpus);
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize multi-threading parameters: unexpected field in %s (%s)", MULTI_THREADING, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize multi-threading parameters: unexpected field in %s (%s)", MULTI_THREADING, jsonParser.currentName()));
             }
         }
     }

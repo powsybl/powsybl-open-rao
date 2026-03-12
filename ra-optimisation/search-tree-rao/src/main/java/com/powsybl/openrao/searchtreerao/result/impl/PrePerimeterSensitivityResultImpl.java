@@ -7,18 +7,24 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -30,7 +36,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     private final RangeActionSetpointResult prePerimeterSetpoints;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
-    public PrePerimeterSensitivityResultImpl(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionSetpointResult prePerimeterSetpoints, ObjectiveFunctionResult objectiveFunctionResult) {
+    public PrePerimeterSensitivityResultImpl(FlowResult flowResult,
+                                             SensitivityResult sensitivityResult,
+                                             RangeActionSetpointResult prePerimeterSetpoints,
+                                             ObjectiveFunctionResult objectiveFunctionResult) {
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
