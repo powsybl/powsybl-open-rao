@@ -40,17 +40,17 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
     @Test
     void testPredicate() {
-        assertTrue(parameters.shouldCreateRedispatchingAction(generator, prevInstant));
-        assertTrue(parameters.shouldCreateRedispatchingAction(generator, cur1Instant));
-        assertFalse(parameters.shouldCreateRedispatchingAction(load, prevInstant));
-        assertFalse(parameters.shouldCreateRedispatchingAction(load, cur1Instant));
+        assertTrue(parameters.shouldCreateRedispatchingAction(generator, prevInstant, null));
+        assertTrue(parameters.shouldCreateRedispatchingAction(generator, cur1Instant, null));
+        assertFalse(parameters.shouldCreateRedispatchingAction(load, prevInstant, null));
+        assertFalse(parameters.shouldCreateRedispatchingAction(load, cur1Instant, null));
 
-        parameters.setRdRaPredicate((injection, instant) -> instant.isPreventive() || injection.getType() == IdentifiableType.LOAD);
+        parameters.setRdRaPredicate((injection, instant, c) -> instant.isPreventive() || injection.getType() == IdentifiableType.LOAD);
 
-        assertTrue(parameters.shouldCreateRedispatchingAction(generator, prevInstant));
-        assertFalse(parameters.shouldCreateRedispatchingAction(generator, cur1Instant));
-        assertTrue(parameters.shouldCreateRedispatchingAction(load, prevInstant));
-        assertTrue(parameters.shouldCreateRedispatchingAction(load, cur1Instant));
+        assertTrue(parameters.shouldCreateRedispatchingAction(generator, prevInstant, null));
+        assertFalse(parameters.shouldCreateRedispatchingAction(generator, cur1Instant, null));
+        assertTrue(parameters.shouldCreateRedispatchingAction(load, prevInstant, null));
+        assertTrue(parameters.shouldCreateRedispatchingAction(load, cur1Instant, null));
     }
 
     @Test
