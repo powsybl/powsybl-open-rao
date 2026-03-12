@@ -232,8 +232,8 @@ public final class LinearProblemIdGenerator {
         return formatName(TSO_RA_USED, operator, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String tsoRaUsedCumulativeConstraintId(String operator, State state) {
-        return formatName(TSO_RA_USED_CUMULATIVE, operator, state.getId(), CONSTRAINT_SUFFIX);
+    public static String tsoRaUsedCumulativeConstraintId(String operator, State state1, State state2) {
+        return formatName(TSO_RA_USED_CUMULATIVE, operator, state1.getId(), state2.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state) {
