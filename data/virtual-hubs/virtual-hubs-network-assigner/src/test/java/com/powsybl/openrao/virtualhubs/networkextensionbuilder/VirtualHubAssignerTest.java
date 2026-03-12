@@ -69,7 +69,7 @@ class VirtualHubAssignerTest {
     @Test
     void testAssignerDisconnectedXNode() {
 
-        network.getDanglingLine("FFR1AA1  X_GBFR1  1").getTerminal().disconnect();
+        network.getBoundaryLine("FFR1AA1  X_GBFR1  1").getTerminal().disconnect();
 
         virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, false, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true, false), null));
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);

@@ -128,6 +128,7 @@ public final class JsonSerializationConstants {
     public static final String GENERATOR_ACTIONS = "generatorActions";
     public static final String LOAD_ACTIONS = "loadActions";
     public static final String DANGLINGLINE_ACTIONS = "danglingLineActions";
+    public static final String BOUNDARYLINE_ACTIONS = "boundaryLineActions";
     public static final String SHUNTCOMPENSATOR_POSITION_ACTIONS = "shuntCompensatorPositionActions";
     public static final String PHASETAPCHANGER_TAPPOSITION_ACTIONS = "phaseTapChangerTapPositionActions";
     public static final String SWITCH_PAIRS = "switchPairs";

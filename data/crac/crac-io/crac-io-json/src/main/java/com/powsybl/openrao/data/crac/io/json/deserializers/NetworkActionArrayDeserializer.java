@@ -32,7 +32,7 @@ public final class NetworkActionArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         networkActionAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -108,7 +108,7 @@ public final class NetworkActionArrayDeserializer {
                                 JsonSerializationConstants.INJECTION_SETPOINTS,
                                 JsonSerializationConstants.GENERATOR_ACTIONS,
                                 JsonSerializationConstants.LOAD_ACTIONS,
-                                JsonSerializationConstants.DANGLINGLINE_ACTIONS,
+                                JsonSerializationConstants.BOUNDARYLINE_ACTIONS,
                                 JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS
                             ));
                         } else {
@@ -137,8 +137,20 @@ public final class NetworkActionArrayDeserializer {
                         LoadActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case JsonSerializationConstants.DANGLINGLINE_ACTIONS:
+                        int majorVersion = JsonSerializationConstants.getPrimaryVersionNumber(version);
+                        if (majorVersion == 1 || majorVersion == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
+                            jsonParser.nextToken();
+                            BoundaryLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                            break;
+                        } else {
+                            throw new OpenRaoException("%s were renamed to %s from version 2.10.".formatted(JsonSerializationConstants.DANGLINGLINE_ACTIONS, JsonSerializationConstants.BOUNDARYLINE_ACTIONS));
+                        }
+                    case JsonSerializationConstants.BOUNDARYLINE_ACTIONS:
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
+                            throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
+                        }
                         jsonParser.nextToken();
-                        DanglingLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        BoundaryLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS:
                         jsonParser.nextToken();
@@ -163,7 +175,7 @@ public final class NetworkActionArrayDeserializer {
                         networkActionAdder.withActivationCost(jsonParser.getDoubleValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
                 }
             }
             networkActionAdder.add();

@@ -11,7 +11,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.Action;
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.action.LoadAction;
@@ -504,8 +504,8 @@ class CracImportExportTest {
 
         assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
         List<Action> raComplex2Actions = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().stream().toList();
-        assertTrue(raComplex2Actions.get(0) instanceof DanglingLineAction);
-        assertEquals("DL1", ((DanglingLineAction) raComplex2Actions.get(0)).getDanglingLineId());
+        assertTrue(raComplex2Actions.get(0) instanceof BoundaryLineAction);
+        assertEquals("BL1", ((BoundaryLineAction) raComplex2Actions.get(0)).getBoundaryLineId());
         assertTrue(raComplex2Actions.get(1) instanceof LoadAction);
         assertEquals("LD1", ((LoadAction) raComplex2Actions.get(1)).getLoadId());
         assertTrue(raComplex2Actions.get(2) instanceof SwitchAction);

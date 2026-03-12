@@ -154,11 +154,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private TwoSides getSideFromTieLine(TieLine tieLine, String terminalId) {
         for (String key : CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
-            Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
+            Optional<String> oAlias = tieLine.getBoundaryLine1().getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                 return TwoSides.ONE;
             }
-            oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
+            oAlias = tieLine.getBoundaryLine2().getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                 return TwoSides.TWO;
             }
