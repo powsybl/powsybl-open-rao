@@ -100,7 +100,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            true);
+            true,
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
