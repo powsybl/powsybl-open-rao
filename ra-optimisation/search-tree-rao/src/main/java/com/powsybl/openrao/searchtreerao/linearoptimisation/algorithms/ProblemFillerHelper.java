@@ -179,9 +179,7 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                input.network(),
-                parameters.getObjectiveFunction().costOptimization(),
-                input.optimizationPerimeter()
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);
         }

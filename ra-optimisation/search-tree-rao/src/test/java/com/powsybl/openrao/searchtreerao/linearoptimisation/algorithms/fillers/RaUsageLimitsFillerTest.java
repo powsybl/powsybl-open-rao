@@ -200,9 +200,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -225,9 +223,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -262,9 +258,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             true,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -299,9 +293,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -334,9 +326,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -357,9 +347,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -386,9 +374,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -411,9 +397,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -444,9 +428,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -479,9 +461,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -503,9 +483,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -527,9 +505,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -556,9 +532,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -599,9 +573,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -648,9 +620,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             true,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
         rangeActionsPerState.forEach((s, rangeActionSet) -> rangeActionSet.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction)));
@@ -692,9 +662,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforeCo1Curative1 = raUsageLimitsFiller.getAllRangeActionOfStateToConsider(co1Curative1);
         assertEquals(Map.of(co1Curative1, Set.of(pst1, hvdc, injection)), rangeActionsPerStateBeforeCo1Curative1);
@@ -728,9 +696,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -791,9 +757,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -889,9 +853,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -963,9 +925,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             false,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -1038,9 +998,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
             true,
-            network,
-            false,
-            Mockito.mock(OptimizationPerimeter.class));
+            false);
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(co1Curative1, Set.of(pst1), co1Curative2, Set.of(pst1, pst2, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of());
 

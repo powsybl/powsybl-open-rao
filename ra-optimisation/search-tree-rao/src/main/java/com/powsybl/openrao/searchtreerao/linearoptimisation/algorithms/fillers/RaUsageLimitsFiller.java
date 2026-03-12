@@ -41,23 +41,18 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private final boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
-    private final Network network;
     private final boolean costOptimization;
-    private final OptimizationPerimeter optimizationPerimeter;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
-                               Network network, boolean costOptimization,
-                               OptimizationPerimeter optimizationPerimeter) {
+                               boolean costOptimization) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
-        this.network = network;
         this.costOptimization = costOptimization;
-        this.optimizationPerimeter = optimizationPerimeter;
     }
 
     @Override
@@ -201,7 +196,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
     }
 
-    // TODO: add doc with equation here
+    /**
+     * Add constraint to limit the number of remedial action that can be activated
+     *
+     * @param linearProblem
+     * @param state
+     */
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
 
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
@@ -226,7 +226,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     /**
-     * Add constraint to limit the number of TSOs that can be activated in a state
+     * Add constraint to limit the number of TSOs that can be activated
      *
      * @param linearProblem
      * @param state
@@ -242,10 +242,11 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         Set<String> maxTsoExclusions = new HashSet<>();
 
         // For multi-curative add all the TSOs to exclude from previous curative states sharing same contingency as state
-        stateAndRangeActionsToConsider.forEach((state1, rangeActionsSet) -> maxTsoExclusions.addAll(rangeActionLimitationParameters.getMaxTsoExclusion(state1)));
+        stateAndRangeActionsToConsider.forEach((s, rangeActionsSet) -> maxTsoExclusions.addAll(rangeActionLimitationParameters.getMaxTsoExclusion(s)));
 
         Set<String> constraintTsos = new HashSet<>();
 
+        // Filter out all the TSO in maxTsoExclusions
         stateAndRangeActionsToConsider.values()
             .forEach(raSet ->
                 constraintTsos.addAll(
@@ -257,8 +258,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 )
             );
 
-        // We can skip the variable and constraint definition if we are not in 2P setting
-        // (ie filler only filled on one state at the time)
+        // If rangeActions.size() > 1, we are in 2P situation, in this case we still need to create the variable and constraint
+        // because the variable tsoRaUsedCumulativeVariable will be used in other state in multi curative.
         if (maxTso >= constraintTsos.size() && rangeActions.size() == 1) {
             return;
         }
@@ -334,6 +335,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         });
     }
 
+    /**
+     * Add constraints and variables to limit the number of taps (elementary actions) that can be moved
+     * Note: that if pst1 does 0 (initial) -> 2 (curative1) -> 0 (curative 2): the number of elementary action used in curative 2 is considered to be 4.
+     * @param linearProblem
+     * @param state
+     */
     private void addMaxElementaryActionsPerTsoConstraint(LinearProblem linearProblem, State state) {
         Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
         Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionOfStateToConsider(state);
