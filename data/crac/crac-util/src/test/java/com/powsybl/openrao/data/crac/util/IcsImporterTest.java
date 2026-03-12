@@ -146,10 +146,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_shutdown_startup_true.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertTrue(generatorConstraints.isShutDownAllowed());
         assertTrue(generatorConstraints.isStartUpAllowed());
     }
@@ -162,7 +162,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value  for raId Redispatching_RA");
     }
 
@@ -174,7 +174,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -186,7 +186,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value  for raId Redispatching_RA");
     }
 
@@ -198,7 +198,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -210,7 +210,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value  for nodeId FFR1AA1");
     }
 
@@ -222,7 +222,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value wrongValue for nodeId FFR1AA1");
     }
 
@@ -234,7 +234,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value  for nodeId FFR1AA1");
     }
 
@@ -246,7 +246,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value wrongValue for nodeId FFR1AA1");
     }
 

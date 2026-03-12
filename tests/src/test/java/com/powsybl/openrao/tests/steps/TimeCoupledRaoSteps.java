@@ -35,9 +35,10 @@ import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -557,8 +558,8 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
-        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
-        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
+        OffsetDateTime firstTimestamp = timeCoupledRaoInput.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInput.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
             timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
@@ -566,8 +567,8 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
-        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
-        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
+        OffsetDateTime firstTimestamp = timeCoupledRaoInput.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInput.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
             timeCoupledRaoResult.getGlobalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
@@ -647,14 +648,14 @@ public final class TimeCoupledRaoSteps {
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")
     public void theTapOfPstRangeActionPostContingencyShouldBe(String pstRangeActionId, String timestamp, String contingencyId, String instant, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
     @Then("the preventive tap of PstRangeAction {string} at timestamp {string} should be {int}")
     public void theTapOfPreventivePstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
@@ -679,7 +680,7 @@ public final class TimeCoupledRaoSteps {
 
     private static boolean isRemedialActionUsed(String rangeActionId, String timestamp, String contingencyId, String instant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         State state = getState(crac, contingencyId, instant);
         return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
     }
