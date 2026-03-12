@@ -45,7 +45,12 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults,
+                                          TemporalData<SensitivityResult> sensitivityResults,
+                                          TemporalData<RangeActionActivationResult> rangeActionActivationResults,
+                                          TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                          ObjectiveFunction objectiveFunction,
+                                          LinearProblemStatus status) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);

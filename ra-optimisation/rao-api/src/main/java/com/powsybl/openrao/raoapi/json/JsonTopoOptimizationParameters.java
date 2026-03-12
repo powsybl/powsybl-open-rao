@@ -14,7 +14,9 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ABSOLUTE_MINIMUM_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MINIMUM_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -33,7 +35,7 @@ final class JsonTopoOptimizationParameters {
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case RELATIVE_MINIMUM_IMPACT_THRESHOLD -> {
                     jsonParser.nextToken();
                     raoParameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(jsonParser.getDoubleValue());
@@ -42,7 +44,11 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)", TOPOLOGICAL_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
+                    TOPOLOGICAL_ACTIONS_OPTIMIZATION,
+                    jsonParser.currentName()
+                ));
             }
         }
     }

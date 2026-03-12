@@ -9,8 +9,8 @@ package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
 
 import static java.lang.String.format;
 

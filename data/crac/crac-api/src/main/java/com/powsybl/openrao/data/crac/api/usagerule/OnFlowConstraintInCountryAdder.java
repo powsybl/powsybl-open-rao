@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.usagerule;
 
-import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

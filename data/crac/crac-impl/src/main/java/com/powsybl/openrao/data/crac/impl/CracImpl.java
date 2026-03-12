@@ -28,6 +28,8 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -37,12 +39,20 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -232,7 +242,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public Instant getInstant(InstantKind instantKind) {
         Set<Instant> instantsOfKind = getInstants(instantKind);
         if (instantsOfKind.size() != 1) {
-            throw new OpenRaoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
+            throw new OpenRaoException(String.format(
+                "Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'",
+                instantKind.toString(), instantsOfKind.size(), instantKind
+            ));
         }
         return instantsOfKind.stream().findAny().orElseThrow(
             () -> new OpenRaoException(String.format("Should not occur as there is only one '%s' instant", instantKind))

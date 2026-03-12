@@ -7,17 +7,17 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -137,7 +137,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             try {
                 minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             } catch (OpenRaoException ignored) {
-                minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(
+                    -linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             }
             minimumMarginNegative.setUb(-minFlow.get() + relMarginCoef * maxNegativeRelativeRam);
             minimumMarginNegative.setCoefficient(minRelMarginVariable, relMarginCoef);
@@ -147,9 +148,11 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (maxFlow.isPresent()) {
             OpenRaoMPConstraint minimumMarginPositive;
             try {
-                minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(
+                    cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
             } catch (OpenRaoException ignored) {
-                minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(
+                    -linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
             }
             minimumMarginPositive.setUb(maxFlow.get() + relMarginCoef * maxNegativeRelativeRam);
             minimumMarginPositive.setCoefficient(minRelMarginVariable, relMarginCoef);
