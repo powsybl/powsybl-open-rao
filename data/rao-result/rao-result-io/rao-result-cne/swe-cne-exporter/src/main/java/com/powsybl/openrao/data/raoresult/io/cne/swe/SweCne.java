@@ -29,8 +29,8 @@ import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A01
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A01_CURVE_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE_TS;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_TYPE;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_CODE;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_TEXT;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_TEXT;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SECURE_CODE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SECURE_TEXT;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SIXTY_MINUTES_DURATION;

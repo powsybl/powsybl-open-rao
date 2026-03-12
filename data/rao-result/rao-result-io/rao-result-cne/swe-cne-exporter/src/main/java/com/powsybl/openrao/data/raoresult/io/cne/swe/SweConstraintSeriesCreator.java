@@ -20,8 +20,8 @@ import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B56_BUSINESS_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B57_BUSINESS_TYPE;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_CODE;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_TEXT;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_TEXT;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format
