@@ -160,7 +160,7 @@ public class RaUsageLimits {
                 case MAX_TSO:
                     jsonParser.nextToken();
                     if (cracPrimaryVersion.isPresent() && cracSecondaryVersion.isPresent()
-                        && (cracPrimaryVersion.get() > 2 || (cracPrimaryVersion.get() == 2 && cracSecondaryVersion.get() > 11))) {
+                        && (cracPrimaryVersion.get() > 2 || cracPrimaryVersion.get() == 2 && cracSecondaryVersion.get() > 11)) {
                         throw new OpenRaoException("The max-tso limit can no longer be defined since CRAC version 2.8");
                     } else {
                         jsonParser.nextToken();
@@ -193,7 +193,6 @@ public class RaUsageLimits {
         }
         return Pair.of(instant, raUsageLimits);
     }
-
 
     private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
         HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);

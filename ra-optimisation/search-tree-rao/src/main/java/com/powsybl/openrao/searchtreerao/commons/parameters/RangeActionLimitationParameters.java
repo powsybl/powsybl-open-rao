@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.parameters;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
