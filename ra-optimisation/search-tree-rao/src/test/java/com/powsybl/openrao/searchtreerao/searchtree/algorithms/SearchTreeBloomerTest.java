@@ -102,7 +102,7 @@ class SearchTreeBloomerTest {
         raUsageLimits.setMaxRaPerTso(new HashMap<>(Map.of("be", 1)));
         SearchTreeBloomer bloomer = initBloomer(naCombinations.stream().toList(), Map.of(P_STATE.getInstant(), raUsageLimits));
 
-        // If one of the following condition is met, to apply the naCombination, we should remove the activated RangeActions.
+        // If one of the following conditions is met, to apply the naCombination, we should remove the activated RangeActions.
         // 1- (maxRa): The combination has more than one network action
         // 2- (maxRaPerTso): It cannot contain the operator BE
         assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_BE_1, leaf));
