@@ -59,7 +59,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 7.18.2 Loop flow computation with one virtual hub on a external Xnode border - MEGAWATT
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
+    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
     Given crac file is "epic7/crac_lf_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
@@ -85,7 +85,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
   Scenario: 7.18.2bis Loop flow computation with one virtual hub on a external Xnode border - AMPERE
   Perform exactly the same test as 7.18.2, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
+    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
     Given crac file is "epic7/crac_lf_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
@@ -110,7 +110,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.18.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
+    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora_xnodes.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"

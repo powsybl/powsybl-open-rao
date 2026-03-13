@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.action.DanglingLineAction;
-import com.powsybl.action.DanglingLineActionBuilder;
+import com.powsybl.action.BoundaryLineAction;
+import com.powsybl.action.BoundaryLineActionBuilder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -26,13 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-class DanglingLineActionImplTest {
+class BoundaryLineActionImplTest {
     @Test
     void basicMethods() {
         Crac crac = new CracImplFactory().create("cracId");
         NetworkAction injectionSetpoint = crac.newNetworkAction()
             .withId("injectionSetpoint")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
                 .withNetworkElement("element")
                 .withActivePowerValue(10.0)
                 .add()
@@ -44,64 +44,64 @@ class DanglingLineActionImplTest {
     @Test
     void hasImpactOnNetwork() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        NetworkImportsUtil.addDanglingLine(network);
+        NetworkImportsUtil.addBoundaryLine(network);
         Crac crac = new CracImplFactory().create("cracId");
-        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
-            .withId("danglingLineSetpoint")
-            .newDanglingLineAction()
-            .withNetworkElement("DL1")
+        NetworkAction boundaryLineSetpoint = crac.newNetworkAction()
+            .withId("boundaryLineSetpoint")
+            .newBoundaryLineAction()
+            .withNetworkElement("BL1")
             .withActivePowerValue(100)
             .add()
             .add();
-        assertTrue(danglingLineSetpoint.hasImpactOnNetwork(network));
+        assertTrue(boundaryLineSetpoint.hasImpactOnNetwork(network));
     }
 
     @Test
     void hasNoImpactOnNetwork() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        NetworkImportsUtil.addDanglingLine(network);
+        NetworkImportsUtil.addBoundaryLine(network);
         Crac crac = new CracImplFactory().create("cracId");
-        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
-            .withId("danglingLineSetpoint")
-            .newDanglingLineAction()
-            .withNetworkElement("DL1")
+        NetworkAction boundaryLineSetpoint = crac.newNetworkAction()
+            .withId("boundaryLineSetpoint")
+            .newBoundaryLineAction()
+            .withNetworkElement("BL1")
             .withActivePowerValue(0)
             .add()
             .add();
-        assertFalse(danglingLineSetpoint.hasImpactOnNetwork(network));
+        assertFalse(boundaryLineSetpoint.hasImpactOnNetwork(network));
 
     }
 
     @Test
     void apply() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        NetworkImportsUtil.addDanglingLine(network);
+        NetworkImportsUtil.addBoundaryLine(network);
         Crac crac = new CracImplFactory().create("cracId");
-        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
-            .withId("danglingLineSetpoint")
-            .newDanglingLineAction()
-            .withNetworkElement("DL1")
+        NetworkAction boundaryLineSetpoint = crac.newNetworkAction()
+            .withId("boundaryLineSetpoint")
+            .newBoundaryLineAction()
+            .withNetworkElement("BL1")
             .withActivePowerValue(100)
             .add()
             .add();
-        assertEquals(0., network.getDanglingLine("DL1").getP0(), 1e-3);
-        danglingLineSetpoint.apply(network);
-        assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
+        assertEquals(0., network.getBoundaryLine("BL1").getP0(), 1e-3);
+        boundaryLineSetpoint.apply(network);
+        assertEquals(100., network.getBoundaryLine("BL1").getP0(), 1e-3);
     }
 
     @Test
     void canBeApplied() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        NetworkImportsUtil.addDanglingLine(network);
+        NetworkImportsUtil.addBoundaryLine(network);
         Crac crac = new CracImplFactory().create("cracId");
-        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
-            .withId("danglingLineSetpoint")
-            .newDanglingLineAction()
-            .withNetworkElement("DL1")
+        NetworkAction boundaryLineSetpoint = crac.newNetworkAction()
+            .withId("boundaryLineSetpoint")
+            .newBoundaryLineAction()
+            .withNetworkElement("BL1")
             .withActivePowerValue(100)
             .add()
             .add();
-        assertTrue(danglingLineSetpoint.canBeApplied(network)); // for now always true
+        assertTrue(boundaryLineSetpoint.canBeApplied(network)); // for now always true
     }
 
     @Test
@@ -110,7 +110,7 @@ class DanglingLineActionImplTest {
         Crac crac = new CracImplFactory().create("cracId");
         NetworkAction dummy = crac.newNetworkAction()
             .withId("dummy")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("wrong_name")
             .withActivePowerValue(100)
             .add()
@@ -124,7 +124,7 @@ class DanglingLineActionImplTest {
         Crac crac = new CracImplFactory().create("cracId");
         NetworkAction dummy = crac.newNetworkAction()
             .withId("dummy")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withActivePowerValue(10.)
             .add()
@@ -133,11 +133,11 @@ class DanglingLineActionImplTest {
 
         NetworkAction dummy2 = crac.newNetworkAction()
             .withId("dummy2")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  2")
             .withActivePowerValue(12.)
             .add()
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  2")
             .withActivePowerValue(12.)
             .add()
@@ -146,11 +146,11 @@ class DanglingLineActionImplTest {
 
         NetworkAction dummy3 = crac.newNetworkAction()
             .withId("dummy3")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  3")
             .withActivePowerValue(10.)
             .add()
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  3")
             .withActivePowerValue(12.)
             .add()
@@ -159,22 +159,22 @@ class DanglingLineActionImplTest {
 
         NetworkAction dummy4 = crac.newNetworkAction()
             .withId("dummy4")
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  4")
             .withActivePowerValue(10.)
             .add()
-            .newDanglingLineAction()
+            .newBoundaryLineAction()
             .withNetworkElement("BBE2AA1  BBE3AA1  5")
             .withActivePowerValue(10.)
             .add()
             .add();
         assertEquals(2, dummy4.getElementaryActions().size());
 
-        DanglingLineAction danglingLineAction = new DanglingLineActionBuilder().withId("id").withDanglingLineId("DL1").withActivePowerValue(10).withRelativeValue(false).build();
-        DanglingLineAction sameDanglingLineAction = new DanglingLineActionBuilder().withId("id").withDanglingLineId("DL1").withActivePowerValue(10).withRelativeValue(false).build();
-        assertEquals(danglingLineAction, sameDanglingLineAction);
+        BoundaryLineAction boundaryLineAction = new BoundaryLineActionBuilder().withId("id").withBoundaryLineId("BL1").withActivePowerValue(10).withRelativeValue(false).build();
+        BoundaryLineAction sameBoundaryLineAction = new BoundaryLineActionBuilder().withId("id").withBoundaryLineId("BL1").withActivePowerValue(10).withRelativeValue(false).build();
+        assertEquals(boundaryLineAction, sameBoundaryLineAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(danglingLineAction, sameDanglingLineAction)), 0, null, Set.of());
+            new HashSet<>(List.of(boundaryLineAction, sameBoundaryLineAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 }

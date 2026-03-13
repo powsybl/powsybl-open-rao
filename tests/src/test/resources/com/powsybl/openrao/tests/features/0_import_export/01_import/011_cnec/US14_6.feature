@@ -3,11 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 14.6: Dangling lines
+Feature: US 14.6: Boundary lines
   #TODO: This feature covers
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
-  Scenario: 14.6.1 : Dangling line with no generation, RAO in MW
+  Scenario: 14.6.1 : Boundary line with no generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -19,7 +19,7 @@ Feature: US 14.6: Dangling lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
-  Scenario: 14.6.2 : Dangling line with no generation, RAO in A (same case as the previous scenario, but in A)
+  Scenario: 14.6.2 : Boundary line with no generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -31,7 +31,7 @@ Feature: US 14.6: Dangling lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
-  Scenario: 14.6.3 : Dangling line with generation, RAO in MW
+  Scenario: 14.6.3 : Boundary line with generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -43,7 +43,7 @@ Feature: US 14.6: Dangling lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
-  Scenario: 14.6.4 : Dangling line with generation, RAO in A (same case as the previous scenario, but in A)
+  Scenario: 14.6.4 : Boundary line with generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
