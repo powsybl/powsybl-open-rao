@@ -43,7 +43,6 @@ public final class SearchTreeBloomer {
             new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
-            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
             new ElementaryActionsCompatibilityFilter(),
             new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()))
         );
@@ -117,16 +116,8 @@ public final class SearchTreeBloomer {
             return true;
         }
 
-        // maxTso
-        Set<String> operators = naCombination.getOperators();
-        Set<String> activatedTsos = alreadyActivatedNetworkActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-        alreadyActivatedRangeActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).forEach(activatedTsos::add);
-        activatedTsos.addAll(operators);
-        if (activatedTsos.size() > raUsageLimits.getMaxTso()) {
-            return true;
-        }
-
         // maxRaPerTso
+        Set<String> operators = naCombination.getOperators();
         for (String tso : operators) {
             int numberOfAlreadyActivatedRangeActionsForTso = (int) alreadyActivatedRangeActions.stream().filter(ra -> tso.equals(ra.getOperator())).count();
             int numberOfAlreadyAppliedNetworkActionsForTso = (int) alreadyActivatedNetworkActions.stream().filter(na -> tso.equals(na.getOperator())).count();
