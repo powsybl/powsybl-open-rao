@@ -38,6 +38,14 @@
             <artifactId>powsybl-open-loadflow</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-sensitivity-analysis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
