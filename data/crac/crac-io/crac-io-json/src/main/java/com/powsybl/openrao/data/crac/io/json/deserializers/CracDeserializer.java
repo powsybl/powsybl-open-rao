@@ -153,7 +153,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.RA_USAGE_LIMITS_PER_INSTANT:
                     jsonParser.nextToken();
-                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac);
+                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac, version);
                     break;
 
                 default:

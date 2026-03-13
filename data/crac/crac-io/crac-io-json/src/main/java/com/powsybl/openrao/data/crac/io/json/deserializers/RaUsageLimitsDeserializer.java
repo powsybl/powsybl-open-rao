@@ -11,10 +11,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.Optional;
+
+import static com.powsybl.openrao.data.crac.api.RaUsageLimits.deserializeRaUsageLimits;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -24,13 +27,12 @@ public final class RaUsageLimitsDeserializer {
         // should not be used
     }
 
-    public static void deserialize(JsonParser jsonParser, Crac crac) throws IOException {
+    public static void deserialize(JsonParser jsonParser, Crac crac, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Pair<String, RaUsageLimits> raUsageLimitsPair = JsonCracCreationParametersConstants.deserializeRaUsageLimits(jsonParser);
+            Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser, Optional.of(JsonSerializationConstants.getPrimaryVersionNumber(version)), Optional.of(JsonSerializationConstants.getPrimaryVersionNumber(version)));
             RaUsageLimits raUsageLimits = raUsageLimitsPair.getRight();
             crac.newRaUsageLimits(raUsageLimitsPair.getLeft())
                 .withMaxRa(raUsageLimits.getMaxRa())
-                .withMaxTso(raUsageLimits.getMaxTso())
                 .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
                 .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
                 .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
