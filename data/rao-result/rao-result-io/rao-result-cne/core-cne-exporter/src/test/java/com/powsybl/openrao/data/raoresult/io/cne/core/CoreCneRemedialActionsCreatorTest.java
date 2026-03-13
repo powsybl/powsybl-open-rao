@@ -203,7 +203,7 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testPstInitialSetpoint() {
+    void testPstPreOptim() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
@@ -223,7 +223,7 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testPstInitialSetpointUnused() {
+    void testUnusedPstPreOptim() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
 
@@ -388,7 +388,7 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testPstInitialSetpointInverted() {
+    void testPstPreOptimInverted() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
