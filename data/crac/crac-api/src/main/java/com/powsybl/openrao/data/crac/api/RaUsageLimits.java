@@ -22,14 +22,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class RaUsageLimits {
     private static final int DEFAULT_MAX_RA = Integer.MAX_VALUE;
-    private static final int DEFAULT_MAX_TSO = Integer.MAX_VALUE;
     private static final Map<String, Integer> DEFAULT_MAX_TOPO_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_PST_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_RA_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO = new HashMap<>();
     private int maxRa = DEFAULT_MAX_RA;
-    private int maxTso = DEFAULT_MAX_TSO;
-    private final Set<String> maxTsoExclusion = new HashSet<>();
     private Map<String, Integer> maxTopoPerTso = DEFAULT_MAX_TOPO_PER_TSO;
     private Map<String, Integer> maxPstPerTso = DEFAULT_MAX_PST_PER_TSO;
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
@@ -41,15 +38,6 @@ public class RaUsageLimits {
             this.maxRa = 0;
         } else {
             this.maxRa = maxRa;
-        }
-    }
-
-    public void setMaxTso(int maxTso) {
-        if (maxTso < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", maxTso);
-            this.maxTso = 0;
-        } else {
-            this.maxTso = maxTso;
         }
     }
 
@@ -91,10 +79,6 @@ public class RaUsageLimits {
         return maxRa;
     }
 
-    public int getMaxTso() {
-        return maxTso;
-    }
-
     public Map<String, Integer> getMaxTopoPerTso() {
         return maxTopoPerTso;
     }
@@ -109,10 +93,6 @@ public class RaUsageLimits {
 
     public Map<String, Integer> getMaxElementaryActionsPerTso() {
         return maxElementaryActionsPerTso;
-    }
-
-    public Set<String> getMaxTsoExclusion() {
-        return maxTsoExclusion;
     }
 
     private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso) {
@@ -142,10 +122,6 @@ public class RaUsageLimits {
         });
     }
 
-    public void addTsoToExclude(String tso) {
-        maxTsoExclusion.add(tso);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -156,7 +132,6 @@ public class RaUsageLimits {
         }
         RaUsageLimits raUsageLimits = (RaUsageLimits) o;
         return raUsageLimits.maxRa == this.maxRa
-            && raUsageLimits.maxTso == this.maxTso
             && raUsageLimits.maxRaPerTso.equals(this.maxRaPerTso)
             && raUsageLimits.maxPstPerTso.equals(this.maxPstPerTso)
             && raUsageLimits.maxTopoPerTso.equals(this.maxTopoPerTso);
