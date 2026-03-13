@@ -36,7 +36,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getLinearOptimizationSolver;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getMaxMipIterations;
