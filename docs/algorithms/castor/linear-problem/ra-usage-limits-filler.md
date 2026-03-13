@@ -11,8 +11,6 @@
 | Range upper bound                            | $\alpha_{\max}(r)(\alpha _0(r))$ | Highest allowed set-point for a range action $r$, given its pre-perimeter set-point $\alpha _0(r)$                                                                                                                                                         |
 | Range lower bound                            | $\alpha_{\min}(r)(\alpha _0(r))$ | Lowest allowed set-point for a range action $r$, given its pre-perimeter set-point $\alpha _0(r)$                                                                                                                                                          |
 | Maximum number of RAs                        | $nRA^{max}(s)$                   | Maximum number of range actions that can be used on state $s$                                                                                                                                                                                            |
-| Maximum number of TSOs                       | $nTSO^{max}(s)$                  | Maximum number of TSOs that can use at least one range action (those in "TSO exclusions" do not count) on state $s$                                                                                                                                      |
-| TSO exclusions                               | $tso \in \mathcal{TSO_{ex}}(s)$  | TSOs that do not count in the "Maximum number of TSOs" constraint on state $s$ (typically because they already have an activated network action outside the MILP, and that maxTso has been decremented, so using range actions for these TSOs is "free") |
 | Maximum number of PSTs per TSO               | $nPST^{max}(tso,s)$              | Maximum number of PSTs that can be used by a given TSO on state $s$                                                                                                                                                                                      |
 | Maximum number of RAs per TSO                | $nRA^{max}(tso,s)$               | Maximum number of range actions to use by a given TSO on state $s$                                                                                                                                                                                       |
 | Maximum number of elementary actions per TSO | $nEA^{max}(tso)$                 | Maximum number of elementary actions to use by a given TSO at a given instant                                                                                                                                                                            |
@@ -29,7 +27,6 @@ take into account applied topological actions first.*
 | Name                       | Symbol              | Details                                                                                                                                                                                             | Type          | Index                                                                  | Unit               | Lower bound | Upper bound |
 |----------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|------------------------------------------------------------------------|--------------------|-------------|-------------|
 | RA usage binary            | $\delta(r,s)$       | binary indicating if a range action is used                                                                                                                                                         | Binary        | One variable for every element of $\mathcal{RA}$                       | no unit            | 0           | 1           |
-| TSO RA usage binary        | $\delta^{TSO}(tso)$ | binary indicating for a given TSO if it has any range action used. <br> Note that it is defined as a real value to speed up resolution, but it will act as a binary given the following constraints | Real value    | One variable for every element of $\mathcal{TSO} - \mathcal{TSO_{ex}}$ | no unit            | 0           | 1           |
 | PST absolute tap variation | $\Delta t(r)$       | integer computing the number of taps that were moved on the PST at a given instant                                                                                                                  | Integer value | One variable for every element of $\mathcal{RA}^\mathcal{PST}$         | no unit (PST taps) | 0           | $+ \infty$  |
 
 ## Used optimization variables
@@ -71,24 +68,6 @@ set-point in the constraints above. This coefficient is computed as 30% of the a
 $$
 \begin{equation}
 \sum_{r \in \mathcal{RA(s)}} \delta (r,s) \leq nRA^{max}(s), \forall s \in \mathcal{S}
-\end{equation}
-$$
-
-<br>
-
-### Maximum number of TSOs
-
-$$
-\begin{equation}
-\delta^{TSO}(tso,s) \geq \delta (r,s), \forall tso \in \mathcal{TSO - TSO_{ex}}, \forall r,s \in \mathcal{RA}(tso)
-\end{equation}
-$$
-
-<br>
-
-$$
-\begin{equation}
-\sum_{tso \in \mathcal{TSO - TSO_{ex}}} \delta^{tso} (tso,s) \leq nTSO^{max}(s), \forall s \in \mathcal{S}
 \end{equation}
 $$
 
