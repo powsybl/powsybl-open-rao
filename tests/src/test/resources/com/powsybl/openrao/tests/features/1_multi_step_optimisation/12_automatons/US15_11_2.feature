@@ -6,7 +6,7 @@
 Feature: US 15.11.2: Simulate topological automatons right after preventive optimization
 ##TODO: This feature covers
 
-  @fast @rao @ac @contingency-scenarios @secure-flow @ampere
+  @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: US 15.11.2.1: onConstraint automaton not applied
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-2case1.json"
@@ -25,7 +25,7 @@ Feature: US 15.11.2: Simulate topological automatons right after preventive opti
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 878.0 A
 
-  @fast @rao @ac @contingency-scenarios @secure-flow @ampere
+  @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: US 15.11.2.2: onConstraint automaton applied
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-2case2.json"
@@ -45,7 +45,7 @@ Feature: US 15.11.2: Simulate topological automatons right after preventive opti
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 878.0 A
 
-  @fast @rao @ac @contingency-scenarios @secure-flow @ampere
+  @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: US 15.11.2.3: OnContingencyState automaton applied
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-2case3.json"

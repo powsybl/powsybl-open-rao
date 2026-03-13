@@ -6,7 +6,7 @@
 Feature: US 7.15: Loop-flow acceptable augmentation parameter
   This feature covers the parameter "loop-flow-parameters"/"acceptable-increase" from the RaoParameters.
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 7.15.1 : Test case with a loop-flow acceptable augmentation parameter of 40 MW
   Same case as 7.11.1 but with the new parameter, giving a better margin.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC

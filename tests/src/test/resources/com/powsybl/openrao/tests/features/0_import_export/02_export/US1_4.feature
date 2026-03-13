@@ -6,7 +6,7 @@
 Feature: US 1.4: Generate a basic output file after RAO computation
   # TODO: This feature covers
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 1.4.1: Secure optimization
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
@@ -26,7 +26,7 @@ Feature: US 1.4: Generate a basic output file after RAO computation
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -1444.0 A on side 2
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -1444.0 A on side 2
 
-  @fast @rao @mock @ac @preventive-only @secure-flow @ampere
+  @fast @rao @mock @ac @preventive-only @secure-flow
   Scenario: US 1.4.2: Unsecure optimization
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us4_unsecure.json"

@@ -41,12 +41,6 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
     }
 
     @Override
-    public RaUsageLimitsAdder withMaxTso(int maxTso) {
-        raUsageLimits.setMaxTso(maxTso);
-        return this;
-    }
-
-    @Override
     public RaUsageLimitsAdder withMaxTopoPerTso(Map<String, Integer> maxTopoPerTso) {
         raUsageLimits.setMaxTopoPerTso(maxTopoPerTso);
         return this;

@@ -6,7 +6,7 @@
 Feature: US 15.11.3: Simulate range action automatons right after topological automatons
     ##TODO: This feature covers
 
-  @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.11.3.1: 1 auto HVDC
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
@@ -24,7 +24,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 A
     Then its security status should be "UNSECURED"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 15.11.3.2: 1 auto PST
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case2.json"
@@ -43,7 +43,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - auto" after ARA should be 0.2 A
     Then the worst margin is -22 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 15.11.3.3: 2 auto range actions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case3.json"
@@ -65,7 +65,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - auto" after ARA should be 146.5 A
     Then the worst margin is -22 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 15.11.3.4: auto range actions and topological range actions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case4.json"
@@ -88,7 +88,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - auto" after ARA should be 65.7 A
     Then the worst margin is -22 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: Verify post-ARAO setpoint for automatic+curative range action
     # copy of test case Scenario: US 15.11.3.2: 1 auto PST
     # except that pst_be is also preventive and curative

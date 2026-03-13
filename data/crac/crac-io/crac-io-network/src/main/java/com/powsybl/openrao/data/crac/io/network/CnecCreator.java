@@ -85,7 +85,7 @@ class CnecCreator {
 
     private CriticalElements.OptimizedMonitored isOptimizedMonitored(Branch<?> branch, Contingency contingency) {
         CriticalElements params = specificParameters.getCriticalElements();
-        CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency);
+        CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency, creationContext);
         boolean shouldOptimize = base.optimized() && Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV());
         boolean shouldMonitor = base.monitored()
             && params.getMonitoredMinMaxV().isPresent()
@@ -106,12 +106,11 @@ class CnecCreator {
             .withId(branch.getNameOrId() + "_" + crac.getPreventiveInstant().getId())
             .withInstant(crac.getPreventiveInstant().getId())
             .withOptimized(optimized)
-            .withMonitored(monitored);
+            .withMonitored(monitored)
+            .withNominalVoltage(branch.getTerminal(TwoSides.ONE).getVoltageLevel().getNominalV(), TwoSides.ONE)
+            .withNominalVoltage(branch.getTerminal(TwoSides.TWO).getVoltageLevel().getNominalV(), TwoSides.TWO);
         cracCreationParameters.getDefaultMonitoredSides().forEach(
-            side -> {
-                adder.withNominalVoltage(branch.getTerminal(side).getVoltageLevel().getNominalV(), side);
-                addThresholdFromPermLimit(adder, branch, side, crac.getPreventiveInstant());
-            }
+            side -> addThresholdFromPermLimit(adder, branch, side, crac.getPreventiveInstant())
         );
         try {
             adder.add();
@@ -130,10 +129,11 @@ class CnecCreator {
             .withId(branch.getNameOrId() + "_" + contingency.getName().orElse(contingency.getId()) + "_" + instant.getId())
             .withInstant(instant.getId())
             .withOptimized(optimized)
-            .withMonitored(monitored);
+            .withMonitored(monitored)
+            .withNominalVoltage(branch.getTerminal(TwoSides.ONE).getVoltageLevel().getNominalV(), TwoSides.ONE)
+            .withNominalVoltage(branch.getTerminal(TwoSides.TWO).getVoltageLevel().getNominalV(), TwoSides.TWO);
         cracCreationParameters.getDefaultMonitoredSides().forEach(
             side -> {
-                adder.withNominalVoltage(branch.getTerminal(side).getVoltageLevel().getNominalV(), side);
                 if (specificParameters.getCriticalElements().getThresholdDefinition() == CriticalElements.ThresholdDefinition.PERM_LIMIT_MULTIPLIER) {
                     addThresholdFromPermLimit(adder, branch, side, instant);
                 } else {

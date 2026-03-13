@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -285,8 +284,6 @@ public class Leaf implements OptimizationResult {
                 Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
                     appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
                 int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
-                Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
                 Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
                 Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                 maxRaPerTso.entrySet().forEach(entry -> {
@@ -304,8 +301,6 @@ public class Leaf implements OptimizationResult {
                 });
 
                 limitationParameters.setMaxRangeAction(state, maxRa);
-                limitationParameters.setMaxTso(state, maxTso);
-                limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
                 limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
                 limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
                 limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);

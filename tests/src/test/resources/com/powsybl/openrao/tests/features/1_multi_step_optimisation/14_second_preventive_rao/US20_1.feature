@@ -7,7 +7,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
   This feature covers the parameters of "second-preventive-rao" ("execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT"),
   from the RaoParameters.
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.1.1: Preventive network actions only
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
@@ -23,7 +23,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.1.2: Same case as US 20.1.1 with a limitation of 2 RAs in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1_2.json"
@@ -38,7 +38,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
     Then the worst margin is 295.6 A
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.1.3: Same case as US 20.1.1.1 with pst_fr available in curative
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1_3.json"
@@ -53,7 +53,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
     Then the worst margin is 321 A
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.1.4: Pst_fr limits relative to previous instant are the most impacting w.r.t relative to initial network
     # 2P is now always global, pst_fr is always optimized
     Given network file is "common/TestCase16Nodes.uct"
@@ -71,7 +71,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 210 A
     Then the worst margin is 210 A
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.2: Preventive and curative network actions 1/3
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case1.json"
@@ -89,7 +89,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.3: Preventive and curative network actions 2/3
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case2.json"
@@ -106,7 +106,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.4: Preventive and curative network actions 3/3
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case4.json"
@@ -123,7 +123,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.5: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/crac_ep20us1case1_5.json"
@@ -144,7 +144,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.6: Same test as 20.1.5. The CRA has a non relevant relative to previous instant range
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/crac_ep20us1case1_6.json"
@@ -165,7 +165,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.1.7: Test case with a CBCORA file
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"

@@ -394,14 +394,6 @@ public final class LinearProblem {
         return solver.getConstraint(maxRaConstraintId(state));
     }
 
-    public OpenRaoMPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
-        return solver.makeConstraint(lb, ub, maxTsoConstraintId(state));
-    }
-
-    public OpenRaoMPConstraint getMaxTsoConstraint(State state) {
-        return solver.getConstraint(maxTsoConstraintId(state));
-    }
-
     public OpenRaoMPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
         return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state));
     }
@@ -416,38 +408,6 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
         return solver.getConstraint(maxPstPerTsoConstraintId(operator, state));
-    }
-
-    public OpenRaoMPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
-        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state));
-    }
-
-    public OpenRaoMPVariable getTsoRaUsedVariable(String operator, State state) {
-        return solver.getVariable(tsoRaUsedVariableId(operator, state));
-    }
-
-    public OpenRaoMPVariable addTsoRaUsedCumulativeVariable(double lb, double ub, String operator, State state) {
-        return solver.makeNumVar(lb, ub, tsoRaUsedCumulativeVariableId(operator, state));
-    }
-
-    public OpenRaoMPVariable getTsoRaUsedCumulativeVariable(String operator, State state) {
-        return solver.getVariable(tsoRaUsedCumulativeVariableId(operator, state));
-    }
-
-    public OpenRaoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint addTsoRaUsedCumulativeConstraint(double lb, double ub, String operator, State state1, State state2) {
-        return solver.makeConstraint(lb, ub, tsoRaUsedCumulativeConstraintId(operator, state1, state2));
-    }
-
-    public OpenRaoMPConstraint getTsoRaUsedCumulativeConstraint(String operator, State state1, State state2) {
-        return solver.getConstraint(tsoRaUsedCumulativeConstraintId(operator, state1, state2));
     }
 
     public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
