@@ -56,7 +56,7 @@ class BalancingRangeActionCreator {
         }
 
         Set<Generator> consideredGenerators = network.getGeneratorStream()
-            .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
+            .filter(generator -> parameters.shouldIncludeInjection(generator, instant, creationContext))
             .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
             .collect(Collectors.toSet());
 

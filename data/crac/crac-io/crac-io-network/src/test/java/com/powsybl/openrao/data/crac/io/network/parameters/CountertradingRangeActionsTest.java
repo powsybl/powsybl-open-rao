@@ -34,17 +34,17 @@ class CountertradingRangeActionsTest extends AbstractTest {
 
     @Test
     void testPredicate() {
-        assertTrue(parameters.shouldIncludeInjection(generator, prevInstant));
-        assertTrue(parameters.shouldIncludeInjection(generator, cur1Instant));
-        assertTrue(parameters.shouldIncludeInjection(load, prevInstant));
-        assertTrue(parameters.shouldIncludeInjection(load, cur1Instant));
+        assertTrue(parameters.shouldIncludeInjection(generator, prevInstant, null));
+        assertTrue(parameters.shouldIncludeInjection(generator, cur1Instant, null));
+        assertTrue(parameters.shouldIncludeInjection(load, prevInstant, null));
+        assertTrue(parameters.shouldIncludeInjection(load, cur1Instant, null));
 
-        parameters.setInjectionPredicate((injection, instant) -> instant.isPreventive() || injection.getType() == IdentifiableType.LOAD);
+        parameters.setInjectionPredicate((injection, instant, c) -> instant.isPreventive() || injection.getType() == IdentifiableType.LOAD);
 
-        assertTrue(parameters.shouldIncludeInjection(generator, prevInstant));
-        assertFalse(parameters.shouldIncludeInjection(generator, cur1Instant));
-        assertTrue(parameters.shouldIncludeInjection(load, prevInstant));
-        assertTrue(parameters.shouldIncludeInjection(load, cur1Instant));
+        assertTrue(parameters.shouldIncludeInjection(generator, prevInstant, null));
+        assertFalse(parameters.shouldIncludeInjection(generator, cur1Instant, null));
+        assertTrue(parameters.shouldIncludeInjection(load, prevInstant, null));
+        assertTrue(parameters.shouldIncludeInjection(load, cur1Instant, null));
     }
 
     @Test
