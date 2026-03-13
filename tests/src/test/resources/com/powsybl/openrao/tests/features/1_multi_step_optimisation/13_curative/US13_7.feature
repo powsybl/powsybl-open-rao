@@ -6,7 +6,7 @@
 Feature: US 13.7: Cross-validation Curative and Loop-flows
   This feature covers RAO computation with a curative instant defined in the CRAC and loop-flows in the parameters.
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 13.7.1 : RAO with loop-flows in preventive perimeter limited by their threshold
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case1.xml"
@@ -27,7 +27,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Then the loopflow on cnec "003_FR-DE - outage" after PRA should be -796.0 MW
     Then the value of the objective function after CRA should be 337
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 13.7.2 : RAO with loop-flows in preventive perimeter limited by their initial value
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case2.xml"
@@ -66,7 +66,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Then the loopflow on cnec "015_BE-FR - outage" after PRA should be -658.0 MW
     Then the value of the objective function after CRA should be 530
 
-  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: US 13.7.3 : Curative RAO with loop-flows with non constraining thresholds
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case3.xml"
@@ -92,7 +92,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Then the loopflow on cnec "003_FR-DE - curative" after CRA should be -605.0 MW
     Then the value of the objective function after CRA should be -524
 
-  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: US 13.7.4 : Curative RAO with loop-flows with constraining thresholds in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"
@@ -118,7 +118,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Then the loopflow on cnec "003_FR-DE - curative" after CRA should be -487.0 MW
     Then the value of the objective function after CRA should be -524
 
-  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: US 13.7.5 : Curative RAO with loop-flows with constraining initial values in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case5.xml"
@@ -143,7 +143,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Then the loopflow on cnec "003_FR-DE - curative" after CRA should be -331.0 MW
     Then the value of the objective function after CRA should be -524
 
-  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: US 13.7.6 : Curative RAO with FIXED_PTDF loop-flow-approximation
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"

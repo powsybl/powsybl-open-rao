@@ -6,7 +6,7 @@
 Feature: US 14.4: HVDC
   This feature covers the behaviour of a computation with specific HVDC equivalent models.
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 14.4.1 : Outage HVDC modelling 1 (CORE's Cobra)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case1.xml"
@@ -22,7 +22,7 @@ Feature: US 14.4: HVDC
     Then the margin on cnec "003_FR-DE - curative" after CRA should be 857.0 MW
     Then the margin on cnec "002_FR-DE - preventive" after PRA should be 1102.0 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 14.4.2 : Outage HVDC modelling 2 (CORE's Alegro)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case2.xml"

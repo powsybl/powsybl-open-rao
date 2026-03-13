@@ -6,7 +6,7 @@
 Feature: US 19.2: Handle maximum topological CRA per TSO
   This feature covers the parameters "ra-usage-limits-per-instant"/"max-topo-per-tso" defined in the json CRAC.
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 19.2.1: Check that the maximum number of network actions per TSO is ignored in preventive 1
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case1.json"
@@ -28,7 +28,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 334 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 371 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 19.2.2: Check that the maximum number of network actions per TSO is respected in curative - reference run
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case2.json"
@@ -45,7 +45,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 254 A
     Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 450 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 19.2.3: Check that the maximum number of network actions per TSO is respected in curative
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case3.json"
@@ -60,7 +60,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Then the worst margin is 254 A on cnec "BBE2AA1  FFR3AA1  1 - preventive"
     Then the margin on cnec "FFR1AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 437 A
 
-  @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: US 19.2.4: Simple case, with 2 curative states
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case4.json"
@@ -75,7 +75,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 510 A
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - curative" after CRA should be 904 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 19.2.5: Check that the maximum number of network actions per TSO is ignored in preventive 2
     # Copy of 13.2.6 test but with a configuration limiting curative topo per TSO
     Given network file is "common/TestCase16Nodes.uct"
@@ -89,7 +89,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Then the remedial action "open_fr1_fr2" is used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 19.2.6: Check country filtering is well done in curative
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case6.json"

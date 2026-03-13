@@ -7,7 +7,7 @@ Feature: US 10.3: Handle GLSK on Xnodes
   This feature covers when GLSKs are defined on Xnoeds in RAO computation with
   objective-function/type MAX_MIN_RELATIVE_MARGIN.
 
-  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: US 10.3.1: GLSK on Xnodes
     # same test case as 10.2.1 but with two bidding zones on xnodes, giving different results
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
