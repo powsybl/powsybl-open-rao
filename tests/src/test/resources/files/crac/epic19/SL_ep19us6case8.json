@@ -19,8 +19,8 @@
   } ],
   "ra-usage-limits-per-instant" : [ {
     "instant": "curative",
-    "max-ra" : 2147483647,
-    "max-tso" : 0,
+    "max-ra" : 0,
+    "max-tso" : 2147483647,
     "max-topo-per-tso" : { },
     "max-pst-per-tso" : { },
     "max-ra-per-tso" : { }

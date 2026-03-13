@@ -34,7 +34,6 @@ class RaUsageLimitsTest {
     void testNominalBehavior() {
         // check default values
         assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxRa());
-        assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxTso());
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
@@ -42,8 +41,6 @@ class RaUsageLimitsTest {
         // set regular values
         raUsageLimits.setMaxRa(4);
         assertEquals(4, raUsageLimits.getMaxRa());
-        raUsageLimits.setMaxTso(4);
-        assertEquals(4, raUsageLimits.getMaxTso());
         Map<String, Integer> pstMap = Map.of("FR", 4, "DE", 5);
         raUsageLimits.setMaxPstPerTso(pstMap);
         assertEquals(pstMap, raUsageLimits.getMaxPstPerTso());
@@ -66,7 +63,6 @@ class RaUsageLimitsTest {
         assertEquals(raUsageLimits1, raUsageLimits2);
         // modifies one object
         raUsageLimits1.setMaxRa(3);
-        raUsageLimits1.setMaxTso(5);
         raUsageLimits1.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits1.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits1.setMaxPstPerTso(Map.of("FR", 3));
@@ -74,7 +70,6 @@ class RaUsageLimitsTest {
         assertNotEquals(raUsageLimits1, raUsageLimits2);
         // applies the same modification to the second object
         raUsageLimits2.setMaxRa(3);
-        raUsageLimits2.setMaxTso(5);
         raUsageLimits2.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits2.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits2.setMaxPstPerTso(Map.of("FR", 3));
@@ -95,8 +90,6 @@ class RaUsageLimitsTest {
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
         List<ILoggingEvent> logsList = listAppender.list;
         // negative values
-        raUsageLimits.setMaxTso(-3);
-        assertEquals(0, raUsageLimits.getMaxTso());
         raUsageLimits.setMaxRa(-2);
         assertEquals(0, raUsageLimits.getMaxRa());
         raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)));
@@ -121,9 +114,8 @@ class RaUsageLimitsTest {
         raUsageLimits.setMaxElementaryActionsPerTso(null);
         assertTrue(raUsageLimits.getMaxElementaryActionsPerTso().isEmpty());
         // check logs
-        assertEquals(3, logsList.size());
-        assertEquals("The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
-        assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
-        assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(2).getFormattedMessage());
+        assertEquals(2, logsList.size());
+        assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
+        assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
     }
 }
