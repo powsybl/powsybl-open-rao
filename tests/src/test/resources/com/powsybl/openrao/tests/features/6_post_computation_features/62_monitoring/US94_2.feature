@@ -4,9 +4,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 94.2: Voltage Monitoring
+  This feature covers voltage monitoring, which is parametrised in the CRAC file.
 
   @fast @ac @rao @voltage-monitoring @secure-flow
   Scenario: US 94.2.1: Basic Voltage Monitoring
+  Simple voltage monitoring case with one VoltageCnec in curative and one remedial action.
+  The CRAC file does not contain any FlowCNEC but the computation is still performed.
     Given network file is "epic94/voltage_monitoring.xiidm"
     Given crac file is "epic94/voltage_monitoring_crac.json"
     Given configuration file is "epic94/monitoring_parameters.json"
@@ -22,6 +25,8 @@ Feature: US 94.2: Voltage Monitoring
 
   @fast @ac @rao @voltage-monitoring @secure-flow
   Scenario: US 94.2.2: Basic Voltage Monitoring with preventive and curative VoltageCNECs
+  Simple voltage monitoring case with two VoltageCnecs (one in preventive and the other in curative) and one remedial action.
+  The CRAC file does not contain any FlowCNEC but the computation is still performed.
     Given network file is "epic94/voltage_monitoring.xiidm"
     Given crac file is "epic94/voltage_monitoring_with_preventive_crac.json"
     Given configuration file is "epic94/monitoring_parameters.json"
