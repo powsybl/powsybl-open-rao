@@ -7,29 +7,27 @@
 
 package com.powsybl.openrao.data.crac.api;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 public class RaUsageLimits {
     private static final int DEFAULT_MAX_RA = Integer.MAX_VALUE;
-    private static final int DEFAULT_MAX_TSO = Integer.MAX_VALUE;
     private static final Map<String, Integer> DEFAULT_MAX_TOPO_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_PST_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_RA_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO = new HashMap<>();
     private int maxRa = DEFAULT_MAX_RA;
-    private int maxTso = DEFAULT_MAX_TSO;
-    private final Set<String> maxTsoExclusion = new HashSet<>();
     private Map<String, Integer> maxTopoPerTso = DEFAULT_MAX_TOPO_PER_TSO;
     private Map<String, Integer> maxPstPerTso = DEFAULT_MAX_PST_PER_TSO;
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
@@ -41,15 +39,6 @@ public class RaUsageLimits {
             this.maxRa = 0;
         } else {
             this.maxRa = maxRa;
-        }
-    }
-
-    public void setMaxTso(int maxTso) {
-        if (maxTso < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", maxTso);
-            this.maxTso = 0;
-        } else {
-            this.maxTso = maxTso;
         }
     }
 
@@ -91,10 +80,6 @@ public class RaUsageLimits {
         return maxRa;
     }
 
-    public int getMaxTso() {
-        return maxTso;
-    }
-
     public Map<String, Integer> getMaxTopoPerTso() {
         return maxTopoPerTso;
     }
@@ -109,10 +94,6 @@ public class RaUsageLimits {
 
     public Map<String, Integer> getMaxElementaryActionsPerTso() {
         return maxElementaryActionsPerTso;
-    }
-
-    public Set<String> getMaxTsoExclusion() {
-        return maxTsoExclusion;
     }
 
     private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso) {
@@ -142,10 +123,6 @@ public class RaUsageLimits {
         });
     }
 
-    public void addTsoToExclude(String tso) {
-        maxTsoExclusion.add(tso);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -156,7 +133,6 @@ public class RaUsageLimits {
         }
         RaUsageLimits raUsageLimits = (RaUsageLimits) o;
         return raUsageLimits.maxRa == this.maxRa
-            && raUsageLimits.maxTso == this.maxTso
             && raUsageLimits.maxRaPerTso.equals(this.maxRaPerTso)
             && raUsageLimits.maxPstPerTso.equals(this.maxPstPerTso)
             && raUsageLimits.maxTopoPerTso.equals(this.maxTopoPerTso);
@@ -165,5 +141,64 @@ public class RaUsageLimits {
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    // The deserializer is used in crac deserialization as well as crac creation parameters
+    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser, Optional<Integer> cracPrimaryVersion, Optional<Integer> cracSubVersion) throws IOException {
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        String instant = null;
+        while (!jsonParser.nextToken().isStructEnd()) {
+            switch (jsonParser.currentName()) {
+                case INSTANT:
+                    jsonParser.nextToken();
+                    instant = jsonParser.getValueAsString();
+                    break;
+                case MAX_RA:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRa(jsonParser.getIntValue());
+                    break;
+                case MAX_TSO:
+                    jsonParser.nextToken();
+                    TECHNICAL_LOGS.warn("The max-tso limit can no longer be defined and will be ignored.");
+                    break;
+                case MAX_TOPO_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_PST_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_RA_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_ELEMENTARY_ACTIONS_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                default:
+                    throw new OpenRaoException(String.format(
+                        "Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)",
+                        RA_USAGE_LIMITS_PER_INSTANT,
+                        jsonParser.currentName()
+                    ));
+            }
+        }
+        return Pair.of(instant, raUsageLimits);
+    }
+
+    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+        HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof String) || !(o2 instanceof Integer)) {
+                throw new OpenRaoException("Unexpected key or value type in a Map<String, Integer> parameter!");
+            }
+            if ((int) o2 < 0) {
+                throw new OpenRaoException("Unexpected negative integer!");
+            }
+        });
+        return map;
     }
 }
