@@ -7,15 +7,16 @@
 
 package com.powsybl.openrao.data.crac.api;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -140,5 +141,71 @@ public class RaUsageLimits {
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    // The deserializer is used in crac deserialization as well as crac creation parameters
+    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser, Optional<Integer> cracPrimaryVersion, Optional<Integer> cracSecondaryVersion) throws IOException {
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        String instant = null;
+        while (!jsonParser.nextToken().isStructEnd()) {
+            switch (jsonParser.currentName()) {
+                case INSTANT:
+                    jsonParser.nextToken();
+                    instant = jsonParser.getValueAsString();
+                    break;
+                case MAX_RA:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRa(jsonParser.getIntValue());
+                    break;
+                case MAX_TSO:
+                    jsonParser.nextToken();
+                    if (cracPrimaryVersion.isPresent() && cracSecondaryVersion.isPresent()
+                        && (cracPrimaryVersion.get() > 2 || (cracPrimaryVersion.get() == 2 && cracSecondaryVersion.get() > 11))) {
+                        throw new OpenRaoException("The max-tso limit can no longer be defined since CRAC version 2.8");
+                    } else {
+                        jsonParser.nextToken();
+                        TECHNICAL_LOGS.warn("The max-tso limit can no longer be defined and will be ignored. ");
+                        break;
+                    }
+                case MAX_TOPO_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_PST_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_RA_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_ELEMENTARY_ACTIONS_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                default:
+                    throw new OpenRaoException(String.format(
+                        "Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)",
+                        RA_USAGE_LIMITS_PER_INSTANT,
+                        jsonParser.currentName()
+                    ));
+            }
+        }
+        return Pair.of(instant, raUsageLimits);
+    }
+
+
+    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+        HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof String) || !(o2 instanceof Integer)) {
+                throw new OpenRaoException("Unexpected key or value type in a Map<String, Integer> parameter!");
+            }
+            if ((int) o2 < 0) {
+                throw new OpenRaoException("Unexpected negative integer!");
+            }
+        });
+        return map;
     }
 }

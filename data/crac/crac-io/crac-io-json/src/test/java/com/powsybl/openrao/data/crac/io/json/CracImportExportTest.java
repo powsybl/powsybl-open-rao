@@ -199,7 +199,6 @@ class CracImportExportTest {
 
         RaUsageLimits expectedUsageLimits = crac.getRaUsageLimits(curativeInstant);
         assertEquals(4, expectedUsageLimits.getMaxRa());
-        assertEquals(2, expectedUsageLimits.getMaxTso());
         assertEquals(Map.of("FR", 12), expectedUsageLimits.getMaxRaPerTso());
         assertEquals(Map.of("FR", 7), expectedUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 5, "BE", 6), expectedUsageLimits.getMaxTopoPerTso());
