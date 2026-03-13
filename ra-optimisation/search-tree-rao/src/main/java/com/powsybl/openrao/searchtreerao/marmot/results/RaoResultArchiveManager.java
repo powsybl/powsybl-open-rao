@@ -14,8 +14,8 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,14 +55,24 @@ public final class RaoResultArchiveManager {
         zipOutputStream.close();
     }
 
-    private static void addRaoResultToZipArchive(OffsetDateTime timestamp, ZipOutputStream zipOutputStream, RaoResult raoResult, Crac crac, Properties properties, String jsonFileNameTemplate) throws IOException {
+    private static void addRaoResultToZipArchive(OffsetDateTime timestamp,
+                                                 ZipOutputStream zipOutputStream,
+                                                 RaoResult raoResult,
+                                                 Crac crac,
+                                                 Properties properties,
+                                                 String jsonFileNameTemplate) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         raoResult.write("JSON", crac, properties, byteArrayOutputStream);
         addEntryToZipArchive(timestamp.format(DateTimeFormatter.ofPattern(jsonFileNameTemplate)), zipOutputStream, byteArrayOutputStream);
         byteArrayOutputStream.close();
     }
 
-    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, TimeCoupledRaoResult timeCoupledRaoResult, String summaryFilename, String jsonFileNameTemplate, List<Instant> instants, boolean preventiveOnly) throws IOException {
+    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream,
+                                               TimeCoupledRaoResult timeCoupledRaoResult,
+                                               String summaryFilename,
+                                               String jsonFileNameTemplate,
+                                               List<Instant> instants,
+                                               boolean preventiveOnly) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();

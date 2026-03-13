@@ -59,7 +59,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.entsoe.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

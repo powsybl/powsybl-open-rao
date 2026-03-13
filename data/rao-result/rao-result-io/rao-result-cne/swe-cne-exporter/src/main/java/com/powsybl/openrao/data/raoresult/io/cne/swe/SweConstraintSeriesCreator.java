@@ -7,14 +7,21 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.*;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ConstraintSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ContingencySeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Reason;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B56_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B57_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_TEXT;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format
@@ -64,17 +71,17 @@ public final class SweConstraintSeriesCreator {
         constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
         if (sweCneHelper.isContingencyDivergent(contingency)) {
-            addDivergenceReasonCode(constraintSeries);
+            addFailureReasonCode(constraintSeries);
         } else {
             constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeries(contingency));
         }
         return constraintSeries;
     }
 
-    private static void addDivergenceReasonCode(ConstraintSeries constraintSeries) {
+    private static void addFailureReasonCode(ConstraintSeries constraintSeries) {
         Reason reason = new Reason();
-        reason.setCode(DIVERGENCE_CODE);
-        reason.setText(DIVERGENCE_TEXT);
+        reason.setCode(RAO_FAILURE_CODE);
+        reason.setText(RAO_FAILURE_TEXT);
         constraintSeries.getReason().add(reason);
     }
 
@@ -105,7 +112,7 @@ public final class SweConstraintSeriesCreator {
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
         if (sweCneHelper.isContingencyDivergent(contingency)) {
             constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(contingency));
-            addDivergenceReasonCode(constraintSeries);
+            addFailureReasonCode(constraintSeries);
         } else {
             constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(contingency));
             constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeriesReference(contingency));
