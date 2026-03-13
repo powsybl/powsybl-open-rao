@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoSides;
@@ -145,9 +145,9 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
             interpretTieLine(tieLine, ucteMatchingResult.getSide() == TWO ? TwoSides.TWO : TwoSides.ONE);
         } else if (networkElement instanceof Branch<?> branch) {
             checkBranchNominalVoltage(branch);
-            checkBranchCurrentLimits(branch);
-        } else if (networkElement instanceof DanglingLine danglingLine) {
-            interpretDanglingLine(danglingLine);
+            checkBoundaryCurrentLimits(branch);
+        } else if (networkElement instanceof BoundaryLine boundaryLine) {
+            interpretBoundaryLine(boundaryLine);
         }
     }
 
@@ -175,27 +175,27 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
     }
 
-    private void interpretDanglingLine(DanglingLine danglingLine) {
-        Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+    private void interpretBoundaryLine(BoundaryLine boundaryLine) {
+        Optional<TieLine> optionalTieLine = boundaryLine.getTieLine();
         if (optionalTieLine.isPresent()) {
             TieLine tieLine = optionalTieLine.get();
             this.connectableIdInNetwork = tieLine.getId();
-            TwoSides side = tieLine.getDanglingLine1() == danglingLine ? TwoSides.ONE : TwoSides.TWO;
-            // dangling line convention is x node to terminal, so dl 1 is towards terminal 1 (opposite) and dl 2 is towards terminal 2 (direct)
-            this.isInvertedInNetwork = tieLine.getDanglingLine1() == danglingLine ? !isInvertedInNetwork : isInvertedInNetwork;
+            TwoSides side = tieLine.getBoundaryLine1() == boundaryLine ? TwoSides.ONE : TwoSides.TWO;
+            // boundary line convention is x node to terminal, so bl 1 is towards terminal 1 (opposite) and bl 2 is towards terminal 2 (direct)
+            this.isInvertedInNetwork = tieLine.getBoundaryLine1() == boundaryLine ? !isInvertedInNetwork : isInvertedInNetwork;
             interpretTieLine(tieLine, side);
         } else {
-            checkDanglingLineNominalVoltage(danglingLine);
-            checkDanglingLineCurrentLimits(danglingLine);
+            checkBoundaryLineNominalVoltage(boundaryLine);
+            checkBoundaryLineCurrentLimits(boundaryLine);
         }
     }
 
-    protected void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
-        this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
+    protected void checkBoundaryLineNominalVoltage(BoundaryLine boundaryLine) {
+        this.nominalVoltageLeft = boundaryLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
     }
 
-    protected void checkBranchCurrentLimits(Branch<?> branch) {
+    protected void checkBoundaryCurrentLimits(Branch<?> branch) {
         if (branch.getCurrentLimits1().isPresent()) {
             this.currentLimitLeft = branch.getCurrentLimits1().orElseThrow().getPermanentLimit();
         }
@@ -213,12 +213,12 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         }
     }
 
-    protected void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        if (danglingLine.getCurrentLimits().isPresent()) {
-            this.currentLimitLeft = danglingLine.getCurrentLimits().orElseThrow().getPermanentLimit();
+    protected void checkBoundaryLineCurrentLimits(BoundaryLine boundaryLine) {
+        if (boundaryLine.getCurrentLimits().isPresent()) {
+            this.currentLimitLeft = boundaryLine.getCurrentLimits().orElseThrow().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
         } else {
-            invalidate(format("couldn't identify current limits of dangling line (%s, networkDanglingLineId: %s)", connectableId, danglingLine.getId()));
+            invalidate(format("couldn't identify current limits of boundary line (%s, networkBoundaryLineId: %s)", connectableId, boundaryLine.getId()));
         }
     }
 

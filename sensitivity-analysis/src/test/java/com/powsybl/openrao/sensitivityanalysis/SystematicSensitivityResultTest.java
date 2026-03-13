@@ -28,13 +28,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
-import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.sensitivity.SensitivityVariableType;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -421,7 +415,9 @@ class SystematicSensitivityResultTest {
 
         sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(contingency.getId(), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(contingency.getId()),
+            List.of(),
             List.of()
         );
 
@@ -448,7 +444,9 @@ class SystematicSensitivityResultTest {
 
         SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(contingency.getId(), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(contingency.getId()),
+            List.of(),
             List.of()
         );
 

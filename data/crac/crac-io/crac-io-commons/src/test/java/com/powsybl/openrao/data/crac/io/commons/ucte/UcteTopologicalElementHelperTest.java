@@ -44,7 +44,7 @@ class UcteTopologicalElementHelperTest {
 
         assertTrue(new UcteTopologicalElementHelper("DDE1AA12", "DDE2AA11", "1", null, networkHelper).isValid());
         assertTrue(new UcteTopologicalElementHelper("XBEFR321", "BBE1AA21", null, "TL BE1X", networkHelper).isValid());
-        assertTrue(new UcteTopologicalElementHelper("XDE2AL11", "DDE2AA11", null, "DL AL", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("XDE2AL11", "DDE2AA11", null, "BL AL", networkHelper).isValid());
         assertTrue(new UcteTopologicalElementHelper("FFR3AA11", "FFR3AA21", "1", null, networkHelper).isValid());
         assertTrue(new UcteTopologicalElementHelper("BBE3AA12", "BBE2AA11", null, "PST BE", networkHelper).isValid());
     }

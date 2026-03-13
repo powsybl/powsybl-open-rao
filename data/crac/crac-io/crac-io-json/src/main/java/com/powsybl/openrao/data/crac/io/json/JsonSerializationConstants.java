@@ -43,7 +43,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.9";
+    public static final String CRAC_IO_VERSION = "2.10";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -64,6 +64,7 @@ public final class JsonSerializationConstants {
     v2.7: addition of timestamp
     v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions, deletion of usage methods
     v2.9: add acEmulationDeactivationAction
+    v2.10: renaming of danglingLineActions to boundaryLineActions
      */
 
     // headers
@@ -128,6 +129,7 @@ public final class JsonSerializationConstants {
     public static final String GENERATOR_ACTIONS = "generatorActions";
     public static final String LOAD_ACTIONS = "loadActions";
     public static final String DANGLINGLINE_ACTIONS = "danglingLineActions";
+    public static final String BOUNDARYLINE_ACTIONS = "boundaryLineActions";
     public static final String SHUNTCOMPENSATOR_POSITION_ACTIONS = "shuntCompensatorPositionActions";
     public static final String PHASETAPCHANGER_TAPPOSITION_ACTIONS = "phaseTapChangerTapPositionActions";
     public static final String SWITCH_PAIRS = "switchPairs";

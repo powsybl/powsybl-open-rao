@@ -25,7 +25,7 @@ public interface NetworkActionAdder extends RemedialActionAdder<NetworkActionAdd
 
     LoadActionAdder newLoadAction();
 
-    DanglingLineActionAdder newDanglingLineAction();
+    BoundaryLineActionAdder newBoundaryLineAction();
 
     ShuntCompensatorPositionActionAdder newShuntCompensatorPositionAction();
 
