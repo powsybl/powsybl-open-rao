@@ -144,7 +144,7 @@ public class RaUsageLimits {
     }
 
     // The deserializer is used in crac deserialization as well as crac creation parameters
-    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser, Optional<Integer> cracPrimaryVersion, Optional<Integer> cracSecondaryVersion) throws IOException {
+    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser, Optional<Integer> cracPrimaryVersion, Optional<Integer> cracSubVersion) throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         String instant = null;
         while (!jsonParser.nextToken().isStructEnd()) {
@@ -158,9 +158,8 @@ public class RaUsageLimits {
                     raUsageLimits.setMaxRa(jsonParser.getIntValue());
                     break;
                 case MAX_TSO:
-                    jsonParser.nextToken();
-                    if (cracPrimaryVersion.isPresent() && cracSecondaryVersion.isPresent()
-                        && (cracPrimaryVersion.get() > 2 || cracPrimaryVersion.get() == 2 && cracSecondaryVersion.get() > 11)) {
+                    if (cracPrimaryVersion.isPresent() && cracSubVersion.isPresent()
+                        && (cracPrimaryVersion.get() > 2 || cracPrimaryVersion.get() == 2 && cracSubVersion.get() > 11)) {
                         throw new OpenRaoException("The max-tso limit can no longer be defined since CRAC version 2.8");
                     } else {
                         jsonParser.nextToken();
