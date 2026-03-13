@@ -17,6 +17,8 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
@@ -164,6 +166,24 @@ class CoreCneRemedialActionsCreatorTest {
         return adder.add();
     }
 
+    private InjectionRangeAction getInjectionRangeAction(final InstantKind instant) {
+        final InjectionRangeActionAdder adder = crac.newInjectionRangeAction()
+            .withId("id_1 + id_2")
+            .withName("name_1 + name_2")
+            .withOperator("D4 + D7")
+            .withGroupId("station_1 + station_2")
+            .withNetworkElementAndKey(-1, "element_1")
+            .withNetworkElementAndKey(1, "element_2")
+            .withInitialSetpoint(42.0)
+            .newRange().withMin(12.0).withMax(314.0).add();
+        if (instant == InstantKind.PREVENTIVE) {
+            adder.newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
+        } else if (instant == InstantKind.CURATIVE) {
+            adder.newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant(CURATIVE_INSTANT_ID).add();
+        }
+        return adder.add();
+    }
+
     private NetworkAction getNetworkAction(final InstantKind instant) {
         final NetworkActionAdder adder = crac.newNetworkAction()
             .withId("na-id")
@@ -192,6 +212,28 @@ class CoreCneRemedialActionsCreatorTest {
             .hasFieldOrPropertyWithValue("name", elementName)
             .hasFieldOrPropertyWithValue("resourceCapacityUnitSymbol", "C62");
         Assertions.assertThat(rs.getResourceCapacityDefaultCapacity().intValue()).isEqualTo(tap);
+    }
+
+    private static void checkHvdcInjectionRangeAction(final RemedialActionSeries ra,
+                                                      final Object instantCode,
+                                                      final String id,
+                                                      final String raName,
+                                                      final String tsoEiCode,
+                                                      final String elementName,
+                                                      final int setpoint) {
+        Assertions.assertThat(ra)
+            .hasFieldOrPropertyWithValue("applicationModeMarketObjectStatusStatus", instantCode)
+            .hasFieldOrPropertyWithValue("mrid", id)
+            .hasFieldOrPropertyWithValue("name", raName);
+        Assertions.assertThat(ra.getPartyMarketParticipant()).hasSize(1);
+        Assertions.assertThat(ra.getPartyMarketParticipant().getFirst().getMRID().getValue()).isEqualTo(tsoEiCode);
+        Assertions.assertThat(ra.getRegisteredResource()).hasSize(1);
+        final RemedialActionRegisteredResource rr = ra.getRegisteredResource().getFirst();
+        Assertions.assertThat(rr)
+            .hasFieldOrPropertyWithValue("name", elementName)
+            .hasFieldOrPropertyWithValue("resourceCapacityUnitSymbol", "MAW");
+        Assertions.assertThat(rr.getMRID().getValue()).isEqualTo(id);
+        Assertions.assertThat(rr.getResourceCapacityDefaultCapacity().intValue()).isEqualTo(setpoint);
     }
 
     private static void checkNetworkAction(final RemedialActionSeries ra, final String instantCode) {
@@ -243,6 +285,29 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
+    void testHvdcPreOptim() {
+        final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(null);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        Assertions.assertThat(constraintSeriesList).hasSize(1);
+
+        // B56 for HVDC pre-optim
+        final ConstraintSeries constraintSeries = constraintSeriesList.getFirst();
+        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(2);
+
+        final RemedialActionSeries ra1 = constraintSeries.getRemedialActionSeries().getFirst();
+        checkHvdcInjectionRangeAction(ra1, null, "id_1", "name_1", "10XDE-ENBW--TNGX", "element_1", -42);
+
+        final RemedialActionSeries ra2 = constraintSeries.getRemedialActionSeries().getLast();
+        checkHvdcInjectionRangeAction(ra2, null, "id_2", "name_2", "10XDE-RWENET---W", "element_2", 42);
+    }
+
+    @Test
     void testUnusedPstPreOptim() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
@@ -255,13 +320,82 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
+    void testUnusedHvdcPreOptim() {
+        final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(null);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(false);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        Assertions.assertThat(constraintSeriesList).isEmpty();
+    }
+
+    @Test
+    void testHvdcNoncompliantInjectionRangeActions() {
+        final InjectionRangeAction ra1 = crac.newInjectionRangeAction()
+            .withId("id_1-id_2") // Invalid ID
+            .withName("name_1 + name_2")
+            .withOperator("D4 + D7")
+            .withGroupId("station_1 + station_2")
+            .withNetworkElementAndKey(-1, "element_1")
+            .withNetworkElementAndKey(1, "element_2")
+            .withInitialSetpoint(42.0)
+            .newRange().withMin(12.0).withMax(314.0).add()
+            .add();
+        final InjectionRangeAction ra2 = crac.newInjectionRangeAction()
+            .withId("id_11 + id_21")
+            .withName("name_1-name_2") // Invalid name
+            .withOperator("D4 + D7")
+            .withGroupId("station_1 + station_2")
+            .withNetworkElementAndKey(-1, "element_1")
+            .withNetworkElementAndKey(1, "element_2")
+            .withInitialSetpoint(42.0)
+            .newRange().withMin(12.0).withMax(314.0).add()
+            .add();
+        final InjectionRangeAction ra3 = crac.newInjectionRangeAction()
+            .withId("id_12 + id_22")
+            .withName("name_1 + name_2")
+            .withOperator("D4-D7") // Invalid operator
+            .withGroupId("station_1 + station_2")
+            .withNetworkElementAndKey(-1, "element_1")
+            .withNetworkElementAndKey(1, "element_2")
+            .withInitialSetpoint(42.0)
+            .newRange().withMin(12.0).withMax(314.0).add()
+            .add();
+        final InjectionRangeAction ra4 = crac.newInjectionRangeAction()
+            .withId("id_13 + id_23")
+            .withName("name_1 + name_2")
+            .withOperator("D4 + D7")
+            .withGroupId("station_1 + station_2")
+            .withNetworkElementAndKey(1, "element_1") // Invalid networkElements
+            .withInitialSetpoint(42.0)
+            .newRange().withMin(12.0).withMax(314.0).add()
+            .add();
+
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra1)).thenReturn(true);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra2)).thenReturn(true);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra3)).thenReturn(true);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra4)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        Assertions.assertThat(constraintSeriesList).isEmpty();
+    }
+
+    @Test
     void testIgnoreRemedialActionsWithNoUsageRuleAtPreventiveAndCurative() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
+        final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(null);
         final NetworkAction networkAction = getNetworkAction(null);
 
         // If there was no filtering of remedial actions that do not have usage rules, we would have three B56 (pre-optim, preventive & curative)
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction, injectionRangeAction));
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Set.of(networkAction));
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), networkAction)).thenReturn(true);
 
         final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
@@ -338,6 +472,47 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
+    void testHvdcUsedInPreventive() {
+        final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(InstantKind.PREVENTIVE);
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(injectionRangeAction));
+        Mockito.when(raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), injectionRangeAction)).thenReturn(27.);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        // The list should contain B56 for pre-optim and preventive
+        Assertions.assertThat(constraintSeriesList).hasSize(2);
+
+        // B56 for preventive results
+        final ConstraintSeries preventiveConstraintSeries = constraintSeriesList.get(1);
+        Assertions.assertThat(preventiveConstraintSeries.getContingencySeries()).isEmpty();
+        Assertions.assertThat(preventiveConstraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(preventiveConstraintSeries.getRemedialActionSeries()).hasSize(2);
+
+        final RemedialActionSeries preventiveRa1 = preventiveConstraintSeries.getRemedialActionSeries().getFirst();
+        checkHvdcInjectionRangeAction(preventiveRa1, "A18", "id_1", "name_1", "10XDE-ENBW--TNGX", "element_1", -27);
+
+        final RemedialActionSeries preventiveRa2 = preventiveConstraintSeries.getRemedialActionSeries().getLast();
+        checkHvdcInjectionRangeAction(preventiveRa2, "A18", "id_2", "name_2", "10XDE-RWENET---W", "element_2", 27);
+
+        // Used HVDC in preventive should be stored in CNECs constraint series B57 & B54
+        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
+        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(2); // B57
+        final RemedialActionSeries remedialActionSeries1 = cnecsConstraintSeries.get(1).getRemedialActionSeries().get(0);
+        final RemedialActionSeries remedialActionSeries2 = cnecsConstraintSeries.get(1).getRemedialActionSeries().get(1);
+        Assertions.assertThat(remedialActionSeries1.getMRID()).isEqualTo("id_1");
+        Assertions.assertThat(remedialActionSeries1.getName()).isEqualTo("name_1");
+        Assertions.assertThat(remedialActionSeries1.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
+        Assertions.assertThat(remedialActionSeries2.getMRID()).isEqualTo("id_2");
+        Assertions.assertThat(remedialActionSeries2.getName()).isEqualTo("name_2");
+        Assertions.assertThat(remedialActionSeries2.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
+        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(2); // B54
+        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).hasSize(2); // B54
+    }
+
+    @Test
     void testNetworkActionUsedInPreventive() {
         final NetworkAction networkAction = getNetworkAction(InstantKind.PREVENTIVE);
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
@@ -401,6 +576,50 @@ class CoreCneRemedialActionsCreatorTest {
         final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(2).getRemedialActionSeries().getFirst();
         Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("ra-id");
         Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A19");
+        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).isEmpty(); // B54 but with other contingency
+    }
+
+    @Test
+    void testHvdcUsedInCurative() {
+        final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(InstantKind.CURATIVE);
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet<>());
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", outageInstant))).thenReturn(new HashSet<>());
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", curativeInstant))).thenReturn(Set.of(injectionRangeAction));
+        Mockito.when(raoResult.getOptimizedSetPointOnState(crac.getState("contingency-id", curativeInstant), injectionRangeAction)).thenReturn(27.);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        // The list should contain B56 for pre-optim and curative
+        Assertions.assertThat(constraintSeriesList).hasSize(2);
+
+        // B56 for curative results
+        final ConstraintSeries curativeConstraintSeries = constraintSeriesList.get(1);
+        Assertions.assertThat(curativeConstraintSeries.getContingencySeries()).hasSize(1);
+        Assertions.assertThat(curativeConstraintSeries.getContingencySeries().getFirst().getName()).isEqualTo("contingency-id");
+        Assertions.assertThat(curativeConstraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(curativeConstraintSeries.getRemedialActionSeries()).hasSize(2);
+
+        final RemedialActionSeries curativeRa1 = curativeConstraintSeries.getRemedialActionSeries().getFirst();
+        checkHvdcInjectionRangeAction(curativeRa1, "A19", "id_1", "name_1", "10XDE-ENBW--TNGX", "element_1", -27);
+
+        final RemedialActionSeries curativeRa2 = curativeConstraintSeries.getRemedialActionSeries().getLast();
+        checkHvdcInjectionRangeAction(curativeRa2, "A19", "id_2", "name_2", "10XDE-RWENET---W", "element_2", 27);
+
+        // Used HVDC in curative should be stored in CNECs constraint series B57 & B54
+        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
+        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).isEmpty(); // B57
+        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(2); // B54
+        final RemedialActionSeries remedialActionSeries1 = cnecsConstraintSeries.get(2).getRemedialActionSeries().get(0);
+        final RemedialActionSeries remedialActionSeries2 = cnecsConstraintSeries.get(2).getRemedialActionSeries().get(1);
+        Assertions.assertThat(remedialActionSeries1.getMRID()).isEqualTo("id_1");
+        Assertions.assertThat(remedialActionSeries1.getName()).isEqualTo("name_1");
+        Assertions.assertThat(remedialActionSeries1.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A19");
+        Assertions.assertThat(remedialActionSeries2.getMRID()).isEqualTo("id_2");
+        Assertions.assertThat(remedialActionSeries2.getName()).isEqualTo("name_2");
+        Assertions.assertThat(remedialActionSeries2.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A19");
         Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).isEmpty(); // B54 but with other contingency
     }
 
