@@ -172,7 +172,7 @@ when searching for the best network actions.
   evaluated in the search-tree.  
   If the value is set to 1, topological actions from direct neighbors will also be considered, etc.  
   *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
-  considered direct neighbors; dangling lines are not considered linked (ie BE and DE are not considered neighbors, even
+  considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
 
 #### Second preventive RAO parameters

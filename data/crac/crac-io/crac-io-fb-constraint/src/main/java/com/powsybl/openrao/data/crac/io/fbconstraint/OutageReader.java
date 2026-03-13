@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -89,21 +89,21 @@ class OutageReader {
 
         if (!outage.getHvdcVH().isEmpty()) {
             outage.getHvdcVH().forEach(hvdcVH -> {
-                DanglingLine dl1 = findDanglingLineWithXnode(hvdcVH.getFrom(), ucteNetworkHelper.getNetwork());
-                DanglingLine dl2 = findDanglingLineWithXnode(hvdcVH.getTo(), ucteNetworkHelper.getNetwork());
+                BoundaryLine bl1 = findBoundaryLineWithXnode(hvdcVH.getFrom(), ucteNetworkHelper.getNetwork());
+                BoundaryLine bl2 = findBoundaryLineWithXnode(hvdcVH.getTo(), ucteNetworkHelper.getNetwork());
 
-                if (Objects.isNull(dl1) || Objects.isNull(dl2)) {
+                if (Objects.isNull(bl1) || Objects.isNull(bl2)) {
                     this.isOutageValid = false;
                     this.invalidOutageReason = String.format("one of the two Xnodes of outage %s was not found in the network: %s, %s", outage.getId(), hvdcVH.getFrom(), hvdcVH.getTo());
                 } else {
-                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElementFactory.create(dl1).getType());
-                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElementFactory.create(dl2).getType());
+                    outageElementIdsAndContingencyType.put(bl1.getId(), ContingencyElementFactory.create(bl1).getType());
+                    outageElementIdsAndContingencyType.put(bl2.getId(), ContingencyElementFactory.create(bl2).getType());
                 }
             });
         }
     }
 
-    private DanglingLine findDanglingLineWithXnode(String xNodeId, Network network) {
-        return network.getDanglingLineStream().filter(danglingLine -> danglingLine.getPairingKey().equals(xNodeId)).findFirst().orElse(null);
+    private BoundaryLine findBoundaryLineWithXnode(String xNodeId, Network network) {
+        return network.getBoundaryLineStream().filter(boundaryLine -> boundaryLine.getPairingKey().equals(xNodeId)).findFirst().orElse(null);
     }
 }
