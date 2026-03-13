@@ -7,7 +7,7 @@ Feature: US 13.11: Curative RAO stop criterion
   This feature covers the parameter "open-rao-search-tree-parameters"/"objective-function"/"curative-min-obj-improvement",
   from the RaoParameters.
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.11.1: Skip curative RAO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us11case1.json"
@@ -20,7 +20,7 @@ Feature: US 13.11: Curative RAO stop criterion
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 680 A
     Then the value of the objective function after CRA should be -301
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.11.2: Stop curative RAO after root leaf optimization
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us11case1.json"
@@ -35,7 +35,7 @@ Feature: US 13.11: Curative RAO stop criterion
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 971 A
     Then the value of the objective function after CRA should be -301
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.11.3: Stop curative RAO after reaching set difference with preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us11case3.json"
@@ -56,7 +56,7 @@ Feature: US 13.11: Curative RAO stop criterion
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 854 A
     Then the value of the objective function after CRA should be -124
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.11.4: Stop curative RAO after making perimeters secure
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us11case4.json"

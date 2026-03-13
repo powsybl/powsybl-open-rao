@@ -7,7 +7,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
   This feature covers the parameters of "second-preventive-rao" ("execution-condition" : "COST_INCREASE"),
   with "loop-flow-parameters" defined, from the RaoParameters.
 
-  @fast @rao @dc @second-preventive @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: US 20.2.1: LF constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case1.xml"
@@ -23,7 +23,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Then the loopflow threshold on cnec "003_FR-DE - curative" should be 250 MW
     Then the initial loopflow on cnec "003_FR-DE - curative" should be -341 MW
 
-  @fast @rao @dc @second-preventive @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: US 20.2.2: LF constraint in curative is solved by curative network action + 2P
     Curative network action restores the network to US20.2.1 situation, that's why we finally fall back to same
     loopflow after CRA as US20.2.1's initial loopflow.
@@ -43,7 +43,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Then the initial loopflow on cnec "003_FR-DE - curative" should be -368 MW
     Then the loopflow on cnec "003_FR-DE - curative" after CRA should be -341 MW
 
-  @fast @rao @dc @second-preventive @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: US 20.2.3: LF constraint avoided on preventive CNEC in 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case3.xml"

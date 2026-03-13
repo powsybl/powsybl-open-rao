@@ -6,7 +6,7 @@
 Feature: US 7.7: Handle optimisation unfeasibility with loopflow constraints
   This feature covers the parameters "loop-flow-parameters" from the RaoParameters within the RAO computation.
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 7.7.1: Simple search tree RAO with LF limitation and infeasible linear problem
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3bis.json"

@@ -6,7 +6,7 @@
 Feature: US 14.6: Dangling lines
   #TODO: This feature covers
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 14.6.1 : Dangling line with no generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
@@ -18,7 +18,7 @@ Feature: US 14.6: Dangling lines
     Then the margin on cnec "cnec_xnode - preventive" after PRA should be 2000.0 MW
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 14.6.2 : Dangling line with no generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
@@ -30,7 +30,7 @@ Feature: US 14.6: Dangling lines
     Then the margin on cnec "cnec_xnode - preventive" after PRA should be 2888.0 A
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 14.6.3 : Dangling line with generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
@@ -42,7 +42,7 @@ Feature: US 14.6: Dangling lines
     Then the margin on cnec "cnec_xnode - preventive" after PRA should be 1000.0 MW
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 14.6.4 : Dangling line with generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"

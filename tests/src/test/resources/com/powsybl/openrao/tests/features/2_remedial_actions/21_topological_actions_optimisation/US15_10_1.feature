@@ -71,7 +71,7 @@ Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes c
       | RA1              | 1          | OnInstant | Available | curative |               |            |
       | RA2              | 1          | OnInstant | Available | curative |               |            |
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.10.1.6: bus bar change in RAO
     Given network file is "epic15/TestCase12Nodes_forCSE_3nodes.uct"
     Given crac file is "epic15/cseCrac_ep15us10-1case6.xml"
