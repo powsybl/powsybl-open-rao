@@ -60,6 +60,7 @@ import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator
 public final class CoreCneRemedialActionsCreator {
 
     private static final String SEPARATOR = " + ";
+    private static final String SEPARATOR_REGEX = " \\+ ";
     private static final String RA_SERIES = "RAseries";
 
     private final CneHelper cneHelper;
@@ -173,13 +174,6 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private List<RemedialActionSeries> createPreOptimInjectionRangeActionSeries(final InjectionRangeAction rangeAction) {
-        if (!isInjectionRangeActionHvdcCompliant(rangeAction)) {
-            // In Core CC, the only elements that are currently modeled with injectionRangeAction objects are HVDC lines.
-            // An injectionRangeAction that does not match the expected format for HVDC lines is not supposed to exist,
-            // so if we find one then we should not add it to the CNE
-            return List.of();
-        }
-
         final Double setpoint = rangeAction.getInitialSetpoint();
         return createInjectionRangeActionSeries(rangeAction, null, setpoint);
     }
@@ -260,6 +254,7 @@ public final class CoreCneRemedialActionsCreator {
         rangeActions.stream()
             .filter(action -> isRemedialActionDefinedForState(action, state))
             .filter(action -> isRangeActionActivatedDuringState(action, state))
+            .filter(action -> !action.getNetworkElements().isEmpty())
             .map(action -> {
                 final int optimizedTap = cneHelper.getRaoResult().getOptimizedTapOnState(state, action);
                 return createPstRangeActionSeries(action, instant, optimizedTap);
@@ -274,6 +269,7 @@ public final class CoreCneRemedialActionsCreator {
         rangeActions.stream()
             .filter(action -> isRemedialActionDefinedForState(action, state))
             .filter(action -> isRangeActionActivatedDuringState(action, state))
+            .filter(action -> !action.getNetworkElements().isEmpty())
             .map(action -> {
                 final Double optimizedSetpoint = cneHelper.getRaoResult().getOptimizedSetPointOnState(state, action);
                 return createInjectionRangeActionSeries(action, instant, optimizedSetpoint);
@@ -292,14 +288,15 @@ public final class CoreCneRemedialActionsCreator {
             .forEach(remedialActionSeriesList::add);
     }
 
-    private static boolean isRemedialActionDefinedForState(final RemedialAction<?> networkAction, final State state) {
-        return networkAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
+    private static boolean isRemedialActionDefinedForState(final RemedialAction<?> remedialAction, final State state) {
+        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
     }
 
     private boolean isRangeActionActivatedDuringState(final RangeAction<?> rangeAction, final State state) {
         // using RaoResult.isActivatedDuringState may throw an exception
         // if the state was not optimized or if the Range action was filtered out
         // that's why we use getActivatedRangeActionsDuringState instead
+        // TODO Vérifier si le commentaire ci-dessus est toujours valable
         return cneHelper.getRaoResult().getActivatedRangeActionsDuringState(state).contains(rangeAction);
     }
 
@@ -358,7 +355,7 @@ public final class CoreCneRemedialActionsCreator {
     private List<RemedialActionSeries> createInjectionRangeActionSeries(final InjectionRangeAction rangeAction,
                                                                         final InstantKind instant,
                                                                         final Double setpoint) {
-        if (isInjectionRangeActionHvdcCompliant(rangeAction)) {
+        if (!isInjectionRangeActionHvdcCompliant(rangeAction)) {
             // In Core CC, the only elements that are currently modeled with injectionRangeAction objects are HVDC lines.
             // An injectionRangeAction that does not match the expected format for HVDC lines is not supposed to exist,
             // so if we find one then we should not add it to the CNE
@@ -366,9 +363,9 @@ public final class CoreCneRemedialActionsCreator {
         }
 
         // First part of id/name/operator is "from", the second part is "to"
-        final String[] raIds = rangeAction.getId().split(SEPARATOR);
-        final String[] raNames = rangeAction.getName().split(SEPARATOR);
-        final String[] raOperators = rangeAction.getOperator().split(SEPARATOR);
+        final String[] raIds = rangeAction.getId().split(SEPARATOR_REGEX);
+        final String[] raNames = rangeAction.getName().split(SEPARATOR_REGEX);
+        final String[] raOperators = rangeAction.getOperator().split(SEPARATOR_REGEX);
         // NetworkElements are sorted by distribution key : -1 is "from" element, 1 is "to" element
         final String[] networkElementNames = rangeAction.getInjectionDistributionKeys().entrySet().stream()
             .sorted(Map.Entry.comparingByValue())
