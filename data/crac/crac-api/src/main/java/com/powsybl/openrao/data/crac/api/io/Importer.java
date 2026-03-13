@@ -11,8 +11,13 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
 import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -24,25 +29,35 @@ public interface Importer {
      */
     String getFormat();
 
-    // @Deprecated
-    //TODO Lui deprecated
-    // boolean depre_exists(String filename, InputStream inputStream);
-
     boolean exists(SafeFileReader inputFile);
+
+    @Deprecated
+    default boolean exists(String filename, InputStream inputStream) {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return exists(SafeFileReader.create(tmp.getTempFile().toFile(), BufferSize.MEDIUM));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     /**
      * Create a model.
      *
-     * @param inputStream data input stream
+     * @param inputFile data input stream
      * @param cracCreationParameters extra CRAC creation parameters
      * @param network     network upon which the CRAC is based
      * @return the model
      */
-    // @Deprecated
-    //TODO Lui deprecated
-    // CracCreationContext depre_importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network);
-
     CracCreationContext importData(SafeFileReader inputFile, CracCreationParameters cracCreationParameters, Network network);
+
+    @Deprecated
+    default CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        try (var tmp = TmpFile.create("importData", inputStream, BufferSize.MEDIUM)) {
+            return importData(SafeFileReader.create(tmp.getTempFile().toFile(), BufferSize.MEDIUM), cracCreationParameters, network);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     static Importer findImporter(SafeFileReader inputFile) {
         return new ServiceLoaderCache<>(Importer.class).getServices().stream()
@@ -50,7 +65,5 @@ public interface Importer {
             .findAny()
             .orElseThrow(() -> new OpenRaoException("No suitable importer found."));
     }
-
-
 
 }

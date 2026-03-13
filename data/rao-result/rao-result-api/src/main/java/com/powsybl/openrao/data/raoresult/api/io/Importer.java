@@ -8,8 +8,13 @@
 package com.powsybl.openrao.data.raoresult.api.io;
 
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
 import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -20,20 +25,32 @@ public interface Importer {
      */
     String getFormat();
 
-    // @Deprecated
-    //TODO Lui deprecated
-
     boolean exists(SafeFileReader inputFile);
+
+    @Deprecated
+    default boolean exists(String filename, InputStream inputStream) {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return exists(SafeFileReader.create(tmp.getTempFile().toFile(), BufferSize.MEDIUM));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     /**
      * Create a RaoResult.
      *
-     * @param inputStream RaoResult data
+     * @param inputFile RaoResult data
      * @param crac        the crac on which the RaoResult data is based
      * @return the model
      */
-    // @Deprecated
-    //TODO Lui  deprecated
-
     RaoResult importData(SafeFileReader inputFile, Crac crac);
+
+    @Deprecated
+    default RaoResult importData(InputStream inputStream, Crac crac) {
+        try (var tmp = TmpFile.create("importData", inputStream, BufferSize.MEDIUM)) {
+            return importData(SafeFileReader.create(tmp.getTempFile().toFile(), BufferSize.MEDIUM), crac);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

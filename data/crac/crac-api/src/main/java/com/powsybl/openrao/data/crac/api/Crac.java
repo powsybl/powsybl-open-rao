@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.io.Exporter;
 import com.powsybl.openrao.data.crac.api.io.Importer;
 import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
 import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -39,6 +40,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -586,6 +589,13 @@ public interface Crac extends Identifiable<Crac> {
         return Importer.findImporter(reader).getFormat();
     }
 
+    @Deprecated
+    static String getCracFormat(String filename, InputStream inputStream) throws IOException {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return getCracFormat(tmp.getTempFile().toFile());
+        }
+    }
+
     /**
      * Import CRAC from a file, inside a CracCreationContext
      *
@@ -599,6 +609,13 @@ public interface Crac extends Identifiable<Crac> {
         return Importer.findImporter(reader).importData(reader, cracCreationParameters, network);
     }
 
+    @Deprecated
+    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network, CracCreationParameters cracCreationParameters) throws IOException {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return readWithContext(tmp.getTempFile().toFile(), network, cracCreationParameters);
+        }
+    }
+
     /**
      * Import CRAC from a file, inside a CracCreationContext
      *
@@ -608,6 +625,13 @@ public interface Crac extends Identifiable<Crac> {
      */
     static CracCreationContext readWithContext(File filename, Network network) {
         return readWithContext(filename, network, CracCreationParameters.load());
+    }
+
+    @Deprecated
+    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network) throws IOException {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return readWithContext(tmp.getTempFile().toFile(), network);
+        }
     }
 
     /**
@@ -622,6 +646,13 @@ public interface Crac extends Identifiable<Crac> {
         return readWithContext(filename, network, cracCreationParameters).getCrac();
     }
 
+    @Deprecated
+    static Crac read(String filename, InputStream inputStream, Network network, CracCreationParameters cracCreationParameters) throws IOException {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return read(tmp.getTempFile().toFile(), network, cracCreationParameters);
+        }
+    }
+
     /**
      * Import CRAC from a file
      *
@@ -631,6 +662,13 @@ public interface Crac extends Identifiable<Crac> {
      */
     static Crac read(File filename, Network network) {
         return read(filename, network, CracCreationParameters.load());
+    }
+
+    @Deprecated
+    static Crac read(String filename, InputStream inputStream, Network network) throws IOException {
+        try (var tmp = TmpFile.create(filename, inputStream, BufferSize.MEDIUM)) {
+            return read(tmp.getTempFile().toFile(), network);
+        }
     }
 
     /**
