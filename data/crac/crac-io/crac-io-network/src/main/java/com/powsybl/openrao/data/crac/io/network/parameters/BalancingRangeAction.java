@@ -9,8 +9,9 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
+import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
@@ -20,7 +21,7 @@ import java.util.function.Function;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class BalancingRangeAction {
-    private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
+    private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate = (injection, instant, c) -> true;
     private Function<Instant, InjectionRangeActionCosts> raCostsProvider = instant -> new InjectionRangeActionCosts(0, 0, 0);
     private Function<Instant, MinAndMax<Double>> raRangeProvider = instant -> new MinAndMax<>(0., 0.);
 
@@ -31,12 +32,12 @@ public class BalancingRangeAction {
      * Set the function that indicates if a given injection should be included in the RA.
      * (Injections included in Redispatch & Countertrading RAs are automatically excluded)
      */
-    public void setInjectionPredicate(BiPredicate<Injection<?>, Instant> injectionPredicate) {
+    public void setInjectionPredicate(TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate) {
         this.injectionPredicate = injectionPredicate;
     }
 
-    public boolean shouldIncludeInjection(Injection<?> injection, Instant instant) {
-        return injectionPredicate.test(injection, instant);
+    public boolean shouldIncludeInjection(Injection<?> injection, Instant instant, NetworkCracCreationContext context) {
+        return injectionPredicate.apply(injection, instant, context);
     }
 
     /**
