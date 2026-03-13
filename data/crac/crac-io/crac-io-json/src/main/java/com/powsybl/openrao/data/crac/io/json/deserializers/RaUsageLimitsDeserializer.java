@@ -29,7 +29,7 @@ public final class RaUsageLimitsDeserializer {
 
     public static void deserialize(JsonParser jsonParser, Crac crac, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser, Optional.of(JsonSerializationConstants.getPrimaryVersionNumber(version)), Optional.of(JsonSerializationConstants.getPrimaryVersionNumber(version)));
+            Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser, Optional.of(JsonSerializationConstants.getPrimaryVersionNumber(version)), Optional.of(JsonSerializationConstants.getSubVersionNumber(version)));
             RaUsageLimits raUsageLimits = raUsageLimitsPair.getRight();
             crac.newRaUsageLimits(raUsageLimitsPair.getLeft())
                 .withMaxRa(raUsageLimits.getMaxRa())
