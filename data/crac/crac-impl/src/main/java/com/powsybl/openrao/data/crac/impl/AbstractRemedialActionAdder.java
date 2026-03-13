@@ -17,7 +17,9 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdde
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

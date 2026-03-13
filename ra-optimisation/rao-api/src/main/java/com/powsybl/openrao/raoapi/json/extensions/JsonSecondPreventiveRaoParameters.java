@@ -7,15 +7,17 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.EXECUTION_CONDITION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HINT_FROM_FIRST_PREVENTIVE_RAO;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SECOND_PREVENTIVE_RAO;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -34,13 +36,18 @@ final class JsonSecondPreventiveRaoParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case EXECUTION_CONDITION -> searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(stringToExecutionCondition(jsonParser.nextTextValue()));
+            switch (jsonParser.currentName()) {
+                case EXECUTION_CONDITION ->
+                    searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(stringToExecutionCondition(jsonParser.nextTextValue()));
                 case HINT_FROM_FIRST_PREVENTIVE_RAO -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(jsonParser.getBooleanValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize second preventive rao parameters: unexpected field in %s (%s)", SECOND_PREVENTIVE_RAO, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize second preventive rao parameters: unexpected field in %s (%s)",
+                    SECOND_PREVENTIVE_RAO,
+                    jsonParser.currentName()
+                ));
             }
         }
     }

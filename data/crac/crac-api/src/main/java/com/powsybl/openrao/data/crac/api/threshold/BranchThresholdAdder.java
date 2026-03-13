@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.threshold;
 
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

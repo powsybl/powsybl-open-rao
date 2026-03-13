@@ -7,11 +7,15 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.contingency.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyBuilder;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 import static java.lang.String.format;
 

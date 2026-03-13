@@ -16,7 +16,12 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
@@ -33,7 +38,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     private final NetworkActionsResult networkActionsResult;
     private final RangeActionActivationResult rangeActionActivationResult;
 
-    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult, FlowResult flowResult, SensitivityResult sensitivityResult, NetworkActionsResult networkActionsResult, RangeActionActivationResult rangeActionActivationResult) {
+    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult,
+                                  FlowResult flowResult,
+                                  SensitivityResult sensitivityResult,
+                                  NetworkActionsResult networkActionsResult,
+                                  RangeActionActivationResult rangeActionActivationResult) {
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;

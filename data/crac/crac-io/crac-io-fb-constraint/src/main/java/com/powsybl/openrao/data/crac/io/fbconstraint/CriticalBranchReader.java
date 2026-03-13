@@ -7,22 +7,25 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.NativeBranch;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteFlowElementHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
-import com.powsybl.iidm.network.Country;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**

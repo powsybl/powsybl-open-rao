@@ -7,16 +7,21 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.COUNTRY;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

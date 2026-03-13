@@ -32,10 +32,13 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
     /**
      * For each network actions combination, we iterate on the TSOs that operate the network actions, and for each one of them, two checks are carried out:
      * <ol>
-     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf does not exceed the limit number of remedial actions that the TSO can apply so the applied network actions can be kept</li>
-     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf) does not exceed the limit number of remedial actions that the TSO can apply, so we know whether keeping the TSO's network actions requires unapplying the TSO's range actions or not.</li>
+     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf
+     *     does not exceed the limit number of remedial actions that the TSO can apply so the applied network actions can be kept</li>
+     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf)
+     *     does not exceed the limit number of remedial actions that the TSO can apply, so we know whether keeping the TSO's network actions requires unapplying the TSO's range actions or not.</li>
      * </ol>
-     * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
+     * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO,
+     * the combination is kept but the range actions will be unapplied for the next optimization.
      */
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
@@ -57,7 +60,10 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
         }
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
+            TECHNICAL_LOGS.info(
+                "{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached",
+                naCombinations.size() - filteredNaCombinations.size()
+            );
         }
 
         return filteredNaCombinations;

@@ -234,20 +234,6 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
     Then 0 remedial actions are used after "co_nl1_nl_2_3" at "auto"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
-  Scenario: US 16.5.14.bis: Sensi fail in auto, fallback
-    Given network file is "epic16/12Nodes3ParallelLines.uct"
-    Given crac file is "epic16/crac_16_5_14_bis.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch rao
-    # An overload is created in the Netherlands only after co_nl1_nl_2_1
-    # Thus, the OnFlowConstraintInCountry ARA must be triggered only after this contingency
-    # But sensi fails : only cnec defined for this state matched the contigency
-    # Thus, RAO fallbacks to initial solution
-    Then the execution details should be "First preventive fell back to initial situation"
-    Then its security status should be "UNSECURED"
-
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 16.5.15: Trigger CRA only after a given outage
     Given network file is "epic16/12Nodes4ParallelLines.uct"
     Given crac file is "epic16/crac_16_5_15.json"

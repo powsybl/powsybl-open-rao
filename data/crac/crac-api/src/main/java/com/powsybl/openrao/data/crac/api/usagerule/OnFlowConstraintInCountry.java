@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.api.usagerule;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.Optional;

@@ -23,7 +23,11 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeAction
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -32,10 +36,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -244,7 +255,11 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(
+                -(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)),
+                constraint.getCoefficient(binary),
+                DOUBLE_TOLERANCE
+            );
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
@@ -279,7 +294,11 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(
+                -(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)),
+                constraint.getCoefficient(binary),
+                DOUBLE_TOLERANCE
+            );
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
@@ -623,13 +642,24 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             false);
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
-        rangeActionsPerState.forEach((s, rangeActionSet) -> rangeActionSet.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction)));
+        rangeActionsPerState.forEach((s, rangeActionSet) ->
+            rangeActionSet.stream()
+                .filter(PstRangeAction.class::isInstance)
+                .map(PstRangeAction.class::cast)
+                .forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction))
+        );
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false, true);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
+            optimizationPerimeter,
+            pstRangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            new RangeActionsOptimizationParameters(),
+            false,
+            true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

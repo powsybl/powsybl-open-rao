@@ -8,7 +8,9 @@
 package com.powsybl.openrao.data.crac.impl.utils;
 
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -58,7 +60,6 @@ public final class ExhaustiveCracCreation {
     }
 
     public static Crac create(CracFactory cracFactory) {
-
         Crac crac = cracFactory.create("exhaustiveCracId", "exhaustiveCracName", OffsetDateTime.of(2025, 2, 3, 10, 12, 0, 0, ZoneOffset.UTC))
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
@@ -80,108 +81,14 @@ public final class ExhaustiveCracCreation {
         String contingency2Id = "contingency2Id";
         crac.newContingency().withId(contingency2Id).withContingencyElement("ne2Id", randomContingencyElementType()).withContingencyElement("ne3Id", randomContingencyElementType()).add();
 
-        crac.newFlowCnec().withId("cnec1prevId")
-            .withNetworkElement("ne4Id")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withOperator("operator1")
-            .withOptimized()
-            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-500.).add()
-            .withIMax(1000., TwoSides.TWO)
-            .withNominalVoltage(220.)
-            .add();
+        createCnecs(crac, contingency1Id, contingency2Id);
 
-        crac.newFlowCnec().withId("cnec1outageId")
-            .withNetworkElement("ne4Id")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withOperator("operator1")
-            .withOptimized()
-            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-800.).add()
-            .withNominalVoltage(220.)
-            .add();
+        createActions(crac, contingency1Id, contingency2Id);
 
-        crac.newFlowCnec().withId("cnec2prevId")
-            .withNetworkElement("ne5Id", "ne5Name")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withOperator("operator2")
-            .withOptimized()
-            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
-            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMin(-800.).add()
-            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-800.).add()
-            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMax(1200.).add()
-            .withNominalVoltage(220., TwoSides.TWO)
-            .withNominalVoltage(380., TwoSides.ONE)
-            .withIMax(2000.)
-            .add();
+        return crac;
+    }
 
-        crac.newFlowCnec().withId("cnec3prevId")
-            .withName("cnec3prevName")
-            .withNetworkElement("ne2Id", "ne2Name")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
-            .withMonitored()
-            .add();
-
-        crac.newFlowCnec().withId("cnec3autoId")
-            .withName("cnec3autoName")
-            .withNetworkElement("ne2Id", "ne2Name")
-            .withInstant(AUTO_INSTANT_ID)
-            .withContingency(contingency2Id)
-            .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
-            .withMonitored()
-            .add();
-
-        crac.newFlowCnec().withId("cnec3curId")
-            .withNetworkElement("ne2Id", "ne2Name")
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency(contingency2Id)
-            .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
-            .withMonitored()
-            .add();
-
-        crac.newFlowCnec().withId("cnec4prevId")
-            .withName("cnec4prevName")
-            .withNetworkElement("ne3Id")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withOperator("operator4")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .withReliabilityMargin(0.)
-            .withOptimized()
-            .withMonitored()
-            .add();
-
-        crac.newAngleCnec().withId("angleCnecId")
-            .withName("angleCnecName")
-            .withExportingNetworkElement("eneId", "eneName")
-            .withImportingNetworkElement("ineId", "ineName")
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withOperator("operator1")
-            .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
-            .withReliabilityMargin(10.)
-            .withMonitored()
-            .add();
-
-        crac.newVoltageCnec().withId("voltageCnecId")
-            .withName("voltageCnecName")
-            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withOperator("operator1")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
-            .withReliabilityMargin(1.)
-            .withMonitored()
-            .add();
-
+    private static void createActions(Crac crac, String contingency1Id, String contingency2Id) {
         // network action with one pst set point
         crac.newNetworkAction().withId("pstSetpointRaId")
             .withName("pstSetpointRaName")
@@ -347,7 +254,109 @@ public final class ExhaustiveCracCreation {
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).add()
             .add();
+    }
 
-        return crac;
+    private static void createCnecs(Crac crac, String contingency1Id, String contingency2Id) {
+        crac.newFlowCnec().withId("cnec1prevId")
+            .withNetworkElement("ne4Id")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withOperator("operator1")
+            .withOptimized()
+            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-500.).add()
+            .withIMax(1000., TwoSides.TWO)
+            .withNominalVoltage(220.)
+            .add();
+
+        crac.newFlowCnec().withId("cnec1outageId")
+            .withNetworkElement("ne4Id")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency(contingency1Id)
+            .withOperator("operator1")
+            .withOptimized()
+            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-800.).add()
+            .withNominalVoltage(220.)
+            .add();
+
+        crac.newFlowCnec().withId("cnec2prevId")
+            .withNetworkElement("ne5Id", "ne5Name")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withOperator("operator2")
+            .withOptimized()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMin(-800.).add()
+            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMin(-800.).add()
+            .newThreshold().withSide(TwoSides.TWO).withUnit(Unit.AMPERE).withMax(1200.).add()
+            .withNominalVoltage(220., TwoSides.TWO)
+            .withNominalVoltage(380., TwoSides.ONE)
+            .withIMax(2000.)
+            .add();
+
+        crac.newFlowCnec().withId("cnec3prevId")
+            .withName("cnec3prevName")
+            .withNetworkElement("ne2Id", "ne2Name")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withOperator("operator3")
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
+            .withReliabilityMargin(20.)
+            .withMonitored()
+            .add();
+
+        crac.newFlowCnec().withId("cnec3autoId")
+            .withName("cnec3autoName")
+            .withNetworkElement("ne2Id", "ne2Name")
+            .withInstant(AUTO_INSTANT_ID)
+            .withContingency(contingency2Id)
+            .withOperator("operator3")
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
+            .withReliabilityMargin(20.)
+            .withMonitored()
+            .add();
+
+        crac.newFlowCnec().withId("cnec3curId")
+            .withNetworkElement("ne2Id", "ne2Name")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency(contingency2Id)
+            .withOperator("operator3")
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
+            .withReliabilityMargin(20.)
+            .withMonitored()
+            .add();
+
+        crac.newFlowCnec().withId("cnec4prevId")
+            .withName("cnec4prevName")
+            .withNetworkElement("ne3Id")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withOperator("operator4")
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .withReliabilityMargin(0.)
+            .withOptimized()
+            .withMonitored()
+            .add();
+
+        crac.newAngleCnec().withId("angleCnecId")
+            .withName("angleCnecName")
+            .withExportingNetworkElement("eneId", "eneName")
+            .withImportingNetworkElement("ineId", "ineName")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency(contingency1Id)
+            .withOperator("operator1")
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
+            .withReliabilityMargin(10.)
+            .withMonitored()
+            .add();
+
+        crac.newVoltageCnec().withId("voltageCnecId")
+            .withName("voltageCnecName")
+            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency(contingency1Id)
+            .withOperator("operator1")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
+            .withReliabilityMargin(1.)
+            .withMonitored()
+            .add();
     }
 }

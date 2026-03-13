@@ -15,9 +15,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -57,41 +57,34 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-
-        Map<State, Set<RangeAction<?>>> rangeActionsPerStateWithRaLimitations = rangeActions.entrySet().stream()
-            .filter(entry -> rangeActionLimitationParameters.areRangeActionLimitedForState(entry.getKey()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         // We need to build all the variationVariable before adding the other constraint because the different state in multi curative are interdependent.
         // ex. to build MaxRaConstraint for a state in curative2 we might need the variables defined for a state in curative1
-        rangeActionsPerStateWithRaLimitations.forEach((state, rangeActionSet) -> {
+        for (Map.Entry<State, Set<RangeAction<?>>> entry : rangeActions.entrySet().stream().sorted(Comparator.comparingInt(entry -> entry.getKey().getInstant().getOrder()))) {
+            State state = entry.getKey();
+            Set<RangeAction<?>> rangeActionSet = entry.getValue();
+            if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
+                continue;
+            }
             // if cost optimization, variation variables are already defined
             rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
-        });
 
-        rangeActionsPerStateWithRaLimitations.keySet().stream()
-            .sorted(Comparator.comparingInt(s -> s.getInstant().getOrder()))
-            .forEach(state -> {
-                if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
-                    return;
-                }
-                if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
-                    addMaxRaConstraint(linearProblem, state);
-                }
-                if (rangeActionLimitationParameters.getMaxTso(state) != null) {
-                    addMaxTsoConstraint(linearProblem, state);
-                }
+            if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
+                addMaxRaConstraint(linearProblem, state);
+            }
+            if (rangeActionLimitationParameters.getMaxTso(state) != null) {
+                addMaxTsoConstraint(linearProblem, state);
+            }
 
-                if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
-                    addMaxRaPerTsoConstraint(linearProblem, state);
-                }
-                if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
-                    addMaxPstPerTsoConstraint(linearProblem, state);
-                }
-                if (!rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state).isEmpty()) {
-                    addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
-                }
-            });
+            if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
+                addMaxRaPerTsoConstraint(linearProblem, state);
+            }
+            if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
+                addMaxPstPerTsoConstraint(linearProblem, state);
+            }
+            if (!rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state).isEmpty()) {
+                addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
+            }
+        }
     }
 
     /**
@@ -192,7 +185,10 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             constraint.setCoefficient(upwardVariationVariable, 1);
             constraint.setCoefficient(downwardVariationVariable, 1);
             double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-            constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
+            constraint.setCoefficient(
+                isVariationVariable,
+                -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint))
+            );
         }
     }
 

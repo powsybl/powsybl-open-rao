@@ -61,7 +61,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -78,7 +77,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -106,7 +104,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-cgmes-conversion</artifactId>
-            <version>${powsybl.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -116,7 +113,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

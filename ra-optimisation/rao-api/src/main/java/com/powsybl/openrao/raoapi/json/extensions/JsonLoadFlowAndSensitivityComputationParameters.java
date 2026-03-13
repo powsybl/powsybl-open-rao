@@ -16,7 +16,11 @@ import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PROVIDER;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -38,7 +42,7 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case LOAD_FLOW_PROVIDER -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider(jsonParser.getValueAsString());
@@ -53,9 +57,17 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
                 }
                 case SENSITIVITY_PARAMETERS -> {
                     jsonParser.nextToken();
-                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(
+                        JsonSensitivityAnalysisParameters.createObjectMapper()
+                            .readerForUpdating(searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
+                            .readValue(jsonParser)
+                    );
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)", LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)",
+                    LOAD_FLOW_AND_SENSITIVITY_COMPUTATION,
+                    jsonParser.currentName()
+                ));
             }
         }
     }

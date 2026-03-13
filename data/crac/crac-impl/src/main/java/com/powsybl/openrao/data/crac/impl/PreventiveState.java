@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 

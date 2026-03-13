@@ -46,7 +46,7 @@ public final class InjectionSetpointArrayDeserializer {
             Double setpoint = null;
             Unit unit = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
                         networkElementId = jsonParser.nextTextValue();
                         break;
@@ -103,7 +103,9 @@ public final class InjectionSetpointArrayDeserializer {
                     shuntCompensatorPositionActionAdder.add();
                     break;
                 default:
-                    throw new OpenRaoException("InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, and here it is " + identifiable.getType());
+                    throw new OpenRaoException(
+                        "InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, but here it is " + identifiable.getType()
+                    );
             }
         }
     }
