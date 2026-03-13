@@ -6,7 +6,7 @@
 Feature: US 15.11.6: Complex automaton simulator cases
   ##TODO: This feature covers
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.11.6.1: Automatons simulated by batches, speed-wise
     Complex case with 5 automatons that have different speeds:
     - FR1-FR2-1 is overloaded so FR1-FR2-3 is closed

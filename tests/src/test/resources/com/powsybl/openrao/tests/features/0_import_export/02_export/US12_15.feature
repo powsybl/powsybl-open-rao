@@ -6,7 +6,7 @@
 Feature: US 12.15: Export different reason per perimeter in SWE CNE
   This feature covers the export of reasons in SWE CNE.
 
-  @fast @rao @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @contingency-scenarios @max-min-margin
   Scenario: US 12.15.1.1: One contingency failing during 1st PRAO, no 2P
   Post-contingency sensi fails after 1P.
   Contingency is skipped in curative, final objective must take into account sensi failure virtual cost.
@@ -25,7 +25,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the value of the objective function after PRA should be 9993.8
     Then the value of the objective function after CRA should be 9993.8
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.1.2: One contingency failing during 1st PRAO with 2P
    2P finds the same result as 1P
     Given network file is "epic12/nordic32.xiidm"
@@ -42,7 +42,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the value of the objective function after PRA should be 9993.8
     Then the value of the objective function after CRA should be 9993.8
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.1.3: One contingency failing during 1st PRAO with global 2P
   Global 2P finds the same result as 1P
     Given network file is "epic12/nordic32.xiidm"
@@ -70,7 +70,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then I export SWE CNE
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_1.xml"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 12.15.2.1: One contingency failing during 1st ARAO, no 2P
   Failure happens when applying topo ARA.
   Contingency is skipped in curative, final objective must take into account sensi failure virtual cost.
@@ -86,7 +86,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the margin on cnec "N1013_N1014 - CO_N1012_N4012 - auto" after ARA should be -1419.4 A
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.2.2: one contingency failing during 1st ARAO, with
   sensi pre 2P partially fails
     Given network file is "epic12/nordic32.xiidm"
@@ -100,7 +100,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the margin on cnec "N1013_N1014 - CO_N1012_N4012 - auto" after ARA should be -1419.4 A
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.2.3: one contingency failing during 1st ARAO, with global 2P
   sensi pre 2P partially fails
     Given network file is "epic12/nordic32.xiidm"
@@ -125,7 +125,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then I export SWE CNE
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_2.xml"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 12.15.3.1: One contingency failing during CRAO, no 2P
   Failure happens when applying topo ARA
   Contingency is skipped in curative, final objective must take into account sensi failure virtual cost.
@@ -140,7 +140,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.3.2: One contingency failing during CRAO, with 2P
   2P does not apply the same PRA as previously since it leads to a sensi divergence on a curative perimeter : no PRA is applied
   RAO status is set to default
@@ -160,7 +160,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.3.3: One contingency failing during CRAO, with global 2P
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_3.xml"
@@ -201,7 +201,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then I export SWE CNE
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_3_With2P.xml"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 12.15.4.1: One contingency failing during 1st PRAO, no 2P
   A PRA can lead to contingency failure.
   This PRA should not be selected due to sensitivity failure virtual cost, both for 1st PRAO and 2nd PRAO
@@ -221,7 +221,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.4.2: One contingency failing during 1st and 2nd PRAO, with 2P
   2P finds the same result as 1P
     Given network file is "epic12/nordic32.xiidm"
@@ -239,7 +239,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: US 12.15.4.3: One contingency failing during 1st and 2nd PRAO, with global 2P
   Global 2P finds the same result as 1P
     Given network file is "epic12/nordic32.xiidm"

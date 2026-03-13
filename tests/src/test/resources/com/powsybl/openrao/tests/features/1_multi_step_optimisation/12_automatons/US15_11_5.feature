@@ -6,7 +6,7 @@
 Feature: US 15.11.5: Additional tests to check various fixes concerning automaton state
   ##TODO: This feature covers
 
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @max-min-margin
   Scenario: US 15.11.5.1: test fix apply auto for curative cnecs post 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
     Given crac file is "epic15/crac_15_11_5_1bis.json"
@@ -19,7 +19,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
     Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 327.73 MW
 
-  @fast @rao @dc @second-preventive @secure-flow @megawatt
+  @fast @rao @dc @second-preventive @secure-flow
   Scenario: US 15.11.5.2: test fix condition 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_2bis.json"
@@ -29,7 +29,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.11.5.3.1: test get highest functional cost worst cnec is a curative after 1PRAO
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_1.json"
@@ -39,7 +39,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then its security status should be "UNSECURED"
     Then the worst margin is -773.0 MW on cnec "be1_be3_co2 - BBE1AA11->BBE3AA11  - co2_de1_de3 - curative"
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.11.5.3.2: test get highest functional cost worst cnec is auto after 1ARAO
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_2.json"
@@ -49,7 +49,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then its security status should be "UNSECURED"
     Then the worst margin is -1945.45 MW on cnec "de2_nl3_co1 - DDE2AA11->NNL3AA11  - co1_de1_de2 - auto"
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.11.5.3.3: test get highest functional cost worst cnec is curative after 1CRAO
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_3.json"
@@ -59,7 +59,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then its security status should be "UNSECURED"
     Then the worst margin is -543.5 MW on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_de1_de2 - curative"
     
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @max-min-margin
   Scenario: US 15.11.5.4: RaoResult AFTER PRA fixed for curative cnecs, with 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
     Given crac file is "epic15/crac_15_11_5_1.json"
@@ -75,7 +75,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: US 15.11.5.5: RaoResult AFTER PRA fixed for curative cnecs, without 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
     Given crac file is "epic15/crac_15_11_5_1.json"
@@ -91,7 +91,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @max-min-margin
   Scenario: US 15.11.5.6: Considering ARA in 2P improves 2P optimization
     Given network file is "epic15/TestCase12Nodes_15_automaton.uct" for CORE CC
     Given crac file is "epic15/crac_15_11_5_2.json"

@@ -22,7 +22,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
 
   ----------------------
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.1: Test simple upward gradient
     Redispatching actions are only necessary at 01:30.
     They're applied as soon as 00:30 because of upward gradient on BBE1AA1
@@ -67,7 +67,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
     Then the total cost for all timestamps is 6240
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.2: Topological action and redispatching solve overload
     At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to resolve MNEC constraint,
     resulting in the application of topological action PRA_topo 1 at 01:30.
@@ -97,7 +97,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 520
     Then the total cost for all timestamps is 520
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.3: PST and redispatching solve overload
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_3.xml"
@@ -126,7 +126,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 1900
     Then the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.4: Curative topological action taken into account
     Curative topo action and redispatching actions solved 01:30 overload during topological optimization, and 
     were applied during sensi computation in global range actions optimization.
@@ -159,7 +159,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 1780
     Then the total cost for all timestamps is 1780
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.4.bis: Curative PST and preventive redispatching
     Similar to 93.2.3, but PST is curative. Overload is on curative cnec.
     Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
@@ -193,7 +193,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 1900
     Then the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.5: 2 iterations of MARMOT via MNEC overloads
     At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to solve MNEC constraint,
     resulting in the application of topological action PRA_topo 1 and redispatching actions at 01:30.
@@ -227,7 +227,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 3960
     Then the total cost for all timestamps is 26890.25
 
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.6: Lead time and Pmin.
   The generator involved in the Belgian redispatching action has a 15 min lead time and must be operated at 1000 MW at
   2:30. Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a
@@ -260,7 +260,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at timestamp "2019-01-08 02:30" is 0.0 MW
 
     # TODO to be modified when check on generator constraint is performed at import
-  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  @fast @rao @dc @redispatching @marmot @costly
   Scenario: US 93.2.7: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
     FR generator's program starts up even though startUp is not allowed.
     Given network files are in folder "epic93/TestCases_93_2_6"

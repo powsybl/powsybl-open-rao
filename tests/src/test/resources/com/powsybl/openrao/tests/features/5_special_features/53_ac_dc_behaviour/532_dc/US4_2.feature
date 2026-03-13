@@ -6,7 +6,7 @@
 Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds in A/MW, computation in AC/DC
   This feature covers the parameter load-flow-parameters/dc, from the RaoParameters.
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: US 4.2.1.1: MW thresholds in DC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_MW.json"
@@ -22,7 +22,7 @@ Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 24.1 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 44.0 MW
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: US 4.2.1.2: MW thresholds in AC mode and min margin in MW
   Same data as US 4.2.1, but the computation is in AC.
     Given network file is "common/TestCase12Nodes.uct"
@@ -40,7 +40,7 @@ Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 24.1 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 44.0 MW
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: US 4.2.2.1: A thresholds in DC mode and min margin in MW
   Same inputs as US 4.2.1.1, but the thresholds are defined in A in the CRAC.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
@@ -57,7 +57,7 @@ Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 15.07 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 45.12 MW
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 4.2.2.2: A thresholds in AC mode and min margin in A
   Same data as US 4.2.2.1, but the computation is in AC.
     Given network file is "common/TestCase12Nodes.uct"
@@ -75,7 +75,7 @@ Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - N-1 NL1-NL3 - outage" after PRA should be 51.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 63.0 A
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: US 4.2.3.1: mixed thresholds in DC mode and min margin in MW
   Same inputs as US 4.2.1.1, but some thresholds are defined in A in the CRAC (and others in MW).
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
@@ -90,7 +90,7 @@ Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 18.52 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - N-1 NL1-NL3 - outage" after PRA should be 23.38 MW
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 4.2.3.2: mixed thresholds in AC mode and min margin in A
   Same data as US 4.2.3.1, but the computation is in AC.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
