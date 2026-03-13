@@ -6,7 +6,7 @@
 Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
   This feature covers the CRAC import and the behaviour of the RAO with a CSE CRAC containing the fields starting with IlimitMNE.
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 11.6.1: only network actions - ref run, no MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_1.xml"
@@ -20,7 +20,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Then the margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" after PRA should be 759.43 A
     Then the value of the objective function after PRA should be -759.43
 
-  @fast @rao @ac @preventive-only @mnec @secure-flow @ampere
+  @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: US 11.6.2: only network actions - one unconstrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_2.xml"
@@ -36,7 +36,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Then the margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" after PRA should be 1380.43 A
     Then the value of the objective function after PRA should be -759.43
 
-  @fast @rao @ac @preventive-only @mnec @secure-flow @ampere
+  @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: US 11.6.3: only network actions - one constrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_3.xml"
@@ -52,7 +52,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Then the margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" after PRA should be 1432.87 A
     Then the value of the objective function after PRA should be 203.35
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 11.6.4: pst range action - reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_4.xml"
@@ -67,7 +67,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Then the margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" after PRA should be 840.47 A
     Then the value of the objective function after PRA should be -840.47
 
-  @fast @rao @ac @preventive-only @mnec @secure-flow @ampere
+  @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: US 11.6.5: pst range action - one unconstrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_5.xml"
@@ -84,7 +84,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Then the margin on cnec "monitored_element - BBE1AA1 ->BBE3AA1  - preventive" after PRA should be 88.00 A
     Then the value of the objective function after PRA should be -840.47
 
-  @fast @rao @ac @preventive-only @mnec @secure-flow @ampere
+  @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: US 11.6.6: pst range action - one constrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_6.xml"

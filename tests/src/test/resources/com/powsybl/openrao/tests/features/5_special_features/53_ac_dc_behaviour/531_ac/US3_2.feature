@@ -7,7 +7,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
   This feature covers the behaviour of the algorithm when only either the "min" or the "max" threshold is defined
   on the CNEC (but not both) in the json CRAC.
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 3.2.1: topological RA, direct CNEC unsecure initially
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_topo_direct.json"
@@ -20,7 +20,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     Then 1 remedial actions are used in preventive
     Then the remedial action "Open FR_DE" is used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 3.2.2: topological RA, opposite CNEC secure initially
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_topo_opposite.json"
@@ -32,7 +32,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 779.0 A
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 3.2.3: PST range action, direct CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_direct.json"
@@ -46,7 +46,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     Then the remedial action "PST1" is used in preventive
     Then the tap of PstRangeAction "PST1" should be -16 in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 3.2.4: PST range action, opposite CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_opposite.json"

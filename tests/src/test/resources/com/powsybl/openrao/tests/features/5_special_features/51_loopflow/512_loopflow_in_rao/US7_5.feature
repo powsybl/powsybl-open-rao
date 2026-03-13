@@ -6,7 +6,7 @@
 Feature: US 7.5: Loopflow PTDF update parameter
   This feature covers the different versions of the parameter "loop-flow-parameters"/"ptdf-approximation" from the RaoParameters.
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 7.5.0: RAO with loop-flow in DC with FIXED_PTDF
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
@@ -27,7 +27,7 @@ Feature: US 7.5: Loopflow PTDF update parameter
     Then the initial loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" should be -391.0 MW
     Then the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -391.0 MW
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 7.5.1: RAO with loop-flow in DC with UPDATE_PTDF_WITH_TOPO_AND_PST
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
@@ -53,7 +53,7 @@ Feature: US 7.5: Loopflow PTDF update parameter
     Then the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -384.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -384.0 MW
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: US 7.5.2: RAO with loop-flow in DC with UPDATE_PTDF_WITH_TOPO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"

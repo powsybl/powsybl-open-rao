@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -56,15 +57,20 @@ class PstRangeActionsTest extends AbstractTest {
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
 
-        assertTrue(parameters.isAvailable(twt1, state1));
-        assertTrue(parameters.isAvailable(twt1, state2));
-        assertTrue(parameters.isAvailable(twt2, state1));
-        assertTrue(parameters.isAvailable(twt2, state2));
+        assertTrue(parameters.isAvailable(twt1, state1, null));
+        assertTrue(parameters.isAvailable(twt1, state2, null));
+        assertTrue(parameters.isAvailable(twt2, state1, null));
+        assertTrue(parameters.isAvailable(twt2, state2, null));
 
-        parameters.setPstRaPredicate((twt, state) -> twt.equals(twt1) || state.equals(state2));
-        assertTrue(parameters.isAvailable(twt1, state1));
-        assertTrue(parameters.isAvailable(twt1, state2));
-        assertFalse(parameters.isAvailable(twt2, state1));
-        assertTrue(parameters.isAvailable(twt2, state2));
+        parameters.setPstRaPredicate((twt, state, c) -> c == null && (twt.equals(twt1) || state.equals(state2)));
+        assertTrue(parameters.isAvailable(twt1, state1, null));
+        assertTrue(parameters.isAvailable(twt1, state2, null));
+        assertFalse(parameters.isAvailable(twt2, state1, null));
+        assertTrue(parameters.isAvailable(twt2, state2, null));
+
+        assertFalse(parameters.isAvailable(twt1, state1, Mockito.mock(NetworkCracCreationContext.class)));
+        assertFalse(parameters.isAvailable(twt1, state2, Mockito.mock(NetworkCracCreationContext.class)));
+        assertFalse(parameters.isAvailable(twt2, state1, Mockito.mock(NetworkCracCreationContext.class)));
+        assertFalse(parameters.isAvailable(twt2, state2, Mockito.mock(NetworkCracCreationContext.class)));
     }
 }

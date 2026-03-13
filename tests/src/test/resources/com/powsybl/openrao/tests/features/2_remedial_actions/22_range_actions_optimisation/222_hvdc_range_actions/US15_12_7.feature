@@ -6,7 +6,7 @@
 Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   # TODO: This feature covers
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.7.1: UCTE HVDC as InjectionRangeAction with one preventive CNEC
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case1.xml"
@@ -18,7 +18,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the worst margin is 380 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 380 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.7.2: UCTE HVDC as InjectionRangeAction with two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case2.xml"
@@ -31,7 +31,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 172 MW
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 172 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.7.3: UCTE HVDC as InjectionRangeAction with PST range action and two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case3.xml"
@@ -45,7 +45,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 187 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 190 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.7.4: UCTE HVDC as InjectionRangeAction with outage CNEC
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case4.xml"
@@ -61,7 +61,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 191 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 225 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.7.5: UCTE HVDC as InjectionRangeAction with one curative perimeter
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case5.xml"
@@ -78,7 +78,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 329 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.7.6: UCTE HVDC as InjectionRangeAction with two curative perimeters and negative initial flow
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case6.xml"
@@ -98,7 +98,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 285 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.7.7: UCTE HVDC as InjectionRangeAction with a negative optimal setpoint
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case7.xml"
@@ -110,7 +110,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Then the worst margin is 47 MW
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 47 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.7.8: UCTE HVDC as InjectionRangeAction and PST filtering
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
