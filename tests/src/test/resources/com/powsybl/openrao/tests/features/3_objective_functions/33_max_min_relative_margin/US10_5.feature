@@ -7,7 +7,7 @@ Feature: US 10.5: GLSK on disconnected Xnode
   This feature covers when GLSKs are defined on Xnoeds in RAO computation with
   objective-function/type MAX_MIN_RELATIVE_MARGIN.
 
-  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: US 10.5.1: XNode disconnected in initial network
     Given network file is "epic10/TestCase12NodesDisconnectedHvdc.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
@@ -28,7 +28,7 @@ Feature: US 10.5: GLSK on disconnected Xnode
     Then the absolute PTDF sum on cnec "DDE2AA1  NNL3AA1  1 - preventive" initially should be 2.046
     Then the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.956
 
-  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: US 10.5.2: XNode disconnected by a contingency
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us5case2.xml"

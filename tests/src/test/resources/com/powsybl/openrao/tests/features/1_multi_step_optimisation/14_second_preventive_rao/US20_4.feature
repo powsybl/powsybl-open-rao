@@ -7,7 +7,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
   This feature covers the parameters of "second-preventive-rao" ("execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT"),
   with MNECs defined in the CRAC file, from the RaoParameters.
 
-  @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
+  @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: US 20.4.1: MNEC constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case1.xml"
@@ -24,7 +24,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -246 A
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 A
 
-  @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
+  @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: US 20.4.2: MNEC constraint in curative is solved by CRA + 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case2.xml"
@@ -42,7 +42,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -236 A
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 A
 
-  @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
+  @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: US 20.4.3: MNEC constraint avoided on preventive MNEC in 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case3.xml"

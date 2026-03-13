@@ -6,7 +6,7 @@
 Feature: US 15.12.5: Handle HVDC range actions in RAO
   # TODO: This feature covers
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.1: HVDC range action with one preventive CNEC
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case1.json"
@@ -18,7 +18,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the worst margin is 400 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 400 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.2: HVDC range action with two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
@@ -33,7 +33,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
     
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.3: HVDC range action with PST range action and two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
@@ -47,7 +47,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 186 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 201 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.4: HVDC range action with outage CNEC
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
@@ -63,7 +63,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 201 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 237 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.5.5: HVDC range action with one curative perimeter
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
@@ -80,7 +80,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 346 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.5.6: HVDC range action with two curative perimeters and negative initial flow
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
@@ -100,7 +100,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 314 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.7: HVDC with a negative optimal setpoint
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case7.json"
@@ -112,7 +112,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the worst margin is 50 MW
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
 
-  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: US 15.12.5.8: HVDC and PST filtering
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
@@ -124,7 +124,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Then the worst margin is 300 MW
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: US 15.12.5.9: HVDC inverted in CRAC file
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case9.json"
