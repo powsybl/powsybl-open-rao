@@ -6,7 +6,7 @@
 Feature: US 13.4: Dynamic of topological remedial actions available in several instants
   This feature covers RAO computation with multiple network actions defined for several instants in the CRAC.
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.1: Topological RA already applied in initial network : not available for optimization
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case1.json"
@@ -22,7 +22,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 145 A
     Then the value of the objective function after CRA should be 522
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.2: Topological RA available in preventive and curative : used in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case2.json"
@@ -41,7 +41,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 297 A
     Then the value of the objective function after CRA should be 467
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.3: Topological RA available in preventive and curative : used in curative
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case3.json"
@@ -62,7 +62,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 145 A
     Then the value of the objective function after CRA should be 315
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.4: Topological RA duplicated into PRA and CRA : PRA is activated
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case4.json"
@@ -82,7 +82,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the value of the objective function after CRA should be 467
 
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.5: Topological RA duplicated into PRA and CRA : CRA is activated
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case5.json"
@@ -103,7 +103,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 145 A
     Then the value of the objective function after CRA should be 315
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.6: Topological RA with inverted CRA : PRA is not used, so the CRA is not available
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case6.json"
@@ -119,7 +119,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 145 A
     Then the value of the objective function after CRA should be 184
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 13.4.7: Topological RA with inverted CRA : line opened in preventive and closed in curative
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case7.json"

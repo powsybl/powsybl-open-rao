@@ -6,7 +6,7 @@
 Feature: US 1.2: Import of simple network actions as preventive remedial action free to use
   This feature covers the import of basic network actions defined in the CRAC.
 
-  @fast @crac @ampere
+  @fast @crac
   Scenario: US 1.2.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"

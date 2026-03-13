@@ -6,7 +6,7 @@
 Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC modes from configuration
   This feature covers the parameter load-flow-parameters/dc, from the RaoParameters.
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 4.3.1.1: secure with AC config
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us3.json"
@@ -19,7 +19,7 @@ Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC m
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
 
-  @fast @rao @dc @preventive-only @secure-flow @megawatt
+  @fast @rao @dc @preventive-only @secure-flow
   Scenario: US 4.3.1.2: secure with DC config
   Same as US 4.3.1 but computation in DC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
@@ -33,7 +33,7 @@ Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC m
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 4.3.2.1: failure with AC config without fallback
     Given network file is "epic4/US4-3-TestCase12Nodes-diverging.uct"
     Given crac file is "epic4/SL_ep4us3.json"
@@ -43,7 +43,7 @@ Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC m
     Then the execution details should be "Initial sensitivity analysis failed"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @dc @preventive-only @secure-flow @megawatt
+  @fast @rao @dc @preventive-only @secure-flow
   Scenario: US 4.3.2.2: no failure with DC config
   Same case as 4.3.2.1 but in DC.
     Given network file is "epic4/US4-3-TestCase12Nodes-diverging.uct"
