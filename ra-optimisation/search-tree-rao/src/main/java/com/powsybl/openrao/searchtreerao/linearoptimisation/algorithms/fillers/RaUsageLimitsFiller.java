@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -19,10 +20,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Handles constraints for maximum number od RAs to activate (max-ra), maximum number of TSOs that can activate RAs (max-tso),
@@ -131,17 +130,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
                 .map(PstRangeAction.class::cast)
                 .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
-
-            for (String tso : maxElementaryActionsPerTso.keySet()) {
-                for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
-                    // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
-                    int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
-                    int currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
-
-                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE).setLb((double) currentTap - initialTap);
-                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE).setLb((double) initialTap - currentTap);
-                }
-            }
         });
     }
 

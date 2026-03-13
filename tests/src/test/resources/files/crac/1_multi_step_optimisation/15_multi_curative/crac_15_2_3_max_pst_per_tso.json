@@ -25,10 +25,10 @@
   "ra-usage-limits-per-instant" :  [
     {
       "instant": "curative1",
-      "max-ra" : 1
+      "max-pst-per-tso" : {"FR" : 1}
     }, {
       "instant": "curative2",
-      "max-ra" : 1
+      "max-pst-per-tso" : {"FR" : 1}
     }
   ],
   "networkElementsNamePerId": {},
@@ -91,8 +91,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -300.0,
-          "max": 300.0,
+          "min": -200.0,
+          "max": 200.0,
           "side" : 1
         }
       ]
@@ -119,12 +119,15 @@
   ],
   "pstRangeActions": [
     {
-      "id": "CRA_PST_BE",
-      "name": "CRA_PST_BE",
-      "operator": "BE",
+      "id": "CRA_PST_FR_1",
+      "name": "CRA_PST_FR_1",
+      "operator": "FR",
       "onInstantUsageRules": [
         {
           "instant": "curative1"
+        },
+        {
+          "instant": "curative2"
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1",
@@ -137,10 +140,13 @@
       ]
     },
     {
-      "id": "CRA_PST_FR",
-      "name": "CRA_PST_FR",
+      "id": "CRA_PST_FR_2",
+      "name": "CRA_PST_FR_2",
       "operator": "FR",
       "onInstantUsageRules": [
+        {
+          "instant": "curative1"
+        },
         {
           "instant": "curative2"
         }

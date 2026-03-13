@@ -57,29 +57,33 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   And the value of the objective function after CRA should be -8.65
 
   @fast @rao @ac @multi-curative @second-preventive
-  Scenario: 15.2.3: Multi-curative - with max-tso limits and 2P
-  Case with 1 PST available in curative 1 from TSO "BE" and one PST available in curative 2 from TSO "FR"
-  The best result with NO max-tso limit after 2P:
-  - cost: -3.52 (functional: -3.52, virtual: 0.0)
-  - network action(s): PRA_CLOSE_NL2_BE3_3,
-  - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 16)
-  We add a max-tso limit: 1 in curative1 and 1 in curative 2 => only one of the PST can be used
-  The best solution is to use PST_BE in curative 1 (using PST_FR in curative 2 => cost = 66)
-  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
-  Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_3_max_tso.json"
-  Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
-  When I launch rao
-  Then the execution details should be "Second preventive improved first preventive results"
-  Then 1 remedial actions are used in preventive
-  And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
-  Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
-  And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
-  Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
-  And the value of the objective function after CRA should be 31.35
+  Scenario: 15.2.3: Multi-curative - with max-pst-per-tso limits and 2P
+  Case with two PST from TSO "FR" both available in curative 1 and 2
+  The best result with NO max-ra-per-tso limit after 2P:
+  - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
+  - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
+  - range action(s): CRA_PST_FR_1@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
+  Now we add the limit for FR: 1 in curative1 and 2 in curative2
+  => can only use CRA_PST_FR_1 of the PST in curative1 because the most limiting cnec is the one in curative 1
+    Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_3_max_pst_per_tso.json"
+    Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    And the initial tap of PstRangeAction "CRA_PST_FR_1" should be 0
+    And the initial tap of PstRangeAction "CRA_PST_FR_2" should be 0
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR_2" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR_2" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    And the value of the objective function after CRA should be 41.35
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.4: Multi-curative - with max-ra-per-tso limits and 2P
-  Case with 1 PST from TSO "BE" and one PST from TSO "FR" both available in curative 1 and 2
+  Case with one PST from TSO "BE" and one PST from TSO "FR" both available in curative 1 and 2
   The best result with NO max-ra-per-tso limit after 2P:
   - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
   - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)

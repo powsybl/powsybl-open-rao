@@ -236,7 +236,7 @@ public class SearchTreeParameters {
             tso,
             Math.min(
                 value - getActivatedPstRangeActionsOnState(optimizedState, result, tso),
-                decreasedMaxRaPerTso.get(tso)
+                decreasedMaxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)
             )
         ));
         return decreasedMaxPstPerTso;
