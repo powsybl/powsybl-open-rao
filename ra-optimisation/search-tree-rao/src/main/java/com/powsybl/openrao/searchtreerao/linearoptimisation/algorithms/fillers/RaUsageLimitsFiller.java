@@ -55,7 +55,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // We need to build all the variationVariable before adding the other constraint because the different state in multi curative are interdependent.
+typo        // We need to build all the variationVariable before adding the other constraint because the different states in multi curative are interdependent.
         // ex. to build MaxRaConstraint for a state in curative2 we might need the variables defined for a state in curative1
         List<Map.Entry<State, Set<RangeAction<?>>>> sortedEntries = rangeActions.entrySet().stream()
             .sorted(Comparator.comparingInt(entry -> entry.getKey().getInstant().getOrder()))
@@ -93,8 +93,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
      * if state is preventive, just consider the preventive state
      *
      * if state is curative, to be able to handle 2P in multi-curative we need to consider the given state
-     * as well as all the previous curative states sharing the same contingency presents in this.rangeActions.
-     * (note. if we are not in 2P this.rangeActions only contains the rangeActions available for given state)
+     * as well as all the previous curative states sharing the same contingency present in this.rangeActions.
+     * (note. if we are not in 2P this.rangeActions only contain the rangeActions available for a given state)
      *
      * @param state the reference state used to filter curative states by
      *              contingency and temporal order
