@@ -158,14 +158,9 @@ public class RaUsageLimits {
                     raUsageLimits.setMaxRa(jsonParser.getIntValue());
                     break;
                 case MAX_TSO:
-                    if (cracPrimaryVersion.isPresent() && cracSubVersion.isPresent()
-                        && (cracPrimaryVersion.get() > 2 || cracPrimaryVersion.get() == 2 && cracSubVersion.get() > 11)) {
-                        throw new OpenRaoException("The max-tso limit can no longer be defined since CRAC version 2.8");
-                    } else {
-                        jsonParser.nextToken();
-                        TECHNICAL_LOGS.warn("The max-tso limit can no longer be defined and will be ignored. ");
-                        break;
-                    }
+                    jsonParser.nextToken();
+                    TECHNICAL_LOGS.warn("The max-tso limit can no longer be defined and will be ignored.");
+                    break;
                 case MAX_TOPO_PER_TSO:
                     jsonParser.nextToken();
                     raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
