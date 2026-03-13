@@ -838,6 +838,50 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals("Constraint tsorausedcumulative_opC_co1Curative2_co1Curative2_constraint has not been created yet", exception.getMessage());
     }
 
+
+    @Test
+    void testMaxTsoWithExclusionMultiCurative2P() {
+        // Check that if tso OpA was excluded from curative1, also considered as excluded in curative2
+        setUpMultiCurativeIn2P();
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(co1Curative1, 1);
+        raLimitationParameters.setMaxTso(co1Curative2, 1);
+        raLimitationParameters.setMaxTsoExclusion(co1Curative1, Set.of("opA"));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        OpenRaoMPConstraint co1Curative1constraint = linearProblem.getMaxTsoConstraint(co1Curative1);
+        assertNotNull(co1Curative1constraint);
+        assertEquals(0, co1Curative1constraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1, co1Curative1constraint.ub(), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)); //excluded
+        assertEquals("Variable tsorausedcumulative_opA_co1Curative1_variable has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative1)); // no range action from operator B in co1curative1
+        assertEquals("Variable tsorausedcumulative_opB_co1Curative1_variable has not been created yet", e.getMessage());
+        assertEquals(1, co1Curative1constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)), DOUBLE_TOLERANCE);
+
+        OpenRaoMPConstraint co1Curative2constraint = linearProblem.getMaxTsoConstraint(co1Curative2);
+        assertNotNull(co1Curative2constraint);
+        assertEquals(0, co1Curative2constraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1, co1Curative2constraint.ub(), DOUBLE_TOLERANCE);
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)); // excluded because it was excluded in curative1
+        assertEquals("Variable tsorausedcumulative_opA_co1Curative2_variable has not been created yet", e.getMessage());
+        assertEquals(1, co1Curative2constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative2)), DOUBLE_TOLERANCE);
+        assertEquals(1, co1Curative2constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative2)), DOUBLE_TOLERANCE);
+
+    }
+
     @Test
     void testMaxRaPerTsoUsageLimitInMultiCurativeSecondPreventive() {
         // Check that max ra per tso usage limit is applied correctly in multi curative scenario with second preventive state

@@ -259,10 +259,11 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             );
 
         // If rangeActions.size() > 1, we are in 2P situation, in this case we still need to create the variable and constraint
-        // because the variable tsoRaUsedCumulativeVariable will be used in other state in multi curative.
+        // because the variable tsoRaUsedVariable will be used in other state in multi curative.
         if (maxTso >= constraintTsos.size() && rangeActions.size() == 1) {
             return;
         }
+
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
         constraintTsos.forEach(tso -> {
             // Create a cumulative binary variable
