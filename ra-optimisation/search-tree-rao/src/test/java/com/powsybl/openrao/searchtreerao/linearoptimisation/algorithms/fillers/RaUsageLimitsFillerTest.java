@@ -868,7 +868,6 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals("Constraint tsorausedcumulative_opC_co1Curative2_co1Curative2_constraint has not been created yet", exception.getMessage());
     }
 
-
     @Test
     void testMaxTsoWithExclusionMultiCurative2P() {
         // Check that if tso OpA was excluded from curative1, also considered as excluded in curative2

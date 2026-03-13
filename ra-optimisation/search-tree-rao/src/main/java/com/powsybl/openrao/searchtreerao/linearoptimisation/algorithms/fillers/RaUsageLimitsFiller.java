@@ -7,13 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -59,7 +57,11 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // We need to build all the variationVariable before adding the other constraint because the different state in multi curative are interdependent.
         // ex. to build MaxRaConstraint for a state in curative2 we might need the variables defined for a state in curative1
-        for (Map.Entry<State, Set<RangeAction<?>>> entry : rangeActions.entrySet().stream().sorted(Comparator.comparingInt(entry -> entry.getKey().getInstant().getOrder()))) {
+        List<Map.Entry<State, Set<RangeAction<?>>>> sortedEntries = rangeActions.entrySet().stream()
+            .sorted(Comparator.comparingInt(entry -> entry.getKey().getInstant().getOrder()))
+            .collect(Collectors.toList());
+
+        for (Map.Entry<State, Set<RangeAction<?>>> entry : sortedEntries) {
             State state = entry.getKey();
             Set<RangeAction<?>> rangeActionSet = entry.getValue();
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
@@ -211,7 +213,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
         OpenRaoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
 
-        // if the state is curative, we want to be able to handle cumulative effect of the max ra usage limit in 2P
+        // if the state is curative, we want to be able to handle the cumulative effect of the max ra usage limit in 2P
         rangeActionsPerPreviousCurativeState.entrySet().forEach(entry -> {
             entry.getValue().forEach(ra -> {
                 OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, entry.getKey());
@@ -335,6 +337,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     /**
      * Add constraints and variables to limit the number of taps (elementary actions) that can be moved
      * Note: that if pst1 does 0 (initial) -> 2 (curative1) -> 0 (curative 2): the number of elementary action used in curative 2 is considered to be 4.
+     *
      * @param linearProblem
      * @param state
      */

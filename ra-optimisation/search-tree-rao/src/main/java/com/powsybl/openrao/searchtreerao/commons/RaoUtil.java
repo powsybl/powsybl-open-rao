@@ -34,6 +34,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
