@@ -223,6 +223,26 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
+    void testPstPreOptimInverted() {
+        final PstRangeAction pstRangeAction = getPstRangeAction(null);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(new ArrayList<>());
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        Assertions.assertThat(constraintSeriesList).hasSize(1);
+
+        // B56 for PST
+        final ConstraintSeries constraintSeries = constraintSeriesList.getFirst();
+        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
+
+        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
+        checkPstRangeAction(ra, null, "BBE3AA1  BBE2AA1  1", -5);
+    }
+
+    @Test
     void testUnusedPstPreOptim() {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
@@ -286,6 +306,69 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
+    void testPstUsedInPreventiveInverted() {
+        final PstRangeAction pstRangeAction = getPstRangeAction(InstantKind.PREVENTIVE);
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(cnecsConstraintSeries);
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        Assertions.assertThat(constraintSeriesList).hasSize(2);
+
+        // B56 for preventive results
+        final ConstraintSeries constraintSeries = constraintSeriesList.get(1);
+        Assertions.assertThat(constraintSeries.getContingencySeries()).isEmpty();
+        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
+
+        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
+        checkPstRangeAction(ra, "A18", "BBE3AA1  BBE2AA1  1", -16);
+
+        // Used PST in preventive should be stored in CNECs constraint series B57 & B54
+        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
+        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(1); // B57
+        final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(1).getRemedialActionSeries().getFirst();
+        Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("ra-id");
+        Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
+        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(1); // B54
+        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).hasSize(1); // B54
+    }
+
+    @Test
+    void testNetworkActionUsedInPreventive() {
+        final NetworkAction networkAction = getNetworkAction(InstantKind.PREVENTIVE);
+        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
+
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
+
+        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
+
+        // In the case of network action, there is no B56 for pre-optim
+        Assertions.assertThat(constraintSeriesList).hasSize(1);
+
+        // B56 for preventive results
+        final ConstraintSeries constraintSeries = constraintSeriesList.getFirst();
+        Assertions.assertThat(constraintSeries.getContingencySeries()).isEmpty();
+        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
+        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
+
+        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
+        checkNetworkAction(ra, "A18");
+
+        // Used PST in preventive should be stored in CNECs constraint series B57 & B54
+        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
+        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(1); // B57
+        final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(1).getRemedialActionSeries().getFirst();
+        Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("na-id");
+        Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
+        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(1); // B54
+        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).hasSize(1); // B54
+    }
+
+    @Test
     void testPstUsedInCurative() {
         final PstRangeAction pstRangeAction = getPstRangeAction(InstantKind.CURATIVE);
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet<>());
@@ -322,37 +405,6 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testNetworkActionUsedInPreventive() {
-        final NetworkAction networkAction = getNetworkAction(InstantKind.PREVENTIVE);
-        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
-
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
-
-        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
-
-        // In the case of network action, there is no B56 for pre-optim
-        Assertions.assertThat(constraintSeriesList).hasSize(1);
-
-        // B56 for preventive results
-        final ConstraintSeries constraintSeries = constraintSeriesList.getFirst();
-        Assertions.assertThat(constraintSeries.getContingencySeries()).isEmpty();
-        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
-        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
-
-        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
-        checkNetworkAction(ra, "A18");
-
-        // Used PST in preventive should be stored in CNECs constraint series B57 & B54
-        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
-        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(1); // B57
-        final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(1).getRemedialActionSeries().getFirst();
-        Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("na-id");
-        Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
-        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(1); // B54
-        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).hasSize(1); // B54
-    }
-
-    @Test
     void testNetworkActionUsedInCurative() {
         final NetworkAction networkAction = getNetworkAction(InstantKind.CURATIVE);
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet<>());
@@ -385,58 +437,6 @@ class CoreCneRemedialActionsCreatorTest {
         Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("na-id");
         Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A19");
         Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).isEmpty(); // B54 but with other contingency
-    }
-
-    @Test
-    void testPstPreOptimInverted() {
-        final PstRangeAction pstRangeAction = getPstRangeAction(null);
-        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
-
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(new ArrayList<>());
-
-        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
-
-        Assertions.assertThat(constraintSeriesList).hasSize(1);
-
-        // B56 for PST
-        final ConstraintSeries constraintSeries = constraintSeriesList.getFirst();
-        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
-        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
-
-        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
-        checkPstRangeAction(ra, null, "BBE3AA1  BBE2AA1  1", -5);
-    }
-
-    @Test
-    void testPstUsedInPreventiveInverted() {
-        final PstRangeAction pstRangeAction = getPstRangeAction(InstantKind.PREVENTIVE);
-        Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
-        Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
-        Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
-
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(cnecsConstraintSeries);
-
-        final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
-
-        Assertions.assertThat(constraintSeriesList).hasSize(2);
-
-        // B56 for preventive results
-        final ConstraintSeries constraintSeries = constraintSeriesList.get(1);
-        Assertions.assertThat(constraintSeries.getContingencySeries()).isEmpty();
-        Assertions.assertThat(constraintSeries.getBusinessType()).isEqualTo("B56");
-        Assertions.assertThat(constraintSeries.getRemedialActionSeries()).hasSize(1);
-
-        final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
-        checkPstRangeAction(ra, "A18", "BBE3AA1  BBE2AA1  1", -16);
-
-        // Used PST in preventive should be stored in CNECs constraint series B57 & B54
-        Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
-        Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(1); // B57
-        final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(1).getRemedialActionSeries().getFirst();
-        Assertions.assertThat(remedialActionSeries.getName()).isEqualTo("ra-id");
-        Assertions.assertThat(remedialActionSeries.getApplicationModeMarketObjectStatusStatus()).isEqualTo("A18");
-        Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(1); // B54
-        Assertions.assertThat(cnecsConstraintSeries.get(3).getRemedialActionSeries()).hasSize(1); // B54
     }
 
     @Test
