@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
@@ -638,12 +638,12 @@ public class CracImportSteps {
                             && Objects.equals(loadAction.getLoadId(), networkElementId)
                             && loadAction.getActivePowerValue().getAsDouble() == activePowerValueLA));
                     break;
-                case "DanglingLineAction":
-                    double activePowerValueDLA = Double.parseDouble(action);
+                case "BoundaryLineAction":
+                    double activePowerValueBLA = Double.parseDouble(action);
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof DanglingLineAction danglingLineAction
-                            && Objects.equals(danglingLineAction.getDanglingLineId(), networkElementId)
-                            && danglingLineAction.getActivePowerValue().getAsDouble() == activePowerValueDLA));
+                        elementaryAction instanceof BoundaryLineAction boundaryLineAction
+                            && Objects.equals(boundaryLineAction.getBoundaryLineId(), networkElementId)
+                            && boundaryLineAction.getActivePowerValue().getAsDouble() == activePowerValueBLA));
                     break;
                 case "ShuntCompensatorPositionAction":
                     int sectionCount = Integer.parseInt(action);
