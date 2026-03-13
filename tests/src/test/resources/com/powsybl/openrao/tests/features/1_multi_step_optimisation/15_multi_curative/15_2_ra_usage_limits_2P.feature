@@ -14,7 +14,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - move the PST to -15 in curative2
   - and then -16 in curative 3 to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3"
   Moving the PST to -15 in curative2 and then -16 in curative3 is considered as using two RAs at two different instants.
-  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
+  Given network file is "1_multi_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
   Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_1.json"
   Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
@@ -42,7 +42,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   However the situation is more complex than for 91.12.5, since we want to check that the limitations are also respected in second preventive where all the curative range actions are optimized at once.
   The MIP in 2P should be able to move the PST one time to -16 directly in curative2 to secure both the "Contingency DE2 DE3 1 - curative2" and "Contingency DE2 DE3 1 - curative3".
   The final situation is the same as 15.2.2.
-  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
+  Given network file is "1_multi_step_optimisation/15_multi_curative/12Nodes3ParallelLines_disconnected.uct"
   Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_2_with_ra_limitations.json"
   Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
@@ -65,7 +65,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - range action(s): CRA_PST_FR_1@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
   Now we add the limit for FR: 1 in curative1 and 2 in curative2
   => can only use CRA_PST_FR_1 of the PST in curative1 because the most limiting cnec is the one in curative 1
-    Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+    Given network file is "1_multi_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
     Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_3_max_pst_per_tso.json"
     Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
@@ -91,7 +91,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
   and for FR: 1 in curative1 and 1 curative2
   => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
-  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+  Given network file is "1_multi_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_4_max_ra_per_tso.json"
   Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
@@ -119,7 +119,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - use the full curative1 budget by moving 17 taps in total to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" as much as possible;
   - move another 10 taps so that "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"'s margin goes slightly below the curative1 cnec's margin.
   We don't reach the curative2 limit because no need to move more in curative2 since the limiting cnec's is in curative1.
-  Given network file is "1_muti_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
+  Given network file is "1_multi_step_optimisation/15_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/15_multi_curative/crac_15_2_5_max_elementary_actions_per_tso.json"
   Given configuration file is "1_multi_step_optimisation/15_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
