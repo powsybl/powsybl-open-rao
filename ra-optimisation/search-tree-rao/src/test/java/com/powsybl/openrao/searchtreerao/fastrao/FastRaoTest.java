@@ -54,7 +54,7 @@ class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-143.83, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(5, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
+        assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
     @Test
