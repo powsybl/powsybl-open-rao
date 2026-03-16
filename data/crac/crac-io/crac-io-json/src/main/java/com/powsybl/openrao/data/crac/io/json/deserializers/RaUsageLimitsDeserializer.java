@@ -11,11 +11,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static com.powsybl.openrao.data.crac.api.RaUsageLimits.deserializeRaUsageLimits;
 

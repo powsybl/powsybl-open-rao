@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 
 import static com.powsybl.openrao.data.crac.api.RaUsageLimits.deserializeRaUsageLimits;
