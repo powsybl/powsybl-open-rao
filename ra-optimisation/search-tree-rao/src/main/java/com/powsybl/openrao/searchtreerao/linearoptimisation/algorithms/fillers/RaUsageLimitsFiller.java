@@ -54,8 +54,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // We need to build all the variationVariable before adding the other constraint because the different states in multi curative are interdependent.
-        // ex. to build MaxRaConstraint for a state in curative2 we might need the variables defined for a state in curative1
+
         List<Map.Entry<State, Set<RangeAction<?>>>> sortedEntries = rangeActions.entrySet().stream()
             .sorted(Comparator.comparingInt(entry -> entry.getKey().getInstant().getOrder()))
             .collect(Collectors.toList());
