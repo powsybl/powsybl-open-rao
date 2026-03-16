@@ -10,11 +10,16 @@ package com.powsybl.openrao.data.crac.api;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,5 +122,29 @@ class RaUsageLimitsTest {
         assertEquals(2, logsList.size());
         assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
         assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
+    }
+
+    private static JsonParser createJsonParser(String json) throws IOException {
+        JsonParser jsonParser = new ObjectMapper().createParser(json);
+        jsonParser.nextToken();
+        return jsonParser;
+    }
+
+    @Test
+    void testDeserializeRaUsageLimits() throws IOException {
+        String json = """
+            {
+              "instant" : "curative",
+              "max-tso" : 3
+            }
+            """;
+        ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+        RaUsageLimits.deserializeRaUsageLimits(createJsonParser(json));
+
+        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        assertEquals(1, logsList.size());
+        assertEquals("A max-tso limit can no longer be defined and will be ignored.",
+            logsList.get(0).getFormattedMessage());
     }
 }
