@@ -12,8 +12,10 @@ import com.powsybl.openrao.data.crac.api.CracCreationReport;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.NativeBranch;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.PstRangeActionCreationContext;
@@ -25,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Dummy class that has no real use, but allows the CRAC exporters
@@ -34,9 +35,9 @@ import java.util.stream.Collectors;
  */
 public class MockCracCreationContext implements UcteCracCreationContext {
 
-    private Crac crac;
-    private List<MockCnecCreationContext> mockCnecCreationContexts;
-    private List<MockRemedialActionCreationContext> mockRemedialActionCreationContexts;
+    private final Crac crac;
+    private final List<MockCnecCreationContext> mockCnecCreationContexts;
+    private final List<ElementaryCreationContext> mockRemedialActionCreationContexts;
 
     public MockCracCreationContext(Crac crac) {
         this.crac = crac;
@@ -45,19 +46,38 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         this.crac.getFlowCnecs().forEach(flowCnec -> addCnecCreationContext(flowCnec, crac));
 
         this.mockRemedialActionCreationContexts = new ArrayList<>();
-        this.crac.getRangeActions().forEach(rangeAction -> mockRemedialActionCreationContexts.add(new MockRemedialActionCreationContext(rangeAction, crac)));
+        this.crac.getRangeActions().stream()
+            .filter(rangeAction -> !(rangeAction instanceof InjectionRangeAction))
+            .forEach(rangeAction -> mockRemedialActionCreationContexts.add(new MockRemedialActionCreationContext(rangeAction, crac)));
+        this.crac.getInjectionRangeActions().stream()
+            .filter(ira -> ira.getId().contains(" + ") && ira.getName().contains(" + "))
+            .forEach(injectionRangeAction -> createRemedialActionCreationContext(crac, injectionRangeAction));
         this.crac.getNetworkActions().forEach(networkAction -> mockRemedialActionCreationContexts.add(new MockRemedialActionCreationContext(networkAction, crac)));
+    }
+
+    private void createRemedialActionCreationContext(final Crac crac, final InjectionRangeAction injectionRangeAction) {
+        final String[] splitId = injectionRangeAction.getId().split(" \\+ ");
+        final String[] splitName = injectionRangeAction.getName().split(" \\+ ");
+        final ImportStatus importStatus = crac.getRangeAction(injectionRangeAction.getId()) != null || crac.getNetworkAction(injectionRangeAction.getId()) != null
+            ? ImportStatus.IMPORTED
+            : ImportStatus.OTHER;
+        mockRemedialActionCreationContexts.add(new StandardElementaryCreationContext(
+            splitId[0], splitName[0], splitId[0], importStatus, "", false
+        ));
+        mockRemedialActionCreationContexts.add(new StandardElementaryCreationContext(
+            splitId[1], splitName[1], splitId[1], importStatus, "", false
+        ));
     }
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
                 creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
-        ).collect(Collectors.toList());
+        ).toList();
         if (cnecsWithSameNe.isEmpty()) {
             mockCnecCreationContexts.add(new MockCnecCreationContext(flowCnec, crac));
         } else {
-            cnecsWithSameNe.get(0).addCreatedCnec(flowCnec);
+            cnecsWithSameNe.getFirst().addCreatedCnec(flowCnec);
         }
     }
 
@@ -106,7 +126,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         return null;
     }
 
-    public class MockCnecCreationContext implements BranchCnecCreationContext {
+    public static class MockCnecCreationContext implements BranchCnecCreationContext {
         FlowCnec flowCnec;
         boolean isBaseCase;
         boolean isImported;
@@ -220,10 +240,9 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
     }
 
-    public class MockRemedialActionCreationContext implements PstRangeActionCreationContext {
-
-        private RemedialAction remedialAction;
-        boolean isImported;
+    public static class MockRemedialActionCreationContext implements PstRangeActionCreationContext {
+        private final RemedialAction remedialAction;
+        private final boolean isImported;
         boolean isInverted;
         String nativeNetworkElementId;
 

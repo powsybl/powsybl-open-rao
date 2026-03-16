@@ -19,7 +19,7 @@
             <frmMw>218</frmMw>
             <CNEC>true</CNEC>
             <direction>DIRECT</direction>
-            <tsoOrigin>D0</tsoOrigin>
+            <tsoOrigin>D4</tsoOrigin>
             <outage id="OUTAGE_1">
                 <branch eic="EIC" from="FFR2AA1 " to="DDE3AA1 " elementName="CB1" />
             </outage>

@@ -34,6 +34,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABSOLUTE_MARKET_OBJECT_STATUS;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE;
@@ -84,10 +86,11 @@ public final class CoreCneRemedialActionsCreator {
         final List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
         final Crac crac = cneHelper.getCrac();
-        final List<InjectionRangeAction> sortedInjectionRangeActions = new ArrayList<>();
         final List<PstRangeAction> sortedPstRangeActions = new ArrayList<>();
+        final List<InjectionRangeAction> sortedInjectionRangeActions = new ArrayList<>();
         final List<NetworkAction> sortedNetworkActions = new ArrayList<>();
-        getSortedRangeAndNetworkActions(crac, sortedInjectionRangeActions, sortedPstRangeActions, sortedNetworkActions);
+        getSortedPstRangeAndNetworkActions(crac, sortedPstRangeActions, sortedNetworkActions);
+        getSortedInjectionRangeActions(crac, sortedInjectionRangeActions);
         logMissingRangeActions();
 
         // PRE-OPTIM: only one ConstraintSeries
@@ -108,26 +111,51 @@ public final class CoreCneRemedialActionsCreator {
         return constraintSeries;
     }
 
-    private void getSortedRangeAndNetworkActions(final Crac crac,
-                                                 final List<InjectionRangeAction> sortedInjectionRangeActions,
-                                                 final List<PstRangeAction> sortedPstRangeActions,
-                                                 final List<NetworkAction> sortedNetworkActions) {
+    private void getSortedPstRangeAndNetworkActions(final Crac crac,
+                                                    final List<PstRangeAction> sortedPstRangeActions,
+                                                    final List<NetworkAction> sortedNetworkActions) {
         cracCreationContext.getRemedialActionCreationContexts().stream()
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
             .forEach(raCreationContext -> {
-                final InjectionRangeAction injectionRangeAction = crac.getInjectionRangeAction(raCreationContext.getCreatedObjectId());
-                if (injectionRangeAction != null) {
-                    sortedInjectionRangeActions.add(injectionRangeAction);
-                }
                 final PstRangeAction pstRangeAction = crac.getPstRangeAction(raCreationContext.getCreatedObjectId());
                 if (pstRangeAction != null) {
                     sortedPstRangeActions.add(pstRangeAction);
                 }
+
                 final NetworkAction networkAction = crac.getNetworkAction(raCreationContext.getCreatedObjectId());
                 if (networkAction != null) {
                     sortedNetworkActions.add(networkAction);
                 }
             });
+    }
+
+    private void getSortedInjectionRangeActions(final Crac crac,
+                                                final List<InjectionRangeAction> sortedInjectionRangeActions) {
+        final Set<String> raCreationContextIds = cracCreationContext.getRemedialActionCreationContexts().stream()
+            .map(ElementaryCreationContext::getCreatedObjectId)
+            .collect(Collectors.toSet());
+
+        // InjectionRangeActions in Core are composed of two elements
+        // So we must ensure that the two elements composing the injection range action exist in the creation context
+        // before adding the remedial action to the list
+        crac.getInjectionRangeActions().stream()
+            .filter(ira -> isInjectionRangeActionValid(ira, raCreationContextIds))
+            .sorted(Comparator.comparing(InjectionRangeAction::getId))
+            .forEach(sortedInjectionRangeActions::add);
+    }
+
+    private static boolean isInjectionRangeActionValid(final InjectionRangeAction ira,
+                                                       final Set<String> raCreationContextIds) {
+        if (ira.getId() == null) {
+            return false;
+        }
+
+        final String[] splitRaId = ira.getId().split(SEPARATOR_REGEX);
+        if (splitRaId.length != 2) {
+            return false;
+        }
+
+        return raCreationContextIds.contains(splitRaId[0]) && raCreationContextIds.contains(splitRaId[1]);
     }
 
     private void logMissingRangeActions() {
