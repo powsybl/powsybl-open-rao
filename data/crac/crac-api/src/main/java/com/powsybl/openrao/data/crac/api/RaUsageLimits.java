@@ -143,7 +143,7 @@ public class RaUsageLimits {
         return super.hashCode();
     }
 
-    // The deserializer is used in crac deserialization as well as crac creation parameters
+    // The deserializer is used in crac deserialization as well as crac creation parameters deserialization
     public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         String instant = null;
