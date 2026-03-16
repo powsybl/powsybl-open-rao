@@ -7,9 +7,19 @@
 
 package com.powsybl.openrao.data.timecoupledconstraints;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.Optional;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * Set of physical and operational constraints that apply on a generator.
@@ -17,7 +27,7 @@ import java.util.Optional;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class GeneratorConstraints {
+public final class GeneratorConstraints implements TimeCoupledConstraints {
     private final String generatorId;
     private final Double leadTime;
     private final Double lagTime;
@@ -105,6 +115,45 @@ public final class GeneratorConstraints {
 
     public static GeneratorConstraintsBuilder create() {
         return new GeneratorConstraintsBuilder();
+    }
+
+    @Override
+    public boolean validate(TemporalData<Network> networks) {
+        TemporalData<Generator> generators = networks.map(network -> getGeneratorOrThrow(generatorId, network));
+        TemporalData<Double> setPoints = generators.map(Generator::getTargetP);
+        TemporalData<Double> minimalPowers = generators.map(Generator::getMinP);
+        TemporalData<Double> maximalPowers = generators.map(Generator::getMaxP);
+
+        Iterator<OffsetDateTime> dateTimeIterator = generators.getTimestamps().iterator();
+        OffsetDateTime currentDateTime = dateTimeIterator.next();
+        while (dateTimeIterator.hasNext()) {
+            OffsetDateTime nextDateTime = dateTimeIterator.next();
+            double currentSetPoint = setPoints.getData(currentDateTime).orElseThrow();
+            if (currentSetPoint > maximalPowers.getData(currentDateTime).orElseThrow()) {
+                BUSINESS_WARNS.warn("Power of generator {} at timestamp {} is over its maximal power. Generator will be discarded.", generatorId, currentDateTime);
+                return false;
+            }
+            double powerVariation = setPoints.getData(nextDateTime).orElseThrow() - currentSetPoint;
+            double timestampDuration = currentDateTime.until(nextDateTime, ChronoUnit.SECONDS) / 3600.0;
+            if (upwardPowerGradient != null && powerVariation > upwardPowerGradient * timestampDuration) {
+                BUSINESS_WARNS.warn("Power variation of generator {} between timestamps {} and {} is greater than the permitted power gradient. Generator will be discarded.", generatorId, currentDateTime, nextDateTime);
+                return false;
+            }
+            if (downwardPowerGradient != null && powerVariation < downwardPowerGradient * timestampDuration) {
+                BUSINESS_WARNS.warn("Power variation of generator {} between timestamps {} and {} is lower than the permitted power gradient. Generator will be discarded.", generatorId, currentDateTime, nextDateTime);
+                return false;
+            }
+            currentDateTime = nextDateTime;
+        }
+        return true;
+    }
+
+    private static Generator getGeneratorOrThrow(String generatorId, Network network) {
+        Generator generator = network.getGenerator(generatorId);
+        if (generator == null) {
+            throw new OpenRaoException("Generator " + generatorId + " not found in network.");
+        }
+        return generator;
     }
 
     public static final class GeneratorConstraintsBuilder {
