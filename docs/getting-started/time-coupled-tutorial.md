@@ -442,7 +442,7 @@ RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-pa
 ### Time-coupled constraints
 
 ```java
-TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
+TimeCoupledConstraints timeCoupledConstraintsPool = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
 ```
 
 ## Prepare inputs
@@ -468,7 +468,7 @@ time-coupled constraints and one without:
 
 ```java
 TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCoupledConstraints());
-TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraints);
+TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraintsPool);
 ```
 
 ## Run the RAO
@@ -568,7 +568,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
@@ -590,7 +590,7 @@ public class Main {
         Crac crac0030 = Crac.read("crac-202602160030.json", new FileInputStream("crac-202602160030.json"), network);
         Crac crac0130 = Crac.read("crac-202602160130.json", new FileInputStream("crac-202602160130.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-parameters.json"));
-        TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
+        TimeCoupledConstraints timeCoupledConstraintsPool = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
 
         // create time-coupled inputs
 
@@ -603,7 +603,7 @@ public class Main {
         inputPerTimestamp.put(OffsetDateTime.of(2026, 2, 16, 1, 30, 0, 0, ZoneOffset.UTC), input0130);
 
         TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCoupledConstraints());
-        TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraintsPool);
 
         // run time-coupled RAO without time-coupled constraints
 

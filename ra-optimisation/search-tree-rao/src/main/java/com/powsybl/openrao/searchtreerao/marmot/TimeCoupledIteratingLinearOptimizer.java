@@ -215,7 +215,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
             preventiveStates,
             preventiveInjectionRangeActions,
-            input.timeCoupledConstraints().getGeneratorConstraints()
+            input.timeCoupledConstraintsPool().getGeneratorConstraints()
         ));
     }
 

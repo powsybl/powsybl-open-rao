@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class JsonTimeCoupledConstraintsTest {
+class JsonTimeCoupledConstraintsPoolTest {
     @Test
     void testSerialization() throws IOException {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
 
         GeneratorConstraints generatorConstraints1 = GeneratorConstraints.create()
             .withGeneratorId("generator-1")
@@ -50,36 +50,36 @@ class JsonTimeCoupledConstraintsTest {
             .withDownwardPowerGradient(-1000.0)
             .build();
 
-        timeCoupledConstraints.addGeneratorConstraints(generatorConstraints1);
-        timeCoupledConstraints.addGeneratorConstraints(generatorConstraints2);
-        timeCoupledConstraints.addGeneratorConstraints(generatorConstraints3);
+        timeCoupledConstraintsPool.addGeneratorConstraints(generatorConstraints1);
+        timeCoupledConstraintsPool.addGeneratorConstraints(generatorConstraints2);
+        timeCoupledConstraintsPool.addGeneratorConstraints(generatorConstraints3);
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/time-coupled-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonTimeCoupledConstraints.write(timeCoupledConstraints, actualOutputStream);
+        JsonTimeCoupledConstraints.write(timeCoupledConstraintsPool, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
 
     @Test
     void testSerializationEmptyConstraints() throws IOException {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/empty-time-coupled-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonTimeCoupledConstraints.write(timeCoupledConstraints, actualOutputStream);
+        JsonTimeCoupledConstraints.write(timeCoupledConstraintsPool, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
 
     @Test
     void testDeserialization() throws IOException {
-        TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
-        List<GeneratorConstraints> generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().stream()
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
+        List<GeneratorConstraints> generatorConstraints = timeCoupledConstraintsPool.getGeneratorConstraints().stream()
             .sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId))
             .toList();
 

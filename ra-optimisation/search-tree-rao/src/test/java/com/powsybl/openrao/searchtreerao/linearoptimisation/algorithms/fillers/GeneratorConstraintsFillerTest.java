@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -179,7 +179,7 @@ class GeneratorConstraintsFillerTest {
         return crac;
     }
 
-    private void setUpLinearProblemWithTimeCoupledConstraints(TimeCoupledConstraints timeCoupledConstraints, List<OffsetDateTime> timestamps) {
+    private void setUpLinearProblemWithTimeCoupledConstraints(TimeCoupledConstraintsPool timeCoupledConstraintsPool, List<OffsetDateTime> timestamps) {
         if (timestamps.size() != 5) {
             throw new IllegalArgumentException("Timestamps size should be 5");
         }
@@ -207,14 +207,14 @@ class GeneratorConstraintsFillerTest {
             RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC), 0.0)).build()
         );
 
-        input = new TimeCoupledRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), timeCoupledConstraints);
+        input = new TimeCoupledRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), timeCoupledConstraintsPool);
         parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
         setUpLinearProblem();
     }
 
     @Test
     void testNoTimeCoupledConstraints() {
-        setUpLinearProblemWithTimeCoupledConstraints(new TimeCoupledConstraints(), hourlyTimestamps);
+        setUpLinearProblemWithTimeCoupledConstraints(new TimeCoupledConstraintsPool(), hourlyTimestamps);
 
         // For each timestamp:
         // -> no power variables created because no time-coupled constraints
@@ -236,9 +236,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testNoLeadNoLag() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -280,9 +280,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testPowerGradients() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -326,15 +326,15 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShorterTimeGaps() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).build());
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).build());
         List<OffsetDateTime> minuteTimestamps = new ArrayList<>();
         minuteTimestamps.add(OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC));
         minuteTimestamps.add(OffsetDateTime.of(2026, 1, 9, 1, 10, 0, 0, ZoneOffset.UTC));
         minuteTimestamps.add(OffsetDateTime.of(2026, 1, 9, 1, 20, 0, 0, ZoneOffset.UTC));
         minuteTimestamps.add(OffsetDateTime.of(2026, 1, 9, 1, 30, 0, 0, ZoneOffset.UTC));
         minuteTimestamps.add(OffsetDateTime.of(2026, 1, 9, 1, 40, 0, 0, ZoneOffset.UTC));
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, minuteTimestamps);
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, minuteTimestamps);
 
         assertEquals(51, linearProblem.numVariables());
         assertEquals(59, linearProblem.numConstraints());
@@ -377,9 +377,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadTime() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(0.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(0.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -421,9 +421,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLagTime() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLagTime(0.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLagTime(0.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -465,9 +465,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndShortLagTimes() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(0.2).withLagTime(0.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(0.2).withLagTime(0.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -509,14 +509,14 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndShortLagTimesAndPowerGradients() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("BBE1AA1 _generator")
                 .withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
                 .withLeadTime(0.2).withLagTime(0.2).build()
         );
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -560,9 +560,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testLongLeadTime() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(1.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(1.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -605,9 +605,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testLongLagTime() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLagTime(1.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLagTime(1.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -650,9 +650,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testLongLeadAndLongLagTimes() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(1.2).withLagTime(1.2).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withLeadTime(1.2).withLagTime(1.2).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -696,15 +696,15 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testLongLeadAndLongLagTimesAndPowerGradients() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("BBE1AA1 _generator")
                 .withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
                 .withLeadTime(1.2).withLagTime(1.2)
                 .build()
         );
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -750,15 +750,15 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradients() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("BBE1AA1 _generator").
                 withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
                 .withLeadTime(0.2).withLagTime(1.2)
                 .build()
         );
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -803,9 +803,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownProhibited() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -851,9 +851,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndStartUpProhibited() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withStartUpAllowed(false).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 
@@ -900,9 +900,9 @@ class GeneratorConstraintsFillerTest {
 
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownAndStartUpProhibited() {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).withStartUpAllowed(false).build());
-        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraintsPool, hourlyTimestamps);
 
         // For each timestamp:
 

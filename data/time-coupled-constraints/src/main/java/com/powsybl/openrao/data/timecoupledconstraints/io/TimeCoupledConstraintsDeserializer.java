@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,26 +21,26 @@ import java.util.List;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class TimeCoupledConstraintsDeserializer extends StdDeserializer<TimeCoupledConstraints> {
+public class TimeCoupledConstraintsDeserializer extends StdDeserializer<TimeCoupledConstraintsPool> {
 
     public TimeCoupledConstraintsDeserializer(Class<?> vc) {
         super(vc);
     }
 
     @Override
-    public TimeCoupledConstraints deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+    public TimeCoupledConstraintsPool deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case JsonTimeCoupledConstraints.TYPE, JsonTimeCoupledConstraints.VERSION -> jsonParser.nextToken();
                 case JsonTimeCoupledConstraints.GENERATOR_CONSTRAINTS -> {
                     jsonParser.nextToken();
-                    List.of(jsonParser.readValueAs(GeneratorConstraints[].class)).forEach(timeCoupledConstraints::addGeneratorConstraints);
+                    List.of(jsonParser.readValueAs(GeneratorConstraints[].class)).forEach(timeCoupledConstraintsPool::addGeneratorConstraints);
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field '%s' in JSON time-coupled constraints.".formatted(jsonParser.currentName()));
             }
         }
-        return timeCoupledConstraints;
+        return timeCoupledConstraintsPool;
     }
 }

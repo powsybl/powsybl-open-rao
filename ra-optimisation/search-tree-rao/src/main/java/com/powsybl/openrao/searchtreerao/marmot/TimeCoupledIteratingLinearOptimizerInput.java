@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 
@@ -18,5 +18,5 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
  */
 public record TimeCoupledIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs,
                                                        ObjectiveFunction objectiveFunction,
-                                                       TimeCoupledConstraints timeCoupledConstraints) {
+                                                       TimeCoupledConstraintsPool timeCoupledConstraintsPool) {
 }

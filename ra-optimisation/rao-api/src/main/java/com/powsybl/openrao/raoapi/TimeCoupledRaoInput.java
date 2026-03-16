@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 public class TimeCoupledRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final TimeCoupledConstraints timeCoupledConstraints;
+    private final TimeCoupledConstraintsPool timeCoupledConstraintsPool;
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraintsPool timeCoupledConstraintsPool) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
-        this.timeCoupledConstraints = timeCoupledConstraints;
+        this.timeCoupledConstraintsPool = timeCoupledConstraintsPool;
         checkTimestampsToRun();
     }
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraints);
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCoupledConstraintsPool timeCoupledConstraintsPool) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraintsPool);
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
@@ -44,8 +44,8 @@ public class TimeCoupledRaoInput {
         return timestampsToRun;
     }
 
-    public TimeCoupledConstraints getTimeCoupledConstraints() {
-        return timeCoupledConstraints;
+    public TimeCoupledConstraintsPool getTimeCoupledConstraints() {
+        return timeCoupledConstraintsPool;
     }
 
     private void checkTimestampsToRun() {

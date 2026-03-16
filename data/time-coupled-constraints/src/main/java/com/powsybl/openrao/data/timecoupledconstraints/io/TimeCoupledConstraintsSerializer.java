@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -20,19 +20,19 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class TimeCoupledConstraintsSerializer extends StdSerializer<TimeCoupledConstraints> {
+public class TimeCoupledConstraintsSerializer extends StdSerializer<TimeCoupledConstraintsPool> {
 
-    protected TimeCoupledConstraintsSerializer(Class<TimeCoupledConstraints> t) {
+    protected TimeCoupledConstraintsSerializer(Class<TimeCoupledConstraintsPool> t) {
         super(t);
     }
 
     @Override
-    public void serialize(TimeCoupledConstraints timeCoupledConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(TimeCoupledConstraintsPool timeCoupledConstraintsPool, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(JsonTimeCoupledConstraints.TYPE, JsonTimeCoupledConstraints.DESCRIPTION);
         jsonGenerator.writeStringField(JsonTimeCoupledConstraints.VERSION, JsonTimeCoupledConstraints.CURRENT_VERSION);
-        if (!timeCoupledConstraints.getGeneratorConstraints().isEmpty()) {
-            serializeGeneratorConstraints(timeCoupledConstraints.getGeneratorConstraints(), jsonGenerator);
+        if (!timeCoupledConstraintsPool.getGeneratorConstraints().isEmpty()) {
+            serializeGeneratorConstraints(timeCoupledConstraintsPool.getGeneratorConstraints(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

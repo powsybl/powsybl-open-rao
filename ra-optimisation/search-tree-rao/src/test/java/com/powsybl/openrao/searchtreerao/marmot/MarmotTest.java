@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -72,8 +72,8 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
             ));
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("FFR1AA1 _generator")
                 .withLeadTime(0.0).withLagTime(0.0)
@@ -81,7 +81,7 @@ class MarmotTest {
                 .build()
         );
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraintsPool);
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
@@ -123,8 +123,8 @@ class MarmotTest {
                 timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("FFR1AA1 _generator")
                 .withLeadTime(0.0).withLagTime(0.0)
@@ -132,7 +132,7 @@ class MarmotTest {
                 .build()
         );
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraintsPool);
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
@@ -177,7 +177,7 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraints());
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraintsPool());
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
@@ -216,8 +216,8 @@ class MarmotTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("FFR3AA1 _generator")
                 .withLeadTime(0.0).withLagTime(0.0)
@@ -230,7 +230,7 @@ class MarmotTest {
                 timestamp1, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac1).build(),
                 timestamp2, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac3).build())),
-            timeCoupledConstraints
+            timeCoupledConstraintsPool
         );
 
         // no redispatching required during the first timestamp
@@ -275,8 +275,8 @@ class MarmotTest {
 
             ));
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("FFR1AA1 _generator")
                 .withLeadTime(0.0).withLagTime(0.0)
@@ -284,7 +284,7 @@ class MarmotTest {
                 .build()
         );
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraintsPool);
 
         TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
@@ -340,8 +340,8 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(
             GeneratorConstraints.create()
                 .withGeneratorId("FFR3AA1 _generator")
                 .withLeadTime(0.0).withLagTime(0.0)
@@ -349,7 +349,7 @@ class MarmotTest {
                 .build()
         );
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraintsPool);
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
@@ -408,7 +408,7 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new TimeCoupledConstraints());
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new TimeCoupledConstraintsPool());
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
@@ -468,10 +468,10 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+        TimeCoupledConstraintsPool timeCoupledConstraintsPool = new TimeCoupledConstraintsPool();
+        timeCoupledConstraintsPool.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
-        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraintsPool);
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 

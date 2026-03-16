@@ -79,5 +79,5 @@ that generator can be started up.
 ### Import
 
 ```java
-TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
+TimeCoupledConstraints timeCoupledConstraintsPool = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
 ```

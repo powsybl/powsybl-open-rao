@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.junit.jupiter.api.AfterEach;
@@ -72,7 +72,7 @@ class IcsImporterTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath2), networkFilePathPostIcsImport2, crac2).build()
             ));
 
-        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraints());
+        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraintsPool());
     }
 
     private String getResourcePath(String resourcePath) {

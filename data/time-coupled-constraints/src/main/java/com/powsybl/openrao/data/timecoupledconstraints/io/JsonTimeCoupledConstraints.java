@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraintsPool;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,25 +55,25 @@ public final class JsonTimeCoupledConstraints {
 
     // IO
 
-    public static void write(TimeCoupledConstraints timeCoupledConstraints, OutputStream outputStream) throws IOException {
+    public static void write(TimeCoupledConstraintsPool timeCoupledConstraintsPool, OutputStream outputStream) throws IOException {
         ObjectMapper objectMapper = createObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         SimpleModule module = new SimpleModule();
-        module.addSerializer(TimeCoupledConstraints.class, new TimeCoupledConstraintsSerializer(TimeCoupledConstraints.class));
+        module.addSerializer(TimeCoupledConstraintsPool.class, new TimeCoupledConstraintsSerializer(TimeCoupledConstraintsPool.class));
         module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        writer.writeValue(outputStream, timeCoupledConstraints);
+        writer.writeValue(outputStream, timeCoupledConstraintsPool);
     }
 
-    public static TimeCoupledConstraints read(InputStream inputStream) throws IOException {
+    public static TimeCoupledConstraintsPool read(InputStream inputStream) throws IOException {
         ObjectMapper objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(TimeCoupledConstraints.class, new TimeCoupledConstraintsDeserializer(TimeCoupledConstraints.class));
+        module.addDeserializer(TimeCoupledConstraintsPool.class, new TimeCoupledConstraintsDeserializer(TimeCoupledConstraintsPool.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         try {
-            return objectMapper.readValue(inputStream, TimeCoupledConstraints.class);
+            return objectMapper.readValue(inputStream, TimeCoupledConstraintsPool.class);
         } catch (JsonMappingException e) {
             throw new OpenRaoException(extractDeserializationErrorMessage(e.getMessage()));
         }

@@ -13,10 +13,10 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class TimeCoupledConstraints {
+public class TimeCoupledConstraintsPool {
     private final Set<GeneratorConstraints> generatorConstraints;
 
-    public TimeCoupledConstraints() {
+    public TimeCoupledConstraintsPool() {
         this.generatorConstraints = new HashSet<>();
     }
 
