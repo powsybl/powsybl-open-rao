@@ -41,7 +41,10 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        List<FlowCnec> filteredFlowCnecs = flowCnecsByMargin.stream().filter(flowCnec -> flowCnec.getState().getContingency().isEmpty() || flowCnec.getState().getContingency().isPresent() && !excludedContingencies.contains(flowCnec.getState().getContingency().get().getId())).toList();
+        List<FlowCnec> filteredFlowCnecs = flowCnecsByMargin.stream()
+            .filter(flowCnec -> flowCnec.getState().getContingency().isEmpty()
+                || flowCnec.getState().getContingency().isPresent() && !excludedContingencies.contains(flowCnec.getState().getContingency().get().getId()))
+            .toList();
         return filteredFlowCnecs.subList(0, Math.min(filteredFlowCnecs.size(), number));
     }
 

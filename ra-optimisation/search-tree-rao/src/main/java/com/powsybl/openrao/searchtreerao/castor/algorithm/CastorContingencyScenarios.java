@@ -20,23 +20,47 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.AbstractOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.AutomatonPerimeterResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
@@ -86,7 +110,15 @@ public class CastorContingencyScenarios {
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), newVariant);
         network.getVariantManager().setWorkingVariant(newVariant);
         // Create an automaton simulator
-        AutomatonSimulator automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+        AutomatonSimulator automatonSimulator = new AutomatonSimulator(
+            crac,
+            raoParameters,
+            toolProvider,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            NUMBER_LOGGED_ELEMENTS_DURING_RAO
+        );
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
@@ -107,7 +139,13 @@ public class CastorContingencyScenarios {
         return contingencyScenarioResults;
     }
 
-    private Object runScenario(PrePerimeterResult prePerimeterSensitivityOutput, boolean automatonsOnly, ContingencyScenario optimizedScenario, AbstractNetworkPool networkPool, AutomatonSimulator automatonSimulator, Map<State, PostPerimeterResult> contingencyScenarioResults, AtomicInteger remainingScenarios) throws InterruptedException {
+    private Object runScenario(PrePerimeterResult prePerimeterSensitivityOutput,
+                               boolean automatonsOnly,
+                               ContingencyScenario optimizedScenario,
+                               AbstractNetworkPool networkPool,
+                               AutomatonSimulator automatonSimulator,
+                               Map<State, PostPerimeterResult> contingencyScenarioResults,
+                               AtomicInteger remainingScenarios) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
 
@@ -197,26 +235,29 @@ public class CastorContingencyScenarios {
         // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
         if (state.getInstant().equals(crac.getLastInstant())) {
             return new PostPerimeterResult(optimizationResult,
-                new PrePerimeterSensitivityResultImpl(optimizationResult, optimizationResult, RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(optimizationResult, state), optimizationResult));
+                new PrePerimeterSensitivityResultImpl(
+                    optimizationResult,
+                    optimizationResult,
+                    RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(optimizationResult, state),
+                    optimizationResult
+                )
+            );
         }
         Set<State> statesToConsider = new HashSet<>();
         statesToConsider.add(state);
         crac.getStates(state.getContingency().orElseThrow()).stream()
             .filter(s -> s.getInstant().comesAfter(state.getInstant()))
             .forEach(statesToConsider::add);
-        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider);
-        try {
-            return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
-                networkClone,
-                initialSensitivityOutput,
-                CompletableFuture.completedFuture(prePerimeterSensitivityOutput),
-                stateTree.getOperatorsNotSharingCras(),
-                optimizationResult,
-                new AppliedRemedialActions()).get();
-        } catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new OpenRaoException(String.format("Error while running sensi after state %s", state.getId()), e);
-        }
+        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider, false);
+
+        return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+            networkClone,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            optimizationResult,
+            new AppliedRemedialActions());
+
     }
 
     private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter) {
@@ -225,7 +266,7 @@ public class CastorContingencyScenarios {
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
     }
 
     private OptimizationResult optimizeCurativePerimeter(Perimeter curativePerimeter,
@@ -252,7 +293,15 @@ public class CastorContingencyScenarios {
         RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionsResult, new NetworkActionsResultImpl(Map.of()));
 
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters, curativePerimeter.getAllStates());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            loopFlowCnecs,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            raoParameters,
+            curativePerimeter.getAllStates()
+        );
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult);
         boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
         if (stopCriterionReached) {

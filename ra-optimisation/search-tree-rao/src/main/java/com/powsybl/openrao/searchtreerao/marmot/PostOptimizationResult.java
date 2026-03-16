@@ -47,7 +47,7 @@ import java.util.Set;
  *                 RaoResult: output from initial Rao run, containing activated topological actions
  *             </li>
  *             <li>
- *                 LinearOptimizationResult: output from inter-temporal MIP, containing activated range actions
+ *                 LinearOptimizationResult: output from time-coupled MIP, containing activated range actions
  *             </li>
  *         </ul>
  *     </li>
@@ -64,7 +64,11 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     private final GlobalLinearOptimizationResult postMipResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
 
-    public PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initialResult, GlobalLinearOptimizationResult postMipResult, RaoResult topologicalOptimizationResult, RaoParameters raoParameters) {
+    public PostOptimizationResult(RaoInput raoInput,
+                                  PrePerimeterResult initialResult,
+                                  GlobalLinearOptimizationResult postMipResult,
+                                  RaoResult topologicalOptimizationResult,
+                                  RaoParameters raoParameters) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.topologicalOptimizationResult = topologicalOptimizationResult;
@@ -75,7 +79,10 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)));
 
         //TODO: also consider cost of curative actions
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()), networkActionsResult);
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
+            postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()),
+            networkActionsResult
+        );
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
     }
 

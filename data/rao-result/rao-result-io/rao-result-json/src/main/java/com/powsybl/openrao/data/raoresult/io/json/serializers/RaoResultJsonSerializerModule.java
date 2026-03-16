@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.util.Set;
 

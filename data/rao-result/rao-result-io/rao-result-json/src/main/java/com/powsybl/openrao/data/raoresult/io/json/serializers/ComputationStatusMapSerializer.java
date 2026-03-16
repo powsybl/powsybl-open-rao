@@ -7,18 +7,23 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS_MAP;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INSTANT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATE_COMPARATOR;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

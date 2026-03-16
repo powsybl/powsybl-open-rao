@@ -17,7 +17,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -43,7 +44,14 @@ class JsonVirtualHubsConfigurationTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonVirtualHubsConfiguration.exportConfiguration(baos, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":false,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":false}]}", new String(baos.toByteArray()));
+        assertEquals(
+            "{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":true}," +
+                "{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":false}]," +
+                "\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":false," +
+                "\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}]," +
+                "\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":false}]}",
+            new String(baos.toByteArray())
+        );
     }
 
     @Test
@@ -58,7 +66,14 @@ class JsonVirtualHubsConfigurationTest {
         StringWriter writer = new StringWriter();
         JsonVirtualHubsConfiguration.exportConfiguration(writer, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":false},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":true}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":true}]}", writer.toString());
+        assertEquals(
+            "{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":false}," +
+                "{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":true}]," +
+                "\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":true," +
+                "\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}]," +
+                "\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":true}]}",
+            writer.toString()
+        );
     }
 
     @Test

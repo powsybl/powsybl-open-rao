@@ -39,7 +39,9 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
                 networkActionsResult.getActivatedNetworkActionsPerState()
                 .forEach((state, networkActions) -> {
                     Set<NetworkAction> networkActionsSetWithTimestamp = new HashSet<>();
-                    networkActions.forEach(networkAction -> networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME))));
+                    networkActions.forEach(networkAction -> networkActionsSetWithTimestamp.add(
+                        NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME))
+                    ));
                     globalNetworkActionsResultPerStateAccumulator.put(state, networkActionsSetWithTimestamp);
                 })
             );

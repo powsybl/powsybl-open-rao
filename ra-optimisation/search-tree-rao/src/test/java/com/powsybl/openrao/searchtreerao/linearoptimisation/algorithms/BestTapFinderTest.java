@@ -7,27 +7,34 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.iidm.network.DefaultMessageHeader;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import com.powsybl.iidm.network.DefaultMessageHeader;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer.roundOtherRas;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -344,7 +351,7 @@ class BestTapFinderTest {
 
     @Test
     void testUpdatedRangeActionResultNoOptimizationOfTheTap() {
-        double startingSetPoint = 0.;
+        double startingSetPoint = 0.75;
         double notRoundedSetpoint = 0.8;
         // Starting point is really close to set point of tap 1 so it will be set to tap 1
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 1);
@@ -370,8 +377,12 @@ class BestTapFinderTest {
 
         RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState));
+        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState));
+
+        // Initially the pst was on tap 1 <-> setpoint 0.75. The original optimized PST setpoint was 0.85 => after rounding it the setpoint becomes 0.75
+        // The PST is not considered as activated
+        assertEquals(Set.of(activatedRangeActionOtherThanPst), updatedRangeActionActivationResult.getActivatedRangeActions(optimizedState));
     }
 
     @Test

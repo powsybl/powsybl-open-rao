@@ -12,7 +12,9 @@ import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
-import static io.cucumber.core.options.Constants.*;
+import static io.cucumber.core.options.Constants.FILTER_TAGS_PROPERTY_NAME;
+import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
+import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -22,7 +24,7 @@ import static io.cucumber.core.options.Constants.*;
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao") // For SearchTreeRao testing
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao and not @dont-run") // For SearchTreeRao testing
 //@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @multi-curative and not @search-tree-rao") // For FastRao testing
 public class RunCucumberTest {
 }

@@ -10,9 +10,9 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.PhaseTapChangerTapPositionActionAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,7 +31,7 @@ public final class PstSetpointArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PhaseTapChangerTapPositionActionAdder adder = ownerAdder.newPhaseTapChangerTapPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
                         JsonSerializationConstants.deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
                         break;

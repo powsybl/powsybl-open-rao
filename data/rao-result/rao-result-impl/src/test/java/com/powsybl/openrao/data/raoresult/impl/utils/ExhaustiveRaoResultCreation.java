@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.raoresult.impl.utils;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -31,7 +31,10 @@ import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
 
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.DEGREE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,6 +54,7 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+        raoResult.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
 
         // --------------------
         // --- Cost results ---
@@ -126,19 +130,19 @@ public final class ExhaustiveRaoResultCreation {
             NetworkActionResult nar = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
 
             switch (networkAction.getId()) {
-                case "complexNetworkActionId" :
+                case "complexNetworkActionId":
                     // free to use preventive, activated
                     nar.addActivationForState(crac.getPreventiveState());
                     break;
-                case "injectionSetpointRaId" :
+                case "injectionSetpointRaId":
                     // automaton, activated
                     nar.addActivationForState(crac.getState("contingency2Id", autoInstant));
                     break;
-                case "pstSetpointRaId" :
+                case "pstSetpointRaId":
                     // forced in curative, activated
                     nar.addActivationForState(crac.getState("contingency1Id", curativeInstant));
                     break;
-                case "switchPairRaId" :
+                case "switchPairRaId":
                     // available in curative, not activated
                     break;
                 default:

@@ -72,7 +72,8 @@ public class CastorOneStateOnly {
             raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
             raoInput.getCrac().getRangeActions(raoInput.getOptimizedState()),
             raoParameters,
-            toolProvider);
+            toolProvider,
+            true);
 
         PrePerimeterResult initialResults;
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), Set.of(raoInput.getOptimizedState()));
@@ -123,13 +124,22 @@ public class CastorOneStateOnly {
 
             Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
             statesToOptimize.add(optPerimeter.getMainOptimizationState());
+            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+                optPerimeter.getFlowCnecs(),
+                optPerimeter.getLoopFlowCnecs(),
+                initialResults,
+                initialResults,
+                operatorsNotToOptimize,
+                raoParameters,
+                statesToOptimize
+            );
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())
                     .withOptimizationPerimeter(optPerimeter)
                     .withInitialFlowResult(initialResults)
                     .withPrePerimeterResult(initialResults)
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
+                    .withObjectiveFunction(objectiveFunction)
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();

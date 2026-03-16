@@ -7,20 +7,24 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
@@ -41,8 +45,9 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
                                            Set<FlowCnec> flowCnecs,
                                            Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
-                                           ToolProvider toolProvider) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider);
+                                           ToolProvider toolProvider,
+                                           boolean multiThreadedSensitivities) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
@@ -71,7 +76,15 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
         sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
-        objectiveFunction = ObjectiveFunction.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters, Set.of(crac.getPreventiveState()));
+        objectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            toolProvider.getLoopFlowCnecs(flowCnecs),
+            initialFlowResult,
+            initialFlowResult,
+            operatorsNotSharingCras,
+            raoParameters,
+            Set.of(crac.getPreventiveState())
+        );
 
         return runAndGetResult(network, objectiveFunction);
     }
@@ -88,7 +101,9 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
     }
 
     private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
+        int oldThreadCount = setNewThreadCountAndGetOldValue();
         sensitivityComputer.compute(network);
+        resetThreadCount(oldThreadCount);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);

@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class stores an inter-temporal linear problem's outputs and implements getters for easy access.
+ * This class stores a time-coupled linear problem's outputs and implements getters for easy access.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -45,7 +45,12 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults,
+                                          TemporalData<SensitivityResult> sensitivityResults,
+                                          TemporalData<RangeActionActivationResult> rangeActionActivationResults,
+                                          TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                          ObjectiveFunction objectiveFunction,
+                                          LinearProblemStatus status) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);

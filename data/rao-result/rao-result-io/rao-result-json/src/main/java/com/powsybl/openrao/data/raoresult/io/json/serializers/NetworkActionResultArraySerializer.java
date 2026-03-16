@@ -7,20 +7,26 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INSTANT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATES_ACTIVATED;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATE_COMPARATOR;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
