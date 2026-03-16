@@ -5,17 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.impl;
+package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 import java.util.Collection;
@@ -26,22 +24,12 @@ import java.util.Set;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class FlowCnecMock implements FlowCnec {
 
+public class BranchCnecMock implements BranchCnec {
     private final Set<BranchThreshold> thresholds;
 
-    public FlowCnecMock(Set<BranchThreshold> thresholds) {
+    public BranchCnecMock(Set<BranchThreshold> thresholds) {
         this.thresholds = thresholds;
-    }
-
-    @Override
-    public Optional<Double> getIMax(TwoSides side) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean isConnected(Network network) {
-        return false;
     }
 
     @Override
@@ -131,7 +119,6 @@ public class FlowCnecMock implements FlowCnec {
 
     @Override
     public void setMonitored(boolean monitored) {
-
     }
 
     @Override
@@ -150,27 +137,27 @@ public class FlowCnecMock implements FlowCnec {
     }
 
     @Override
-    public <E extends Extension<FlowCnec>> void addExtension(Class<? super E> aClass, E e) {
+    public void addExtension(Class aClass, Extension extension) {
 
     }
 
     @Override
-    public <E extends Extension<FlowCnec>> E getExtension(Class<? super E> aClass) {
+    public Extension getExtension(Class aClass) {
         return null;
     }
 
     @Override
-    public <E extends Extension<FlowCnec>> E getExtensionByName(String s) {
+    public Extension getExtensionByName(String s) {
         return null;
     }
 
     @Override
-    public <E extends Extension<FlowCnec>> boolean removeExtension(Class<E> aClass) {
+    public boolean removeExtension(Class aClass) {
         return false;
     }
 
     @Override
-    public <E extends Extension<FlowCnec>> Collection<E> getExtensions() {
+    public Collection getExtensions() {
         return List.of();
     }
 }

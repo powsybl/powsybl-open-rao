@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.impl;
+package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -19,16 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class FlowCnecTest {
+class BranchCnecTest {
 
     @Test
     void testGetMonitoredSides() {
         // Ensures getMonitoredSides() returns sides in natural enum order (ONE, TWO),
         // regardless of the addition order of thresholds, due to internal TreeSet usage.
-        FlowCnec cnec = new FlowCnecMock(
+        BranchCnec cnec = new BranchCnecMock(
             Set.of(
-                new BranchThresholdImpl(TwoSides.TWO, MEGAWATT, -1000d, 1000d),
-                new BranchThresholdImpl(TwoSides.ONE, MEGAWATT, -1000d, 1000d)
+                new BranchThresholdMock(TwoSides.TWO, MEGAWATT, -1000d, 1000d),
+                new BranchThresholdMock(TwoSides.ONE, MEGAWATT, -1000d, 1000d)
             ));
 
         assertIterableEquals(java.util.List.of(TwoSides.ONE, TwoSides.TWO), cnec.getMonitoredSides());
