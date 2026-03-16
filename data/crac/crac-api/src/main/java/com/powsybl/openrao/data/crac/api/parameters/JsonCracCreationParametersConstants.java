@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 
 import static com.powsybl.openrao.data.crac.api.RaUsageLimits.deserializeRaUsageLimits;
@@ -90,7 +89,7 @@ public final class JsonCracCreationParametersConstants {
 
     static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser, Optional.empty(), Optional.empty());
+            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser);
             parameters.addRaUsageLimitsForInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
         }
     }

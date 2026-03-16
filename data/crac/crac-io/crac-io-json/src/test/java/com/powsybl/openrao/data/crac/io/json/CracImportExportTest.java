@@ -732,7 +732,7 @@ class CracImportExportTest {
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(1, logsList.size());
-        assertEquals("The max-tso limit can no longer be defined and will be ignored.",
+        assertEquals("A max-tso limit can no longer be defined and will be ignored.",
             logsList.get(0).getFormattedMessage());
     }
 }
