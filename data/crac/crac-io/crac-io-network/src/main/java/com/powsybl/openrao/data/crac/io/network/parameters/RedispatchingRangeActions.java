@@ -11,12 +11,13 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 
 /**
  * Configures how redispatching remedial actions are created.
@@ -25,7 +26,7 @@ import java.util.function.BiPredicate;
  */
 public class RedispatchingRangeActions extends AbstractCountriesFilter {
     private boolean includeAllInjections = true;
-    private BiPredicate<Injection<?>, Instant> rdRaPredicate = (injection, instant) -> injection.getType() == IdentifiableType.GENERATOR;
+    private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> rdRaPredicate = (injection, instant, c) -> injection.getType() == IdentifiableType.GENERATOR;
     private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
     private Map<String, Set<String>> generatorCombinations = new HashMap<>();
@@ -50,12 +51,12 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
      * Set the function that says if a given injection is available for redispatching at a given instant.
      * Defaults to true on generators, false for other injections.
      */
-    public void setRdRaPredicate(BiPredicate<Injection<?>, Instant> rdRaPredicate) {
+    public void setRdRaPredicate(TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> rdRaPredicate) {
         this.rdRaPredicate = rdRaPredicate;
     }
 
-    public boolean shouldCreateRedispatchingAction(Injection<?> injection, Instant instant) {
-        return rdRaPredicate.test(injection, instant);
+    public boolean shouldCreateRedispatchingAction(Injection<?> injection, Instant instant, NetworkCracCreationContext context) {
+        return rdRaPredicate.apply(injection, instant, context);
     }
 
     /**

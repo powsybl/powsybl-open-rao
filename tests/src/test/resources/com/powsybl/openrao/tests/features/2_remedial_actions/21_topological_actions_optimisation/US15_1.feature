@@ -6,7 +6,7 @@
 Feature: US 15.1: Handle the opening/closing of switches as topological actions
   This feature covers the use of network actions on switches.
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 15.1: Enable the use of switches as network actions
     Given network file is "epic15/TestCase12NodesWithSwitch.uct"
     Given crac file is "epic15/SL_ep15us1_withSwitchRA.json"

@@ -6,7 +6,7 @@
 Feature: US 1.1: Security assessment without any remedial action
   This feature covers the computation of margins.
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 1.1.1
   No remedial action, several unsecure CNECs.
     Given network file is "common/TestCase12Nodes.uct"

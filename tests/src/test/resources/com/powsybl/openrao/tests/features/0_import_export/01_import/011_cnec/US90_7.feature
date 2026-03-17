@@ -26,7 +26,7 @@ Feature: US 90.7: Handle X-nodes
       | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | TWO  |
     Then it should have 1 network actions
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.7.2: Reference run for tests with Xnodes
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "crac7/ls-ref.json"
@@ -42,7 +42,7 @@ Feature: US 90.7: Handle X-nodes
     Then the tap of PstRangeAction "PST_BE" should be -16 in preventive
     Then 1 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.7.3: Run a rao on a simple network with one X-node but the line containing X-node is not optimized
     Given network file is "crac7/TestCase12Nodes_with_one_Xnode.uct"
     Given crac file is "crac7/ls-Xnode-ref.json"
@@ -56,7 +56,7 @@ Feature: US 90.7: Handle X-nodes
     Then the tap of PstRangeAction "PST_BE" should be -16 in preventive
     Then 1 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.7.4: Run a rao on a simple network with one X-node and the line containing X-node is optimized
     Given network file is "crac7/TestCase12Nodes_with_one_Xnode.uct"
     Given crac file is "crac7/ls-Xnode.json"
@@ -72,7 +72,7 @@ Feature: US 90.7: Handle X-nodes
     Then the tap of PstRangeAction "PST_BE" should be -16 in preventive
     Then 1 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.7.5: Run a rao on a network with X-nodes at each border and 2 lines are optimized
     Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
     Given crac file is "crac7/ls-Xnodes.json"
