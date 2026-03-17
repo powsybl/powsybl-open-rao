@@ -149,7 +149,7 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
     Then the worst margin is 7.0 MW
 
   @fast @rao @second-preventive @max-min-margin
-  Scenario: US.19.11.9: Same case with global optimization: should have the same results
+  Scenario: 2.6.4.9: Same case with global optimization: should have the same results
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/SL_ep19us11case9.json"
     Given configuration file is "epic19/RaoParameters_19_11_9.json"

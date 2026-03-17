@@ -10,7 +10,7 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Scenario: 0.2.3.1.1.1: One contingency failing during 1st PRAO, no 2P
   Post-contingency sensi fails after 1P.
   Contingency is skipped in curative, final objective must take into account sensi failure virtual cost.
-  RAO status is set to failure#
+  RAO status is set to failure.
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
@@ -27,7 +27,7 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: 0.2.3.1.1.2: One contingency failing during 1st PRAO with 2P
-   2P finds the same result as 1P
+   2P finds the same result as 1P.
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
@@ -44,7 +44,7 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: 0.2.3.1.1.3: One contingency failing during 1st PRAO with global 2P
-  Global 2P finds the same result as 1P
+  Global 2P finds the same result as 1P.
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
@@ -270,8 +270,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @cne-export
   Scenario: 0.2.3.1.5: CNE export with angles
-  Copy of 12.15.4 with extra angle CNEC and extra angle values in RAO result
-  Expected CNE is the same as 12.5.4 with the extra angle value information
+  Copy of 0.2.3.1.4 with extra angle CNEC and extra angle values in RAO result
+  Expected CNE is the same as 0.2.3.1.4 with the extra angle value information
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_5.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
@@ -283,8 +283,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @cne-export
   Scenario: 0.2.3.1.6: CNE export with angles, no angle results
-  Copy of 12.15.4 with extra angle CNEC but no angle values in RAO result and a secure RAO
-  Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 12.5.4 (but secure)
+  Copy of 0.2.3.1.4 with extra angle CNEC but no angle values in RAO result and a secure RAO
+  Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 0.2.3.1.4 (but secure)
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_5.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"

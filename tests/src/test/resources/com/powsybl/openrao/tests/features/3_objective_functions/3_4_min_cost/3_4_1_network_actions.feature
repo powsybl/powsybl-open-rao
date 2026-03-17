@@ -42,7 +42,7 @@ Feature: 3.4.1: Costly network actions optimization
     Then the value of the objective function after PRA should be 25.0
 
   @fast @preventive-only @max-min-margin @rao
-  Scenario: 3.4.1.2.bis: Duplicate of 92.1.2 in MAX_MIN_MARGIN mode
+  Scenario: 3.4.1.2.bis: Duplicate of 3.4.1.2 in MAX_MIN_MARGIN mode
   The situation is the same as in 3.4.1.2 but the RAO maximizes the minimum margin.
   As activation costs are not taken in account, both lines will be closed.
     Given network file is "epic92/2Nodes3ParallelLines_disconnected.uct"

@@ -9,7 +9,7 @@ Feature: 1.3.8: Cross-validation curative and relative margin
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 1.3.8.1: Full optimization in relative margin with negative margin in curative
-    Same case as 13.2.6 but with relative margin. No impact with relative margins, same optimization except one PST tap
+    Same case as 1.3.2.6 but with relative margin. No impact with relative margins, same optimization except one PST tap
     in preventive, this can be explained by the fact that BE2-FR3 becomes the most limiting element due to relative margins
     compared to initial case. In curative, remedial actions are the same because the most limiting element has negative margin
     So it remains the same between the two cases.

@@ -59,10 +59,7 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
     Then the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
     Then the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 10.0 MW
     Then the value of the objective function after PRA should be 35010.0
-    # TODO: suspicious result, incoherent with description -> due to shifted-violation-threshold = 10
 
-    # TODO: can I write a 93.1.3.bis with the same situation but correctly balanced?
-  # No log to explain why the RA is not applied, should there be one?
   @fast @rao @dc @redispatching @preventive-only @max-min-margin
   Scenario: 2.3.1.3: Unbalanced redispatching
   Only one redispatching action available: with a key equal to 1 on FR1 and -0.7 on FR2.

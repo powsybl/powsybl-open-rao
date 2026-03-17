@@ -77,7 +77,7 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.5: Check that the maximum number of network actions per TSO is ignored in preventive 2
-    # Copy of 13.2.6 test but with a configuration limiting curative topo per TSO
+    # Copy of 1.3.2.6 test but with a configuration limiting curative topo per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"

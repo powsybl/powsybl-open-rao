@@ -31,7 +31,7 @@ Feature: 5.5.1: Geographic filter
     # So only RA "Open tie-line FR DE" can be used
     # At the end of the first depth RAO, the new limiting element is a tie-line between FR and BE
     # So the RA "PST @1" can now be used, but won't be because combining it with the first RA does not improve the solution
-    # This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 91.1.3 variant 1)
+    # This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 5.5.1.3 variant 1)
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
@@ -45,7 +45,7 @@ Feature: 5.5.1: Geographic filter
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.5.1.3: Simple case, one boundary can be passed, max margin
-  Same case as 91.1.2, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.
+  Same case as 5.5.1.2, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
@@ -59,7 +59,7 @@ Feature: 5.5.1: Geographic filter
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.5.1.4: Simple case, one boundary can be passed, positive margin
-  Same case as 91.1.3, but with positive margin.
+  Same case as 5.5.1.3, but with positive margin.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
@@ -85,7 +85,7 @@ Feature: 5.5.1: Geographic filter
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.5.1.6: Another simple case, one boundary can be passed, positive margin
-  Same as 91.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.
+  Same as 5.5.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_6.json"
@@ -99,7 +99,7 @@ Feature: 5.5.1: Geographic filter
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.5.1.7: Another simple case, two boundaries can be passed, positive margin
-  Same as 91.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 2 instead of 0.
+  Same as 5.5.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 2 instead of 0.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_7.json"

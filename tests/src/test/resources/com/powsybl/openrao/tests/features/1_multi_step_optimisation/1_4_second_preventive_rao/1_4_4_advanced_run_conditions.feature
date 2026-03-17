@@ -8,7 +8,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
   in "second-preventive-rao" parameters.
 
   @fast @rao @ac @max-min-margin
-  Scenario: 1.4.4.1: Cost has not increased during RAO, do not fall back to initial solution (copy of 20.1.1)
+  Scenario: 1.4.4.1: Cost has not increased during RAO, do not fall back to initial solution (copy of 1.4.1.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
@@ -19,7 +19,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Then the value of the objective function after CRA should be 144
 
   @fast @rao @ac @max-min-margin
-  Scenario: 1.4.4.2: Cost has increased during RAO, fall back to initial solution (copy of 20.1.2)
+  Scenario: 1.4.4.2: Cost has increased during RAO, fall back to initial solution (copy of 1.4.1.1.2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
@@ -33,7 +33,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Then the value of the objective function after CRA should be -113
 
   @fast @rao @ac @second-preventive @max-min-margin
-  Scenario: 1.4.4.3: Cost has not increased during RAO, do not run 2P (copy of 20.1.1)
+  Scenario: 1.4.4.3: Cost has not increased during RAO, do not run 2P (copy of 1.4.1.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
@@ -44,7 +44,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Then the value of the objective function after CRA should be 144
 
   @fast @rao @ac @second-preventive @max-min-margin
-  Scenario: 1.4.4.4: Cost has increased during RAO, run 2P (copy of 20.1.2)
+  Scenario: 1.4.4.4: Cost has increased during RAO, run 2P (copy of 1.4.1.1.2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
@@ -60,7 +60,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin
-  Scenario: 1.4.4.5: Not enough time to run 2P (copy of 20.1.1)
+  Scenario: 1.4.4.5: Not enough time to run 2P (copy of 1.4.1.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
@@ -71,7 +71,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin
-  Scenario: 1.4.4.6: Enough time to run 2P (copy of 20.1.1)
+  Scenario: 1.4.4.6: Enough time to run 2P (copy of 1.4.1.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"

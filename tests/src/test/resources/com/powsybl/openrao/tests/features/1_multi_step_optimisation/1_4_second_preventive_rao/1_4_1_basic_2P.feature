@@ -145,7 +145,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
     Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin
-  Scenario: 1.4.1.6: Same test as 20.1.5. The CRA has a non relevant relative to previous instant range
+  Scenario: 1.4.1.6: Same test as 1.4.1.5. The CRA has a non relevant relative to previous instant range
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/crac_ep20us1case1_6.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
@@ -155,7 +155,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
     Then the tap of PstRangeAction "pst_fr_pra" should be -7 in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
-    # Same result as 20.1.5, the curative pst is not needed since preventive flow is limiting
+    # Same result as 1.4.1.5, the curative pst is not needed since preventive flow is limiting
     Then the worst margin is 43 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 43 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 385 A

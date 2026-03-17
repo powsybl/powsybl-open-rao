@@ -8,9 +8,9 @@ Feature: 2.4.3: Advanced usage rules tests
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.3.1: Flow constraint in country with no contingency
-    # This is a copy of test case 16.5.7
+    # This is a copy of test case 2.4.2.7
     # pst_be is available after a flow constraint in BE, no contingency defined
-    # So the same results as 16.5.7 are expected
+    # So the same results as 2.4.2.7 are expected
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "extra_features/Crac_UR_1_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"

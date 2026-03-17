@@ -11,7 +11,6 @@ Feature: 3.4.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
   Scenario: 3.4.2.1: Change only necessary taps on preventive PST
   The RAO can increase the minimum margin by setting the tap of the PST on position -10
   but stops at position -5 because the network is secure and this saves expenses.
-    # TODO: should we create a 92.2.1_bis with another objective function, to show that the tap would be -10 without costly?
     Given network file is "epic92/2Nodes2ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"

@@ -8,7 +8,7 @@ Feature: 5.1.2.5: Additional tests with CBCORA input files and FRM
   search-tree RAO and with specific inputs (CBCoRA file, FRM).
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
-  Scenario: 5.1.2.5.1 : Replication of test case 7.10.3, using a CBCORA file as input instead of a SL
+  Scenario: 5.1.2.5.1 : Replication of test case 5.1.2.4.3, using a CBCORA file as input instead of a SL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"

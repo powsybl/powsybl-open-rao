@@ -800,7 +800,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1640160.0
 
-  Scenario: 93.3.6.2: Same as 93.3.6.1, with lead and lag
+  Scenario: 4.2.6.2: Same as 4.2.6.1, with lead and lag
   From 00:30 to 03:30, 3000 MW of redispatching are necessary.
   From 08:30 to 15:30, 1100 MW of redispatching are necessary.
   From 20:30 to 23:30, 3000 MW or redispatching are necessary.
@@ -935,7 +935,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the total cost for all timestamps is 1850160.0
 
 
-  Scenario: 93.3.6.3: In line with 93.3.6.1 and 93.3.6.2, with lead and lag and high shifted violation cost
+  Scenario: 4.2.6.3: In line with 4.2.6.1 and 4.2.6.2, with lead and lag and high shifted violation cost
     Generator never shuts down, because of its' high penalty cost on overloads, and because it's heavily constrained by its lead and lag
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:

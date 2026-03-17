@@ -38,7 +38,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 05:30" is 2500.0 MW
     Then the remedial action "redispatchingAction" is used at timestamp "2025-11-04 05:30" in preventive
 
-  Scenario: 4.3.2: Same as 93.4.1, but StartUp not allowed
+  Scenario: 4.3.2: Same as 4.3.1, but StartUp not allowed
     From 04:30 onwards, redispatching is required. Nevertheless, BBE1AA1_generator is not available
     since startup is prohibited.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"

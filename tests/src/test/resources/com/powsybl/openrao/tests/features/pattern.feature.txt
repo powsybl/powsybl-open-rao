@@ -12,7 +12,7 @@ Feature: xx.x: Add an explicit title
   Write a description here, explaining what is tested.
   Be precise: if a specific parameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
-  write "Same as US xx.x.x, but the xxx is xx instead of xx".
+  write "Same as xx.x.x, but the xxx is xx instead of xx".
     # Inputs
       ## Compulsory if applicable
     Given network file is "common/TestCase12Nodes.uct"
@@ -34,7 +34,7 @@ Feature: xx.x: Add an explicit title
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
     Then the value of the objective function after CRA should be -224.0
-      ## Optional: flows compared: if the US compares the flow on a CNEC before and after, please write both lines
+      ## Optional: flows compared: if the Scenario compares the flow on a CNEC before and after, please write both lines
     Then the initial flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" should be 833.3 MW on side 1
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 949.0 MW on side 1
 
@@ -44,11 +44,11 @@ Feature: xx.x: Add an explicit title
   Write a description here, explaining what is tested.
   Be precise: if an element of the RaoParameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
-  write "Same as US xx.x.x, but the xxx is xx instead of xx".
+  write "Same as xx.x.x, but the xxx is xx instead of xx".
 
   @dont-run
   Scenario: xx.x.x: Add an explicit title - time coupling (MARMOT) example
   Write a description here, explaining what is tested.
   Be precise: if an element of the RaoParameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
-  write "Same as US xx.x.x, but the xxx is xx instead of xx".
+  write "Same as xx.x.x, but the xxx is xx instead of xx".

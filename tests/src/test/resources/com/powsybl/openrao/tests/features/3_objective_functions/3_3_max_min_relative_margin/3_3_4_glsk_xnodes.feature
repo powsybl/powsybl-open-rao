@@ -9,7 +9,7 @@ Feature: 3.3.4: Handle GLSK on Xnodes
 
   @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: 3.3.4.1: GLSK on Xnodes
-    # same test case as 10.2.1 but with two bidding zones on xnodes, giving different results
+    # same test case as 3.3.2.1 but with two bidding zones on xnodes, giving different results
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
     Given configuration file is "epic10/conf_ep10us3case1.json"

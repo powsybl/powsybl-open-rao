@@ -25,8 +25,8 @@ Feature: 1.4.3: Handle loopflows in second preventive optimization
 
   @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: 1.4.3.2: LF constraint in curative is solved by curative network action + 2P
-    Curative network action restores the network to US20.2.1 situation, that's why we finally fall back to same
-    loopflow after CRA as US20.2.1's initial loopflow.
+    Curative network action restores the network to 1.4.3.1 situation, that's why we finally fall back to same
+    loopflow after CRA as 1.4.3.1's initial loopflow.
     #
     Given network file is "common/TestCase12NodesDoubledPstLine.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case2.xml"

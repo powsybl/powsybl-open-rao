@@ -7,7 +7,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   # TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.1: One PST and no topo (copy of US 19.3.3 with MIP for PSTs)
+  Scenario: 2.2.1.5.1: One PST and no topo (copy of 2.6.2.3 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -21,7 +21,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.2: No PST and one topo (copy of US 19.3.4 with MIP for PSTs)
+  Scenario: 2.2.1.5.2: No PST and one topo (copy of 2.6.2.4 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -33,7 +33,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.3: One PST and one topo, one CRA, chose PST (copy of US 19.3.5 with MIP for PSTs)
+  Scenario: 2.2.1.5.3: One PST and one topo, one CRA, chose PST (copy of 2.6.2.5 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -47,7 +47,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.4: Two allowed CRAs (copy of US 19.5.2 with MIP for PSTs)
+  Scenario: 2.2.1.5.4: Two allowed CRAs (copy of 2.6.3.2 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -62,7 +62,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 1000 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.5: One allowed CRA (copy of US 19.5.3 with MIP for PSTs)
+  Scenario: 2.2.1.5.5: One allowed CRA (copy of 2.6.3.3 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -74,7 +74,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.6: One allowed CRA, BE PST not allowed (copy of US 19.5.4 with MIP for PSTs)
+  Scenario: 2.2.1.5.6: One allowed CRA, BE PST not allowed (copy of 2.6.3.4 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -88,7 +88,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.7: Two allowed TSOs - 3 TSOs in crac (copy of US 19.6.2 with MIP for PSTs)
+  Scenario: 2.2.1.5.7: Two allowed TSOs - 3 TSOs in crac
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -103,7 +103,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 1000 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.8: One allowed TSO (copy of US 19.6.3 with MIP for PSTs)
+  Scenario: 2.2.1.5.8: One allowed TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us6case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -115,7 +115,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.9: One allowed TSO - BE PST not allowed (copy of US 19.6.4 with MIP for PSTs)
+  Scenario: 2.2.1.5.9: One allowed TSO - BE PST not allowed
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -129,7 +129,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 998 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
-  Scenario: 2.2.1.5.10: UCTE HVDC as InjectionRangeAction and PST filtering (copy of US 15.12.7.8 with MIP for PSTs)
+  Scenario: 2.2.1.5.10: UCTE HVDC as InjectionRangeAction and PST filtering (copy of 2.2.2.2.8 with MIP for PSTs)
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
     Given configuration file is "epic19/RaoParameters_19_10_10&11.json"

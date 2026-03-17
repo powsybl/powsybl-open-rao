@@ -161,7 +161,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.4.bis: Curative PST and preventive redispatching
-    Similar to 93.2.3, but PST is curative. Overload is on curative cnec.
+    Similar to 4.1.3, but PST is curative. Overload is on curative cnec.
     Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
     curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
     Given network files are in folder "epic93/TestCases_93_2_4"

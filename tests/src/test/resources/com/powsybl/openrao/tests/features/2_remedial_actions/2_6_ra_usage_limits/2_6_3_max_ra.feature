@@ -8,7 +8,7 @@ Feature: 2.6.3: Max number of CRAs
   ## TODO: test also when defined in CracCreationParameters
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.1: Three allowed CRAs
+  Scenario: 2.6.3.1: Three allowed CRAs
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -21,7 +21,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 999.5 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.2: Two allowed CRAs
+  Scenario: 2.6.3.2: Two allowed CRAs
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -36,7 +36,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 1000 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.3: One allowed CRA
+  Scenario: 2.6.3.3: One allowed CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -48,7 +48,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.4: One allowed CRA, BE PST not allowed
+  Scenario: 2.6.3.4: One allowed CRA, BE PST not allowed
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -62,7 +62,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.5: No allowed CRA
+  Scenario: 2.6.3.5: No allowed CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -73,7 +73,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 679 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.6: Three topological CRA
+  Scenario: 2.6.3.6: Three topological CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -87,7 +87,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 987 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.7: Two topological CRA
+  Scenario: 2.6.3.7: Two topological CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -100,7 +100,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 973 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.8: One topological CRA
+  Scenario: 2.6.3.8: One topological CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -112,7 +112,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 839 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.9: One topological CRA, best FR topo not allowed
+  Scenario: 2.6.3.9: One topological CRA, best FR topo not allowed
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -124,7 +124,7 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 814 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 19.5.10: Test that the parameter is ignored in preventive
+  Scenario: 2.6.3.10: Test that the parameter is ignored in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -138,7 +138,7 @@ Feature: 2.6.3: Max number of CRAs
 
   @fast @rao @ac @second-preventive @contingency-scenarios
   Scenario: 2.6.3.11: Max ra usage limit in curative with 2P
-    Took the test from the US 20.1.8, and added a CRAC creation parameter file to limit the number of CRAs to 1.
+    Took the test from the 2.6.3.8, and added a CRAC creation parameter file to limit the number of CRAs to 1.
     A network action is used in curative after "CO1_fr2_fr3_1".
     => the max-ra-usage-limit being 1 we should not optimize any CRAs in the second preventive optimization.
     Not being able to optimize CRAs in the 2P slightly worsen the worst margin : go from 721 A to 717 A.
@@ -159,7 +159,7 @@ Feature: 2.6.3: Max number of CRAs
 
   @fast @rao @ac @second-preventive @contingency-scenarios
   Scenario: 2.6.3.12: Max ra usage limit in curative with 2P - with 2 contingency scenario
-    Similar to 19.5.11, but in this test instead of one contingency scenario we have two: CO1_fr2_fr3_1 and CO2_fr1_fr2_1.
+    Similar to 2.6.3.11, but in this test instead of one contingency scenario we have two: CO1_fr2_fr3_1 and CO2_fr1_fr2_1.
     The RA Usage limit for curative instant is still 1.
     For CO1_fr2_fr3_1, we use one network action => so no range action can be optimized in 2P
     For CO2_fr1_fr2_1, no network action used => pst_be can be optimized after "CO2_fr1_fr2_1" at "curative"

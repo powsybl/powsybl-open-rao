@@ -7,7 +7,7 @@ Feature: 0.2.2.2: Handling of curative optimization in the Core CNE export
   This feature covers the export of optimization results Core CNE.
 
   @fast @cne-export
-  Scenario: 0.2.2.2.1: Simple curative case (copy of scenario 13.3.10)
+  Scenario: 0.2.2.2.1: Simple curative case (copy of scenario 1.3.3.10)
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -17,7 +17,7 @@ Feature: 0.2.2.2: Handling of curative optimization in the Core CNE export
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_1.xml"
 
   @fast @cne-export
-  Scenario: 0.2.2.2.2: Curative case with MNECs (copy of scenario 13.6.4)
+  Scenario: 0.2.2.2.2: Curative case with MNECs (copy of scenario 1.3.6.4)
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
@@ -27,7 +27,7 @@ Feature: 0.2.2.2: Handling of curative optimization in the Core CNE export
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_2.xml"
 
   @fast @cne-export
-  Scenario: 0.2.2.2.3: Curative case with loopflows (copy of scenario 13.7.4)
+  Scenario: 0.2.2.2.3: Curative case with loopflows (copy of scenario 1.3.7.4)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_1_3.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
@@ -38,7 +38,7 @@ Feature: 0.2.2.2: Handling of curative optimization in the Core CNE export
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_3.xml"
 
   @fast @cne-export
-  Scenario: 0.2.2.2.4.CBCORA: Curative case with 2 curative perimeters (copy of scenario 13.3.2)
+  Scenario: 0.2.2.2.4.CBCORA: Curative case with 2 curative perimeters (copy of scenario 1.3.3.2)
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_1_4.xml"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
