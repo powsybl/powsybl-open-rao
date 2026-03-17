@@ -43,3 +43,13 @@ RDP+, positive values), and the Pmin of redispatching (Pmin_RD). These values ar
 | Weight | Weight for GSK at respective node.  Sum of weights for all nodes in one GSK should be 1. |
 
 ![ICS Importer](../../_static/img/ics-importer.png)
+
+## Import TimeCoupledConstraints using ICS data
+
+```java
+InputStream staticIcs = new FileInputStream("path/to/ics/static.csv");
+InputStream seriesIcs = new FileInputStream("path/to/ics/series.csv");
+InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
+IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
+TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints(icsData.getGeneratorConstraints());
+```
