@@ -319,17 +319,14 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private boolean isRangeActionActivatedDuringState(final RangeAction<?> rangeAction, final State state) {
-        // using RaoResult.isActivatedDuringState may throw an exception
-        // if the state was not optimized or if the Range action was filtered out
-        // that's why we use getActivatedRangeActionsDuringState instead
-        // TODO Vérifier si le commentaire ci-dessus est toujours valable
+        // Using RaoResult.isActivatedDuringState may throw an exception if the state was not optimized or if the Range action was filtered out.
+        // That's why we use getActivatedRangeActionsDuringState instead.
         return cneHelper.getRaoResult().getActivatedRangeActionsDuringState(state).contains(rangeAction);
     }
 
     private boolean isNetworkActionActivatedDuringState(final NetworkAction networkAction, final State state) {
-        // using RaoResult.isActivatedDuringState may throw an exception
-        // if the state was not optimized
-        // that's why we use getActivatedNetworkActionsDuringState instead
+        // Using RaoResult.isActivatedDuringState may throw an exception if the state was not optimized.
+        // That's why we use getActivatedNetworkActionsDuringState instead.
         return cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(state).contains(networkAction);
     }
 
