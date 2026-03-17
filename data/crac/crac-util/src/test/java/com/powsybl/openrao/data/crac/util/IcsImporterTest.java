@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import org.assertj.core.api.Assertions;
@@ -55,8 +56,8 @@ class IcsImporterTest {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
-        Network network1 = Network.read(networkFilePath1, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath1));
-        Network network2 = Network.read(networkFilePath2, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath2));
+        Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
+        Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
 
         // Create postIcsNetwork:
         networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
