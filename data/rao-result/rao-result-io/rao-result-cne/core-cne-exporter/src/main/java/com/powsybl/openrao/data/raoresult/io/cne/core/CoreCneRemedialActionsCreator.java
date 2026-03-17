@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -30,9 +29,9 @@ import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionRegister
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionSeries;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +60,6 @@ import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator
  */
 public final class CoreCneRemedialActionsCreator {
 
-    private static final String SEPARATOR = " + ";
     private static final String SEPARATOR_REGEX = " \\+ ";
     private static final String RA_SERIES = "RAseries";
 
@@ -373,33 +371,34 @@ public final class CoreCneRemedialActionsCreator {
         return remedialActionSeries;
     }
 
-    private static boolean isInjectionRangeActionHvdcCompliant(final InjectionRangeAction rangeAction) {
-        return rangeAction.getId().contains(SEPARATOR)
-            && rangeAction.getName().contains(SEPARATOR)
-            && rangeAction.getOperator().contains(SEPARATOR)
-            && rangeAction.getNetworkElements().size() == 2;
+    private static boolean isInjectionRangeActionHvdcCompliant(final String[] raIds,
+                                                               final String[] raNames,
+                                                               final String[] raOperators,
+                                                               final String[] networkElementNames) {
+        return raIds.length == 2
+            && raNames.length == 2
+            && raOperators.length == 2
+            && networkElementNames.length == 2;
     }
 
     private List<RemedialActionSeries> createInjectionRangeActionSeries(final InjectionRangeAction rangeAction,
                                                                         final InstantKind instant,
                                                                         final Double setpoint) {
-        if (!isInjectionRangeActionHvdcCompliant(rangeAction)) {
+        // First part of id/name/operator is "from", the second part is "to"
+        final String[] raIds = rangeAction.getId().split(SEPARATOR_REGEX);
+        final String[] raNames = rangeAction.getName().split(SEPARATOR_REGEX);
+        final String[] raOperators = rangeAction.getOperator().split(SEPARATOR_REGEX);
+        final String[] networkElementNames = Arrays.stream(raIds)
+            .map(cracCreationContext::getRemedialActionCreationContext)
+            .map(ElementaryCreationContext::getNativeObjectName)
+            .toArray(String[]::new);
+
+        if (!isInjectionRangeActionHvdcCompliant(raIds, raNames, raOperators, networkElementNames)) {
             // In Core CC, the only elements that are currently modeled with injectionRangeAction objects are HVDC lines.
             // An injectionRangeAction that does not match the expected format for HVDC lines is not supposed to exist,
             // so if we find one then we should not add it to the CNE
             return List.of();
         }
-
-        // First part of id/name/operator is "from", the second part is "to"
-        final String[] raIds = rangeAction.getId().split(SEPARATOR_REGEX);
-        final String[] raNames = rangeAction.getName().split(SEPARATOR_REGEX);
-        final String[] raOperators = rangeAction.getOperator().split(SEPARATOR_REGEX);
-        // NetworkElements are sorted by distribution key : -1 is "from" element, 1 is "to" element
-        final String[] networkElementNames = rangeAction.getInjectionDistributionKeys().entrySet().stream()
-            .sorted(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .map(Identifiable::getName)
-            .toArray(String[]::new);
 
         final RemedialActionSeries remedialActionSeriesFrom = createInjectionRangeActionSeries(
             raIds[0], raNames[0], raOperators[0], instant, networkElementNames[0], setpoint, -1

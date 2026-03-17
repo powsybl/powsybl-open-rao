@@ -172,8 +172,8 @@ class CoreCneRemedialActionsCreatorTest {
             .withName("name_1 + name_2")
             .withOperator("D4 + D7")
             .withGroupId("station_1 + station_2")
-            .withNetworkElementAndKey(-1, "element_1")
-            .withNetworkElementAndKey(1, "element_2")
+            .withNetworkElementAndKey(-1, "element_1_generator")
+            .withNetworkElementAndKey(1, "element_2_generator")
             .withInitialSetpoint(42.0)
             .newRange().withMin(12.0).withMax(314.0).add();
         if (instant == InstantKind.PREVENTIVE) {
@@ -338,8 +338,8 @@ class CoreCneRemedialActionsCreatorTest {
             .withName("name_1 + name_2")
             .withOperator("D4 + D7")
             .withGroupId("station_1 + station_2")
-            .withNetworkElementAndKey(-1, "element_1")
-            .withNetworkElementAndKey(1, "element_2")
+            .withNetworkElementAndKey(-1, "element_1_generator")
+            .withNetworkElementAndKey(1, "element_2_generator")
             .withInitialSetpoint(42.0)
             .newRange().withMin(12.0).withMax(314.0).add()
             .add();
@@ -348,8 +348,8 @@ class CoreCneRemedialActionsCreatorTest {
             .withName("name_1-name_2") // Invalid name
             .withOperator("D4 + D7")
             .withGroupId("station_1 + station_2")
-            .withNetworkElementAndKey(-1, "element_1")
-            .withNetworkElementAndKey(1, "element_2")
+            .withNetworkElementAndKey(-1, "element_1_generator")
+            .withNetworkElementAndKey(1, "element_2_generator")
             .withInitialSetpoint(42.0)
             .newRange().withMin(12.0).withMax(314.0).add()
             .add();
@@ -358,8 +358,8 @@ class CoreCneRemedialActionsCreatorTest {
             .withName("name_1 + name_2")
             .withOperator("D4-D7") // Invalid operator
             .withGroupId("station_1 + station_2")
-            .withNetworkElementAndKey(-1, "element_1")
-            .withNetworkElementAndKey(1, "element_2")
+            .withNetworkElementAndKey(-1, "element_1_generator")
+            .withNetworkElementAndKey(1, "element_2_generator")
             .withInitialSetpoint(42.0)
             .newRange().withMin(12.0).withMax(314.0).add()
             .add();
@@ -368,7 +368,7 @@ class CoreCneRemedialActionsCreatorTest {
             .withName("name_1 + name_2")
             .withOperator("D4 + D7")
             .withGroupId("station_1 + station_2")
-            .withNetworkElementAndKey(1, "element_1") // Invalid networkElements
+            .withNetworkElementAndKey(1, "element_1_generator") // Invalid networkElements
             .withInitialSetpoint(42.0)
             .newRange().withMin(12.0).withMax(314.0).add()
             .add();

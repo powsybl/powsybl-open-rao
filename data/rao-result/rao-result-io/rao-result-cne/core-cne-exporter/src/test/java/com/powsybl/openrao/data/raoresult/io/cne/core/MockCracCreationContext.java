@@ -37,7 +37,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private final Crac crac;
     private final List<MockCnecCreationContext> mockCnecCreationContexts;
-    private final List<ElementaryCreationContext> mockRemedialActionCreationContexts;
+    private final Map<String, ElementaryCreationContext> mockRemedialActionCreationContexts;
 
     public MockCracCreationContext(Crac crac) {
         this.crac = crac;
@@ -45,28 +45,41 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         this.mockCnecCreationContexts = new ArrayList<>();
         this.crac.getFlowCnecs().forEach(flowCnec -> addCnecCreationContext(flowCnec, crac));
 
-        this.mockRemedialActionCreationContexts = new ArrayList<>();
+        this.mockRemedialActionCreationContexts = new HashMap<>();
         this.crac.getRangeActions().stream()
             .filter(rangeAction -> !(rangeAction instanceof InjectionRangeAction))
-            .forEach(rangeAction -> mockRemedialActionCreationContexts.add(new MockRemedialActionCreationContext(rangeAction, crac)));
+            .forEach(rangeAction -> mockRemedialActionCreationContexts.put(rangeAction.getId(), new MockRemedialActionCreationContext(rangeAction, crac)));
         this.crac.getInjectionRangeActions().stream()
             .filter(ira -> ira.getId().contains(" + ") && ira.getName().contains(" + "))
             .forEach(injectionRangeAction -> createRemedialActionCreationContext(crac, injectionRangeAction));
-        this.crac.getNetworkActions().forEach(networkAction -> mockRemedialActionCreationContexts.add(new MockRemedialActionCreationContext(networkAction, crac)));
+        this.crac.getNetworkActions().forEach(networkAction -> mockRemedialActionCreationContexts.put(networkAction.getId(), new MockRemedialActionCreationContext(networkAction, crac)));
     }
 
     private void createRemedialActionCreationContext(final Crac crac, final InjectionRangeAction injectionRangeAction) {
-        final String[] splitId = injectionRangeAction.getId().split(" \\+ ");
-        final String[] splitName = injectionRangeAction.getName().split(" \\+ ");
+        final String[] splitIds = injectionRangeAction.getId().split(" \\+ ");
+        final String[] splitElementNames = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream()
+            .sorted(Map.Entry.comparingByValue())
+            .map(es -> es.getKey().getId().replace("_generator", ""))
+            .toArray(String[]::new);
         final ImportStatus importStatus = crac.getRangeAction(injectionRangeAction.getId()) != null || crac.getNetworkAction(injectionRangeAction.getId()) != null
             ? ImportStatus.IMPORTED
             : ImportStatus.OTHER;
-        mockRemedialActionCreationContexts.add(new StandardElementaryCreationContext(
-            splitId[0], splitName[0], splitId[0], importStatus, "", false
-        ));
-        mockRemedialActionCreationContexts.add(new StandardElementaryCreationContext(
-            splitId[1], splitName[1], splitId[1], importStatus, "", false
-        ));
+        if (splitIds.length > 0 && splitElementNames.length > 0) {
+            mockRemedialActionCreationContexts.put(
+                splitIds[0],
+                new StandardElementaryCreationContext(
+                    splitIds[0], splitElementNames[0], splitIds[0], importStatus, "", false
+                )
+            );
+        }
+        if (splitIds.length > 1 && splitElementNames.length > 1) {
+            mockRemedialActionCreationContexts.put(
+                splitIds[1],
+                new StandardElementaryCreationContext(
+                    splitIds[1], splitElementNames[1], splitIds[1], importStatus, "", false
+                )
+            );
+        }
     }
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
@@ -93,12 +106,12 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     @Override
     public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
-        return mockRemedialActionCreationContexts;
+        return List.copyOf(mockRemedialActionCreationContexts.values());
     }
 
     @Override
-    public ElementaryCreationContext getRemedialActionCreationContext(String s) {
-        return null;
+    public ElementaryCreationContext getRemedialActionCreationContext(String raId) {
+        return mockRemedialActionCreationContexts.get(raId);
     }
 
     @Override
