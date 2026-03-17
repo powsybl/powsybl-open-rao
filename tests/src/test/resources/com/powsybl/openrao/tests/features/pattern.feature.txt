@@ -3,12 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US xx.x: Add an explicit title
+Feature: xx.x: Add an explicit title
   This feature covers... (precise description of the feature, for instance if a specific parameter is tested)
   + you can write a general description of the US (explaining the logic of the tests) if needed
 
   @dont-run
-  Scenario: US xx.x.x: Add an explicit title - non-costly RAO example
+  Scenario: xx.x.x: Add an explicit title - non-costly RAO example
   Write a description here, explaining what is tested.
   Be precise: if a specific parameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
@@ -40,14 +40,14 @@ Feature: US xx.x: Add an explicit title
 
 
   @dont-run
-  Scenario: US xx.x.x: Add an explicit title - costly RAO example
+  Scenario: xx.x.x: Add an explicit title - costly RAO example
   Write a description here, explaining what is tested.
   Be precise: if an element of the RaoParameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
   write "Same as US xx.x.x, but the xxx is xx instead of xx".
 
   @dont-run
-  Scenario: US xx.x.x: Add an explicit title - time coupling (MARMOT) example
+  Scenario: xx.x.x: Add an explicit title - time coupling (MARMOT) example
   Write a description here, explaining what is tested.
   Be precise: if an element of the RaoParameters is tested, write its name explicitly.
   If the test contains only a small difference with another test (same data but different objective function, etc.),
