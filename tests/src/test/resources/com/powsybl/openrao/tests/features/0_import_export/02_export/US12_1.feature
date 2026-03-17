@@ -57,3 +57,14 @@ Feature: US 12.1: Handling of curative optimization in the Core CNE export
     When I export CORE CNE at "2019-01-08 00:00"
     Then the CORE CNE file is xsd-compliant
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_5.xml"
+
+  @fast @cne-export @hvdc
+  Scenario: 12.1.6 : Curative case with German HVDC
+    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "epic14/crac_hvdc_curative.xml"
+    Given crac creation parameters file is "epic14/ccp.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given RaoResult file is "epic12/RaoResult_12_1_6.json"
+    When I export CORE CNE at "2026-01-27 14:00"
+    Then the CORE CNE file is xsd-compliant
+    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_6.xml"
