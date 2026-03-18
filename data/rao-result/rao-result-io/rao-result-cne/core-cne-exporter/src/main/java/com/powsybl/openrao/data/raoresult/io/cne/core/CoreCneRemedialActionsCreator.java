@@ -218,7 +218,7 @@ public final class CoreCneRemedialActionsCreator {
         createPostOptimNetworkActionSeries(sortedNetworkActions, preventiveState, InstantKind.PREVENTIVE, remedialActionSeriesList);
 
         // Add the remedial action series to B54 and B57
-        List<ConstraintSeries> basecaseConstraintSeriesList = cnecsConstraintSeries.stream()
+        final List<ConstraintSeries> basecaseConstraintSeriesList = cnecsConstraintSeries.stream()
             .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE))
             .toList();
         addRemedialActionsToOtherConstraintSeries(remedialActionSeriesList, basecaseConstraintSeriesList);
@@ -231,7 +231,7 @@ public final class CoreCneRemedialActionsCreator {
     private List<ConstraintSeries> createPostCraRaConstraintSeries(final List<PstRangeAction> pstRangeActions,
                                                                    final List<InjectionRangeAction> injectionRangeActions,
                                                                    final List<NetworkAction> sortedNetworkActions) {
-        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+        final List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         cneHelper.getCrac().getContingencies().stream()
             .sorted(Comparator.comparing(Contingency::getId))
             .forEach(contingency ->
@@ -261,7 +261,7 @@ public final class CoreCneRemedialActionsCreator {
 
         if (!remedialActionSeriesList.isEmpty()) {
             // Add remedial actions to corresponding CNECs' B54
-            List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
+            final List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
                 .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
                     && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName().orElse(contingency.getId()))))
                 .toList();
