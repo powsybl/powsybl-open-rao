@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.IcsData;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -28,7 +29,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
-import com.powsybl.openrao.data.crac.util.IcsImporter;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
@@ -67,19 +67,14 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.IcsUtil.updateNominalVoltage;
 import static com.powsybl.openrao.tests.steps.CommonTestData.buildConfig;
 import static com.powsybl.openrao.tests.steps.CommonTestData.cracPath;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getRaoParameters;
@@ -258,15 +253,49 @@ public final class TimeCoupledRaoSteps {
             TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
             fbConstraintParameters = new FbConstraintCracCreationParameters();
         }
-        IcsImporter.populateInputWithICS(
-            timeCoupledRaoInputWithNetworkPaths,
-            new FileInputStream(getFile(icsStaticPath)),
-            new FileInputStream(getFile(icsSeriesPath)),
-            gskInputStream,
-            fbConstraintParameters.getIcsCostUp(),
-            fbConstraintParameters.getIcsCostDown()
-        );
+
+        // Update voltage monitoring
+        TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
+        timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+            Network network = Network.read(raoInput.getInitialNetworkPath());
+            updateNominalVoltage(network);
+            modifiedInitialNetworks.put(dateTime, network);
+        });
+
+
+        // Read ICS Data
+        IcsData icsData = IcsData.read(new FileInputStream(getFile(icsStaticPath)),new FileInputStream(getFile(icsSeriesPath)),gskInputStream, timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun().stream().sorted().toList());
+
+        TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
+        timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+            cracToModify.put(dateTime, raoInput.getCrac());
+        });
+
+
+        FbConstraintCracCreationParameters finalFbConstraintParameters = fbConstraintParameters;
+        // For each redispatching actions defined in static csv update networks and update cracs
+        icsData.getStaticConstraintPerId().forEach((raId, staticRecord) -> {
+            Map<String, Double> weightPerNode;
+            // If the remedial action is defined on a Node.
+            if (icsData.isRaDefinedOnANode(raId)) {
+                weightPerNode = Map.of(icsData.getNodeIdOrGskIdFromRaId(raId), 1.0);
+            } else { // If the remedial action is defined on a GSK
+                weightPerNode = icsData.getWeightPerNodePerGsk().get(icsData.getNodeIdOrGskIdFromRaId(raId));
+            }
+
+            // Create generator and load in networks
+            Map<String, String> generatorIdPerNode = icsData.createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId, weightPerNode);
+            // One of the node could not be find no need to create injection range actions and generator constraint.
+            if (generatorIdPerNode.isEmpty()) {
+                return;
+            }
+            // Create Injection Range Actions in CRACs
+            icsData.createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, finalFbConstraintParameters.getIcsCostUp(), finalFbConstraintParameters.getIcsCostDown());
+            // Create generator constraints and them to time coupled rao input
+            icsData.createGeneratorConstraints(timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints(), weightPerNode, raId, generatorIdPerNode);
+        });
     }
+
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
