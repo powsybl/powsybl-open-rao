@@ -369,20 +369,6 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() throws IOException {
-        setup("12Nodes_4ParallelLines.uct", "small-crac-ra-limits-per-instant-3-tsos.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
-
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-
-        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
-        // Yet, the number of RAs that can be applied is restricted to 2 (resp. 1) in total for curative1 (resp. curative2)
-        assertEquals(2, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
-        assertEquals(0, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
-        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative3"))).size());
-    }
-
-    @Test
     void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() throws IOException {
         setup("small-network-2P.uct", "small-crac-to-check-curative-optimization-if-preventive-unsecure.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));

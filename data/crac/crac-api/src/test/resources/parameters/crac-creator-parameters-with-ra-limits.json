@@ -3,7 +3,6 @@
   "ra-usage-limits-per-instant": [ {
     "instant" : "preventive",
     "max-ra" : 3,
-    "max-tso" : 5,
     "max-topo-per-tso" : {
       "FR" : 2
     },
@@ -16,7 +15,6 @@
   }, {
     "instant" : "curative",
     "max-ra" : 7,
-    "max-tso" : 2,
     "max-topo-per-tso" : {
       "FR" : 1
     },
