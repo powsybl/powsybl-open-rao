@@ -257,28 +257,32 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             return;
         }
 
-        Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
-        rangeActions.getOrDefault(state, Set.of()).stream()
-            .filter(PstRangeAction.class::isInstance)
-            .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
-            .map(PstRangeAction.class::cast)
-            .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
-
         for (Map.Entry<String, Integer> maxElementaryActionsForTso : maxElementaryActionsPerTso.entrySet()) {
             String tso = maxElementaryActionsForTso.getKey();
             int maxElementaryActions = maxElementaryActionsForTso.getValue();
-            OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
-            for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
-                stateAndRangeActionsToConsider.forEach((state1, raSet) -> {
-                    if (raSet.stream().anyMatch(ra -> ra.equals(pstRangeAction))) {
+            Map<State, Set<PstRangeAction>> pstRangeActionPerStateFromOperator =
+                stateAndRangeActionsToConsider.entrySet().stream()
+                    .flatMap(entry -> entry.getValue().stream()
+                        .filter(PstRangeAction.class::isInstance)
+                        .map(PstRangeAction.class::cast)
+                        .filter(rangeAction -> tso.equals(rangeAction.getOperator()))
+                        .map(pstRangeAction -> Map.entry(entry.getKey(), pstRangeAction)))
+                    .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toSet())
+                    ));
+
+            if (!pstRangeActionPerStateFromOperator.values().stream().allMatch(Set::isEmpty)) {
+                OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
+                pstRangeActionPerStateFromOperator.forEach((state1, pstSet) ->
+                    pstSet.forEach(pstRangeAction -> {
                         OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.UPWARD);
                         OpenRaoMPVariable totalPstRangeActionTapDownwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.DOWNWARD);
                         maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapUpwardVariationVariable, 1);
                         maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapDownwardVariationVariable, 1);
-                    }
-                });
+                    })
+                );
             }
-
         }
     }
 }
