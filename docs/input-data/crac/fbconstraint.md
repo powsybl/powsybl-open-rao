@@ -192,7 +192,6 @@ HVDC range actions can be defined in FlowBasedConstraint documents with actions 
 They are defined using:
 - Their network element (a node representing one extremity of the HVDC line)
 - Their allowed range
-- Eventually, if they belong to a group of HVDCs, the ID of the group
 
 > ℹ️  **Specific rules for HVDC Range actions**  
 > - Only one `<action>` is allowed in an `<actionSet>` for HVDC remedial actions.

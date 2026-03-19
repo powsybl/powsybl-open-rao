@@ -249,7 +249,7 @@ class CoreCneRemedialActionsCreatorTest {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -269,7 +269,7 @@ class CoreCneRemedialActionsCreatorTest {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getInvertedRemedialActionCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -289,7 +289,7 @@ class CoreCneRemedialActionsCreatorTest {
         final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -312,7 +312,7 @@ class CoreCneRemedialActionsCreatorTest {
         final PstRangeAction pstRangeAction = getPstRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -324,7 +324,7 @@ class CoreCneRemedialActionsCreatorTest {
         final InjectionRangeAction injectionRangeAction = getInjectionRangeAction(null);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(false);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -378,7 +378,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra3)).thenReturn(true);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), ra4)).thenReturn(true);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -398,7 +398,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), injectionRangeAction)).thenReturn(true);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), networkAction)).thenReturn(true);
 
-        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(new ArrayList<>());
+        final CoreCneRemedialActionsCreator cneRemedialActionsCreator = getRemedialActionsCreator(cnecsConstraintSeries);
 
         final List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -533,7 +533,7 @@ class CoreCneRemedialActionsCreatorTest {
         final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
         checkNetworkAction(ra, "A18");
 
-        // Used PST in preventive should be stored in CNECs constraint series B57 & B54
+        // Used network action in preventive should be stored in CNECs constraint series B57 & B54
         Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
         Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).hasSize(1); // B57
         final RemedialActionSeries remedialActionSeries = cnecsConstraintSeries.get(1).getRemedialActionSeries().getFirst();
@@ -648,7 +648,7 @@ class CoreCneRemedialActionsCreatorTest {
         final RemedialActionSeries ra = constraintSeries.getRemedialActionSeries().getFirst();
         checkNetworkAction(ra, "A19");
 
-        // Used PST in curative should be stored in CNECs constraint series B54
+        // Used network action in curative should be stored in CNECs constraint series B54
         Assertions.assertThat(cnecsConstraintSeries.get(0).getRemedialActionSeries()).isEmpty(); // B88
         Assertions.assertThat(cnecsConstraintSeries.get(1).getRemedialActionSeries()).isEmpty(); // B57
         Assertions.assertThat(cnecsConstraintSeries.get(2).getRemedialActionSeries()).hasSize(1); // B54
