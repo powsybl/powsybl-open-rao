@@ -58,7 +58,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be -18 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.5: Optimal subset
+  Scenario: 2.5.2.4: Optimal subset
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
@@ -77,7 +77,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 392 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.6: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (1)
+  Scenario: 2.5.2.5: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case6.json"
@@ -96,7 +96,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 392 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.7: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (2)
+  Scenario: 2.5.2.6: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case7.json"
@@ -115,7 +115,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 392 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.8: Combination is better than individuals
+  Scenario: 2.5.2.7: Combination is better than individuals
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case8.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case8.json"
@@ -132,7 +132,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 491 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.9: onConstraint remedial action is not re evaluated after the activation of a combination of RA
+  Scenario: 2.5.2.8: onConstraint remedial action is not re evaluated after the activation of a combination of RA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case9.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
@@ -149,7 +149,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 311 A
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 2.5.2.10: not imported combinations of RA
+  Scenario: 2.5.2.9: Not imported combinations of RA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case10.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case10.json"

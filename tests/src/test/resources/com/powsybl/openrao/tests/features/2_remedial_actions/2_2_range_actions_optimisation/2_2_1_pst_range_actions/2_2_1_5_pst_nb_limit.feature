@@ -88,7 +88,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.9: One allowed TSO - BE PST not allowed
+  Scenario: 2.2.1.5.7: One allowed TSO - BE PST not allowed
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -102,7 +102,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 998 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
-  Scenario: 2.2.1.5.10: UCTE HVDC as InjectionRangeAction and PST filtering (copy of 2.2.2.2.8 with MIP for PSTs)
+  Scenario: 2.2.1.5.8: UCTE HVDC as InjectionRangeAction and PST filtering (copy of 2.2.2.2.8 with MIP for PSTs)
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
     Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
@@ -115,7 +115,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
-  Scenario: 2.2.1.5.11: max-curative-ra : choose a PST over a HVDC
+  Scenario: 2.2.1.5.9: max-curative-ra : choose a PST over a HVDC
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic19/cseCrac_ep19us10case11.xml"
     Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
@@ -130,7 +130,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the margin on cnec "be4_fr5_co1 - BBE2AA11->BBE3AA11  - co1_be1_fr5 - curative" after CRA should be 24.1 MW
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.12: Reference case w/o PRA limitations : 1 topo and 2 PST
+  Scenario: 2.2.1.5.10: Reference case w/o PRA limitations : 1 topo and 2 PST
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -144,7 +144,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 999.68 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.13: Same case with PRA limitations: 2 RAs and only 1 Topo
+  Scenario: 2.2.1.5.11: Same case with PRA limitations: 2 RAs and only 1 Topo
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
@@ -158,7 +158,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
     Then the worst margin is 999.50 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.5.14: Same case with PRA limitations: 1 PST and 0 Topo
+  Scenario: 2.2.1.5.12: Same case with PRA limitations: 1 PST and 0 Topo
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"

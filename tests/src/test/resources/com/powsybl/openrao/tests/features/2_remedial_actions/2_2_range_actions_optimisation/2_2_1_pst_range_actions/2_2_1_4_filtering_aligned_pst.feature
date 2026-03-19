@@ -7,7 +7,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
   # TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.5 : Do not select French PST, because of max-curative-ra
+  Scenario: 2.2.1.4.1: Do not select French PST, because of max-curative-ra
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -21,7 +21,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1664 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.6 : Only select German PST, because of max-curative-ra
+  Scenario: 2.2.1.4.2: Only select German PST, because of max-curative-ra
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -34,7 +34,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.7 : Only select Belgian PST, because of max-curative-ra
+  Scenario: 2.2.1.4.3: Only select Belgian PST, because of max-curative-ra
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case3.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -47,7 +47,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.8 : Only select French PST, because of max-curative-ra
+  Scenario: 2.2.1.4.4: Only select French PST, because of max-curative-ra
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -60,7 +60,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1414 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.9 : Do not select second PST, because of max-curative-pst-to-tso
+  Scenario: 2.2.1.4.5: Do not select second PST, because of max-curative-pst-to-tso
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case9.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -74,7 +74,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1664 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.10 : Only select third PST, because of max-curative-pst-to-tso
+  Scenario: 2.2.1.4.6: Only select third PST, because of max-curative-pst-to-tso
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -87,7 +87,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.11 :  Only select first PST, because of max-curative-pst-to-tso
+  Scenario: 2.2.1.4.7:  Only select first PST, because of max-curative-pst-to-tso
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case11.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -100,7 +100,7 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.12 : Only select second PST, because of max-curative-pst-to-tso
+  Scenario: 2.2.1.4.8: Only select second PST, because of max-curative-pst-to-tso
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case9.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
