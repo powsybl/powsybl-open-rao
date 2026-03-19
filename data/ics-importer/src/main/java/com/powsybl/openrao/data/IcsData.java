@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -107,13 +108,13 @@ public final class IcsData {
             }
             if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
                 !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
-                throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
+                throw new OpenRaoException("Could not parse shutDownAllowed value for raId " + raId + ": " + staticRecord.get(SHUTDOWN_ALLOWED));
             } else {
                 builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
             }
             if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
                 !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
-                throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
+                throw new OpenRaoException("Could not parse startUpAllowed value for raId " + raId + ": " + staticRecord.get(STARTUP_ALLOWED) );
             } else {
                 builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
             }
@@ -292,6 +293,7 @@ public final class IcsData {
 
     // Consistency check functions
     private static boolean shouldBeImported(CSVRecord staticRecord,  List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
+        //TODO: check that sum of GSK if defined on one equal to 1
 
         // remedial action should at least be defined on preventive instant
         boolean isPreventive = staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE);

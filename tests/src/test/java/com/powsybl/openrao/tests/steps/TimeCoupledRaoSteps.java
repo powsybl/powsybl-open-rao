@@ -291,6 +291,7 @@ public final class TimeCoupledRaoSteps {
             }
             // Create Injection Range Actions in CRACs
             icsData.createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, finalFbConstraintParameters.getIcsCostUp(), finalFbConstraintParameters.getIcsCostDown());
+
             // Create generator constraints and them to time coupled rao input
             Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
             generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
