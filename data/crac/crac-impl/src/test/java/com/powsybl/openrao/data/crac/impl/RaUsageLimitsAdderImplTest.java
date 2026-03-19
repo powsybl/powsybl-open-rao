@@ -61,17 +61,14 @@ class RaUsageLimitsAdderImplTest {
         // preventiveInstant with limitations
         crac.newRaUsageLimits("preventive").withMaxRa(33).add();
         assertEquals(33, crac.getRaUsageLimits(preventiveInstant).getMaxRa());
-        assertEquals(Integer.MAX_VALUE, crac.getRaUsageLimits(preventiveInstant).getMaxTso());
 
         // curativeInstant with limitations
         RaUsageLimits raUsageLimits = new RaUsageLimits();
-        raUsageLimits.setMaxTso(4);
         raUsageLimits.setMaxRaPerTso(new HashMap<>(Map.of("FR", 41)));
         raUsageLimits.setMaxPstPerTso(new HashMap<>(Map.of("BE", 7)));
         raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("DE", 5)));
         raUsageLimits.setMaxElementaryActionsPerTso(new HashMap<>(Map.of("FR", 3)));
         crac.newRaUsageLimits("curative")
-            .withMaxTso(raUsageLimits.getMaxTso())
             .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
             .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
             .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
