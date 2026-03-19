@@ -43,6 +43,7 @@ public class IcsUtil {
     public static final String GSK_ID = "GSK ID";
 
     public static final String GENERATOR_SUFFIX = "_GENERATOR";
+    public static final String LOAD_SUFFIX = "_LOAD";
     public static final int OFFSET = 2;
     public static final double ON_POWER_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
 
@@ -57,6 +58,9 @@ public class IcsUtil {
             String value = series.get(timestamp.getHour() + OFFSET);
             if (value != null) {
                 return Optional.of(parseDoubleWithPossibleCommas(value) * shiftKey);
+            } else {
+                // TODO: make sure to add a test for this
+                return Optional.empty();
             }
         }
         return Optional.empty();
@@ -101,7 +105,7 @@ public class IcsUtil {
         bus.getVoltageLevel().newLoad()
             .setBus(bus.getId())
             .setEnsureIdUnicity(true)
-            .setId(bus.getId() + "_LOAD")
+            .setId(bus.getId() + LOAD_SUFFIX)
             .setP0(p0)
             .setQ0(0)
             .setLoadType(LoadType.FICTITIOUS)

@@ -49,7 +49,6 @@ public final class IcsData {
         this.weightPerNodePerGsk = weightPerNodePerGsk;
     }
 
-    // Define getters
     public Map<String, CSVRecord> getStaticConstraintPerId() {
         return staticConstraintPerId;
     }
@@ -71,52 +70,68 @@ public final class IcsData {
     }
 
     public String getNodeIdOrGskIdFromRaId(String raId) {
-        return staticConstraintPerId.get(raId).get("UCT Node or GSK ID");
+        return staticConstraintPerId.get(raId).get(UCT_NODE_OR_GSK_ID);
     }
 
-    public Set<GeneratorConstraints> getAllGeneratorConstraints() {
+    /**
+     * Generates a set of generator constraints based on the provided remedial action ID.
+     *
+     * @param raId The identifier of the remedial action for which the generator constraints are being created.
+     * @param weightPerNode A map linking node identifiers to their respective generation shift key weights.
+     * @param networkElementIdPerNodeId A map linking nodeId to their respective network elements id.
+     * @return A set of {@code GeneratorConstraints} generated for the specified parameters.
+     * @throws OpenRaoException if data related to shutdown or startup allowances cannot be parsed.
+     */
+    public Set<GeneratorConstraints> createGeneratorConstraints(String raId, Map<String, Double> weightPerNode, Map<String, String> networkElementIdPerNodeId) {
         Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
-        staticConstraintPerId.forEach((raId, staticRecord) -> {
-            // If the remedial action is defined on a Node.
-            if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE)) {
-                // create a generator constraint from staticRecord
-                String networkElementId = getGeneratorIdFromRaIdAndNodeId(raId, staticRecord.get(UCT_NODE_OR_GSK_ID));
-                GeneratorConstraints generatorConstraints = createGeneratorConstraintFromStaticRecord(networkElementId, staticRecord, staticRecord.get(UCT_NODE_OR_GSK_ID),1.0);
-                generatorConstraintsSet.add(generatorConstraints);
-            } else { // If the remedial action is defined on a GSK
-                // For a given GSK, create a generator constraint for each node of the GSK according to the shiftKey
-                Map<String, Double> weightPerNode = weightPerNodePerGsk.get(staticRecord.get(UCT_NODE_OR_GSK_ID));
-                for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
-                    String nodeId = entry.getKey();
-                    Double shiftKey = entry.getValue();
-                    String networkElementId = getGeneratorIdFromRaIdAndNodeId(raId, nodeId);
-                    GeneratorConstraints generatorConstraints = createGeneratorConstraintFromStaticRecord(networkElementId, staticRecord, nodeId, shiftKey);
-                    generatorConstraintsSet.add(generatorConstraints);
-                }
-            }
-        });
-
-        return generatorConstraintsSet;
-    }
-
-    public void createGeneratorConstraints(TimeCoupledConstraints getTimeCoupledConstraints, Map<String, Double> weightPerNode, String raId, Map<String, String> networkElementPerGskElement) {
         for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
             String nodeId = entry.getKey();
             Double shiftKey = entry.getValue();
             CSVRecord staticRecord = staticConstraintPerId.get(raId);
-            GeneratorConstraints generatorConstraints = createGeneratorConstraintFromStaticRecord(networkElementPerGskElement.get(nodeId), staticRecord, nodeId, shiftKey);
-            getTimeCoupledConstraints.addGeneratorConstraints(generatorConstraints);
+            GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementIdPerNodeId.get(nodeId));
+            if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
+            } else {
+                builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
+            }
+            if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+            } else {
+                builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
+            }
+            if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+                builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+            }
+            if (!staticRecord.get(LAG_TIME).isEmpty()) {
+                builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
+            }
+            if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
+                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+            }
+            if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+            }
+            GeneratorConstraints generatorConstraints = builder.build();
+            generatorConstraintsSet.add(generatorConstraints);
         }
+        return generatorConstraintsSet;
     }
 
     /**
-     *  Find bus in network corresponding to the nodes of the GSK, create a generator and a load for each node of the GSK
-     *  and return a map of the generatorId to the node id (if no bus is found, the generator is not created and not included in the returned map) .
+     * Creates generator/load elements and updates provided networks given the remedial action's ID and its shift key mapping
      *
-     * @param initialNetworksToModify
-     * @param raId
-     * @param weightPerNode
-     * @return
+     * @param initialNetworksToModify Temporal data representing the networks that will be modified.
+     *                                Contains network configurations per timestamp.
+     * @param raId The identifier of the remedial action for which generators and network modifications are being applied.
+     * @param weightPerNode A map linking node identifiers to their corresponding generation shift key weights.
+     * @return A map associating each node identifier to its corresponding generator identifier.
+     *         Returns an empty map if the process is aborted due to missing network components.
      */
     public static Map<String, String> createGeneratorAndLoadAndUpdateNetworks(TemporalData<Network> initialNetworksToModify,
                                                                               String raId,
@@ -153,6 +168,16 @@ public final class IcsData {
         return networkElementPerGskElement;
     }
 
+    /**
+     * Creates injection range actions and updates CRACs for all timestamps.
+     *
+     * @param cracToModify Temporal data containing CRACs to be modified and timestamps to consider.
+     * @param raId The identifier of the remedial action for which injection range actions are created.
+     * @param weightPerNode A map linking node identifiers to their associated generation shift key weights.
+     * @param networkElementPerNode A map linking each node identifier to its corresponding network element/generator id.
+     * @param costUp The cost associated with increasing the generation (VariationDirection.UP).
+     * @param costDown The cost associated with decreasing the generation (VariationDirection.DOWN).
+     */
     public static void createInjectionRangeActionsAndUpdateCracs(TemporalData<Crac> cracToModify,
                                                                  String raId,
                                                                  Map<String, Double> weightPerNode,
@@ -195,43 +220,20 @@ public final class IcsData {
     }
 
 
-    public static GeneratorConstraints createGeneratorConstraintFromStaticRecord(String generatorId,
-                                                                                 CSVRecord staticRecord,
-                                                                                 String nodeId,
-                                                                                 Double shiftKey) {
+    // READER //
 
-        GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(generatorId);
-        if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
-            builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
-        } else {
-            builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
-        }
-        if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
-            builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
-        } else {
-            builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
-        }
-        if (!staticRecord.get(LEAD_TIME).isEmpty()) {
-            builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
-        }
-        if (!staticRecord.get(LAG_TIME).isEmpty()) {
-            builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
-        }
-        if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-            !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
-            throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
-        } else {
-            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
-        }
-        if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-            !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
-            throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
-        } else {
-            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
-        }
-        return builder.build();
-    }
-
+    /**
+     * Reads and processes inputs to generate Ics Data Object
+     *
+     * @param staticInputStream the input stream for static constraints data, defining generator constraints
+     *                          associated with remedial actions.
+     * @param seriesInputStream the input stream for time series data, mapped per RA_ID and series type
+     *                          (e.g., RDP-, RDP+, Pmin_RD, or P0).
+     * @param gskInputStream the input stream for GSK data, mapping nodes to their generation shift key weights.
+     * @param sortedTimestampToRun the list of timestamps to consider
+     * @return an {@code IcsData} instance
+     * @throws IOException if an issue occurs while reading or processing the input streams.
+     */
     public static IcsData read(InputStream staticInputStream,
                                InputStream seriesInputStream,
                                InputStream gskInputStream,
@@ -277,10 +279,19 @@ public final class IcsData {
         return seriesPerIdAndType;
     }
 
+    private static Map<String, Map<String, Double>> parseGskCsv(CSVFormat csvFormat, InputStream gskInputStream) throws IOException {
+        Iterable<CSVRecord> gskCsvRecords = csvFormat.parse(new InputStreamReader(gskInputStream));
+        Map<String, Map<String, Double>> weightPerNodePerGsk = new HashMap<>();
+        gskCsvRecords.forEach(record -> {
+            weightPerNodePerGsk.putIfAbsent(record.get(GSK_ID), new HashMap<>());
+            weightPerNodePerGsk.get(record.get(GSK_ID)).put(record.get("Node"), parseDoubleWithPossibleCommas(record.get("Weight")));
+        });
+
+        return weightPerNodePerGsk;
+    }
+
+    // Consistency check functions
     private static boolean shouldBeImported(CSVRecord staticRecord,  List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
-        //TODO: add more consistency checks ?
-        //  - check that P0s respect the min/max gradients
-        //  - import curative or no ?
 
         // remedial action should at least be defined on preventive instant
         boolean isPreventive = staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE);
@@ -304,6 +315,18 @@ public final class IcsData {
         return isDefinedOnANodeOrGsk && isPreventive && isDefinedInSeriesCsv && rangeIsOkay && p0RespectsGradients;
     }
 
+    /**
+     * Determines whether the P0 record values respect the specified power gradients for each time interval.
+     * It checks the difference in values between consecutive timestamps and ensures that the differences
+     * fall within the acceptable gradient range defined by the static record.
+     *
+     * @param staticRecord The static record containing gradient constraints, including the maximum positive
+     *                     and minimum negative power gradients.
+     * @param p0record The P0 record containing time-series data representing power values at specific timestamps.
+     * @param dateTimes A list of timestamps to evaluate the gradient between consecutive entries in the P0 record.
+     * @return {@code true} if the P0 record respects the specified power gradients for all timestamps;
+     *         {@code false} otherwise.
+     */
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
         double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
             MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
@@ -327,6 +350,16 @@ public final class IcsData {
         return true;
     }
 
+    /**
+     * Verifies whether the range of redispatching parameters is valid for the input time series,
+     * ensuring that redispatching values are non-negative and exceed a minimum threshold.
+     *
+     * @param seriesPerType A map where keys are series types (e.g., RDP+ or RDP-) and values are time-series data (CSVRecord)
+     *                      corresponding to these types.
+     * @param dateTimes A list of timestamps to evaluate the redispatching parameters at specific hours within a day.
+     * @return {@code true} if the range of redispatching values is valid and meets the defined constraints;
+     *         {@code false} otherwise.
+     */
     private static boolean rangeIsOkay(Map<String, CSVRecord> seriesPerType, List<OffsetDateTime> dateTimes) {
         double maxRange = 0.;
         for (OffsetDateTime dateTime : dateTimes) {
@@ -343,16 +376,5 @@ public final class IcsData {
             return false;
         }
         return true;
-    }
-
-    private static Map<String, Map<String, Double>> parseGskCsv(CSVFormat csvFormat, InputStream gskInputStream) throws IOException {
-        Iterable<CSVRecord> gskCsvRecords = csvFormat.parse(new InputStreamReader(gskInputStream));
-        Map<String, Map<String, Double>> weightPerNodePerGsk = new HashMap<>();
-        gskCsvRecords.forEach(record -> {
-            weightPerNodePerGsk.putIfAbsent(record.get(GSK_ID), new HashMap<>());
-            weightPerNodePerGsk.get(record.get(GSK_ID)).put(record.get("Node"), parseDoubleWithPossibleCommas(record.get("Weight")));
-        });
-
-        return weightPerNodePerGsk;
     }
 }

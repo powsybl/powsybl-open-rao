@@ -33,6 +33,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
+import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -282,7 +283,6 @@ public final class TimeCoupledRaoSteps {
             } else { // If the remedial action is defined on a GSK
                 weightPerNode = icsData.getWeightPerNodePerGsk().get(icsData.getNodeIdOrGskIdFromRaId(raId));
             }
-
             // Create generator and load in networks
             Map<String, String> generatorIdPerNode = icsData.createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId, weightPerNode);
             // One of the node could not be find no need to create injection range actions and generator constraint.
@@ -292,7 +292,8 @@ public final class TimeCoupledRaoSteps {
             // Create Injection Range Actions in CRACs
             icsData.createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, finalFbConstraintParameters.getIcsCostUp(), finalFbConstraintParameters.getIcsCostDown());
             // Create generator constraints and them to time coupled rao input
-            icsData.createGeneratorConstraints(timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints(), weightPerNode, raId, generatorIdPerNode);
+            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
+            generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
         });
     }
 
