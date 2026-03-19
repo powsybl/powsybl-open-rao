@@ -16,6 +16,16 @@
             <timeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
             <branch eic="EIC" from="BBE2AA1 " to="FFR3AA1 " elementName="CB0" name="CB0" />
             <imaxType>DYNAMIC</imaxType>
+            <permanentImaxFactor>2</permanentImaxFactor>
+            <frmMw>218</frmMw>
+            <CNEC>true</CNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>D0</tsoOrigin>
+        </criticalBranch>
+        <criticalBranch id="CB0">
+            <timeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
+            <branch eic="EIC" from="BBE2AA1 " to="FFR3AA1 " elementName="CB0" name="CB0" />
+            <imaxType>DYNAMIC</imaxType>
             <frmMw>218</frmMw>
             <CNEC>true</CNEC>
             <direction>DIRECT</direction>
