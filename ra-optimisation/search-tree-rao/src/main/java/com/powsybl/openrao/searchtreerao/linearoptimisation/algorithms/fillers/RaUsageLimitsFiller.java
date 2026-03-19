@@ -99,7 +99,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         if (state.getInstant().isCurative()) {
             return rangeActions.entrySet().stream()
                 .filter(entry -> entry.getKey().getInstant().isCurative())
-                .filter(entry -> entry.getKey().getInstant().comesBefore(state.getInstant()) || entry.getKey().getInstant().equals(state.getInstant()))
+                .filter(entry -> !entry.getKey().getInstant().comesAfter(state.getInstant()))
                 .filter(entry -> entry.getKey().getContingency().equals(state.getContingency()))
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,
@@ -188,7 +188,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
         Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionOfStateToConsider(state);
 
-        int numberOfRas = rangeActionsPerPreviousCurativeState.values().stream().mapToInt(ras -> ras.size()).sum();
+        int numberOfRas = rangeActionsPerPreviousCurativeState.values().stream().mapToInt(Set::size).sum();
 
         if (maxRa == null || maxRa >= numberOfRas) {
             return;
@@ -197,12 +197,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         OpenRaoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
 
         // if the state is curative, we want to be able to handle the cumulative effect of the max ra usage limit in 2P
-        rangeActionsPerPreviousCurativeState.entrySet().forEach(entry -> {
+        rangeActionsPerPreviousCurativeState.entrySet().forEach(entry ->
             entry.getValue().forEach(ra -> {
                 OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, entry.getKey());
                 maxRaConstraint.setCoefficient(isVariationVariable, 1);
-            });
-        });
+            })
+        );
 
     }
 
