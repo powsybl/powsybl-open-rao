@@ -119,16 +119,16 @@ public class DiscretePstTapFiller implements ProblemFiller {
             double maxRelativeTap = Math.max(0, pstLimits.getRight());
             double minRelativeTap = Math.min(0, pstLimits.getLeft());
 
-            OpenRaoMPVariable preventivePstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(
+            OpenRaoMPVariable previousStatePstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(
                 (PstRangeAction) preventiveRangeAction, lastAvailableRangeAction.getValue(), LinearProblem.VariationDirectionExtension.UPWARD);
-            OpenRaoMPVariable preventivePstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(
+            OpenRaoMPVariable previousStatePstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(
                 (PstRangeAction) preventiveRangeAction, lastAvailableRangeAction.getValue(), LinearProblem.VariationDirectionExtension.DOWNWARD);
 
             OpenRaoMPConstraint relativeTapConstraint = linearProblem.addPstRelativeTapConstraint(minRelativeTap, maxRelativeTap, pstRangeAction, state);
             relativeTapConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
             relativeTapConstraint.setCoefficient(pstTapDownwardVariationVariable, -1);
-            relativeTapConstraint.setCoefficient(preventivePstTapUpwardVariationVariable, -1);
-            relativeTapConstraint.setCoefficient(preventivePstTapDownwardVariationVariable, 1);
+            relativeTapConstraint.setCoefficient(previousStatePstTapUpwardVariationVariable, -1);
+            relativeTapConstraint.setCoefficient(previousStatePstTapDownwardVariationVariable, 1);
         }
 
         // create constraint: variation can only be upward or downward between two optimization iteration
@@ -194,7 +194,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
     /**
      * Define total tap variation variable as :
      *
-     * if lastAvailableRangeAction != null (ie.  if pst was available during a previous state of optimization perimeter (in 2P, can be preventive state or previous curative state)
+     * if lastAvailableRangeAction != null (ie.  if pst was available during a previous state of optimization perimeter (in 2P, can be preventive state or previous curative state))
      * \total_tap_variation_up(r,s) - \total_tap_variation_down(r,s) = \tap_pst_variable(r,s) - \tap_pst_variable(r,prev_state)
      * else:
      * \total_tap_variation_up(r,s) - \total_tap_variation_down(r,s) = \tap_pst_variable(r,s) - initial_tap
