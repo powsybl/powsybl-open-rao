@@ -66,7 +66,7 @@ The UCTE node is optional. If not provided, the `<VirtualHub>` element will be i
 ~~~
 
 For German HVDC remedial actions, specific data must be defined in the `<internalHVDCs>` section of the VirtualHubs file
-along with some data in the [FlowBasedConstraint CRAC file](../crac/fbconstraint.md).
+along with some data in the [FlowBasedConstraint CRAC file](../crac/fbconstraint.md#hvdc-range-actions).
 
 Each **HVDC line** is represented by an `<HVDC>` element with required attributes:
 - an `Eic` code (e.g. HVDC-EIC);

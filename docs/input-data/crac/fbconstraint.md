@@ -158,7 +158,7 @@ Network actions are defined with the type "STATUS". The information they need is
 - The network element that is modified
 - The type of action (OPEN/CLOSE)
 
-### Range actions
+### PST Range actions
 ```xml
 <action type="PSTTAP">
     <branch from="FROM__22" to="TO____22"  elementName="NAME2"/>
@@ -169,10 +169,38 @@ Network actions are defined with the type "STATUS". The information they need is
     <PSTGroupId>PST_G1</PSTGroupId>
 </action>
 ```
-Only PST range actions can be defined in FlowBasedConstraint documents. They are fully defined using:
+PST range actions are fully defined using:
 - Their network element
 - Their allowed tap range
 - Eventually, if they belong to a group of aligned PSTs, the ID of the group 
+
+### HVDC Range actions
+One HVDC range action is composed of two nodes. Therefore, it requires two `<complexVariant>` elements to be fully defined, along with some additional data in the [VirtualHubs file](../specific-input-data/virtual-hubs.md).
+
+Each ComplexVariant represents one end node of one pole of the HVDC line.
+```xml
+<action type="HVDCSETPOINT">
+    <node code="NODE__1A" />
+    <range>
+        <min>-800</min>
+        <max>1000</max>
+    </range>
+    <HVDCGroupId>HVDC_G1</HVDCGroupId>
+</action>
+```
+HVDC range actions can be defined in FlowBasedConstraint documents with actions of type `HVDCSETPOINT`.
+They are defined using:
+- Their network element (a node representing one extremity of the HVDC line)
+- Their allowed range
+- Eventually, if they belong to a group of HVDCs, the ID of the group
+
+> ℹ️  **Specific rules for HVDC Range actions**  
+> - Only one `<action>` is allowed in an `<actionSet>` for HVDC remedial actions.
+> - One `<actionSet>` cannot be preventive and curative at the same time.
+> - Both `<complexVariant>` of a given HVDC pole must be defined for the same instant.
+> - Every node of a given station (see [VirtualHubs file](../specific-input-data/virtual-hubs.md#internal-hvdcs)) must be defined for the same instant.
+> 
+> If any of these rules is not met, the HVDC Range action will be ignored.
 
 
 ### Special rules
