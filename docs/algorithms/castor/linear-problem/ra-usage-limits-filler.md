@@ -34,7 +34,6 @@
 | Name                           | Symbol                 | Details                                                                                                                                                                                             | Type          | Index                                                                  | Unit               | Lower bound | Upper bound |
 |--------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|------------------------------------------------------------------------|--------------------|-------------|-------------|
 | RA usage binary                | $\delta(r,s)$          | binary indicating if a range action is used                                                                                                                                                         | Binary        | One variable for every element of $\mathcal{RA}$                       | no unit            | 0           | 1           |
-| PST absolute tap variation     | $\Delta t(r)$          | integer computing the number of taps that were moved on the PST at a given instant                                                                                                                  | Integer value | One variable for every element of $\mathcal{RA}^\mathcal{PST}$         | no unit (PST taps) | 0           | $+ \infty$  |
 
 ## Used optimization variables
 
@@ -42,8 +41,6 @@
 |---------------------------------------------|----------------------------------|-----------------------------------------------------------------------------------|
 | RangeAction set-point upward variation      | $\Delta^{+}(r,s)$                | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)        |
 | RangeAction set-point downward variation    | $\Delta^{-}(r,s)$                | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)        |
-| PstRangeAction tap upward variation         | $\Delta t^{+} (r)$               | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
-| PstRangeAction tap downward variation       | $\Delta t^{-} (r)$               | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
 | Total PstRangeAction upward tap variation   | $ \Delta_{total} t^{+} (r, s)  $ | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
 | Total PstRangeAction downward tap variation | $ \Delta_{total} t^{-} (r, s) $  | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
 
@@ -76,7 +73,7 @@ set-point in the constraints above. This coefficient is computed as 30% of the a
 
 $$
 \begin{equation}
-\forall s \in \mathcal{S}, \forall tso, \sum_{s' \in \mathcal{S}^{considered}(s)} \sum_{\substack{r \in \mathcal{RA}(tso,s') \\ r \text{ is a PST}}} \delta (r,s') \leq nRA^{max}(s)
+\forall s \in \mathcal{S}, \sum_{s' \in \mathcal{S}^{considered}(s)} \sum_{r \in \mathcal{RA}(s')} \delta (r,s') \leq nRA^{max}(s)
 \end{equation}
 $$
 
