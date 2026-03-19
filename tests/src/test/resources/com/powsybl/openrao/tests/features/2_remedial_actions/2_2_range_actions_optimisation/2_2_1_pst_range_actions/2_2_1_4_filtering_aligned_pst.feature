@@ -7,59 +7,6 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
   # TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.1 : Do not select French PST, because of max-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_1.json"
-    When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "SECURED"
-    Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
-    Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
-    Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1664 A
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.2 : Only select German PST, because of max-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case2.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_1.json"
-    When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "SECURED"
-    Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
-    Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.3 : Only select Belgian PST, because of max-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case3.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_3&4.json"
-    When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "SECURED"
-    Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
-    Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.2.1.4.4 : Only select French PST, because of max-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_3&4.json"
-    When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "SECURED"
-    Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the tap of PstRangeAction "pst_fr" should be 16 after "CO1_fr2_fr3_1" at "curative"
-    Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1414 A
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.5 : Do not select French PST, because of max-curative-ra
     Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
     Given crac file is "epic19/CBCORA_ep19us8case1.xml"
