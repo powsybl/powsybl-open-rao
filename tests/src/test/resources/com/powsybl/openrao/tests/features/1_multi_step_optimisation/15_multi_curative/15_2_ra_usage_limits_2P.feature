@@ -5,8 +5,8 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.1: Multi-curative CNECs with no CRA for curative1, one PST available for curative 1 and 2
-  We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and one PST available for both curative instant 1 and two.
-  We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decrease as we move from curative 1 to 3 (500 -> 300 -> 250).
+  We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and one PST available for both curative instant 1 and 2.
+  We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decreases as we move from curative 1 to 3 (500 -> 300 -> 250)).
   During first preventive the network action is not used as the initial preventive perimeter is secure.
   After optimizing the curative state "Contingency DE2 DE3 1 - curative2", the PST is set to -16 (the min) but it is not enough to secure the perimeter.
   => During second preventive:
@@ -58,7 +58,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.3: Multi-curative - with max-pst-per-tso limits and 2P
-  Case with two PST from TSO "FR" both available in curative 1 and 2
+  Case with two PST sfrom TSO "FR", both available in curative 1 and 2
   The best result with NO max-ra-per-tso limit after 2P:
   - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
   - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)

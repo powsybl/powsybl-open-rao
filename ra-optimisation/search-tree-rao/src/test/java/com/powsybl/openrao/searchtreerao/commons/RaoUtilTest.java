@@ -402,7 +402,6 @@ class RaoUtilTest {
 
     @Test
     void testGetLastAvailableRangeActionOnSameNetworkElementMultiCurative() {
-        // TODO: add a case where Set.of(samePST, another one)
         Contingency contingency = crac.getContingency("Contingency FR1 FR3");
 
         Instant curative1Instant = Mockito.mock(Instant.class);
@@ -411,6 +410,14 @@ class RaoUtilTest {
         State curativeState1 = Mockito.mock(State.class);
         Mockito.when(curativeState1.getInstant()).thenReturn(curative1Instant);
         Mockito.when(curativeState1.getContingency()).thenReturn(Optional.of(contingency));
+
+        Instant curative2Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative2Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curative2Instant.isCurative()).thenReturn(true);
+
+        State curativeState2 = Mockito.mock(State.class);
+        Mockito.when(curativeState2.getInstant()).thenReturn(curative2Instant);
+        Mockito.when(curativeState2.getContingency()).thenReturn(Optional.of(contingency));
 
         Instant curative3Instant = Mockito.mock(Instant.class);
         Mockito.when(curative3Instant.getKind()).thenReturn(InstantKind.CURATIVE);
@@ -421,6 +428,7 @@ class RaoUtilTest {
         Mockito.when(curativeState3.getContingency()).thenReturn(Optional.of(contingency));
 
         Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
+        Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
 
         NetworkElement pst = Mockito.mock(NetworkElement.class);
         Mockito.when(pst.getId()).thenReturn("pst");
@@ -433,9 +441,17 @@ class RaoUtilTest {
         Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
-        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
+        NetworkElement anotherNetworkElement = Mockito.mock(NetworkElement.class);
+        Mockito.when(anotherNetworkElement.getId()).thenReturn("another-network-element");
 
+        RangeAction<?> rangeAction3 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction3.getNetworkElements()).thenReturn(Set.of(pst, anotherNetworkElement));
+        Mockito.when(rangeAction3.getId()).thenReturn("range-action-3");
+
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1, rangeAction3), curativeState2, Set.of(rangeAction3)));
+
+        // rangeAction3 from curativeState2 is not chosen besause Set.of(pst, anotherNetworkElement) != Set.of(pst)
         assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
     }
 
