@@ -193,6 +193,8 @@ They are defined using:
 - Their network element (a node representing one extremity of the HVDC line)
 - Their allowed range
 
+`HVDCGroupId` parameter is defined in the FbConstraint XML format, however it is not used in OpenRAO.
+
 > ℹ️  **Specific rules for HVDC Range actions**  
 > - Only one `<action>` is allowed in an `<actionSet>` for HVDC remedial actions.
 > - One `<actionSet>` cannot be preventive and curative at the same time.

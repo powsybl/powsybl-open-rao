@@ -72,9 +72,8 @@ Feature: 0.1.2.1: HVDC
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: 0.1.2.1.3b : German HVDC Preventive (CORE's german HVDC) with VirtualHubs file as input
-  German HVDC are set as preventive remedial actions and should be used at preventive state.
-  Aligned generators (generators of the same station) should be moved together and have the same value.
-  The two generators involved in one HVDC line should have opposite values.
+  Same test as scenario 0.1.2.1.3 but using a VirtualHubs file as input (from which the internal-hvdcs data will be extracted)
+  instead of a CracCreationContext where internal-hvdcs data would already be stored
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
@@ -147,9 +146,8 @@ Feature: 0.1.2.1: HVDC
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: 0.1.2.1.4b : German HVDC Curative (CORE's german HVDC) with VirtualHubs file as input
-  German HVDC are set as curative remedial actions and should be used at curative state, but not at preventive state.
-  Aligned generators (generators of the same station) should be moved together and have the same value.
-  The two generators involved in one HVDC line should have opposite values.
+  Same test as scenario 0.1.2.1.4 but using a VirtualHubs file as input (from which the internal-hvdcs data will be extracted)
+  instead of a CracCreationContext where internal-hvdcs data would already be stored
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_curative.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
