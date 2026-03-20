@@ -39,7 +39,7 @@ Feature: 0.2.2.1: Core CNE export for preventive case
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_6_4.xml"
 
   @fast @cne-export @hvdc
-  Scenario: 12.6.5 : Preventive case with German HVDC
+  Scenario: 0.2.2.1.4 : Preventive case with German HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive.xml"
     Given crac creation parameters file is "epic14/ccp.json"

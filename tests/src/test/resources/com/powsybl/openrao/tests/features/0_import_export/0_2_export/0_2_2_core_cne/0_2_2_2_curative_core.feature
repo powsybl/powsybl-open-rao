@@ -59,7 +59,7 @@ Feature: 0.2.2.2: Handling of curative optimization in the Core CNE export
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_1_5.xml"
 
   @fast @cne-export @hvdc
-  Scenario: 12.1.6 : Curative case with German HVDC
+  Scenario: 0.2.2.2.6 : Curative case with German HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
