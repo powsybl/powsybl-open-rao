@@ -108,6 +108,8 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                     // Constraints involving state transition variables, defined on indexes [0, numberOfTimestamps - 2]
                     if (timestampIndex < numberOfTimestamps - 1) {
                         OffsetDateTime nextTimestamp = timestamps.get(timestampIndex + 1);
+                        // Change objective function
+                        changeObjectiveFunctionCoefficients(linearProblem, rangeActionId, timestamp);
                         // link transition to current state
                         addStateFromTransitionConstraints(linearProblem, rangeActionId, timestamp);
                         // link transition to next state
@@ -124,6 +126,32 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                 }
             }
         }
+    }
+
+    private void changeObjectiveFunctionCoefficients(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+        OpenRaoMPVariable activationVariation = linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveStates.getData(timestamp).orElseThrow());
+        // remove cost of activation for each timestamp
+        double coefficient = linearProblem.getObjective().getCoefficient(activationVariation);
+        linearProblem.getObjective().setCoefficient(activationVariation, 0.);
+        // instead penalize number of adjustments
+        OpenRaoMPVariable upFlatTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable downFlatTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable offFlatTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.OFF, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable flatUpTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT, LinearProblem.AdjustmentState.UP);
+        OpenRaoMPVariable flatDownTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT, LinearProblem.AdjustmentState.DOWN);
+        OpenRaoMPVariable flatOffTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.FLAT, LinearProblem.AdjustmentState.OFF);
+        linearProblem.getObjective().setCoefficient(upFlatTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(downFlatTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(offFlatTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(flatUpTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(flatDownTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(flatOffTransition, coefficient);
+        /*// and number of off -> something, to avoid using different groups?
+        OpenRaoMPVariable offDownTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
+        OpenRaoMPVariable offUpTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
+        linearProblem.getObjective().setCoefficient(upFlatTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(downFlatTransition, coefficient);
+        linearProblem.getObjective().setCoefficient(offFlatTransition, coefficient);*/
     }
 
     private void addStateVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
@@ -288,7 +316,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         double downwardPowerGradient = Math.max(adjustmentConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT), maxChange);
 
         // If Tr(UP, UP), Pt+1 - Pt = gradientUp
-        // i.e. gradientUp - 2*maxChange * (1-Tr(Up, UP)) <= Pt+1 - Pt <= gradientUp + maxChange * (1-Tr(UP, UP))
+        // i.e. gradientUp - 2*maxChange * (1-Tr(Up, UP)) <= Pt+1 - Pt <= gradientUp + 2*maxChange * (1-Tr(UP, UP))
         // i.e. Pt+1 - Pt + 2*maxChange * Tr(UP, UP) <= gradientUp + 2*maxChange
         // and  Pt+1 - Pt - 2*maxChange * Tr(UP, UP) >= gradientUp - 2*maxChange
         // If CT, then Pt+1 - P0t+1 - Pt + POt instead i.e. add P0t+1 - P0t to upper and lower bounds
@@ -309,9 +337,9 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
 
         // If Tr(DOWN, DOWN), Pt+1 - Pt = gradientDown
-        // i.e. gradientDown - maxChange * (1-Tr(DOWN, DOWN)) <= Pt+1 - Pt <= gradientDown + maxChange * (1-Tr(DOWN, DOWN))
-        // i.e. Pt+1 - Pt + maxChange * Tr(DOWN, DOWN) <= gradientDown + maxChange
-        // and  Pt+1 - Pt - maxChange * Tr(DOWN, DOWN) >= gradientDown - maxChange
+        // i.e. gradientDown - 2*maxChange * (1-Tr(DOWN, DOWN)) <= Pt+1 - Pt <= gradientDown + 2*maxChange * (1-Tr(DOWN, DOWN))
+        // i.e. Pt+1 - Pt + 2*maxChange * Tr(DOWN, DOWN) <= gradientDown + 2*maxChange
+        // and  Pt+1 - Pt - 2*maxChange * Tr(DOWN, DOWN) >= gradientDown - 2*maxChange
         // If CT, then Pt+1 - P0t+1 - Pt + POt instead i.e. add P0t+1 - P0t to upper and lower bounds
         OpenRaoMPConstraint constantRampDownwardUpperConstraint = linearProblem.addAdjustmentConstantRampConstraint(-linearProblem.infinity(), downwardPowerGradient + 2 * maxChange, rangeActionId, timestamp, DOWNWARD, UPPER_BOUND);
         constantRampDownwardUpperConstraint.setCoefficient(nextSetpoint, 1.);
