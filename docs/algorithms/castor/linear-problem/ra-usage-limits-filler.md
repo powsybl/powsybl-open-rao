@@ -93,7 +93,7 @@ $$
 
 $$
 \begin{equation}
-\forall tso \in \mathcal{TSO}, \forall s \in \mathcal{S}, \sum_{s' \in \mathcal{S}^{considered}(s)} \sum_{\substack{r \in \mathcal{RA}(tso,s') \\ r \text{ is a PST}}} \delta (r,s') \leq nRA^{max}(tso,s)
+\forall tso \in \mathcal{TSO}, \forall s \in \mathcal{S}, \sum_{s' \in \mathcal{S}^{considered}(s)} \sum_{r \in \mathcal{RA}(tso,s')} \delta (r,s') \leq nRA^{max}(tso,s)
 \end{equation}
 $$
 
