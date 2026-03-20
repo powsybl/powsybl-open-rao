@@ -97,8 +97,8 @@ public final class CneConstants {
     public static final String SECURE_TEXT = "Network is secure";
     public static final String UNSECURE_CODE = "Z03";
     public static final String UNSECURE_TEXT = "Network is unsecure";
-    public static final String DIVERGENCE_CODE = "B40";
-    public static final String DIVERGENCE_TEXT = "Load flow divergence";
+    public static final String RAO_FAILURE_CODE = "B18";
+    public static final String RAO_FAILURE_TEXT = "Rao failure";
 
     /* Exporter properties */
     public static final String RELATIVE_POSITIVE_MARGINS = "relative-positive-margins";

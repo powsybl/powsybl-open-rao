@@ -32,7 +32,7 @@
     "ra-usage-limits-per-instant": {
       "type": "array",
       "items": {
-        "$ref": "../ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.1.json"
+        "$ref": "../ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.10.json"
       }
     },
     "networkElementsNamePerId": {
@@ -98,7 +98,7 @@
     "networkActions": {
       "type": "array",
       "items": {
-        "$ref": "../network-action/network-action-v2.10.json"
+        "$ref": "../network-action/network-action-v2.9.json"
       }
     }
   },

@@ -6,7 +6,7 @@
 Feature: US 11.3: Handle MNECs in search tree with only network actions
   # TODO: This feature covers
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 11.3.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_ref.json"
@@ -20,7 +20,7 @@ Feature: US 11.3: Handle MNECs in search tree with only network actions
     Then the worst margin is -207.7 A on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -2684.7 A on side 1
 
-  @fast @rao @ac @preventive-only @mnec @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @mnec @max-min-margin
   Scenario: US 11.3.2: margin on MNEC should stay positive (initial margin > 180MW)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_2.json"

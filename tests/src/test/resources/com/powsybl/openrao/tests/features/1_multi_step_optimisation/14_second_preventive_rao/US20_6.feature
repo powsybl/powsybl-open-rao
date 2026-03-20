@@ -8,7 +8,7 @@ Feature: US 20.6: Second Preventive improvements
   ("execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT").
 
 
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @max-min-margin
   Scenario: US 20.6.1: Fix PST CRA setpoints in global 2nd preventive
     Given network file is "epic20/TestCase12Nodes_20_6_1.uct"
     Given crac file is "epic20/crac_ep20us6case1.json"
@@ -20,7 +20,7 @@ Feature: US 20.6: Second Preventive improvements
     Then the margin on cnec "NNL3AA1  BBE1AA1  1 - Contingency NL3 BE1 2 - curative" after CRA should be -40.5 MW
     Then the tap of PstRangeAction "CRA_PST_DE" should be 0 after "Contingency NL3 BE1 2" at "curative"
 
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @max-min-margin
   Scenario: US 20.6.2: Fallback to first preventive after 2nd preventive
     Given network file is "epic20/TestCase12Nodes_20_6_2.uct"
     Given crac file is "epic20/crac_ep20us6case2.json"

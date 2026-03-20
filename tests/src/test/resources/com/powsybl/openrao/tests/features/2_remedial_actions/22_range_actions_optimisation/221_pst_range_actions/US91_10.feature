@@ -6,7 +6,7 @@
 Feature: US 91.10: MIP test cases
   # TODO: This feature covers
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: US 91.10.1: Non MIP range action optimization cannot respect loopflows
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
@@ -20,7 +20,7 @@ Feature: US 91.10: MIP test cases
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 166.0 MW
     Then the tap of PstRangeAction "PRA_PST_BE" should be 0 in preventive
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: US 91.10.2: MIP range action optimization respects loopflows
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
@@ -34,7 +34,7 @@ Feature: US 91.10: MIP test cases
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 183.0 MW
     Then the tap of PstRangeAction "PRA_PST_BE" should be -5 in preventive
 
-  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: US 91.10.3: MIP with slightly different aligned PSTs
     Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic91/CBCORA_alignedPsts.xml"

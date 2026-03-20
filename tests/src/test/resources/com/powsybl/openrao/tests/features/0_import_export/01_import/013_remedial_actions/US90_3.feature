@@ -6,7 +6,7 @@
 Feature: US 90.3: Inversion of PSTs in remedial actions
   # This feature covers
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.3.1: Inverted PstRangeAction in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic90/SL_ep90us3case1.json"
@@ -19,7 +19,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then the tap of PstRangeAction "PRA_PST_BE" should be 3 in preventive
 
     ## TODO: is this relevant as security limits are not used anymore?
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.3.2: Inverted PstSetpoint in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
@@ -32,7 +32,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST @1" is used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.3.3: Inverted PstRangeAction in CBCORA
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic90/cbcora_ep90us3case3.xml"
@@ -46,7 +46,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then the remedial action "Open FR1 FR2" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -5 in preventive
 
-  @fast @cne-export @max-min-margin @ampere
+  @fast @cne-export @max-min-margin
   Scenario: US 90.3.3.CNE: Inverted PstRangeAction in CBCORA (CNE export)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic90/cbcora_ep90us3case3.xml"
@@ -56,7 +56,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then the CORE CNE file is xsd-compliant
     Then the exported CNE file is similar to "epic90/ExpectedCNE_90_3_3.xml"
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 90.3.4: Inverted PstRangeAction in CSE CRAC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic90/cseCrac_ep90us3case4.xml"

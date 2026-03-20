@@ -6,7 +6,7 @@
 Feature: US 11.1: Handle MNECs in linear RAO
   # TODO: This feature covers
 
-  @fast @rao @dc @preventive-only @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @max-min-margin
   Scenario: US 11.1.1: reference run, no MNEC
   The flow on CNEC "NNL2AA1  NNL3AA1  1 - preventive" is increased because the CNEC is not limiting.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
@@ -22,7 +22,7 @@ Feature: US 11.1: Handle MNECs in linear RAO
     Then the initial flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" should be 833.3 MW on side 1
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 949.0 MW on side 1
 
-  @fast @rao @dc @preventive-only @mnec @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @mnec @max-min-margin
   Scenario: US 11.1.2: margin on MNEC should stay positive (initial margin > 50MW)
   Same as US 11.1.1, except that "NNL2AA1  NNL3AA1  1 - preventive" is a MNEC (threshold 900 MW) and not a CNEC (5000 MW).
   Unlike in the previous US, the flow of the MNEC cannot be increased above 900 MW, so the tap of the PST range action
@@ -40,7 +40,7 @@ Feature: US 11.1: Handle MNECs in linear RAO
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 898.0 MW on side 1
     Then the margin on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1.4 MW
 
-  @fast @rao @dc @preventive-only @mnec @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @mnec @max-min-margin
   Scenario: US 11.1.3: margin on MNEC should stay above initial value -50 MW [1] (initial margin < 0MW)
   Same as US 11.1.2, except that the threshold of the MNEC is "NNL2AA1  NNL3AA1  1 - preventive" is 800 MW (vs 900 MW).
   As the initial flow is 833 MW, the MNEC is overloaded. Its flow cannot be decreased "too much" by the RAO. The maximum
@@ -58,7 +58,7 @@ Feature: US 11.1: Handle MNECs in linear RAO
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 884.1 MW on side 1
     Then the margin on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be -84.0 MW
 
-  @fast @rao @dc @preventive-only @mnec @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @mnec @max-min-margin
   Scenario: US 11.1.4: margin on MNEC should stay above initial value -50 MW [2] (50MW > initial margin > 0MW)
   Same as US 11.1.2, except that the threshold of the MNEC is "NNL2AA1  NNL3AA1  1 - preventive" is 850 MW (vs 900 MW).
   As the initial flow is 833 MW, the MNEC is not overloaded. However, its flow can still be decreased by the RAO, even

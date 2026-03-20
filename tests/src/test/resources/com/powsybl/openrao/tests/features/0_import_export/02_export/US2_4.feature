@@ -6,7 +6,7 @@
 Feature: US 2.4: Export the selected tap for a range RA in the basic output file
   # TODO: This feature covers
 
-  @fast @rao  @ac @preventive-only @secure-flow @ampere
+  @fast @rao  @ac @preventive-only @secure-flow
   Scenario: US 2.4.1
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic2/SL_ep2us2case1.json"

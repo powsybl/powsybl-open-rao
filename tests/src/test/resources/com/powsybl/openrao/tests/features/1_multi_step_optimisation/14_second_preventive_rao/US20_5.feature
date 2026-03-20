@@ -7,7 +7,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
   This feature covers several scenarios of "execution-condition" : "COST_INCREASE" or "POSSIBLE_CURATIVE_IMPROVEMENT",
   in "second-preventive-rao" parameters.
 
-  @fast @rao @ac @max-min-margin @ampere
+  @fast @rao @ac @max-min-margin
   Scenario: US 20.5.1: Cost has not increased during RAO, do not fall back to initial solution (copy of 20.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
@@ -18,7 +18,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then the worst margin is -144 A
     Then the value of the objective function after CRA should be 144
 
-  @fast @rao @ac @max-min-margin @ampere
+  @fast @rao @ac @max-min-margin
   Scenario: US 20.5.2: Cost has increased during RAO, fall back to initial solution (copy of 20.1.2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
@@ -32,7 +32,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then the worst margin is 113 A
     Then the value of the objective function after CRA should be -113
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.5.3: Cost has not increased during RAO, do not run 2P (copy of 20.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
@@ -43,7 +43,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then the worst margin is -144 A
     Then the value of the objective function after CRA should be 144
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.5.4: Cost has increased during RAO, run 2P (copy of 20.1.2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
@@ -59,7 +59,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.5.5: Not enough time to run 2P (copy of 20.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
@@ -70,7 +70,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @second-preventive @max-min-margin
   Scenario: US 20.5.6: Enough time to run 2P (copy of 20.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"

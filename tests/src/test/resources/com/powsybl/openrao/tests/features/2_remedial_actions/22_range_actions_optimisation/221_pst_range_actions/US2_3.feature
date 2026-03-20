@@ -6,7 +6,7 @@
 Feature: US 2.3: Combine range PST and NetworkAction optimization
   This feature covers the computation of margins in a basic RAO with network and range actions.
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 2.3.1: standard optimization
   Optimization with one PST range action and one network action available: both are activated.
     Given network file is "epic2/US2-3-case1-standard.uct"
@@ -22,7 +22,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Then the worst margin is 28.6 A
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 28.6 A
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 2.3.2: no network actions involved in the best solution
   Optimization with one PST range action and one network action available: only the PST range action is activated.
     Given network file is "epic2/US2-3-case2.uct"
@@ -37,7 +37,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Then the worst margin is 204.0 A
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 204.0 A
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 2.3.3: systematic sensitivity computation diverge when testing some Network Actions
   Two network actions available + one PST range action:
   - when testing "Open 432" the cost increases,
@@ -58,7 +58,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Then the margin on cnec "FFR4AA1  FFR3AA1  1 - preventive" after PRA should be -206.0 A
     Then the margin on cnec "FFR4AA1  FFR3AA1  2 - preventive" after PRA should be -779.0 A
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @secure-flow
   Scenario: US 2.3.4: the systematic sensitivity computation diverges at the root leaf of the tree
     Given network file is "epic2/US2-3-case4-networkDiverge.uct"
     Given crac file is "epic2/SL_ep2us3case4.json"

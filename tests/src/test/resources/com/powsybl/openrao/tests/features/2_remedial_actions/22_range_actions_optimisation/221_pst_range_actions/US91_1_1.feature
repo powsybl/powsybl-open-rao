@@ -6,7 +6,7 @@
 Feature: US 91.1.1: Read PST min impact threshold from config
   This feature covers the parameter "range-actions-optimization"/"pst-ra-min-impact-threshold" from the json CRAC.
 
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 91.1.1.1: Run a linear RAO with default PST min impact threshold (Same as epic2 - US 2.2.5)
   Two PST range actions are activated, to increase the min margin.
     Given network file is "common/TestCase12Nodes2PSTs.uct"
@@ -24,7 +24,7 @@ Feature: US 91.1.1: Read PST min impact threshold from config
   # improved while increasing the PST min impact threshold. Anyway here we want to test that
   # the configuration file is well taken into account with this parameter so this test
   # appears to be enough.
-  @fast @rao @ac @preventive-only @max-min-margin @ampere
+  @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 91.1.1.2: Run a linear RAO with high PST min impact threshold
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic2/SL_ep2us2case5.json"
