@@ -838,7 +838,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(Set.of(crac.getInstant("curative")), raUsageLimitsMap.keySet());
         RaUsageLimits curativeRaUsageLimits = raUsageLimitsMap.get(crac.getInstant("curative"));
         assertEquals(4, curativeRaUsageLimits.getMaxRa());
-        assertEquals(2, curativeRaUsageLimits.getMaxTso());
         assertEquals(Map.of("BE", 6, "FR", 5), curativeRaUsageLimits.getMaxTopoPerTso());
         assertEquals(Map.of("FR", 7), curativeRaUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 12), curativeRaUsageLimits.getMaxRaPerTso());

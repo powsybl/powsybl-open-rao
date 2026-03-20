@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -24,9 +23,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Handles constraints for maximum number od RAs to activate (max-ra), maximum number of TSOs that can activate RAs (max-tso),
@@ -71,9 +68,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
-            }
-            if (rangeActionLimitationParameters.getMaxTso(state) != null) {
-                addMaxTsoConstraint(linearProblem, state);
             }
             if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
                 addMaxRaPerTsoConstraint(linearProblem, state);
@@ -165,37 +159,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         rangeActions.get(state).forEach(ra -> {
             OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
             maxRaConstraint.setCoefficient(isVariationVariable, 1);
-        });
-    }
-
-    private void addMaxTsoConstraint(LinearProblem linearProblem, State state) {
-        Integer maxTso = rangeActionLimitationParameters.getMaxTso(state);
-        if (maxTso == null) {
-            return;
-        }
-        Set<String> maxTsoExclusions = rangeActionLimitationParameters.getMaxTsoExclusion(state);
-        Set<String> constraintTsos = rangeActions.get(state).stream()
-            .map(RemedialAction::getOperator)
-            .filter(Objects::nonNull)
-            .filter(tso -> !maxTsoExclusions.contains(tso))
-            .collect(Collectors.toSet());
-        if (maxTso >= constraintTsos.size()) {
-            return;
-        }
-        OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
-        constraintTsos.forEach(tso -> {
-            // Create "is at least one RA for TSO used" binary variable ...
-            OpenRaoMPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
-            maxTsoConstraint.setCoefficient(tsoRaUsedVariable, 1);
-            // ... and the constraints that will define it
-            // tsoRaUsed >= ra1_used, tsoRaUsed >= ra2_used + ...
-
-            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
-                .forEach(ra -> {
-                    OpenRaoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, linearProblem.infinity(), tso, ra, state);
-                    tsoRaUsedConstraint.setCoefficient(tsoRaUsedVariable, 1);
-                    tsoRaUsedConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), -1);
-                });
         });
     }
 

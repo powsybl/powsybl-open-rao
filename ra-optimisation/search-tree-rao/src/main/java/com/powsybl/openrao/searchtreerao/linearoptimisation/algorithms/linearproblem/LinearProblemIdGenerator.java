@@ -48,10 +48,8 @@ public final class LinearProblemIdGenerator {
     private static final String MNEC_FLOW = "mnecflow";
     private static final String OPTIMIZE_CNEC = "optimizecnec";
     private static final String MAX_RA = "maxra";
-    private static final String MAX_TSO = "maxtso";
     private static final String MAX_RA_PER_TSO = "maxrapertso";
     private static final String MAX_PST_PER_TSO = "maxpstpertso";
-    private static final String TSO_RA_USED = "tsoraused";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
@@ -219,24 +217,12 @@ public final class LinearProblemIdGenerator {
         return formatName(MAX_RA, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxTsoConstraintId(State state) {
-        return formatName(MAX_TSO, state.getId(), CONSTRAINT_SUFFIX);
-    }
-
     public static String maxRaPerTsoConstraintId(String operator, State state) {
         return formatName(MAX_RA_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String maxPstPerTsoConstraintId(String operator, State state) {
         return formatName(MAX_PST_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
-    }
-
-    public static String tsoRaUsedVariableId(String operator, State state) {
-        return formatName(TSO_RA_USED, operator, state.getId(), VARIABLE_SUFFIX);
-    }
-
-    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
-        return formatName(TSO_RA_USED, operator, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state) {

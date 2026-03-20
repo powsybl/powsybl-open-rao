@@ -68,7 +68,6 @@ public final class ExhaustiveCracCreation {
 
         crac.newRaUsageLimits(CURATIVE_INSTANT_ID)
             .withMaxRa(4)
-            .withMaxTso(2)
             .withMaxPstPerTso(new HashMap<>(Map.of("FR", 7)))
             .withMaxTopoPerTso(new HashMap<>(Map.of("FR", 5, "BE", 6)))
             .withMaxRaPerTso(new HashMap<>(Map.of("FR", 12)))
