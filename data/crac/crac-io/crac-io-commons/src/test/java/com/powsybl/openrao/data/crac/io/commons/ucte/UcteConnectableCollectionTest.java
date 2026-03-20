@@ -247,36 +247,36 @@ class UcteConnectableCollectionTest {
         assertFalse(ucteConnectableCollection.lookForConnectable("NNL2AA1 ", "XNLBE11 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE).hasMatched());
 
         // tie-line exists but not with this type
-        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE).hasMatched());
 
     }
 
     @Test
-    void testValidDanglingLine() {
+    void testValidBoundaryLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
         UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        // dangling-line with order code
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "XBE2AL1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
+        // boundary-line with order code
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "XBE2AL1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getIidmIdentifiable());
 
-        // dangling-line with element name
-        result = ucteConnectableCollection.lookForConnectable("XDE2AL1*", "DDE2AA1*", "DL AL", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
+        // boundary-line with element name
+        result = ucteConnectableCollection.lookForConnectable("XDE2AL1*", "DDE2AA1*", "BL AL", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("XDE2AL1  DDE2AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "XDE2AL1*", "DL AL", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
+        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "XDE2AL1*", "BL AL", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -284,17 +284,17 @@ class UcteConnectableCollectionTest {
     }
 
     @Test
-    void testInvalidDanglingLine() {
+    void testInvalidBoundaryLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
         UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        // dangling-line exists but not with this order code
-        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
+        // boundary-line exists but not with this order code
+        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE).hasMatched());
 
-        // dangling-line exists but not with this element name
-        assertFalse(ucteConnectableCollection.lookForConnectable("DDE2AA1 ", "XDE2AL1 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
+        // boundary-line exists but not with this element name
+        assertFalse(ucteConnectableCollection.lookForConnectable("DDE2AA1 ", "XDE2AL1 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.BOUNDARY_LINE).hasMatched());
 
-        // dangling-line exists but not with this type
+        // boundary-line exists but not with this type
         assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE).hasMatched());
 
     }

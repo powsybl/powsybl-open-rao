@@ -99,13 +99,13 @@ class ContingencyAdderImplTest {
             .withId("conId1")
             .withName("conName1")
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .add();
         Contingency contingency2 = crac.newContingency()
             .withId("conId1")
             .withName("conName1")
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .add();
         assertSame(contingency1, contingency2);
     }
@@ -116,10 +116,10 @@ class ContingencyAdderImplTest {
             .withId("conId1")
             .withName("conName1")
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .add();
         Contingency contingency2 = crac.newContingency()
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
             .withName("conName1")
             .withId("conId1")
@@ -133,14 +133,14 @@ class ContingencyAdderImplTest {
             .withId("conId1")
             .withName("conName1")
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .add();
         Contingency contingency2 = crac.newContingency()
             .withId("conId1")
             .withName("conName1")
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .withContingencyElement("neId1", ContingencyElementType.BATTERY)
-            .withContingencyElement("neId2", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId2", ContingencyElementType.BOUNDARY_LINE)
             .add();
         assertSame(contingency1, contingency2);
     }
@@ -211,7 +211,7 @@ class ContingencyAdderImplTest {
             .withContingencyElement("neId4", ContingencyElementType.SHUNT_COMPENSATOR)
             .withContingencyElement("neId5", ContingencyElementType.HVDC_LINE)
             .withContingencyElement("neId6", ContingencyElementType.BUSBAR_SECTION)
-            .withContingencyElement("neId7", ContingencyElementType.DANGLING_LINE)
+            .withContingencyElement("neId7", ContingencyElementType.BOUNDARY_LINE)
             .withContingencyElement("neId8", ContingencyElementType.LINE)
             .withContingencyElement("neId10", ContingencyElementType.TWO_WINDINGS_TRANSFORMER)
             .withContingencyElement("neId11", ContingencyElementType.THREE_WINDINGS_TRANSFORMER)
