@@ -8,12 +8,10 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
@@ -23,9 +21,6 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.CastorPstRegulation;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.PstRegulationResult;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -33,16 +28,12 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
@@ -59,7 +50,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -284,54 +274,8 @@ public class CastorFullOptimization {
                 );
             }
 
-            CompletableFuture<RaoResult> raoResult = postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
-
-            // PST regulation
-            Map<String, String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
-            if (!pstsToRegulate.isEmpty()) {
-                BUSINESS_LOGS.info("----- PST regulation [start]");
-                network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
-                network.getVariantManager().setWorkingVariant(PST_REGULATION);
-                Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(
-                    pstsToRegulate, finalPostContingencyResults, network, crac, raoParameters, mergedRaoResults);
-                Map<State, PostPerimeterResult> postRegulationResults = mergeRaoAndPstRegulationResults(
-                    pstRegulationResults, finalSecondPreventiveResult, finalPostContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
-                RaoResult raoResultWithRegulation = new PreventiveAndCurativesRaoResultImpl(
-                    stateTree,
-                    initialOutput,
-                    postPreventiveResult,
-                    finalSecondPreventiveResult,
-                    postRegulationResults,
-                    crac,
-                    raoParameters);
-                raoResultWithRegulation.setExecutionDetails(mergedRaoResults.getExecutionDetails());
-                BUSINESS_LOGS.info("----- PST regulation [end]");
-                BUSINESS_LOGS.info("Merging RAO and PST regulation results:");
-                RaoLogger.logMostLimitingElementsResults(
-                    BUSINESS_LOGS,
-                    stateTree.getBasecaseScenario(),
-                    finalSecondPreventiveResult.optimizationResult(),
-                    stateTree.getContingencyScenarios(),
-                    postRegulationResults,
-                    raoParameters.getObjectiveFunctionParameters().getType(),
-                    getFlowUnit(raoParameters),
-                    NUMBER_LOGGED_ELEMENTS_END_RAO
-                );
-                RaoLogger.checkIfMostLimitingElementIsFictional(
-                    BUSINESS_LOGS,
-                    stateTree.getBasecaseScenario(),
-                    finalSecondPreventiveResult.optimizationResult(),
-                    stateTree.getContingencyScenarios(),
-                    postRegulationResults,
-                    raoParameters.getObjectiveFunctionParameters().getType(),
-                    getFlowUnit(raoParameters)
-                );
-                return postCheckResults(raoResultWithRegulation, initialOutput, raoParameters.getObjectiveFunctionParameters(), false);
-            }
-
-            return raoResult;
-        } catch (OpenRaoException e) {
-            //TODO: Check possible exceptions here
+            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
+        } catch (RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         }
@@ -468,81 +412,6 @@ public class CastorFullOptimization {
         OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
         applyRemedialActions(network, optResult, crac.getPreventiveState());
         return Pair.of(optResult, optPerimeter.getFlowCnecs());
-    }
-
-    private Map<State, PostPerimeterResult> mergeRaoAndPstRegulationResults(Set<PstRegulationResult> pstRegulationResults,
-                                                                            PostPerimeterResult postPraResult,
-                                                                            Map<State, PostPerimeterResult> postContingencyResults,
-                                                                            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
-                                                                            FlowResult initialFlowResult,
-                                                                            ToolProvider toolProvider) {
-        // create a new network variant from initial variant for performing the results merging
-        String variantName = "PSTRegulationResultsMerging";
-        network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
-        network.getVariantManager().cloneVariant(INITIAL_SCENARIO, variantName);
-        network.getVariantManager().setWorkingVariant(variantName);
-
-        // apply PRAs
-        applyRemedialActions(network, postPraResult.optimizationResult(), crac.getPreventiveState());
-
-        Set<State> regulatedStates = pstRegulationResults.stream()
-            .map(pstRegulationResult -> crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant()))
-            .collect(Collectors.toSet());
-        Map<State, Set<NetworkAction>> appliedNetworkActions = new HashMap<>();
-
-        // gather all applied ARAs and CRAs
-        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        postContingencyResults.forEach((state, postPerimeterResult) -> {
-            appliedNetworkActions.put(state, postPerimeterResult.optimizationResult().getActivatedNetworkActions());
-            appliedRemedialActions.addAppliedNetworkActions(state, postPerimeterResult.optimizationResult().getActivatedNetworkActions());
-            appliedRemedialActions.addAppliedRangeActions(state, getAppliedRangeActionsAndSetPoint(state, postPraResult.optimizationResult()));
-            appliedRemedialActions.addAppliedRangeActions(state, getAppliedRangeActionsAndSetPoint(state, postPerimeterResult.optimizationResult()));
-        });
-
-        // overwrite PST range action results for regulated PSTs
-        pstRegulationResults.forEach(pstRegulationResult ->
-            pstRegulationResult.regulatedTapPerPst().forEach((pstRangeAction, regulatedTap) ->
-                appliedRemedialActions.addAppliedRangeAction(
-                    crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant()),
-                    pstRangeAction,
-                    pstRangeAction.convertTapToAngle(regulatedTap)
-                )
-            )
-        );
-
-        PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, Collections.emptySet(), appliedRemedialActions);
-
-        Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>();
-
-        // override optimization result
-        RangeActionActivationResultImpl postRegulationRangeActionActivationResult = new RangeActionActivationResultImpl(postCraSensitivityAnalysisOutput);
-        postContingencyResults.keySet().forEach(state ->
-            appliedRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) ->
-                postRegulationRangeActionActivationResult.putResult(rangeAction, state, setPoint)
-            )
-        );
-        OptimizationResult newOptimizationResult = new OptimizationResultImpl(
-            postCraSensitivityAnalysisOutput,
-            postCraSensitivityAnalysisOutput,
-            postCraSensitivityAnalysisOutput,
-            new NetworkActionsResultImpl(appliedNetworkActions),
-            postRegulationRangeActionActivationResult
-        );
-
-        for (State state : postContingencyResults.keySet()) {
-            // For instants before pst regulation instant, keep previous results
-            if (state.getInstant().comesBefore(crac.getLastInstant())) {
-                postRegulationPostContingencyResults.put(state, postContingencyResults.get(state));
-            } else {
-                // For curative instant, update regulatedStates with newly computed sensi result
-                postRegulationPostContingencyResults.put(state, new PostPerimeterResult(
-                    regulatedStates.contains(state) ? newOptimizationResult : postContingencyResults.get(state).optimizationResult(),
-                    postCraSensitivityAnalysisOutput
-                ));
-            }
-        }
-
-        return postRegulationPostContingencyResults;
     }
 
     private static Map<RangeAction<?>, Double> getAppliedRangeActionsAndSetPoint(State state, OptimizationResult optimizationResult) {
