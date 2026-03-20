@@ -11,25 +11,17 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,29 +33,15 @@ class PstRegulationTest {
     @Test
     void testPstRegulationWithSeveralContingencyScenarios() throws IOException {
         Network network = Network.read("4NodesSeries.uct", getClass().getResourceAsStream("/network/4NodesSeries.uct"));
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "InitialScenario");
+        network.getVariantManager().setWorkingVariant("InitialScenario");
+
         Crac crac = Crac.read("crac-for-regulation.json", getClass().getResourceAsStream("/crac/crac-for-regulation.json"), network);
         RaoResult raoResult = RaoResult.read(getClass().getResourceAsStream("/raoResult/raoResultPreRegulation.json"), crac);
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_ac_3pstsRegulation.json"));
-        Instant curativeInstant = crac.getLastInstant();
 
         PstRangeAction pst12 = crac.getPstRangeAction("pstFr12");
         PstRangeAction pst34 = crac.getPstRangeAction("pstFr34");
-
-        // mock optimization result to give the same values as RAO result
-        Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
-        crac.getStates(curativeInstant).forEach(
-            curativeState -> {
-                OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-                crac.getFlowCnecs(curativeState).forEach(
-                    flowCnec -> Mockito.when(optimizationResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(raoResult.getMargin(curativeInstant, flowCnec, Unit.AMPERE))
-                );
-
-                PostPerimeterResult postPerimeterResult = Mockito.mock(PostPerimeterResult.class);
-                Mockito.when(postPerimeterResult.optimizationResult()).thenReturn(optimizationResult);
-
-                postContingencyResults.put(curativeState, postPerimeterResult);
-            }
-        );
 
         ListAppender<ILoggingEvent> listAppender = getBusinessLogs();
         List<ILoggingEvent> logsList = listAppender.list;
