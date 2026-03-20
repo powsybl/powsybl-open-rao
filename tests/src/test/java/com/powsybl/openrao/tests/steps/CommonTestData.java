@@ -94,6 +94,7 @@ public final class CommonTestData {
     private static ReferenceProgram referenceProgram;
 
     private static String virtualHubsConfigPath;
+    private static boolean virtualHubsForCoreCC = false;
 
     private static MonitoringResult monitoringResult;
 
@@ -163,6 +164,7 @@ public final class CommonTestData {
         cracCreationContext = null;
         network = null;
         virtualHubsConfigPath = null;
+        virtualHubsForCoreCC = false;
         raoParameters = null;
         loopflowGlsks = null;
         monitoringGlsks = null;
@@ -220,6 +222,12 @@ public final class CommonTestData {
     @Given("Virtual hubs configuration file is {string}")
     public static void virtualHubsConfigurationFileIs(String path) {
         virtualHubsConfigPath = getResourcesPath().concat("virtualhubs/").concat(path);
+    }
+
+    @Given("Virtual hubs configuration file is {string} for CORE CC")
+    public static void virtualHubsConfigurationFileIsForCoreCC(String path) {
+        virtualHubsConfigPath = getResourcesPath().concat("virtualhubs/").concat(path);
+        virtualHubsForCoreCC = true;
     }
 
     @Given("RaoResult file is {string}")
@@ -321,6 +329,14 @@ public final class CommonTestData {
             offsetDateTime = importTimestampFromCracCreationParameters(cracFormat, cracCreationParameters);
         }
 
+        if (virtualHubsForCoreCC && offsetDateTime != null && cracCreationParameters != null) {
+            final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
+            final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
+            fbConstraintCracCreationParameters.setTimestamp(offsetDateTime);
+            fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
+            cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
+        }
+
         // Crac
         Pair<Crac, CracCreationContext> cracImportResult = importCrac(getFile(cracPath), network, cracCreationParameters);
         crac = cracImportResult.getLeft();
@@ -368,7 +384,7 @@ public final class CommonTestData {
                 VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
                 ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
                 loopflowGlsks.addAll(glskOfVirtualHubs);
-            } else {
+            } else if (!virtualHubsForCoreCC) {
                 throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
             }
         }
