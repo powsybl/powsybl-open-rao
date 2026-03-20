@@ -22,8 +22,8 @@ import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineFilter;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcGround;
@@ -583,39 +583,39 @@ public class LazyNetwork implements Network {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
         load();
-        return network.getDanglingLines(danglingLineFilter);
+        return network.getBoundaryLines(boundaryLineFilter);
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
+    public Iterable<BoundaryLine> getBoundaryLines() {
         load();
-        return network.getDanglingLines();
+        return network.getBoundaryLines();
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
         load();
-        return network.getDanglingLineStream(danglingLineFilter);
+        return network.getBoundaryLineStream(boundaryLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
+    public Stream<BoundaryLine> getBoundaryLineStream() {
         load();
-        return network.getDanglingLineStream();
+        return network.getBoundaryLineStream();
     }
 
     @Override
-    public int getDanglingLineCount() {
+    public int getBoundaryLineCount() {
         load();
-        return network.getDanglingLineCount();
+        return network.getBoundaryLineCount();
     }
 
     @Override
-    public DanglingLine getDanglingLine(String s) {
+    public BoundaryLine getBoundaryLine(String s) {
         load();
-        return network.getDanglingLine(s);
+        return network.getBoundaryLine(s);
     }
 
     @Override
