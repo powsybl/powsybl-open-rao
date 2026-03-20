@@ -25,7 +25,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
-import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -709,30 +708,6 @@ class CracImportExportTest {
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(1, logsList.size());
         assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.",
-            logsList.get(0).getFormattedMessage());
-    }
-
-    @Test
-    void testImportMaxTsoLimit() throws IOException {
-        Network network = Network.read(
-            "3Nodes_FFR3AA1_disconnected.xiidm",
-            getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
-        );
-        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        List<ILoggingEvent> logsList = listAppender.list;
-
-        Crac.read(
-            "crac2.10-with_maxtso.json",
-            getClass().getResourceAsStream("/crac2.10-with_maxtso.json"),
-            network
-        );
-
-        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
-        assertEquals(1, logsList.size());
-        assertEquals("A max-tso limit can no longer be defined and will be ignored.",
             logsList.get(0).getFormattedMessage());
     }
 }
