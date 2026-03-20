@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration>
+    <MarketAreas>
+        <MarketArea Code="DE" Eic="DE" MCParticipant="false"/>
+    </MarketAreas>
+    <InternalHVDCs>
+        <HVDC Eic="HVDC-EIC" Code="HVDC-CODE" RelatedMA="DE" MTHVDC="false" Bipolar="true">
+            <pole id="1">
+                <converterList>
+                    <converter node="D7AAA11A" station="Esgaroth"/>
+                    <converter node="D4AAA11B" station="Numenor"/>
+                </converterList>
+                <lineList>
+                    <line id="Line_1" from="D7AAA11A" to="D4AAA11B"/>
+                </lineList>
+            </pole>
+            <pole id="2">
+                <converterList>
+                    <converter node="D7AAA21A" station="Esgaroth"/>
+                    <converter node="D4AAA21B" station="Numenor"/>
+                </converterList>
+                <lineList>
+                    <line id="Line_2" from="D7AAA21A" to="D4AAA21B"/>
+                </lineList>
+            </pole>
+        </HVDC>
+    </InternalHVDCs>
+</Configuration>
