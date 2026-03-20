@@ -105,7 +105,6 @@ public final class TimeCoupledRaoSteps {
     private static String icsGskPath;
     private static String refProgPath;
     private static TimeCoupledRaoInput timeCoupledRaoInput;
-    private static TimeCoupledRaoInput postIcsTimeCoupledRaoInput;
     private static TimeCoupledRaoResult timeCoupledRaoResult;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
@@ -203,7 +202,7 @@ public final class TimeCoupledRaoSteps {
         }
 
         TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
-        postIcsTimeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, timeCoupledConstraints);
+        timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, timeCoupledConstraints);
     }
 
     @Given("time-coupled rao inputs for CORE are:")
@@ -251,7 +250,6 @@ public final class TimeCoupledRaoSteps {
             raoInputs.put(offsetDateTime, raoInput);
             cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
         }
-        timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
 
         FbConstraintCracCreationParameters fbConstraintParameters = cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class);
@@ -259,8 +257,8 @@ public final class TimeCoupledRaoSteps {
             TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
             fbConstraintParameters = new FbConstraintCracCreationParameters();
         }
-        postIcsTimeCoupledRaoInput = IcsImporter.populateInputWithICS(
-            timeCoupledRaoInput,
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(
+            new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints()),
             new FileInputStream(getFile(icsStaticPath)),
             new FileInputStream(getFile(icsSeriesPath)),
             gskInputStream,
@@ -272,7 +270,7 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.run(postIcsTimeCoupledRaoInput, getRaoParameters());
+        timeCoupledRaoResult = TimeCoupledRao.run(timeCoupledRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
@@ -283,7 +281,7 @@ public final class TimeCoupledRaoSteps {
         properties.put("time-coupled-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("time-coupled-rao-result.export.summary-filename", "summary.json");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-            timeCoupledRaoResult.write(zipOutputStream, postIcsTimeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac), properties);
+            timeCoupledRaoResult.write(zipOutputStream, timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac), properties);
         }
     }
 
@@ -297,14 +295,14 @@ public final class TimeCoupledRaoSteps {
             // Load networks in networkTemporalData
             // Load redispatchingVolume per timestamp per operator
             Map<OffsetDateTime, Map<String, Double>> rdVolumes = new HashMap<>();
-            for (OffsetDateTime offsetDateTime : postIcsTimeCoupledRaoInput.getTimestampsToRun()) {
+            for (OffsetDateTime offsetDateTime : timeCoupledRaoInput.getTimestampsToRun()) {
                 rdVolumes.put(offsetDateTime, new HashMap<>());
                 String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
                 FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
                 // Load redispatching volumes
-                Crac crac = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
+                Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
                 Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
                 Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream()
                     .filter(InjectionRangeAction.class::isInstance)
@@ -414,7 +412,7 @@ public final class TimeCoupledRaoSteps {
 
                 Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(preventiveState);
                 Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(preventiveState);
-                Network modifiedNetwork = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
+                Network modifiedNetwork = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
                 Network initialNetwork = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
 
                 // Apply PRAs on modified network
@@ -462,7 +460,7 @@ public final class TimeCoupledRaoSteps {
             State preventiveState = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getPreventiveState();
             Set<NetworkAction> preventiveNetworkActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(preventiveState);
             Set<RangeAction<?>> preventiveRangeActions = timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(preventiveState);
-            Network modifiedNetwork = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
+            Network modifiedNetwork = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
             Network initialNetwork = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getNetwork();
 
             // Apply PRAs on modified network
@@ -531,8 +529,8 @@ public final class TimeCoupledRaoSteps {
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
     public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        FlowCnec flowCnec = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        FlowCnec flowCnec = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
+        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
             timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
@@ -541,7 +539,7 @@ public final class TimeCoupledRaoSteps {
     @Then("the functional cost for timestamp {string} is {double}")
     public static void theFunctionalCostForTimestampIs(String timestamp, double functionalCost) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Instant afterCra = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
             timeCoupledRaoResult.getFunctionalCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
@@ -550,7 +548,7 @@ public final class TimeCoupledRaoSteps {
     @Then("the total cost for timestamp {string} is {double}")
     public static void theTotalCostForTimestampIs(String timestamp, double totalCost) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Instant afterCra = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
             timeCoupledRaoResult.getCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
@@ -577,7 +575,7 @@ public final class TimeCoupledRaoSteps {
     @When("I export F711 for business date {string}") // expected format yyyyMMdd
     public static void exportF711(String businessDate) {
         Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
-        postIcsTimeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, timeCoupledRaoResult.getIndividualRaoResult(timestamp)));
+        timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, timeCoupledRaoResult.getIndividualRaoResult(timestamp)));
         F711Utils.write(
             new TemporalDataImpl<>(raoResults),
             new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast),
@@ -593,10 +591,10 @@ public final class TimeCoupledRaoSteps {
         unzipZipToFolder(getResourcesPath().concat(raoResultsZipPath), tempDir);
         try {
             Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
-            for (OffsetDateTime timestamp : postIcsTimeCoupledRaoInput.getTimestampsToRun()) {
+            for (OffsetDateTime timestamp : timeCoupledRaoInput.getTimestampsToRun()) {
                 String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
                 FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
-                RaoResult raoResult = RaoResult.read(raoResultInputStream, postIcsTimeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
+                RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
                 raoResults.put(timestamp, raoResult);
             }
             F711Utils.write(
@@ -661,7 +659,7 @@ public final class TimeCoupledRaoSteps {
 
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Crac crac = postIcsTimeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         State preventiveState = crac.getPreventiveState();
         Optional<InjectionRangeAction> injectionRangeAction = crac.getRangeActions(preventiveState)
             .stream()
