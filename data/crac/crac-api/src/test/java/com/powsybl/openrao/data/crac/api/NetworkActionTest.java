@@ -7,7 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import org.junit.jupiter.api.Test;
@@ -27,7 +33,11 @@ class NetworkActionTest {
     void compatibility() {
         NetworkAction hvdcFrEs200Mw = mockHvdcAction(-200d);
         NetworkAction hvdcEsFr200Mw = mockHvdcAction(200d);
-        NetworkAction alignedPsts = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-1", 4), mockPhaseTapChangerTapPositionAction("pst-fr-2", 4), mockPhaseTapChangerTapPositionAction("pst-fr-3", 4));
+        NetworkAction alignedPsts = mockNetworkAction(
+            mockPhaseTapChangerTapPositionAction("pst-fr-1", 4),
+            mockPhaseTapChangerTapPositionAction("pst-fr-2", 4),
+            mockPhaseTapChangerTapPositionAction("pst-fr-3", 4)
+        );
         NetworkAction switchPairAndPst = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-2", -2), mockSwitchPair());
 
         assertTrue(hvdcFrEs200Mw.isCompatibleWith(hvdcFrEs200Mw));
@@ -43,7 +53,14 @@ class NetworkActionTest {
     }
 
     private NetworkAction mockHvdcAction(double setpoint) {
-        return new NetworkActionUtils.NetworkActionImplTest(Set.of(mockSwitchActionOpen("switch-fr"), mockSwitchActionOpen("switch-es"), mockGeneratorAction("generator-fr-1", setpoint / 2d), mockGeneratorAction("generator-fr-2", setpoint / 2d), mockGeneratorAction("generator-es-1", -setpoint / 2d), mockGeneratorAction("generator-es-2", -setpoint / 2d)));
+        return new NetworkActionUtils.NetworkActionImplTest(Set.of(
+            mockSwitchActionOpen("switch-fr"),
+            mockSwitchActionOpen("switch-es"),
+            mockGeneratorAction("generator-fr-1", setpoint / 2d),
+            mockGeneratorAction("generator-fr-2", setpoint / 2d),
+            mockGeneratorAction("generator-es-1", -setpoint / 2d),
+            mockGeneratorAction("generator-es-2", -setpoint / 2d))
+        );
     }
 
     private NetworkAction mockNetworkAction(Action... elementaryActions) {

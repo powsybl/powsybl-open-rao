@@ -18,11 +18,11 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -42,11 +42,16 @@ import org.mockito.Mockito;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +83,8 @@ class GeneratorConstraintsFillerTest {
     }
 
     private void createCoreProblemFillers() {
-        input.getRaoInputs().getDataPerTimestamp().forEach((timestamp, raoInput) -> {
+        for (OffsetDateTime timestamp : input.getTimestampsToRun()) {
+            RaoInput raoInput = input.getRaoInputs().getData(timestamp).orElseThrow();
             Crac crac = raoInput.getCrac();
             OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
                 crac.getPreventiveState(),
@@ -103,13 +109,19 @@ class GeneratorConstraintsFillerTest {
                 timestamp
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
-        });
+        }
     }
 
     private void createGeneratorConstraintFiller() {
         TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork);
         TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState);
-        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
+        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs()
+            .map(RaoInput::getCrac)
+            .map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream()
+                .filter(InjectionRangeAction.class::isInstance)
+                .map(InjectionRangeAction.class::cast)
+                .collect(Collectors.toSet())
+            );
         Set<GeneratorConstraints> generatorConstraints = input.getTimeCoupledConstraints().getGeneratorConstraints();
         GeneratorConstraintsFiller generatorConstraintsFiller = new GeneratorConstraintsFiller(
             networks,
@@ -332,11 +344,30 @@ class GeneratorConstraintsFillerTest {
         for (OffsetDateTime timestamp : minuteTimestamps) {
             if (timestamp.isBefore(minuteTimestamps.getLast())) {
                 // checkUpwardGradient
-                assertEquals(1500.0 * timeGap, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)), DOUBLE_EPSILON);
+                assertEquals(
+                    1500.0 * timeGap,
+                    -linearProblem
+                        .getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE)
+                        .getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)),
+                    DOUBLE_EPSILON
+                );
                 // checkDownwardGradient
-                assertEquals(-1000.0 * timeGap, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)), DOUBLE_EPSILON);
-               // checkInjectionKey
-                assertEquals(1.0, linearProblem.getGeneratorToInjectionConstraint("BBE1AA1 _generator", input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR"), timestamp).getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp)));
+                assertEquals(
+                    -1000.0 * timeGap,
+                    -linearProblem
+                        .getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE)
+                        .getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)),
+                    DOUBLE_EPSILON
+                );
+                InjectionRangeAction injectionRangeAction = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR");
+                // checkInjectionKey
+                assertEquals(
+                    1.0,
+                    linearProblem
+                        .getGeneratorToInjectionConstraint("BBE1AA1 _generator", injectionRangeAction, timestamp)
+                        .getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp)),
+                    DOUBLE_EPSILON
+                );
             }
             // checkGeneratorStateVariableExists
             assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.OFF));
@@ -479,7 +510,12 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testShortLeadAndShortLagTimesAndPowerGradients() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(0.2).build());
+        timeCoupledConstraints.addGeneratorConstraints(
+            GeneratorConstraints.create()
+                .withGeneratorId("BBE1AA1 _generator")
+                .withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
+                .withLeadTime(0.2).withLagTime(0.2).build()
+        );
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
         // For each timestamp:
@@ -661,7 +697,13 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testLongLeadAndLongLagTimesAndPowerGradients() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(1.2).withLagTime(1.2).build());
+        timeCoupledConstraints.addGeneratorConstraints(
+            GeneratorConstraints.create()
+                .withGeneratorId("BBE1AA1 _generator")
+                .withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
+                .withLeadTime(1.2).withLagTime(1.2)
+                .build()
+        );
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
         // For each timestamp:
@@ -709,7 +751,13 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradients() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).build());
+        timeCoupledConstraints.addGeneratorConstraints(
+            GeneratorConstraints.create()
+                .withGeneratorId("BBE1AA1 _generator").
+                withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0)
+                .withLeadTime(0.2).withLagTime(1.2)
+                .build()
+        );
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
         // For each timestamp:
@@ -753,16 +801,184 @@ class GeneratorConstraintsFillerTest {
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
     }
 
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (70):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - shut down prohibited constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(70, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndStartUpProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (71):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - start up prohibited constraint
+        //   - start up prohibited first timestamp constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(71, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownAndStartUpProhibited() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).withStartUpAllowed(false).build());
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (75):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON / OFF power (lower bound)
+        //   - ON / OFF power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - lag time constraint
+        //   - shut down prohibited constraint
+        //   - start up prohibited constraint
+        //   - start up prohibited first timestamp constraint
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(75, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+    }
+
     private void checkInjectionKey() {
-        iterateOnHourlyTimestamps(timestamp -> assertEquals(1.0, linearProblem.getGeneratorToInjectionConstraint("BBE1AA1 _generator", input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR"), timestamp).getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp))), 3);
+        iterateOnHourlyTimestamps(
+            timestamp -> assertEquals(
+                1.0,
+                linearProblem
+                    .getGeneratorToInjectionConstraint("BBE1AA1 _generator", input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR"), timestamp)
+                    .getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp))),
+            3
+        );
     }
 
     private void checkUpwardGradient() {
-        iterateOnHourlyTimestamps(timestamp -> assertEquals(1500.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))), 3);
+        iterateOnHourlyTimestamps(
+            timestamp -> assertEquals(
+                1500.0,
+                -linearProblem
+                    .getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE)
+                    .getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))),
+            3
+        );
     }
 
     private void checkDownwardGradient() {
-        iterateOnHourlyTimestamps(timestamp -> assertEquals(-1000.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))), 3);
+        iterateOnHourlyTimestamps(
+            timestamp -> assertEquals(
+                -1000.0,
+                -linearProblem
+                    .getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE)
+                    .getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))),
+            3
+        );
     }
 
     private void checkGeneratorStateVariableExists(LinearProblem.GeneratorState generatorState) {

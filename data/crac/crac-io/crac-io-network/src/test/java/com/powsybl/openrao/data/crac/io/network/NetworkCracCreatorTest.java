@@ -100,6 +100,18 @@ class NetworkCracCreatorTest {
         assertEquals(24, crac.getInjectionRangeActions().size());
     }
 
+    @Test
+    void testImportUcteFullOneSide() {
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(16, crac.getContingencies().size());
+        assertEquals(496, crac.getFlowCnecs().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(24, crac.getInjectionRangeActions().size());
+    }
+
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
         checkCnec(id, neId, instantKind, thresholdUnit, thresholdValue, thresholdValue);
     }
@@ -121,7 +133,7 @@ class NetworkCracCreatorTest {
     void testUcteCnecsFiltered() {
         parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
         parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
-        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
+        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c, cc) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
@@ -179,7 +191,7 @@ class NetworkCracCreatorTest {
     void testUctePstsFiltered3() {
         parameters.getPstRangeActions().setCountryFilter(Set.of(Country.BE));
         parameters.getPstRangeActions().setAvailableTapRangesAtInstants(Map.of("curative", new PstRangeActions.TapRange(-1, 5, RangeType.RELATIVE_TO_PREVIOUS_INSTANT)));
-        parameters.getPstRangeActions().setPstRaPredicate((twt, state) -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1"));
+        parameters.getPstRangeActions().setPstRaPredicate((twt, state, c) -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1"));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
@@ -196,7 +208,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteWithFilteredRedispatching1() {
         parameters.getRedispatchingRangeActions().setCountryFilter(Set.of(Country.BE));
-        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant) -> injection.getType() == IdentifiableType.GENERATOR && instant.isPreventive());
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> injection.getType() == IdentifiableType.GENERATOR && instant.isPreventive());
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(0, creationContext.getCreationReport().getReport().size());
@@ -207,7 +219,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteWithFilteredRedispatching2() {
         parameters.getRedispatchingRangeActions().setCountryFilter(Set.of(Country.BE));
-        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant) -> instant.isPreventive());
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
         parameters.getRedispatchingRangeActions().setRaCostsProvider((injection, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
@@ -238,7 +250,7 @@ class NetworkCracCreatorTest {
                 "combi2", Set.of("NNL2AA1 _generator")
             )
         );
-        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant) -> instant.isPreventive());
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
         parameters.getRedispatchingRangeActions().setCombinationRangeProvider((combi, instant) -> new MinAndMax<>(1000., 1500.));
         parameters.getRedispatchingRangeActions().setCombinationCostsProvider((combi, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
@@ -261,7 +273,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteWithRedispatchingOnLoad() {
         parameters.getRedispatchingRangeActions().setCountryFilter(Set.of(Country.NL));
-        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant) -> instant.isPreventive() && injection.getType().equals(IdentifiableType.LOAD));
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive() && injection.getType().equals(IdentifiableType.LOAD));
         parameters.getRedispatchingRangeActions().setRaRangeProvider((injection, instant) -> new MinAndMax<>(-100., 100.));
         parameters.getRedispatchingRangeActions().setRaCostsProvider((injection, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
@@ -290,13 +302,16 @@ class NetworkCracCreatorTest {
                 "combi1", Set.of("DDE1AA1 _generator", "wrong")
             )
         );
-        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant) -> instant.isPreventive());
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
         parameters.getRedispatchingRangeActions().setCombinationRangeProvider((combi, instant) -> new MinAndMax<>(1000., 1500.));
         parameters.getRedispatchingRangeActions().setCombinationCostsProvider((combi, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(1, creationContext.getCreationReport().getReport().size());
-        assertEquals("[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.", creationContext.getCreationReport().getReport().get(0));
+        assertEquals(
+            "[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.",
+            creationContext.getCreationReport().getReport().get(0)
+        );
         assertTrue(crac.getInjectionRangeActions().isEmpty());
     }
 
@@ -321,7 +336,10 @@ class NetworkCracCreatorTest {
         assertEquals(Optional.of(20.), ra.getVariationCost(VariationDirection.UP));
         assertEquals(Optional.of(30.), ra.getVariationCost(VariationDirection.DOWN));
         assertEquals(1, creationContext.getCreationReport().getReport().size());
-        assertEquals("[ALTERED] Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.", creationContext.getCreationReport().getReport().get(0));
+        assertEquals(
+            "[ALTERED] Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.",
+            creationContext.getCreationReport().getReport().get(0)
+        );
     }
 
     @Test
@@ -353,7 +371,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteBalancing() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getBalancingRangeAction().setInjectionPredicate((injection, instant) -> instant.isPreventive() && injection.getId().contains("FFR"));
+        parameters.getBalancingRangeAction().setInjectionPredicate((injection, instant, c) -> instant.isPreventive() && injection.getId().contains("FFR"));
         parameters.getBalancingRangeAction().setRaRangeProvider(instant -> new MinAndMax<>(-1000., 2000.));
         parameters.getBalancingRangeAction().setRaCostsProvider(instant -> new InjectionRangeActionCosts(20., 300, 500));
         importCracFrom("TestCase12Nodes.uct");
@@ -373,7 +391,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteWrongBalancing() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getBalancingRangeAction().setInjectionPredicate((injection, instant) -> instant.isPreventive() && injection.getId().contains("FFR"));
+        parameters.getBalancingRangeAction().setInjectionPredicate((injection, instant, c) -> instant.isPreventive() && injection.getId().contains("FFR"));
         parameters.getBalancingRangeAction().setRaRangeProvider(instant -> instant.isPreventive() ? new MinAndMax<>(null, 2000.) : new MinAndMax<>(-1000., null));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());

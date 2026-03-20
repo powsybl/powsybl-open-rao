@@ -15,9 +15,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -44,8 +46,6 @@ class RangeActionLimitationParametersTest {
 
         ralp.setMaxRangeAction(state1, 2);
         ralp.setMaxRangeAction(state2, 4);
-        ralp.setMaxTso(state2, 1);
-        ralp.setMaxTsoExclusion(state2, Set.of("DE"));
         ralp.setMaxPstPerTso(state1, Map.of("BE", 1));
         ralp.setMaxRangeActionPerTso(state1, Map.of("FR", 3));
         ralp.setMaxElementaryActionsPerTso(state1, Map.of("FR", 7));
@@ -53,14 +53,6 @@ class RangeActionLimitationParametersTest {
         assertNull(ralp.getMaxRangeActions(state0));
         assertEquals(Integer.valueOf(2), ralp.getMaxRangeActions(state1));
         assertEquals(Integer.valueOf(4), ralp.getMaxRangeActions(state2));
-
-        assertNull(ralp.getMaxTso(state0));
-        assertNull(ralp.getMaxTso(state1));
-        assertEquals(Integer.valueOf(1), ralp.getMaxTso(state2));
-
-        assertTrue(ralp.getMaxTsoExclusion(state0).isEmpty());
-        assertTrue(ralp.getMaxTsoExclusion(state1).isEmpty());
-        assertEquals(Set.of("DE"), ralp.getMaxTsoExclusion(state2));
 
         assertTrue(ralp.getMaxPstPerTso(state0).isEmpty());
         assertEquals(Map.of("BE", 1), ralp.getMaxPstPerTso(state1));

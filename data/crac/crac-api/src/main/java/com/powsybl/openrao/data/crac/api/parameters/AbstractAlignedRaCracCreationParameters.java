@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.ArrayList;
 import java.util.List;

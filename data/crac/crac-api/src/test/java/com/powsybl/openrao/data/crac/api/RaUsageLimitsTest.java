@@ -10,16 +10,24 @@ package com.powsybl.openrao.data.crac.api;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -31,7 +39,6 @@ class RaUsageLimitsTest {
     void testNominalBehavior() {
         // check default values
         assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxRa());
-        assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxTso());
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
@@ -39,8 +46,6 @@ class RaUsageLimitsTest {
         // set regular values
         raUsageLimits.setMaxRa(4);
         assertEquals(4, raUsageLimits.getMaxRa());
-        raUsageLimits.setMaxTso(4);
-        assertEquals(4, raUsageLimits.getMaxTso());
         Map<String, Integer> pstMap = Map.of("FR", 4, "DE", 5);
         raUsageLimits.setMaxPstPerTso(pstMap);
         assertEquals(pstMap, raUsageLimits.getMaxPstPerTso());
@@ -63,7 +68,6 @@ class RaUsageLimitsTest {
         assertEquals(raUsageLimits1, raUsageLimits2);
         // modifies one object
         raUsageLimits1.setMaxRa(3);
-        raUsageLimits1.setMaxTso(5);
         raUsageLimits1.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits1.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits1.setMaxPstPerTso(Map.of("FR", 3));
@@ -71,7 +75,6 @@ class RaUsageLimitsTest {
         assertNotEquals(raUsageLimits1, raUsageLimits2);
         // applies the same modification to the second object
         raUsageLimits2.setMaxRa(3);
-        raUsageLimits2.setMaxTso(5);
         raUsageLimits2.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits2.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits2.setMaxPstPerTso(Map.of("FR", 3));
@@ -92,8 +95,6 @@ class RaUsageLimitsTest {
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
         List<ILoggingEvent> logsList = listAppender.list;
         // negative values
-        raUsageLimits.setMaxTso(-3);
-        assertEquals(0, raUsageLimits.getMaxTso());
         raUsageLimits.setMaxRa(-2);
         assertEquals(0, raUsageLimits.getMaxRa());
         raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)));
@@ -118,9 +119,32 @@ class RaUsageLimitsTest {
         raUsageLimits.setMaxElementaryActionsPerTso(null);
         assertTrue(raUsageLimits.getMaxElementaryActionsPerTso().isEmpty());
         // check logs
-        assertEquals(3, logsList.size());
-        assertEquals("The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
-        assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
-        assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(2).getFormattedMessage());
+        assertEquals(2, logsList.size());
+        assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
+        assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
+    }
+
+    private static JsonParser createJsonParser(String json) throws IOException {
+        JsonParser jsonParser = new ObjectMapper().createParser(json);
+        jsonParser.nextToken();
+        return jsonParser;
+    }
+
+    @Test
+    void testDeserializeRaUsageLimits() throws IOException {
+        String json = """
+            {
+              "instant" : "curative",
+              "max-tso" : 3
+            }
+            """;
+        ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+        RaUsageLimits.deserializeRaUsageLimits(createJsonParser(json));
+
+        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        assertEquals(1, logsList.size());
+        assertEquals("A max-tso limit can no longer be defined and will be ignored.",
+            logsList.get(0).getFormattedMessage());
     }
 }

@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 
 import java.util.Comparator;
 import java.util.Set;

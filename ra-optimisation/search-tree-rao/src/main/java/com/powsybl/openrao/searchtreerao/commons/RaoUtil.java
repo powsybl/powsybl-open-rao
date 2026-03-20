@@ -34,7 +34,10 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
@@ -95,7 +98,11 @@ public final class RaoUtil {
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), getLoadFlowProvider(raoParameters), getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()));
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(
+                raoInput.getNetwork(),
+                getLoadFlowProvider(raoParameters),
+                getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
+            ));
         }
 
         if (raoParameters.getLoopFlowParameters().isPresent() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
@@ -119,9 +126,10 @@ public final class RaoUtil {
         }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization() &&
-            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ||
-                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
-            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters", raoParameters.getObjectiveFunctionParameters().getType()));
+            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                || raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
+            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters",
+                                              raoParameters.getObjectiveFunctionParameters().getType()));
         }
     }
 
@@ -130,7 +138,11 @@ public final class RaoUtil {
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
                 if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnec.getId());
+                    String msg = format(
+                        "A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. " +
+                            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects",
+                        flowCnec.getId()
+                    );
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
                 }
             });
@@ -179,12 +191,14 @@ public final class RaoUtil {
             if (onFlowConstraintInCountry.getContingency().isPresent() && !onFlowConstraintInCountry.getContingency().equals(state.getContingency())) {
                 return false;
             }
-            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit) && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit)
+                && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
         } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
             if (!onConstraint.getInstant().isPreventive() && !flowCnec.getState().getContingency().equals(state.getContingency())) {
                 return false;
             }
-            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit) && onConstraint.getInstant().equals(state.getInstant());
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit)
+                && onConstraint.getInstant().equals(state.getInstant());
         } else {
             return false;
         }
@@ -193,6 +207,7 @@ public final class RaoUtil {
     /**
      * Returns the range action from optimizationContext that is available on the latest state
      * strictly before the given state, and that acts on the same network element as rangeAction.
+     * ex. in 2P multi-curative, if a PST is available in curative2 and curative3, for state-curative3, the function will return Pair.of(state-curative2, PST)
      */
     public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameNetworkElement(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
 
@@ -201,18 +216,29 @@ public final class RaoUtil {
             return null;
         } else if (state.getInstant().isCurative()) {
 
-            // look if a preventive range action acts on the same network elements
-            State previousUsageState = optimizationContext.getMainOptimizationState();
+            // look if a previous instant (preventive or previous curative instant) range action acts on the same network elements
+            Optional<State> previousUsageStateOptional = optimizationContext.getRangeActionsPerState()
+                .keySet().stream()
+                .filter(state1 -> state1.getInstant().comesBefore(state.getInstant()))
+                .filter(state1 -> state1.getContingency().equals(state.getContingency()) || state1.getContingency().isEmpty())
+                .sorted(
+                    Comparator.comparing(
+                        (State e) ->
+                            e.getInstant().getOrder()
+                    ).reversed()
+                )
+                .findFirst();
 
-            if (previousUsageState.getInstant().comesBefore(state.getInstant())) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageState).stream()
+            if (previousUsageStateOptional.isPresent()) {
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
                     .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
                     .findAny();
 
                 if (correspondingRa.isPresent()) {
-                    return Pair.of(correspondingRa.get(), previousUsageState);
+                    return Pair.of(correspondingRa.get(), previousUsageStateOptional.get());
                 }
             }
+
             return null;
         } else {
             throw new OpenRaoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");

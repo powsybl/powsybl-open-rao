@@ -16,7 +16,8 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_MARGIN_DECREASE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -38,11 +39,11 @@ public final class JsonMnecParameters {
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         MnecParameters mnecParameters = new MnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(ACCEPTABLE_MARGIN_DECREASE)) {
+            if (jsonParser.currentName().equals(ACCEPTABLE_MARGIN_DECREASE)) {
                 jsonParser.nextToken();
                 mnecParameters.setAcceptableMarginDecrease(jsonParser.getDoubleValue());
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.currentName()));
             }
         }
         raoParameters.setMnecParameters(mnecParameters);

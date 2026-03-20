@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -104,7 +105,8 @@ public class CastorFullOptimization {
             RaoUtil.initData(raoInput, raoParameters);
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
             if (crac.getFlowCnecs().isEmpty()) {
-                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true).runInitialSensitivityAnalysis(network);
+                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
+                    .runInitialSensitivityAnalysis(network);
                 return CompletableFuture.completedFuture(new UnoptimizedRaoResultImpl(initialResult));
             }
             StateTree stateTree = new StateTree(crac);
@@ -197,7 +199,13 @@ public class CastorFullOptimization {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, crac, raoParameters);
                 // log results
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), getFlowUnit(raoParameters), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.logMostLimitingElementsResults(
+                    BUSINESS_LOGS,
+                    preCurativeSensitivityAnalysisOutput,
+                    raoParameters.getObjectiveFunctionParameters().getType(),
+                    getFlowUnit(raoParameters),
+                    NUMBER_LOGGED_ELEMENTS_END_RAO
+                );
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput);
                 return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
             }
@@ -221,7 +229,8 @@ public class CastorFullOptimization {
             Map<State, PostPerimeterResult> finalPostContingencyResults = new HashMap<>(postContingencyResults);
 
             if (castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, postContingencyResults.values(), mergedRaoResults, preventiveRaoTime)) {
-                CastorSecondPreventive.SecondPreventiveRaoResultsHolder secondPreventiveRaoResultsHolder = castorSecondPreventive.runSecondPreventiveAndAutoRao(castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
+                CastorSecondPreventive.SecondPreventiveRaoResultsHolder secondPreventiveRaoResultsHolder = castorSecondPreventive.runSecondPreventiveAndAutoRao(
+                    castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
                 RaoResult secondPreventiveRaoResults;
                 if (secondPreventiveRaoResultsHolder.hasFailed()) {
                     secondPreventiveRaoResults = new FailedRaoResultImpl(secondPreventiveRaoResultsHolder.errorMessage());
@@ -252,8 +261,25 @@ public class CastorFullOptimization {
             // Log final results
             if (logFinalResultsOutsideOfSecondPreventive) {
                 BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), getFlowUnit(raoParameters), NUMBER_LOGGED_ELEMENTS_END_RAO);
-                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), getFlowUnit(raoParameters));
+                RaoLogger.logMostLimitingElementsResults(
+                    BUSINESS_LOGS,
+                    stateTree.getBasecaseScenario(),
+                    finalSecondPreventiveResult.optimizationResult(),
+                    stateTree.getContingencyScenarios(),
+                    finalPostContingencyResults,
+                    raoParameters.getObjectiveFunctionParameters().getType(),
+                    getFlowUnit(raoParameters),
+                    NUMBER_LOGGED_ELEMENTS_END_RAO
+                );
+                RaoLogger.checkIfMostLimitingElementIsFictional(
+                    BUSINESS_LOGS,
+                    stateTree.getBasecaseScenario(),
+                    finalSecondPreventiveResult.optimizationResult(),
+                    stateTree.getContingencyScenarios(),
+                    finalPostContingencyResults,
+                    raoParameters.getObjectiveFunctionParameters().getType(),
+                    getFlowUnit(raoParameters)
+                );
             }
 
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
@@ -292,9 +318,14 @@ public class CastorFullOptimization {
         double firstPreventiveCost = mergedRaoResults.getCost(curativeInstant);
         double secondPreventiveCost = secondPreventiveRaoResults.getCost(curativeInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
-            BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
-                formatDoubleBasedOnMargin(firstPreventiveCost, -firstPreventiveCost), formatDoubleBasedOnMargin(mergedRaoResults.getFunctionalCost(curativeInstant), -firstPreventiveCost), formatDoubleBasedOnMargin(mergedRaoResults.getVirtualCost(curativeInstant), -firstPreventiveCost),
-                formatDoubleBasedOnMargin(secondPreventiveCost, -secondPreventiveCost), formatDoubleBasedOnMargin(secondPreventiveRaoResults.getFunctionalCost(curativeInstant), -secondPreventiveCost), formatDoubleBasedOnMargin(secondPreventiveRaoResults.getVirtualCost(curativeInstant), -secondPreventiveCost));
+            BUSINESS_LOGS.info(
+                "Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
+                formatDoubleBasedOnMargin(firstPreventiveCost, -firstPreventiveCost),
+                formatDoubleBasedOnMargin(mergedRaoResults.getFunctionalCost(curativeInstant), -firstPreventiveCost),
+                formatDoubleBasedOnMargin(mergedRaoResults.getVirtualCost(curativeInstant), -firstPreventiveCost),
+                formatDoubleBasedOnMargin(secondPreventiveCost, -secondPreventiveCost),
+                formatDoubleBasedOnMargin(secondPreventiveRaoResults.getFunctionalCost(curativeInstant), -secondPreventiveCost),
+                formatDoubleBasedOnMargin(secondPreventiveRaoResults.getVirtualCost(curativeInstant), -secondPreventiveCost));
             return false;
         }
         return true;
@@ -366,13 +397,22 @@ public class CastorFullOptimization {
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
         statesToOptimize.add(optPerimeter.getMainOptimizationState());
 
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+            optPerimeter.getFlowCnecs(),
+            optPerimeter.getLoopFlowCnecs(),
+            initialResult,
+            initialResult,
+            Collections.emptySet(),
+            raoParameters,
+            statesToOptimize
+        );
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
             .withInitialFlowResult(initialResult)
             .withPrePerimeterResult(initialResult)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters, statesToOptimize))
+            .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();
@@ -382,7 +422,12 @@ public class CastorFullOptimization {
         return Pair.of(optResult, optPerimeter.getFlowCnecs());
     }
 
-    private Map<State, PostPerimeterResult> mergeRaoAndPstRegulationResults(Set<PstRegulationResult> pstRegulationResults, PostPerimeterResult postPraResult, Map<State, PostPerimeterResult> postContingencyResults, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis, FlowResult initialFlowResult, ToolProvider toolProvider) {
+    private Map<State, PostPerimeterResult> mergeRaoAndPstRegulationResults(Set<PstRegulationResult> pstRegulationResults,
+                                                                            PostPerimeterResult postPraResult,
+                                                                            Map<State, PostPerimeterResult> postContingencyResults,
+                                                                            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
+                                                                            FlowResult initialFlowResult,
+                                                                            ToolProvider toolProvider) {
         // create a new network variant from initial variant for performing the results merging
         String variantName = "PSTRegulationResultsMerging";
         network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
@@ -392,7 +437,9 @@ public class CastorFullOptimization {
         // apply PRAs
         applyRemedialActions(network, postPraResult.optimizationResult(), crac.getPreventiveState());
 
-        Set<State> regulatedStates = pstRegulationResults.stream().map(pstRegulationResult -> crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant())).collect(Collectors.toSet());
+        Set<State> regulatedStates = pstRegulationResults.stream()
+            .map(pstRegulationResult -> crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant()))
+            .collect(Collectors.toSet());
         Map<State, Set<NetworkAction>> appliedNetworkActions = new HashMap<>();
 
         // gather all applied ARAs and CRAs
@@ -405,7 +452,15 @@ public class CastorFullOptimization {
         });
 
         // overwrite PST range action results for regulated PSTs
-        pstRegulationResults.forEach(pstRegulationResult -> pstRegulationResult.regulatedTapPerPst().forEach((pstRangeAction, regulatedTap) -> appliedRemedialActions.addAppliedRangeAction(crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant()), pstRangeAction, pstRangeAction.convertTapToAngle(regulatedTap))));
+        pstRegulationResults.forEach(pstRegulationResult ->
+            pstRegulationResult.regulatedTapPerPst().forEach((pstRangeAction, regulatedTap) ->
+                appliedRemedialActions.addAppliedRangeAction(
+                    crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant()),
+                    pstRangeAction,
+                    pstRangeAction.convertTapToAngle(regulatedTap)
+                )
+            )
+        );
 
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, Collections.emptySet(), appliedRemedialActions);
 
@@ -413,8 +468,18 @@ public class CastorFullOptimization {
 
         // override optimization result
         RangeActionActivationResultImpl postRegulationRangeActionActivationResult = new RangeActionActivationResultImpl(postCraSensitivityAnalysisOutput);
-        postContingencyResults.keySet().forEach(state -> appliedRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> postRegulationRangeActionActivationResult.putResult(rangeAction, state, setPoint)));
-        OptimizationResult newOptimizationResult = new OptimizationResultImpl(postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, new NetworkActionsResultImpl(appliedNetworkActions), postRegulationRangeActionActivationResult);
+        postContingencyResults.keySet().forEach(state ->
+            appliedRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) ->
+                postRegulationRangeActionActivationResult.putResult(rangeAction, state, setPoint)
+            )
+        );
+        OptimizationResult newOptimizationResult = new OptimizationResultImpl(
+            postCraSensitivityAnalysisOutput,
+            postCraSensitivityAnalysisOutput,
+            postCraSensitivityAnalysisOutput,
+            new NetworkActionsResultImpl(appliedNetworkActions),
+            postRegulationRangeActionActivationResult
+        );
 
         for (State state : postContingencyResults.keySet()) {
             // For instants before pst regulation instant, keep previous results

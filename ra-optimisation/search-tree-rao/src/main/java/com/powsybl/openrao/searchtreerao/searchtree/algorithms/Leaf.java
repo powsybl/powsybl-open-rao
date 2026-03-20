@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -28,17 +28,30 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitatio
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -153,7 +166,10 @@ public class Leaf implements OptimizationResult {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)));
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
+            raActivationResultFromParentLeaf,
+            new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
+        );
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
@@ -262,36 +278,34 @@ public class Leaf implements OptimizationResult {
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
 
-        context.getRangeActionOptimizationStates().stream()
-            .filter(state -> {
-                return parameters.getRaLimitationParameters().containsKey(state.getInstant());
-            })
-            .forEach(state -> {
+        for (State state : context.getRangeActionOptimizationStates()) {
+            if (parameters.getRaLimitationParameters().containsKey(state.getInstant())) {
                 RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
                 Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
                     appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
                 int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
-                Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
                 Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
                 Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                 maxRaPerTso.entrySet().forEach(entry -> {
-                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
+                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(
+                        Collectors.toSet()).size();
                     entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                 });
                 Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
                 maxElementaryActionsPerTso.entrySet().forEach(entry -> {
-                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
+                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream()
+                        .filter(na -> entry.getKey().equals(na.getOperator()))
+                        .mapToInt(na -> na.getElementaryActions().size())
+                        .sum();
                     entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
                 });
 
                 limitationParameters.setMaxRangeAction(state, maxRa);
-                limitationParameters.setMaxTso(state, maxTso);
-                limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
                 limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
                 limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
                 limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
-            });
+            }
+        }
         return limitationParameters;
     }
 

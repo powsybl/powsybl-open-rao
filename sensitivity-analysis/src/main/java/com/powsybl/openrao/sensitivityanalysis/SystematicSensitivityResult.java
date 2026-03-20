@@ -8,19 +8,29 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHandler;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityValue;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -92,13 +102,19 @@ public class SystematicSensitivityResult {
             return this;
         }
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
+        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
+            sensitivityValue,
+            nStateResult,
+            results.getFactors(),
+            SensitivityAnalysisResult.Status.SUCCESS
+        ));
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
             if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
                 anyContingencyFailure = true;
             }
             StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ?
+                SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
                 this.status = SensitivityComputationStatus.SUCCESS;
             }

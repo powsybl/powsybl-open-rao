@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -19,7 +20,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -32,9 +32,9 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.openrao.tests.utils.RaoUtils;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -52,7 +52,10 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -77,7 +80,7 @@ public class RaoSteps {
             final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
             configProperties.load(inputStream);
             raoImplementation = (String) configProperties.get("rao-implementation");
-        } catch (final Exception e) {
+        } catch (final IOException e) {
             throw new OpenRaoException("Unable to load steps-config.properties", e);
         }
     }
@@ -175,7 +178,7 @@ public class RaoSteps {
 
     @Then("its security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals(status.equalsIgnoreCase("secured"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW));
+        assertEquals("secured".equalsIgnoreCase(status), CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW));
     }
 
     @Then("the value of the objective function initially should be {double}")
@@ -313,7 +316,7 @@ public class RaoSteps {
     }
 
     private State getState(String contingencyId, String instantId) {
-        if (instantId.equalsIgnoreCase("preventive")) {
+        if ("preventive".equalsIgnoreCase(instantId)) {
             return crac.getPreventiveState();
         } else {
             return crac.getState(contingencyId, crac.getInstant(instantId));
@@ -644,9 +647,9 @@ public class RaoSteps {
         }
         TwoSides side = cnec.getMonitoredSides().iterator().next();
         Double bound = null;
-        if (upperOrLower.equalsIgnoreCase("upper")) {
+        if ("upper".equalsIgnoreCase(upperOrLower)) {
             bound = crac.getFlowCnec(cnecId).getUpperBound(side, unit).orElseThrow();
-        } else if (upperOrLower.equalsIgnoreCase("lower")) {
+        } else if ("lower".equalsIgnoreCase(upperOrLower)) {
             bound = crac.getFlowCnec(cnecId).getLowerBound(side, unit).orElseThrow();
         }
         assertEquals(expectedBound, bound, flowAmpereTolerance(expectedBound));
@@ -770,7 +773,9 @@ public class RaoSteps {
             crac = CommonTestData.getCrac();
             RaoParameters raoParameters = CommonTestData.getRaoParameters();
             SensitivityAnalysisParameters sensitivityAnalysisParameters = getSensitivityWithLoadFlowParameters(raoParameters);
-            ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, sensitivityAnalysisParameters.getLoadFlowParameters());
+            ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ?
+                CommonTestData.getReferenceProgram() :
+                ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, sensitivityAnalysisParameters.getLoadFlowParameters());
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
             // run loopFlowComputation

@@ -103,7 +103,13 @@ class FbConstraintCracCreator {
         outageReaders.forEach(or -> or.addContingency(crac));
     }
 
-    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<TwoSides> defaultMonitoredSides) {
+    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument,
+                                      OffsetDateTime offsetDateTime,
+                                      Crac crac,
+                                      FbConstraintCreationContext creationContext,
+                                      UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                      List<OutageReader> outageReaders,
+                                      Set<TwoSides> defaultMonitoredSides) {
         List<CriticalBranchType> criticalBranchForTimestamp = selectCriticalBranchesForTimestamp(fbConstraintDocument, offsetDateTime);
 
         if (!isEmpty(criticalBranchForTimestamp)) {
@@ -361,7 +367,11 @@ class FbConstraintCracCreator {
         }
 
         if (!isInTimeInterval(offsetDateTime, fbConstraintDocumentTimeInterval)) {
-            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime.toString(), fbConstraintDocumentTimeInterval));
+            creationContext.getCreationReport().error(String.format(
+                "timestamp %s is not in the time interval of the flow-based constraint document: %s",
+                offsetDateTime.toString(),
+                fbConstraintDocumentTimeInterval
+            ));
             return false;
         }
 

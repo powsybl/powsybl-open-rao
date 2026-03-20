@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.threshold;
 
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 
 /**
  * Specific {@link Threshold} for {@link BranchCnec}

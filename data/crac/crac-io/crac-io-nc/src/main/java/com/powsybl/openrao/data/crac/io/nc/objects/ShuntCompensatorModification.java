@@ -13,7 +13,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record ShuntCompensatorModification(String mrid, String shuntCompensatorId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
+public record ShuntCompensatorModification(String mrid, String shuntCompensatorId, String propertyReference, boolean normalEnabled,
+                                           String gridStateAlterationRemedialAction,
+                                           String gridStateAlterationCollection) implements GridStateAlteration {
     public static ShuntCompensatorModification fromPropertyBag(PropertyBag propertyBag) {
         return new ShuntCompensatorModification(
             propertyBag.getId(NcConstants.SHUNT_COMPENSATOR_MODIFICATION),
