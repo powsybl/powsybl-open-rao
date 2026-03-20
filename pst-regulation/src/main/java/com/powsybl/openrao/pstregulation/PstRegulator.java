@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Utility class that
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class PstRegulator {
