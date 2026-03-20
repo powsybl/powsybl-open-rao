@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
+package com.powsybl.openrao.pstregulation;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class CastorPstRegulationTest {
+class PstRegulationTest {
     @Test
     void testPstRegulationWithSeveralContingencyScenarios() throws IOException {
         Network network = Network.read("4NodesSeries.uct", getClass().getResourceAsStream("/network/4NodesSeries.uct"));
@@ -68,12 +68,7 @@ class CastorPstRegulationTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessLogs();
         List<ILoggingEvent> logsList = listAppender.list;
 
-        Map<String, String> pstsToRegulate = Map.of(
-            "FFR1AA1  FFR2AA1  2", "FFR1AA1  FFR2AA1  2",
-            "FFR2AA1  FFR3AA1  2", "FFR2AA1  FFR3AA1  2",
-            "FFR3AA1  FFR4AA1  2", "FFR3AA1  FFR4AA1  2"
-        );
-        Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, postContingencyResults, network, crac, raoParameters, raoResult);
+        RaoResult raoResultWithPstRegulation = PstRegulation.regulatePsts(network, crac, raoResult, raoParameters);
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
 
         assertEquals("2 PST(s) to regulate: pstFr12, pstFr34", logMessages.get(0));
@@ -82,11 +77,9 @@ class CastorPstRegulationTest {
         // PST FR2-FR3 is only preventive so it cannot be regulated
         assertEquals("PST FFR2AA1  FFR3AA1  2 cannot be regulated as no curative PST range action was defined for it.", logMessages.get(5));
 
-        assertEquals(3, pstRegulationResults.size());
-
         // Contingency FR1-FR2
-        PstRegulationResult pstRegulationResultCoFr12 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 12");
-        assertEquals(Map.of(pst12, -15, pst34, -5), pstRegulationResultCoFr12.regulatedTapPerPst());
+        assertEquals(-15, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 12", crac.getLastInstant()), pst12));
+        assertEquals(-5, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 12", crac.getLastInstant()), pst34));
         assertEquals(
             "FlowCNEC 'cnecFr34PstCurative - Co12' of contingency scenario 'Contingency FR 12' is overloaded and is the most limiting element, " +
                 "PST regulation has been triggered: pstFr12 (-10 -> -15), pstFr34 (0 -> -5)",
@@ -94,8 +87,8 @@ class CastorPstRegulationTest {
         );
 
         // Contingency FR2-FR3
-        PstRegulationResult pstRegulationResultCoFr23 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 23");
-        assertEquals(Map.of(pst12, -5, pst34, -5), pstRegulationResultCoFr23.regulatedTapPerPst());
+        assertEquals(-5, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 23", crac.getLastInstant()), pst12));
+        assertEquals(-5, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 23", crac.getLastInstant()), pst34));
         assertEquals(
             "FlowCNEC 'cnecFr23PstCurative - Co23' of contingency scenario 'Contingency FR 23' is overloaded and is the most limiting element, " +
                 "PST regulation has been triggered: pstFr12 (0 -> -5), pstFr34 (0 -> -5)",
@@ -103,8 +96,8 @@ class CastorPstRegulationTest {
         );
 
         // Contingency FR3-FR4
-        PstRegulationResult pstRegulationResultCoFr34 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 34");
-        assertEquals(Map.of(pst12, -5, pst34, -15), pstRegulationResultCoFr34.regulatedTapPerPst());
+        assertEquals(-5, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 34", crac.getLastInstant()), pst12));
+        assertEquals(-15, raoResultWithPstRegulation.getOptimizedTapOnState(crac.getState("Contingency FR 34", crac.getLastInstant()), pst34));
         assertEquals(
             "FlowCNEC 'cnecFr12PstCurative - Co34' of contingency scenario 'Contingency FR 34' is overloaded and is the most limiting element, " +
                 "PST regulation has been triggered: pstFr12 (0 -> -5)",
