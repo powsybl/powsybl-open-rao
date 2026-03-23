@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -18,7 +19,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
 import java.util.Set;

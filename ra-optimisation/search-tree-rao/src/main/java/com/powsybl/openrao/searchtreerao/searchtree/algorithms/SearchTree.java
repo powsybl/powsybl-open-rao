@@ -302,7 +302,7 @@ public class SearchTree {
             } else {
                 SearchTreeReports.reportSkippingOptimization(reportNode, verbose, naCombination.getConcatenatedId());
             }
-        } catch (Exception e) {
+        } catch (OpenRaoException e) {
             SearchTreeReports.reportCanNotOptimizeRemedialActionCombination(reportNode, naCombination.getConcatenatedId(), e.getMessage());
         }
         SearchTreeReports.reportRemainingLeavesToEvaluate(reportNode, remainingLeaves.decrementAndGet());

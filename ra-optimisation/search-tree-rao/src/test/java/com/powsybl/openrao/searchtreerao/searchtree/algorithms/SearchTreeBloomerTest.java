@@ -74,7 +74,13 @@ class SearchTreeBloomerTest {
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
-        SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
+        SearchTreeBloomer bloomer = initBloomer(
+            List.of(
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na1, na2), true)
+            ), Map.of(P_STATE.getInstant(), new RaUsageLimits())
+        );
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2), ReportNode.NO_OP);
@@ -93,25 +99,25 @@ class SearchTreeBloomerTest {
 
         // init bloomer with raUsageLimits
         RaUsageLimits raUsageLimits = new RaUsageLimits();
-        raUsageLimits.setMaxTso(2);
         raUsageLimits.setMaxRa(3);
         raUsageLimits.setMaxRaPerTso(new HashMap<>(Map.of("be", 1)));
         SearchTreeBloomer bloomer = initBloomer(naCombinations.stream().toList(), Map.of(P_STATE.getInstant(), raUsageLimits));
 
-        // If one of the following condition is met, to apply the naCombination, we should remove the activated RangeActions.
+        // If one of the following conditions is met, to apply the naCombination, we should remove the activated RangeActions.
         // 1- (maxRa): The combination has more than one network action
-        // 2- (maxTso): It contains any other operator than FR or BE
-        // 3- (maxRaPerTso): It cannot contain the operator BE
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_NL_1, leaf));
+        // 2- (maxRaPerTso): It cannot contain the operator BE
         assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_BE_1, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_BE_NL, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR_NL, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_FR_NL_BE, leaf));
         assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR, leaf));
         assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_BE, leaf));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_FR_NL_BE, leaf));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_BE_NL, leaf));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR_NL, leaf));
+
         // otherwise they can be kept.
         assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_2, leaf));
         assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_DE, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_NL_1, leaf));
+
     }
 
     @Test

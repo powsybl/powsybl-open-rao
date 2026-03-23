@@ -9,7 +9,11 @@ package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -20,8 +24,8 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.steps.CommonTestData;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -73,7 +77,18 @@ public final class RaoUtils {
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }
 
-        return runRaoInMemory(Rao.find(raoType), CommonTestData.getNetwork(), CommonTestData.getCrac(), contingencyId, instantKind, glsks, CommonTestData.getReferenceProgram(), raoParameters, timeLimitInSeconds, reportNode);
+        return runRaoInMemory(
+            Rao.find(raoType),
+            CommonTestData.getNetwork(),
+            CommonTestData.getCrac(),
+            contingencyId,
+            instantKind,
+            glsks,
+            CommonTestData.getReferenceProgram(),
+            raoParameters,
+            timeLimitInSeconds,
+            reportNode
+        );
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac, String contingencyId, InstantKind instantKind,

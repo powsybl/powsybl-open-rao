@@ -66,12 +66,24 @@ public final class CastorPstRegulation {
             return Set.of();
         }
 
-        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, getFlowUnit(raoParameters), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
+        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(
+            crac,
+            postContingencyResults,
+            getFlowUnit(raoParameters),
+            rangeActionsToRegulate,
+            SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters),
+            network
+        );
         if (statesToRegulate.isEmpty()) {
             return Set.of();
         }
 
-        Set<Contingency> contingencies = statesToRegulate.stream().map(PstRegulationInput::curativeState).map(State::getContingency).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        Set<Contingency> contingencies = statesToRegulate.stream()
+            .map(PstRegulationInput::curativeState)
+            .map(State::getContingency)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
         CastorReports.reportContingencyScenariosToRegulate(reportNode, contingencies);
         CastorReports.reportPstsToRegulate(reportNode, rangeActionsToRegulate);
 
@@ -98,7 +110,7 @@ public final class CastorPstRegulation {
             }
             networkPool.shutdownAndAwaitTermination(1000, TimeUnit.SECONDS);
             return pstRegulationResults;
-        } catch (Exception e) {
+        } catch (OpenRaoException | InterruptedException e) {
             Thread.currentThread().interrupt();
             CastorReports.reportErrorDuringPstRegulation(reportNode);
             return Set.of();
@@ -115,7 +127,12 @@ public final class CastorPstRegulation {
      * </ol>
      * For all such states, the associated PST regulation input is included in a set that is returned.
      */
-    private static Set<PstRegulationInput> getStatesToRegulate(Crac crac, Map<State, PostPerimeterResult> postContingencyResults, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst, Network network) {
+    private static Set<PstRegulationInput> getStatesToRegulate(Crac crac,
+                                                               Map<State, PostPerimeterResult> postContingencyResults,
+                                                               Unit unit,
+                                                               Set<PstRangeAction> rangeActionsToRegulate,
+                                                               Map<String, String> linesInSeriesWithPst,
+                                                               Network network) {
         Instant lastInstant = crac.getLastInstant();
         return lastInstant.isCurative() ?
             crac.getStates(lastInstant).stream()
@@ -128,7 +145,13 @@ public final class CastorPstRegulation {
             : Set.of();
     }
 
-    private static Optional<PstRegulationInput> getPstRegulationInput(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst, Network network) {
+    private static Optional<PstRegulationInput> getPstRegulationInput(State curativeState,
+                                                                      Crac crac,
+                                                                      PostPerimeterResult postPerimeterResult,
+                                                                      Unit unit,
+                                                                      Set<PstRangeAction> rangeActionsToRegulate,
+                                                                      Map<String, String> linesInSeriesWithPst,
+                                                                      Network network) {
         Optional<FlowCnec> limitingElement = getMostLimitingElementProtectedByPst(curativeState, crac, postPerimeterResult, unit, new HashSet<>(linesInSeriesWithPst.values()));
         if (limitingElement.isPresent()) {
             Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs = rangeActionsToRegulate.stream()
@@ -145,7 +168,11 @@ public final class CastorPstRegulation {
      * If not, an empty optional value is returned instead.
      */
     private static Optional<FlowCnec> getMostLimitingElementProtectedByPst(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<String> linesInSeriesWithPst) {
-        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs(curativeState).stream().collect(Collectors.toMap(Function.identity(), flowCnec -> postPerimeterResult.optimizationResult().getMargin(flowCnec, unit)));
+        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs(curativeState).stream()
+            .collect(Collectors.toMap(
+                Function.identity(),
+                flowCnec -> postPerimeterResult.optimizationResult().getMargin(flowCnec, unit)
+            ));
         List<Map.Entry<FlowCnec, Double>> sortedNegativeMargins = marginPerCnec.entrySet().stream()
             .filter(entry -> entry.getValue() < 0)
             .sorted(Map.Entry.comparingByValue()).toList();
@@ -161,7 +188,9 @@ public final class CastorPstRegulation {
     }
 
     private static LoadFlowParameters getLoadFlowParameters(RaoParameters raoParameters) {
-        return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
+        return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ?
+            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() :
+            new LoadFlowParameters();
     }
 
     private static void updateLoadFlowParametersForPstRegulation(LoadFlowParameters loadFlowParameters) {
@@ -236,7 +265,11 @@ public final class CastorPstRegulation {
     }
 
     private static Map<PstRangeAction, Integer> getInitialTapPerPst(Set<PstRangeAction> rangeActionsToRegulate, Network networkClone) {
-        return rangeActionsToRegulate.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger().getTapPosition()));
+        return rangeActionsToRegulate.stream()
+            .collect(Collectors.toMap(
+                Function.identity(),
+                pstRangeAction -> networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger().getTapPosition()
+            ));
     }
 
     private static void logPstRegulationResultsForContingencyScenario(final Contingency contingency,
@@ -257,7 +290,9 @@ public final class CastorPstRegulation {
         );
         String allShiftedPstsDetails = shiftDetails.isEmpty() ? "no PST shifted" : String.join(", ", shiftDetails);
         if (!shiftDetails.isEmpty()) {
-            CastorReports.reportPstRegulationTriggeredDueToOverloadedFlowCnec(reportNode, mostLimitingElement.getId(), contingency.getName().orElse(contingency.getId()), allShiftedPstsDetails);
+            CastorReports.reportPstRegulationTriggeredDueToOverloadedFlowCnec(
+                reportNode, mostLimitingElement.getId(), contingency.getName().orElse(contingency.getId()), allShiftedPstsDetails
+            );
         }
     }
 }

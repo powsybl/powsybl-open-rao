@@ -73,7 +73,7 @@ class XmlVirtualHubsConfigurationImporterTest {
 
     @Test
     void checkThatInvalidInputStreamThrowsException() throws IOException {
-        try (final InputStream inputStream = getClass().getResourceAsStream("/truncatedFile.xml")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/truncatedFile.xml")) {
             Assertions.assertThatExceptionOfType(VirtualHubsConfigProcessingException.class)
                 .isThrownBy(() -> XmlVirtualHubsConfiguration.importConfiguration(inputStream))
                 .withCauseInstanceOf(SAXException.class);

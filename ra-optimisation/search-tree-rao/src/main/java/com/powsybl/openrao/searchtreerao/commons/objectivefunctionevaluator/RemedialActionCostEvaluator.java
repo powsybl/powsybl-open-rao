@@ -43,7 +43,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     public CostEvaluatorResult evaluate(final FlowResult flowResult,
                                         final RemedialActionActivationResult remedialActionActivationResult,
                                         final ReportNode reportNode) {
-        return new AbsoluteCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult, reportNode));
+        return new AbsoluteCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult));
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
@@ -54,17 +54,24 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
                 .sum();
     }
 
-    private double getTotalRangeActionsCost(final RemedialActionActivationResult remedialActionActivationResult, final ReportNode reportNode) {
+    private double getTotalRangeActionsCost(final RemedialActionActivationResult remedialActionActivationResult) {
         // TODO: shall we filter out states with contingencies in 'contingenciesToExclude' from evaluate?
-        return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult, reportNode)).sum()).sum();
+        return optimizedStates.stream()
+            .mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream()
+                .mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult))
+                .sum())
+            .sum();
     }
 
     private double computeRangeActionCost(final RangeAction<?> rangeAction,
                                           final State state,
-                                          final RemedialActionActivationResult remedialActionActivationResult,
-                                          final ReportNode reportNode) {
-        double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
-        double after = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) : remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+                                          final RemedialActionActivationResult remedialActionActivationResult) {
+        double variation = rangeAction instanceof PstRangeAction pstRangeAction ?
+            (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) :
+            remedialActionActivationResult.getSetPointVariation(rangeAction, state);
+        double after = rangeAction instanceof PstRangeAction pstRangeAction ?
+            (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) :
+            remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         if (Math.abs(variation) < 1e-6) {
             return 0.0;
         }

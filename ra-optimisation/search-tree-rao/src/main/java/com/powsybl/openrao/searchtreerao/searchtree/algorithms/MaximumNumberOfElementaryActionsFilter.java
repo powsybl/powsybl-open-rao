@@ -37,8 +37,12 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
             // TODO: do the same for removePsts
             // we use a set of elementary actions in case some network actions share the same elementary action which should thus only be counted once
             Map<String, Set<Action>> elementaryActionsPerTso = new HashMap<>();
-            networkActionCombination.getNetworkActionSet().forEach(networkAction -> elementaryActionsPerTso.computeIfAbsent(networkAction.getOperator(), e -> new HashSet<>()).addAll(networkAction.getElementaryActions()));
-            if (networkActionCombination.getOperators().stream().anyMatch(operator -> elementaryActionsPerTso.getOrDefault(operator, Set.of()).size() > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE))) {
+            networkActionCombination.getNetworkActionSet().forEach(networkAction -> elementaryActionsPerTso
+                .computeIfAbsent(networkAction.getOperator(), e -> new HashSet<>())
+                .addAll(networkAction.getElementaryActions())
+            );
+            if (networkActionCombination.getOperators().stream()
+                .anyMatch(operator -> elementaryActionsPerTso.getOrDefault(operator, Set.of()).size() > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE))) {
                 SearchTreeReports.reportNetworkActionCombinationsFilteredOutMaxElementaryActionsExceeded(reportNode, naCombinations.size() - filteredNaCombinations.size());
             } else {
                 filteredNaCombinations.add(networkActionCombination);

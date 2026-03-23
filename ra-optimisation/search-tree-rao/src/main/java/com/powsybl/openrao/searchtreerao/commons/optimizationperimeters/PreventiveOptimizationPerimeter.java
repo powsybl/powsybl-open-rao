@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -19,9 +20,10 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,19 +44,41 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         }
     }
 
-    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(final Perimeter preventivePerimeter, final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(final Perimeter preventivePerimeter,
+                                                                            final Crac crac,
+                                                                            final Network network,
+                                                                            final RaoParameters raoParameters,
+                                                                            final PrePerimeterResult prePerimeterResult,
+                                                                            final ReportNode reportNode) {
         return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(final Crac crac,
+                                                                               final Network network,
+                                                                               final RaoParameters raoParameters,
+                                                                               final PrePerimeterResult prePerimeterResult,
+                                                                               final ReportNode reportNode) {
         return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState, final Set<State> allMonitoredStates, final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState,
+                                                                 final Set<State> allMonitoredStates,
+                                                                 final Crac crac,
+                                                                 final Network network,
+                                                                 final RaoParameters raoParameters,
+                                                                 final PrePerimeterResult prePerimeterResult,
+                                                                 final ReportNode reportNode) {
         return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(preventiveState), raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState, final Set<State> allMonitoredStates, final Crac crac, final Network network, final Set<RangeAction<?>> rangeActions, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState,
+                                                                 final Set<State> allMonitoredStates,
+                                                                 final Crac crac,
+                                                                 final Network network,
+                                                                 final Set<RangeAction<?>> rangeActions,
+                                                                 final RaoParameters raoParameters,
+                                                                 final PrePerimeterResult prePerimeterResult,
+                                                                 final ReportNode reportNode) {
         Set<State> filteredStates = allMonitoredStates.stream()
             .filter(state -> !prePerimeterResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
             .collect(Collectors.toSet());

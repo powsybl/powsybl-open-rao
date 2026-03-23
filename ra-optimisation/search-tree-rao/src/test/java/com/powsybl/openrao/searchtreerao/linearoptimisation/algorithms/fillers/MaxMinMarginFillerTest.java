@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
@@ -195,21 +194,20 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     void fillWithMissingRangeActionVariables() {
-        try {
-            createMaxMinMarginFiller(Unit.MEGAWATT);
-            linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(maxMinMarginFiller)
-                .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-                .build();
+        createMaxMinMarginFiller(Unit.MEGAWATT);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(maxMinMarginFiller)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
 
-            // FlowVariables present , but not the absoluteRangeActionVariables present,
-            // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
-            // exceeds the max-pst-per-tso parameter
-            linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
-            linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
-            linearProblem.fill(flowResult, sensitivityResult);
-        } catch (Exception e) {
-            fail();
-        }
+        // FlowVariables present , but not the absoluteRangeActionVariables present,
+        // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
+        // exceeds the max-pst-per-tso parameter
+        linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
+        linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(2, linearProblem.numConstraints());
     }
 }

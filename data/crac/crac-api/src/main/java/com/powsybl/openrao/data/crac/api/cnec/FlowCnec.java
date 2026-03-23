@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.api.cnec;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 

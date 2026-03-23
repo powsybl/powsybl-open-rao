@@ -18,7 +18,10 @@ import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ADD_UNSECURE_CNECS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.FAST_RAO_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARGIN_LIMIT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

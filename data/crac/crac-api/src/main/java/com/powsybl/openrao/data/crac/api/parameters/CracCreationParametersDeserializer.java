@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,7 +38,7 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
 
         List<Extension<CracCreationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case JsonCracCreationParametersConstants.CRAC_FACTORY:
                     parameters.setCracFactoryName(parser.nextTextValue());
                     break;
@@ -58,7 +58,7 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
                     }
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + parser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -40,11 +41,23 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
 
-import static com.powsybl.openrao.tests.utils.Helpers.*;
+import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
+import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
+import static com.powsybl.openrao.tests.utils.Helpers.importMonitoringGlskFile;
+import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
+import static com.powsybl.openrao.tests.utils.Helpers.importRaoResult;
+import static com.powsybl.openrao.tests.utils.Helpers.importRefProg;
+import static com.powsybl.openrao.tests.utils.Helpers.importUcteGlskFile;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -100,11 +113,19 @@ public final class CommonTestData {
         }
     }
 
-    public static void setMonitoringResult(MonitoringResult result) {
+    public static void setAngleMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
             CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
+        }
+    }
+
+    public static void setVoltageMonitoringResult(MonitoringResult result) {
+        CommonTestData.monitoringResult = result;
+        if (CommonTestData.raoResult != null) {
+            // update RAO result with angle values
+            CommonTestData.raoResult = new RaoResultWithVoltageMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
         }
     }
 
@@ -356,11 +377,11 @@ public final class CommonTestData {
     }
 
     private static OffsetDateTime importTimestampFromCracCreationParameters(String cracFormat, CracCreationParameters cracCreationParameters) {
-        if (cracFormat.equals("CimCrac")) {
+        if ("CimCrac".equals(cracFormat)) {
             return cracCreationParameters.getExtension(CimCracCreationParameters.class).getTimestamp();
-        } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
+        } else if ("FlowBasedConstraintDocument".equals(cracFormat)) {
             return cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).getTimestamp();
-        } else if (cracFormat.equals("NC")) {
+        } else if ("NC".equals(cracFormat)) {
             return cracCreationParameters.getExtension(NcCracCreationParameters.class).getTimestamp();
         } else {
             return null;
@@ -369,15 +390,15 @@ public final class CommonTestData {
 
     private static void addTimestampToCracCreationParameters(String cracFormat, OffsetDateTime timestamp, CracCreationParameters cracCreationParameters) {
 
-        if (cracFormat.equals("CimCrac")) {
+        if ("CimCrac".equals(cracFormat)) {
             CimCracCreationParameters cimParams = new CimCracCreationParameters();
             cimParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParams);
-        } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
+        } else if ("FlowBasedConstraintDocument".equals(cracFormat)) {
             FbConstraintCracCreationParameters fbConstraintParams = new FbConstraintCracCreationParameters();
             fbConstraintParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParams);
-        } else if (cracFormat.equals("NC")) {
+        } else if ("NC".equals(cracFormat)) {
             NcCracCreationParameters csaParams = new NcCracCreationParameters();
             csaParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(NcCracCreationParameters.class, csaParams);
@@ -387,7 +408,7 @@ public final class CommonTestData {
     private static RaoParameters buildDefaultConfig() {
         try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
             return JsonRaoParameters.read(configStream, ReportNode.NO_OP);
-        } catch (Exception e) {
+        } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
     }

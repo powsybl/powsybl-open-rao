@@ -9,11 +9,15 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.*;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ConstraintSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementMarketDocument;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Point;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Reason;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.SeriesPeriod;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
@@ -21,10 +25,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A01_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A01_CURVE_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE_TS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RAO_FAILURE_TEXT;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SECURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SECURE_TEXT;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SIXTY_MINUTES_DURATION;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.UNSECURE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.UNSECURE_TEXT;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.createXMLGregorianCalendarNow;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.newPeriod;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.newPoint;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.newTimeSeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.createPartyIDString;
 
 /**
  * Fills the classes that constitute the CNE file structure
@@ -103,7 +119,7 @@ public class SweCne {
     private void addReason(Point point) {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
+        boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
         try {
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
@@ -111,9 +127,9 @@ public class SweCne {
             // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
         }
-        if (isDivergent) {
-            reason.setCode(DIVERGENCE_CODE);
-            reason.setText(DIVERGENCE_TEXT);
+        if (isFailure) {
+            reason.setCode(RAO_FAILURE_CODE);
+            reason.setText(RAO_FAILURE_TEXT);
         } else if (isUnsecure) {
             reason.setCode(UNSECURE_CODE);
             reason.setText(UNSECURE_TEXT);

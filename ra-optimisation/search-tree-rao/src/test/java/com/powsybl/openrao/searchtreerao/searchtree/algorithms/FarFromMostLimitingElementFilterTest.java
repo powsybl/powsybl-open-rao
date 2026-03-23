@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_BE_NL;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_DE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_DE_BE;
@@ -34,6 +33,7 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.PREVENTIVE_INSTANT_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,7 +46,9 @@ class FarFromMostLimitingElementFilterTest {
     @Test
     void testRemoveNetworkActionsFarFromMostLimitingElement() {
         // arrange naCombination list
-        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_DE_1, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_DE, COMB_2_FR_DE_BE, COMB_2_BE_NL));
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(
+            Set.of(IND_FR_2, IND_DE_1, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_DE, COMB_2_FR_DE_BE, COMB_2_BE_NL)
+        );
 
         // arrange previous Leaf -> most limiting element is in DE/FR
         Leaf previousLeaf = mock(Leaf.class);
@@ -87,7 +89,11 @@ class FarFromMostLimitingElementFilterTest {
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction().withId("na").newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add().add();
+        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction()
+            .withId("na")
+            .newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(NetworkActionCombinationsUtils.NETWORK)).thenReturn(Set.of(Country.FR));
 

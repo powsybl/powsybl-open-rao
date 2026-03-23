@@ -19,13 +19,23 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -59,13 +69,13 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      * This method requires:
      * <ul>
      *     <li> the initialFlowResult to be able to compute mnec and loopflow thresholds </li>
-     *     <li> the previousResultsFuture for countries not sharing CRAs </li>
+     *     <li> the previousResults for countries not sharing CRAs </li>
      *     <li> the optimizationResult of the given perimeter for action cost </li>
      * </ul>
      */
     public PostPerimeterResult runBasedOnInitialPreviousAndOptimizationResults(final Network network,
                                                                                final FlowResult initialFlowResult,
-                                                                               final PrePerimeterResult previousResultsFuture,
+                                                                               final PrePerimeterResult previousResults,
                                                                                final Set<String> operatorsNotSharingCras,
                                                                                final OptimizationResult optimizationResult,
                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
@@ -83,15 +93,15 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
         } else {
-            flowResult.set(previousResultsFuture);
-            sensitivityResult.set(previousResultsFuture);
+            flowResult.set(previousResults);
+            sensitivityResult.set(previousResults);
         }
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
             flowCnecs,
             toolProvider.getLoopFlowCnecs(flowCnecs),
             initialFlowResult,
-            previousResultsFuture,
+            previousResults,
             operatorsNotSharingCras,
             raoParameters,
             optimizationResult.getActivatedRangeActionsPerState().keySet()
@@ -136,63 +146,95 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                                final RemedialActionActivationResult remedialActionActivationResult,
                                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
                                                                                                final ReportNode reportNode) {
-        return CompletableFuture.supplyAsync(() -> {
-            AtomicReference<FlowResult> flowResult = new AtomicReference<>();
-            AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
-            boolean actionWasTaken = actionWasTaken(remedialActionActivationResult.getActivatedNetworkActions(), remedialActionActivationResult.getActivatedRangeActionsPerState());
-            if (actionWasTaken) {
-                SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
+        return CompletableFuture.supplyAsync(() -> computePostPerimeterResult(
+            network,
+            initialFlowResult,
+            previousResultsFuture,
+            operatorsNotSharingCras,
+            remedialActionActivationResult,
+            appliedCurativeRemedialActions,
+            reportNode
+        ));
+    }
 
-                int oldThreadCount = setNewThreadCountAndGetOldValue();
-                sensitivityComputer.compute(network);
-                resetThreadCount(oldThreadCount);
-                flowResult.set(sensitivityComputer.getBranchResult(network));
-                sensitivityResult.set(sensitivityComputer.getSensitivityResult());
-            } else {
-                // we wait for the previous results to be computed with Future::get
-                try {
-                    flowResult.set(previousResultsFuture.get());
-                    sensitivityResult.set(previousResultsFuture.get());
-                } catch (InterruptedException e) {
-                    TECHNICAL_LOGS.warn("A computation thread was interrupted");
-                    Thread.currentThread().interrupt();
-                } catch (Exception e) {
-                    throw new OpenRaoException(e);
-                }
+    private PostPerimeterResult computePostPerimeterResult(final Network network,
+                                                           final FlowResult initialFlowResult,
+                                                           final CompletableFuture<PrePerimeterResult> previousResultsFuture,
+                                                           final Set<String> operatorsNotSharingCras,
+                                                           final RemedialActionActivationResult remedialActionActivationResult,
+                                                           final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                           final ReportNode reportNode) {
+        AtomicReference<FlowResult> flowResult = new AtomicReference<>();
+        AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
+        boolean actionWasTaken = PostPerimeterSensitivityAnalysis.this.actionWasTaken(
+            remedialActionActivationResult.getActivatedNetworkActions(),
+            remedialActionActivationResult.getActivatedRangeActionsPerState()
+        );
+        if (actionWasTaken) {
+            SensitivityComputer sensitivityComputer = PostPerimeterSensitivityAnalysis.this.buildSensitivityComputer(
+                initialFlowResult,
+                appliedCurativeRemedialActions,
+                reportNode
+            );
 
-            }
-            ObjectiveFunction objectiveFunction = null;
+            int oldThreadCount = PostPerimeterSensitivityAnalysis.this.setNewThreadCountAndGetOldValue();
+            sensitivityComputer.compute(network);
+            PostPerimeterSensitivityAnalysis.this.resetThreadCount(oldThreadCount);
+            flowResult.set(sensitivityComputer.getBranchResult(network));
+            sensitivityResult.set(sensitivityComputer.getSensitivityResult());
+        } else {
+            // we wait for the previous results to be computed with Future::get
             try {
-                objectiveFunction = ObjectiveFunction.build(
-                    flowCnecs,
-                    toolProvider.getLoopFlowCnecs(flowCnecs),
-                    initialFlowResult,
-                    previousResultsFuture.get(),
-                    operatorsNotSharingCras,
-                    raoParameters,
-                    remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
-                );
+                flowResult.set(previousResultsFuture.get());
+                sensitivityResult.set(previousResultsFuture.get());
             } catch (InterruptedException e) {
                 TECHNICAL_LOGS.warn("A computation thread was interrupted");
                 Thread.currentThread().interrupt();
-            } catch (Exception e) {
+            } catch (OpenRaoException | ExecutionException e) {
                 throw new OpenRaoException(e);
             }
 
-            ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-                flowResult.get(),
-                remedialActionActivationResult,
-                reportNode
+        }
+        ObjectiveFunction objectiveFunction = null;
+        try {
+            objectiveFunction = ObjectiveFunction.build(
+                flowCnecs,
+                toolProvider.getLoopFlowCnecs(flowCnecs),
+                initialFlowResult,
+                previousResultsFuture.get(),
+                operatorsNotSharingCras,
+                raoParameters,
+                remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
             );
-            OptimizationResult optimizationResult = new OptimizationResultImpl(objectiveFunctionResult, flowResult.get(), sensitivityResult.get(), remedialActionActivationResult, remedialActionActivationResult);
+        } catch (InterruptedException e) {
+            TECHNICAL_LOGS.warn("A computation thread was interrupted");
+            Thread.currentThread().interrupt();
+        } catch (OpenRaoException | ExecutionException e) {
+            throw new OpenRaoException(e);
+        }
 
-            return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
+            flowResult.get(),
+            remedialActionActivationResult,
+            reportNode
+        );
+        OptimizationResult optimizationResult = new OptimizationResultImpl(
+            objectiveFunctionResult,
+            flowResult.get(),
+            sensitivityResult.get(),
+            remedialActionActivationResult,
+            remedialActionActivationResult
+        );
+
+        return new PostPerimeterResult(
+            optimizationResult,
+            new PrePerimeterSensitivityResultImpl(
                 flowResult.get(),
                 sensitivityResult.get(),
                 RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
                 objectiveFunctionResult
-            ));
-        });
+            )
+        );
     }
 
     private boolean actionWasTaken(Set<NetworkAction> activatedNetworkActions, Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState) {

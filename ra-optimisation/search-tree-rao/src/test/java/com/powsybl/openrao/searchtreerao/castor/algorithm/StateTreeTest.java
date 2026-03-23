@@ -479,7 +479,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac, ReportNode.NO_OP);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(8, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -606,7 +608,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac, ReportNode.NO_OP);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(8, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -749,7 +753,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac, ReportNode.NO_OP);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(12, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -923,7 +929,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac, ReportNode.NO_OP);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(16, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;

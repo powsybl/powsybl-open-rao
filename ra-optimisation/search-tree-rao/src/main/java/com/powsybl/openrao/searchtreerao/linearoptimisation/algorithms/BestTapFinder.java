@@ -7,22 +7,27 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -67,7 +72,10 @@ public final class BestTapFinder {
             optimizationContext.getRangeActionsPerState().get(state).stream()
                 .filter(PstRangeAction.class::isInstance)
                 .map(PstRangeAction.class::cast)
-                .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), linearOptimizationResult, unit)));
+                .forEach(pstRangeAction -> minMarginPerTap.put(
+                    pstRangeAction,
+                    computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), linearOptimizationResult, unit)
+                ));
 
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 

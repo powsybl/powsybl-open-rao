@@ -34,7 +34,11 @@ public final class PstRegulator {
                                                             final ReportNode reportNode) {
         elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput, reportNode));
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        return elementaryPstRegulationInputs.stream().collect(Collectors.toMap(ElementaryPstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
+        return elementaryPstRegulationInputs.stream()
+            .collect(Collectors.toMap(
+                ElementaryPstRegulationInput::pstRangeAction,
+                pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())
+            ));
     }
 
     private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput, ReportNode reportNode) {

@@ -13,15 +13,16 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -162,7 +165,8 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP)
+                       .getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -176,7 +180,8 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP)
+                       .getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -190,7 +195,8 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP)
+                       .getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -205,6 +211,7 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP)
+                       .getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 }

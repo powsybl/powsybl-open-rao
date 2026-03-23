@@ -13,7 +13,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -35,15 +38,36 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.reports.FastRaoReports;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
@@ -79,7 +103,7 @@ public class FastRao implements RaoProvider {
                                             final ReportNode reportNode) {
         try {
             RaoUtil.initData(raoInput, parameters, reportNode);
-        } catch (Exception e) {
+        } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
@@ -352,7 +376,14 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        return new FastRaoResultImpl(initialResult, postPraSensi.get().prePerimeterResultForAllFollowingStates(), postAraSensi.get().prePerimeterResultForAllFollowingStates(), postCraSensi.get().prePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
+        return new FastRaoResultImpl(
+            initialResult,
+            postPraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postAraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postCraSensi.get().prePerimeterResultForAllFollowingStates(),
+            raoResult,
+            raoInput.getCrac()
+        );
 
     }
 
@@ -405,14 +436,18 @@ public class FastRao implements RaoProvider {
         );
     }
 
-    private static RemedialActionActivationResult createRemedialActionsActivationResults(InstantKind instantKind, RaoResult raoResult, Crac crac, RangeActionSetpointResult initialRangeActionSetpointResult) {
+    private static RemedialActionActivationResult createRemedialActionsActivationResults(InstantKind instantKind,
+                                                                                         RaoResult raoResult,
+                                                                                         Crac crac,
+                                                                                         RangeActionSetpointResult initialRangeActionSetpointResult) {
         // Get all the remedial action activated during all instant <= instandKind
         Map<State, Set<NetworkAction>> networkActionsActivated = new HashMap<>();
         RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialRangeActionSetpointResult);
         if (raoResult instanceof OneStateOnlyRaoResultImpl) {
             State preventiveState = crac.getPreventiveState();
             networkActionsActivated.put(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState));
-            raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
+            raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> rangeActionActivationResult
+                .putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
             return new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(networkActionsActivated));
         }
 
@@ -421,7 +456,8 @@ public class FastRao implements RaoProvider {
             .filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal())
             .forEach(state -> {
                 networkActionsActivated.put(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+                raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeActionActivationResult
+                    .putResult(rangeAction, state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
             });
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(networkActionsActivated);
         return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);

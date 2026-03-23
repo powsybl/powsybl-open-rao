@@ -367,6 +367,8 @@ class SearchTreeTest {
     void runAndIterateOnTreeStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
+        NetworkActionParameters networkActionParameters = searchTreeParameters.getNetworkActionParameters();
+        when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of());
 
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
@@ -390,7 +392,8 @@ class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.getFirst()), eq(false));
+        // both networkAction1 and the predefined combination return childLeaf1 with a higher cost than childLeaf2
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), any(), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
@@ -546,7 +549,8 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), " +
+            "no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
         ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
         ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
@@ -578,7 +582,8 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), " +
+            "no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
         ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
         ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
@@ -598,8 +603,6 @@ class SearchTreeTest {
 
     @Test
     void testCostSatisfiesStopCriterion() {
-        setSearchTreeParameters();
-
         // MIN_COST
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         assertTrue(SearchTree.costSatisfiesStopCriterion(0, searchTreeParameters));

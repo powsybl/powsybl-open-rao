@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.google.auto.service.AutoService;
 import com.google.ortools.Loader;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -36,7 +37,7 @@ public class Castor implements RaoProvider {
     static {
         try {
             Loader.loadNativeLibraries();
-        } catch (Exception e) {
+        } catch (UnsatisfiedLinkError e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
     }
@@ -60,7 +61,7 @@ public class Castor implements RaoProvider {
     public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
         try {
             RaoUtil.initData(raoInput, parameters, reportNode);
-        } catch (Exception e) {
+        } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
@@ -70,7 +71,7 @@ public class Castor implements RaoProvider {
         if (raoInput.getOptimizedState() != null) {
             try {
                 return new CastorOneStateOnly(raoInput, parameters, reportNode).run();
-            } catch (Exception e) {
+            } catch (OpenRaoException e) {
                 CastorReports.reportRaoFailure(reportNode, raoInput.getOptimizedState().getId(), e);
                 final String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));

@@ -11,7 +11,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -22,7 +27,6 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -42,21 +46,25 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.reports.ReportsTestUtils;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -356,7 +364,17 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, RaoUtil.canRemedialActionBeUsed(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
+        assertEquals(
+            available,
+            RaoUtil.canRemedialActionBeUsed(
+                ra,
+                optimizedState,
+                flowResult,
+                ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState),
+                network,
+                raoParameters
+            )
+        );
     }
 
     @Test
@@ -375,7 +393,10 @@ class RaoUtilTest {
         State outageState = Mockito.mock(State.class);
         Mockito.when(outageState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
         Mockito.when(outageState.getInstant()).thenReturn(crac.getInstant(InstantKind.OUTAGE));
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, crac.getRangeActions().iterator().next(), outageState));
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, crac.getRangeActions().iterator().next(), outageState)
+        );
         assertEquals("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.", exception.getMessage());
     }
 
@@ -390,6 +411,14 @@ class RaoUtilTest {
         Mockito.when(curativeState1.getInstant()).thenReturn(curative1Instant);
         Mockito.when(curativeState1.getContingency()).thenReturn(Optional.of(contingency));
 
+        Instant curative2Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative2Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curative2Instant.isCurative()).thenReturn(true);
+
+        State curativeState2 = Mockito.mock(State.class);
+        Mockito.when(curativeState2.getInstant()).thenReturn(curative2Instant);
+        Mockito.when(curativeState2.getContingency()).thenReturn(Optional.of(contingency));
+
         Instant curative3Instant = Mockito.mock(Instant.class);
         Mockito.when(curative3Instant.getKind()).thenReturn(InstantKind.CURATIVE);
         Mockito.when(curative3Instant.isCurative()).thenReturn(true);
@@ -399,6 +428,7 @@ class RaoUtilTest {
         Mockito.when(curativeState3.getContingency()).thenReturn(Optional.of(contingency));
 
         Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
+        Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
 
         NetworkElement pst = Mockito.mock(NetworkElement.class);
         Mockito.when(pst.getId()).thenReturn("pst");
@@ -411,10 +441,17 @@ class RaoUtilTest {
         Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
-        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(curativeState1);
-        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
+        NetworkElement anotherNetworkElement = Mockito.mock(NetworkElement.class);
+        Mockito.when(anotherNetworkElement.getId()).thenReturn("another-network-element");
 
+        RangeAction<?> rangeAction3 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction3.getNetworkElements()).thenReturn(Set.of(pst, anotherNetworkElement));
+        Mockito.when(rangeAction3.getId()).thenReturn("range-action-3");
+
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1, rangeAction3), curativeState2, Set.of(rangeAction3)));
+
+        // rangeAction3 from curativeState2 is not chosen besause Set.of(pst, anotherNetworkElement) != Set.of(pst)
         assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
     }
 
@@ -457,9 +494,12 @@ class RaoUtilTest {
         when(raoInputThresholdInMwWithAc.getCrac()).thenReturn(cracWIthTresholdInMwWithAc);
         RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInputThresholdInMwWithAc, ReportNode.NO_OP);
 
-        String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
-        String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
-        String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         assertEquals(2, logsList.size());
         assertEquals(expectedMsg1, logsList.getFirst().getFormattedMessage());
         assertEquals(expectedMsg2, logsList.get(1).getFormattedMessage());

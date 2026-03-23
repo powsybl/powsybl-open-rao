@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
-import com.powsybl.iidm.network.Country;
 
 import java.util.Objects;
 
@@ -68,7 +68,9 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingCountry, this.importingCountry);
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingCountry, this.importingCountry
+        );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

@@ -23,7 +23,9 @@ public class ElementaryActionsCompatibilityFilter implements NetworkActionCombin
                                                 final OptimizationResult optimizationResult,
                                                 final ReportNode reportNode) {
         return naCombinations.stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().stream().allMatch(networkAction -> optimizationResult.getActivatedNetworkActions().stream().allMatch(networkAction::isCompatibleWith)))
+            .filter(naCombination -> naCombination.getNetworkActionSet().stream()
+                // all network actions from naCombinations have to be compatible with all activated network actions in the optimization result
+                .allMatch(networkAction -> optimizationResult.getActivatedNetworkActions().stream().allMatch(networkAction::isCompatibleWith)))
             .collect(Collectors.toSet());
     }
 }

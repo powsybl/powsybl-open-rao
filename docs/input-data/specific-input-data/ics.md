@@ -26,8 +26,8 @@ Static ICS data defines a remedial action's generator's static constraints:
 | **Maximum negative power gradient [MW/h]** | Maximum negative power gradient for RA RD in MW/h.                                                             |
 | **Lead time [h]**                          | Lead time for activation of RA RD in h.                                                                        |
 | **Lag time [h]**                           | Lag time for deactivation of RA RD in h.                                                                       |
-| Startup allowed                            | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
-| Shutdown allowed                           | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
+| **Shutdown allowed**                       | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
+| **Startup allowed**                        | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
 
 ### Series
 

@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -91,7 +91,11 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    LinearProblem(List<ProblemFiller> fillerList,
+                  RangeActionActivationResult raActivationFromParentLeaf,
+                  SearchTreeRaoRangeActionsOptimizationParameters.Solver solver,
+                  double relativeMipGap,
+                  String solverSpecificParameters) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
@@ -232,7 +236,12 @@ public final class LinearProblem {
         return solver.getConstraint(isVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb,
+                                                                   double ub,
+                                                                   RangeAction<?> rangeAction,
+                                                                   State state,
+                                                                   VariationReferenceExtension reference,
+                                                                   VariationDirectionExtension direction) {
         return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
@@ -385,14 +394,6 @@ public final class LinearProblem {
         return solver.getConstraint(maxRaConstraintId(state));
     }
 
-    public OpenRaoMPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
-        return solver.makeConstraint(lb, ub, maxTsoConstraintId(state));
-    }
-
-    public OpenRaoMPConstraint getMaxTsoConstraint(State state) {
-        return solver.getConstraint(maxTsoConstraintId(state));
-    }
-
     public OpenRaoMPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
         return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state));
     }
@@ -407,22 +408,6 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
         return solver.getConstraint(maxPstPerTsoConstraintId(operator, state));
-    }
-
-    public OpenRaoMPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
-        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state));
-    }
-
-    public OpenRaoMPVariable getTsoRaUsedVariable(String operator, State state) {
-        return solver.getVariable(tsoRaUsedVariableId(operator, state));
-    }
-
-    public OpenRaoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
     public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
@@ -531,11 +516,17 @@ public final class LinearProblem {
         return solver.getVariable(generatorStateVariableId(generatorId, generatorState, timestamp));
     }
 
-    public OpenRaoMPVariable addGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+    public OpenRaoMPVariable addGeneratorStateTransitionVariable(String generatorId,
+                                                                 OffsetDateTime timestamp,
+                                                                 LinearProblem.GeneratorState generatorStateFrom,
+                                                                 LinearProblem.GeneratorState generatorStateTo) {
         return solver.makeBoolVar(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
     }
 
-    public OpenRaoMPVariable getGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+    public OpenRaoMPVariable getGeneratorStateTransitionVariable(String generatorId,
+                                                                 OffsetDateTime timestamp,
+                                                                 LinearProblem.GeneratorState generatorStateFrom,
+                                                                 LinearProblem.GeneratorState generatorStateTo) {
         return solver.getVariable(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
     }
 
@@ -557,6 +548,22 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addGeneratorPowerTransitionConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addGeneratorShutDownProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(0, 0, prohibitGeneratorShuttingDownConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorShutDownOnFirstTimestampProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, prohibitGeneratorShuttingDownOnFirstConstraintConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStartUpProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(0, 0, prohibitGeneratorStartingUpConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStartUpOnFirstTimestampProhibitedConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, prohibitGeneratorStartingUpOnFirstTimestampConstraintId(generatorId, timestamp));
     }
 
     public OpenRaoMPConstraint getGeneratorPowerTransitionConstraint(String generatorId, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {

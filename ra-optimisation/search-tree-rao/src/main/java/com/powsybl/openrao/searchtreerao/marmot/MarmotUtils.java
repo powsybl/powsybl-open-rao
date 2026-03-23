@@ -53,7 +53,9 @@ public final class MarmotUtils {
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
-        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters), false).runInitialSensitivityAnalysis(network, reportNode);
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, toolProvider, false)
+            .runInitialSensitivityAnalysis(network, reportNode);
     }
 
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(final RaoInput raoInput,
@@ -105,7 +107,9 @@ public final class MarmotUtils {
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
-        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters), false).runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode);
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false)
+            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode);
     }
 
     public static TemporalData<PostOptimizationResult> getPostOptimizationResults(final TemporalData<RaoInput> raoInputs,
@@ -116,7 +120,17 @@ public final class MarmotUtils {
                                                                                   final ReportNode reportNode) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult, topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters, reportNode)));
+        timestamps.forEach(timestamp -> postOptimizationResults.put(
+            timestamp,
+            new PostOptimizationResult(
+                raoInputs.getData(timestamp).orElseThrow(),
+                initialResults.getData(timestamp).orElseThrow(),
+                globalLinearOptimizationResult,
+                topologicalOptimizationResults.getData(timestamp).orElseThrow(),
+                raoParameters,
+                reportNode
+            )
+        ));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 

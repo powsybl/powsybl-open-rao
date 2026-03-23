@@ -182,7 +182,9 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
             .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String group : groups) {
-            Set<RangeAction<?>> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
+            Set<RangeAction<?>> groupRangeActions = rangeActions.stream()
+                .filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group))
+                .collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getSetpoint(groupRangeActions.iterator().next());
             if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > EPSILON)) {
                 CommonReports.reportRangeActionsOfGroupDoNotHaveSamePrePerimeterSetpoint(reportNode, group);

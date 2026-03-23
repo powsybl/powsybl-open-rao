@@ -32,7 +32,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -58,13 +60,13 @@ public class AngleMonitoringSteps {
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
         MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
-        CommonTestData.setMonitoringResult(angleMonitoringResult);
+        CommonTestData.setAngleMonitoringResult(angleMonitoringResult);
     }
 
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
+        assertEquals("secure".equalsIgnoreCase(expectedStatus), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
     }
 
     @Then("the applied remedial actions should be:")
