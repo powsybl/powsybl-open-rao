@@ -93,9 +93,13 @@ $c^{+}_{tap \rightarrow a}(r, s)$ (resp. $c^{-}_{tap \rightarrow a}(r, s)$) is s
 
 ### Tap variable
 
-$$\tau(r, s) = \Delta t^{+} - \Delta t^{-} + t_{n}(r, s)$$
+$$\tau(r, s) = \Delta t^{+}(r,s) - \Delta t^{-}(r,s) + t_{n}(r, s)$$
 
 ### Total tap variation
+
+> ⚠️ The variables $ \Delta_{total} t^{+} (r, s)  $ and $ \Delta_{total} t^{-} (r,s) $ and the following constraint are 
+> only created if we are in [costly optimization](objective-function-types/costly-optimization.md)
+> or if there is [max-elementary-actions-per-tso](ra-usage-limits-filler.md#maximum-number-of-elementary-actions-per-tso) limit defined.
 
 $$\Delta_{total} t^{+} (r, s) - \Delta_{total} t^{-} (r, s) = \tau(r, s) -
 \begin{cases}
