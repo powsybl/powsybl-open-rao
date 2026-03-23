@@ -5,56 +5,46 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.1: Multi-curative CNECs with no CRA for curative1, one PST available for curative 1 and 2
-  We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and one PST available for both curative instant 1 and 2.
-  We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decreases as we move from curative 1 to 3 (500 -> 300 -> 250)).
+  We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and two PST available CRA_PST_FR in curative 1 and CRA_PST_BE in curative2 .
+  We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decreases as we move from curative 1 to 2 (300 -> 250)).
   During first preventive the network action is not used as the initial preventive perimeter is secure.
-  After optimizing the curative state "Contingency DE2 DE3 1 - curative2", the PST is set to -16 (the min) but it is not enough to secure the perimeter.
   => During second preventive:
   - the RA "PRA_CLOSE_NL2_BE3_3" is used
-  - move the PST to -15 in curative2
-  - and then -16 in curative 3 to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3"
-  Moving the PST to -15 in curative2 and then -16 in curative3 is considered as using two RAs at two different instants.
-  Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
+  - push both PST to its max
+  Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_15_2_1.json"
   Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
-      # Preventive
+    # Preventive
   And 1 remedial actions are used in preventive
   And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
       # Curative1
-  Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
-      # Curative2
+  Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+  And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    # Curative2
   And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
   And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative2"
-  And the tap of PstRangeAction "CRA_PST_BE" should be -15 after "Contingency DE2 DE3 1" at "curative2"
-      # Curative3
-  And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
-  And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative3"
-  And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative3"
-  And the value of the objective function after CRA should be -8.65
-
+  And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative2"
+  And the value of the objective function after CRA should be -3.52
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.2: Multi-curative - with max-ra limits and 2P
-  Same case as 15.2.1 but with RA usage limitation: 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
-  Similarly to test 91.12.5, this should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
-  However the situation is more complex than for 91.12.5, since we want to check that the limitations are also respected in second preventive where all the curative range actions are optimized at once.
-  The MIP in 2P should be able to move the PST one time to -16 directly in curative2 to secure both the "Contingency DE2 DE3 1 - curative2" and "Contingency DE2 DE3 1 - curative3".
-  The final situation is the same as 15.2.2.
-  Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
+  Same case as 15.2.1 but with RA usage limitation: 1 curative1 RAs, 1 curative2 RAs.
+  Meaning that we can only use one of the PST compared to 15.2.1.
+  Using the CRA_PST_BE in curative2 give the max margin, using CRA_PST_FR the cost would have been 66 > 31.
+  Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_15_2_2_with_ra_limitations.json"
   Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
   When I launch rao
   Then the execution details should be "Second preventive improved first preventive results"
   Then 1 remedial actions are used in preventive
   Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+  And the tap of PstRangeAction "CRA_PST_FR" should be 0 after "Contingency DE2 DE3 1" at "curative1"
   Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
   And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative2"
   And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative2"
-  Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
-  And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative3"
-  And the value of the objective function after CRA should be -8.65
+  And the value of the objective function after CRA should be 31.35
 
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.3: Multi-curative - with max-pst-per-tso limits and 2P
