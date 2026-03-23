@@ -11,7 +11,7 @@ and specific properties.
 
 ## Java API
 
-After completing the RAO, the user can export the [`RaoResult`](rao-result.md) object as a CORE CNE file using the `write` method with the `"CORE-CNE""` format:
+After completing the RAO, the user can export the [`RaoResult`](rao-result.md) object as a CORE CNE file using the `write` method with the `"CORE-CNE"` format:
 
 ~~~java
 // RaoResult interface
@@ -267,7 +267,7 @@ Depending on the business type of the Constraint_Series, some or all of these me
 
 This tag is used to report remedial actions that were selected by the RAO for the CNEC's state:
 - If a PRA is selected for the CNEC's state, it will be reported inside the B54 & B57 Constraint_Series of this CNEC
-- If a CRA is selected for the CNEC's state, it will be reported inside the B57 Constraint_Series of this CNEC
+- If a CRA is selected for the CNEC's state, it will be reported inside the B54 Constraint_Series of this CNEC
 
 ##### mRID
 
@@ -378,8 +378,9 @@ Identifier of range action's UCTE network element.
 
 ##### pSRType.psrType
 
-Only one possible value for now:
+Possible values for now:
 - **A06**: remedial action is a PST
+- **B22**: remedial action is a DC link
 
 ##### resourceCapacity.defaultCapacity
 
@@ -392,5 +393,6 @@ Value of the range action's set-point (tap position for a PST range action).
 
 ##### resourceCapacity.unitSymbol
 
-Unit of the set-point given in **resourceCapacity.defaultCapacity**. Only one supported value for now:
-- **C62**: dimensionless
+Unit of the set-point given in **resourceCapacity.defaultCapacity**. Supported value are:
+- **MAW**: megawatt
+- **C62**: dimensionless (used for PST range action)
