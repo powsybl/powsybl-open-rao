@@ -37,3 +37,14 @@ Feature: 0.2.2.1: Core CNE export for preventive case
     When I export CORE CNE at "2019-01-08 01:00"
     Then the CORE CNE file is xsd-compliant
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_6_4.xml"
+
+  @fast @cne-export @hvdc
+  Scenario: 0.2.2.1.4 : Preventive case with German HVDC
+    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "epic14/crac_hvdc_preventive.xml"
+    Given crac creation parameters file is "epic14/ccp.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given RaoResult file is "epic12/RaoResult_12_6_5.json"
+    When I export CORE CNE at "2026-01-27 14:00"
+    Then the CORE CNE file is xsd-compliant
+    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_6_5.xml"
