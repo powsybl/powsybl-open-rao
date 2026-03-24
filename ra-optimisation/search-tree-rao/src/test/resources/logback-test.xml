@@ -12,4 +12,7 @@
     <logger name="com.powsybl.math" level="ERROR"/>
     <logger name="com.powsybl.openrao" level="DEBUG"/>
     <logger name="com.powsybl.ucte.network.UcteLogger" level="OFF"/>
+    <logger name="com.powsybl.iidm.network.impl.VariantManagerImpl" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>
