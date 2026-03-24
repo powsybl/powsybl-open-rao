@@ -9,6 +9,7 @@ package com.powsybl.openrao.util;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.RandomizedString;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +59,7 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     }
 
     public Network getAvailableNetwork() throws InterruptedException {
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("getAvailableNetwork");
         Network networkClone = networksQueue.take();
         if (!networkClone.getVariantManager().getVariantIds().contains(workingVariant)) {
             networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
@@ -82,6 +84,7 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     }
 
     public void releaseUsedNetwork(Network networkToRelease, boolean deleteWorkingVariant) throws InterruptedException {
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("releaseUsedNetwork");
         cleanVariants(networkToRelease, deleteWorkingVariant);
         networksQueue.put(networkToRelease);
     }
