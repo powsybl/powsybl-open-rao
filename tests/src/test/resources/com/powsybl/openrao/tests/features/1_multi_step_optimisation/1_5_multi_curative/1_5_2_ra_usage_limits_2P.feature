@@ -4,7 +4,7 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   is able to handle the cumulative effects of limits among the curative instants.
 
   @fast @rao @ac @multi-curative @second-preventive
-  Scenario: 15.2.1: Multi-curative CNECs with no CRA for curative1, one PST available for curative 1 and 2
+  Scenario: 15.2.1: Multi-curative CNECs with two PST available for curative 1 or 2 - no limit
   We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and two PST available CRA_PST_FR in curative 1 and CRA_PST_BE in curative2 .
   We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decreases as we move from curative 1 to 2 (300 -> 250)).
   During first preventive the network action is not used as the initial preventive perimeter is secure.
