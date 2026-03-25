@@ -316,7 +316,6 @@ class SearchTreeTest {
     @Test
     void testCreateChildLeafFiltersOutRangeActionWhenNeeded() {
         searchTreeWithOneChildLeaf();
-        when(networkVariant.applyNetworkAction(any())).thenReturn(true);
         when(networkAction.apply(network)).thenReturn(true);
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
 

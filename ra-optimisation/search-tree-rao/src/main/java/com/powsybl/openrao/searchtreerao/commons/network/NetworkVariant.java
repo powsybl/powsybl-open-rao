@@ -15,7 +15,7 @@ public interface NetworkVariant {
 
     void applyRangeAction(RangeAction<?> rangeAction, double setpoint);
 
-    boolean applyNetworkAction(NetworkAction networkAction);
+    void applyNetworkAction(NetworkAction networkAction);
 
     void compute(SensitivityComputer sensitivityComputer);
 }

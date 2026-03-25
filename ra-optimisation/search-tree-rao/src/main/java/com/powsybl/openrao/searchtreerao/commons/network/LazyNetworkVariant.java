@@ -1,16 +1,20 @@
 package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class LazyNetworkVariant implements NetworkVariant {
-    record WorkingVariant(String fromVariant, String newVariantId) {
+    record AppliedRangeAction(RangeAction<?> rangeAction, double setpoint) {
+    }
+
+    record WorkingVariant(String fromVariant, String newVariantId,
+                          List<AppliedRangeAction> appliedRangeActions,
+                          List<NetworkAction> networkActions) {
     }
 
     private final Network network;
@@ -28,6 +32,18 @@ public class LazyNetworkVariant implements NetworkVariant {
             }
             createdWorkingVariantIds.add(workingVariant.newVariantId);
             network.getVariantManager().setWorkingVariant(workingVariant.newVariantId);
+            // apply buffered actions
+            for (AppliedRangeAction appliedRangeAction : workingVariant.appliedRangeActions) {
+                appliedRangeAction.rangeAction.apply(network, appliedRangeAction.setpoint);
+            }
+            workingVariant.appliedRangeActions.clear();
+            for (NetworkAction networkAction : workingVariant.networkActions) {
+                boolean applicationSuccess =networkAction.apply(network);
+                if (!applicationSuccess) {
+                    throw new OpenRaoException(String.format("%s could not be applied on the network", networkAction.getId()));
+                }
+            }
+            workingVariant = null;
         }
     }
 
@@ -38,7 +54,7 @@ public class LazyNetworkVariant implements NetworkVariant {
 
     @Override
     public void setWorkingVariant(String fromVariant, String newVariantId) {
-        workingVariant = new WorkingVariant(fromVariant, newVariantId);
+        workingVariant = new WorkingVariant(fromVariant, newVariantId, new ArrayList<>(), new ArrayList<>());
     }
 
     @Override
@@ -48,21 +64,30 @@ public class LazyNetworkVariant implements NetworkVariant {
         }
     }
 
-    @Override
-    public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
-        ensureWorkingVariantIsCreated();
-        Objects.requireNonNull(rangeAction).apply(network, setpoint);
+    private void checkWorkingVariantIsSet() {
+        if (workingVariant == null) {
+            throw new OpenRaoException("Working variant not set");
+        }
     }
 
     @Override
-    public boolean applyNetworkAction(NetworkAction networkAction) {
-        ensureWorkingVariantIsCreated();
-        return Objects.requireNonNull(networkAction).apply(network);
+    public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
+        Objects.requireNonNull(rangeAction);
+        checkWorkingVariantIsSet();
+        workingVariant.appliedRangeActions.add(new AppliedRangeAction(rangeAction, setpoint));
+    }
+
+    @Override
+    public void applyNetworkAction(NetworkAction networkAction) {
+        Objects.requireNonNull(networkAction);
+        checkWorkingVariantIsSet();
+        workingVariant.networkActions.add(networkAction);
     }
 
     @Override
     public void compute(SensitivityComputer sensitivityComputer) {
+        Objects.requireNonNull(sensitivityComputer);
         ensureWorkingVariantIsCreated();
-        Objects.requireNonNull(sensitivityComputer).compute(network);
+        sensitivityComputer.compute(network);
     }
 }
