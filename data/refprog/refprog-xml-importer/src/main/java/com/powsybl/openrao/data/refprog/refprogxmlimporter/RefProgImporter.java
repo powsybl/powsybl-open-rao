@@ -35,7 +35,7 @@ import java.util.List;
  */
 public final class RefProgImporter {
 
-    private final static JAXBContext JAXB_CONTEXT;
+    private static final JAXBContext JAXB_CONTEXT;
 
     static {
         try {
@@ -84,35 +84,49 @@ public final class RefProgImporter {
         }
     }
 
-    private static boolean isValidDocumentInterval(PublicationDocument document, OffsetDateTime dateTime) {
+    private static boolean isValidDocumentInterval(PublicationDocument document,
+        OffsetDateTime dateTime) {
         if (document.getPublicationTimeInterval() != null) {
             String interval = document.getPublicationTimeInterval().getV();
             int sepPosition = interval.indexOf("/");
-            OffsetDateTime startDateTime = OffsetDateTime.parse(interval.substring(0, sepPosition), DateTimeFormatter.ISO_DATE_TIME);
-            OffsetDateTime endDateTime = OffsetDateTime.parse(interval.substring(sepPosition + 1), DateTimeFormatter.ISO_DATE_TIME);
+            OffsetDateTime startDateTime = OffsetDateTime.parse(interval.substring(0, sepPosition),
+                DateTimeFormatter.ISO_DATE_TIME);
+            OffsetDateTime endDateTime = OffsetDateTime.parse(interval.substring(sepPosition + 1),
+                DateTimeFormatter.ISO_DATE_TIME);
             return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
         } else {
-            BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown");
-            throw new OpenRaoException("Cannot import RefProg file because its publication time interval is unknown");
+            BUSINESS_LOGS.error(
+                "Cannot import RefProg file because its publication time interval is unknown");
+            throw new OpenRaoException(
+                "Cannot import RefProg file because its publication time interval is unknown");
         }
     }
 
-    private static boolean isValidPeriodInterval(OffsetDateTime timeSeriesStart, Duration resolution, IntervalType interval, OffsetDateTime dateTime) {
-        OffsetDateTime startDateTime = timeSeriesStart.plus(resolution.multipliedBy(interval.getPos().getV() - 1L));
+    private static boolean isValidPeriodInterval(OffsetDateTime timeSeriesStart,
+        Duration resolution, IntervalType interval, OffsetDateTime dateTime) {
+        OffsetDateTime startDateTime = timeSeriesStart.plus(
+            resolution.multipliedBy(interval.getPos().getV() - 1L));
         OffsetDateTime endDateTime = startDateTime.plus(resolution);
         return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
     }
 
     private static double getFlow(OffsetDateTime dateTime, PublicationTimeSeriesType timeSeries) {
         String timeSeriesInterval = timeSeries.getPeriod().get(0).getTimeInterval().getV();
-        OffsetDateTime timeSeriesStart = OffsetDateTime.parse(timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")), DateTimeFormatter.ISO_DATE_TIME);
-        Duration resolution = Duration.parse(timeSeries.getPeriod().get(0).getResolution().getV().toString());
-        List<IntervalType> validIntervals = timeSeries.getPeriod().get(0).getInterval().stream().filter(interval -> isValidPeriodInterval(timeSeriesStart, resolution, interval, dateTime)).toList();
+        OffsetDateTime timeSeriesStart = OffsetDateTime.parse(
+            timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")),
+            DateTimeFormatter.ISO_DATE_TIME);
+        Duration resolution = Duration.parse(
+            timeSeries.getPeriod().get(0).getResolution().getV().toString());
+        List<IntervalType> validIntervals = timeSeries.getPeriod().get(0).getInterval().stream()
+            .filter(
+                interval -> isValidPeriodInterval(timeSeriesStart, resolution, interval, dateTime))
+            .toList();
         double flow = 0;
         if (validIntervals.isEmpty()) {
             String outArea = timeSeries.getOutArea().getV();
             String inArea = timeSeries.getInArea().getV();
-            BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
+            BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}",
+                outArea, inArea, dateTime);
         } else {
             IntervalType validInterval = validIntervals.get(0);
             flow = validInterval.getQty().getV().doubleValue();

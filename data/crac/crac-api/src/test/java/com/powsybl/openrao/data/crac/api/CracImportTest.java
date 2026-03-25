@@ -45,9 +45,9 @@ class CracImportTest {
             @Override
             public CracCreationContext importData(SafeFileReader inputFile,
                 CracCreationParameters cracCreationParameters, Network network) {
-              var all =  inputFile.withReadStream(is -> new String(is.readAllBytes()));
-              Assertions.assertEquals("Example CRAC file", all);
-              return null;
+                var all = inputFile.withReadStream(is -> new String(is.readAllBytes()));
+                Assertions.assertEquals("Example CRAC file", all);
+                return null;
             }
         };
 

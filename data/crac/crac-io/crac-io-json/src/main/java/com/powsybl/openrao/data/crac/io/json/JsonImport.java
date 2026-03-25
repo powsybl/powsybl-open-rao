@@ -39,7 +39,8 @@ public class JsonImport implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
 
-    private static final Pattern JSON_VERSION_PATTERN = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
+    private static final Pattern JSON_VERSION_PATTERN = Pattern.compile(
+        "\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
 
     @Override
     public String getFormat() {
@@ -57,20 +58,25 @@ public class JsonImport implements Importer {
                 return false;
             }
 
-            var cracVersion  = inputFile.withReadStream(this::readVersion);
+            var cracVersion = inputFile.withReadStream(this::readVersion);
             LOGGER.debug("Got Crac version: {}", cracVersion);
 
             var jsonSchema = JsonSchemaProvider.getSchema(cracVersion);
 
-            var validationError = inputFile.withReadStream(is -> JsonSchemaProvider.getValidationErrors(jsonSchema, is));
+            var validationError = inputFile.withReadStream(
+                is -> JsonSchemaProvider.getValidationErrors(jsonSchema, is));
             if (!validationError.isEmpty()) {
-                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
+                throw new OpenRaoException(
+                    "JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(
+                        cracVersion.majorVersion(), cracVersion.minorVersion(),
+                        String.join("; ", validationError)));
             }
 
             return true;
 
         } catch (IOException e) {
-            TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}", e.getMessage());
+            TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}",
+                e.getMessage());
             return false;
         }
     }
@@ -80,7 +86,8 @@ public class JsonImport implements Importer {
         CracCreationParameters cracCreationParameters, Network network) {
 
         if (network == null) {
-            throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
+            throw new OpenRaoException(
+                "Network object is null but it is needed to map contingency's elements");
         }
 
         LOGGER.debug("Starting import");
@@ -88,7 +95,8 @@ public class JsonImport implements Importer {
         var objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
         //TODO Lui why cracCreationParameters ?
-        module.addDeserializer(Crac.class, new CracDeserializer(cracCreationParameters.getCracFactory(), network));
+        module.addDeserializer(Crac.class,
+            new CracDeserializer(cracCreationParameters.getCracFactory(), network));
         objectMapper.registerModule(module);
 
         return inputFile.withReadStream(is -> {
@@ -96,7 +104,8 @@ public class JsonImport implements Importer {
                 Crac crac = objectMapper.readValue(is, Crac.class);
                 return new JsonCracCreationContext(true, crac, network.getNameOrId());
             } catch (OpenRaoException e) {
-                CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null, network.getNameOrId());
+                CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null,
+                    network.getNameOrId());
                 cracCreationContext.getCreationReport().error(e.getMessage());
                 return cracCreationContext;
             }
@@ -109,7 +118,8 @@ public class JsonImport implements Importer {
 
         LOGGER.debug("Searching for version. maxLines={}", maxLines);
 
-        try (var isr = new InputStreamReader(is, StandardCharsets.UTF_8); var br = new BufferedReader(isr)) {
+        try (var isr = new InputStreamReader(is,
+            StandardCharsets.UTF_8); var br = new BufferedReader(isr)) {
             String line;
             int linesRead = 0;
             while ((line = br.readLine()) != null && linesRead < maxLines) {
@@ -128,6 +138,5 @@ public class JsonImport implements Importer {
 
         throw new OpenRaoException("Unable to get version");
     }
-
 
 }

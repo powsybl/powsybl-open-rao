@@ -35,7 +35,8 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class IcsImporterTest extends TestBase  {
+class IcsImporterTest extends TestBase {
+
     private static final double DOUBLE_EPSILON = 1e-6;
     private static final String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private String networkFilePathPostIcsImport1;
@@ -51,12 +52,16 @@ class IcsImporterTest extends TestBase  {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
-        Network network1 = Network.read(networkFilePath1, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath1));
-        Network network2 = Network.read(networkFilePath2, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath2));
+        Network network1 = Network.read(networkFilePath1,
+            IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath1));
+        Network network2 = Network.read(networkFilePath2,
+            IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath2));
 
         // Create postIcsNetwork:
-        networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
-        networkFilePathPostIcsImport2 = TMP_DIR + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
+        networkFilePathPostIcsImport1 =
+            TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
+        networkFilePathPostIcsImport2 =
+            TMP_DIR + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
 
         crac1 = Crac.read(getResourceAsFile("/crac/crac-0030.json"), network1);
         crac2 = Crac.read(getResourceAsFile("/crac/crac-0130.json"), network2);
@@ -66,11 +71,16 @@ class IcsImporterTest extends TestBase  {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath1), networkFilePathPostIcsImport1, crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath2), networkFilePathPostIcsImport2, crac2).build()
+                timestamp1,
+                RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath1),
+                    networkFilePathPostIcsImport1, crac1).build(),
+                timestamp2,
+                RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath2),
+                    networkFilePathPostIcsImport2, crac2).build()
             ));
 
-        interTemporalRaoInputWithNetworkPaths = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new IntertemporalConstraints());
+        interTemporalRaoInputWithNetworkPaths = new InterTemporalRaoInputWithNetworkPaths(raoInputs,
+            new IntertemporalConstraints());
     }
 
     private String getResourcePath(String resourcePath) {
@@ -93,13 +103,18 @@ class IcsImporterTest extends TestBase  {
     @Test
     void testIcsImporterOneAction() throws IOException {
         double cost = 5.;
-        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
-        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/static.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream,
+            seriesInputStream, gskInputStream, cost, cost);
 
-        assertEquals(1, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
         assertEquals(-10., generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
@@ -134,12 +149,16 @@ class IcsImporterTest extends TestBase  {
     @Test
     void testIcsImporterGradientNotOk() throws IOException {
         double cost = 5.;
-        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
-        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_gradient_not_ok.csv");
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/static.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/series_gradient_not_ok.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream,
+            seriesInputStream, gskInputStream, cost, cost);
 
-        assertEquals(0, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().size());
+        assertEquals(0, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().size());
         assertEquals(0, crac1.getInjectionRangeActions().size());
         assertEquals(0, crac2.getInjectionRangeActions().size());
     }
@@ -147,20 +166,32 @@ class IcsImporterTest extends TestBase  {
     @Test
     void testIcsImporterWithGSK() throws IOException {
         double cost = 5.;
-        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_with_gsk.csv");
-        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/static_with_gsk.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream(
+            "/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream,
+            seriesInputStream, gskInputStream, cost, cost);
 
-        assertEquals(2, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraintsBE = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("BE")).findFirst().orElseThrow();
+        assertEquals(2, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraintsBE = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("BE"))
+            .findFirst().orElseThrow();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraintsBE.getGeneratorId());
-        assertEquals(-6., generatorConstraintsBE.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
-        assertEquals(6., generatorConstraintsBE.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
-        GeneratorConstraints generatorConstraintsFR = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("FR")).findFirst().orElseThrow();
+        assertEquals(-6., generatorConstraintsBE.getDownwardPowerGradient().orElseThrow(),
+            DOUBLE_EPSILON);
+        assertEquals(6., generatorConstraintsBE.getUpwardPowerGradient().orElseThrow(),
+            DOUBLE_EPSILON);
+        GeneratorConstraints generatorConstraintsFR = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints()
+            .getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("FR"))
+            .findFirst().orElseThrow();
         assertEquals("Redispatching_RA_FFR1AA1_GENERATOR", generatorConstraintsFR.getGeneratorId());
-        assertEquals(-4., generatorConstraintsFR.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
-        assertEquals(4., generatorConstraintsFR.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
+        assertEquals(-4., generatorConstraintsFR.getDownwardPowerGradient().orElseThrow(),
+            DOUBLE_EPSILON);
+        assertEquals(4., generatorConstraintsFR.getUpwardPowerGradient().orElseThrow(),
+            DOUBLE_EPSILON);
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -179,3 +210,4 @@ class IcsImporterTest extends TestBase  {
     }
 
 }
+

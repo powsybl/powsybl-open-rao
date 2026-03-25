@@ -63,7 +63,8 @@ class RaoResultArchiveManagerTest extends TestBase {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
+        properties.put("inter-temporal-rao-result.export.filename-template",
+            "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         properties.put("inter-temporal-rao-result.export.preventive-only", "true");
 
@@ -116,7 +117,7 @@ class RaoResultArchiveManagerTest extends TestBase {
     private Set<String> extractZipEntriesFromBytes(byte[] zipBytes) throws IOException {
         Set<String> archiveContent = new HashSet<>();
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
-             ZipInputStream zis = new ZipInputStream(byteArrayInputStream)) {
+            ZipInputStream zis = new ZipInputStream(byteArrayInputStream)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 archiveContent.add(entry.getName());
@@ -128,7 +129,7 @@ class RaoResultArchiveManagerTest extends TestBase {
     private static Set<String> extractZipEntriesFromFile(Path zipFile) throws IOException {
         Set<String> archiveContent = new HashSet<>();
 
-        SafeFileReader.create(zipFile, BufferSize.MEDIUM).withReadStreamVoid(is ->  {
+        SafeFileReader.create(zipFile, BufferSize.MEDIUM).withReadStreamVoid(is -> {
             try (ZipInputStream zis = new ZipInputStream(is)) {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
@@ -141,30 +142,49 @@ class RaoResultArchiveManagerTest extends TestBase {
     }
 
     private void prepareTestRaoExportSetup() throws IOException {
-        Network network1 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network2 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network3 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Crac crac1 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141040.json"), network1);
-        Crac crac2 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141140.json"), network2);
-        Crac crac3 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141240.json"), network3);
-        RaoResult raoResult1 = RaoResult.read(getResourceAsFile("/raoResult/raoResult1.json"), crac1);
-        RaoResult raoResult2 = RaoResult.read(getResourceAsFile("/raoResult/raoResult2.json"), crac2);
-        RaoResult raoResult3 = RaoResult.read(getResourceAsFile("/raoResult/raoResult3.json"), crac3);
+        Network network1 = Network.read("/network/3Nodes.uct",
+            InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Network network2 = Network.read("/network/3Nodes.uct",
+            InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Network network3 = Network.read("/network/3Nodes.uct",
+            InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Crac crac1 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141040.json"),
+            network1);
+        Crac crac2 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141140.json"),
+            network2);
+        Crac crac3 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141240.json"),
+            network3);
+        RaoResult raoResult1 = RaoResult.read(getResourceAsFile("/raoResult/raoResult1.json"),
+            crac1);
+        RaoResult raoResult2 = RaoResult.read(getResourceAsFile("/raoResult/raoResult2.json"),
+            crac2);
+        RaoResult raoResult3 = RaoResult.read(getResourceAsFile("/raoResult/raoResult3.json"),
+            crac3);
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        GlobalLinearOptimizationResult initialLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        GlobalLinearOptimizationResult initialLinearOptimizationResult = Mockito.mock(
+            GlobalLinearOptimizationResult.class);
         Mockito.when(initialLinearOptimizationResult.getFunctionalCost()).thenReturn(0.0);
-        Mockito.when(initialLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
-        Mockito.when(initialLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(3333333.33);
-        Mockito.when(initialLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
+        Mockito.when(initialLinearOptimizationResult.getVirtualCostNames())
+            .thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
+        Mockito.when(
+                initialLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator"))
+            .thenReturn(3333333.33);
+        Mockito.when(initialLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost"))
+            .thenReturn(0.0);
 
-        GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(
+            GlobalLinearOptimizationResult.class);
         Mockito.when(globalLinearOptimizationResult.getFunctionalCost()).thenReturn(65030.0);
-        Mockito.when(globalLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
-        Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
-        Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCostNames())
+            .thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
+        Mockito.when(
+                globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator"))
+            .thenReturn(0.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost"))
+            .thenReturn(0.0);
 
         InterTemporalRaoResultImpl globalRaoResultToExport = new InterTemporalRaoResultImpl(
             initialLinearOptimizationResult,

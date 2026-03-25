@@ -83,7 +83,8 @@ class CracImportExportTest extends TestBase {
 
     @Test
     void testExists() {
-        assertTrue(new JsonImport().exists(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json")));
+        assertTrue(
+            new JsonImport().exists(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json")));
         assertTrue(new JsonImport().exists(getResourceAsReader("/cracHeader.json")));
         assertFalse(new JsonImport().exists(getResourceAsReader("/invalidCrac.json")));
         assertFalse(new JsonImport().exists(getResourceAsReader("/invalidCrac.txt")));
@@ -91,14 +92,17 @@ class CracImportExportTest extends TestBase {
 
     @Test
     void testImportCracWithUnknownVersion() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/crac-v100.0.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> new JsonImport().exists(getResourceAsReader("/crac-v100.0.json")));
         assertEquals("v100.0 is not a valid JSON CRAC version.", exception.getMessage());
     }
 
     @Test
     void testNonNullOffsetDateTime() {
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(
+            getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"),
+            new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
         assertNull(context.getTimeStamp());
         assertEquals("test", context.getNetworkName());
@@ -107,9 +111,11 @@ class CracImportExportTest extends TestBase {
     @Test
     void testPstMissingInNetwork() {
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/cracMissingPst.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(
+            getResourceAsReader("/cracMissingPst.json"), new CracCreationParameters(), network);
         assertFalse(context.isCreationSuccessful());
-        assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
+        assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"),
+            context.getCreationReport().getReport());
     }
 
     @Test
@@ -122,36 +128,48 @@ class CracImportExportTest extends TestBase {
         List<ILoggingEvent> logsList = listAppender.list;
 
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(
+            getResourceAsReader("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(),
+            network);
         assertTrue(context.isCreationSuccessful());
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(2, logsList.size());
-        assertEquals("If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator1Id", logsList.get(0).getFormattedMessage());
-        assertEquals("If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator2Id", logsList.get(1).getFormattedMessage());
+        assertEquals(
+            "If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator1Id",
+            logsList.get(0).getFormattedMessage());
+        assertEquals(
+            "If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator2Id",
+            logsList.get(1).getFormattedMessage());
 
     }
 
     @Test
     void testImportFailure() {
-        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
+        CracCreationContext context = new JsonImport().importData(
+            getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"),
+            new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
         assertFalse(context.isCreationSuccessful());
         assertNull(context.getCrac());
-        assertEquals(List.of("[ERROR] In Contingency, network element with id ne1Id does not exist in network null, so it does not have type information and can not be converted to a contingency element."), context.getCreationReport().getReport());
+        assertEquals(List.of(
+                "[ERROR] In Contingency, network element with id ne1Id does not exist in network null, so it does not have type information and can not be converted to a contingency element."),
+            context.getCreationReport().getReport());
     }
 
     @Test
     void explicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
-        Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac,
+            ExhaustiveCracCreation.createAssociatedNetwork());
         checkContent(importedCrac);
     }
 
     @Test
     void implicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
-        Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        Crac importedCrac = implicitJsonRoundTrip(crac,
+            ExhaustiveCracCreation.createAssociatedNetwork());
         checkContent(importedCrac);
     }
 
@@ -162,7 +180,8 @@ class CracImportExportTest extends TestBase {
 
         // check timestamp
         assertTrue(crac.getTimestamp().isPresent());
-        assertEquals(OffsetDateTime.of(2025, 2, 3, 10, 12, 0, 0, ZoneOffset.UTC), crac.getTimestamp().get());
+        assertEquals(OffsetDateTime.of(2025, 2, 3, 10, 12, 0, 0, ZoneOffset.UTC),
+            crac.getTimestamp().get());
 
         // check overall content
         assertNotNull(crac);
@@ -198,7 +217,8 @@ class CracImportExportTest extends TestBase {
 
         // check network elements
         assertEquals(1, crac.getContingency("contingency1Id").getElements().size());
-        assertEquals("ne1Id", crac.getContingency("contingency1Id").getElements().iterator().next().getId());
+        assertEquals("ne1Id",
+            crac.getContingency("contingency1Id").getElements().iterator().next().getId());
         assertEquals(2, crac.getContingency("contingency2Id").getElements().size());
 
         // ----------------------
@@ -224,9 +244,11 @@ class CracImportExportTest extends TestBase {
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
         assertTrue(crac.getFlowCnec("cnec1prevId").getState().getContingency().isEmpty());
         assertEquals(curativeInstant, crac.getFlowCnec("cnec3curId").getState().getInstant());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3curId").getState().getContingency().get().getId());
+        assertEquals("contingency2Id",
+            crac.getFlowCnec("cnec3curId").getState().getContingency().get().getId());
         assertEquals(autoInstant, crac.getFlowCnec("cnec3autoId").getState().getInstant());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3autoId").getState().getContingency().get().getId());
+        assertEquals("contingency2Id",
+            crac.getFlowCnec("cnec3autoId").getState().getContingency().get().getId());
 
         // check monitored and optimized
         assertFalse(crac.getFlowCnec("cnec3prevId").isOptimized());
@@ -253,7 +275,8 @@ class CracImportExportTest extends TestBase {
 
         // check threshold
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
-        BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
+        BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator()
+            .next();
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
         assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
@@ -303,24 +326,32 @@ class CracImportExportTest extends TestBase {
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
-        Action pstAction = crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next();
+        Action pstAction = crac.getNetworkAction("pstSetpointRaId").getElementaryActions()
+            .iterator().next();
         assertTrue(pstAction instanceof PhaseTapChangerTapPositionAction);
         assertEquals("pst", ((PhaseTapChangerTapPositionAction) pstAction).getTransformerId());
 
-        assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
-        Action ra1Action = crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next();
+        assertEquals(1,
+            crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
+        Action ra1Action = crac.getNetworkAction("injectionSetpointRaId").getElementaryActions()
+            .iterator().next();
         assertTrue(ra1Action instanceof GeneratorAction);
         assertEquals("injection", ((GeneratorAction) ra1Action).getGeneratorId());
 
-        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
-        List<Action> raComplexActions = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().stream().toList();
+        assertEquals(2,
+            crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        List<Action> raComplexActions = crac.getNetworkAction("complexNetworkActionId")
+            .getElementaryActions().stream().toList();
         assertTrue(raComplexActions.get(0) instanceof PhaseTapChangerTapPositionAction);
-        assertEquals("pst", ((PhaseTapChangerTapPositionAction) raComplexActions.get(0)).getTransformerId());
+        assertEquals("pst",
+            ((PhaseTapChangerTapPositionAction) raComplexActions.get(0)).getTransformerId());
         assertTrue(raComplexActions.get(1) instanceof TerminalsConnectionAction);
         assertEquals("ne1Id", ((TerminalsConnectionAction) raComplexActions.get(1)).getElementId());
 
-        assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
-        List<Action> raComplex2Actions = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().stream().toList();
+        assertEquals(4,
+            crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
+        List<Action> raComplex2Actions = crac.getNetworkAction("complexNetworkAction2Id")
+            .getElementaryActions().stream().toList();
         assertTrue(raComplex2Actions.get(0) instanceof DanglingLineAction);
         assertEquals("DL1", ((DanglingLineAction) raComplex2Actions.get(0)).getDanglingLineId());
         assertTrue(raComplex2Actions.get(1) instanceof LoadAction);
@@ -328,23 +359,29 @@ class CracImportExportTest extends TestBase {
         assertTrue(raComplex2Actions.get(2) instanceof SwitchAction);
         assertEquals("BR1", ((SwitchAction) raComplex2Actions.get(2)).getSwitchId());
         assertTrue(raComplex2Actions.get(3) instanceof ShuntCompensatorPositionAction);
-        assertEquals("SC1", ((ShuntCompensatorPositionAction) raComplex2Actions.get(3)).getShuntCompensatorId());
+        assertEquals("SC1",
+            ((ShuntCompensatorPositionAction) raComplex2Actions.get(3)).getShuntCompensatorId());
 
-        assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().size());
-        Action hvdcAction = crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().iterator().next();
+        assertEquals(1,
+            crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().size());
+        Action hvdcAction = crac.getNetworkAction("acEmulationDeactivationId")
+            .getElementaryActions().iterator().next();
         assertTrue(hvdcAction instanceof HvdcAction);
         assertEquals("hvdc", ((HvdcAction) hvdcAction).getHvdcId());
         assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId").getUsageRules().size());
 
-        assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId2").getElementaryActions().size());
-        Action hvdcAction2 = crac.getNetworkAction("acEmulationDeactivationId2").getElementaryActions().iterator().next();
+        assertEquals(1,
+            crac.getNetworkAction("acEmulationDeactivationId2").getElementaryActions().size());
+        Action hvdcAction2 = crac.getNetworkAction("acEmulationDeactivationId2")
+            .getElementaryActions().iterator().next();
         assertTrue(hvdcAction2 instanceof HvdcAction);
         assertEquals("hvdc2", ((HvdcAction) hvdcAction2).getHvdcId());
         assertEquals(3, crac.getNetworkAction("acEmulationDeactivationId2").getUsageRules().size());
 
         // check onInstant usage rule
         assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        OnInstant onInstant = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+        OnInstant onInstant = crac.getNetworkAction("complexNetworkActionId").getUsageRules()
+            .stream()
             .filter(ur -> ur instanceof OnInstant)
             .map(ur -> (OnInstant) ur)
             .findAny().orElse(null);
@@ -355,7 +392,8 @@ class CracImportExportTest extends TestBase {
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
         // check onContingencyState usage Rule (curative)
-        OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
+        OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId")
+            .getUsageRules().stream()
             .filter(ur -> ur instanceof OnContingencyState)
             .map(ur -> (OnContingencyState) ur)
             .findAny().orElse(null);
@@ -365,7 +403,8 @@ class CracImportExportTest extends TestBase {
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
-        UsageRule injectionSetpointRaUsageRule = crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
+        UsageRule injectionSetpointRaUsageRule = crac.getNetworkAction("injectionSetpointRaId")
+            .getUsageRules().iterator().next();
 
         assertTrue(injectionSetpointRaUsageRule instanceof OnConstraint<?>);
         OnConstraint<?> onFlowConstraint1 = (OnConstraint<?>) injectionSetpointRaUsageRule;
@@ -376,9 +415,11 @@ class CracImportExportTest extends TestBase {
         // test SwitchPair
 
         assertEquals(1, crac.getNetworkAction("switchPairRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
+        assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator()
+            .next() instanceof SwitchPair);
 
-        SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
+        SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId")
+            .getElementaryActions().iterator().next();
         assertEquals("to-open", switchPair.getSwitchToOpen().getId());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
 
@@ -404,7 +445,8 @@ class CracImportExportTest extends TestBase {
             .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
             .findAny().orElse(null);
         TapRange relRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .filter(
+                tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
             .findAny().orElse(null);
 
         assertNotNull(absRange);
@@ -417,7 +459,8 @@ class CracImportExportTest extends TestBase {
 
         // check OnFlowConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange2Id").getUsageRules().size());
-        UsageRule pstRange2UsageRule = crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
+        UsageRule pstRange2UsageRule = crac.getPstRangeAction("pstRange2Id").getUsageRules()
+            .iterator().next();
 
         assertTrue(pstRange2UsageRule instanceof OnConstraint<?>);
         OnConstraint<?> onFlowConstraint2 = (OnConstraint<?>) pstRange2UsageRule;
@@ -432,10 +475,12 @@ class CracImportExportTest extends TestBase {
             .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
             .findAny().orElse(null);
         relRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .filter(
+                tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
             .findAny().orElse(null);
         TapRange relTimestampRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .filter(tapRange -> tapRange.getRangeType()
+                .equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
             .findAny().orElse(null);
 
         assertNotNull(absRange);
@@ -452,7 +497,8 @@ class CracImportExportTest extends TestBase {
 
         // check OnAngleConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
-        UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
+        UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules()
+            .iterator().next();
 
         assertTrue(pstRange3UsageRule instanceof OnConstraint<?>);
         OnConstraint<?> onConstraint = (OnConstraint<?>) pstRange3UsageRule;
@@ -461,7 +507,8 @@ class CracImportExportTest extends TestBase {
         assertTrue(onConstraint.getCnec() instanceof AngleCnec);
 
         // check OnVoltageConstraint usage rule
-        Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
+        Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id")
+            .getUsageRules();
         assertEquals(1, pstRange4IdUsageRules.size());
         UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.iterator().next();
         assertTrue(pstRange4IdFirstUsageRules instanceof OnConstraint<?>);
@@ -473,10 +520,13 @@ class CracImportExportTest extends TestBase {
         PstRangeAction pst5 = crac.getPstRangeAction("pstRange5Id");
         assertEquals(2, pst5.getUsageRules().size());
 
-        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnConstraint<?>).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).toList();
+        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream()
+            .filter(usageRule -> usageRule instanceof OnConstraint<?>)
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).toList();
         assertEquals(1, onFlowConstrainRule.size());
 
-        List<UsageRule> onInstantRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant).toList();
+        List<UsageRule> onInstantRule = pst5.getUsageRules().stream()
+            .filter(usageRule -> usageRule instanceof OnInstant).toList();
         assertEquals(1, onInstantRule.size());
 
         // -----------------------------
@@ -488,11 +538,15 @@ class CracImportExportTest extends TestBase {
 
         // check groupId
         assertTrue(crac.getRangeAction("hvdcRange1Id").getGroupId().isEmpty());
-        assertEquals("group-1-hvdc", crac.getRangeAction("hvdcRange2Id").getGroupId().orElseThrow());
+        assertEquals("group-1-hvdc",
+            crac.getRangeAction("hvdcRange2Id").getGroupId().orElseThrow());
 
         // check preventive OnFlowConstraint usage rule
         assertEquals(3, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
-        OnConstraint<?> onFlowConstraint3 = (OnConstraint<?>) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).findAny().orElseThrow();
+        OnConstraint<?> onFlowConstraint3 = (OnConstraint<?>) crac.getHvdcRangeAction(
+                "hvdcRange2Id").getUsageRules().stream().filter(OnConstraint.class::isInstance)
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).findAny()
+            .orElseThrow();
         assertEquals(preventiveInstant, onFlowConstraint3.getInstant());
         assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getCnec());
         assertTrue(onFlowConstraint3.getCnec() instanceof FlowCnec);
@@ -520,20 +574,29 @@ class CracImportExportTest extends TestBase {
 
         assertNotNull(crac.getInjectionRangeAction("injectionRange1Id"));
 
-        assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
+        assertEquals("injectionRange1Name",
+            crac.getInjectionRangeAction("injectionRange1Id").getName());
         assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
         assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
-        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeys();
+        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction(
+            "injectionRange1Id").getInjectionDistributionKeys();
         assertEquals(2, networkElementAndKeys.size());
-        assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
+        assertEquals(1., networkElementAndKeys.entrySet().stream()
+            .filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow()
+            .getValue(), 1e-3);
+        assertEquals(-1., networkElementAndKeys.entrySet().stream()
+            .filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow()
+            .getValue(), 1e-3);
+        assertEquals("generator2Name", networkElementAndKeys.entrySet().stream()
+            .filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey()
+            .getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
         usageRules = crac.getInjectionRangeAction("injectionRange1Id").getUsageRules();
         assertEquals(2, usageRules.size());
-        ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
+        ur = (OnFlowConstraintInCountry) usageRules.stream()
+            .filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
         assertTrue(ur.getContingency().isPresent());
@@ -545,17 +608,21 @@ class CracImportExportTest extends TestBase {
 
         assertNotNull(crac.getCounterTradeRangeAction("counterTradeRange1Id"));
 
-        assertEquals("counterTradeRange1Name", crac.getCounterTradeRangeAction("counterTradeRange1Id").getName());
+        assertEquals("counterTradeRange1Name",
+            crac.getCounterTradeRangeAction("counterTradeRange1Id").getName());
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
-        assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+        assertEquals(Country.FR,
+            crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
+        assertEquals(Country.DE,
+            crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
 
         // Check OnFlowConstraintInCountry usage rules
         usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
         assertEquals(2, usageRules.size());
-        ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
+        ur = (OnFlowConstraintInCountry) usageRules.stream()
+            .filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
     }
@@ -563,7 +630,8 @@ class CracImportExportTest extends TestBase {
     @Test
     void testImportNotJsonFile() {
         InputStream inputStream = Mockito.mock(InputStream.class);
-        assertFalse(new JsonImport().exists(SafeFileReader.create(getResourceAsFile("/invalidCrac.txt"), BufferSize.SMALL)));
+        assertFalse(new JsonImport().exists(
+            SafeFileReader.create(getResourceAsFile("/invalidCrac.txt"), BufferSize.SMALL)));
     }
 
     @Test
@@ -582,26 +650,38 @@ class CracImportExportTest extends TestBase {
 
     @Test
     void testImportCracWithErrors() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/cracWithErrors.json")));
-        assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> new JsonImport().exists(getResourceAsReader("/cracWithErrors.json")));
+        assertEquals(
+            "JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found",
+            exception.getMessage());
     }
 
     @Test
     void testImportCracWithInitialSetpoint() {
         // From version 2.8, the initial setpoint of a range action is read from the network
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/crac2.8-with-initialsetpoint.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> new JsonImport().exists(
+                getResourceAsReader("/crac2.8-with-initialsetpoint.json")));
         assertEquals("JSON file is not a valid CRAC v2.8. Reasons: " +
-            "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
-            "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
-            "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
+                "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; "
+                +
+                "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; "
+                +
+                "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties",
+            exception.getMessage());
     }
 
     @Test
     void testImportCracWithBadFieldsOrderForFlowCnec() {
         // "networkElementId" must be declared before "thresholds"
-        CracCreationContext cracCreationContext = new JsonImport().importData(getResourceAsReader("/crac2.8-with-wrong-order-for-flow-cnec.json"), new CracCreationParameters(), NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            getResourceAsReader("/crac2.8-with-wrong-order-for-flow-cnec.json"),
+            new CracCreationParameters(),
+            NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.", cracCreationContext.getCreationReport().getReport().get(0));
+        assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.",
+            cracCreationContext.getCreationReport().getReport().get(0));
     }
 
     @Test
@@ -613,7 +693,8 @@ class CracImportExportTest extends TestBase {
 
         List<ILoggingEvent> logsList = listAppender.list;
 
-        Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm", getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
+        Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm",
+            getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
         Crac crac = Crac.read(getResourceAsFile("/crac-2-redispatching-actions.json"), network);
 
         assertEquals(1, crac.getInjectionRangeActions().size());
@@ -625,7 +706,9 @@ class CracImportExportTest extends TestBase {
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(1, logsList.size());
-        assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
+        assertEquals(
+            "The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.",
+            logsList.get(0).getFormattedMessage());
     }
 
     @Test
@@ -649,7 +732,8 @@ class CracImportExportTest extends TestBase {
                     Assertions.assertTrue(isCrac);
 
                     // and when
-                    var context = new JsonImport().importData(cracJson, new CracCreationParameters(),
+                    var context = new JsonImport().importData(cracJson,
+                        new CracCreationParameters(),
                         network);
                     //then
                     assertTrue(context.isCreationSuccessful());
@@ -657,7 +741,6 @@ class CracImportExportTest extends TestBase {
                     assertEquals("68a86c65dbd9ab18c51adba8", context.getNetworkName());
 
                 });
-
 
         }
     }

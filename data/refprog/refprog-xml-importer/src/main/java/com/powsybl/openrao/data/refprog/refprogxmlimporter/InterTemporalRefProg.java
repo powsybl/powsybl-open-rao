@@ -23,16 +23,16 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
- * InterTemporal Ref Prog file contains exchange values for 24 timestamps.
- * updateRefProg imports initial xml intertemporal ref prog file, modifies values according to redispatching volumes
- * per country weighted by becKeys, and exports new intertemporal ref prog file to output path.
+ * InterTemporal Ref Prog file contains exchange values for 24 timestamps. updateRefProg imports
+ * initial xml intertemporal ref prog file, modifies values according to redispatching volumes per
+ * country weighted by becKeys, and exports new intertemporal ref prog file to output path.
  *
- * @author  Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class InterTemporalRefProg {
 
-    private final static JAXBContext JAXB_CONTEXT;
+    private static final JAXBContext JAXB_CONTEXT;
 
     private InterTemporalRefProg() {
     }
@@ -45,7 +45,9 @@ public final class InterTemporalRefProg {
         }
     }
 
-    public static void updateRefProg(InputStream inputStream, TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData, Map<String, Map<String, Map<String, Double>>> becValues, String outputPath) {
+    public static void updateRefProg(InputStream inputStream,
+        TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData,
+        Map<String, Map<String, Map<String, Double>>> becValues, String outputPath) {
         // Load initial RefProg
         PublicationDocument document = importXmlDocument(inputStream);
 
@@ -56,17 +58,20 @@ public final class InterTemporalRefProg {
                 inArea = new CountryEICode(pubTS.getInArea().getV()).getCountry().toString();
                 outArea = new CountryEICode(pubTS.getOutArea().getV()).getCountry().toString();
             } catch (IllegalArgumentException e) {
-                BUSINESS_WARNS.warn("cannot find EICode for country {} or {}.", pubTS.getInArea(), pubTS.getOutArea());
+                BUSINESS_WARNS.warn("cannot find EICode for country {} or {}.", pubTS.getInArea(),
+                    pubTS.getOutArea());
                 return;
             }
 
             int i = 0;
-            for (Map<String, Double> netRedispatchingPerCountry : netRedispatchingPerCountryTemporalData.getDataPerTimestamp().values()) {
+            for (Map<String, Double> netRedispatchingPerCountry : netRedispatchingPerCountryTemporalData.getDataPerTimestamp()
+                .values()) {
                 IntervalType interval = pubTS.getPeriod().get(0).getInterval().get(i);
                 final Double[] qty = {interval.getQty().getV().doubleValue()};
 
                 netRedispatchingPerCountry.forEach((country, netRD) -> {
-                    if (becValues.containsKey(outArea) && becValues.get(outArea).containsKey(inArea)) {
+                    if (becValues.containsKey(outArea) && becValues.get(outArea)
+                        .containsKey(inArea)) {
                         qty[0] = qty[0] + becValues.get(outArea).get(inArea).get(country) * netRD;
                     }
                 });
@@ -87,7 +92,8 @@ public final class InterTemporalRefProg {
         }
     }
 
-    private static void exportXmlDocument(PublicationDocument publicationDocument, String outputPath) {
+    private static void exportXmlDocument(PublicationDocument publicationDocument,
+        String outputPath) {
         try {
             Marshaller jaxbMarshaller = JAXB_CONTEXT.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

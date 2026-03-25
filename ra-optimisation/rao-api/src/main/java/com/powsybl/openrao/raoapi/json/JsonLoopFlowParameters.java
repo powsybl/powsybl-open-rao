@@ -29,25 +29,28 @@ import java.util.Optional;
  */
 public final class JsonLoopFlowParameters {
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private JsonLoopFlowParameters() {
     }
 
-    static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
+    static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator)
+        throws IOException {
         Optional<LoopFlowParameters> optionalLoopFlowParameters = parameters.getLoopFlowParameters();
         if (optionalLoopFlowParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(LOOP_FLOW_PARAMETERS);
-            jsonGenerator.writeNumberField(ACCEPTABLE_INCREASE, optionalLoopFlowParameters.get().getAcceptableIncrease());
+            jsonGenerator.writeNumberField(ACCEPTABLE_INCREASE,
+                optionalLoopFlowParameters.get().getAcceptableIncrease());
             jsonGenerator.writeFieldName(COUNTRIES);
             jsonGenerator.writeStartArray();
-            optionalLoopFlowParameters.get().getCountries().stream().map(Enum::toString).sorted().forEach(s -> {
-                try {
-                    jsonGenerator.writeString(s);
-                } catch (IOException e) {
-                    throw new OpenRaoException("error while serializing loopflow countries", e);
-                }
-            });
+            optionalLoopFlowParameters.get().getCountries().stream().map(Enum::toString).sorted()
+                .forEach(s -> {
+                    try {
+                        jsonGenerator.writeString(s);
+                    } catch (IOException e) {
+                        throw new OpenRaoException("error while serializing loopflow countries", e);
+                    }
+                });
             jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
         }
@@ -64,10 +67,14 @@ public final class JsonLoopFlowParameters {
                 case COUNTRIES -> {
                     jsonParser.nextToken();
                     JsonNode arrayNode = MAPPER.readTree(jsonParser);
-                    List<String> countryStrings = MAPPER.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
+                    List<String> countryStrings = MAPPER.readValue(arrayNode.traverse(),
+                        new TypeReference<ArrayList<String>>() {
+                        });
                     loopFlowParameters.setCountries(countryStrings);
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize loop flow parameters: unexpected field in %s (%s)",
+                    LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
             }
         }
         raoParameters.setLoopFlowParameters(loopFlowParameters);

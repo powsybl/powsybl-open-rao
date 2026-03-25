@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public final class JsonVirtualHubsConfiguration {
 
-    private final static ObjectMapper MAPPER = preparedObjectMapper();
+    private static final ObjectMapper MAPPER = preparedObjectMapper();
 
     private JsonVirtualHubsConfiguration() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -33,7 +33,8 @@ public final class JsonVirtualHubsConfiguration {
     }
 
     public static VirtualHubsConfiguration importConfiguration(InputStream inputStream) {
-        Objects.requireNonNull(inputStream, "Virtual hubs configuration import on null input stream is invalid");
+        Objects.requireNonNull(inputStream,
+            "Virtual hubs configuration import on null input stream is invalid");
         try {
             return MAPPER.readValue(inputStream, VirtualHubsConfiguration.class);
         } catch (IOException e) {
@@ -41,9 +42,12 @@ public final class JsonVirtualHubsConfiguration {
         }
     }
 
-    public static void exportConfiguration(OutputStream outputStream, VirtualHubsConfiguration configuration) {
-        Objects.requireNonNull(outputStream, "Virtual hubs configuration export on null output stream is invalid");
-        Objects.requireNonNull(configuration, "Virtual hubs configuration export on null configuration is invalid");
+    public static void exportConfiguration(OutputStream outputStream,
+        VirtualHubsConfiguration configuration) {
+        Objects.requireNonNull(outputStream,
+            "Virtual hubs configuration export on null output stream is invalid");
+        Objects.requireNonNull(configuration,
+            "Virtual hubs configuration export on null configuration is invalid");
         try {
             MAPPER.writeValue(outputStream, configuration);
         } catch (IOException e) {
@@ -52,8 +56,10 @@ public final class JsonVirtualHubsConfiguration {
     }
 
     public static void exportConfiguration(Writer writer, VirtualHubsConfiguration configuration) {
-        Objects.requireNonNull(writer, "Virtual hubs configuration export on null writer is invalid");
-        Objects.requireNonNull(configuration, "Virtual hubs configuration export on null configuration is invalid");
+        Objects.requireNonNull(writer,
+            "Virtual hubs configuration export on null writer is invalid");
+        Objects.requireNonNull(configuration,
+            "Virtual hubs configuration export on null configuration is invalid");
         try {
             MAPPER.writeValue(writer, configuration);
         } catch (IOException e) {

@@ -25,7 +25,7 @@ import com.powsybl.openrao.data.raoresult.io.json.deserializers.RaoResultDeseria
 @AutoService(Importer.class)
 public class RaoResultJsonImporter implements Importer {
 
-    private final static ObjectMapper JSON_MAPPER_READ = initReader();
+    private static final ObjectMapper JSON_MAPPER_READ = initReader();
 
     private static ObjectMapper initReader() {
         ObjectMapper mapper = JsonUtil.createObjectMapper();

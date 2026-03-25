@@ -23,15 +23,16 @@ public final class CracUtil {
         throw new AssertionError("Utility class should not be constructed");
     }
 
-    private final static JAXBContext CONTEXT;
-    private final static Unmarshaller UNMARSHALLER;
+    private static final JAXBContext CONTEXT;
+    private static final Unmarshaller UNMARSHALLER;
 
     static {
         try {
             CONTEXT = JAXBContext.newInstance(FlowBasedConstraintDocument.class);
             UNMARSHALLER = CONTEXT.createUnmarshaller();
         } catch (Exception e) {
-            throw new ExceptionInInitializerError("Failed to initialize JAXBContext/Unmarshaller: " + e.getMessage());
+            throw new ExceptionInInitializerError(
+                "Failed to initialize JAXBContext/Unmarshaller: " + e.getMessage());
         }
     }
 

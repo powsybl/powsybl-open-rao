@@ -60,7 +60,7 @@ import org.xml.sax.SAXException;
  *         <i>mnec-acceptable-margin-diminution</i>: double (default is "0").
  *     </li>
  * </ul>
- *
+ * <p>
  * Required properties:
  * <ul>
  *     <li>
@@ -98,8 +98,8 @@ import org.xml.sax.SAXException;
 @AutoService(Exporter.class)
 public class SweCneExporter implements Exporter {
 
-    private final static JAXBContext JAXB_CONTEXT;
-    private final static Schema SCHEMA;
+    private static final JAXBContext JAXB_CONTEXT;
+    private static final Schema SCHEMA;
 
     static {
         try {
@@ -126,7 +126,9 @@ public class SweCneExporter implements Exporter {
 
     @Override
     public Set<String> getRequiredProperties() {
-        return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> SWE_CNE_EXPORT_PROPERTIES_PREFIX + propertyName).collect(Collectors.toSet());
+        return CNE_REQUIRED_PROPERTIES.stream()
+            .map(propertyName -> SWE_CNE_EXPORT_PROPERTIES_PREFIX + propertyName)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -135,9 +137,11 @@ public class SweCneExporter implements Exporter {
     }
 
     @Override
-    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext,
+        Properties properties, OutputStream outputStream) {
         validateDataToExport(cracCreationContext, properties);
-        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, properties);
+        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult,
+            properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
@@ -150,7 +154,8 @@ public class SweCneExporter implements Exporter {
             jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_3);
 
             QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, CNE_TAG);
-            JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, marketDocument);
+            JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName,
+                CriticalNetworkElementMarketDocument.class, marketDocument);
 
             jaxbMarshaller.marshal(root, stringWriter);
 
@@ -168,12 +173,14 @@ public class SweCneExporter implements Exporter {
     }
 
     @Override
-    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties,
+        OutputStream outputStream) {
         throw new NotImplementedException("CracCreationContext is required for CNE export.");
     }
 
     private static String getSchemaFile(String schemaName) {
-        return Objects.requireNonNull(SweCneExporter.class.getResource("/xsd/" + schemaName)).toExternalForm();
+        return Objects.requireNonNull(SweCneExporter.class.getResource("/xsd/" + schemaName))
+            .toExternalForm();
     }
 
     public static boolean validateCNESchema(String xmlContent) {

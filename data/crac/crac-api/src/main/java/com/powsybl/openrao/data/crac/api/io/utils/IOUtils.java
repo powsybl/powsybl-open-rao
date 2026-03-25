@@ -1,4 +1,3 @@
-
 package com.powsybl.openrao.data.crac.api.io.utils;
 
 import java.io.Closeable;
@@ -7,12 +6,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Utility for generic Input/Output operations
  *
  * @author Georg Haider {@literal <georg.haider at artelys.com>}
- *
  */
 
 public final class IOUtils {
@@ -66,7 +65,7 @@ public final class IOUtils {
         }
         int exp = (int) (Math.log(bytes) / Math.log(1024));
         char pre = "KMGTPE".charAt(exp - 1);
-        return String.format("%.2f %sB", bytes / Math.pow(1024, exp), pre);
+        return String.format(Locale.US, "%.2f %sB", bytes / Math.pow(1024, exp), pre);
     }
 
     public static long getSafeFileSize(Path p) {

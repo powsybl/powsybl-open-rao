@@ -26,14 +26,16 @@ import java.io.OutputStream;
  */
 public final class JsonIntertemporalConstraints {
 
-    private final static ObjectMapper READ_MAPPER = buildReadObjectMapper();
-    private final static ObjectWriter WRITER = buildObjectWriter();
+    private static final ObjectMapper READ_MAPPER = buildReadObjectMapper();
+    private static final ObjectWriter WRITER = buildObjectWriter();
 
     private static ObjectMapper buildReadObjectMapper() {
         ObjectMapper objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
-        module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
+        module.addDeserializer(IntertemporalConstraints.class,
+            new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
+        module.addDeserializer(GeneratorConstraints.class,
+            new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         return objectMapper;
     }
@@ -42,8 +44,10 @@ public final class JsonIntertemporalConstraints {
         ObjectMapper objectMapper = createObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         SimpleModule module = new SimpleModule();
-        module.addSerializer(IntertemporalConstraints.class, new IntertemporalConstraintsSerializer(IntertemporalConstraints.class));
-        module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
+        module.addSerializer(IntertemporalConstraints.class,
+            new IntertemporalConstraintsSerializer(IntertemporalConstraints.class));
+        module.addSerializer(GeneratorConstraints.class,
+            new GeneratorConstraintsSerializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         return objectMapper.writerWithDefaultPrettyPrinter();
     }
@@ -59,8 +63,7 @@ public final class JsonIntertemporalConstraints {
     public static final String CURRENT_VERSION = "1.0";
 
     /**
-     * CHANGELOG v1
-     * ------------
+     * CHANGELOG v1 ------------
      */
 
     // Generator constraints
@@ -74,7 +77,8 @@ public final class JsonIntertemporalConstraints {
 
     // IO
 
-    public static void write(IntertemporalConstraints intertemporalConstraints, OutputStream outputStream) throws IOException {
+    public static void write(IntertemporalConstraints intertemporalConstraints,
+        OutputStream outputStream) throws IOException {
         WRITER.writeValue(outputStream, intertemporalConstraints);
     }
 
@@ -92,7 +96,8 @@ public final class JsonIntertemporalConstraints {
     private static String extractDeserializationErrorMessage(String originalErrorMessage) {
         String nestedErrorToken = " (through reference chain";
         if (originalErrorMessage.contains(nestedErrorToken)) {
-            return originalErrorMessage.substring(0, originalErrorMessage.indexOf(nestedErrorToken));
+            return originalErrorMessage.substring(0,
+                originalErrorMessage.indexOf(nestedErrorToken));
         }
         return originalErrorMessage;
     }

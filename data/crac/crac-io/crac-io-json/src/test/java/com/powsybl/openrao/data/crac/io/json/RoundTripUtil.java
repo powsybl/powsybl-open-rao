@@ -35,14 +35,13 @@ public final class RoundTripUtil {
 
     private static final ObjectWriter WRITER = OBJECT_MAPPER.writerWithDefaultPrettyPrinter();
 
-
     private RoundTripUtil() {
 
     }
 
     /**
-     * This utilitary class enable to export an object through ObjectMapper in an OutputStream
-     * and then re-import this stream as the object. The purpose is to see if the whole export/import
+     * This utilitary class enable to export an object through ObjectMapper in an OutputStream and
+     * then re-import this stream as the object. The purpose is to see if the whole export/import
      * process works fine.
      *
      * @param object object to export/import
@@ -63,7 +62,8 @@ public final class RoundTripUtil {
             tmp.withWriteStream(os -> WRITER.writeValue(os, object));
             // import Crac from TmpFile
             var reader = SafeFileReader.create(tmp.getTempFile(), BufferSize.MEDIUM);
-            return new JsonImport().importData(reader, CracCreationParameters.load(), network).getCrac();
+            return new JsonImport().importData(reader, CracCreationParameters.load(), network)
+                .getCrac();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

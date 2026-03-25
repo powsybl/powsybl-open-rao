@@ -1,4 +1,3 @@
-
 package com.powsybl.openrao.data.crac.api.io.utils;
 
 import com.google.common.io.CountingInputStream;
@@ -15,14 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility for safely reading files:
- * - Efficient for large files, does not load the entire file into memory.
- * - Streams and underlying file are automatically closed.
- * - Provides fresh InputStreams starting at the beginning for each operation.
- * - Supports multiple read operations on the same file.
+ * Utility for safely reading files: - Efficient for large files, does not load the entire file into
+ * memory. - Streams and underlying file are automatically closed. - Provides fresh InputStreams
+ * starting at the beginning for each operation. - Supports multiple read operations on the same
+ * file.
  *
  * @author Georg Haider {@literal <georg.haider at artelys.com>}
- *
  */
 
 public class SafeFileReader {
@@ -55,6 +52,7 @@ public class SafeFileReader {
     }
 
     public static class RunException extends RuntimeException {
+
         public RunException(Exception e) {
             super(e);
         }
@@ -94,7 +92,8 @@ public class SafeFileReader {
             }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Read done. Read={}. Time={}. {}",
-                    IOUtils.humanReadableBytes(cis.getCount()), System.currentTimeMillis() - start, this);
+                    IOUtils.humanReadableBytes(cis.getCount()), System.currentTimeMillis() - start,
+                    this);
             }
             return ret;
 
@@ -132,7 +131,8 @@ public class SafeFileReader {
             }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Write done. Written={}. Time={}. {}",
-                    IOUtils.humanReadableBytes(cos.getCount()), System.currentTimeMillis() - start, this);
+                    IOUtils.humanReadableBytes(cos.getCount()), System.currentTimeMillis() - start,
+                    this);
             }
 
         } finally {
@@ -157,4 +157,3 @@ public class SafeFileReader {
     }
 
 }
-

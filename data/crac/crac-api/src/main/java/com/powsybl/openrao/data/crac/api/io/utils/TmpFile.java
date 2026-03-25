@@ -1,4 +1,3 @@
-
 package com.powsybl.openrao.data.crac.api.io.utils;
 
 import com.google.common.io.CountingInputStream;
@@ -17,18 +16,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * Utility for safely creating temporary files
  *
  * @author Georg Haider {@literal <georg.haider at artelys.com>}
- *
  */
 
 public class TmpFile implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TmpFile.class);
 
-    private static final FileAttribute<Set<PosixFilePermission>> FILE_ATTRS = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+    private static final FileAttribute<Set<PosixFilePermission>> FILE_ATTRS = PosixFilePermissions.asFileAttribute(
+        PosixFilePermissions.fromString("rwx------"));
 
     private final Path tempFile;
     private final BufferSize buffer;
@@ -56,12 +54,14 @@ public class TmpFile implements AutoCloseable {
         }
         tempFile.deleteOnExit();
         if (!tempFileOk) {
-            throw new IOException("Error creating permissions on file: " + tempFile.getAbsolutePath());
+            throw new IOException(
+                "Error creating permissions on file: " + tempFile.getAbsolutePath());
         }
         return new TmpFile(tempFile, buffer);
     }
 
-    public static TmpFile create(String suffix, File inputData, BufferSize buffer) throws IOException {
+    public static TmpFile create(String suffix, File inputData, BufferSize buffer)
+        throws IOException {
         try (var is = buffer.apply(Files.newInputStream(inputData.toPath()))) {
             return create(suffix, is, buffer);
         }
@@ -70,7 +70,8 @@ public class TmpFile implements AutoCloseable {
     /**
      * Note: InputStream will be closed
      */
-    public static TmpFile create(String suffix, InputStream inputData, BufferSize buffer) throws IOException {
+    public static TmpFile create(String suffix, InputStream inputData, BufferSize buffer)
+        throws IOException {
         var tmp = create(suffix, buffer);
         tmp.loadInputStream(inputData);
         return tmp;
@@ -117,7 +118,7 @@ public class TmpFile implements AutoCloseable {
 
     public String getFileSize() {
         var size = IOUtils.getSafeFileSize(this.tempFile);
-        return  size + " bytes (" + IOUtils.humanReadableBytes(size) + ")";
+        return size + " bytes (" + IOUtils.humanReadableBytes(size) + ")";
     }
 
 }

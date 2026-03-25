@@ -22,7 +22,8 @@ class RaoResultImportTest {
 
     @Test
     void testImportFromInputStream() throws IOException {
-        assertTrue(RaoResult.read(getResourceAsFile("raoResult.txt"), null) instanceof MockRaoResult);
+        assertTrue(
+            RaoResult.read(getResourceAsFile("raoResult.txt"), null) instanceof MockRaoResult);
     }
 
     public File getResourceAsFile(String file) {
@@ -33,5 +34,5 @@ class RaoResultImportTest {
         }
     }
 
-
 }
+

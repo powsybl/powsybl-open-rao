@@ -1,4 +1,3 @@
-
 package com.powsybl.openrao.data.crac.io.json;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -20,19 +19,20 @@ public final class MinimalCracParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MinimalCracParser.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
+    private static final ObjectMapper MAPPER = new ObjectMapper().configure(
+        JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
 
     private static final Map<String, List<Predicate<String>>> FIELDS = Map.of(
-        "type",    List.of(isConst("CRAC")),
+        "type", List.of(isConst("CRAC")),
         "version", List.of(isTypeString(), isPattern(Pattern.compile("^[1-9]\\d*\\.\\d+$"))),
-        "id",      List.of(isTypeString()),
-        "name",    List.of(isTypeString())
+        "id", List.of(isTypeString()),
+        "name", List.of(isTypeString())
     );
     private static final boolean ADDITIONAL_PROPERTIES = true;
     private static final Set<String> REQUIRED_FIELDS = Set.of("type", "version", "id", "name");
 
     private MinimalCracParser() {
-      //empty
+        //empty
     }
 
     private static Predicate<String> isConst(String c) {
@@ -70,7 +70,8 @@ public final class MinimalCracParser {
         }
     }
 
-    private static boolean validateToken(JsonParser parser, JsonToken token, Set<String> found) throws IOException {
+    private static boolean validateToken(JsonParser parser, JsonToken token, Set<String> found)
+        throws IOException {
         if (token == null) {
             LOGGER.debug("Unexpected EOF");
             return false;
