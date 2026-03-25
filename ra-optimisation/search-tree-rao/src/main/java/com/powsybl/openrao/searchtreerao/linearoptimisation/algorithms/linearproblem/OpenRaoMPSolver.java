@@ -26,11 +26,13 @@ import java.util.TreeMap;
  * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
  */
 public class OpenRaoMPSolver {
+
     static {
         try {
             Loader.loadNativeLibraries();
         } catch (Exception e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error(
+                "Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
     }
 
@@ -52,7 +54,8 @@ public class OpenRaoMPSolver {
     OpenRaoMPObjective objective;
     private boolean objectiveMinimization = true;
 
-    public OpenRaoMPSolver(String optProblemName, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+    public OpenRaoMPSolver(String optProblemName,
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         this.optProblemName = optProblemName;
         solveConfiguration = new MPSolverParameters();
@@ -76,13 +79,15 @@ public class OpenRaoMPSolver {
         return solver;
     }
 
-    private MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+    private MPSolver.OptimizationProblemType getOrToolsProblemType(
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
         return switch (solver) {
             case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
             case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
             case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
-            default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
+            default -> throw new OpenRaoException(
+                String.format("unknown solver %s in RAO parameters", solver));
         };
     }
 
@@ -99,7 +104,8 @@ public class OpenRaoMPSolver {
         if (hasConstraint(name)) {
             return constraints.get(name);
         } else {
-            throw new OpenRaoException(String.format("Constraint %s has not been created yet", name));
+            throw new OpenRaoException(
+                String.format("Constraint %s has not been created yet", name));
         }
     }
 
@@ -137,7 +143,8 @@ public class OpenRaoMPSolver {
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
-        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(
+            mpSolver.makeVar(roundedLb, roundedUb, integer, name));
         variables.put(name, variable);
         return variable;
     }
@@ -148,7 +155,8 @@ public class OpenRaoMPSolver {
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(
+                mpSolver.makeConstraint(roundedLb, roundedUb, name));
             constraints.put(name, constraint);
             return constraint;
         }
@@ -168,15 +176,16 @@ public class OpenRaoMPSolver {
     }
 
     public void setRelativeMipGap(double relativeMipGap) {
-        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
+        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP,
+            relativeMipGap);
     }
 
     public LinearProblemStatus solve() {
         return OpenTelemetryReporter.withSpan("rao.mpsolver.solve", cx -> {
-        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
-            mpSolver.enableOutput();
-        }
-        return convertResultStatus(mpSolver.solve(solveConfiguration));
+            if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+                mpSolver.enableOutput();
+            }
+            return convertResultStatus(mpSolver.solve(solveConfiguration));
         });
     }
 
@@ -239,7 +248,8 @@ public class OpenRaoMPSolver {
             return 0.;
         }
         double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
-        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
+        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(
+            t)) {
             return value - t + t;
         }
         return value;

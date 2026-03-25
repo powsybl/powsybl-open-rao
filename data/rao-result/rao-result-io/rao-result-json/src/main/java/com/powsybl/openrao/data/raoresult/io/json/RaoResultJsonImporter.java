@@ -27,6 +27,7 @@ import java.io.UncheckedIOException;
  */
 @AutoService(Importer.class)
 public class RaoResultJsonImporter implements Importer {
+
     @Override
     public String getFormat() {
         return "JSON";
@@ -50,15 +51,15 @@ public class RaoResultJsonImporter implements Importer {
     @Override
     public RaoResult importData(InputStream inputStream, Crac crac) {
         return OpenTelemetryReporter.withSpan("rao.importJsonRaoResult", cx -> {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(crac));
-            objectMapper.registerModule(module);
-            return objectMapper.readValue(inputStream, RaoResult.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+            try {
+                ObjectMapper objectMapper = createObjectMapper();
+                SimpleModule module = new SimpleModule();
+                module.addDeserializer(RaoResult.class, new RaoResultDeserializer(crac));
+                objectMapper.registerModule(module);
+                return objectMapper.readValue(inputStream, RaoResult.class);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         });
     }
 }

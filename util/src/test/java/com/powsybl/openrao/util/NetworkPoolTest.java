@@ -31,6 +31,7 @@ import org.slf4j.MDC;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class NetworkPoolTest {
+
     private Network network;
     private String initialVariant;
     private String otherVariant = "otherVariant";
@@ -44,20 +45,24 @@ class NetworkPoolTest {
 
     @Test
     void testCreate() {
-        assertTrue(AbstractNetworkPool.create(network, otherVariant, 10, true) instanceof MultipleNetworkPool);
-        assertTrue(AbstractNetworkPool.create(network, otherVariant, 1, true) instanceof SingleNetworkPool);
+        assertTrue(AbstractNetworkPool.create(network, otherVariant, 10,
+            true) instanceof MultipleNetworkPool);
+        assertTrue(AbstractNetworkPool.create(network, otherVariant, 1,
+            true) instanceof SingleNetworkPool);
     }
 
     @Test
     void networkPoolUsageTest() {
-        try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10, false)) {
+        try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10,
+            false)) {
 
             pool.initClones(4);
             Network networkCopy = pool.getAvailableNetwork();
 
             assertNotNull(networkCopy);
             assertNotEquals(network, networkCopy);
-            assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("OpenRaoNetworkPool working variant"));
+            assertTrue(networkCopy.getVariantManager().getWorkingVariantId()
+                .startsWith("OpenRaoNetworkPool working variant"));
 
             pool.initClones(1);
             assertNotEquals(network, pool.getAvailableNetwork());
@@ -77,7 +82,8 @@ class NetworkPoolTest {
         assertNotNull(networkCopy);
         assertEquals(network, networkCopy);
         assertEquals(4, network.getVariantManager().getVariantIds().size());
-        assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("OpenRaoNetworkPool working variant"));
+        assertTrue(networkCopy.getVariantManager().getWorkingVariantId()
+            .startsWith("OpenRaoNetworkPool working variant"));
 
         pool.releaseUsedNetwork(networkCopy);
 
@@ -93,20 +99,21 @@ class NetworkPoolTest {
         logger.addAppender(listAppender);
 
         OpenTelemetryReporter.withSpan("checkMDCIsCopied", cx -> {
-        MDC.put("extrafield", "value from caller");
-        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 20, true);
-        for (int i = 0; i < 20; i++) {
-            pool.submit(() -> {
-                LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
-            });
-        }
-        pool.shutdownAndAwaitTermination(1, TimeUnit.SECONDS);
+            MDC.put("extrafield", "value from caller");
+            AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 20, true);
+            for (int i = 0; i < 20; i++) {
+                pool.submit(() -> {
+                    LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
+                });
+            }
+            pool.shutdownAndAwaitTermination(1, TimeUnit.SECONDS);
         });
 
         List<ILoggingEvent> logsList = listAppender.list;
         for (int i = 0; i < 20; i++) {
             assertTrue(logsList.get(i).getMDCPropertyMap().containsKey("extrafield"));
-            assertEquals("value from caller", logsList.get(i).getMDCPropertyMap().get("extrafield"));
+            assertEquals("value from caller",
+                logsList.get(i).getMDCPropertyMap().get("extrafield"));
         }
     }
 

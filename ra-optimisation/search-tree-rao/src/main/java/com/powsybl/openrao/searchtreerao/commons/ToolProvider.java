@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class ToolProvider {
+
     private Network network;
     private RaoParameters raoParameters;
     private ReferenceProgram referenceProgram;
@@ -72,9 +73,11 @@ public final class ToolProvider {
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
         Optional<LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
-        if (loopFlowParametersOptional.isPresent() && !loopFlowParametersOptional.get().getCountries().isEmpty()) {
+        if (loopFlowParametersOptional.isPresent() && !loopFlowParametersOptional.get()
+            .getCountries().isEmpty()) {
             return allCnecs.stream()
-                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParametersOptional.get().getCountries()))
+                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network,
+                    loopFlowParametersOptional.get().getCountries()))
                 .collect(Collectors.toSet());
         } else {
             return allCnecs.stream()
@@ -83,23 +86,25 @@ public final class ToolProvider {
         }
     }
 
-    static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
+    static boolean cnecIsInCountryList(Cnec<?> cnec, Network network,
+        Set<Country> loopflowCountries) {
         return cnec.getLocation(network).stream().anyMatch(loopflowCountries::contains);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction<?>> rangeActions,
-                                                                            boolean computePtdfs,
-                                                                            boolean computeLoopFlows, Instant outageInstant) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant);
+        Set<RangeAction<?>> rangeActions,
+        boolean computePtdfs,
+        boolean computeLoopFlows, Instant outageInstant) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs,
+            computeLoopFlows, null, outageInstant);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction<?>> rangeActions,
-                                                                            boolean computePtdfs,
-                                                                            boolean computeLoopFlows,
-                                                                            AppliedRemedialActions appliedRemedialActions,
-                                                                            Instant outageInstant) {
+        Set<RangeAction<?>> rangeActions,
+        boolean computePtdfs,
+        boolean computeLoopFlows,
+        AppliedRemedialActions appliedRemedialActions,
+        Instant outageInstant) {
 
         Unit flowUnit = getFlowUnit(raoParameters);
 
@@ -107,7 +112,8 @@ public final class ToolProvider {
         if (flowUnit == Unit.MEGAWATT) {
             computationUnits = Collections.singleton(Unit.MEGAWATT);
         } else {
-            computationUnits = Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
+            computationUnits = Set.of(Unit.AMPERE,
+                Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
         }
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
@@ -125,9 +131,11 @@ public final class ToolProvider {
             builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, computationUnits);
         } else if (computeLoopFlows) {
             Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
-            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, computationUnits);
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs,
+                computationUnits);
         } else if (computePtdfs) {
-            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, computationUnits);
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs,
+                computationUnits);
         }
 
         return builder.build();
@@ -156,7 +164,8 @@ public final class ToolProvider {
         for (String eiCode : listEicCode) {
             SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}",
+                    eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }
@@ -170,6 +179,7 @@ public final class ToolProvider {
     }
 
     public static final class ToolProviderBuilder {
+
         private Network network;
         private RaoParameters raoParameters;
         private ReferenceProgram referenceProgram;
@@ -187,14 +197,18 @@ public final class ToolProvider {
             return this;
         }
 
-        public ToolProviderBuilder withLoopFlowComputation(ReferenceProgram referenceProgram, ZonalData<SensitivityVariableSet> glskProvider, LoopFlowComputation loopFlowComputation) {
+        public ToolProviderBuilder withLoopFlowComputation(ReferenceProgram referenceProgram,
+            ZonalData<SensitivityVariableSet> glskProvider,
+            LoopFlowComputation loopFlowComputation) {
             this.referenceProgram = referenceProgram;
             this.glskProvider = glskProvider;
             this.loopFlowComputation = loopFlowComputation;
             return this;
         }
 
-        public ToolProviderBuilder withAbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, AbsolutePtdfSumsComputation absolutePtdfSumsComputation) {
+        public ToolProviderBuilder withAbsolutePtdfSumsComputation(
+            ZonalData<SensitivityVariableSet> glskProvider,
+            AbsolutePtdfSumsComputation absolutePtdfSumsComputation) {
             this.glskProvider = glskProvider;
             this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
             return this;
@@ -214,38 +228,40 @@ public final class ToolProvider {
         }
     }
 
-    public static ToolProvider buildFromRaoInputAndParameters(RaoInput raoInput, RaoParameters raoParameters) {
+    public static ToolProvider buildFromRaoInputAndParameters(RaoInput raoInput,
+        RaoParameters raoParameters) {
         return OpenTelemetryReporter.withSpan("rao.buildToolProvider", cx -> {
-        ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
-            .withNetwork(raoInput.getNetwork())
-            .withRaoParameters(raoParameters);
-        if (raoInput.getReferenceProgram() != null) {
-            toolProviderBuilder.withLoopFlowComputation(
-                raoInput.getReferenceProgram(),
-                raoInput.getGlskProvider(),
-                new LoopFlowComputationImpl(
-                    raoInput.getGlskProvider(),
+            ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
+                .withNetwork(raoInput.getNetwork())
+                .withRaoParameters(raoParameters);
+            if (raoInput.getReferenceProgram() != null) {
+                toolProviderBuilder.withLoopFlowComputation(
                     raoInput.getReferenceProgram(),
-                    getFlowUnit(raoParameters)
-                )
-            );
-        }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
-            if (optionalRelativeMarginsParameters.isEmpty()) {
-                throw new OpenRaoException(
-                    "No relative margins parameters were defined with objective function "
-                        + raoParameters.getObjectiveFunctionParameters().getType());
-            }
-            toolProviderBuilder.withAbsolutePtdfSumsComputation(
-                raoInput.getGlskProvider(),
-                new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    optionalRelativeMarginsParameters.get().getPtdfBoundaries()
-                )
-            );
-        }
-        return toolProviderBuilder.build();
+                    new LoopFlowComputationImpl(
+                        raoInput.getGlskProvider(),
+                        raoInput.getReferenceProgram(),
+                        getFlowUnit(raoParameters)
+                    )
+                );
+            }
+            if (raoParameters.getObjectiveFunctionParameters().getType()
+                .relativePositiveMargins()) {
+                Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
+                if (optionalRelativeMarginsParameters.isEmpty()) {
+                    throw new OpenRaoException(
+                        "No relative margins parameters were defined with objective function "
+                            + raoParameters.getObjectiveFunctionParameters().getType());
+                }
+                toolProviderBuilder.withAbsolutePtdfSumsComputation(
+                    raoInput.getGlskProvider(),
+                    new AbsolutePtdfSumsComputation(
+                        raoInput.getGlskProvider(),
+                        optionalRelativeMarginsParameters.get().getPtdfBoundaries()
+                    )
+                );
+            }
+            return toolProviderBuilder.build();
         });
     }
 }

@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
  */
 @AutoService(Importer.class)
 public class JsonImport implements Importer {
+
     @Override
     public String getFormat() {
         return "JSON";
@@ -51,58 +52,67 @@ public class JsonImport implements Importer {
             return false;
         }
         try {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                inputStream.readAllBytes());
             if (isCracFile(byteArrayInputStream)) {
                 byteArrayInputStream.reset();
                 Version cracVersion = readVersion(byteArrayInputStream);
                 JsonSchema jsonSchema = getSchema(cracVersion);
-                List<String> validationError = getValidationErrors(jsonSchema, byteArrayInputStream);
+                List<String> validationError = getValidationErrors(jsonSchema,
+                    byteArrayInputStream);
                 if (validationError.isEmpty()) {
                     return true;
                 }
-                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
+                throw new OpenRaoException(
+                    "JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(
+                        cracVersion.majorVersion(), cracVersion.minorVersion(),
+                        String.join("; ", validationError)));
             }
             return false;
         } catch (IOException e) {
-            TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}", e.getMessage());
+            TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}",
+                e.getMessage());
             return false;
         }
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+    public CracCreationContext importData(InputStream inputStream,
+        CracCreationParameters cracCreationParameters, Network network) {
         return OpenTelemetryReporter.withSpan("rao.importJsonCrac", cx -> {
-        if (network == null) {
-            throw new OpenRaoException(
-                "Network object is null but it is needed to map contingency's elements");
-        }
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class,
-                new CracDeserializer(cracCreationParameters.getCracFactory(), network));
-            objectMapper.registerModule(module);
-            Crac crac = objectMapper.readValue(inputStream, Crac.class);
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac,
-                network.getNameOrId());
-            return cracCreationContext;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (OpenRaoException e) {
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null,
-                network.getNameOrId());
-            cracCreationContext.getCreationReport().error(e.getMessage());
-            return cracCreationContext;
-        }
+            if (network == null) {
+                throw new OpenRaoException(
+                    "Network object is null but it is needed to map contingency's elements");
+            }
+            try {
+                ObjectMapper objectMapper = createObjectMapper();
+                SimpleModule module = new SimpleModule();
+                module.addDeserializer(Crac.class,
+                    new CracDeserializer(cracCreationParameters.getCracFactory(), network));
+                objectMapper.registerModule(module);
+                Crac crac = objectMapper.readValue(inputStream, Crac.class);
+                CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac,
+                    network.getNameOrId());
+                return cracCreationContext;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (OpenRaoException e) {
+                CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null,
+                    network.getNameOrId());
+                cracCreationContext.getCreationReport().error(e.getMessage());
+                return cracCreationContext;
+            }
         });
     }
 
     private static Version readVersion(ByteArrayInputStream cracByteArrayInputStream) {
-        String cracContent = new String(cracByteArrayInputStream.readAllBytes(), StandardCharsets.UTF_8);
+        String cracContent = new String(cracByteArrayInputStream.readAllBytes(),
+            StandardCharsets.UTF_8);
         cracByteArrayInputStream.reset();
         Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
         Matcher versionMatcher = versionPattern.matcher(cracContent);
         versionMatcher.find();
-        return new Version(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
+        return new Version(Integer.parseInt(versionMatcher.group(1)),
+            Integer.parseInt(versionMatcher.group(2)));
     }
 }

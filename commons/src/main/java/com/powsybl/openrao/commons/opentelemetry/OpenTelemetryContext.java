@@ -16,49 +16,48 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class OpenTelemetryContext {
 
-  private final Optional<Span> span;
-  private final Optional<Context> context;
+    private final Optional<Span> span;
+    private final Optional<Context> context;
 
-  public OpenTelemetryContext(Tracer tracer, String spanName) {
-    var hasTracer = tracer != null;
-    if (hasTracer) {
-      var newSpan = tracer.spanBuilder(spanName).startSpan();
-      this.context = Optional.of(newSpan.storeInContext(Context.current()));
-      this.span = Optional.of(newSpan);
-    } else {
-      this.span = Optional.empty();
-      this.context = Optional.empty();
+    public OpenTelemetryContext(Tracer tracer, String spanName) {
+        var hasTracer = tracer != null;
+        if (hasTracer) {
+            var newSpan = tracer.spanBuilder(spanName).startSpan();
+            this.context = Optional.of(newSpan.storeInContext(Context.current()));
+            this.span = Optional.of(newSpan);
+        } else {
+            this.span = Optional.empty();
+            this.context = Optional.empty();
+        }
     }
-  }
 
-  @Nullable
-  public Scope makeCurrent() {
-    return context.map(Context::makeCurrent).orElse(null);
-  }
+    @Nullable
+    public Scope makeCurrent() {
+        return context.map(Context::makeCurrent).orElse(null);
+    }
 
-  public void addEvent(String name) {
-    span.ifPresent(s -> s.addEvent(name));
-  }
+    public void addEvent(String name) {
+        span.ifPresent(s -> s.addEvent(name));
+    }
 
-  public void setStatus(StatusCode statusCode) {
-    span.ifPresent(s -> s.setStatus(statusCode));
-  }
+    public void setStatus(StatusCode statusCode) {
+        span.ifPresent(s -> s.setStatus(statusCode));
+    }
 
-  public void setStatus(StatusCode statusCode, String description) {
-    span.ifPresent(s -> s.setStatus(statusCode, description));
-  }
+    public void setStatus(StatusCode statusCode, String description) {
+        span.ifPresent(s -> s.setStatus(statusCode, description));
+    }
 
-  public void end() {
-    span.ifPresent(s -> s.end());
-  }
+    public void end() {
+        span.ifPresent(Span::end);
+    }
 
-  public void recordException(Exception e) {
-    span.ifPresent(s -> s.recordException(e));
-  }
+    public void recordException(Exception e) {
+        span.ifPresent(s -> s.recordException(e));
+    }
 
 }

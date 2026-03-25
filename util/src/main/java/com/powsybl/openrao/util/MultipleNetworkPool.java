@@ -28,7 +28,8 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
     private int networkNumberOfClones = 0;
 
-    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism, boolean initClones) {
+    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism,
+        boolean initClones) {
         super(network, targetVariant, parallelism);
         if (initClones) {
             initClones(parallelism);
@@ -41,7 +42,8 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
             .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
             .filter(variantId -> !variantId.equals(stateSaveVariant))
             .toList();
-        variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
+        variantsToBeRemoved.forEach(
+            variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 
     @Override
@@ -53,44 +55,45 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
     @Override
     public void initClones(int desiredNumberOfClones) {
         OpenTelemetryReporter.withSpan("rao.multipleNetworkPool.initClones", cx -> {
-        int requiredClones = Math.min(getParallelism(), desiredNumberOfClones);
-        int clonesToAdd = requiredClones - networkNumberOfClones;
+            int requiredClones = Math.min(getParallelism(), desiredNumberOfClones);
+            int clonesToAdd = requiredClones - networkNumberOfClones;
 
-        if (clonesToAdd == 0) {
-            return;
-        }
-
-        TECHNICAL_LOGS.debug("Filling network pool with {} new cop{} of network {} on variant {}",
-            clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
-
-        String initialVariant = network.getVariantManager().getWorkingVariantId();
-        network.getVariantManager().setWorkingVariant(targetVariant);
-
-        AtomicInteger remainingClones = new AtomicInteger(requiredClones);
-        List<ForkJoinTask<Network>> tasks = new ArrayList<>();
-        try {
-            for (int i = networkNumberOfClones; i < requiredClones; i++) {
-                int finalI = i;
-                tasks.add(this.submit(() -> createNetworkCopy(finalI, remainingClones)));
+            if (clonesToAdd == 0) {
+                return;
             }
-            for (ForkJoinTask<Network> task : tasks) {
-                try {
-                    boolean isSuccess = networksQueue.offer(task.get());
-                    if (!isSuccess) {
-                        throw new OpenRaoException(
-                            String.format("Cannot offer copy n°'%d' in pool. Should not happen",
-                                networkNumberOfClones + 1));
-                    } else {
-                        networkNumberOfClones++;
-                    }
-                } catch (ExecutionException e) {
-                    throw new OpenRaoException(e);
+
+            TECHNICAL_LOGS.debug(
+                "Filling network pool with {} new cop{} of network {} on variant {}",
+                clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
+
+            String initialVariant = network.getVariantManager().getWorkingVariantId();
+            network.getVariantManager().setWorkingVariant(targetVariant);
+
+            AtomicInteger remainingClones = new AtomicInteger(requiredClones);
+            List<ForkJoinTask<Network>> tasks = new ArrayList<>();
+            try {
+                for (int i = networkNumberOfClones; i < requiredClones; i++) {
+                    int finalI = i;
+                    tasks.add(this.submit(() -> createNetworkCopy(finalI, remainingClones)));
                 }
+                for (ForkJoinTask<Network> task : tasks) {
+                    try {
+                        boolean isSuccess = networksQueue.offer(task.get());
+                        if (!isSuccess) {
+                            throw new OpenRaoException(
+                                String.format("Cannot offer copy n°'%d' in pool. Should not happen",
+                                    networkNumberOfClones + 1));
+                        } else {
+                            networkNumberOfClones++;
+                        }
+                    } catch (ExecutionException e) {
+                        throw new OpenRaoException(e);
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        network.getVariantManager().setWorkingVariant(initialVariant);
+            network.getVariantManager().setWorkingVariant(initialVariant);
         });
     }
 
@@ -99,8 +102,10 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         Network copy = NetworkSerDe.copy(network);
         // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
         // in cloned network, so we need to copy it again.
-        copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
+        copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID,
+            Arrays.asList(stateSaveVariant, workingVariant), true);
         remainingClones.decrementAndGet();
         return copy;
     }
 }
+

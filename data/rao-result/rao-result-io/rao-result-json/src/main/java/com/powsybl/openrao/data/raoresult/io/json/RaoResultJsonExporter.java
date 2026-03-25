@@ -45,6 +45,7 @@ import java.util.Set;
  */
 @AutoService(Exporter.class)
 public class RaoResultJsonExporter implements Exporter {
+
     private static final String JSON_EXPORT_PROPERTIES_PREFIX = "rao-result.export.json.";
     private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
     private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
@@ -65,41 +66,43 @@ public class RaoResultJsonExporter implements Exporter {
     }
 
     @Override
-    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext,
+        Properties properties, OutputStream outputStream) {
         validateDataToExport(cracCreationContext, properties);
         exportData(raoResult, cracCreationContext.getCrac(), properties, outputStream);
     }
 
     @Override
-    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties,
+        OutputStream outputStream) {
         OpenTelemetryReporter.withSpan("rao.exportJsonCrac", cx -> {
-        boolean flowsInAmperes = Boolean.parseBoolean(
-            properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
-        boolean flowsInMegawatts = Boolean.parseBoolean(
-            properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS,
-                "false"));
-        if (!flowsInAmperes && !flowsInMegawatts) {
-            throw new OpenRaoException(
-                "At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(
-                    JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES,
-                    JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
-        }
-        Set<Unit> flowUnits = new HashSet<>();
-        if (flowsInAmperes) {
-            flowUnits.add(Unit.AMPERE);
-        }
-        if (flowsInMegawatts) {
-            flowUnits.add(Unit.MEGAWATT);
-        }
-        try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits);
-            objectMapper.registerModule(module);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, raoResult);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+            boolean flowsInAmperes = Boolean.parseBoolean(
+                properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
+            boolean flowsInMegawatts = Boolean.parseBoolean(
+                properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS,
+                    "false"));
+            if (!flowsInAmperes && !flowsInMegawatts) {
+                throw new OpenRaoException(
+                    "At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(
+                        JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES,
+                        JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
+            }
+            Set<Unit> flowUnits = new HashSet<>();
+            if (flowsInAmperes) {
+                flowUnits.add(Unit.AMPERE);
+            }
+            if (flowsInMegawatts) {
+                flowUnits.add(Unit.MEGAWATT);
+            }
+            try {
+                ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+                SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits);
+                objectMapper.registerModule(module);
+                ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+                writer.writeValue(outputStream, raoResult);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         });
     }
 }
