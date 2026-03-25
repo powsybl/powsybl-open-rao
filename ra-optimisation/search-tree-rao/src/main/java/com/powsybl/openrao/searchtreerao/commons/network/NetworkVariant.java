@@ -1,4 +1,4 @@
-package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
+package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -9,7 +9,7 @@ public interface NetworkVariant {
 
     Network getNetwork();
 
-    void createWorkingVariant(String fromVariant, String newVariantId);
+    void setWorkingVariant(String fromVariant, String newVariantId);
 
     void removeWorkingVariants();
 

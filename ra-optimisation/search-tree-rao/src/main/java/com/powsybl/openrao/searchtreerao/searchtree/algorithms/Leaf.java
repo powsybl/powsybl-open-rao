@@ -22,6 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
+import com.powsybl.openrao.searchtreerao.commons.network.EagerNetworkVariant;
+import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariant;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;

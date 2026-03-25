@@ -35,6 +35,7 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariant;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
