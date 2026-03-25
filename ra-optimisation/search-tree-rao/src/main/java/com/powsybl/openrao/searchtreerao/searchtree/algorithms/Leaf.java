@@ -84,7 +84,7 @@ public class Leaf implements OptimizationResult {
     private final OptimizationPerimeter optimizationPerimeter;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
-    private Network network;
+    private NetworkVariant networkVariant;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
 
@@ -110,8 +110,24 @@ public class Leaf implements OptimizationResult {
          RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeter,
+                new EagerNetworkVariant(network),
+                alreadyAppliedNetworkActionsInPrimaryState,
+                newCombinationToApply,
+                raActivationResultFromParentLeaf,
+                prePerimeterSetpoints,
+                appliedRemedialActionsInSecondaryStates);
+    }
+
+    Leaf(OptimizationPerimeter optimizationPerimeter,
+         NetworkVariant networkVariant,
+         Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
+         NetworkActionCombination newCombinationToApply,
+         RangeActionActivationResult raActivationResultFromParentLeaf,
+         RangeActionSetpointResult prePerimeterSetpoints,
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         this.optimizationPerimeter = optimizationPerimeter;
-        this.network = network;
+        this.networkVariant = networkVariant;
         this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
@@ -126,7 +142,7 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
+            boolean applicationSuccess = networkVariant.applyNetworkAction(na); // deactivate the ac emulation
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
@@ -139,7 +155,14 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, new EagerNetworkVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    }
+
+    Leaf(OptimizationPerimeter optimizationPerimeter,
+         NetworkVariant variantTree,
+         PrePerimeterResult prePerimeterOutput,
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeter, variantTree, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
@@ -176,14 +199,14 @@ public class Leaf implements OptimizationResult {
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network);
+        networkVariant.compute(sensitivityComputer);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
             status = Status.ERROR;
             return;
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
-        preOptimFlowResult = sensitivityComputer.getBranchResult(network);
+        preOptimFlowResult = sensitivityComputer.getBranchResult(networkVariant.getNetwork());
         preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
         status = Status.EVALUATED;
     }
@@ -211,7 +234,7 @@ public class Leaf implements OptimizationResult {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
             // make a deep copy and change availableRangeAction
-            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(network);
+            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(networkVariant.getNetwork());
 
             // check if there are still range actions to optimize
             if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
@@ -221,7 +244,7 @@ public class Leaf implements OptimizationResult {
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(network)
+                    .withNetwork(networkVariant.getNetwork())
                     .withOptimizationPerimeter(optimizationPerimeterWithFilteredHvdcRangeAction)
                     .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
                     .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
@@ -267,7 +290,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+            rangeActions.forEach(ra -> networkVariant.applyRangeAction(ra, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     /**
@@ -691,7 +714,7 @@ public class Leaf implements OptimizationResult {
      * Releases data used in optimization to make leaf lighter
      */
     public void finalizeOptimization() {
-        this.network = null;
+        this.networkVariant = null;
         this.optimizationDataPresent = false;
     }
 }

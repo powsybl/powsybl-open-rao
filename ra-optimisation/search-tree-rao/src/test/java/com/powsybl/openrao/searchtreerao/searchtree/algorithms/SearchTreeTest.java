@@ -47,6 +47,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.AfterEach;
@@ -93,6 +94,7 @@ class SearchTreeTest {
     private SearchTreeInput searchTreeInput;
 
     private Network network;
+    private NetworkVariant networkVariant;
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
@@ -170,6 +172,10 @@ class SearchTreeTest {
         appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
         when(searchTreeInput.getPreOptimizationAppliedRemedialActions()).thenReturn(appliedRemedialActions);
         network = Mockito.mock(Network.class);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        when(network.getVariantManager()).thenReturn(variantManager);
+        when(variantManager.getWorkingVariantId()).thenReturn("ID");
+        networkVariant = Mockito.mock(NetworkVariant.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         availableNetworkActions = new HashSet<>();
@@ -191,7 +197,9 @@ class SearchTreeTest {
         when(preventiveInstant.toString()).thenReturn("preventive");
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
-        when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
+        when(searchTreeInput.getToolProvider()).thenReturn(toolProvider);
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), any(boolean.class), any(boolean.class), any(), any())).thenReturn(Mockito.mock(SystematicSensitivityInterface.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
         when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
@@ -285,7 +293,7 @@ class SearchTreeTest {
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction), false);
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(any(), any(), eq(false));
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
@@ -307,6 +315,7 @@ class SearchTreeTest {
     @Test
     void testCreateChildLeafFiltersOutRangeActionWhenNeeded() {
         searchTreeWithOneChildLeaf();
+        when(networkVariant.applyNetworkAction(any())).thenReturn(true);
         when(networkAction.apply(network)).thenReturn(true);
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
 
@@ -319,8 +328,8 @@ class SearchTreeTest {
         searchTree.initLeaves(searchTreeInput);
 
         // 2) Create 2 Leaf with different shouldRangeActionBeRemoved value
-        Leaf filteredLeaf = searchTree.createChildLeaf(network, naCombination, true);
-        Leaf unfilteredLeaf = searchTree.createChildLeaf(network, naCombination, false);
+        Leaf filteredLeaf = searchTree.createChildLeaf(networkVariant, naCombination, true);
+        Leaf unfilteredLeaf = searchTree.createChildLeaf(networkVariant, naCombination, false);
 
         // 3) Mocks a sensitivity computer to set leaf.status to EVALUATED
         setLeafStatusToEvaluated(filteredLeaf);
@@ -484,7 +493,7 @@ class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
         when(childLeaf.getVirtualCost()).thenReturn(childLeafCostAfterOptim);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any(), eq(false));
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(any(), any(), eq(false));
     }
 
     private void mockNetworkPool(Network network) {

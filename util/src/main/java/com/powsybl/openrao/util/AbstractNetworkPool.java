@@ -9,7 +9,6 @@ package com.powsybl.openrao.util;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +21,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.util.MCDContextWrapper.wrapWithMdcContext;
 
 /**
@@ -58,9 +58,21 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         this.baseNetworkVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
     }
 
+    public String getStateSaveVariant() {
+        return stateSaveVariant;
+    }
+
+    public String getWorkingVariant() {
+        return workingVariant;
+    }
+
+    public Network getRawAvailableNetwork() throws InterruptedException {
+        TECHNICAL_LOGS.debug("Get network from the pool");
+        return networksQueue.take();
+    }
+
     public Network getAvailableNetwork() throws InterruptedException {
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("getAvailableNetwork");
-        Network networkClone = networksQueue.take();
+        Network networkClone = getRawAvailableNetwork();
         if (!networkClone.getVariantManager().getVariantIds().contains(workingVariant)) {
             networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
         }
@@ -79,14 +91,18 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         network.getVariantManager().setWorkingVariant(networkInitialVariantId);
     }
 
+    public void releaseUsedRawNetwork(Network networkToRelease) throws InterruptedException {
+        TECHNICAL_LOGS.debug("Release network to the pool");
+        networksQueue.put(networkToRelease);
+    }
+
     public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException {
         releaseUsedNetwork(networkToRelease, true);
     }
 
     public void releaseUsedNetwork(Network networkToRelease, boolean deleteWorkingVariant) throws InterruptedException {
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("releaseUsedNetwork");
         cleanVariants(networkToRelease, deleteWorkingVariant);
-        networksQueue.put(networkToRelease);
+        releaseUsedRawNetwork(networkToRelease);
     }
 
     protected void cleanVariants(Network networkClone) {

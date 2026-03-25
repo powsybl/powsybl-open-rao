@@ -201,7 +201,7 @@ public class SearchTree {
     }
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        return new Leaf(optimizationPerimeter, new EagerNetworkVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -283,17 +283,29 @@ public class SearchTree {
         }
     }
 
+    private static NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
+        Network networkClone = networkPool.getRawAvailableNetwork(); //This is where the threads actually wait for available networks
+        NetworkVariant networkVariant = new EagerNetworkVariant(networkClone);
+        networkVariant.createWorkingVariant(networkPool.getStateSaveVariant(), networkPool.getWorkingVariant());
+        return networkVariant;
+    }
+
+    private static void releaseUsedRawNetworkVariantTree(NetworkVariant networkVariant, AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
+        networkVariant.removeWorkingVariants();
+        networkPool.releaseUsedRawNetwork(networkVariant.getNetwork());
+    }
+
     private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, AtomicInteger remainingLeaves) throws InterruptedException {
-        Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+        NetworkVariant networkVariant = getRawAvailableNetworkVariantTree(networkPool);
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     // If the HVDC line is in AC emulation the we won't be able to apply setpoint
-                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkClone)
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkVariant.getNetwork())
                         .forEach(ra ->
-                            ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                            networkVariant.applyRangeAction(ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 
                 } else {
@@ -301,12 +313,12 @@ public class SearchTree {
                     // from previous optimal leaf starting point
                     // Network actions are not applied here. If in previous leaf AC emulation was deactivated to optimize HVDC range action
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
-                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkClone)
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkVariant.getNetwork())
                         .forEach(ra ->
-                            ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            networkVariant.applyRangeAction(ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
                 }
-                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
+                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkVariant);
 
             } else {
                 topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
@@ -315,7 +327,7 @@ public class SearchTree {
             BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
         }
         TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-        networkPool.releaseUsedNetwork(networkClone);
+        releaseUsedRawNetworkVariantTree(networkVariant, networkPool);
         return null;
     }
 
@@ -362,11 +374,11 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, NetworkVariant networkVariant) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(network, naCombination, shouldRangeActionBeRemoved);
+            leaf = createChildLeaf(networkVariant, naCombination, shouldRangeActionBeRemoved);
         } catch (OpenRaoException e) {
             Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
@@ -396,10 +408,10 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(NetworkVariant networkVariant, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
         return new Leaf(
             input.getOptimizationPerimeter(),
-            network,
+                networkVariant,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
