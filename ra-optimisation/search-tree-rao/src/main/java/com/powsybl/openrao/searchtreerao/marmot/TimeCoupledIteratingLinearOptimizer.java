@@ -174,7 +174,6 @@ public final class TimeCoupledIteratingLinearOptimizer {
             new AdjustmentConstraintsFiller(
                 input.iteratingLinearOptimizerInputs().map(tsInput -> tsInput.optimizationPerimeter().getRangeActions()),
                 preventiveStates,
-                preventiveInjectionRangeActions,
                 input.timeCoupledConstraints().getAdjustmentConstraints(),
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints)
             )

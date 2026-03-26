@@ -37,7 +37,7 @@ public class OpenRaoMPSolver {
     }
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
-    private static final double MIN_DOUBLE = 1e-6;
+    private static final double MIN_DOUBLE = 1e-4;
     private static final Map<SearchTreeRaoRangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
@@ -240,10 +240,10 @@ public class OpenRaoMPSolver {
         if (Math.abs(value) < MIN_DOUBLE) {
             return 0.;
         }
-        double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
+        /*double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
             return value - t + t;
-        }
+        }*/
         return value;
     }
 

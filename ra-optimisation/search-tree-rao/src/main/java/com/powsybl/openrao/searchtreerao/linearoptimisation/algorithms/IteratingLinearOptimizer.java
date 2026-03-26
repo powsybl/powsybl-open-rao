@@ -268,7 +268,7 @@ public final class IteratingLinearOptimizer {
                              RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.putResult(ra, state, linearProblemResult.getOptimizedSetpoint(ra, state))));
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {

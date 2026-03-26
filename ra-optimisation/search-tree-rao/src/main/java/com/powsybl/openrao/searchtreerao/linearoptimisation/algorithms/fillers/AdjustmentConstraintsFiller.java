@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.AdjustmentConstraints;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -43,9 +42,8 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class AdjustmentConstraintsFiller implements ProblemFiller {
-    private final TemporalData<Set<RangeAction<?>>> rangeActions;
+    private final TemporalData<Set<RangeAction<?>>> rangeActionsPerTimestamp;
     private final TemporalData<State> preventiveStates;
-    private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final TemporalData<RangeActionSetpointResult> prePerimeterSetpoints;
     private final Set<AdjustmentConstraints> adjustmentConstraints;
     private final List<OffsetDateTime> timestamps;
@@ -56,14 +54,13 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private static final double OFF_POWER_THRESHOLD = 1.0;
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
-    public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActions, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints) {
-        this.rangeActions = rangeActions;
+    public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActionsPerTimestamp, TemporalData<State> preventiveStates, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints) {
+        this.rangeActionsPerTimestamp = rangeActionsPerTimestamp;
         this.preventiveStates = preventiveStates;
-        this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.adjustmentConstraints = adjustmentConstraints;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
-        this.timestampDuration = computeTimestampDuration(rangeActions.getTimestamps());
-        this.timestamps = rangeActions.getTimestamps();
+        this.timestampDuration = computeTimestampDuration(rangeActionsPerTimestamp.getTimestamps());
+        this.timestamps = rangeActionsPerTimestamp.getTimestamps();
     }
 
     // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
@@ -84,12 +81,12 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        int numberOfTimestamps = rangeActions.getTimestamps().size();
+        int numberOfTimestamps = rangeActionsPerTimestamp.getTimestamps().size();
         for (AdjustmentConstraints individualAdjustmentConstraints : adjustmentConstraints) {
             String rangeActionId = individualAdjustmentConstraints.getRangeActionId();
             Optional<Double> minimumAdjustmentTime = individualAdjustmentConstraints.getMinimumAdjustmentTime();
-            Optional<TemporalData<InjectionRangeAction>> rangeAction = getInjectionRangeActions(rangeActionId);
-            if (rangeAction.isPresent()) {
+            Optional<TemporalData<RangeAction<?>>> rangeActions = getRangeActions(rangeActionId);
+            if (rangeActions.isPresent()) {
                 // Add variables
                 for (int timestampIndex = 0; timestampIndex < numberOfTimestamps; timestampIndex++) {
                     OffsetDateTime timestamp = timestamps.get(timestampIndex);
@@ -233,11 +230,11 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         String rangeActionId = adjustmentConstraints.getRangeActionId();
         State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
         State nextPreventiveState = preventiveStates.getData(nextTimestamp).orElseThrow();
-        RangeAction<?> rangeAction = rangeActions.getData(timestamp).orElseThrow().stream()
+        RangeAction<?> rangeAction = rangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
             .filter(ra -> ra.getId().equals(rangeActionId))
             .findFirst().orElseThrow();
         double prePerimeterSetpoint = prePerimeterSetpoints.getData(timestamp).orElseThrow().getSetpoint(rangeAction);
-        RangeAction<?> nextRangeAction = rangeActions.getData(nextTimestamp).orElseThrow().stream()
+        RangeAction<?> nextRangeAction = rangeActionsPerTimestamp.getData(nextTimestamp).orElseThrow().stream()
             .filter(ra -> ra.getId().equals(rangeActionId))
             .findFirst().orElseThrow();
         double nextPrePerimeterSetpoint = prePerimeterSetpoints.getData(nextTimestamp).orElseThrow().getSetpoint(nextRangeAction);
@@ -296,11 +293,11 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         String rangeActionId = adjustmentConstraints.getRangeActionId();
         State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
         State nextPreventiveState = preventiveStates.getData(nextTimestamp).orElseThrow();
-        RangeAction<?> rangeAction = rangeActions.getData(timestamp).orElseThrow().stream()
+        RangeAction<?> rangeAction = rangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
             .filter(ra -> ra.getId().equals(rangeActionId))
             .findFirst().orElseThrow();
         double prePerimeterSetpoint = prePerimeterSetpoints.getData(timestamp).orElseThrow().getSetpoint(rangeAction);
-        RangeAction<?> nextRangeAction = rangeActions.getData(nextTimestamp).orElseThrow().stream()
+        RangeAction<?> nextRangeAction = rangeActionsPerTimestamp.getData(nextTimestamp).orElseThrow().stream()
             .filter(ra -> ra.getId().equals(rangeActionId))
             .findFirst().orElseThrow();
         double nextPrePerimeterSetpoint = prePerimeterSetpoints.getData(nextTimestamp).orElseThrow().getSetpoint(nextRangeAction);
@@ -415,9 +412,15 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         // TODO: calculate this properly somehow? This works if there's only one range but not when you mix relative and absolute ranges, and the ranges dont change between ts
         //return rangeAction.getMaxAdmissibleSetpoint(0.) - rangeAction.getMinAdmissibleSetpoint(0.);
         if (rangeAction.getId().contains("_CT")) {
-            return 10000.;
+            return 1500.;
         }
-        return 1000.;
+        if (rangeAction.getId().contains("_PST")) {
+            return 100.;
+        }
+        if (rangeAction.getId().contains("_RD")) {
+            return 1000.;
+        }
+        throw new OpenRaoException("Unsupported range action type: " + rangeAction.getClass().getSimpleName());
     }
 
     // ** Utility methods
@@ -430,21 +433,21 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         return timestamp1.until(timestamp2, ChronoUnit.SECONDS) / 3600.0;
     }
 
-    private Optional<TemporalData<InjectionRangeAction>> getInjectionRangeActions(String rangeActionId) {
-        Map<OffsetDateTime, InjectionRangeAction> injectionRangeActionPerTimestamp = new HashMap<>();
-        for (OffsetDateTime timestamp : injectionRangeActionsPerTimestamp.getTimestamps()) {
-            Optional<InjectionRangeAction> injectionRangeAction = getInjectionRangeAction(rangeActionId, injectionRangeActionsPerTimestamp.getData(timestamp).orElse(Set.of()));
-            if (injectionRangeAction.isEmpty()) {
+    private Optional<TemporalData<RangeAction<?>>> getRangeActions(String rangeActionId) {
+        Map<OffsetDateTime, RangeAction<?>> rangeActionPerTimestamp = new HashMap<>();
+        for (OffsetDateTime timestamp : rangeActionsPerTimestamp.getTimestamps()) {
+            Optional<RangeAction<?>> rangeAction = getRangeAction(rangeActionId, rangeActionsPerTimestamp.getData(timestamp).orElse(Set.of()));
+            if (rangeAction.isEmpty()) {
                 OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Range action {} is not present for timestamp {} and will thus be ignored.", rangeActionId, timestamp);
                 return Optional.empty();
             }
-            injectionRangeActionPerTimestamp.put(timestamp, injectionRangeAction.get());
+            rangeActionPerTimestamp.put(timestamp, rangeAction.get());
         }
-        return Optional.of(new TemporalDataImpl<>(injectionRangeActionPerTimestamp));
+        return Optional.of(new TemporalDataImpl<>(rangeActionPerTimestamp));
     }
 
-    private static Optional<InjectionRangeAction> getInjectionRangeAction(String rangeActionId, Set<InjectionRangeAction> allInjectionRangeActions) {
-        return allInjectionRangeActions.stream().filter(injectionRangeAction -> injectionRangeAction.getId().contains(rangeActionId)).min(Comparator.comparing(Identifiable::getId));
+    private static Optional<RangeAction<?>> getRangeAction(String rangeActionId, Set<RangeAction<?>> allRangeActions) {
+        return allRangeActions.stream().filter(rangeAction -> rangeAction.getId().contains(rangeActionId)).min(Comparator.comparing(Identifiable::getId));
     }
 
     @Override
