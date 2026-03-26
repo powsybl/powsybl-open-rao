@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
@@ -26,6 +27,9 @@ public class StandardRangeSerializer extends AbstractJsonSerializer<StandardRang
         }
         if (value.getMax() < Integer.MAX_VALUE) {
             gen.writeNumberField(JsonSerializationConstants.MAX, value.getMax());
+        }
+        if (value.getRangeType() != RangeType.ABSOLUTE) {
+            gen.writeStringField(JsonSerializationConstants.RANGE_TYPE, JsonSerializationConstants.serializeRangeType(value.getRangeType()));
         }
         gen.writeEndObject();
     }
