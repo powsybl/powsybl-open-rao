@@ -24,6 +24,7 @@ import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.network.LazyNetworkVariant;
 import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariant;
+import com.powsybl.openrao.searchtreerao.commons.network.VariantFreeNetwork;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -203,7 +204,7 @@ public class SearchTree {
     }
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, new LazyNetworkVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        return new Leaf(optimizationPerimeter, new VariantFreeNetwork(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -287,7 +288,7 @@ public class SearchTree {
 
     private static NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
         Network networkClone = networkPool.getRawAvailableNetwork(); //This is where the threads actually wait for available networks
-        NetworkVariant networkVariant = new LazyNetworkVariant(networkClone);
+        NetworkVariant networkVariant = new VariantFreeNetwork(networkClone);
         networkVariant.setWorkingVariant(networkPool.getStateSaveVariant(), networkPool.getWorkingVariant());
         return networkVariant;
     }
