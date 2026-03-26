@@ -7,8 +7,12 @@
 
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
+import com.powsybl.iidm.network.Branch;
+
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Indicates what elements to simulate as contingencies (N-1).
@@ -17,6 +21,7 @@ import java.util.Optional;
  */
 public class Contingencies extends AbstractCountriesFilter {
     private MinAndMax<Double> minAndMaxV = new MinAndMax<>(null, null);
+    private Predicate<Branch<?>> branchFilter = branch -> true;
 
     Contingencies() {
     }
@@ -36,5 +41,13 @@ public class Contingencies extends AbstractCountriesFilter {
      */
     public void setMinAndMaxV(@Nullable Double minV, @Nullable Double maxV) {
         this.minAndMaxV = new MinAndMax<>(minV, maxV);
+    }
+
+    public void setBranchFilter(Predicate<Branch<?>> branchFilter) {
+        this.branchFilter = Objects.requireNonNull(branchFilter);
+    }
+
+    public boolean isBranchFiltered(Branch<?> branch) {
+        return branchFilter.test(branch);
     }
 }
