@@ -72,8 +72,9 @@ public final class NetworkCracCreator {
 
     private static void addContingencies(Crac crac, Network network, Contingencies parameters) {
         network.getBranchStream().filter(b ->
-                Utils.branchIsInCountries(b, parameters.getCountries().orElse(null))
-                    && Utils.branchIsInVRange(b, parameters.getMinV(), parameters.getMaxV()))
+                parameters.isBranchFiltered(b)
+                        && Utils.branchIsInCountries(b, parameters.getCountries().orElse(null))
+                        && Utils.branchIsInVRange(b, parameters.getMinV(), parameters.getMaxV()))
             .forEach(
                 branch -> crac.newContingency()
                     .withId("CO_" + branch.getNameOrId())
