@@ -42,9 +42,6 @@
       "items": {
         "type": "object",
         "properties": {
-          "rangeType": {
-            "$ref": "../range-type/range-type-v2.3.json"
-          },
           "max": {
             "type": "number"
           },

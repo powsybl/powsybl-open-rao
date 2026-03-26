@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.8.json",
+  "$id": "resource:/schemas/hvdc-range-action/hvdc-range-action-v2.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -31,11 +31,8 @@
     "speed": {
       "type": "number"
     },
-    "exportingCountry": {
-      "$ref": "../country/country-v1.3.json"
-    },
-    "importingCountry": {
-      "$ref": "../country/country-v1.3.json"
+    "networkElementId": {
+      "type": "string"
     },
     "ranges": {
       "type": "array",
@@ -83,8 +80,7 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "exportingCountry",
-    "importingCountry",
+    "networkElementId",
     "ranges"
   ]
 }

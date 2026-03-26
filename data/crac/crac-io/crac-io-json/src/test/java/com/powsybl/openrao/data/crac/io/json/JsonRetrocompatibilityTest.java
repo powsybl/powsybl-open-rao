@@ -409,6 +409,27 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point8Crac(crac);
     }
 
+    @Test
+    void importV2Point10Test() throws IOException {
+        // added more flexibility on range types of non tap ranges
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.10.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point10Crac(crac);
+    }
+
+    @Test
+    void importV2Point10WithMaxTso() throws IOException {
+        // max tso should no longer be read (no api to test) but the crac should still import correctly
+        // (a warning message should be logged)
+        String cracFilePath = "/crac2.10-with_maxtso.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        assertEquals(1, crac.getFlowCnecs().size());
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -974,5 +995,22 @@ class JsonRetrocompatibilityTest {
         assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
         assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
+    }
+
+    private void testContentOfV2Point10Crac(Crac crac) {
+        testContentOfV2Point8Crac(crac);
+
+        assertEquals(
+            1,
+            crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
+                .filter(range -> range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT))
+                .count()
+        );
+        assertEquals(
+            1,
+            crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
+                .filter(range -> range.getRangeType().equals(RangeType.ABSOLUTE))
+                .count()
+        );
     }
 }
