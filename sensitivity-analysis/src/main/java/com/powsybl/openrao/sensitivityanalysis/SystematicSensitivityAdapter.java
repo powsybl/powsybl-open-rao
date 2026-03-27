@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.sensitivity.*;
 
 import java.util.Collections;
@@ -81,8 +82,7 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("... (1/{}) {} state(s) without RA ", statesWithRa.size() + 1, statesWithoutRa.size());
 
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
-            .filter(state -> state.getContingency().isPresent())
-            .map(state -> state.getContingency().get())
+            .flatMap(state -> state.getContingency().stream())
             .distinct()
             .toList();
 

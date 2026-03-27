@@ -32,6 +32,15 @@ public class AppliedRemedialActions {
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }
 
+    public void add(AppliedRemedialActions other) {
+        for (var e : other.appliedRa.entrySet()) {
+            State state = e.getKey();
+            AppliedRemedialActionsPerState remedialActionsPerState = e.getValue();
+            addAppliedRangeActions(state, remedialActionsPerState.rangeActions);
+            addAppliedNetworkActions(state, remedialActionsPerState.networkActions);
+        }
+    }
+
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
         if (networkAction != null) {
             checkState(state);

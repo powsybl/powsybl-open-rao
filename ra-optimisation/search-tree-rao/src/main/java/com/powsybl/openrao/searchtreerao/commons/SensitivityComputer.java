@@ -38,7 +38,11 @@ public final class SensitivityComputer {
     }
 
     public void compute(Network network) {
-        result = systematicSensitivityInterface.run(network);
+        compute(network, new AppliedRemedialActions());
+    }
+
+    public void compute(Network network, AppliedRemedialActions additionnalAppliedRemedialActions) {
+        result = systematicSensitivityInterface.run(network, additionnalAppliedRemedialActions);
     }
 
     public FlowResult getBranchResult(Network network) {
