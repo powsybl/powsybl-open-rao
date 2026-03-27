@@ -144,7 +144,7 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            networkVariant.applyNetworkAction(na); // deactivate the ac emulation
+            networkVariant.applyNetworkAction(null, na); // deactivate the ac emulation
         }
 
         this.status = Status.CREATED;
@@ -289,7 +289,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(ra -> networkVariant.applyRangeAction(ra, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+            rangeActions.forEach(ra -> networkVariant.applyRangeAction(null, ra, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     /**

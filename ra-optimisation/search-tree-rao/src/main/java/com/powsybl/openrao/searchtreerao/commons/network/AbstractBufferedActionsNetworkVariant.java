@@ -2,9 +2,9 @@ package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 
 import java.util.*;
 
@@ -49,14 +49,14 @@ abstract class AbstractBufferedActionsNetworkVariant implements NetworkVariant {
     }
 
     @Override
-    public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
+    public void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
         workingVariant.appliedRangeActions.add(new AppliedRangeAction(rangeAction, setpoint));
     }
 
     @Override
-    public void applyNetworkAction(NetworkAction networkAction) {
+    public void applyNetworkAction(State state, NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
         workingVariant.networkActions.add(networkAction);

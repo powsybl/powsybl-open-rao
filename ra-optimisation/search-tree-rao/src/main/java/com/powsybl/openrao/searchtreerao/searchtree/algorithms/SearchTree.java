@@ -204,7 +204,7 @@ public class SearchTree {
     }
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, new VariantFreeNetwork(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        return new Leaf(optimizationPerimeter, new LazyNetworkVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -288,7 +288,7 @@ public class SearchTree {
 
     private static NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
         Network networkClone = networkPool.getRawAvailableNetwork(); //This is where the threads actually wait for available networks
-        NetworkVariant networkVariant = new VariantFreeNetwork(networkClone);
+        NetworkVariant networkVariant = new LazyNetworkVariant(networkClone);
         networkVariant.setWorkingVariant(networkPool.getStateSaveVariant(), networkPool.getWorkingVariant());
         return networkVariant;
     }
@@ -308,7 +308,7 @@ public class SearchTree {
                     // If the HVDC line is in AC emulation the we won't be able to apply setpoint
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkVariant.getNetwork())
                         .forEach(ra ->
-                            networkVariant.applyRangeAction(ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                            networkVariant.applyRangeAction(null, ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 
                 } else {
@@ -318,7 +318,7 @@ public class SearchTree {
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkVariant.getNetwork())
                         .forEach(ra ->
-                            networkVariant.applyRangeAction(ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            networkVariant.applyRangeAction(null, ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
                 }
                 optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkVariant);
