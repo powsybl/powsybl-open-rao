@@ -421,8 +421,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point10WithMaxTso() throws IOException {
-        // max tso should no longer be read (no api to test) but the crac should still import correctly
-        // (a warning message should be logged)
+        // max tso has been removed from the crac, so this case will not pass validation
         String cracFilePath = "/crac2.10-with_maxtso.json";
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
