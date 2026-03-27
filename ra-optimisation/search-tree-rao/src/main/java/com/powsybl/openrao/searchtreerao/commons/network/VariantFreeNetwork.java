@@ -48,20 +48,20 @@ public class VariantFreeNetwork extends AbstractBufferedActionsNetworkVariant {
     @Override
     public void compute(SensitivityComputer sensitivityComputer) {
         checkWorkingVariantIsSet();
-        for (AppliedRangeAction appliedRangeAction : workingVariant.appliedRangeActions()) {
-            throw new OpenRaoException(String.format("Range action %s not supported", appliedRangeAction.rangeAction().getId()));
-        }
-        List<Action> actions = workingVariant.networkActions().stream()
-                .flatMap(networkAction -> networkAction.getElementaryActions().stream())
-                .toList();
-        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        ContingencyContext contingencyContext = ContingencyContext.none();
-        for (NetworkAction networkAction : workingVariant.networkActions()) {
-            operatorStrategies.add(new OperatorStrategy(networkAction.getId(),
-                contingencyContext,
-                new TrueCondition(),
-                networkAction.getElementaryActions().stream().map(Action::getId).toList()));
-        }
-        sensitivityComputer.compute(network);
+//        for (AppliedRangeAction appliedRangeAction : workingVariant.appliedRangeActions()) {
+//            throw new OpenRaoException(String.format("Range action %s not supported", appliedRangeAction.rangeAction().getId()));
+//        }
+//        List<Action> actions = workingVariant.networkActions().stream()
+//                .flatMap(networkAction -> networkAction.getElementaryActions().stream())
+//                .toList();
+//        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
+//        ContingencyContext contingencyContext = ContingencyContext.none();
+//        for (NetworkAction networkAction : workingVariant.networkActions()) {
+//            operatorStrategies.add(new OperatorStrategy(networkAction.getId(),
+//                contingencyContext,
+//                new TrueCondition(),
+//                networkAction.getElementaryActions().stream().map(Action::getId).toList()));
+//        }
+//        sensitivityComputer.compute(network);
     }
 }

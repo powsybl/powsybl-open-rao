@@ -124,9 +124,9 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
-        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
-            throw new OpenRaoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
-        }
+//        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
+//            throw new OpenRaoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
+//        }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 

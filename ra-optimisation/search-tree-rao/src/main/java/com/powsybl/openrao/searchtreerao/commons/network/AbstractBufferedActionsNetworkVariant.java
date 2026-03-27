@@ -5,17 +5,14 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
-import java.util.*;
+import java.util.Objects;
 
 abstract class AbstractBufferedActionsNetworkVariant implements NetworkVariant {
 
-    protected record AppliedRangeAction(RangeAction<?> rangeAction, double setpoint) {
-    }
-
     protected record WorkingVariant(String fromVariant, String newVariantId,
-                          List<AppliedRangeAction> appliedRangeActions,
-                          List<NetworkAction> networkActions) {
+                                    AppliedRemedialActions appliedRemedialActions) {
     }
 
     protected final Network network;
@@ -39,7 +36,7 @@ abstract class AbstractBufferedActionsNetworkVariant implements NetworkVariant {
     @Override
     public void setWorkingVariant(String fromVariant, String newVariantId) {
         checkWorkingVariantIsNotSet();
-        workingVariant = new WorkingVariant(fromVariant, newVariantId, new ArrayList<>(), new ArrayList<>());
+        workingVariant = new WorkingVariant(fromVariant, newVariantId, new AppliedRemedialActions());
     }
 
     protected void checkWorkingVariantIsSet() {
@@ -52,13 +49,13 @@ abstract class AbstractBufferedActionsNetworkVariant implements NetworkVariant {
     public void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
-        workingVariant.appliedRangeActions.add(new AppliedRangeAction(rangeAction, setpoint));
+        workingVariant.appliedRemedialActions.addAppliedRangeAction(state, rangeAction, setpoint);
     }
 
     @Override
     public void applyNetworkAction(State state, NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
-        workingVariant.networkActions.add(networkAction);
+        workingVariant.appliedRemedialActions.addAppliedNetworkAction(state, networkAction);
     }
 }
