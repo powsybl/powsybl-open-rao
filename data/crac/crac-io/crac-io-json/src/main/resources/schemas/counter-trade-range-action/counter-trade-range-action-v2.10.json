@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.8.json",
+  "$id": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.10.json",
   "type": "object",
   "properties": {
     "id": {
@@ -42,6 +42,9 @@
       "items": {
         "type": "object",
         "properties": {
+          "rangeType": {
+            "$ref": "../range-type/range-type-v2.3.json"
+          },
           "max": {
             "type": "number"
           },

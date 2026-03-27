@@ -426,8 +426,10 @@ class JsonRetrocompatibilityTest {
         String cracFilePath = "/crac2.10-with_maxtso.json";
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
-        Crac crac = Crac.read(cracFilePath, cracFile, network);
-        assertEquals(1, crac.getFlowCnecs().size());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(cracFilePath, cracFile, network));
+        assertEquals("JSON file is not a valid CRAC v2.10. Reasons: /ra-usage-limits-per-instant/0: " +
+                         "property 'max-tso' is not defined in the schema and the schema does not allow additional properties",
+                     exception.getMessage());
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
