@@ -339,6 +339,7 @@
       "min" : -500.0,
       "max" : 500.0
     }, {
+      "rangeType" : "relativeToPreviousInstant",
       "min" : -1000.0,
       "max" : 1000.0
     } ]
