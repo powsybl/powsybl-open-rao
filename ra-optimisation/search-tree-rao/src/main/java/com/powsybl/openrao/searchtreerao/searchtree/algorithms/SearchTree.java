@@ -51,6 +51,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
@@ -100,6 +102,8 @@ public class SearchTree {
     private Leaf previousDepthOptimalLeaf;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
+
+    private final Function<Network, NetworkVariant> networkVariantSupplier = LazyNetworkVariant::new;
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,
@@ -204,7 +208,7 @@ public class SearchTree {
     }
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, new LazyNetworkVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        return new Leaf(optimizationPerimeter, networkVariantSupplier.apply(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -286,9 +290,9 @@ public class SearchTree {
         }
     }
 
-    private static NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
+    private NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
         Network networkClone = networkPool.getRawAvailableNetwork(); //This is where the threads actually wait for available networks
-        NetworkVariant networkVariant = new LazyNetworkVariant(networkClone);
+        NetworkVariant networkVariant = networkVariantSupplier.apply(networkClone);
         networkVariant.setWorkingVariant(networkPool.getStateSaveVariant(), networkPool.getWorkingVariant());
         return networkVariant;
     }
