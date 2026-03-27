@@ -17,8 +17,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,9 +34,8 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import org.assertj.core.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -44,17 +45,19 @@ class IcsImporterTest {
     private static final String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private String networkFilePathPostIcsImport1;
     private String networkFilePathPostIcsImport2;
-    private TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths;
+    private TimeCoupledRaoInput timeCoupledRaoInput;
     private Crac crac1;
     private Crac crac2;
+    private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 0, 30, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 13, 1, 30, 0, 0, ZoneOffset.UTC);
 
     @BeforeEach
     void setUp() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
-        Network network1 = Network.read(networkFilePath1, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath1));
-        Network network2 = Network.read(networkFilePath2, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath2));
+        Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
+        Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
 
         // Create postIcsNetwork:
         networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
@@ -63,16 +66,13 @@ class IcsImporterTest {
         crac1 = Crac.read("/crac/crac-0030.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0030.json"), network1);
         crac2 = Crac.read("/crac/crac-0130.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0130.json"), network2);
 
-        OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 0, 30, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 13, 1, 30, 0, 0, ZoneOffset.UTC);
-
-        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath1), networkFilePathPostIcsImport1, crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcePath("network/" + networkFilePath2), networkFilePathPostIcsImport2, crac2).build()
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                timestamp2, RaoInput.build(network2, crac2).build()
             ));
 
-        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraints());
+        timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
     }
 
     private String getResourcePath(String resourcePath) {
@@ -98,10 +98,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
         assertEquals(-10., generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
@@ -122,7 +122,7 @@ class IcsImporterTest {
         assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network1 = Network.read(networkFilePathPostIcsImport1);
+        Network network1 = timeCoupledRaoInput.getRaoInputs().getData(timestamp1).orElseThrow().getNetwork();
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
         assertEquals(10.0, generator1.getMinP(), DOUBLE_EPSILON);
@@ -135,7 +135,7 @@ class IcsImporterTest {
         assertEquals(5., ra2.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra2.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra2.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network2 = Network.read(networkFilePathPostIcsImport2);
+        Network network2 = timeCoupledRaoInput.getRaoInputs().getData(timestamp2).orElseThrow().getNetwork();
         Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
         assertEquals(15.0, generator2.getMinP(), DOUBLE_EPSILON);
@@ -147,10 +147,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_shutdown_startup_true.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertTrue(generatorConstraints.isShutDownAllowed());
         assertTrue(generatorConstraints.isStartUpAllowed());
     }
@@ -163,7 +163,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value  for raId Redispatching_RA");
     }
 
@@ -175,7 +175,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -187,7 +187,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value  for raId Redispatching_RA");
     }
 
@@ -199,7 +199,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -211,7 +211,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value  for nodeId FFR1AA1");
     }
 
@@ -223,7 +223,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse shutDownAllowed value wrongValue for nodeId FFR1AA1");
     }
 
@@ -235,7 +235,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value  for nodeId FFR1AA1");
     }
 
@@ -247,7 +247,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
             .withMessage("Could not parse startUpAllowed value wrongValue for nodeId FFR1AA1");
     }
 
@@ -257,10 +257,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_no_pmin_rd.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
         assertEquals(-10., generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
@@ -281,7 +281,7 @@ class IcsImporterTest {
         assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network1 = Network.read(networkFilePathPostIcsImport1);
+        Network network1 = timeCoupledRaoInput.getRaoInputs().getData(timestamp1).orElseThrow().getNetwork();
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
         assertEquals(1.001, generator1.getMinP(), DOUBLE_EPSILON);
@@ -294,7 +294,7 @@ class IcsImporterTest {
         assertEquals(5., ra2.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra2.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra2.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network2 = Network.read(networkFilePathPostIcsImport2);
+        Network network2 = timeCoupledRaoInput.getRaoInputs().getData(timestamp2).orElseThrow().getNetwork();
         Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
         assertEquals(1.001, generator2.getMinP(), DOUBLE_EPSILON);
@@ -306,10 +306,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_gradient_no_lead_no_lag.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
         assertEquals(-1000.0, generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
@@ -328,7 +328,7 @@ class IcsImporterTest {
         assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network1 = Network.read(networkFilePathPostIcsImport1);
+        Network network1 = timeCoupledRaoInput.getRaoInputs().getData(timestamp1).orElseThrow().getNetwork();
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
         assertEquals(10.0, generator1.getMinP(), DOUBLE_EPSILON);
@@ -341,7 +341,7 @@ class IcsImporterTest {
         assertEquals(5., ra2.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
         assertTrue(ra2.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra2.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-        Network network2 = Network.read(networkFilePathPostIcsImport2);
+        Network network2 = timeCoupledRaoInput.getRaoInputs().getData(timestamp2).orElseThrow().getNetwork();
         Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
         assertEquals(15.0, generator2.getMinP(), DOUBLE_EPSILON);
@@ -353,9 +353,9 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_gradient_not_ok.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(0, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        assertEquals(0, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         assertEquals(0, crac1.getInjectionRangeActions().size());
         assertEquals(0, crac2.getInjectionRangeActions().size());
     }
@@ -366,10 +366,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_with_gsk.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
 
-        assertEquals(2, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraintsBE = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream()
+        assertEquals(2, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraintsBE = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().stream()
             .filter(gc -> gc.getGeneratorId().contains("BE"))
             .findFirst().orElseThrow();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraintsBE.getGeneratorId());
@@ -381,7 +381,7 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraintsBE.getLagTime().get(), DOUBLE_EPSILON);
         assertFalse(generatorConstraintsBE.isShutDownAllowed());
         assertFalse(generatorConstraintsBE.isStartUpAllowed());
-        GeneratorConstraints generatorConstraintsFR = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream()
+        GeneratorConstraints generatorConstraintsFR = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().stream()
             .filter(gc -> gc.getGeneratorId().contains("FR"))
             .findFirst().orElseThrow();
         assertEquals("Redispatching_RA_FFR1AA1_GENERATOR", generatorConstraintsFR.getGeneratorId());
@@ -403,7 +403,7 @@ class IcsImporterTest {
         assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
         assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
 
-        Network network1 = Network.read(networkFilePathPostIcsImport1);
+        Network network1 = timeCoupledRaoInput.getRaoInputs().getData(timestamp1).orElseThrow().getNetwork();
         Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);
         assertEquals(10.0 * 0.6, generatorBE.getMinP(), DOUBLE_EPSILON);

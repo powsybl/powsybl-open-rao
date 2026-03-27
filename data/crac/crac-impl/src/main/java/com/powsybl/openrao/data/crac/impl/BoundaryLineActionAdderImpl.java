@@ -8,30 +8,30 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.Action;
-import com.powsybl.action.DanglingLineActionBuilder;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
+import com.powsybl.action.BoundaryLineActionBuilder;
+import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public class DanglingLineActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<DanglingLineActionAdder> implements DanglingLineActionAdder {
+public class BoundaryLineActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<BoundaryLineActionAdder> implements BoundaryLineActionAdder {
 
     private Double activePowerValue;
 
-    DanglingLineActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
+    BoundaryLineActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
         super(ownerAdder);
     }
 
     @Override
-    public DanglingLineActionAdder withActivePowerValue(double activePowerValue) {
+    public BoundaryLineActionAdder withActivePowerValue(double activePowerValue) {
         this.activePowerValue = activePowerValue;
         return this;
     }
 
     protected Action buildAction() {
-        return new DanglingLineActionBuilder()
+        return new BoundaryLineActionBuilder()
             .withId(String.format("%s_%s_%s", getActionName(), networkElementId, activePowerValue))
             .withNetworkElementId(networkElementId)
             .withRelativeValue(false)
@@ -44,6 +44,6 @@ public class DanglingLineActionAdderImpl extends AbstractSingleNetworkElementAct
     }
 
     protected String getActionName() {
-        return "DanglingLineAction";
+        return "BoundaryLineAction";
     }
 }
