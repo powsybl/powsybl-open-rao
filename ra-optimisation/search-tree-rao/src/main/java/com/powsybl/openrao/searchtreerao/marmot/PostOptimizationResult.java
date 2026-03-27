@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -64,11 +65,12 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     private final GlobalLinearOptimizationResult postMipResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
 
-    public PostOptimizationResult(RaoInput raoInput,
-                                  PrePerimeterResult initialResult,
-                                  GlobalLinearOptimizationResult postMipResult,
-                                  RaoResult topologicalOptimizationResult,
-                                  RaoParameters raoParameters) {
+    public PostOptimizationResult(final RaoInput raoInput,
+                                  final PrePerimeterResult initialResult,
+                                  final GlobalLinearOptimizationResult postMipResult,
+                                  final RaoResult topologicalOptimizationResult,
+                                  final RaoParameters raoParameters,
+                                  final ReportNode reportNode) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.topologicalOptimizationResult = topologicalOptimizationResult;
@@ -83,7 +85,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
             postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()),
             networkActionsResult
         );
-        this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
+        this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
     }
 
     @Override

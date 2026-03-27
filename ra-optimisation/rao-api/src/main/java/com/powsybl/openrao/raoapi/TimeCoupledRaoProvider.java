@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -23,5 +24,5 @@ public interface TimeCoupledRaoProvider {
      * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters);
+    CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters, ReportNode reportNode);
 }

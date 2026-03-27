@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -66,11 +67,11 @@ class TimeCoupledRaoTest {
     void testDefaultOneProvider() {
         // case with only one provider, no need for config
         // find rao
-        TimeCoupledRao.Runner defaultRao = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner defaultRao = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("RandomTimeCoupledRAO", defaultRao.getName());
 
         // run rao
-        TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
     }
 
@@ -78,13 +79,13 @@ class TimeCoupledRaoTest {
     void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
         List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 
     @Test
     void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
-        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find("GlobalRAOptimizer", List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find("GlobalRAOptimizer", List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
     }
 
@@ -92,14 +93,14 @@ class TimeCoupledRaoTest {
     void testDefaultNoProvider() {
         // case with no provider
         List<TimeCoupledRaoProvider> raoProviders = List.of();
-        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 
     @Test
     void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
-        TimeCoupledRao.Runner globalRaOptimizer = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner globalRaOptimizer = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
     }
 
@@ -108,6 +109,6 @@ class TimeCoupledRaoTest {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 }

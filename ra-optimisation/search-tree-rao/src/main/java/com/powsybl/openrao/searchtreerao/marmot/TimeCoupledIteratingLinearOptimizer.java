@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -30,6 +31,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.reports.LinearOptimizerReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
@@ -46,13 +48,10 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
@@ -65,14 +64,17 @@ public final class TimeCoupledIteratingLinearOptimizer {
     private TimeCoupledIteratingLinearOptimizer() {
     }
 
-    public static GlobalLinearOptimizationResult optimize(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static GlobalLinearOptimizationResult optimize(final TimeCoupledIteratingLinearOptimizerInput input,
+                                                          final IteratingLinearOptimizerParameters parameters,
+                                                          final ReportNode reportNode) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
-            input.objectiveFunction()
+            input.objectiveFunction(),
+            reportNode
         );
         GlobalLinearOptimizationResult previousResult = bestResult;
 
@@ -93,15 +95,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
-            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
+            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
-                TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
+                LinearOptimizerReports.reportSolverInterrupted(reportNode);
             } else if (solveStatus != LinearProblemStatus.OPTIMAL) {
-                BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
+                LinearOptimizerReports.reportLinearOptimizationFailedAtIteration(reportNode, iteration);
                 if (iteration == 1) {
                     bestResult.setStatus(solveStatus);
-                    BUSINESS_LOGS.info("Linear problem failed with the following status : {}, initial situation is kept.", solveStatus);
+                    LinearOptimizerReports.reportLinearProblemFailedWithStatus(reportNode, solveStatus);
                     return bestResult;
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
@@ -130,14 +132,14 @@ public final class TimeCoupledIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers);
+            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, reportNode);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter),
                 previousResult,
                 rangeActionActivationPerTimestamp)) {
-                TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
+                LinearOptimizerReports.reportSameResultAsPreviousIterations(reportNode, iteration);
                 return bestResult;
             }
 
@@ -151,7 +153,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                         iteration,
                         rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
                         input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(),
-                        parameters
+                        parameters,
+                        reportNode
                     )
                 );
             }
@@ -168,7 +171,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 rangeActionActivationPerTimestamp,
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
-                input.objectiveFunction()
+                input.objectiveFunction(),
+                reportNode
             );
             previousResult = newResult;
 
@@ -181,7 +185,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 newResult,
                 bestResult,
                 problemFillers,
-                timeCoupledProblemFillers
+                timeCoupledProblemFillers,
+                reportNode
             );
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
@@ -280,7 +285,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
         timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
     }
 
-    private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
+    private static LinearProblemStatus solveLinearProblem(final LinearProblem linearProblem,
+                                                          final int iteration,
+                                                          final ReportNode reportNode) {
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         LinearProblemStatus status = linearProblem.solve();
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
@@ -289,29 +296,33 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
     // Sensitivity analysis
 
-    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer,
-                                                              int iteration,
-                                                              RangeActionActivationResult currentRangeActionActivationResult,
-                                                              IteratingLinearOptimizerInput input,
-                                                              IteratingLinearOptimizerParameters parameters) {
+    private static SensitivityComputer runSensitivityAnalysis(final SensitivityComputer sensitivityComputer,
+                                                              final int iteration,
+                                                              final RangeActionActivationResult currentRangeActionActivationResult,
+                                                              final IteratingLinearOptimizerInput input,
+                                                              final IteratingLinearOptimizerParameters parameters,
+                                                              final ReportNode reportNode) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         // TODO: if we want to force 2P, shoud always be global
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
-            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters, reportNode);
         } else {
             IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
             if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters);
+                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode);
         return tmpSensitivityComputer;
     }
 
-    private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    private static SensitivityComputer createSensitivityComputer(final AppliedRemedialActions appliedRemedialActions,
+                                                                 final IteratingLinearOptimizerInput input,
+                                                                 final IteratingLinearOptimizerParameters parameters,
+                                                                 final ReportNode reportNode) {
 
-        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
+        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create(reportNode)
             .withCnecs(input.optimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.optimizationPerimeter().getRangeActions())
             .withAppliedRemedialActions(appliedRemedialActions)
@@ -334,27 +345,32 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return builder.build();
     }
 
-    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
+    private static void runSensitivityAnalysis(final SensitivityComputer sensitivityComputer,
+                                               final Network network,
+                                               final int iteration,
+                                               final ReportNode reportNode) {
         sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
+            LinearOptimizerReports.reportSystematicSensitivityComputationFailedAtIteration(reportNode, iteration);
         }
     }
 
     // Result management
-    private static GlobalLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults,
-                                                                      TemporalData<SensitivityResult> sensitivityResults,
-                                                                      TemporalData<RangeActionActivationResult> rangeActionActivations,
-                                                                      TemporalData<NetworkActionsResult> preventiveTopologicalActions,
-                                                                      ObjectiveFunction objectiveFunction) {
-        return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
+    private static GlobalLinearOptimizationResult createInitialResult(final TemporalData<FlowResult> flowResults,
+                                                                      final TemporalData<SensitivityResult> sensitivityResults,
+                                                                      final TemporalData<RangeActionActivationResult> rangeActionActivations,
+                                                                      final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                                                      final ObjectiveFunction objectiveFunction,
+                                                                      final ReportNode reportNode) {
+        return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL, reportNode);
     }
 
-    private static GlobalLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers,
-                                                                       TemporalData<Network> networks,
-                                                                       TemporalData<RangeActionActivationResult> rangeActionActivation,
-                                                                       TemporalData<NetworkActionsResult> preventiveTopologicalActions,
-                                                                       ObjectiveFunction objectiveFunction) {
+    private static GlobalLinearOptimizationResult createResultFromData(final TemporalData<SensitivityComputer> sensitivityComputers,
+                                                                       final TemporalData<Network> networks,
+                                                                       final TemporalData<RangeActionActivationResult> rangeActionActivation,
+                                                                       final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                                                       final ObjectiveFunction objectiveFunction,
+                                                                       final ReportNode reportNode) {
         Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
         for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
             FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
@@ -366,18 +382,20 @@ public final class TimeCoupledIteratingLinearOptimizer {
             rangeActionActivation,
             preventiveTopologicalActions,
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            reportNode
         );
     }
 
     // Set-point rounding
-    private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult,
-                                                                                          LinearProblem linearProblem,
-                                                                                          int iteration,
-                                                                                          TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
-                                                                                          TimeCoupledIteratingLinearOptimizerInput input,
-                                                                                          IteratingLinearOptimizerParameters parameters,
-                                                                                          TemporalData<List<ProblemFiller>> problemFillers) {
+    private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(final GlobalLinearOptimizationResult bestResult,
+                                                                                          final LinearProblem linearProblem,
+                                                                                          final int iteration,
+                                                                                          final TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
+                                                                                          final TimeCoupledIteratingLinearOptimizerInput input,
+                                                                                          final IteratingLinearOptimizerParameters parameters,
+                                                                                          final TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                          final ReportNode reportNode) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
             .noneMatch(PstRangeAction.class::isInstance)) {
@@ -394,7 +412,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
             updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, rangeActionActivationResults);
 
-            solveStatus = solveLinearProblem(linearProblem, iteration);
+            solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 TemporalData<RangeActionActivationResult> updatedLinearProblemResults = retrieveRangeActionActivationResults(
                     linearProblem,
@@ -413,40 +431,34 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     // Logging
-    private static void logBetterResult(int iteration, LinearOptimizationResult result) {
-        TECHNICAL_LOGS.info(
-            "Iteration {}: better solution found with a cost of {} (functional: {})",
-            iteration,
-            formatDouble(result.getCost()),
-            formatDouble(result.getFunctionalCost()));
+    private static void logBetterResult(final int iteration, final LinearOptimizationResult result, final ReportNode reportNode) {
+        LinearOptimizerReports.reportLinearOptimFoundBetterSolution(reportNode, iteration, result.getCost(), result.getFunctionalCost());
 
         result.getVirtualCostNames().forEach(vc -> {
             double cost = result.getVirtualCost(vc);
             if (cost > 1e-6) {
-                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+                LinearOptimizerReports.reportCostOf(reportNode, vc, cost);
             }
         });
     }
 
-    private static void logWorseResult(int iteration, LinearOptimizationResult bestResult, LinearOptimizationResult currentResult) {
-        TECHNICAL_LOGS.info(
-            "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
-            iteration,
-            formatDouble(bestResult.getCost()),
-            formatDouble(currentResult.getCost()),
-            formatDouble(bestResult.getFunctionalCost()),
-            formatDouble(currentResult.getFunctionalCost()));
+    private static void logWorseResult(final int iteration,
+                                       final LinearOptimizationResult bestResult,
+                                       final LinearOptimizationResult currentResult,
+                                       final ReportNode reportNode) {
+        LinearOptimizerReports.reportLinearOptimFoundWorseResult(reportNode,
+                iteration,
+                bestResult.getCost(),
+                currentResult.getCost(),
+                bestResult.getFunctionalCost(),
+                currentResult.getFunctionalCost());
 
         currentResult.getVirtualCostNames().forEach(vc -> {
             double cost = currentResult.getVirtualCost(vc);
             if (cost > 1e-6) {
-                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+                LinearOptimizerReports.reportCostOf(reportNode, vc, cost);
             }
         });
-    }
-
-    private static String formatDouble(double value) {
-        return String.format(Locale.ENGLISH, "%.2f", value);
     }
 
     private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult,
@@ -521,20 +533,21 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return false;
     }
 
-    private static Pair<GlobalLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking,
-                                                                                                       LinearProblem linearProblem,
-                                                                                                       TimeCoupledIteratingLinearOptimizerInput input,
-                                                                                                       int iteration,
-                                                                                                       GlobalLinearOptimizationResult currentResult,
-                                                                                                       GlobalLinearOptimizationResult bestResult,
-                                                                                                       TemporalData<List<ProblemFiller>> problemFillers,
-                                                                                                       List<ProblemFiller> timeCoupledProblemFillers) {
+    private static Pair<GlobalLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(final boolean raRangeShrinking,
+                                                                                                       final LinearProblem linearProblem,
+                                                                                                       final TimeCoupledIteratingLinearOptimizerInput input,
+                                                                                                       final int iteration,
+                                                                                                       final GlobalLinearOptimizationResult currentResult,
+                                                                                                       final GlobalLinearOptimizationResult bestResult,
+                                                                                                       final TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                                       final List<ProblemFiller> timeCoupledProblemFillers,
+                                                                                                       final ReportNode reportNode) {
         if (currentResult.getCost() < bestResult.getCost()) {
-            logBetterResult(iteration, currentResult);
+            logBetterResult(iteration, currentResult, reportNode);
             updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, timeCoupledProblemFillers, currentResult);
             return Pair.of(currentResult, false);
         }
-        logWorseResult(iteration, bestResult, currentResult);
+        logWorseResult(iteration, bestResult, currentResult, reportNode);
         for (OffsetDateTime timestamp : input.iteratingLinearOptimizerInputs().getTimestamps()) {
             IteratingLinearOptimizer.applyRangeActions(bestResult, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow());
         }

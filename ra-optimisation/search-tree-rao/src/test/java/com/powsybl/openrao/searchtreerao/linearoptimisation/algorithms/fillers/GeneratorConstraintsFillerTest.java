@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
@@ -208,7 +209,7 @@ class GeneratorConstraintsFillerTest {
         );
 
         input = new TimeCoupledRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), timeCoupledConstraints);
-        parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"), ReportNode.NO_OP);
         setUpLinearProblem();
     }
 

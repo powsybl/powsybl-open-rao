@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -72,18 +73,19 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      *     <li> the optimizationResult of the given perimeter for action cost </li>
      * </ul>
      */
-    public PostPerimeterResult runBasedOnInitialPreviousAndOptimizationResults(Network network,
-                                                                               FlowResult initialFlowResult,
-                                                                               PrePerimeterResult previousResults,
-                                                                               Set<String> operatorsNotSharingCras,
-                                                                               OptimizationResult optimizationResult,
-                                                                               AppliedRemedialActions appliedCurativeRemedialActions) {
+    public PostPerimeterResult runBasedOnInitialPreviousAndOptimizationResults(final Network network,
+                                                                               final FlowResult initialFlowResult,
+                                                                               final PrePerimeterResult previousResults,
+                                                                               final Set<String> operatorsNotSharingCras,
+                                                                               final OptimizationResult optimizationResult,
+                                                                               final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                                               final ReportNode reportNode) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
         boolean actionWasTaken = actionWasTaken(optimizationResult.getActivatedNetworkActions(), optimizationResult.getActivatedRangeActionsPerState());
         if (actionWasTaken) {
-            SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
+            SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
 
             int oldThreadCount = setNewThreadCountAndGetOldValue();
             sensitivityComputer.compute(network);
@@ -107,7 +109,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
 
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
             flowResult.get(),
-            new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
+            new RemedialActionActivationResultImpl(optimizationResult, optimizationResult),
+                reportNode
         );
 
         return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
@@ -136,28 +139,31 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      * @return a {@code Future<PostPerimeterResult>}
      */
 
-    public CompletableFuture<PostPerimeterResult> runAsyncBasedOnInitialPreviousAndActivatedRa(Network network,
-                                                                                               FlowResult initialFlowResult,
-                                                                                               CompletableFuture<PrePerimeterResult> previousResultsFuture,
-                                                                                               Set<String> operatorsNotSharingCras,
-                                                                                               RemedialActionActivationResult remedialActionActivationResult,
-                                                                                               AppliedRemedialActions appliedCurativeRemedialActions) {
+    public CompletableFuture<PostPerimeterResult> runAsyncBasedOnInitialPreviousAndActivatedRa(final Network network,
+                                                                                               final FlowResult initialFlowResult,
+                                                                                               final CompletableFuture<PrePerimeterResult> previousResultsFuture,
+                                                                                               final Set<String> operatorsNotSharingCras,
+                                                                                               final RemedialActionActivationResult remedialActionActivationResult,
+                                                                                               final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                                                               final ReportNode reportNode) {
         return CompletableFuture.supplyAsync(() -> computePostPerimeterResult(
             network,
             initialFlowResult,
             previousResultsFuture,
             operatorsNotSharingCras,
             remedialActionActivationResult,
-            appliedCurativeRemedialActions
+            appliedCurativeRemedialActions,
+            reportNode
         ));
     }
 
-    private PostPerimeterResult computePostPerimeterResult(Network network,
-                                                           FlowResult initialFlowResult,
-                                                           CompletableFuture<PrePerimeterResult> previousResultsFuture,
-                                                           Set<String> operatorsNotSharingCras,
-                                                           RemedialActionActivationResult remedialActionActivationResult,
-                                                           AppliedRemedialActions appliedCurativeRemedialActions) {
+    private PostPerimeterResult computePostPerimeterResult(final Network network,
+                                                           final FlowResult initialFlowResult,
+                                                           final CompletableFuture<PrePerimeterResult> previousResultsFuture,
+                                                           final Set<String> operatorsNotSharingCras,
+                                                           final RemedialActionActivationResult remedialActionActivationResult,
+                                                           final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                           final ReportNode reportNode) {
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
         boolean actionWasTaken = PostPerimeterSensitivityAnalysis.this.actionWasTaken(
@@ -167,7 +173,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
         if (actionWasTaken) {
             SensitivityComputer sensitivityComputer = PostPerimeterSensitivityAnalysis.this.buildSensitivityComputer(
                 initialFlowResult,
-                appliedCurativeRemedialActions
+                appliedCurativeRemedialActions,
+                reportNode
             );
 
             int oldThreadCount = PostPerimeterSensitivityAnalysis.this.setNewThreadCountAndGetOldValue();
@@ -208,7 +215,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
 
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
             flowResult.get(),
-            remedialActionActivationResult
+            remedialActionActivationResult,
+            reportNode
         );
         OptimizationResult optimizationResult = new OptimizationResultImpl(
             objectiveFunctionResult,
