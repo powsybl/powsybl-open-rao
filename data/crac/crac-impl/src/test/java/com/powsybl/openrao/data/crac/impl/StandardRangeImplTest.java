@@ -23,10 +23,12 @@ class StandardRangeImplTest {
     private final double max = 32;
 
     private StandardRangeImpl fixedRange;
+    private StandardRangeImpl relativeRange;
 
     @BeforeEach
     public void setUp() {
-        fixedRange = new StandardRangeImpl(min, max);
+        fixedRange = new StandardRangeImpl(min, max, RangeType.ABSOLUTE);
+        relativeRange = new StandardRangeImpl(min, max, RangeType.RELATIVE_TO_PREVIOUS_INSTANT);
     }
 
     @Test
@@ -42,13 +44,14 @@ class StandardRangeImplTest {
     @Test
     void getRangeTypeTest() {
         assertEquals(RangeType.ABSOLUTE, fixedRange.getRangeType());
+        assertEquals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT, relativeRange.getRangeType());
     }
 
     @Test
     void testEquals() {
-        StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
-        StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
-        StandardRangeImpl range3 = new StandardRangeImpl(0, 11);
+        StandardRangeImpl range1 = new StandardRangeImpl(0, 10, RangeType.ABSOLUTE);
+        StandardRangeImpl range2 = new StandardRangeImpl(0, 10, RangeType.ABSOLUTE);
+        StandardRangeImpl range3 = new StandardRangeImpl(0, 11, RangeType.ABSOLUTE);
 
         assertEquals(range1, range2);
         assertNotEquals(range1, range3);
@@ -56,9 +59,9 @@ class StandardRangeImplTest {
 
     @Test
     void testHashCode() {
-        StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
-        StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
-        StandardRangeImpl range3 = new StandardRangeImpl(0, 11);
+        StandardRangeImpl range1 = new StandardRangeImpl(0, 10, RangeType.ABSOLUTE);
+        StandardRangeImpl range2 = new StandardRangeImpl(0, 10, RangeType.ABSOLUTE);
+        StandardRangeImpl range3 = new StandardRangeImpl(0, 11, RangeType.ABSOLUTE);
 
         assertEquals(range1.hashCode(), range2.hashCode());
         assertNotEquals(range1.hashCode(), range3.hashCode());
