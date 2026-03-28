@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
+package com.powsybl.openrao.pstregulation;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -30,11 +30,7 @@ public final class PstRegulator {
     public static Map<PstRangeAction, Integer> regulatePsts(Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
         elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput));
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        return elementaryPstRegulationInputs.stream()
-            .collect(Collectors.toMap(
-                ElementaryPstRegulationInput::pstRangeAction,
-                pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())
-            ));
+        return elementaryPstRegulationInputs.stream().collect(Collectors.toMap(ElementaryPstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
     }
 
     private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput) {
@@ -59,10 +55,7 @@ public final class PstRegulator {
     private static void setRegulationTerminal(TwoWindingsTransformer twt, ElementaryPstRegulationInput elementaryPstRegulationInput) {
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         if (phaseTapChanger.getRegulationTerminal() == null) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info(
-                "No default regulation terminal defined for phase tap changer of two-windings transformer %s, terminal on side %s will be used."
-                    .formatted(twt.getId(), elementaryPstRegulationInput.limitingSide())
-            );
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer %s, terminal on side %s will be used.".formatted(twt.getId(), elementaryPstRegulationInput.limitingSide()));
             phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
         }
     }
