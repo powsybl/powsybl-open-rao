@@ -148,7 +148,7 @@ public final class IcsImporter {
         TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
 
         initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
-            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%Y%m%d_%H%M%S")) + ".jiidm";
+            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
             initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
             postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
         });
