@@ -26,6 +26,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -65,9 +66,13 @@ public class LazyNetworkTest {
         assertEquals(4, network.getAreaCount());
 
         assertTrue(network.getSubnetworks().isEmpty());
+        assertNull(network.getSubnetwork("unknown"));
+
         assertTrue(network.getDcComponents().isEmpty());
 
         assertEquals(11, getIterableAsList(network.getSubstations()).size());
+        assertEquals(3, getIterableAsList(network.getSubstations(Country.FR, null)).size());
+        assertEquals(3, getIterableAsList(network.getSubstations("FRANCE", null)).size());
         assertEquals(11, network.getSubstationStream().toList().size());
         assertEquals(11, network.getSubstationCount());
         assertNotNull(network.getSubstation("FFR1AA"));
@@ -95,6 +100,7 @@ public class LazyNetworkTest {
         assertEquals(0, getIterableAsList(network.getTieLines()).size());
         assertEquals(0, network.getTieLineStream().toList().size());
         assertEquals(0, network.getTieLineCount());
+        assertNull(network.getTieLine("unknown"));
 
         assertEquals(16, network.getBranchStream().toList().size());
         assertEquals(16, network.getBranchCount());
@@ -108,82 +114,102 @@ public class LazyNetworkTest {
         assertEquals(0, getIterableAsList(network.getThreeWindingsTransformers()).size());
         assertEquals(0, network.getThreeWindingsTransformerStream().toList().size());
         assertEquals(0, network.getThreeWindingsTransformerCount());
+        assertNull(network.getThreeWindingsTransformer("unknown"));
 
         assertEquals(0, getIterableAsList(network.getShuntCompensators()).size());
         assertEquals(0, network.getShuntCompensatorStream().toList().size());
         assertEquals(0, network.getShuntCompensatorCount());
+        assertNull(network.getShuntCompensator("unknown"));
 
         assertEquals(0, getIterableAsList(network.getHvdcLines()).size());
         assertEquals(0, network.getHvdcLineStream().toList().size());
         assertEquals(0, network.getHvdcLineCount());
+        assertNull(network.getHvdcLine("unknown"));
 
         assertEquals(0, getIterableAsList(network.getOverloadManagementSystems()).size());
         assertEquals(0, network.getOverloadManagementSystemStream().toList().size());
         assertEquals(0, network.getOverloadManagementSystemCount());
+        assertNull(network.getOverloadManagementSystem("unknown"));
 
         assertEquals(0, getIterableAsList(network.getBatteries()).size());
         assertEquals(0, network.getBatteryStream().toList().size());
         assertEquals(0, network.getBatteryCount());
+        assertNull(network.getBattery("unknown"));
 
         assertEquals(0, getIterableAsList(network.getBoundaryLines()).size());
         assertEquals(0, getIterableAsList(network.getBoundaryLines(BoundaryLineFilter.ALL)).size());
         assertEquals(0, network.getBoundaryLineStream().toList().size());
         assertEquals(0, network.getBoundaryLineStream(BoundaryLineFilter.ALL).toList().size());
         assertEquals(0, network.getBoundaryLineCount());
+        assertNull(network.getBoundaryLine("unknown"));
 
         assertEquals(0, getIterableAsList(network.getStaticVarCompensators()).size());
         assertEquals(0, network.getStaticVarCompensatorStream().toList().size());
         assertEquals(0, network.getStaticVarCompensatorCount());
+        assertNull(network.getStaticVarCompensator("unknown"));
 
         assertEquals(0, getIterableAsList(network.getSwitches()).size());
         assertEquals(0, network.getSwitchStream().toList().size());
         assertEquals(0, network.getSwitchCount());
+        assertNull(network.getSwitch("unknown"));
 
         assertEquals(0, getIterableAsList(network.getBusbarSections()).size());
         assertEquals(0, network.getBusbarSectionStream().toList().size());
         assertEquals(0, network.getBusbarSectionCount());
+        assertNull(network.getBusbarSection("unknown"));
 
         assertEquals(0, network.getHvdcConverterStationStream().toList().size());
         assertEquals(0, network.getHvdcConverterStationCount());
+        assertNull(network.getHvdcConverterStation("unknown"));
 
         assertEquals(0, getIterableAsList(network.getLccConverterStations()).size());
         assertEquals(0, network.getLccConverterStationStream().toList().size());
         assertEquals(0, network.getLccConverterStationCount());
+        assertNull(network.getLccConverterStation("unknown"));
 
         assertEquals(0, getIterableAsList(network.getVscConverterStations()).size());
         assertEquals(0, network.getVscConverterStationStream().toList().size());
         assertEquals(0, network.getVscConverterStationCount());
+        assertNull(network.getVscConverterStation("unknown"));
 
         assertEquals(0, getIterableAsList(network.getGrounds()).size());
         assertEquals(0, network.getGroundStream().toList().size());
         assertEquals(0, network.getGroundCount());
+        assertNull(network.getGround("unknown"));
 
         assertEquals(0, getIterableAsList(network.getDcNodes()).size());
         assertEquals(0, network.getDcNodeStream().toList().size());
         assertEquals(0, network.getDcNodeCount());
+        assertNull(network.getDcNode("unknown"));
 
         assertEquals(0, getIterableAsList(network.getDcLines()).size());
         assertEquals(0, network.getDcLineStream().toList().size());
         assertEquals(0, network.getDcLineCount());
+        assertNull(network.getDcLine("unknown"));
 
         assertEquals(0, getIterableAsList(network.getDcSwitches()).size());
         assertEquals(0, network.getDcSwitchStream().toList().size());
         assertEquals(0, network.getDcSwitchCount());
+        assertNull(network.getDcSwitch("unknown"));
 
         assertEquals(0, getIterableAsList(network.getDcGrounds()).size());
         assertEquals(0, network.getDcGroundStream().toList().size());
         assertEquals(0, network.getDcGroundCount());
+        assertNull(network.getDcGround("unknown"));
 
         assertEquals(0, getIterableAsList(network.getLineCommutatedConverters()).size());
         assertEquals(0, network.getLineCommutatedConverterStream().toList().size());
         assertEquals(0, network.getLineCommutatedConverterCount());
+        assertNull(network.getLineCommutatedConverter("unknown"));
 
         assertEquals(0, getIterableAsList(network.getVoltageSourceConverters()).size());
         assertEquals(0, network.getVoltageSourceConverterStream().toList().size());
         assertEquals(0, network.getVoltageSourceConverterCount());
+        assertNull(network.getVoltageSourceConverter("unknown"));
 
         assertEquals(0, network.getDcBusStream().toList().size());
         assertEquals(0, network.getDcBusCount());
+        assertNull(network.getDcBus("unknown"));
 
         assertEquals(15, network.getIdentifiableStream(IdentifiableType.LINE).toList().size());
         assertEquals(79, network.getIdentifiables().size());
@@ -199,12 +225,14 @@ public class LazyNetworkTest {
         assertEquals(15, network.getConnectableCount(Line.class));
 
         assertEquals(0, network.getDcConnectableCount());
+        assertNull(network.getDcConnectable("unknown"));
 
         assertNotNull(network.getBusBreakerView());
         assertNotNull(network.getBusView());
 
         assertEquals(0, getIterableAsList(network.getVoltageAngleLimits()).size());
         assertEquals(0, network.getVoltageAngleLimitsStream().toList().size());
+        assertNull(network.getVoltageAngleLimit("unknown"));
 
         assertFalse(network.isDetachable());
 
@@ -214,6 +242,10 @@ public class LazyNetworkTest {
         assertEquals(IdentifiableType.NETWORK, network.getType());
 
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+
+        // other
+
+        network.allowReportNodeContextMultiThreadAccess(true);
     }
 
     private static <T> List<T> getIterableAsList(Iterable<T> iterable) {
