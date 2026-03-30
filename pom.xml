@@ -119,7 +119,7 @@
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
         <powsybl.core.version>7.2.0</powsybl.core.version>
-        <powsybl.entsoe.version>3.2.0-SNAPSHOT</powsybl.entsoe.version>
+        <powsybl.entsoe.version>3.2.0</powsybl.entsoe.version>
         <powsybl.openloadflow.version>2.2.0</powsybl.openloadflow.version>
         <rdf4j.version>5.1.3</rdf4j.version>
         <slf4j.version>2.0.13</slf4j.version>
