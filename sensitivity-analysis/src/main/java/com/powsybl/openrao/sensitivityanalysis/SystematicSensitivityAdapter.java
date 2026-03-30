@@ -112,9 +112,9 @@ final class SystematicSensitivityAdapter {
 
             Optional<Contingency> optContingency = state.getContingency();
 
-            if (optContingency.isEmpty()) {
-                throw new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.");
-            }
+//            if (optContingency.isEmpty()) {
+//                throw new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.");
+//            }
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
 
@@ -125,7 +125,7 @@ final class SystematicSensitivityAdapter {
 
             appliedRemedialActions.applyOnNetwork(state, network);
 
-            List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
+            List<Contingency> contingencyList = optContingency.stream().toList();
 
             try {
                 SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
@@ -138,9 +138,10 @@ final class SystematicSensitivityAdapter {
                     runParameters), state.getInstant().getOrder());
             } catch (PowsyblException | OpenRaoException | CompletionException e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
+                SensitivityState sensitivityState = optContingency.map(c -> SensitivityState.postContingency(c.getId())).orElseGet(() -> SensitivityState.PRE_CONTINGENCY);
                 SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
                     cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                    List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(optContingency.get().getId()), SensitivityAnalysisResult.Status.FAILURE)),
+                    List.of(new SensitivityAnalysisResult.SensitivityStateStatus(sensitivityState, SensitivityAnalysisResult.Status.FAILURE)),
                     contingencyList.stream().map(Contingency::getId).toList(),
                     List.of(),
                     List.of()
