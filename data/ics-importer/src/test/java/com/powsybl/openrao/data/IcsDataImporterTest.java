@@ -337,4 +337,21 @@ public class IcsDataImporterTest {
         assertEquals(0, icsData.getRedispatchingActions().size());
         assertEquals("Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
     }
+
+    @Test
+    void testGskWeightSumNotEqualToOne() throws IOException {
+        String gsk = """
+            GSK ID;Node;Weight
+            GSK_NAME;BBE1AA1;0.6
+            GSK_NAME;FFR1AA1;0.5
+            """;
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static_with_gsk.csv"),
+            getClass().getResourceAsStream("/ics/series.csv"),
+            new ByteArrayInputStream(gsk.getBytes(StandardCharsets.UTF_8)),
+            generateOffsetDateTimeList(24));
+
+        assertEquals(0, icsData.getRedispatchingActions().size());
+        assertEquals("Redispatching action Redispatching_RA is ignored but it is defined on a GSK but sum of weights is not equal to 1", logsList.get(0).getFormattedMessage());
+    }
 }
