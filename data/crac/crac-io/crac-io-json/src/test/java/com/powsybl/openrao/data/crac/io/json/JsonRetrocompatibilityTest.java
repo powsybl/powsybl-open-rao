@@ -409,6 +409,28 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point8Crac(crac);
     }
 
+    @Test
+    void importV2Point10Test() throws IOException {
+        // added more flexibility on range types of non tap ranges
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.10.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point10Crac(crac);
+    }
+
+    @Test
+    void importV2Point10WithMaxTso() throws IOException {
+        // max tso has been removed from the crac, so this case will not pass validation
+        String cracFilePath = "/crac2.10-with_maxtso.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(cracFilePath, cracFile, network));
+        assertEquals("JSON file is not a valid CRAC v2.10. Reasons: /ra-usage-limits-per-instant/0: " +
+                         "property 'max-tso' is not defined in the schema and the schema does not allow additional properties",
+                     exception.getMessage());
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -836,7 +858,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(Set.of(crac.getInstant("curative")), raUsageLimitsMap.keySet());
         RaUsageLimits curativeRaUsageLimits = raUsageLimitsMap.get(crac.getInstant("curative"));
         assertEquals(4, curativeRaUsageLimits.getMaxRa());
-        assertEquals(2, curativeRaUsageLimits.getMaxTso());
         assertEquals(Map.of("BE", 6, "FR", 5), curativeRaUsageLimits.getMaxTopoPerTso());
         assertEquals(Map.of("FR", 7), curativeRaUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 12), curativeRaUsageLimits.getMaxRaPerTso());
@@ -975,5 +996,22 @@ class JsonRetrocompatibilityTest {
         assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
         assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
+    }
+
+    private void testContentOfV2Point10Crac(Crac crac) {
+        testContentOfV2Point8Crac(crac);
+
+        assertEquals(
+            1,
+            crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
+                .filter(range -> range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT))
+                .count()
+        );
+        assertEquals(
+            1,
+            crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
+                .filter(range -> range.getRangeType().equals(RangeType.ABSOLUTE))
+                .count()
+        );
     }
 }
