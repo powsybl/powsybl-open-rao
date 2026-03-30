@@ -11,10 +11,13 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVRecord;
 
 import java.time.OffsetDateTime;
@@ -66,11 +69,11 @@ public final class IcsData {
         return raId + "_" + nodeId + GENERATOR_SUFFIX;
     }
 
-    public boolean isRaDefinedOnANode(String raId) {
+    public static boolean isRaDefinedOnANode(String raId) {
         return staticConstraintPerId.get(raId).get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE);
     }
 
-    public String getNodeIdOrGskIdFromRaId(String raId) {
+    public static String getNodeIdOrGskIdFromRaId(String raId) {
         return staticConstraintPerId.get(raId).get(UCT_NODE_OR_GSK_ID);
     }
 
@@ -83,7 +86,7 @@ public final class IcsData {
      * @return A set of {@code GeneratorConstraints} generated for the specified parameters.
      * @throws OpenRaoException if data related to shutdown or startup allowances cannot be parsed.
      */
-    public Set<GeneratorConstraints> createGeneratorConstraints(String raId, Map<String, Double> weightPerNode, Map<String, String> networkElementIdPerNodeId) {
+    public static Set<GeneratorConstraints> createGeneratorConstraints(String raId, Map<String, Double> weightPerNode, Map<String, String> networkElementIdPerNodeId) {
         Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
         for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
             String nodeId = entry.getKey();
@@ -218,6 +221,50 @@ public final class IcsData {
             }
 
             injectionRangeActionAdder.add();
+        });
+    }
+
+    public void processAllRedispatchingActions(TimeCoupledRaoInput timeCoupledRaoInput,
+                                               double costUp,
+                                               double costDown) {
+
+        // Update voltage monitoring
+        TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+            Network network = raoInput.getNetwork();
+            updateNominalVoltage(network);
+            modifiedInitialNetworks.put(dateTime, network);
+        });
+
+        TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+            cracToModify.put(dateTime, raoInput.getCrac());
+        });
+
+        // For each redispatching actions defined in static csv update networks and update cracs
+        consistentRedispatchingActions.forEach(raId -> {
+            Map<String, Double> weightPerNode;
+
+            // If the remedial action is defined on a Node.
+            if (isRaDefinedOnANode(raId)) {
+                weightPerNode = Map.of(getNodeIdOrGskIdFromRaId(raId), 1.0);
+            } else { // If the remedial action is defined on a GSK
+                weightPerNode = weightPerNodePerGsk.get(getNodeIdOrGskIdFromRaId(raId));
+            }
+
+            // Create generator and load in networks
+            Map<String, String> generatorIdPerNode = createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId, weightPerNode);
+            // One of the node could not be find no need to create injection range actions and generator constraint.
+            if (generatorIdPerNode.isEmpty()) {
+                return;
+            }
+
+            // Create Injection Range Actions in CRACs
+            createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, costUp, costDown);
+
+            // Create generator constraints and them to time coupled rao input
+            Set<GeneratorConstraints> generatorConstraintsSet = createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
+            generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
         });
     }
 }

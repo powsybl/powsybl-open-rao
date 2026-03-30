@@ -34,7 +34,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
-import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -76,7 +75,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.data.IcsUtil.updateNominalVoltage;
 import static com.powsybl.openrao.tests.steps.CommonTestData.buildConfig;
 import static com.powsybl.openrao.tests.steps.CommonTestData.cracPath;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getRaoParameters;
@@ -256,47 +254,11 @@ public final class TimeCoupledRaoSteps {
             fbConstraintParameters = new FbConstraintCracCreationParameters();
         }
 
-        // Update voltage monitoring
-        TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
-        timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            Network network = Network.read(raoInput.getInitialNetworkPath());
-            updateNominalVoltage(network);
-            modifiedInitialNetworks.put(dateTime, network);
-        });
-
-
         // Read ICS Data
         IcsData icsData = IcsDataImporter.read(new FileInputStream(getFile(icsStaticPath)),new FileInputStream(getFile(icsSeriesPath)),gskInputStream, timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun().stream().sorted().toList());
-
-        TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
-        timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            cracToModify.put(dateTime, raoInput.getCrac());
-        });
-
-
         FbConstraintCracCreationParameters finalFbConstraintParameters = fbConstraintParameters;
-        // For each redispatching actions defined in static csv update networks and update cracs
-        icsData.getStaticConstraintPerId().forEach((raId, staticRecord) -> {
-            Map<String, Double> weightPerNode;
-            // If the remedial action is defined on a Node.
-            if (icsData.isRaDefinedOnANode(raId)) {
-                weightPerNode = Map.of(icsData.getNodeIdOrGskIdFromRaId(raId), 1.0);
-            } else { // If the remedial action is defined on a GSK
-                weightPerNode = icsData.getWeightPerNodePerGsk().get(icsData.getNodeIdOrGskIdFromRaId(raId));
-            }
-            // Create generator and load in networks
-            Map<String, String> generatorIdPerNode = icsData.createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId, weightPerNode);
-            // One of the node could not be find no need to create injection range actions and generator constraint.
-            if (generatorIdPerNode.isEmpty()) {
-                return;
-            }
-            // Create Injection Range Actions in CRACs
-            icsData.createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, finalFbConstraintParameters.getIcsCostUp(), finalFbConstraintParameters.getIcsCostDown());
+        icsData.processAllRedispatchingActions(timeCoupledRaoInputWithNetworkPaths, finalFbConstraintParameters.getIcsCostUp(), finalFbConstraintParameters.getIcsCostDown());
 
-            // Create generator constraints and them to time coupled rao input
-            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
-            generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
-        });
     }
 
 

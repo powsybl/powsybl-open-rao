@@ -178,6 +178,9 @@ public final class IcsDataImporter {
             return false;
         }
 
+        // Check mandatory fields are defined for all timestamps
+        // TODO
+
         // Check that the range of redispatching parameters is valid
         if (!rangeIsOkay(seriesPerType, sortedTimestampToRun)) {
             return false;
