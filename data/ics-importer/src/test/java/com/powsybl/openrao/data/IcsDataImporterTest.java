@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -121,7 +120,7 @@ public class IcsDataImporterTest {
 
     @Test
     void testStandardIcsDataImporterRead() throws IOException {
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
@@ -136,7 +135,7 @@ public class IcsDataImporterTest {
             RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
             Redispatching_RA;FR;FALSE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             """;
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
@@ -152,7 +151,7 @@ public class IcsDataImporterTest {
             Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             Redispatching_RA_not_defined_in_series_csv;FR;FALSE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             """;
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
@@ -169,7 +168,7 @@ public class IcsDataImporterTest {
             RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
             Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME_NOT_IN_CSV;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             """;
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
@@ -185,7 +184,7 @@ public class IcsDataImporterTest {
             RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
             Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;OTHER;GSK_NAME_NOT_IN_CSV;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             """;
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),

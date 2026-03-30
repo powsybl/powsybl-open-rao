@@ -21,7 +21,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class IcsUtil {
+public final class IcsUtil {
+
+    private IcsUtil() {
+
+    }
 
     // TODO: move to a configuration file ?
     static final double MAX_GRADIENT = 1000.0;
@@ -90,7 +94,6 @@ public class IcsUtil {
         return network.getBusBreakerView().getBus(modifiedNodeId + " ");
     }
 
-
     static void processBus(Bus bus, String generatorId, Double p0, double pMinRd) {
         bus.getVoltageLevel().newGenerator()
             .setBus(bus.getId())
@@ -133,5 +136,4 @@ public class IcsUtil {
     private static boolean safeDoubleEquals(double a, double b) {
         return Math.abs(a - b) < 1e-3;
     }
-
 }

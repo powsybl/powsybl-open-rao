@@ -37,7 +37,11 @@ import static com.powsybl.openrao.data.IcsUtil.parseDoubleWithPossibleCommas;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class IcsDataImporter {
+public final class IcsDataImporter {
+
+    private IcsDataImporter() {
+
+    }
 
     private static CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
         .setDelimiter(";")
@@ -67,7 +71,7 @@ public class IcsDataImporter {
         // Parse GSK and get weight Per Node Per Gsk
         Map<String, Map<String, Double>> weightPerNodePerGsk = parseGskCsv(gskInputStream);
         // Parse static CSV: remedial action’s generator’s static constraints. one line per RA_ID
-        Map<String, CSVRecord>  staticConstraintPerId = parseStaticCsv(staticInputStream);
+        Map<String, CSVRecord> staticConstraintPerId = parseStaticCsv(staticInputStream);
 
         Set<String> consistentRAs = filterOutInconsistentRedispatchingActions(staticConstraintPerId, timeseriesPerIdAndType, weightPerNodePerGsk, sortedTimestampToRun);
 
@@ -75,7 +79,7 @@ public class IcsDataImporter {
 
     }
 
-    static Set<String> filterOutInconsistentRedispatchingActions(Map<String, CSVRecord>  staticConstraintPerId,
+    static Set<String> filterOutInconsistentRedispatchingActions(Map<String, CSVRecord> staticConstraintPerId,
                                                                  Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
                                                                  Map<String, Map<String, Double>> weightPerNodePerGsk,
                                                                  List<OffsetDateTime> sortedTimestampToRun) {
@@ -125,7 +129,7 @@ public class IcsDataImporter {
     }
 
     // Consistency check functions
-    private static boolean shouldBeImported(CSVRecord staticRecord,  List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
+    private static boolean shouldBeImported(CSVRecord staticRecord, List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
         String raId = staticRecord.get(RA_RD_ID);
 
         // Check that remedial action is defined in series csv and gsk (if defined on a gsk)
@@ -134,7 +138,7 @@ public class IcsDataImporter {
             return false;
         }
         // If remedial action is defined on a gsk
-        if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK) ) {
+        if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK)) {
             // Check that the gsk is defined in the gsk csv
             if (!weightPerNodePerGsk.containsKey(staticRecord.get(UCT_NODE_OR_GSK_ID))) {
                 BUSINESS_WARNS.warn("Redispatching action {} is defined on a gsk {} but the gsk is not defined in the gsk csv", raId, staticRecord.get(UCT_NODE_OR_GSK_ID));
@@ -151,7 +155,7 @@ public class IcsDataImporter {
         }
 
         // Check that remedial action should at least be defined on preventive instant
-        if(!staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
+        if (!staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
             BUSINESS_WARNS.warn("Redispatching action {} is not defined on preventive instant", raId);
             return false;
         }
@@ -265,5 +269,4 @@ public class IcsDataImporter {
         }
         return true;
     }
-
 }

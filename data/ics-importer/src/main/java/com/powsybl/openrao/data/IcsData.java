@@ -23,7 +23,6 @@ import java.util.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.IcsUtil.*;
 
-
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
@@ -115,7 +114,7 @@ public final class IcsData {
             }
             if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
                 !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
-                throw new OpenRaoException("Could not parse startUpAllowed value for raId " + raId + ": " + staticRecord.get(STARTUP_ALLOWED) );
+                throw new OpenRaoException("Could not parse startUpAllowed value for raId " + raId + ": " + staticRecord.get(STARTUP_ALLOWED));
             } else {
                 builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
             }

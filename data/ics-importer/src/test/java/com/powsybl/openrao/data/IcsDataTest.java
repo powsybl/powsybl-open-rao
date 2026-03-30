@@ -19,7 +19,6 @@ import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,7 +106,7 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         // Check generator constraint creation
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")) );
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
 
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
@@ -170,12 +169,12 @@ public class IcsDataTest {
             RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
             Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;;;;;FALSE;FALSE
             """;
-        IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(24));
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")) );
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
@@ -202,7 +201,7 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         if (expectedLogMessage == null) {
-            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")) );
+            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
             assertEquals(1, generatorConstraintsSet.size());
             GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
             assertTrue(generatorConstraints.isShutDownAllowed());
@@ -213,7 +212,6 @@ public class IcsDataTest {
                 .withMessage(expectedLogMessage);
         }
     }
-
 
     private static Stream<Arguments> startUpAndShutDownAllowedCsvCases() {
         String baseHeader = """
@@ -276,6 +274,7 @@ public class IcsDataTest {
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
         assertEquals(15.0, generator2.getMinP(), DOUBLE_EPSILON);
     }
+
     @Test
     void testCreateGeneratorAndLoadAndUpdateNetworksOnAGsk() throws IOException {
         // Test generic case without any error
@@ -359,7 +358,6 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
 
-
         // Test injection range action creation in crac
         icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")), 5., 5.);
         assertEquals(1, crac1.getInjectionRangeActions().size());
@@ -381,43 +379,43 @@ public class IcsDataTest {
         assertEquals(5., ra2.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
     }
 
-     @Test
-     void testCreateInjectionRangeActionsAndUpdateCracsOnAGsk() throws IOException {
-         IcsData icsData = IcsDataImporter.read(
-             getClass().getResourceAsStream("/ics/static_with_gsk.csv"),
-             getClass().getResourceAsStream("/ics/series.csv"),
-             getClass().getResourceAsStream("/glsk/gsk.csv"),
-             generateOffsetDateTimeList(2));
+    @Test
+    void testCreateInjectionRangeActionsAndUpdateCracsOnAGsk() throws IOException {
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static_with_gsk.csv"),
+            getClass().getResourceAsStream("/ics/series.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
 
-         icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
 
-         assertEquals(1, crac1.getInjectionRangeActions().size());
-         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
-         assertEquals("Redispatching_RA_RD", ra1.getId());
-         assertEquals(116., ra1.getInitialSetpoint(), DOUBLE_EPSILON);
-         assertTrue(ra1.getVariationCost(VariationDirection.UP).isPresent());
-         assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
-         assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
-         assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-     }
+        assertEquals(1, crac1.getInjectionRangeActions().size());
+        InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
+        assertEquals("Redispatching_RA_RD", ra1.getId());
+        assertEquals(116., ra1.getInitialSetpoint(), DOUBLE_EPSILON);
+        assertTrue(ra1.getVariationCost(VariationDirection.UP).isPresent());
+        assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
+        assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
+        assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
+    }
 
-     @Test
-     void testCreateInjectionRangeActionsAndUpdateCracsCurativeRedispatchingAction() throws IOException {
-         String staticCsv = """
+    @Test
+    void testCreateInjectionRangeActionsAndUpdateCracsCurativeRedispatchingAction() throws IOException {
+        String staticCsv = """
             RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
             Redispatching_RA;FR;TRUE;TRUE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;FALSE;FALSE
             """;
-         IcsData icsData =   IcsDataImporter.read(
+        IcsData icsData = IcsDataImporter.read(
              new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
              getClass().getResourceAsStream("/ics/series.csv"),
              getClass().getResourceAsStream("/glsk/gsk.csv"),
              generateOffsetDateTimeList(2));
-         icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
-         assertEquals(1, crac1.getInjectionRangeActions().size());
-         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
-         assertEquals(1, ra1.getUsageRules().size());
-         assertEquals(crac1.getInstant("preventive"), ra1.getUsageRules().iterator().next().getInstant());
-     }
+        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        assertEquals(1, crac1.getInjectionRangeActions().size());
+        InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
+        assertEquals(1, ra1.getUsageRules().size());
+        assertEquals(crac1.getInstant("preventive"), ra1.getUsageRules().iterator().next().getInstant());
+    }
 
     // Test Getter and Setter
     @Test
@@ -454,5 +452,4 @@ public class IcsDataTest {
         assertEquals(Map.of("BBE1AA1", 0.6, "FFR1AA1", 0.4), icsData.getWeightPerNodePerGsk().get("GSK_NAME"));
         assertEquals(Set.of("Redispatching_RA"), icsData.getRedispatchingActions());
     }
-
 }
