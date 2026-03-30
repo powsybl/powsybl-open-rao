@@ -21,11 +21,11 @@ import java.util.Optional;
  */
 public class IcsUtil {
 
+    // TODO: move to a configuration file ?
     static final double MAX_GRADIENT = 1000.0;
 
     public static final String MAXIMUM_POSITIVE_POWER_GRADIENT = "Maximum positive power gradient [MW/h]";
     public static final String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
-
     public static final String RA_RD_ID = "RA RD ID";
     public static final String RDP_UP = "RDP+";
     public static final String RDP_DOWN = "RDP-";
@@ -36,6 +36,7 @@ public class IcsUtil {
     public static final String TRUE = "TRUE";
     public static final String RD_DESCRIPTION_MODE = "RD description mode";
     public static final String NODE = "NODE";
+    public static final String GSK = "GSK";
     public static final String LEAD_TIME = "Lead time [h]";
     public static final String LAG_TIME = "Lag time [h]";
     public static final String STARTUP_ALLOWED = "Startup allowed";

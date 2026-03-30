@@ -89,7 +89,6 @@ public class IcsDataImporter {
         // Remove inconsistent RAs from the data structures
         staticConstraintPerId.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
         timeseriesPerIdAndType.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
-        weightPerNodePerGsk.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
         return consistentRAs;
     }
 
