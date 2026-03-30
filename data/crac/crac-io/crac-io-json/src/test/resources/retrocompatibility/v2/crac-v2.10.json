@@ -448,8 +448,8 @@
       "networkElementId" : "LD1",
       "activePowerValue" : 260.0
     } ],
-    "danglingLineActions" : [ {
-      "networkElementId" : "DL1",
+    "boundaryLineActions" : [ {
+      "networkElementId" : "BL1",
       "activePowerValue" : -120.0
     } ],
     "shuntCompensatorPositionActions" : [ {
