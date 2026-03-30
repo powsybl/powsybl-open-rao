@@ -170,12 +170,15 @@ public final class SystematicSensitivityInterface {
             TECHNICAL_LOGS.error("Sensitivity analysis skipped: no FlowCNEC provided.");
             return new SystematicSensitivityResult();
         }
-        AppliedRemedialActions mergedAppliedRemedialActions = new AppliedRemedialActions();
-        if (appliedRemedialActions != null) {
-            mergedAppliedRemedialActions.add(appliedRemedialActions);
-        }
-        if (additionnalAppliedRemedialActions != null) {
-            mergedAppliedRemedialActions.add(additionnalAppliedRemedialActions);
+        AppliedRemedialActions mergedAppliedRemedialActions = null;
+        if (appliedRemedialActions != null || additionnalAppliedRemedialActions != null) {
+            mergedAppliedRemedialActions = new AppliedRemedialActions();
+            if (appliedRemedialActions != null) {
+                mergedAppliedRemedialActions.add(appliedRemedialActions);
+            }
+            if (additionnalAppliedRemedialActions != null) {
+                mergedAppliedRemedialActions.add(additionnalAppliedRemedialActions);
+            }
         }
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
                 .runSensitivity(network, cnecSensitivityProvider, mergedAppliedRemedialActions, parameters, sensitivityProvider, outageInstant);

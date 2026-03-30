@@ -62,6 +62,6 @@ public class VariantFreeNetwork extends AbstractBufferedActionsNetworkVariant {
 //                new TrueCondition(),
 //                networkAction.getElementaryActions().stream().map(Action::getId).toList()));
 //        }
-//        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, workingVariant.appliedRemedialActions());
     }
 }

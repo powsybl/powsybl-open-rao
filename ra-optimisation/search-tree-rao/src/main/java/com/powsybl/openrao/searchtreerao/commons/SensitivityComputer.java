@@ -38,7 +38,7 @@ public final class SensitivityComputer {
     }
 
     public void compute(Network network) {
-        compute(network, new AppliedRemedialActions());
+        compute(network, null);
     }
 
     public void compute(Network network, AppliedRemedialActions additionnalAppliedRemedialActions) {
