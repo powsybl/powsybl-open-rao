@@ -43,8 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IcsImporterTest {
     private static final double DOUBLE_EPSILON = 1e-6;
     private static final String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
-    private String networkFilePathPostIcsImport1;
-    private String networkFilePathPostIcsImport2;
     private TimeCoupledRaoInput timeCoupledRaoInput;
     private Crac crac1;
     private Crac crac2;
@@ -58,10 +56,6 @@ class IcsImporterTest {
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
         Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
         Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
-
-        // Create postIcsNetwork:
-        networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
-        networkFilePathPostIcsImport2 = TMP_DIR + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
 
         crac1 = Crac.read("/crac/crac-0030.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0030.json"), network1);
         crac2 = Crac.read("/crac/crac-0130.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0130.json"), network2);
@@ -77,19 +71,6 @@ class IcsImporterTest {
 
     private String getResourcePath(String resourcePath) {
         return "src/test/resources/" + resourcePath;
-    }
-
-    @AfterEach
-    void tearDown() {
-        // Clean created networks
-        File file = new File(Path.of(networkFilePathPostIcsImport1).toUri());
-        if (file.exists()) {
-            file.delete();
-        }
-        file = new File(Path.of(networkFilePathPostIcsImport2).toUri());
-        if (file.exists()) {
-            file.delete();
-        }
     }
 
     @Test
