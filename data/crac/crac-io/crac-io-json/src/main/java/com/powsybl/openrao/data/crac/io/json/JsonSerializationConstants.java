@@ -64,7 +64,7 @@ public final class JsonSerializationConstants {
     v2.7: addition of timestamp
     v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions, deletion of usage methods
     v2.9: add acEmulationDeactivationAction
-    v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant
+    v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
      */
 
     // headers
