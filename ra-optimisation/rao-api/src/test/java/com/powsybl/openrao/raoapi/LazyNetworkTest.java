@@ -8,10 +8,14 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.iidm.network.BoundaryLineFilter;
+import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkEventRecorder;
+import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.ValidationLevel;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -64,6 +69,7 @@ public class LazyNetworkTest {
         assertEquals(4, getIterableAsList(network.getAreas()).size());
         assertEquals(4, network.getAreaStream().toList().size());
         assertEquals(4, network.getAreaCount());
+        assertNotNull(network.getArea("FR"));
 
         assertTrue(network.getSubnetworks().isEmpty());
         assertNull(network.getSubnetwork("unknown"));
@@ -224,6 +230,10 @@ public class LazyNetworkTest {
         assertEquals(15, network.getConnectableStream(Line.class).toList().size());
         assertEquals(15, network.getConnectableCount(Line.class));
 
+        assertEquals(0, getIterableAsList(network.getDcConnectables(DcLine.class)).size());
+        assertEquals(0, network.getDcConnectableStream(DcLine.class).toList().size());
+        assertEquals(0, getIterableAsList(network.getDcConnectables()).size());
+        assertEquals(0, network.getDcConnectableStream().toList().size());
         assertEquals(0, network.getDcConnectableCount());
         assertNull(network.getDcConnectable("unknown"));
 
@@ -245,7 +255,31 @@ public class LazyNetworkTest {
 
         // other
 
+        NetworkListener networkListener = new NetworkEventRecorder();
+        network.addListener(networkListener);
+        network.removeListener(networkListener);
+
         network.allowReportNodeContextMultiThreadAccess(true);
+        network.flatten();
+        assertThrows(IllegalStateException.class, network::detach);
+
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.runValidationChecks());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.runValidationChecks(true));
+
+        assertEquals(ContainerType.NETWORK, network.getContainerType());
+
+        assertEquals(network, network.getNetwork());
+        assertEquals(network, network.getParentNetwork());
+
+        network.setName("UCTE Lazy Network");
+
+        network.setProperty("property", "Hello world!");
+        assertTrue(network.hasProperty("property"));
+        assertEquals("Hello world!", network.getProperty("property"));
+        assertEquals(Set.of("property"), network.getPropertyNames());
+        network.removeProperty("property");
     }
 
     private static <T> List<T> getIterableAsList(Iterable<T> iterable) {
