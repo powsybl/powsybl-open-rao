@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.IcsData;
+import com.powsybl.openrao.data.IcsDataImporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -265,7 +266,7 @@ public final class TimeCoupledRaoSteps {
 
 
         // Read ICS Data
-        IcsData icsData = IcsData.read(new FileInputStream(getFile(icsStaticPath)),new FileInputStream(getFile(icsSeriesPath)),gskInputStream, timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun().stream().sorted().toList());
+        IcsData icsData = IcsDataImporter.read(new FileInputStream(getFile(icsStaticPath)),new FileInputStream(getFile(icsSeriesPath)),gskInputStream, timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun().stream().sorted().toList());
 
         TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
         timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
