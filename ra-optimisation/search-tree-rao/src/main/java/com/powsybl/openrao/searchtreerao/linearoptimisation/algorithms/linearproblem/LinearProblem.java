@@ -20,6 +20,10 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -129,7 +133,15 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        return solver.solve();
+        LinearProblemStatus status = solver.solve();
+        try {
+            OutputStream os = new FileOutputStream("lp.txt");
+            String exportedModel = solver.getMpSolver().exportModelAsLpFormat();
+            os.write(exportedModel.getBytes());
+        } catch (IOException e) {
+            // do nothing
+        }
+        return status;
     }
 
     public OpenRaoMPObjective getObjective() {
