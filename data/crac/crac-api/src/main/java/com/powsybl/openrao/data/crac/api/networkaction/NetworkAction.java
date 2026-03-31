@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.crac.api.networkaction;
 
 import com.powsybl.action.Action;
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.action.LoadAction;
@@ -70,7 +70,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             } else {
                 // FIXME: Action equals is only implemented for Action currently used in Rao,
                 //  so the code above is not working for all Action but only for:
-                //  GeneratorAction, LoadAction, DanglingLineAction, ShuntCompensatorPositionAction,
+                //  GeneratorAction, LoadAction, BoundaryLineAction, ShuntCompensatorPositionAction,
                 //  PhaseTapChangerTapPositionAction, TerminalsConnectionAction, SwitchAction
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
                     if (otherElementaryAction instanceof SwitchPair) {
@@ -94,8 +94,8 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             return generatorAction.getGeneratorId();
         } else if (elementaryAction instanceof LoadAction loadAction) {
             return loadAction.getLoadId();
-        } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
-            return danglingLineAction.getDanglingLineId();
+        } else if (elementaryAction instanceof BoundaryLineAction boundaryLineAction) {
+            return boundaryLineAction.getBoundaryLineId();
         } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
             return shuntCompensatorPositionAction.getShuntCompensatorId();
         } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
