@@ -66,10 +66,13 @@ public final class IcsDataImporter {
                                InputStream gskInputStream,
                                List<OffsetDateTime> sortedTimestampToRun) throws IOException {
 
-        // Parse and sort per RA_ID and serie type (RDP-, RDP+, Pmin_RD or P0)
+        // Parse and sort  and serie type (RDP-, RDP+, Pmin_RD or P0) and per RA_ID
         Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType = parseSeriesCsv(seriesInputStream);
         // Parse GSK and get weight Per Node Per Gsk
-        Map<String, Map<String, Double>> weightPerNodePerGsk = parseGskCsv(gskInputStream);
+        Map<String, Map<String, Double>> weightPerNodePerGsk = new HashMap<>();
+        if (gskInputStream != null) {
+            weightPerNodePerGsk = parseGskCsv(gskInputStream);
+        }
         // Parse static CSV: remedial action’s generator’s static constraints. one line per RA_ID
         Map<String, CSVRecord> staticConstraintPerId = parseStaticCsv(staticInputStream);
 
@@ -83,7 +86,7 @@ public final class IcsDataImporter {
                                                                  Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
                                                                  Map<String, Map<String, Double>> weightPerNodePerGsk,
                                                                  List<OffsetDateTime> sortedTimestampToRun) {
-        // Get set of consistent redispatching action ID.
+        // Get a set of consistent redispatching action ID.
         Set<String> consistentRAs = new HashSet<>();
         staticConstraintPerId.forEach((raId, record) -> {
             if (shouldBeImported(record, sortedTimestampToRun, weightPerNodePerGsk, timeseriesPerIdAndType)) {
@@ -132,6 +135,8 @@ public final class IcsDataImporter {
     private static boolean shouldBeImported(CSVRecord staticRecord, List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
         String raId = staticRecord.get(RA_RD_ID);
 
+        // TODO: checks that all the mandatory fields are defined for all timestamps
+
         // Check that remedial action is defined in series csv and gsk (if defined on a gsk)
         if (!timeseriesPerIdAndType.containsKey(raId)) {
             BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv", raId);
@@ -170,16 +175,12 @@ public final class IcsDataImporter {
         Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
         boolean isDefinedInSeriesCsv = seriesPerType.containsKey(P0) &&
             seriesPerType.containsKey(RDP_DOWN) &&
-            seriesPerType.containsKey(RDP_UP) &&
-            seriesPerType.containsKey(P_MIN_RD);
+            seriesPerType.containsKey(RDP_UP);
 
         if (!isDefinedInSeriesCsv) {
             BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).", raId);
             return false;
         }
-
-        // Check mandatory fields are defined for all timestamps
-        // TODO
 
         // Check that the range of redispatching parameters is valid
         if (!rangeIsOkay(seriesPerType, sortedTimestampToRun)) {

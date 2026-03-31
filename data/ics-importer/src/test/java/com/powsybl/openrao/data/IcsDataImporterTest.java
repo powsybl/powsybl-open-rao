@@ -138,7 +138,7 @@ public class IcsDataImporterTest {
         IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(24));
         assertEquals(0, icsData.getRedispatchingActions().size());
         assertEquals("Redispatching action Redispatching_RA is not defined on preventive instant", logsList.get(0).getFormattedMessage());
@@ -154,7 +154,7 @@ public class IcsDataImporterTest {
         IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(24));
         assertEquals(1, icsData.getRedispatchingActions().size());
         assertTrue(icsData.getRedispatchingActions().contains("Redispatching_RA"));
@@ -216,17 +216,10 @@ public class IcsDataImporterTest {
             Redispatching_RA;Pmin_RD;10;15
             """;
 
-        String missingPminRdCsv = header + """
-            Redispatching_RA;RDP-;35;35
-            Redispatching_RA;RDP+;43;43
-            Redispatching_RA;P0;116;120
-            """;
-
         return Stream.of(
             Arguments.of(missingP0Csv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD)."),
             Arguments.of(missingRdpDownCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD)."),
-            Arguments.of(missingRdpUpCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD)."),
-            Arguments.of(missingPminRdCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).")
+            Arguments.of(missingRdpUpCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).")
         );
     }
 
