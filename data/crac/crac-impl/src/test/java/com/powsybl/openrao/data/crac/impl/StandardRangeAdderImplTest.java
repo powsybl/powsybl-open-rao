@@ -38,13 +38,27 @@ class StandardRangeAdderImplTest {
 
     @Test
     void testOk() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-                .add();
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder
+            .newRange().withMin(-5).withMax(10).add()
+            .add();
 
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(-5, hvdcRangeAction.getRanges().get(0).getMin(), 1e-6);
         assertEquals(10, hvdcRangeAction.getRanges().get(0).getMax(), 1e-6);
         assertEquals(RangeType.ABSOLUTE, hvdcRangeAction.getRanges().get(0).getRangeType());
+        assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
+    }
+
+    @Test
+    void testRangeActionType() {
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder
+            .newRange().withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).withMin(-5).withMax(10).add()
+            .add();
+
+        assertEquals(1, hvdcRangeAction.getRanges().size());
+        assertEquals(-5, hvdcRangeAction.getRanges().get(0).getMin(), 1e-6);
+        assertEquals(10, hvdcRangeAction.getRanges().get(0).getMax(), 1e-6);
+        assertEquals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT, hvdcRangeAction.getRanges().get(0).getRangeType());
         assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
     }
 

@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.crac.io.commons.iidm;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
@@ -129,12 +129,12 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         if (cnecElement instanceof Branch<?> branch) {
             checkBranchNominalVoltage(branch);
             checkBranchCurrentLimits(branch);
-        } else if (cnecElement instanceof DanglingLine danglingLine) {
-            if (danglingLine.isPaired()) {
+        } else if (cnecElement instanceof BoundaryLine boundaryLine) {
+            if (boundaryLine.isPaired()) {
                 return interpretAsHalfLine(network);
             }
-            checkDanglingLineNominalVoltage(danglingLine);
-            checkDanglingLineCurrentLimits(danglingLine);
+            checkBoundaryLineNominalVoltage(boundaryLine);
+            checkBoundaryLineCurrentLimits(boundaryLine);
         } else {
             invalidate(String.format("iidm element %s of class %s is not suited to be a Cnec", branchId, cnecElement.getClass()));
         }
@@ -142,7 +142,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     }
 
     private boolean interpretAsHalfLine(Network network) {
-        Optional<TieLine> tieLine = ((DanglingLine) network.getIdentifiable(branchId)).getTieLine();
+        Optional<TieLine> tieLine = ((BoundaryLine) network.getIdentifiable(branchId)).getTieLine();
 
         if (tieLine.isEmpty()) {
             return false;
@@ -150,7 +150,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
         this.branchIdInNetwork = tieLine.get().getId();
         this.isHalfLine = true;
-        this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? TwoSides.ONE : TwoSides.TWO;
+        this.halfLineSide = tieLine.get().getBoundaryLine1().getId().equals(branchId) ? TwoSides.ONE : TwoSides.TWO;
         checkBranchNominalVoltage(tieLine.get());
         checkBranchCurrentLimits(tieLine.get());
         // todo: check if halfLine can be inverted in CGMES format
@@ -162,8 +162,8 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
     }
 
-    private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
-        this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
+    private void checkBoundaryLineNominalVoltage(BoundaryLine boundaryLine) {
+        this.nominalVoltageLeft = boundaryLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
     }
 
@@ -185,12 +185,12 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         }
     }
 
-    private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        if (danglingLine.getCurrentLimits().isPresent()) {
-            this.currentLimitLeft = danglingLine.getCurrentLimits().orElseThrow().getPermanentLimit();
+    private void checkBoundaryLineCurrentLimits(BoundaryLine boundaryLine) {
+        if (boundaryLine.getCurrentLimits().isPresent()) {
+            this.currentLimitLeft = boundaryLine.getCurrentLimits().orElseThrow().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
         } else {
-            invalidate(String.format("couldn't identify current limits of dangling line (%s, networkDanglingLineId: %s)", branchId, danglingLine.getId()));
+            invalidate(String.format("couldn't identify current limits of boundary line (%s, networkBoundaryLineId: %s)", branchId, boundaryLine.getId()));
         }
     }
 

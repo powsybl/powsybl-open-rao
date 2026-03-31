@@ -10,8 +10,8 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface DanglingLineActionAdder extends SingleNetworkElementActionAdder<DanglingLineActionAdder> {
+public interface BoundaryLineActionAdder extends SingleNetworkElementActionAdder<BoundaryLineActionAdder> {
 
-    DanglingLineActionAdder withActivePowerValue(double setPoint);
+    BoundaryLineActionAdder withActivePowerValue(double setPoint);
 
 }

@@ -265,7 +265,7 @@
                 <iidm:property name="isCoupler" value="false"/>
                 <iidm:property name="status_XNode" value="EQUIVALENT"/>
                 <iidm:property name="geographicalName" value=""/>
-                <iidm:property name="elementName" value="DL AL"/>
+                <iidm:property name="elementName" value="BL AL"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:currentLimits permanentLimit="1245.0"/>

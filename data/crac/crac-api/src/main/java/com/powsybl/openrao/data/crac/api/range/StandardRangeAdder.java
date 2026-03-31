@@ -19,5 +19,7 @@ public interface StandardRangeAdder<T extends StandardRangeActionAdder<T>> {
 
     StandardRangeAdder<T> withMax(double maxSetpoint);
 
+    StandardRangeAdder<T> withRangeType(RangeType rangeType);
+
     T add();
 }
