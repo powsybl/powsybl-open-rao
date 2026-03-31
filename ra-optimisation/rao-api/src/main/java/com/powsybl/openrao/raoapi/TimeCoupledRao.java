@@ -45,7 +45,7 @@ public final class TimeCoupledRao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -58,7 +58,7 @@ public final class TimeCoupledRao {
             return provider.run(raoInput, parameters).join();
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -133,11 +133,11 @@ public final class TimeCoupledRao {
         return new TimeCoupledRao.Runner(provider);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
         return find().run(raoInput);
     }
 }

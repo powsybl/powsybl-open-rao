@@ -10,14 +10,14 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import java.io.IOException;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTIVE_POWER_VALUE;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.DANGLINGLINE_ACTIONS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.BOUNDARYLINE_ACTIONS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
@@ -25,18 +25,18 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.d
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public final class DanglingLineActionArrayDeserializer {
-    private DanglingLineActionArrayDeserializer() {
+public final class BoundaryLineActionArrayDeserializer {
+    private BoundaryLineActionArrayDeserializer() {
     }
 
     public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", DANGLINGLINE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
+            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", BOUNDARYLINE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            DanglingLineActionAdder adder = ownerAdder.newDanglingLineAction();
+            BoundaryLineActionAdder adder = ownerAdder.newBoundaryLineAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case NETWORK_ELEMENT_ID:
                         deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
                         break;
@@ -45,7 +45,7 @@ public final class DanglingLineActionArrayDeserializer {
                         adder.withActivePowerValue(jsonParser.getDoubleValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in DanglingLineAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in BoundaryLineAction: " + jsonParser.currentName());
                 }
             }
             adder.add();
