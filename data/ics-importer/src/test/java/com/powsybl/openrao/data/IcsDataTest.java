@@ -21,10 +21,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +39,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.data.IcsDataImporterTest.generateOffsetDateTimeList;
@@ -460,7 +460,11 @@ public class IcsDataTest {
     // Test Full Run
 
     @Test
-    void testProcessAllRedispatchingActions() throws IOException {
+    void testProcessAllRedispatchingActionsWithLazyNetwork() throws IOException {
+
+        String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
+        String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
+        String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
         Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
         Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
@@ -471,12 +475,55 @@ public class IcsDataTest {
 
         TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
         IcsData icsData = IcsDataImporter.read(
-            getClass().getResourceAsStream("/ics/static_with_gsk.csv"),
-            getClass().getResourceAsStream("/ics/series.csv"),
+            getClass().getResourceAsStream("/ics/static_with_two_ra.csv"),
+            getClass().getResourceAsStream("/ics/series_with_two_ra.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
-            generateOffsetDateTimeList(24));
+            generateOffsetDateTimeList(2));
 
-        icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4.);
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., TMP_DIR);
+
+        assertEquals(3,postIcsRaoInputs.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        assertEquals(2 ,postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(2 ,postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(
+            Set.of("Redispatching_RA_1_RD", "Redispatching_RA_2_RD"),
+            postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions()
+                .stream()
+                .map(InjectionRangeAction::getId)
+                .collect(Collectors.toSet())
+        );
+        assertEquals(
+            Set.of("Redispatching_RA_1_RD", "Redispatching_RA_2_RD"),
+            postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getCrac().getInjectionRangeActions()
+                .stream()
+                .map(InjectionRangeAction::getId)
+                .collect(Collectors.toSet())
+        );
+
+        Generator generatorBE = postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getGenerator("Redispatching_RA_1_BBE1AA1_GENERATOR");
+        assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10. * 0.6, generatorBE.getMinP(), DOUBLE_EPSILON);
+        Generator generatorFR = postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getGenerator("Redispatching_RA_1_FFR1AA1_GENERATOR");
+        assertEquals(116. * 0.4, generatorFR.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10. * 0.4, generatorFR.getMinP(), DOUBLE_EPSILON);
+
+        Generator generatorBE2 = postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getGenerator("Redispatching_RA_1_BBE1AA1_GENERATOR");
+        assertEquals(120 * 0.6, generatorBE2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(15. * 0.6, generatorBE2.getMinP(), DOUBLE_EPSILON);
+        Generator generatorFR2 = postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getGenerator("Redispatching_RA_1_FFR1AA1_GENERATOR");
+        assertEquals(120 * 0.4, generatorFR2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(15. * 0.4, generatorFR2.getMinP(), DOUBLE_EPSILON);
+
+        Generator generatorNode1 = postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getGenerator("Redispatching_RA_2_BBE1AA1_GENERATOR");
+        assertEquals(114., generatorNode1.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(11., generatorNode1.getMinP(), DOUBLE_EPSILON);
+        Generator generatorNode2 = postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getGenerator("Redispatching_RA_2_BBE1AA1_GENERATOR");
+        assertEquals(121., generatorNode2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(14., generatorNode2.getMinP(), DOUBLE_EPSILON);
+
+        assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
+        assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
+
     }
 
     private String getResourcePath(String resourcePath) {

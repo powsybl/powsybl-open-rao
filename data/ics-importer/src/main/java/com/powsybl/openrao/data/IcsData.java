@@ -16,11 +16,14 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVRecord;
 
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -109,12 +112,14 @@ public final class IcsData {
             if (!staticRecord.get(LAG_TIME).isEmpty()) {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
+            // TODO: instead of throwing an error, just ignore the RA + move the check in the import
             if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
                 !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
                 throw new OpenRaoException("Could not parse shutDownAllowed value for raId " + raId + ": " + staticRecord.get(SHUTDOWN_ALLOWED));
             } else {
                 builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
             }
+            // TODO: instead of throwing an error, just ignore the RA + move the check in the import
             if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
                 !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
                 throw new OpenRaoException("Could not parse startUpAllowed value for raId " + raId + ": " + staticRecord.get(STARTUP_ALLOWED));
@@ -224,9 +229,22 @@ public final class IcsData {
         });
     }
 
-    public void processAllRedispatchingActions(TimeCoupledRaoInput timeCoupledRaoInput,
-                                               double costUp,
-                                               double costDown) {
+    /**
+     * Processes all redispatching actions for the provided time-coupled input, updates networks
+     * and CRACs, and generates the required constraints for the specified costs.
+     *
+     * @param timeCoupledRaoInput The input data containing network and CRAC information for
+     *                            each timestamp. Includes all RAO-specific input required for
+     *                            redispatching action processing.
+     * @param costUp The cost associated with increasing the generation (VariationDirection.UP).
+     * @param costDown The cost associated with decreasing the generation (VariationDirection.DOWN).
+     * @param exportDirectory The directory where the exported networks will be saved.
+     * @return The updated time-coupled RAO input with processed redispatching actions and constraints.
+     */
+    public TimeCoupledRaoInput processAllRedispatchingActions(TimeCoupledRaoInput timeCoupledRaoInput,
+                                                              double costUp,
+                                                              double costDown,
+                                                              String exportDirectory) {
 
         // Update voltage monitoring
         TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
@@ -266,5 +284,16 @@ public final class IcsData {
             Set<GeneratorConstraints> generatorConstraintsSet = createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
             generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
         });
+
+        TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
+
+        modifiedInitialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
+            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
+            initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
+            postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+        });
+
+        return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
     }
+
 }
