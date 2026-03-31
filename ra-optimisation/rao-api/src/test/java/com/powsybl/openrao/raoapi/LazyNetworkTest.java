@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkEventRecorder;
 import com.powsybl.iidm.network.NetworkListener;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationLevel;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +24,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -108,6 +109,7 @@ public class LazyNetworkTest {
         assertEquals(0, network.getTieLineCount());
         assertNull(network.getTieLine("unknown"));
 
+        assertEquals(16, getIterableAsList(network.getBranches()).size());
         assertEquals(16, network.getBranchStream().toList().size());
         assertEquals(16, network.getBranchCount());
         assertNotNull(network.getBranch("FFR1AA1  FFR2AA1  1"));
@@ -164,6 +166,7 @@ public class LazyNetworkTest {
         assertEquals(0, network.getBusbarSectionCount());
         assertNull(network.getBusbarSection("unknown"));
 
+        assertEquals(0, getIterableAsList(network.getHvdcConverterStations()).size());
         assertEquals(0, network.getHvdcConverterStationStream().toList().size());
         assertEquals(0, network.getHvdcConverterStationCount());
         assertNull(network.getHvdcConverterStation("unknown"));
@@ -232,6 +235,7 @@ public class LazyNetworkTest {
 
         assertEquals(0, getIterableAsList(network.getDcConnectables(DcLine.class)).size());
         assertEquals(0, network.getDcConnectableStream(DcLine.class).toList().size());
+        assertEquals(0, network.getDcConnectableCount(DcLine.class));
         assertEquals(0, getIterableAsList(network.getDcConnectables()).size());
         assertEquals(0, network.getDcConnectableStream().toList().size());
         assertEquals(0, network.getDcConnectableCount());
@@ -252,6 +256,17 @@ public class LazyNetworkTest {
         assertEquals(IdentifiableType.NETWORK, network.getType());
 
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+
+        // adders
+
+        network.newArea().setId("fictitiousArea").setAreaType("fictitious").add();
+        assertEquals(5, network.getAreaCount());
+
+        network.newSubstation().setCountry(Country.FR).setId("FFR4AA").add();
+        assertEquals(4, getIterableAsList(network.getSubstations(Country.FR, null)).size());
+
+        network.newVoltageLevel().setId("FFR4AA1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        assertEquals(12, network.getVoltageLevelCount());
 
         // other
 
@@ -274,15 +289,25 @@ public class LazyNetworkTest {
         assertEquals(network, network.getParentNetwork());
 
         network.setName("UCTE Lazy Network");
+        assertEquals(Optional.of("UCTE Lazy Network"), network.getOptionalName());
 
         network.setProperty("property", "Hello world!");
         assertTrue(network.hasProperty("property"));
         assertEquals("Hello world!", network.getProperty("property"));
         assertEquals(Set.of("property"), network.getPropertyNames());
         network.removeProperty("property");
+
+        network.addAlias("alias-1");
+        network.addAlias("alias-2", true);
+        assertTrue(network.hasAliases());
+        network.removeAlias("alias-1");
+        network.removeAlias("alias-2");
+        assertFalse(network.hasAliases());
     }
 
     private static <T> List<T> getIterableAsList(Iterable<T> iterable) {
-        return new ArrayList<>((Collection<T>) iterable);
+        List<T> list = new ArrayList<>();
+        iterable.forEach(list::add);
+        return list;
     }
 }
