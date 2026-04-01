@@ -61,8 +61,11 @@ public final class IcsUtil {
         if (seriesPerType.containsKey(key)) {
             CSVRecord series = seriesPerType.get(key);
             String value = series.get(timestamp.getHour() + OFFSET);
-            if (value != null) {
+            if (value != null && !value.isEmpty()) {
                 return Optional.of(parseDoubleWithPossibleCommas(value) * shiftKey);
+            } else {
+                BUSINESS_WARNS.warn("Redispatching action {} is missing {} value for datetime {}", series.get(RA_RD_ID), key, timestamp);
+                return Optional.empty();
             }
         }
         return Optional.empty();

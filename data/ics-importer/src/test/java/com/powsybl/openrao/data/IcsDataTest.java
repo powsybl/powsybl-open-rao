@@ -320,6 +320,39 @@ public class IcsDataTest {
         assertEquals("Redispatching action Redispatching_RA cannot be imported because bus undefined_node could not be found", logsList.get(0).getFormattedMessage());
     }
 
+    @Test
+    void testCreateGeneratorAndLoadPMinNotDefined() throws IOException {
+        String seriesCsv = """
+            RA RD ID;Type of timeseries;00:30;01:30
+            Redispatching_RA;RDP-;35;35
+            Redispatching_RA;RDP+;43;43
+            Redispatching_RA;P0;116;116
+            Redispatching_RA;Pmin_RD;10;
+            """;
+        // Read ICS Data
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static_with_gsk.csv"),
+            new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
+        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"));
+        assertEquals(Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), generatorIdPerNodeId);
+        Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
+        assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10. * 0.6, generatorBE.getMinP(), DOUBLE_EPSILON);
+        Generator generatorFR = network1.getGenerator("Redispatching_RA_FFR1AA1_GENERATOR");
+        assertEquals(116. * 0.4, generatorFR.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10. * 0.4, generatorFR.getMinP(), DOUBLE_EPSILON);
+
+        Generator generatorBE2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
+        assertEquals(116. * 0.6, generatorBE2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(ON_POWER_THRESHOLD, generatorBE2.getMinP(), DOUBLE_EPSILON);
+        Generator generatorFR2 = network2.getGenerator("Redispatching_RA_FFR1AA1_GENERATOR");
+        assertEquals(116. * 0.4, generatorFR2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(ON_POWER_THRESHOLD, generatorFR2.getMinP(), DOUBLE_EPSILON);
+        assertEquals("Redispatching action Redispatching_RA is missing Pmin_RD value for datetime 2025-02-13T01:30Z", logsList.get(0).getFormattedMessage());
+    }
+
     // Test createInjectionRangeActionsAndUpdateCracs
     @Test
     void testCreateInjectionRangeActionsAndUpdateCracsOnANode() throws IOException {
