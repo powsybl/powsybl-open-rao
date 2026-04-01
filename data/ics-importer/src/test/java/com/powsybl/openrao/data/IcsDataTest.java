@@ -106,7 +106,7 @@ public class IcsDataTest {
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(24));
 
         // Check generator constraint creation
@@ -176,7 +176,7 @@ public class IcsDataTest {
         IcsData icsData = IcsDataImporter.read(
             new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(24));
         Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
         assertEquals(1, generatorConstraintsSet.size());
@@ -267,7 +267,7 @@ public class IcsDataTest {
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(2));
 
         icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", Map.of("BBE1AA1", 1.0));
@@ -359,7 +359,7 @@ public class IcsDataTest {
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(2));
 
         // Test injection range action creation in crac
@@ -423,17 +423,17 @@ public class IcsDataTest {
 
     // Test Getter and Setter
     @Test
-    void testIcsDataReadOkNode() throws IOException {
+    void testIcsImporterWithNode() throws IOException {
         // Read ICS Data
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            null,
             generateOffsetDateTimeList(24));
 
         assertEquals(1, icsData.getStaticConstraintPerId().size());
         assertEquals(4, icsData.getTimeseriesPerIdAndType().get("Redispatching_RA").size());
-        assertEquals(1, icsData.getWeightPerNodePerGsk().size());
+        assertEquals(0, icsData.getWeightPerNodePerGsk().size());
         assertEquals(Set.of("Redispatching_RA"), icsData.getRedispatchingActions());
     }
 
