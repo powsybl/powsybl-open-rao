@@ -148,14 +148,6 @@ public final class IcsDataImporter {
                 BUSINESS_WARNS.warn("Redispatching action {} is defined on a gsk {} but the gsk is not defined in the gsk csv", raId, staticRecord.get(UCT_NODE_OR_GSK_ID));
                 return false;
             }
-
-            // Check that the sum of weight if RA is defined on GSK equals to 1
-            if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK)) {
-                if (!sumOfGskEqualsOne(staticRecord.get(UCT_NODE_OR_GSK_ID), weightPerNodePerGsk)) {
-                    BUSINESS_WARNS.warn("Redispatching action {} is ignored but it is defined on a GSK but sum of weights is not equal to 1", raId);
-                    return false;
-                }
-            }
         }
 
         // Check that remedial action should at least be defined on preventive instant
@@ -192,22 +184,6 @@ public final class IcsDataImporter {
         }
 
         return true;
-    }
-
-    /**
-     * Checks if the sum of the generation shift key (GSK) weights associated with a specific GSK ID equals 1
-     *
-     * @param gskId
-     * @param weightPerNodePerGsk
-     * @return {@code true} if the sum of the GSK weights equals 1 within a small tolerance;
-     *         {@code false} otherwise.
-     */
-    private static boolean sumOfGskEqualsOne(String gskId, Map<String, Map<String, Double>> weightPerNodePerGsk) {
-        double sumOfGsk = 0.;
-        for (Map.Entry<String, Double> entry : weightPerNodePerGsk.get(gskId).entrySet()) {
-            sumOfGsk += entry.getValue();
-        }
-        return Math.abs(sumOfGsk - 1.) < 1e-6;
     }
 
     /**
