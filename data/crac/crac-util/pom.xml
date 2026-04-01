@@ -86,8 +86,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>ics-importer</artifactId>
-            <version>7.2.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
