@@ -16,8 +16,6 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */

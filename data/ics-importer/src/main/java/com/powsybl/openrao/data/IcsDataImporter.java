@@ -25,7 +25,6 @@ import static com.powsybl.openrao.data.IcsUtil.NODE;
 import static com.powsybl.openrao.data.IcsUtil.OFFSET;
 import static com.powsybl.openrao.data.IcsUtil.P0;
 import static com.powsybl.openrao.data.IcsUtil.PREVENTIVE;
-import static com.powsybl.openrao.data.IcsUtil.P_MIN_RD;
 import static com.powsybl.openrao.data.IcsUtil.RA_RD_ID;
 import static com.powsybl.openrao.data.IcsUtil.RDP_DOWN;
 import static com.powsybl.openrao.data.IcsUtil.RDP_UP;

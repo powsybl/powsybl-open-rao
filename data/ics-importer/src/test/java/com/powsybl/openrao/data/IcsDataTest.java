@@ -430,7 +430,7 @@ public class IcsDataTest {
     @Test
     void testProcessAllRedispatchingActionsWithLazyNetwork() throws IOException {
 
-        String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
+        String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
         Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
@@ -448,11 +448,11 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
 
-        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., TMP_DIR);
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., tmpDir);
 
-        assertEquals(3,postIcsRaoInputs.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        assertEquals(2 ,postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions().size());
-        assertEquals(2 ,postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(3, postIcsRaoInputs.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        assertEquals(2, postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(2, postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getCrac().getInjectionRangeActions().size());
         assertEquals(
             Set.of("Redispatching_RA_1_RD", "Redispatching_RA_2_RD"),
             postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions()
