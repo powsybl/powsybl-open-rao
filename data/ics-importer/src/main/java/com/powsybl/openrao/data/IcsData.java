@@ -80,17 +80,34 @@ public final class IcsData {
         return staticConstraintPerId.get(raId).get(UCT_NODE_OR_GSK_ID);
     }
 
+    public static Map<String, Double> getWeightPerNode(String raId) {
+        if (isRaDefinedOnANode(raId)) {
+            return Map.of(getNodeIdOrGskIdFromRaId(raId), 1.0);
+        } else {
+            return weightPerNodePerGsk.get(getNodeIdOrGskIdFromRaId(raId));
+        }
+    }
+
+    public static Map<String, String> getDefaultGeneratorIdPerNode(String raId) {
+        Map<String, String> defaultGeneratorIdPerNode = new HashMap<>();
+        Map<String, Double> weightPerNode = getWeightPerNode(raId);
+        for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
+            defaultGeneratorIdPerNode.put(entry.getKey(), getGeneratorIdFromRaIdAndNodeId(raId, entry.getKey()));
+        }
+        return defaultGeneratorIdPerNode;
+    }
+
     /**
      * Generates a set of generator constraints based on the provided remedial action ID.
      *
      * @param raId The identifier of the remedial action for which the generator constraints are being created.
-     * @param weightPerNode A map linking node identifiers to their respective generation shift key weights.
      * @param networkElementIdPerNodeId A map linking nodeId to their respective network elements id.
      * @return A set of {@code GeneratorConstraints} generated for the specified parameters.
      * @throws OpenRaoException if data related to shutdown or startup allowances cannot be parsed.
      */
-    public static Set<GeneratorConstraints> createGeneratorConstraints(String raId, Map<String, Double> weightPerNode, Map<String, String> networkElementIdPerNodeId) {
+    public static Set<GeneratorConstraints> createGeneratorConstraints(String raId, Map<String, String> networkElementIdPerNodeId) {
         Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
+        Map<String, Double> weightPerNode = getWeightPerNode(raId);
         for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
             String nodeId = entry.getKey();
             Double shiftKey = entry.getValue();
@@ -138,16 +155,15 @@ public final class IcsData {
      * @param initialNetworksToModify Temporal data representing the networks that will be modified.
      *                                Contains network configurations per timestamp.
      * @param raId The identifier of the remedial action for which generators and network modifications are being applied.
-     * @param weightPerNode A map linking node identifiers to their corresponding generation shift key weights.
      * @return A map associating each node identifier to its corresponding generator identifier.
      *         Returns an empty map if the process is aborted due to missing network components.
      */
     public static Map<String, String> createGeneratorAndLoadAndUpdateNetworks(TemporalData<Network> initialNetworksToModify,
-                                                                              String raId,
-                                                                              Map<String, Double> weightPerNode) {
+                                                                              String raId) {
 
         Map<String, String> networkElementPerGskElement = new HashMap<>();
         Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
+        Map<String, Double> weightPerNode = getWeightPerNode(raId);
 
         for (Map.Entry<String, Double> entry : weightPerNode.entrySet()) {
 
@@ -184,20 +200,20 @@ public final class IcsData {
      *
      * @param cracToModify Temporal data containing CRACs to be modified and timestamps to consider.
      * @param raId The identifier of the remedial action for which injection range actions are created.
-     * @param weightPerNode A map linking node identifiers to their associated generation shift key weights.
      * @param networkElementPerNode A map linking each node identifier to its corresponding network element/generator id.
      * @param costUp The cost associated with increasing the generation (VariationDirection.UP).
      * @param costDown The cost associated with decreasing the generation (VariationDirection.DOWN).
      */
     public static void createInjectionRangeActionsAndUpdateCracs(TemporalData<Crac> cracToModify,
                                                                  String raId,
-                                                                 Map<String, Double> weightPerNode,
                                                                  Map<String, String> networkElementPerNode,
                                                                  double costUp,
                                                                  double costDown) {
 
         CSVRecord staticRecord = staticConstraintPerId.get(raId);
         Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
+        Map<String, Double> weightPerNode = getWeightPerNode(raId);
+
         cracToModify.getDataPerTimestamp().forEach((dateTime, crac) -> {
             double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
@@ -261,27 +277,19 @@ public final class IcsData {
 
         // For each redispatching actions defined in static csv update networks and update cracs
         consistentRedispatchingActions.forEach(raId -> {
-            Map<String, Double> weightPerNode;
-
-            // If the remedial action is defined on a Node.
-            if (isRaDefinedOnANode(raId)) {
-                weightPerNode = Map.of(getNodeIdOrGskIdFromRaId(raId), 1.0);
-            } else { // If the remedial action is defined on a GSK
-                weightPerNode = weightPerNodePerGsk.get(getNodeIdOrGskIdFromRaId(raId));
-            }
 
             // Create generator and load in networks
-            Map<String, String> generatorIdPerNode = createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId, weightPerNode);
+            Map<String, String> generatorIdPerNode = createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId);
             // One of the node could not be find no need to create injection range actions and generator constraint.
             if (generatorIdPerNode.isEmpty()) {
                 return;
             }
 
             // Create Injection Range Actions in CRACs
-            createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, weightPerNode, generatorIdPerNode, costUp, costDown);
+            createInjectionRangeActionsAndUpdateCracs(cracToModify, raId, generatorIdPerNode, costUp, costDown);
 
             // Create generator constraints and them to time coupled rao input
-            Set<GeneratorConstraints> generatorConstraintsSet = createGeneratorConstraints(raId, weightPerNode, generatorIdPerNode);
+            Set<GeneratorConstraints> generatorConstraintsSet = createGeneratorConstraints(raId, generatorIdPerNode);
             generatorConstraintsSet.forEach(generatorConstraints -> timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints));
         });
 

@@ -10,6 +10,8 @@ package com.powsybl.openrao.data;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -21,6 +23,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
@@ -36,15 +39,13 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.data.IcsData.getDefaultGeneratorIdPerNode;
 import static com.powsybl.openrao.data.IcsDataImporterTest.generateOffsetDateTimeList;
 import static com.powsybl.openrao.data.IcsUtil.MAX_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.ON_POWER_THRESHOLD;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -110,7 +111,7 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         // Check generator constraint creation
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
 
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
@@ -138,7 +139,7 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(24));
 
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
 
         assertEquals(2, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraintsBE = generatorConstraintsSet.stream()
@@ -178,7 +179,7 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/ics/series.csv"),
             null,
             generateOffsetDateTimeList(24));
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
@@ -205,14 +206,14 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         if (expectedLogMessage == null) {
-            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
-            assertEquals(1, generatorConstraintsSet.size());
+            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1"), "FFR1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "FFR1AA1")));
+            assertEquals(2, generatorConstraintsSet.size());
             GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
             assertTrue(generatorConstraints.isShutDownAllowed());
             assertTrue(generatorConstraints.isStartUpAllowed());
         } else {
             Assertions.assertThatExceptionOfType(OpenRaoException.class)
-                .isThrownBy(() -> icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", 0.6, "FFR1AA1", 0.4), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1"), "FFR1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "FFR1AA1"))))
+                .isThrownBy(() -> icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1"), "FFR1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "FFR1AA1"))))
                 .withMessage(expectedLogMessage);
         }
     }
@@ -270,7 +271,7 @@ public class IcsDataTest {
             null,
             generateOffsetDateTimeList(2));
 
-        icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", Map.of("BBE1AA1", 1.0));
+        icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA");
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
         assertEquals(10.0, generator1.getMinP(), DOUBLE_EPSILON);
@@ -290,7 +291,7 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/ics/series.csv"),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
-        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"));
+        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA");
         assertEquals(Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), generatorIdPerNodeId);
         Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);
@@ -314,7 +315,7 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/ics/series.csv"),
             new ByteArrayInputStream(gsk.getBytes(StandardCharsets.UTF_8)),
             generateOffsetDateTimeList(2));
-        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"));
+        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA");
         assertEquals(Map.of(), generatorIdPerNodeId);
         assertEquals("Redispatching action Redispatching_RA cannot be imported because bus undefined_node could not be found", logsList.get(0).getFormattedMessage());
     }
@@ -330,7 +331,7 @@ public class IcsDataTest {
             generateOffsetDateTimeList(2));
 
         // Test injection range action creation in crac
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", 1.0), Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")), 5., 5.);
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
         assertEquals("Redispatching_RA_RD", ra1.getId());
@@ -358,7 +359,7 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
 
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -381,7 +382,7 @@ public class IcsDataTest {
              getClass().getResourceAsStream("/ics/series.csv"),
              getClass().getResourceAsStream("/glsk/gsk.csv"),
              generateOffsetDateTimeList(2));
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"), Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
         assertEquals(1, ra1.getUsageRules().size());
@@ -491,6 +492,36 @@ public class IcsDataTest {
         assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
         assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
 
+    }
+
+    @Test
+    void testExportToTimeCoupledConstraintJson() throws IOException {
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static_with_two_ra.csv"),
+            getClass().getResourceAsStream("/ics/series_with_two_ra.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
+
+        // Create Generator Constraints
+        Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+
+        // Warning: in exemple we use a default generator id per node
+        icsData.getRedispatchingActions().forEach(raId -> generatorConstraintsSet.addAll(icsData.createGeneratorConstraints(raId, getDefaultGeneratorIdPerNode(raId))));
+        generatorConstraintsSet.forEach(constraint -> timeCoupledConstraints.addGeneratorConstraints(constraint));
+
+        ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
+        Objects.requireNonNull(getClass().getResourceAsStream("/expected_time_coupled_constraints.json"))
+            .transferTo(expectedOutputStream);
+
+        ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
+        JsonTimeCoupledConstraints.write(timeCoupledConstraints, actualOutputStream);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedJson = mapper.readTree(expectedOutputStream.toString());
+        JsonNode actualJson = mapper.readTree(actualOutputStream.toString());
+
+        assertEquals(expectedJson, actualJson);
     }
 
     private String getResourcePath(String resourcePath) {
