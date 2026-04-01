@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -17,21 +17,21 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.IcsUtil.*;
-import static com.powsybl.openrao.data.IcsUtil.MAXIMUM_NEGATIVE_POWER_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.MAXIMUM_POSITIVE_POWER_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.MAX_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.NODE;
-import static com.powsybl.openrao.data.IcsUtil.OFFSET;
-import static com.powsybl.openrao.data.IcsUtil.P0;
-import static com.powsybl.openrao.data.IcsUtil.PREVENTIVE;
-import static com.powsybl.openrao.data.IcsUtil.RA_RD_ID;
-import static com.powsybl.openrao.data.IcsUtil.RDP_DOWN;
-import static com.powsybl.openrao.data.IcsUtil.RDP_UP;
-import static com.powsybl.openrao.data.IcsUtil.RD_DESCRIPTION_MODE;
-import static com.powsybl.openrao.data.IcsUtil.TRUE;
-import static com.powsybl.openrao.data.IcsUtil.UCT_NODE_OR_GSK_ID;
-import static com.powsybl.openrao.data.IcsUtil.parseDoubleWithPossibleCommas;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_NEGATIVE_POWER_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_POSITIVE_POWER_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAX_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.NODE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.OFFSET;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.P0;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.PREVENTIVE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RA_RD_ID;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_DOWN;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_UP;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RD_DESCRIPTION_MODE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.TRUE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.UCT_NODE_OR_GSK_ID;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.parseDoubleWithPossibleCommas;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

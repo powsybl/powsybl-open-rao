@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.IcsUtil.*;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

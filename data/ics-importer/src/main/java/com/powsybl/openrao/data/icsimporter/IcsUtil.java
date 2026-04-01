@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;

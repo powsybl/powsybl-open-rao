@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -43,9 +43,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.data.IcsData.getDefaultGeneratorIdPerNode;
-import static com.powsybl.openrao.data.IcsDataImporterTest.generateOffsetDateTimeList;
-import static com.powsybl.openrao.data.IcsUtil.MAX_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsData.getDefaultGeneratorIdPerNode;
+import static com.powsybl.openrao.data.icsimporter.IcsDataImporterTest.generateOffsetDateTimeList;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAX_GRADIENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
