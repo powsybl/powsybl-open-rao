@@ -86,16 +86,16 @@ public final class IcsDataImporter {
                                                   Map<String, Map<String, Double>> weightPerNodePerGsk,
                                                   List<OffsetDateTime> sortedTimestampToRun) {
         // Get a set of consistent redispatching action ID.
-        Set<String> RaToImport = new HashSet<>();
+        Set<String> raToImport = new HashSet<>();
         staticConstraintPerId.forEach((raId, record) -> {
             if (shouldBeImported(record, sortedTimestampToRun, weightPerNodePerGsk, timeseriesPerIdAndType)) {
-                RaToImport.add(raId);
+                raToImport.add(raId);
             }
         });
         // Remove inconsistent RAs from the data structures
-        staticConstraintPerId.entrySet().removeIf(entry -> !RaToImport.contains(entry.getKey()));
-        timeseriesPerIdAndType.entrySet().removeIf(entry -> !RaToImport.contains(entry.getKey()));
-        return RaToImport;
+        staticConstraintPerId.entrySet().removeIf(entry -> !raToImport.contains(entry.getKey()));
+        timeseriesPerIdAndType.entrySet().removeIf(entry -> !raToImport.contains(entry.getKey()));
+        return raToImport;
     }
 
     static Map<String, CSVRecord> parseStaticCsv(InputStream staticInputStream) throws IOException {
