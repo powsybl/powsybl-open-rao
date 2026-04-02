@@ -139,6 +139,18 @@ public final class IcsDataImporter {
             BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv", raId);
             return false;
         }
+
+        // Check that the RA is correctly defined in series csv
+        Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
+        boolean isDefinedInSeriesCsv = seriesPerType.containsKey(P0) &&
+            seriesPerType.containsKey(RDP_DOWN) &&
+            seriesPerType.containsKey(RDP_UP);
+
+        if (!isDefinedInSeriesCsv) {
+            BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).", raId);
+            return false;
+        }
+
         // If remedial action is defined on a gsk
         if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK)) {
             // Check that the gsk is defined in the gsk csv
@@ -160,16 +172,6 @@ public final class IcsDataImporter {
             return false;
         }
 
-        // Check that the RA is correctly defined in series csv
-        Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
-        boolean isDefinedInSeriesCsv = seriesPerType.containsKey(P0) &&
-            seriesPerType.containsKey(RDP_DOWN) &&
-            seriesPerType.containsKey(RDP_UP);
-
-        if (!isDefinedInSeriesCsv) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).", raId);
-            return false;
-        }
 
         // Check that the range of redispatching parameters is valid
         if (!rangeIsOkay(seriesPerType, sortedTimestampToRun)) {
