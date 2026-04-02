@@ -230,7 +230,6 @@ public class IcsDataImporterTest {
             Redispatching_RA;P0;;120
             """;
 
-
         return Stream.of(
             Arguments.of(missingP0Csv, "Redispatching action Redispatching_RA is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP)."),
             Arguments.of(missingRdpDownCsv, "Redispatching action Redispatching_RA is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP)."),
@@ -378,52 +377,52 @@ public class IcsDataImporterTest {
 
     private static Stream<Arguments> missingMandatoryFields() {
         String header = """
-        RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
-        """;
+            RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
+            """;
 
         String missingPreventive = header + """
-        Redispatching_RA;FR;;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String missingCurative = header + """
-        Redispatching_RA;FR;TRUE;;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String missingGeneratorName = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String missingRdDescriptionMode = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String missingUctNodeOrGskId = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String missingStartupAllowed = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;;FALSE
+            """;
 
         String missingShutdownAllowed = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;
+            """;
 
         String invalidStartupAllowed = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;INVALID;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;INVALID;FALSE
+            """;
 
         String invalidShutdownAllowed = header + """
-        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;INVALID
-        """;
+            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;INVALID
+            """;
 
         String invalidPreventive = header + """
-        Redispatching_RA;FR;INVALID;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;INVALID;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         String invalidCurative = header + """
-        Redispatching_RA;FR;TRUE;INVALID;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
-        """;
+            Redispatching_RA;FR;TRUE;INVALID;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+            """;
 
         return Stream.of(
             Arguments.of(missingPreventive, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),

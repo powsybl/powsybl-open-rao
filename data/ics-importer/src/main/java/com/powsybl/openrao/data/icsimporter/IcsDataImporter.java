@@ -131,6 +131,7 @@ public final class IcsDataImporter {
     private static boolean isValidBooleanValue(String value) {
         return value.equalsIgnoreCase(TRUE) || value.equalsIgnoreCase(FALSE);
     }
+
     // Consistency check functions
     private static boolean shouldBeImported(CSVRecord staticRecord, List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
         String raId = staticRecord.get(RA_RD_ID);
@@ -153,7 +154,6 @@ public final class IcsDataImporter {
                 return false;
             }
         }
-
 
         // Check that remedial action is defined in series csv and gsk (if defined on a gsk)
         if (!timeseriesPerIdAndType.containsKey(raId)) {
@@ -211,7 +211,6 @@ public final class IcsDataImporter {
             BUSINESS_WARNS.warn("Redispatching action {} is not imported: not defined on a node or a gsk but on a {}", raId, staticRecord.get(RD_DESCRIPTION_MODE));
             return false;
         }
-
 
         // Check that the range of redispatching parameters is valid
         if (!rangeIsOkay(seriesPerType, sortedTimestampToRun)) {
