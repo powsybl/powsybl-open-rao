@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
@@ -27,12 +26,8 @@ import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstra
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -41,11 +36,11 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.openrao.data.icsimporter.IcsData.getDefaultGeneratorIdPerNode;
 import static com.powsybl.openrao.data.icsimporter.IcsDataImporterTest.generateOffsetDateTimeList;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAX_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.ON_POWER_THRESHOLD;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -196,67 +191,6 @@ public class IcsDataTest {
         assertFalse(generatorConstraints.getLagTime().isPresent());
     }
 
-    @ParameterizedTest
-    @MethodSource("startUpAndShutDownAllowedCsvCases")
-    void testCreateGeneratorConstraintShutDownAndStartUpAllowed(String staticCsv, String expectedLogMessage) throws IOException {
-        IcsData icsData = IcsDataImporter.read(
-            new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
-            getClass().getResourceAsStream("/ics/series.csv"),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
-            generateOffsetDateTimeList(24));
-
-        if (expectedLogMessage == null) {
-            Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1"), "FFR1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "FFR1AA1")));
-            assertEquals(2, generatorConstraintsSet.size());
-            GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
-            assertTrue(generatorConstraints.isShutDownAllowed());
-            assertTrue(generatorConstraints.isStartUpAllowed());
-        } else {
-            Assertions.assertThatExceptionOfType(OpenRaoException.class)
-                .isThrownBy(() -> icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1"), "FFR1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "FFR1AA1"))))
-                .withMessage(expectedLogMessage);
-        }
-    }
-
-    private static Stream<Arguments> startUpAndShutDownAllowedCsvCases() {
-        String baseHeader = """
-            RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
-            """;
-
-        String shutDownAndStartUpTrue = baseHeader + """
-            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;TRUE;TRUE
-            """;
-
-        String noShutDown = baseHeader + """
-            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;FALSE;;
-            """;
-
-        String shutDownWrongValue = baseHeader + """
-            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;FALSE;wrongValue
-            """;
-
-        String noStartUp = baseHeader + """
-            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;;FALSE;
-            """;
-
-        String startUpWrongValue = baseHeader + """
-            Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;GSK;GSK_NAME;50;Coal;2;2;20;20;1;1;wrongValue;FALSE
-            """;
-
-        return Stream.of(
-            Arguments.of(shutDownAndStartUpTrue,
-                null),
-            Arguments.of(noShutDown,
-                "Could not parse shutDownAllowed value for raId Redispatching_RA: "),
-            Arguments.of(shutDownWrongValue,
-                "Could not parse shutDownAllowed value for raId Redispatching_RA: wrongValue"),
-            Arguments.of(noStartUp,
-                "Could not parse startUpAllowed value for raId Redispatching_RA: "),
-            Arguments.of(startUpWrongValue,
-                "Could not parse startUpAllowed value for raId Redispatching_RA: wrongValue")
-        );
-    }
-
     // Test createGeneratorAndLoadAndUpdateNetworks
 
     @Test
@@ -335,7 +269,7 @@ public class IcsDataTest {
             new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
-        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA", icsData.getWeightPerNodePerGsk().get("GSK_NAME"));
+        Map<String, String> generatorIdPerNodeId = icsData.createGeneratorAndLoadAndUpdateNetworks(networkTemporalData, "Redispatching_RA");
         assertEquals(Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), generatorIdPerNodeId);
         Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);

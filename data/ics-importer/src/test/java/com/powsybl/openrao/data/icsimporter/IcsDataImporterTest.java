@@ -141,7 +141,7 @@ public class IcsDataImporterTest {
             null,
             generateOffsetDateTimeList(24));
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA is not defined on preventive instant", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported: not defined on preventive instant", logsList.get(0).getFormattedMessage());
     }
 
     @Test
@@ -159,7 +159,7 @@ public class IcsDataImporterTest {
         assertEquals(1, icsData.getRedispatchingActions().size());
         assertTrue(icsData.getRedispatchingActions().contains("Redispatching_RA"));
         assertFalse(icsData.getRedispatchingActions().contains("Redispatching_RA_not_defined_in_series_csv"));
-        assertEquals("Redispatching action Redispatching_RA_not_defined_in_series_csv is not defined in the time series csv", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA_not_defined_in_series_csv is not imported: not defined in the time series csv", logsList.get(0).getFormattedMessage());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class IcsDataImporterTest {
             generateOffsetDateTimeList(24));
         assertEquals(0, icsData.getRedispatchingActions().size());
         assertFalse(icsData.getRedispatchingActions().contains("Redispatching_RA"));
-        assertEquals("Redispatching action Redispatching_RA is defined on a gsk GSK_NAME_NOT_IN_CSV but the gsk is not defined in the gsk csv", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported: defined on a gsk GSK_NAME_NOT_IN_CSV but the gsk is not defined in the gsk csv", logsList.get(0).getFormattedMessage());
     }
 
     @Test
@@ -190,7 +190,7 @@ public class IcsDataImporterTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(24));
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA is not defined on a node or a gsk but on a OTHER", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported: not defined on a node or a gsk but on a OTHER", logsList.get(0).getFormattedMessage());
     }
 
     private static Stream<Arguments> seriesCsvWithMissingSeriesTypeCases() {
@@ -201,25 +201,43 @@ public class IcsDataImporterTest {
         String missingP0Csv = header + """
             Redispatching_RA;RDP-;35;35
             Redispatching_RA;RDP+;43;43
-            Redispatching_RA;Pmin_RD;10;15
             """;
 
         String missingRdpDownCsv = header + """
             Redispatching_RA;RDP+;43;43
             Redispatching_RA;P0;116;120
-            Redispatching_RA;Pmin_RD;10;15
             """;
 
         String missingRdpUpCsv = header + """
             Redispatching_RA;RDP-;35;35
             Redispatching_RA;P0;116;120
-            Redispatching_RA;Pmin_RD;10;15
+            """;
+        String missingRdpUpValueCsv = header + """
+            Redispatching_RA;RDP+;;43
+            Redispatching_RA;RDP-;35;35
+            Redispatching_RA;P0;116;120
             """;
 
+        String missingRdpDownValueCsv = header + """
+            Redispatching_RA;RDP+;43;43
+            Redispatching_RA;RDP-;;35
+            Redispatching_RA;P0;116;120
+            """;
+
+        String missingP0ValueCsv = header + """
+            Redispatching_RA;RDP+;;43
+            Redispatching_RA;RDP-;35;35
+            Redispatching_RA;P0;;120
+            """;
+
+
         return Stream.of(
-            Arguments.of(missingP0Csv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD)."),
-            Arguments.of(missingRdpDownCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD)."),
-            Arguments.of(missingRdpUpCsv, "Redispatching action Redispatching_RA is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).")
+            Arguments.of(missingP0Csv, "Redispatching action Redispatching_RA is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP)."),
+            Arguments.of(missingRdpDownCsv, "Redispatching action Redispatching_RA is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP)."),
+            Arguments.of(missingRdpUpCsv, "Redispatching action Redispatching_RA is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP)."),
+            Arguments.of(missingRdpUpValueCsv, "Redispatching action Redispatching_RA is not imported: missing RDP+ data for timestamp 2025-02-13T00:30Z"),
+            Arguments.of(missingRdpDownValueCsv, "Redispatching action Redispatching_RA is not imported: missing RDP- data for timestamp 2025-02-13T00:30Z"),
+            Arguments.of(missingP0ValueCsv, "Redispatching action Redispatching_RA is not imported: missing P0 data for timestamp 2025-02-13T00:30Z")
         );
     }
 
@@ -250,11 +268,11 @@ public class IcsDataImporterTest {
 
         return Stream.of(
             Arguments.of(negativeRdpPlusCsv,
-                "Redispatching action Redispatching_RA will not be imported because of RDP+ -1.0 or RDP- 35.0 is negative for datetime 2025-02-13T01:30Z"),
+                "Redispatching action Redispatching_RA is not imported: RDP+ -1.0 or RDP- 35.0 is negative for datetime 2025-02-13T01:30Z"),
             Arguments.of(negativeRdpMinusCsv,
-                "Redispatching action Redispatching_RA will not be imported because of RDP+ 1.0 or RDP- -35.0 is negative for datetime 2025-02-13T01:30Z"),
+                "Redispatching action Redispatching_RA is not imported: RDP+ 1.0 or RDP- -35.0 is negative for datetime 2025-02-13T01:30Z"),
             Arguments.of(tooSmallRangeCsv,
-                "Redispatching action Redispatching_RA will not be imported because max range in the day 0.0 MW is too small")
+                "Redispatching action Redispatching_RA is not imported: max range in the day 0.0 MW is too small")
         );
     }
 
@@ -282,11 +300,11 @@ public class IcsDataImporterTest {
         return Stream.of(
             Arguments.of(
                 tooHighGradientCsv,
-                "Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / 34.0"
+                "Redispatching action Redispatching_RA is not imported: does not respect power gradients : min/max/diff = -20.0 / 20.0 / 34.0"
             ),
             Arguments.of(
                 tooLowGradientCsv,
-                "Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / -36.0"
+                "Redispatching action Redispatching_RA is not imported: does not respect power gradients : min/max/diff = -20.0 / 20.0 / -36.0"
             )
         );
     }
@@ -295,7 +313,7 @@ public class IcsDataImporterTest {
     @MethodSource("gradientNotRespectCsvCases")
     @MethodSource("rangeIsNotOkayCases")
     @MethodSource("seriesCsvWithMissingSeriesTypeCases")
-    void testP0RespectsGradients(String seriesCsv, String expectedLogMessage) throws IOException {
+    void testSeriesCsv(String seriesCsv, String expectedLogMessage) throws IOException {
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
@@ -327,7 +345,7 @@ public class IcsDataImporterTest {
             generateOffsetDateTimeList(3));
 
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported: does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
     }
 
     @Test
@@ -344,6 +362,82 @@ public class IcsDataImporterTest {
             generateOffsetDateTimeList(24));
 
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA is ignored but it is defined on a GSK but sum of weights is not equal to 1", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported: defined on a GSK but sum of weights is not equal to 1", logsList.get(0).getFormattedMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("missingMandatoryFields")
+    void testStaticCsv(String staticCsv, String expectedLogMessage) throws IOException {
+        IcsData icsData = IcsDataImporter.read(
+            new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
+            getClass().getResourceAsStream("/ics/series.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(24));
+        assertEquals(expectedLogMessage, logsList.get(0).getFormattedMessage());
+    }
+
+    private static Stream<Arguments> missingMandatoryFields() {
+        String header = """
+        RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
+        """;
+
+        String missingPreventive = header + """
+        Redispatching_RA;FR;;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String missingCurative = header + """
+        Redispatching_RA;FR;TRUE;;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String missingGeneratorName = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String missingRdDescriptionMode = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String missingUctNodeOrGskId = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String missingStartupAllowed = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;;FALSE
+        """;
+
+        String missingShutdownAllowed = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;
+        """;
+
+        String invalidStartupAllowed = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;INVALID;FALSE
+        """;
+
+        String invalidShutdownAllowed = header + """
+        Redispatching_RA;FR;TRUE;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;INVALID
+        """;
+
+        String invalidPreventive = header + """
+        Redispatching_RA;FR;INVALID;FALSE;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        String invalidCurative = header + """
+        Redispatching_RA;FR;TRUE;INVALID;00:00;24:00:00;Generator_Name;Node;BBE1AA1;50;Coal;2;2;20;20;1;1;FALSE;FALSE
+        """;
+
+        return Stream.of(
+            Arguments.of(missingPreventive, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingCurative, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingGeneratorName, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingRdDescriptionMode, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingUctNodeOrGskId, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingStartupAllowed, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(missingShutdownAllowed, "Redispatching action Redispatching_RA is not imported: missing mandatory static data"),
+            Arguments.of(invalidStartupAllowed, "Redispatching action Redispatching_RA is not imported: invalid 'Startup allowed' value 'INVALID' (expected TRUE or FALSE)"),
+            Arguments.of(invalidShutdownAllowed, "Redispatching action Redispatching_RA is not imported: invalid 'Shutdown allowed' value 'INVALID' (expected TRUE or FALSE)"),
+            Arguments.of(invalidPreventive, "Redispatching action Redispatching_RA is not imported: invalid 'Preventive' value 'INVALID' (expected TRUE or FALSE)"),
+            Arguments.of(invalidCurative, "Redispatching action Redispatching_RA is not imported: invalid 'Curative' value 'INVALID' (expected TRUE or FALSE)")
+
+        );
     }
 }
