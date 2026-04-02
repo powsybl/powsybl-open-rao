@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -94,12 +93,10 @@ public final class IcsImporter {
                                                            double icsCostUp,
                                                            double icsCostDown,
                                                            String exportDirectory) throws IOException {
-        BUSINESS_WARNS.warn("Beginning of populateInputWithIcs");
         costUp = icsCostUp;
         costDown = icsCostDown;
 
         TemporalData<LazyNetwork> initialNetworks = new TemporalDataImpl<>();
-        // TODO : initialNetwork : stocker en LazyNetwork non chargés
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
             preProcessNetwork(network);
@@ -108,6 +105,7 @@ public final class IcsImporter {
                 ((LazyNetwork) network).release();
             }
         });
+
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
             .setHeader()
@@ -131,6 +129,7 @@ public final class IcsImporter {
             });
         }
 
+        List<OffsetDateTime> sortedTimestamps = timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList();
         staticCsvRecords.forEach(staticRecord -> {
             if (shouldBeImported(staticRecord, weightPerNodePerGsk)) {
                 String raId = staticRecord.get(RA_RD_ID);
@@ -147,8 +146,8 @@ public final class IcsImporter {
                     seriesPerType.containsKey(P0) &&
                     seriesPerType.containsKey(RDP_DOWN) &&
                     seriesPerType.containsKey(RDP_UP) &&
-                    rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
-                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
+                    rangeIsOkay(seriesPerType, sortedTimestamps) &&
+                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), sortedTimestamps)) {
                     if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE)) {
                         importNodeRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
                     } else {
@@ -164,11 +163,10 @@ public final class IcsImporter {
             String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
             initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
             postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+            initialNetwork.release();
         });
 
         TimeCoupledRaoInput output = new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
-
-        BUSINESS_WARNS.warn("End of populateInputWithIcs");
 
         return output;
     }
@@ -375,8 +373,6 @@ public final class IcsImporter {
             Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(entry.getKey().getHour() + OFFSET)) * shiftKey;
             Optional<Double> pMinRd = parseValue(seriesPerType, P_MIN_RD, entry.getKey(), shiftKey);
             processBus(bus, generatorId, p0, pMinRd.orElse(ON_POWER_THRESHOLD));
-            // TODO release initial network
-            entry.getValue().release();
         }
         return generatorId;
     }

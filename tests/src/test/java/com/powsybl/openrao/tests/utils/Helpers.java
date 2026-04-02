@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripCimCracCreationContext;
 import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripCseCracCreationContext;
@@ -68,7 +69,9 @@ public final class Helpers {
         if (useRdfId) {
             importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         }
-        return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        LazyNetwork lazyNetwork = new LazyNetwork(network);
+        return lazyNetwork;
     }
 
     public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, CracCreationParameters cracCreationParameters) throws IOException {

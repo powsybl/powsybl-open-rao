@@ -153,6 +153,7 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
 
         State preventiveState = crac.getPreventiveState();
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), initialVariantId);
         network.getVariantManager().setWorkingVariant(initialVariantId);
         network.getVariantManager().cloneVariant(initialVariantId, newVariantId);
         network.getVariantManager().setWorkingVariant(newVariantId);

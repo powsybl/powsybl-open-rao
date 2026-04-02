@@ -16,14 +16,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaAdder;
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.BoundaryLine;
-import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcGround;
@@ -114,6 +114,7 @@ public class LazyNetwork implements Network {
     }
 
     public void release() {
+        // TODO: currently modifications on the network will not be saved -> perhaps override networkPath with a UUID and write content to it
         network = null;
         isLoaded = false;
     }
