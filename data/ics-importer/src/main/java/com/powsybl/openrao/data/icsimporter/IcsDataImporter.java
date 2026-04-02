@@ -128,47 +128,87 @@ public final class IcsDataImporter {
         return weightPerNodePerGsk;
     }
 
+    private static boolean isValidBooleanValue(String value) {
+        return value.equalsIgnoreCase(TRUE) || value.equalsIgnoreCase(FALSE);
+    }
     // Consistency check functions
     private static boolean shouldBeImported(CSVRecord staticRecord, List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
         String raId = staticRecord.get(RA_RD_ID);
 
-        // TODO: checks that all the mandatory fields are defined for all timestamps
-
-        // Check that remedial action is defined in series csv and gsk (if defined on a gsk)
-        if (!timeseriesPerIdAndType.containsKey(raId)) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv", raId);
+        // Check static record mandatory fields : Preventive, curative, Generator Name, RD Description mode, UCT Node or GSK ID, Startup allowed and Shutdown allowed
+        if (staticRecord.get(PREVENTIVE).isEmpty() || staticRecord.get(CURATIVE).isEmpty() ||
+            staticRecord.get(GENERATOR_NAME).isEmpty() || staticRecord.get(RD_DESCRIPTION_MODE).isEmpty() ||
+            staticRecord.get(UCT_NODE_OR_GSK_ID).isEmpty() || staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+            staticRecord.get(SHUTDOWN_ALLOWED).isEmpty()) {
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: missing mandatory static data", raId);
             return false;
         }
 
-        // Check that the RA is correctly defined in series csv
+        // Check that boolean fields are either "TRUE" or "FALSE"
+        List<String> booleanFields = List.of(PREVENTIVE, CURATIVE, STARTUP_ALLOWED, SHUTDOWN_ALLOWED);
+        for (String field : booleanFields) {
+            String value = staticRecord.get(field);
+            if (!isValidBooleanValue(value)) {
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported: invalid '{}' value '{}' (expected TRUE or FALSE)", raId, field, value);
+                return false;
+            }
+        }
+
+
+        // Check that remedial action is defined in series csv and gsk (if defined on a gsk)
+        if (!timeseriesPerIdAndType.containsKey(raId)) {
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: not defined in the time series csv", raId);
+            return false;
+        }
+
+        // Check that mandatory timeseries type (P0, RDP_DOWN, RDP_UP) are defined in the time series csv
         Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
         boolean isDefinedInSeriesCsv = seriesPerType.containsKey(P0) &&
             seriesPerType.containsKey(RDP_DOWN) &&
             seriesPerType.containsKey(RDP_UP);
 
         if (!isDefinedInSeriesCsv) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not defined in the time series csv. Missing one or several timeseries type (P0, RDP_DOWN, RDP_UP or P_MIN_RD).", raId);
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: missing one or several mandatory timeseries type (P0, RDP_DOWN, RDP_UP).", raId);
             return false;
+        }
+
+        // Check that data exists for all timestamps to run
+        List<String> mandatorySeriesTypes = List.of(P0, RDP_DOWN, RDP_UP);
+        for (OffsetDateTime timestamp : sortedTimestampToRun) {
+            int columnName = timestamp.getHour() + OFFSET;
+            for (String seriesType : mandatorySeriesTypes) {
+                String value = seriesPerType.get(seriesType).get(columnName);
+                if (value == null || value.isEmpty()) {
+                    BUSINESS_WARNS.warn("Redispatching action {} is not imported: missing {} data for timestamp {}", raId, seriesType, timestamp);
+                    return false;
+                }
+            }
         }
 
         // If remedial action is defined on a gsk
         if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK)) {
             // Check that the gsk is defined in the gsk csv
             if (!weightPerNodePerGsk.containsKey(staticRecord.get(UCT_NODE_OR_GSK_ID))) {
-                BUSINESS_WARNS.warn("Redispatching action {} is defined on a gsk {} but the gsk is not defined in the gsk csv", raId, staticRecord.get(UCT_NODE_OR_GSK_ID));
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported: defined on a gsk {} but the gsk is not defined in the gsk csv", raId, staticRecord.get(UCT_NODE_OR_GSK_ID));
+                return false;
+            }
+
+            // Check that the sum of weight if RA is defined on GSK equals to 1
+            if (!sumOfGskEqualsOne(staticRecord.get(UCT_NODE_OR_GSK_ID), weightPerNodePerGsk)) {
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported: defined on a GSK but sum of weights is not equal to 1", raId);
                 return false;
             }
         }
 
         // Check that remedial action should at least be defined on preventive instant
         if (!staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not defined on preventive instant", raId);
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: not defined on preventive instant", raId);
             return false;
         }
 
         // Check that the remedial action is defined on a node or a gsk
         if (!staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE) && !staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(GSK)) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not defined on a node or a gsk but on a {}", raId, staticRecord.get(RD_DESCRIPTION_MODE));
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: not defined on a node or a gsk but on a {}", raId, staticRecord.get(RD_DESCRIPTION_MODE));
             return false;
         }
 
@@ -184,6 +224,22 @@ public final class IcsDataImporter {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if the sum of the generation shift key (GSK) weights associated with a specific GSK ID equals 1
+     *
+     * @param gskId
+     * @param weightPerNodePerGsk
+     * @return {@code true} if the sum of the GSK weights equals 1 within a small tolerance;
+     *         {@code false} otherwise.
+     */
+    private static boolean sumOfGskEqualsOne(String gskId, Map<String, Map<String, Double>> weightPerNodePerGsk) {
+        double sumOfGsk = 0.;
+        for (Map.Entry<String, Double> entry : weightPerNodePerGsk.get(gskId).entrySet()) {
+            sumOfGsk += entry.getValue();
+        }
+        return Math.abs(sumOfGsk - 1.) < 1e-6;
     }
 
     /**
@@ -211,7 +267,7 @@ public final class IcsDataImporter {
             double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
                 BUSINESS_WARNS.warn(
-                    "Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff = {} / {} / {}",
+                    "Redispatching action {} is not imported: does not respect power gradients : min/max/diff = {} / {} / {}",
                     staticRecord.get(0), minGradient, maxGradient, diff
                 );
                 return false;
@@ -238,12 +294,12 @@ public final class IcsDataImporter {
             double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
             maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
             if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative for datetime {}", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus, dateTime);
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported: RDP+ {} or RDP- {} is negative for datetime {}", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus, dateTime);
                 return false;
             }
         }
         if (maxRange < 1) {
-            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get(P0).get(RA_RD_ID), maxRange);
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: max range in the day {} MW is too small", seriesPerType.get(P0).get(RA_RD_ID), maxRange);
             return false;
         }
         return true;
