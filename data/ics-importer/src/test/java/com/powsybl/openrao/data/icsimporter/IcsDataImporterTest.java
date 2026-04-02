@@ -295,7 +295,7 @@ public class IcsDataImporterTest {
     @MethodSource("gradientNotRespectCsvCases")
     @MethodSource("rangeIsNotOkayCases")
     @MethodSource("seriesCsvWithMissingSeriesTypeCases")
-    void testP0RespectsGradients(String seriesCsv, String expectedLogMessage) throws IOException {
+    void testSeriesCsv(String seriesCsv, String expectedLogMessage) throws IOException {
         IcsData icsData = IcsDataImporter.read(
             getClass().getResourceAsStream("/ics/static.csv"),
             new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
