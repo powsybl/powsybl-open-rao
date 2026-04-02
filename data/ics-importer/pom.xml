@@ -24,7 +24,6 @@
             <artifactId>commons-csv</artifactId>
         </dependency>
 
-
         <!-- Test scope -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -35,7 +34,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
