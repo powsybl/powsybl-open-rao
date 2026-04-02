@@ -71,12 +71,14 @@ import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VscConverterStation;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -85,7 +87,9 @@ import java.util.stream.Stream;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
+
 public class LazyNetwork implements Network {
+    private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
     private boolean isLoaded;
     private Network network;
@@ -95,11 +99,23 @@ public class LazyNetwork implements Network {
         this.isLoaded = false;
     }
 
+    public LazyNetwork(Network network) {
+        String networkName = TEMP_DIR + UUID.randomUUID().toString() + ".xiidm";
+        network.write("XIIDM", new Properties(), Path.of(networkName));
+        this.networkPath = networkName;
+        this.isLoaded = false;
+    }
+
     private void load() {
         if (!isLoaded) {
             network = Network.read(networkPath);
             isLoaded = true;
         }
+    }
+
+    public void release() {
+        network = null;
+        isLoaded = false;
     }
 
     @Override

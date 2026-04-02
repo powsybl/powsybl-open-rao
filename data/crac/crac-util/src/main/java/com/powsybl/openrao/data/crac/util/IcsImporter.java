@@ -94,14 +94,19 @@ public final class IcsImporter {
                                                            double icsCostUp,
                                                            double icsCostDown,
                                                            String exportDirectory) throws IOException {
+        BUSINESS_WARNS.warn("Beginning of populateInputWithIcs");
         costUp = icsCostUp;
         costDown = icsCostDown;
 
-        TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
+        TemporalData<LazyNetwork> initialNetworks = new TemporalDataImpl<>();
+        // TODO : initialNetwork : stocker en LazyNetwork non chargés
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
             preProcessNetwork(network);
-            initialNetworks.put(dateTime, NetworkSerDe.copy(network)); // use a copy not to modify initial network
+            initialNetworks.put(dateTime, new LazyNetwork(network)); // use a copy not to modify initial network
+            if (network instanceof LazyNetwork) {
+                ((LazyNetwork) network).release();
+            }
         });
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
@@ -130,14 +135,14 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord, weightPerNodePerGsk)) {
                 String raId = staticRecord.get(RA_RD_ID);
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-                if (seriesPerType != null &&
-                    seriesPerType.containsKey(P0) &&
-                    seriesPerType.containsKey(RDP_DOWN) &&
-                    seriesPerType.containsKey(RDP_UP) &&
-                    rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
-                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
-                p0RespectsConstraints(staticRecord, seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList());
-                }
+//                if (seriesPerType != null &&
+//                    seriesPerType.containsKey(P0) &&
+//                    seriesPerType.containsKey(RDP_DOWN) &&
+//                    seriesPerType.containsKey(RDP_UP) &&
+//                    rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
+//                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
+//                p0RespectsConstraints(staticRecord, seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList());
+//                }
                 if (seriesPerType != null &&
                     seriesPerType.containsKey(P0) &&
                     seriesPerType.containsKey(RDP_DOWN) &&
@@ -161,7 +166,11 @@ public final class IcsImporter {
             postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
         });
 
-        return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
+        TimeCoupledRaoInput output = new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
+
+        BUSINESS_WARNS.warn("End of populateInputWithIcs");
+
+        return output;
     }
 
     private static void preProcessNetwork(Network network) {
@@ -181,7 +190,7 @@ public final class IcsImporter {
 
     private static void importGskRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput,
                                                      CSVRecord staticRecord,
-                                                     TemporalData<Network> initialNetworks,
+                                                     TemporalData<LazyNetwork> initialNetworks,
                                                      Map<String, CSVRecord> seriesPerType,
                                                      String raId,
                                                      Map<String, Double> weightPerNode) {
@@ -275,9 +284,9 @@ public final class IcsImporter {
         injectionRangeActionAdder.add();
     }
 
-    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput,
                                                       CSVRecord staticRecord,
-                                                      TemporalData<Network> initialNetworks,
+                                                      TemporalData<LazyNetwork> initialNetworks,
                                                       Map<String, CSVRecord> seriesPerType,
                                                       String raId) {
         String networkElementId = processNetworks(staticRecord.get(UCT_NODE_OR_GSK_ID), initialNetworks, seriesPerType, 1.);
@@ -355,9 +364,9 @@ public final class IcsImporter {
     }
 
     private static String processNetworks(String
-                                              nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
+                                              nodeId, TemporalData<LazyNetwork> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
         String generatorId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + GENERATOR_SUFFIX;
-        for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
+        for (Map.Entry<OffsetDateTime, LazyNetwork> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
             if (bus == null) {
                 BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found", seriesPerType.get(P0).get("RA RD ID"), nodeId);
@@ -366,6 +375,8 @@ public final class IcsImporter {
             Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(entry.getKey().getHour() + OFFSET)) * shiftKey;
             Optional<Double> pMinRd = parseValue(seriesPerType, P_MIN_RD, entry.getKey(), shiftKey);
             processBus(bus, generatorId, p0, pMinRd.orElse(ON_POWER_THRESHOLD));
+            // TODO release initial network
+            entry.getValue().release();
         }
         return generatorId;
     }
@@ -430,21 +441,61 @@ public final class IcsImporter {
     }
 
     private static void p0RespectsConstraints(CSVRecord staticRecord, Map<String, CSVRecord> seriesRecord, List<OffsetDateTime> dateTimes) {
-        // 1) check that P0 > Pmin or P0 < 1
-        // 2) check that if shutDown not allowed, no switch to 0
+        // 1) check that P0 > Pmin or P0 < 1d
+        // 2) check that if shutDown not allowe, no switch to 0
         // 3) check that if startUp not allowed, no switch from P0 < 1 to P0 > Pmin
         CSVRecord p0 =  seriesRecord.get(P0);
         Boolean shutDownAllowed = Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED));
         Boolean startUpAllowed = Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED));
+        Optional<Double> lead = Optional.empty();
+        Optional<Double> lagAndLead = Optional.empty();
+        if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+            lead = Optional.of(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+        }
+        if (!staticRecord.get(LAG_TIME).isEmpty()) {
+            double lag = parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME));
+            lagAndLead = lead.map(aDouble -> lag + aDouble).or(() -> Optional.of(lag));
+        }
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
+        boolean count_lead = false;
+        int lead_count = 0;
+        boolean count_lag = false;
+        int lag_count = 0;
         while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
             double next_p0 = parseDoubleWithPossibleCommas(p0.get(nextDateTime.getHour() + OFFSET));
             double current_p0 = parseDoubleWithPossibleCommas(p0.get(currentDateTime.getHour() + OFFSET));
             Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
             double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+
+            if (count_lead) {
+                if (current_p0 < pMin) {
+                    if (lead_count < lead.get()) {
+                        // DO NOT IMPORT
+                        BUSINESS_WARNS.warn("RA {} was ON after start up for only {} altough lead is {}", staticRecord.get(0), count_lead, lead.get());
+                        count_lead = false;
+                        lead_count = 0;
+                    }
+                } else {
+                    lead_count += 1;
+                }
+            }
+
+            if (count_lag) {
+                if (current_p0 >= pMin) {
+                    if (lag_count < lagAndLead.get()) {
+                        // DO NOT IMPORT
+                        BUSINESS_WARNS.warn("RA {} was OFF after shutDown for only {} altough lagAndLead is {}", staticRecord.get(0), count_lag, lagAndLead.get());
+                        count_lag = false;
+                        lag_count = 0;
+                    }
+                } else {
+                    lag_count += 1;
+                }
+            }
+
 
             if (current_p0 < pMin && current_p0 > ON_POWER_THRESHOLD) {
                 BUSINESS_WARNS.warn("RA {} has P0 at {} and Pmin at {}", staticRecord.get(0), current_p0, pMin);
@@ -455,27 +506,24 @@ public final class IcsImporter {
                 }
                 // TODO : integerer la notion d'arrondi comme dans le filler : lead de 1 =>
                 // TODO : forcer le passage par Pmin pour le lead et le lag => une modification de P0
-                if (!staticRecord.get(LEAD_TIME).isEmpty()) {
-                    double lead = parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME));
+                if (lead.isPresent()) {
                     BUSINESS_WARNS.warn("RA {} starting up at {}. TODO : check lead ({}) is respected", staticRecord.get(0), currentDateTime.getHour(), lead);
+                    count_lead = true;
                 }
             }
             if (current_p0 > pMin && next_p0 < pMin) {
                 if (!shutDownAllowed) {
                     BUSINESS_WARNS.warn("RA {} shutting down even though it's prohibited", staticRecord.get(0));
                 }
-                if (!staticRecord.get(LAG_TIME).isEmpty()) {
-                    double lag = parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME));
-                    double lead = parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME));
-                    BUSINESS_WARNS.warn("RA {} shutting down at {}. TODO : check lead ({}) + lag ({}) is respected", staticRecord.get(0), currentDateTime.getHour(), lead, lag);
-
+                if (lagAndLead.isPresent()) {
+                    BUSINESS_WARNS.warn("RA {} shutting down at {}. TODO : check lagAndLead ({}) is respected", staticRecord.get(0), currentDateTime.getHour(), lagAndLead);
+                    count_lag = true;
                 }
             }
 
         }
     }
 
-    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord
         p0record, List<OffsetDateTime> dateTimes) {
         double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
@@ -519,11 +567,6 @@ public final class IcsImporter {
     }
 
     private static double parseDoubleWithPossibleCommas(String string) {
-//        try {
-//            return Double.parseDouble(string.replaceAll(",", "."));
-//        } catch (Exception e) {
-//            int debug = 0;
-//        }
         return Double.parseDouble(string.replaceAll(",", "."));
     }
 }

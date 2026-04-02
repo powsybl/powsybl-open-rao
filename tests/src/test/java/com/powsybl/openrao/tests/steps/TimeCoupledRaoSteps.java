@@ -243,6 +243,9 @@ public final class TimeCoupledRaoSteps {
             } else {
                 cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(offsetDateTime);
                 cracImportResult = importCrac(cracFile, network, cracCreationParameters);
+                if (network instanceof LazyNetwork) {
+                    ((LazyNetwork) network).release();
+                }
             }
             RaoInput raoInput = RaoInput
                 .build(network, cracImportResult.getLeft())
