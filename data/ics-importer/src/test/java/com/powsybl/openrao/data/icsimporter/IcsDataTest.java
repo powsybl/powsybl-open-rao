@@ -494,7 +494,6 @@ public class IcsDataTest {
 
     }
 
-
     @Test
     void testProcessAllRedispatchingActionsMissingBusForOneRa() throws IOException {
 
