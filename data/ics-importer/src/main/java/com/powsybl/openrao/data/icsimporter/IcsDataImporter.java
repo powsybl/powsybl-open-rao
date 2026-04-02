@@ -75,27 +75,27 @@ public final class IcsDataImporter {
         // Parse static CSV: remedial action’s generator’s static constraints. one line per RA_ID
         Map<String, CSVRecord> staticConstraintPerId = parseStaticCsv(staticInputStream);
 
-        Set<String> consistentRAs = filterOutInconsistentRedispatchingActions(staticConstraintPerId, timeseriesPerIdAndType, weightPerNodePerGsk, sortedTimestampToRun);
+        Set<String> consistentRAs = filterRedispatchingActions(staticConstraintPerId, timeseriesPerIdAndType, weightPerNodePerGsk, sortedTimestampToRun);
 
         return new IcsData(consistentRAs, timeseriesPerIdAndType, weightPerNodePerGsk, staticConstraintPerId);
 
     }
 
-    static Set<String> filterOutInconsistentRedispatchingActions(Map<String, CSVRecord> staticConstraintPerId,
-                                                                 Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
-                                                                 Map<String, Map<String, Double>> weightPerNodePerGsk,
-                                                                 List<OffsetDateTime> sortedTimestampToRun) {
+    static Set<String> filterRedispatchingActions(Map<String, CSVRecord> staticConstraintPerId,
+                                                  Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
+                                                  Map<String, Map<String, Double>> weightPerNodePerGsk,
+                                                  List<OffsetDateTime> sortedTimestampToRun) {
         // Get a set of consistent redispatching action ID.
-        Set<String> consistentRAs = new HashSet<>();
+        Set<String> RaToImport = new HashSet<>();
         staticConstraintPerId.forEach((raId, record) -> {
             if (shouldBeImported(record, sortedTimestampToRun, weightPerNodePerGsk, timeseriesPerIdAndType)) {
-                consistentRAs.add(raId);
+                RaToImport.add(raId);
             }
         });
         // Remove inconsistent RAs from the data structures
-        staticConstraintPerId.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
-        timeseriesPerIdAndType.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
-        return consistentRAs;
+        staticConstraintPerId.entrySet().removeIf(entry -> !RaToImport.contains(entry.getKey()));
+        timeseriesPerIdAndType.entrySet().removeIf(entry -> !RaToImport.contains(entry.getKey()));
+        return RaToImport;
     }
 
     static Map<String, CSVRecord> parseStaticCsv(InputStream staticInputStream) throws IOException {
