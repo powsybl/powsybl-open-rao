@@ -69,7 +69,7 @@ public final class IcsUtil {
     }
 
     static double parseDoubleWithPossibleCommas(String string) {
-        return Double.parseDouble(string.replaceAll(",", "."));
+        return Double.parseDouble(string.replace(",", "."));
     }
 
     // TODO: make this more robust (and less UCTE dependent)

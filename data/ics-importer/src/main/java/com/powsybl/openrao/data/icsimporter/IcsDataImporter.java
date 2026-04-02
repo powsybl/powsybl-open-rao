@@ -101,9 +101,7 @@ public final class IcsDataImporter {
     static Map<String, CSVRecord> parseStaticCsv(InputStream staticInputStream) throws IOException {
         Iterable<CSVRecord> staticCsvRecords = csvFormat.parse(new InputStreamReader(staticInputStream));
         Map<String, CSVRecord> filteredStaticCsvRecords = new HashMap<>();
-        staticCsvRecords.forEach(record -> {
-            filteredStaticCsvRecords.put(record.get(RA_RD_ID), record);
-        });
+        staticCsvRecords.forEach(record -> filteredStaticCsvRecords.put(record.get(RA_RD_ID), record));
         return filteredStaticCsvRecords;
     }
 
@@ -111,9 +109,9 @@ public final class IcsDataImporter {
         Iterable<CSVRecord> seriesCsvRecords = csvFormat.parse(new InputStreamReader(seriesInputStream));
 
         Map<String, Map<String, CSVRecord>> seriesPerIdAndType = new HashMap<>();
-        seriesCsvRecords.forEach(record -> {
-            seriesPerIdAndType.putIfAbsent(record.get(RA_RD_ID), new HashMap<>());
-            seriesPerIdAndType.get(record.get(RA_RD_ID)).put(record.get("Type of timeseries"), record);
+        seriesCsvRecords.forEach(csvRecord -> {
+            seriesPerIdAndType.putIfAbsent(csvRecord.get(RA_RD_ID), new HashMap<>());
+            seriesPerIdAndType.get(csvRecord.get(RA_RD_ID)).put(csvRecord.get("Type of timeseries"), csvRecord);
         });
 
         return seriesPerIdAndType;
