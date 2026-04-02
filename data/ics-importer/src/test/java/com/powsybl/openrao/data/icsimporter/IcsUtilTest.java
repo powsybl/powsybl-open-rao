@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
@@ -72,7 +72,7 @@ public final class IcsUtil {
     }
 
     static double parseDoubleWithPossibleCommas(String string) {
-        return Double.parseDouble(string.replaceAll(",", "."));
+        return Double.parseDouble(string.replace(",", "."));
     }
 
     // TODO: make this more robust (and less UCTE dependent)

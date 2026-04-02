@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.IcsUtil.*;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -37,7 +37,7 @@ public final class IcsData {
     private static Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType;
     private static Map<String, Map<String, Double>> weightPerNodePerGsk;
     private static Map<String, CSVRecord> staticConstraintPerId;
-    private static Set<String> consistentRedispatchingActions;
+    private static Set<String> redispatchingActions;
 
     // TODO : either parametrize this or set it to true. May have to change the way it works to import for all curative instants instead of only the last one
     public static boolean importCurative = false;
@@ -46,7 +46,7 @@ public final class IcsData {
                    Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
                    Map<String, Map<String, Double>> weightPerNodePerGsk,
                    Map<String, CSVRecord> staticConstraintPerId) {
-        this.consistentRedispatchingActions = consistentRedispatchingActions;
+        this.redispatchingActions = consistentRedispatchingActions;
         this.staticConstraintPerId = staticConstraintPerId;
         this.timeseriesPerIdAndType = timeseriesPerIdAndType;
         this.weightPerNodePerGsk = weightPerNodePerGsk;
@@ -65,7 +65,7 @@ public final class IcsData {
     }
 
     public Set<String> getRedispatchingActions() {
-        return consistentRedispatchingActions;
+        return redispatchingActions;
     }
 
     public static String getGeneratorIdFromRaIdAndNodeId(String raId, String nodeId) {
@@ -276,7 +276,7 @@ public final class IcsData {
         });
 
         // For each redispatching actions defined in static csv update networks and update cracs
-        consistentRedispatchingActions.forEach(raId -> {
+        redispatchingActions.forEach(raId -> {
 
             // Create generator and load in networks
             Map<String, String> generatorIdPerNode = createGeneratorAndLoadAndUpdateNetworks(modifiedInitialNetworks, raId);

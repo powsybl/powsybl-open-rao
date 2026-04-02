@@ -10,12 +10,10 @@
     </parent>
 
     <artifactId>open-rao-ics-importer</artifactId>
+    <packaging>jar</packaging>
+    <name>ICS Data</name>
+    <description>Module for ICS data</description>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.powsybl</groupId>

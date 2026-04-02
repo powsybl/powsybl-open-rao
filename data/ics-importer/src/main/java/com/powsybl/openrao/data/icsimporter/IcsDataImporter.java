@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data;
+package com.powsybl.openrao.data.icsimporter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -17,21 +17,21 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.IcsUtil.*;
-import static com.powsybl.openrao.data.IcsUtil.MAXIMUM_NEGATIVE_POWER_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.MAXIMUM_POSITIVE_POWER_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.MAX_GRADIENT;
-import static com.powsybl.openrao.data.IcsUtil.NODE;
-import static com.powsybl.openrao.data.IcsUtil.OFFSET;
-import static com.powsybl.openrao.data.IcsUtil.P0;
-import static com.powsybl.openrao.data.IcsUtil.PREVENTIVE;
-import static com.powsybl.openrao.data.IcsUtil.RA_RD_ID;
-import static com.powsybl.openrao.data.IcsUtil.RDP_DOWN;
-import static com.powsybl.openrao.data.IcsUtil.RDP_UP;
-import static com.powsybl.openrao.data.IcsUtil.RD_DESCRIPTION_MODE;
-import static com.powsybl.openrao.data.IcsUtil.TRUE;
-import static com.powsybl.openrao.data.IcsUtil.UCT_NODE_OR_GSK_ID;
-import static com.powsybl.openrao.data.IcsUtil.parseDoubleWithPossibleCommas;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_NEGATIVE_POWER_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_POSITIVE_POWER_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAX_GRADIENT;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.NODE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.OFFSET;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.P0;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.PREVENTIVE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RA_RD_ID;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_DOWN;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_UP;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.RD_DESCRIPTION_MODE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.TRUE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.UCT_NODE_OR_GSK_ID;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.parseDoubleWithPossibleCommas;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -75,35 +75,33 @@ public final class IcsDataImporter {
         // Parse static CSV: remedial action’s generator’s static constraints. one line per RA_ID
         Map<String, CSVRecord> staticConstraintPerId = parseStaticCsv(staticInputStream);
 
-        Set<String> consistentRAs = filterOutInconsistentRedispatchingActions(staticConstraintPerId, timeseriesPerIdAndType, weightPerNodePerGsk, sortedTimestampToRun);
+        Set<String> consistentRAs = filterRedispatchingActions(staticConstraintPerId, timeseriesPerIdAndType, weightPerNodePerGsk, sortedTimestampToRun);
 
         return new IcsData(consistentRAs, timeseriesPerIdAndType, weightPerNodePerGsk, staticConstraintPerId);
 
     }
 
-    static Set<String> filterOutInconsistentRedispatchingActions(Map<String, CSVRecord> staticConstraintPerId,
-                                                                 Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
-                                                                 Map<String, Map<String, Double>> weightPerNodePerGsk,
-                                                                 List<OffsetDateTime> sortedTimestampToRun) {
+    static Set<String> filterRedispatchingActions(Map<String, CSVRecord> staticConstraintPerId,
+                                                  Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType,
+                                                  Map<String, Map<String, Double>> weightPerNodePerGsk,
+                                                  List<OffsetDateTime> sortedTimestampToRun) {
         // Get a set of consistent redispatching action ID.
-        Set<String> consistentRAs = new HashSet<>();
+        Set<String> raToImport = new HashSet<>();
         staticConstraintPerId.forEach((raId, record) -> {
             if (shouldBeImported(record, sortedTimestampToRun, weightPerNodePerGsk, timeseriesPerIdAndType)) {
-                consistentRAs.add(raId);
+                raToImport.add(raId);
             }
         });
         // Remove inconsistent RAs from the data structures
-        staticConstraintPerId.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
-        timeseriesPerIdAndType.entrySet().removeIf(entry -> !consistentRAs.contains(entry.getKey()));
-        return consistentRAs;
+        staticConstraintPerId.entrySet().removeIf(entry -> !raToImport.contains(entry.getKey()));
+        timeseriesPerIdAndType.entrySet().removeIf(entry -> !raToImport.contains(entry.getKey()));
+        return raToImport;
     }
 
     static Map<String, CSVRecord> parseStaticCsv(InputStream staticInputStream) throws IOException {
         Iterable<CSVRecord> staticCsvRecords = csvFormat.parse(new InputStreamReader(staticInputStream));
         Map<String, CSVRecord> filteredStaticCsvRecords = new HashMap<>();
-        staticCsvRecords.forEach(record -> {
-            filteredStaticCsvRecords.put(record.get(RA_RD_ID), record);
-        });
+        staticCsvRecords.forEach(record -> filteredStaticCsvRecords.put(record.get(RA_RD_ID), record));
         return filteredStaticCsvRecords;
     }
 
@@ -111,9 +109,9 @@ public final class IcsDataImporter {
         Iterable<CSVRecord> seriesCsvRecords = csvFormat.parse(new InputStreamReader(seriesInputStream));
 
         Map<String, Map<String, CSVRecord>> seriesPerIdAndType = new HashMap<>();
-        seriesCsvRecords.forEach(record -> {
-            seriesPerIdAndType.putIfAbsent(record.get(RA_RD_ID), new HashMap<>());
-            seriesPerIdAndType.get(record.get(RA_RD_ID)).put(record.get("Type of timeseries"), record);
+        seriesCsvRecords.forEach(csvRecord -> {
+            seriesPerIdAndType.putIfAbsent(csvRecord.get(RA_RD_ID), new HashMap<>());
+            seriesPerIdAndType.get(csvRecord.get(RA_RD_ID)).put(csvRecord.get("Type of timeseries"), csvRecord);
         });
 
         return seriesPerIdAndType;
