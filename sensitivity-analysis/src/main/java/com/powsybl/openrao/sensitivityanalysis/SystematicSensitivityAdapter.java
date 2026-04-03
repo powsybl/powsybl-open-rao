@@ -90,12 +90,14 @@ final class SystematicSensitivityAdapter {
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
         try {
+            SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
+                    .setParameters(sensitivityComputationParameters)
+                    .setContingencies(contingenciesWithoutRa)
+                    .setVariableSets(cnecSensitivityProvider.getVariableSets());
             result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
                 allFactorsWithoutRa,
-                contingenciesWithoutRa,
-                cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), outageInstant.getOrder());
+                runParameters), outageInstant.getOrder());
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
