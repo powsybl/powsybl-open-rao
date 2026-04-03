@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -17,8 +18,9 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -27,7 +29,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
@@ -80,20 +88,20 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
-                                            InputStream staticInputStream,
-                                            InputStream seriesInputStream,
-                                            InputStream gskInputStream,
-                                            double icsCostUp,
-                                            double icsCostDown) throws IOException {
+    public static TimeCoupledRaoInput populateInputWithICS(TimeCoupledRaoInput timeCoupledRaoInput,
+                                                           InputStream staticInputStream, InputStream seriesInputStream,
+                                                           InputStream gskInputStream,
+                                                           double icsCostUp,
+                                                           double icsCostDown,
+                                                           String exportDirectory) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            Network network = Network.read(raoInput.getInitialNetworkPath());
+            Network network = raoInput.getNetwork();
             preProcessNetwork(network);
-            initialNetworks.put(dateTime, network);
+            initialNetworks.put(dateTime, NetworkSerDe.copy(network)); // use a copy not to modify initial network
         });
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
@@ -137,8 +145,15 @@ public final class IcsImporter {
             }
         });
 
-        initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) ->
-            initialNetwork.write("JIIDM", new Properties(), Path.of(timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getPostIcsImportNetworkPath())));
+        TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
+
+        initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
+            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
+            initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
+            postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+        });
+
+        return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
     }
 
     private static void preProcessNetwork(Network network) {
@@ -156,7 +171,7 @@ public final class IcsImporter {
         return Math.abs(a - b) < 1e-3;
     }
 
-    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+    private static void importGskRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput,
                                                      CSVRecord staticRecord,
                                                      TemporalData<Network> initialNetworks,
                                                      Map<String, CSVRecord> seriesPerType,
@@ -214,12 +229,12 @@ public final class IcsImporter {
     }
 
     private static void importGskRedispatchActionForOneTimestamp(CSVRecord staticRecord,
-                                  Map<String, CSVRecord> seriesPerType,
-                                  String raId,
-                                  Map<String, Double> weightPerNode,
-                                  OffsetDateTime dateTime,
-                                  RaoInputWithNetworkPaths raoInput,
-                                  Map<String, String> networkElementPerGskElement) {
+                                                                 Map<String, CSVRecord> seriesPerType,
+                                                                 String raId,
+                                                                 Map<String, Double> weightPerNode,
+                                                                 OffsetDateTime dateTime,
+                                                                 RaoInput raoInput,
+                                                                 Map<String, String> networkElementPerGskElement) {
         Crac crac = raoInput.getCrac();
         double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
@@ -252,7 +267,7 @@ public final class IcsImporter {
         injectionRangeActionAdder.add();
     }
 
-    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput,
                                                       CSVRecord staticRecord,
                                                       TemporalData<Network> initialNetworks,
                                                       Map<String, CSVRecord> seriesPerType,
@@ -298,11 +313,11 @@ public final class IcsImporter {
     }
 
     private static void importNodeRedispatchingActionForOneTimestamp(CSVRecord staticRecord,
-                                  Map<String, CSVRecord> seriesPerType,
-                                  String raId,
-                                  OffsetDateTime dateTime,
-                                  RaoInputWithNetworkPaths raoInput,
-                                  String networkElementId) {
+                                                                     Map<String, CSVRecord> seriesPerType,
+                                                                     String raId,
+                                                                     OffsetDateTime dateTime,
+                                                                     RaoInput raoInput,
+                                                                     String networkElementId) {
         Crac crac = raoInput.getCrac();
         double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
@@ -331,7 +346,8 @@ public final class IcsImporter {
         injectionRangeActionAdder.add();
     }
 
-    private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
+    private static String processNetworks(String
+                                              nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
         String generatorId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + GENERATOR_SUFFIX;
         for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
@@ -346,7 +362,8 @@ public final class IcsImporter {
         return generatorId;
     }
 
-    private static Optional<Double> parseValue(Map<String, CSVRecord> seriesPerType, String key, OffsetDateTime timestamp, double shiftKey) {
+    private static Optional<Double> parseValue(Map<String, CSVRecord> seriesPerType, String key, OffsetDateTime
+        timestamp, double shiftKey) {
         if (seriesPerType.containsKey(key)) {
             CSVRecord series = seriesPerType.get(key);
             String value = series.get(timestamp.getHour() + OFFSET);
@@ -398,12 +415,14 @@ public final class IcsImporter {
             .add();
     }
 
-    private static boolean shouldBeImported(CSVRecord staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
+    private static boolean shouldBeImported(CSVRecord
+                                                staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
         return (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE) || weightPerNodePerGsk.containsKey(staticRecord.get(UCT_NODE_OR_GSK_ID))) &&
             (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE) /*|| staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)*/);
     }
 
-    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
+    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord
+        p0record, List<OffsetDateTime> dateTimes) {
         double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
             MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
         double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeActionAdder;
@@ -23,11 +24,13 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
 
     private Double min;
     private Double max;
+    private RangeType rangeType;
 
     StandardRangeAdderImpl(AbstractStandardRangeActionAdder<T> ownerAdder) {
         this.ownerAdder = ownerAdder;
         this.min = Double.MIN_VALUE;
         this.max = Double.MAX_VALUE;
+        this.rangeType = RangeType.ABSOLUTE;
     }
 
     @Override
@@ -43,21 +46,26 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
     }
 
     @Override
+    public StandardRangeAdder<T> withRangeType(RangeType rangeType) {
+        this.rangeType = rangeType;
+        return this;
+    }
+
+    @Override
     public T add() {
         AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
 
-        if (max == Double.MAX_VALUE) {
-            throw new OpenRaoException("StandardRange max value was not defined.");
+        if (max == Double.MAX_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
+            throw new OpenRaoException("StandardRange max value was not defined for absolute range.");
         }
-        if (min == Double.MIN_VALUE) {
-            throw new OpenRaoException("StandardRange min value was not defined.");
+        if (min == Double.MIN_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
+            throw new OpenRaoException("StandardRange min value was not defined for absolute range.");
         }
         if (max < min) {
             throw new OpenRaoException("Max value of StandardRange must be equal or greater than min value.");
         }
-
-        StandardRange standardRange = new StandardRangeImpl(min, max);
+        StandardRange standardRange = new StandardRangeImpl(min, max, rangeType);
 
         ownerAdder.addRange(standardRange);
         return (T) ownerAdder;

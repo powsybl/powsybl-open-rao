@@ -141,7 +141,7 @@ final class SystematicSensitivityAdapter {
                 SensitivityState sensitivityState = optContingency.map(c -> SensitivityState.postContingency(c.getId())).orElseGet(() -> SensitivityState.PRE_CONTINGENCY);
                 SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
                     cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                    List.of(new SensitivityAnalysisResult.SensitivityStateStatus(sensitivityState, SensitivityAnalysisResult.Status.FAILURE)),
+                    List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(optContingency.get().getId()), SensitivityAnalysisResult.Status.FAILURE)),
                     contingencyList.stream().map(Contingency::getId).toList(),
                     List.of(),
                     List.of()
