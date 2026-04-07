@@ -70,8 +70,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     // TODO: move this check at a prior moment
     private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
-            // TODO log a warning or do sth else here
-            return 1;
+            throw new OpenRaoException("There must be at least two timestamps.");
         }
         double referenceTimestampDuration = computeTimeGap(timestamps.getFirst(), timestamps.get(1));
         for (int timestampIndex = 1; timestampIndex < timestamps.size() - 1; timestampIndex++) {

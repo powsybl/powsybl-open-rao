@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl;
+package com.powsybl.openrao.roda;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.TemporalData;
@@ -18,9 +18,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
@@ -68,9 +66,15 @@ public class Roda implements TimeCoupledRaoProvider {
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
+    private static final String DEFAULT_SINGLE_TS_RAO = "FastRao";
 
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
+        if (timeCoupledRaoInput.getRaoInputs().getTimestamps().size() == 1) {
+            TECHNICAL_LOGS.info("[RODA] Only one time-step in inputs. Calling single time-step RAO directly: {}", DEFAULT_SINGLE_TS_RAO);
+            return runSingleTsRao(timeCoupledRaoInput, raoParameters);
+        }
+
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[RODA] ----- Topological optimization [start]");
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
@@ -205,6 +209,14 @@ public class Roda implements TimeCoupledRaoProvider {
         logCost("[RODA] After global linear optimization: ", fullResults, raoParameters, 10);
 
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
+    }
+
+    private CompletableFuture<TimeCoupledRaoResult> runSingleTsRao(TimeCoupledRaoInput raoInputs, RaoParameters raoParameters) {
+        OffsetDateTime ts = raoInputs.getRaoInputs().getTimestamps().getFirst();
+        RaoInput raoInput = raoInputs.getRaoInputs().getData(ts).orElseThrow();
+        RaoResult result = Rao.find(DEFAULT_SINGLE_TS_RAO).run(raoInput, raoParameters);
+        // TODO two first arguments may be replaced by automatic detection on result by ts
+        return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(null, null, new TemporalDataImpl<>(Map.of(ts, result))));
     }
 
     private TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<RaoResult> postTopologicalActionsResults, TemporalData<RaoInput> raoInputs) {
