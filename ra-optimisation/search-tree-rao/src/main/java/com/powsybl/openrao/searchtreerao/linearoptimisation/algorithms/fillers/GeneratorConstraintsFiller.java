@@ -325,25 +325,16 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON
         );
         powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(nextPMin - OFF_POWER_THRESHOLD));
-        if (generatorConstraints.getLeadTime().isPresent()) {
-            // if the generator has a lead time, ON state starts at Pmin on a timestamp before power increases
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin);
-        } else {
-            // otherwise the power is simply constrained by the power gradient
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin - upwardPowerGradient * timestampDuration);
-        }
+        // otherwise the power is simply constrained by the power gradient
+        powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin - upwardPowerGradient * timestampDuration);
+
 
         // ON -> OFF
         OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
             generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF
         );
-        if (lagTimeWithLeadTime.isPresent()) {
-            // if the generator has a lag time, ON state finishes at Pmin on a timestamp before power decreases
-            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
-        } else {
-            // otherwise the power is simply constrained by the power gradient
-            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin - downwardPowerGradient * timestampDuration);
-        }
+
+        powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin - downwardPowerGradient * timestampDuration);
         powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, pMin - OFF_POWER_THRESHOLD);
     }
 
