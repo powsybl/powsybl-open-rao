@@ -66,6 +66,7 @@ public class Roda implements TimeCoupledRaoProvider {
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
+    // TODO this should be a parameter
     private static final String DEFAULT_SINGLE_TS_RAO = "FastRao";
 
     @Override
