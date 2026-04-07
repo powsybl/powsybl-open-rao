@@ -107,10 +107,10 @@ public final class IcsImporter {
         });
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-            .setDelimiter(";")
-            .setHeader()
-            .setSkipHeaderRecord(true)
-            .get();
+                .setDelimiter(";")
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .get();
         Iterable<CSVRecord> staticCsvRecords = csvFormat.parse(new InputStreamReader(staticInputStream));
         Iterable<CSVRecord> seriesCsvRecords = csvFormat.parse(new InputStreamReader(seriesInputStream));
 
@@ -134,20 +134,14 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord, weightPerNodePerGsk)) {
                 String raId = staticRecord.get(RA_RD_ID);
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-//                if (seriesPerType != null &&
-//                    seriesPerType.containsKey(P0) &&
-//                    seriesPerType.containsKey(RDP_DOWN) &&
-//                    seriesPerType.containsKey(RDP_UP) &&
-//                    rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
-//                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
-//                p0RespectsConstraints(staticRecord, seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList());
-//                }
                 if (seriesPerType != null &&
-                    seriesPerType.containsKey(P0) &&
-                    seriesPerType.containsKey(RDP_DOWN) &&
-                    seriesPerType.containsKey(RDP_UP) &&
-                    rangeIsOkay(seriesPerType, sortedTimestamps) &&
-                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), sortedTimestamps)) {
+                        seriesPerType.containsKey(P0) &&
+                        seriesPerType.containsKey(RDP_DOWN) &&
+                        seriesPerType.containsKey(RDP_UP) &&
+                        rangeIsOkay(seriesPerType, sortedTimestamps) &&
+                        p0RespectsGradients(staticRecord, seriesPerType.get(P0), sortedTimestamps) &&
+                        p0RespectsConstraints(staticRecord, seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())
+                ) {
                     if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE)) {
                         importNodeRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
                     } else {
@@ -228,13 +222,13 @@ public final class IcsImporter {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
             if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+                    !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
                 throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
             } else {
                 builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
             }
             if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+                    !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
                 throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
             } else {
                 builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
@@ -253,16 +247,16 @@ public final class IcsImporter {
         Crac crac = raoInput.getCrac();
         double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId(raId + RD_SUFFIX)
-            .withName(staticRecord.get(GENERATOR_NAME))
-            .withInitialSetpoint(p0)
-            .withVariationCost(costUp, VariationDirection.UP)
-            .withVariationCost(costDown, VariationDirection.DOWN)
-            //.withActivationCost(ACTIVATION_COST)
-            .newRange()
-            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
-            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
-            .add();
+                .withId(raId + RD_SUFFIX)
+                .withName(staticRecord.get(GENERATOR_NAME))
+                .withInitialSetpoint(p0)
+                .withVariationCost(costUp, VariationDirection.UP)
+                .withVariationCost(costDown, VariationDirection.DOWN)
+                //.withActivationCost(ACTIVATION_COST)
+                .newRange()
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
+                .add();
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
             injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
@@ -270,13 +264,13 @@ public final class IcsImporter {
 
         if (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
             injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getPreventiveInstant().getId())
-                .add();
+                    .withInstant(crac.getPreventiveInstant().getId())
+                    .add();
         }
         if (importCurative && staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)) {
             injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getLastInstant().getId())
-                .add();
+                    .withInstant(crac.getLastInstant().getId())
+                    .add();
         }
 
         injectionRangeActionAdder.add();
@@ -313,13 +307,13 @@ public final class IcsImporter {
             builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
         }
         if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-            !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
             throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for raId " + raId);
         } else {
             builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
         }
         if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-            !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
             throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for raId " + raId);
         } else {
             builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
@@ -336,33 +330,33 @@ public final class IcsImporter {
         Crac crac = raoInput.getCrac();
         double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId(raId + RD_SUFFIX)
-            .withName(staticRecord.get(GENERATOR_NAME))
-            .withNetworkElement(networkElementId)
-            .withInitialSetpoint(p0)
-            .withVariationCost(costUp, VariationDirection.UP)
-            .withVariationCost(costDown, VariationDirection.DOWN)
-            //.withActivationCost(ACTIVATION_COST)
-            .newRange()
-            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
-            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
-            .add();
+                .withId(raId + RD_SUFFIX)
+                .withName(staticRecord.get(GENERATOR_NAME))
+                .withNetworkElement(networkElementId)
+                .withInitialSetpoint(p0)
+                .withVariationCost(costUp, VariationDirection.UP)
+                .withVariationCost(costDown, VariationDirection.DOWN)
+                //.withActivationCost(ACTIVATION_COST)
+                .newRange()
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
+                .add();
         if (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
             injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getPreventiveInstant().getId())
-                .add();
+                    .withInstant(crac.getPreventiveInstant().getId())
+                    .add();
         }
         if (importCurative && staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)) {
             injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getLastInstant().getId())
-                .add();
+                    .withInstant(crac.getLastInstant().getId())
+                    .add();
         }
 
         injectionRangeActionAdder.add();
     }
 
     private static String processNetworks(String
-                                              nodeId, TemporalData<LazyNetwork> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
+                                                  nodeId, TemporalData<LazyNetwork> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
         String generatorId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + GENERATOR_SUFFIX;
         for (Map.Entry<OffsetDateTime, LazyNetwork> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
@@ -378,7 +372,7 @@ public final class IcsImporter {
     }
 
     private static Optional<Double> parseValue(Map<String, CSVRecord> seriesPerType, String key, OffsetDateTime
-        timestamp, double shiftKey) {
+            timestamp, double shiftKey) {
         if (seriesPerType.containsKey(key)) {
             CSVRecord series = seriesPerType.get(key);
             String value = series.get(timestamp.getHour() + OFFSET);
@@ -408,39 +402,36 @@ public final class IcsImporter {
 
     private static void processBus(Bus bus, String generatorId, Double p0, double pMinRd) {
         bus.getVoltageLevel().newGenerator()
-            .setBus(bus.getId())
-            .setEnsureIdUnicity(true)
-            .setId(generatorId)
-            .setMaxP(999999)
-            .setMinP(pMinRd)
-            .setTargetP(p0)
-            .setTargetQ(0)
-            .setTargetV(bus.getVoltageLevel().getNominalV())
-            .setVoltageRegulatorOn(false)
-            .add()
-            .setFictitious(true);
+                .setBus(bus.getId())
+                .setEnsureIdUnicity(true)
+                .setId(generatorId)
+                .setMaxP(999999)
+                .setMinP(pMinRd)
+                .setTargetP(p0)
+                .setTargetQ(0)
+                .setTargetV(bus.getVoltageLevel().getNominalV())
+                .setVoltageRegulatorOn(false)
+                .add()
+                .setFictitious(true);
 
         bus.getVoltageLevel().newLoad()
-            .setBus(bus.getId())
-            .setEnsureIdUnicity(true)
-            .setId(bus.getId() + "_LOAD")
-            .setP0(p0)
-            .setQ0(0)
-            .setLoadType(LoadType.FICTITIOUS)
-            .add();
+                .setBus(bus.getId())
+                .setEnsureIdUnicity(true)
+                .setId(bus.getId() + "_LOAD")
+                .setP0(p0)
+                .setQ0(0)
+                .setLoadType(LoadType.FICTITIOUS)
+                .add();
     }
 
     private static boolean shouldBeImported(CSVRecord
-                                                staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
+                                                    staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
         return (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE) || weightPerNodePerGsk.containsKey(staticRecord.get(UCT_NODE_OR_GSK_ID))) &&
-            (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE) /*|| staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)*/);
+                (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE) /*|| staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)*/);
     }
 
-    private static void p0RespectsConstraints(CSVRecord staticRecord, Map<String, CSVRecord> seriesRecord, List<OffsetDateTime> dateTimes) {
-        // 1) check that P0 > Pmin or P0 < 1d
-        // 2) check that if shutDown not allowe, no switch to 0
-        // 3) check that if startUp not allowed, no switch from P0 < 1 to P0 > Pmin
-        CSVRecord p0 =  seriesRecord.get(P0);
+    private static boolean p0RespectsConstraints(CSVRecord staticRecord, Map<String, CSVRecord> seriesRecord, List<OffsetDateTime> dateTimes) {
+        CSVRecord p0 = seriesRecord.get(P0);
         Boolean shutDownAllowed = Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED));
         Boolean startUpAllowed = Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED));
         Optional<Double> lead = Optional.empty();
@@ -455,10 +446,8 @@ public final class IcsImporter {
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
-        boolean count_lead = false;
-        int lead_count = 0;
         boolean count_lag = false;
-        int lag_count = 0;
+        int count_consecutive_null_values = 0;
         while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
             double next_p0 = parseDoubleWithPossibleCommas(p0.get(nextDateTime.getHour() + OFFSET));
@@ -466,103 +455,105 @@ public final class IcsImporter {
             Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
             double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
 
-            if (count_lead) {
-                if (current_p0 < pMin) {
-                    if (lead_count < lead.get()) {
-                        // DO NOT IMPORT
-                        BUSINESS_WARNS.warn("RA {} was ON after start up for only {} altough lead is {}", staticRecord.get(0), count_lead, lead.get());
-                        count_lead = false;
-                        lead_count = 0;
-                    }
-                } else {
-                    lead_count += 1;
-                }
+            if (current_p0 < pMin) {
+                count_consecutive_null_values += 1;
             }
-
-            if (count_lag) {
-                if (current_p0 >= pMin) {
-                    if (lag_count < lagAndLead.get()) {
-                        // DO NOT IMPORT
-                        BUSINESS_WARNS.warn("RA {} was OFF after shutDown for only {} altough lagAndLead is {}", staticRecord.get(0), count_lag, lagAndLead.get());
-                        count_lag = false;
-                        lag_count = 0;
-                    }
-                } else {
-                    lag_count += 1;
-                }
-            }
-
-
+            // 1) Pmin not respected
             if (current_p0 < pMin && current_p0 > ON_POWER_THRESHOLD) {
-                BUSINESS_WARNS.warn("RA {} has P0 at {} and Pmin at {}", staticRecord.get(0), current_p0, pMin);
+                BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} has P0 at {} and Pmin at {}", currentDateTime, staticRecord.get(0), current_p0, pMin);
+                return false;
             }
-            if (current_p0 < pMin && next_p0 > pMin) {
+
+            // 2) Starting up next timestamp
+            if (current_p0 < pMin && next_p0 >= pMin) {
                 if (!startUpAllowed) {
-                    BUSINESS_WARNS.warn("RA {} starting up even though it's prohibited", staticRecord.get(0));
+                    BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} starting up even though it's prohibited", currentDateTime, staticRecord.get(0));
+                    return false;
                 }
-                // TODO : integerer la notion d'arrondi comme dans le filler : lead de 1 =>
-                // TODO : forcer le passage par Pmin pour le lead et le lag => une modification de P0
-                if (lead.isPresent()) {
-                    BUSINESS_WARNS.warn("RA {} starting up at {}. TODO : check lead ({}) is respected", staticRecord.get(0), currentDateTime.getHour(), lead);
-                    count_lead = true;
+                if (lead.isPresent() && count_consecutive_null_values < lead.get()) {
+                    BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} was OFF before start up for only {} timestamps altough lead is {}", currentDateTime, staticRecord.get(0), count_consecutive_null_values, lead.get());
+                    return false;
+                }
+                if (count_lag) {
+                    if (count_consecutive_null_values < lagAndLead.get()) {
+                        BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} was OFF after shutDown for only {} timestamps although lagAndLead is {}", currentDateTime, staticRecord.get(0), count_consecutive_null_values, lagAndLead.get());
+                        return false;
+                    }
+                    // Re-initialize
+                    count_lag = false;
                 }
             }
-            if (current_p0 > pMin && next_p0 < pMin) {
+            // 3) Shutting down next timestamp
+            if (current_p0 >= pMin && next_p0 < pMin) {
                 if (!shutDownAllowed) {
-                    BUSINESS_WARNS.warn("RA {} shutting down even though it's prohibited", staticRecord.get(0));
+                    BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} shutting down even though it's prohibited", currentDateTime, staticRecord.get(0));
+                    return false;
                 }
                 if (lagAndLead.isPresent()) {
-                    BUSINESS_WARNS.warn("RA {} shutting down at {}. TODO : check lagAndLead ({}) is respected", staticRecord.get(0), currentDateTime.getHour(), lagAndLead);
                     count_lag = true;
                 }
             }
 
-        }
-    }
-
-    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord
-        p0record, List<OffsetDateTime> dateTimes) {
-        double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
-            MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
-        double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?
-            -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
-
-        Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
-        OffsetDateTime currentDateTime = dateTimeIterator.next();
-        while (dateTimeIterator.hasNext()) {
-            OffsetDateTime nextDateTime = dateTimeIterator.next();
-            double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
-            if (diff > maxGradient || diff < minGradient) {
-                BUSINESS_WARNS.warn(
-                    "Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff {} {} {}",
-                    staticRecord.get(0), minGradient, maxGradient, diff
-                );
-                return false;
+            // Re-init count_consecutive_null_values
+            if (current_p0 >= pMin) {
+                count_consecutive_null_values = 0;
             }
             currentDateTime = nextDateTime;
         }
-        return true;
-    }
-
-    private static boolean rangeIsOkay(Map<String, CSVRecord> seriesPerType, List<OffsetDateTime> dateTimes) {
-        double maxRange = 0.;
-        for (OffsetDateTime dateTime : dateTimes) {
-            double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET));
-            double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
-            maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
-            if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus);
-                return false;
-            }
-        }
-        if (maxRange < 1) {
-            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get(P0).get(RA_RD_ID), maxRange);
+        // Last timestamp
+        double current_p0 = parseDoubleWithPossibleCommas(p0.get(currentDateTime.getHour() + OFFSET));
+        Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
+        double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+        if (current_p0 < pMin && current_p0 > ON_POWER_THRESHOLD) {
+            BUSINESS_WARNS.warn("DO NOT IMPORT - Timestamp {} - RA {} has P0 at {} and Pmin at {}", currentDateTime, staticRecord.get(0), current_p0, pMin);
             return false;
         }
         return true;
     }
 
-    private static double parseDoubleWithPossibleCommas(String string) {
-        return Double.parseDouble(string.replaceAll(",", "."));
+        private static boolean p0RespectsGradients (CSVRecord staticRecord, CSVRecord
+        p0record, List < OffsetDateTime > dateTimes){
+            double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
+                    MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
+            double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?
+                    -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
+
+            Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
+            OffsetDateTime currentDateTime = dateTimeIterator.next();
+            while (dateTimeIterator.hasNext()) {
+                OffsetDateTime nextDateTime = dateTimeIterator.next();
+                double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
+                if (diff > maxGradient || diff < minGradient) {
+                    BUSINESS_WARNS.warn(
+                            "Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff {} {} {}",
+                            staticRecord.get(0), minGradient, maxGradient, diff
+                    );
+                    return false;
+                }
+                currentDateTime = nextDateTime;
+            }
+            return true;
+        }
+
+        private static boolean rangeIsOkay (Map < String, CSVRecord > seriesPerType, List < OffsetDateTime > dateTimes){
+            double maxRange = 0.;
+            for (OffsetDateTime dateTime : dateTimes) {
+                double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET));
+                double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
+                maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
+                if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
+                    BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus);
+                    return false;
+                }
+            }
+            if (maxRange < 1) {
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get(P0).get(RA_RD_ID), maxRange);
+                return false;
+            }
+            return true;
+        }
+
+        private static double parseDoubleWithPossibleCommas (String string){
+            return Double.parseDouble(string.replaceAll(",", "."));
+        }
     }
-}
