@@ -325,9 +325,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON
         );
         powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(nextPMin - OFF_POWER_THRESHOLD));
-        // otherwise the power is simply constrained by the power gradient
         powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin - upwardPowerGradient * timestampDuration);
-
 
         // ON -> OFF
         OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
