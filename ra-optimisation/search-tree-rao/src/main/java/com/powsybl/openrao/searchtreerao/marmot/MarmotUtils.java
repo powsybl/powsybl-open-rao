@@ -175,20 +175,31 @@ public final class MarmotUtils {
 
     public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
         Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
-        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
-            raoInputs.put(timestamp, RaoInput.build(network, cracs.getData(timestamp).orElseThrow()).build());
-            network.release();
-        });
+        for (OffsetDateTime timestamp : networks.getTimestamps()) {
+            try (LazyNetwork lazyNetwork = networks.getData(timestamp).orElseThrow()) {
+                raoInputs.put(timestamp, RaoInput.build(lazyNetwork, cracs.getData(timestamp).orElseThrow()).build());
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
         return new TemporalDataImpl<>(raoInputs);
     }
 
-    public static void releaseAll(TemporalData<Network> networks) {
+    public static <N extends Network> void releaseAll(TemporalData<N> networks) {
         networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
     }
 
-    public static void releaseNetwork(Network network) {
+    public static <N extends Network> void releaseNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
-            lazyNetwork.release();
+            try {
+                lazyNetwork.close();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
         }
+    }
+
+    public static OffsetDateTime getTimestamp(RaoInput raoInput) {
+        return raoInput.getCrac().getTimestamp().orElseThrow();
     }
 }

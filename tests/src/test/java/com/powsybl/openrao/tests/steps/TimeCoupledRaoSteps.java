@@ -10,6 +10,7 @@ package com.powsybl.openrao.tests.steps;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -196,9 +197,12 @@ public final class TimeCoupledRaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
-            Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), network, null).getLeft();
-            raoInputs.put(offsetDateTime, RaoInput.build(LazyNetwork.of(networkFolderPath.concat(tsInput.get("Network"))), crac).build());
+            try (LazyNetwork lazyNetwork = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false)) {
+                Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), lazyNetwork, null).getLeft();
+                raoInputs.put(offsetDateTime, RaoInput.build(lazyNetwork, crac).build());
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
         }
 
         TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
@@ -232,26 +236,25 @@ public final class TimeCoupledRaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
-            // Network
-            String postIcsNetworkPath = networkFolderPathPostIcsImport.concat(tsInput.get("Network")).split(".uct")[0].concat(".jiidm");
-            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
-            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
-            // Crac
-            Pair<Crac, CracCreationContext> cracImportResult;
-            if (useIndividualCracs) { // only works with json
-                cracImportResult = importCrac(getFile(cracFolderPath.concat(tsInput.get("Crac"))), network, null);
-            } else {
-                cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(offsetDateTime);
-                cracImportResult = importCrac(cracFile, network, cracCreationParameters);
-                if (network instanceof LazyNetwork) {
-                    ((LazyNetwork) network).release();
+            try (LazyNetwork lazyNetwork = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false)) {
+                CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(lazyNetwork);
+                // Crac
+                Pair<Crac, CracCreationContext> cracImportResult;
+                if (useIndividualCracs) { // only works with json
+                    cracImportResult = importCrac(getFile(cracFolderPath.concat(tsInput.get("Crac"))), lazyNetwork, null);
+                } else {
+                    cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(offsetDateTime);
+                    cracImportResult = importCrac(cracFile, lazyNetwork, cracCreationParameters);
                 }
+                RaoInput raoInput = RaoInput
+                    .build(lazyNetwork, cracImportResult.getLeft())
+                    .build();
+                raoInputs.put(offsetDateTime, raoInput);
+                cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
             }
-            RaoInput raoInput = RaoInput
-                .build(network, cracImportResult.getLeft())
-                .build();
-            raoInputs.put(offsetDateTime, raoInput);
-            cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
+
         }
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
 

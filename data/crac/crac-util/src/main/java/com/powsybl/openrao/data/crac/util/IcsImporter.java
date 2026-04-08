@@ -101,8 +101,12 @@ public final class IcsImporter {
             Network network = raoInput.getNetwork();
             preProcessNetwork(network);
             initialNetworks.put(dateTime, new LazyNetwork(network)); // use a copy not to modify initial network
-            if (network instanceof LazyNetwork) {
-                ((LazyNetwork) network).release();
+            if (network instanceof LazyNetwork lazyNetwork) {
+                try {
+                    lazyNetwork.close();
+                } catch (Exception e) {
+                    throw new OpenRaoException(e);
+                }
             }
         });
 
@@ -159,16 +163,19 @@ public final class IcsImporter {
 
         TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
 
-        initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
-            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
-            initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
-            postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
-            initialNetwork.release();
-        });
+        for (OffsetDateTime timestamp : initialNetworks.getTimestamps()) {
+            try (LazyNetwork initialNetwork = initialNetworks.getData(timestamp).orElseThrow()) {
+                try (LazyNetwork lazyNetwork = new LazyNetwork(initialNetwork)) {
+                    postIcsRaoInputs.put(timestamp, RaoInput.build(lazyNetwork, timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac()).build());
+                } catch (Exception e) {
+                    throw new OpenRaoException(e);
+                }
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
 
-        TimeCoupledRaoInput output = new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
-
-        return output;
+        return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
     }
 
     private static void preProcessNetwork(Network network) {

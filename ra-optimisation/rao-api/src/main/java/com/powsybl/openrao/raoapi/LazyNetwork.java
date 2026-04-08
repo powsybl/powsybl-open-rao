@@ -88,7 +88,7 @@ import java.util.stream.Stream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 
-public class LazyNetwork implements Network {
+public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
     private boolean isLoaded;
@@ -113,7 +113,8 @@ public class LazyNetwork implements Network {
         }
     }
 
-    public void release() {
+    @Override
+    public void close() throws Exception {
         // TODO: currently modifications on the network will not be saved -> perhaps override networkPath with a UUID and write content to it
         network = null;
         isLoaded = false;

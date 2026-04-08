@@ -486,14 +486,17 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static Map<String, TemporalData<GeneratorData>> processGenerators(TemporalData<LazyNetwork> lazyNetworks) {
         Map<String, Map<OffsetDateTime, GeneratorData>> dataPerGeneratorPerTimestamp = new HashMap<>();
-        lazyNetworks.getDataPerTimestamp().forEach((timestamp, lazyNetwork) -> {
-            for (Generator generator : lazyNetwork.getGenerators()) {
-                dataPerGeneratorPerTimestamp.computeIfAbsent(generator.getId(), k -> new HashMap<>()).put(
-                    timestamp, new GeneratorData(generator.getTargetP(), generator.getMinP(), generator.getMaxP())
-                );
+        for (OffsetDateTime timestamp : lazyNetworks.getTimestamps()) {
+            try (LazyNetwork lazyNetwork = lazyNetworks.getData(timestamp).orElseThrow()) {
+                for (Generator generator : lazyNetwork.getGenerators()) {
+                    dataPerGeneratorPerTimestamp.computeIfAbsent(generator.getId(), k -> new HashMap<>()).put(
+                        timestamp, new GeneratorData(generator.getTargetP(), generator.getMinP(), generator.getMaxP())
+                    );
+                }
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
             }
-            lazyNetwork.release();
-        });
+        }
         Map<String, TemporalData<GeneratorData>> globalGeneratorData = new HashMap<>();
         dataPerGeneratorPerTimestamp.forEach((generatorId, dataPerTimestamp) -> globalGeneratorData.put(generatorId, new TemporalDataImpl<>(dataPerTimestamp)));
         return globalGeneratorData;
