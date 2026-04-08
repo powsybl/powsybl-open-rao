@@ -14,7 +14,9 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
   - lead time
   - lag time
 
-  In an ideal situation, no redispatching is required between 0:00 and 3:59, nor between 20:00 and 23:59. However,
+  ----------------------
+
+  In the following 4 cases: ideally no redispatching is required between 0:00 and 3:59, nor between 20:00 and 23:59. However,
   between 4:00 and 19:59, the redispatched power must be maximal to secure an interconnection line. Depending on the
   generator constraints that hold, the actual volumes of redispatching will drift further away from this ideal case.
 
@@ -276,7 +278,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 0.0 MW
 
-  Scenario: 4.2.3: Upward and downward power gradients + lead and lag time
+  Scenario: 4.2.3: Upward and downward power gradients
   The generator is restricted by upward and downward power gradients. When the generator is up, its power variations are
   more restricted than in the previous scenarios. As the RAO seeks to apply the maximal redispatching value between
   4:00 and 19:59, it has no choice but to start the generator earlier and stop it later so the power gradients are
@@ -284,8 +286,6 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
   up for a longer time, thus delivering more power than previously. In this specific case, the upward power gradient is
   1000 MW/h so the generator must be switched on at 02:00. Similarly, the downward power gradient is -2000 MW/h so the
   generator will be completely shut down at 21:00.
-  Since we turn on a generator that is originally closed at the beginning of the day + we turn it off without turning it on back again after,
-  the lead and lag time does not influence our result.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-gradients.json" and rao inputs are:
       | Timestamp        | Network             | CRAC                                 |
@@ -539,11 +539,145 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 0.0 MW
 
+  Scenario: 4.2.5: Small upward gradient < PMin and Pmin - downward gradient * 1h = PMax
+  We have a small upward gradient more precisely the gradient < PMin, meaning that if we took it into account between [0;PMin] we should
+  not be able to reach the PMin in just one timestamp. However, one of our convention dictate that the gradient only matter above PMin !
+  At start up the generator can reach up to PMin + gradient * delta_t.
+  Similarly, the generator can be shut down in one timestamp if P <= Pmin - downward gradient * delta_t which is the case in this test.
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-small-gradients.json" and rao inputs are:
+      | Timestamp        | Network                      | CRAC                                 |
+      | 2025-11-04 00:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040030.json |
+      | 2025-11-04 01:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040130.json |
+      | 2025-11-04 02:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040230.json |
+      | 2025-11-04 03:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040330.json |
+      | 2025-11-04 04:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040430.json |
+      | 2025-11-04 05:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040530.json |
+      | 2025-11-04 06:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040630.json |
+      | 2025-11-04 07:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040730.json |
+      | 2025-11-04 08:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040830.json |
+      | 2025-11-04 09:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511040930.json |
+      | 2025-11-04 10:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041030.json |
+      | 2025-11-04 11:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041130.json |
+      | 2025-11-04 12:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041230.json |
+      | 2025-11-04 13:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041330.json |
+      | 2025-11-04 14:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041430.json |
+      | 2025-11-04 15:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041530.json |
+      | 2025-11-04 16:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041630.json |
+      | 2025-11-04 17:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041730.json |
+      | 2025-11-04 18:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041830.json |
+      | 2025-11-04 19:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511041930.json |
+      | 2025-11-04 20:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511042030.json |
+      | 2025-11-04 21:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511042130.json |
+      | 2025-11-04 22:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511042230.json |
+      | 2025-11-04 23:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3/crac_202511042330.json |
+    When I launch marmot
+    # Timestamp 00:30
+    Then the total cost for timestamp "2025-11-04 00:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 00:30" is 0.0 MW
+    # Timestamp 01:30: 10 (activation) + 50 * 1500 MW (variation) = 75010 -> because of the gradient + PMin
+    Then the total cost for timestamp "2025-11-04 01:30" is 75010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 01:30" is 1500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 01:30" is 1500.0 MW
+    # Timestamp 02:30: 10 (activation) + 50 * 2000 MW (variation) = 100010 -> because of the gradient
+    Then the total cost for timestamp "2025-11-04 02:30" is 100010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 02:30" is 2000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 02:30" is 2000.0 MW
+    # Timestamp 03:30: 10 (activation) + 50 * 2500 MW (variation) = 125010 -> because of the gradient
+    Then the total cost for timestamp "2025-11-04 03:30" is 125010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 03:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 03:30" is 2500.0 MW
+    # Timestamp 04:30: 10 (activation) + 50 * 3000 MW (variation) = 150010 -> finally reached the max
+    Then the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 04:30" is 3000.0 MW
+    # Timestamp 05:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 05:30" is 3000.0 MW
+    # Timestamp 06:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 06:30" is 3000.0 MW
+    # Timestamp 07:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 07:30" is 3000.0 MW
+    # Timestamp 08:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 08:30" is 3000.0 MW
+    # Timestamp 09:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 09:30" is 3000.0 MW
+    # Timestamp 10:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 10:30" is 3000.0 MW
+    # Timestamp 11:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 11:30" is 3000.0 MW
+    # Timestamp 12:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 12:30" is 3000.0 MW
+    # Timestamp 13:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 13:30" is 3000.0 MW
+    # Timestamp 14:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 14:30" is 3000.0 MW
+    # Timestamp 15:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 15:30" is 3000.0 MW
+    # Timestamp 16:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 16:30" is 3000.0 MW
+    # Timestamp 17:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 17:30" is 3000.0 MW
+    # Timestamp 18:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 18:30" is 3000.0 MW
+    # Timestamp 19:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 19:30" is 3000.0 MW
+    # Timestamp 20:30: shut down in 1 timestamp because : -2000MW/h (downward gradient) * 1h - PMin = 3000MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 20:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 20:30" is 0.0 MW
+    # Timestamp 21:30
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 21:30" is 0.0 MW
+    # Timestamp 22:30
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 22:30" is 0.0 MW
+    # Timestamp 23:30
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 0.0 MW
 
-  Scenario: 4.2.6.1: No generator constraints
-  From 00:30 to 03:30, 3000 MW of redispatching are necessary.
-  From 08:30 to 15:30, 1100 MW of redispatching are necessary.
-  From 20:30 to 23:30, 3000 MW or redispatching are necessary.
+#  ----------------------
+#  In the following test, ideally we would need:
+#   From 00:30 to 03:30, 3000 MW of redispatching are necessary.
+#   From 08:30 to 15:30, 1100 MW of redispatching are necessary.
+#   From 20:30 to 23:30, 3000 MW or redispatching are necessary.
+#  ----------------------
+
+  Scenario: 4.2.6: No generator constraints
+  No generator constraints hold so the situation corresponds to the ideal case described.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "epic93/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
@@ -670,7 +804,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1640160.0
 
-  Scenario: 4.2.6.2: Generator has a program that is not null but with lead and lag time
+  Scenario: 4.2.7: Generator has a program that is not null but we have lead and lag time and no gradient
   The generator is already expected to be ON and OFF when we need it to be ON or OFF.
   From 00:30 to 03:30, P0 = 1500 MW -> 1500 MW of redispatching are necessary.
   From 08:30 to 15:30, P0 = 1100 MW -> 0 MW of redispatching are necessary.
@@ -802,7 +936,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
 
-  Scenario: 4.2.6.2: Same as 4.2.6.1, with lead and lag
+  Scenario: 4.2.8: Same as 4.2.7, with lead and lag
   From 00:30 to 03:30, 3000 MW of redispatching are necessary.
   From 08:30 to 15:30, 1100 MW of redispatching are necessary.
   From 20:30 to 23:30, 3000 MW or redispatching are necessary.
@@ -935,8 +1069,136 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1750140.0
 
+  Scenario: 4.2.9: Same as 4.2.8, with gradient
+  The same issue due to the long lead and lag time + we have a downward and updward gradient.
+    At 3h30 it needs to start stepping down to 2900 MW (Pmin - downward gradient * 1h = 2900 MW)  so that can be shut down at 4h30-> 1000 MW of overload
+    Same the generator step up to 2900 MW at 20h30 to reach the max at 21h30.
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
+    Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
+      | Timestamp        | Network                      | CRAC                                   |
+      | 2025-11-04 00:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040030.json |
+      | 2025-11-04 01:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040130.json |
+      | 2025-11-04 02:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040230.json |
+      | 2025-11-04 03:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040330.json |
+      | 2025-11-04 04:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040430.json |
+      | 2025-11-04 05:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040530.json |
+      | 2025-11-04 06:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040630.json |
+      | 2025-11-04 07:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040730.json |
+      | 2025-11-04 08:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040830.json |
+      | 2025-11-04 09:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511040930.json |
+      | 2025-11-04 10:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041030.json |
+      | 2025-11-04 11:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041130.json |
+      | 2025-11-04 12:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041230.json |
+      | 2025-11-04 13:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041330.json |
+      | 2025-11-04 14:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041430.json |
+      | 2025-11-04 15:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041530.json |
+      | 2025-11-04 16:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041630.json |
+      | 2025-11-04 17:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041730.json |
+      | 2025-11-04 18:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041830.json |
+      | 2025-11-04 19:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511041930.json |
+      | 2025-11-04 20:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511042030.json |
+      | 2025-11-04 21:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511042130.json |
+      | 2025-11-04 22:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511042230.json |
+      | 2025-11-04 23:30 | epic93/6Nodes_Pmin1000.xiidm | epic93/us93_3_6/crac_202511042330.json |
+    When I launch marmot
+    # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 00:30" is 3000.0 MW
+    # Timestamp 01:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 01:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 01:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 01:30" is 3000.0 MW
+    # Timestamp 02:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 02:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 02:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 02:30" is 3000.0 MW
+    # Timestamp 03:30: 10 (activation) + 50 * 2900 MW (variation) + 100 MW * 100 (overload of 1100 MW, shifted violation penalty of 100) = 155010
+    Then the total cost for timestamp "2025-11-04 03:30" is 155010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 03:30" is 2900.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 03:30" is 2900.0 MW
+    # Timestamp 04:30
+    Then the total cost for timestamp "2025-11-04 04:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 04:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 04:30" is 0.0 MW
+    # Timestamp 05:30
+    Then the total cost for timestamp "2025-11-04 05:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 05:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 05:30" is 0.0 MW
+    # Timestamp 06:30
+    Then the total cost for timestamp "2025-11-04 06:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 06:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 06:30" is 0.0 MW
+    # Timestamp 07:30
+    Then the total cost for timestamp "2025-11-04 07:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 07:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 07:30" is 0.0 MW
+    # Timestamp 08:30: 1100 MW * 100 (overload of 1100 MW, shifted violation penalty of 100) = 110000
+    Then the total cost for timestamp "2025-11-04 08:30" is 110000.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 08:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 08:30" is 0.0 MW
+    # Timestamp 09:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 09:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 09:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 09:30" is 1100.0 MW
+    # Timestamp 10:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 10:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 10:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 10:30" is 1100.0 MW
+    # Timestamp 11:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 11:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 11:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 11:30" is 1100.0 MW
+    # Timestamp 12:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 12:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 12:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 12:30" is 1100.0 MW
+    # Timestamp 13:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 13:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 13:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 13:30" is 1100.0 MW
+    # Timestamp 14:30: 10 (activation) + 50 * 1100 MW (variation) = 55010
+    Then the total cost for timestamp "2025-11-04 14:30" is 55010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 14:30" is 1100.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 14:30" is 1100.0 MW
+    # Timestamp 15:30: 1100 MW * 100 (overload of 1100 MW, shifted violation penalty of 100) = 110000
+    Then the total cost for timestamp "2025-11-04 15:30" is 110000.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 15:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 15:30" is 0.0 MW
+    # Timestamp 16:30:
+    Then the total cost for timestamp "2025-11-04 16:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 16:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 16:30" is 0.0 MW
+    # Timestamp 17:30:
+    Then the total cost for timestamp "2025-11-04 17:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 17:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 17:30" is 0.0 MW
+    # Timestamp 18:30:
+    Then the total cost for timestamp "2025-11-04 18:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 18:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 18:30" is 0.0 MW
+    # Timestamp 19:30:
+    Then the total cost for timestamp "2025-11-04 19:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 19:30" is 0.0 MW
+    # Timestamp 20:30: 10 (activation) + 50 * 2900 MW (variation) + 100 MW * 100 (overload of 1100 MW, shifted violation penalty of 100) = 155010
+    Then the total cost for timestamp "2025-11-04 20:30" is 155010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 20:30" is 2900.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 20:30" is 2900.0 MW
+    # Timestamp 21:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 21:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 21:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 21:30" is 3000.0 MW
+    # Timestamp 22:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 22:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 22:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 22:30" is 3000.0 MW
+    # Timestamp 23:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the total cost for timestamp "2025-11-04 23:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
 
-  Scenario: 4.2.6.3: In line with 4.2.6.1 and 4.2.6.2, with lead and lag and high shifted violation cost
+  Scenario: 4.2.10: In line with 4.2.8, with lead and lag and high shifted violation cost
     Generator never shuts down, because of its' high penalty cost on overloads, and because it's heavily constrained by its lead and lag
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
