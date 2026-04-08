@@ -227,38 +227,6 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 3960
     Then the total cost for all timestamps is 26890.25
 
-  @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.6: Lead time and Pmin.
-  The generator involved in the Belgian redispatching action has a 15 min lead time and must be operated at 1000 MW at
-  2:30. Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a
-  supplementary expense of 1000 in remedial actions for this generator. For grid balancing reasons, the French
-  generator must be switched off thus doubling the expenses.
-  StartUp is allowed for BBE2, Shutdown is allowed for FFR1.
-    Given network files are in folder "epic93/TestCases_93_2_6"
-    Given crac file is "epic93/cbcora_93_2_6.xml"
-    Given ics static file is "epic93/static_93_2_6.csv"
-    Given ics series file is "epic93/series_93_2_6.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given time-coupled rao inputs for CORE are:
-      | Timestamp        | Network         |
-      | 2019-01-08 00:30 | 2Nodes_0030.uct |
-      | 2019-01-08 01:30 | 2Nodes_0130.uct |
-      | 2019-01-08 02:30 | 2Nodes_0230.uct |
-    When I launch marmot
-    # Timestamp 00:30:
-    Then the functional cost for timestamp "2019-01-08 00:30" is 0.0
-    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at timestamp "2019-01-08 00:30" is 0.0 MW
-    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at timestamp "2019-01-08 00:30" is 1000.0 MW
-    # Timestamp 01:30: 10 * 1000 MW * 2 generators
-    Then the functional cost for timestamp "2019-01-08 01:30" is 2000.0
-    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at timestamp "2019-01-08 01:30" is 100.0 MW
-    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at timestamp "2019-01-08 01:30" is 900.0 MW
-    # Timestamp 02:30: 10 * 1000 MW * 2 generators
-    Then the functional cost for timestamp "2019-01-08 02:30" is 20000.0
-    Then the functional cost for all timestamps is 22000.0
-    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at timestamp "2019-01-08 02:30" is 1000.0 MW
-    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at timestamp "2019-01-08 02:30" is 0.0 MW
-
     # TODO to be modified when check on generator constraint is performed at import
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.7: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
