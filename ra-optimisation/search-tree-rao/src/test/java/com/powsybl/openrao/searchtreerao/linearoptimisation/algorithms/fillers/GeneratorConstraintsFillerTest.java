@@ -1034,7 +1034,7 @@ class GeneratorConstraintsFillerTest {
                 OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
                     generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON
                 );
-                assertEquals(- 100 - upwardPowerGradient, powerTransitionConstraintSup.getCoefficient(offOnTransitionVariable));
+                assertEquals(-100 - upwardPowerGradient, powerTransitionConstraintSup.getCoefficient(offOnTransitionVariable));
                 assertEquals(-(100 - OFF_POWER_THRESHOLD), powerTransitionConstraintInf.getCoefficient(offOnTransitionVariable), 1E-4);
 
                 OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
