@@ -229,7 +229,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
 
     # TODO to be modified when check on generator constraint is performed at import
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.7: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
+  Scenario: 4.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
     FR generator's program starts up even though startUp is not allowed.
     Given network files are in folder "epic93/TestCases_93_2_6"
     Given crac file is "epic93/cbcora_93_2_6.xml"
