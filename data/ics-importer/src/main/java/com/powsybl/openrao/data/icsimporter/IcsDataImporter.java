@@ -65,7 +65,7 @@ public final class IcsDataImporter {
                                InputStream gskInputStream,
                                List<OffsetDateTime> sortedTimestampToRun) throws IOException {
 
-        // Parse and sort  and serie type (RDP-, RDP+, Pmin_RD or P0) and per RA_ID
+        // Parse and sort  per serie type (RDP-, RDP+, Pmin_RD or P0) and per RA_ID
         Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType = parseSeriesCsv(seriesInputStream);
         // Parse GSK and get weight Per Node Per Gsk
         Map<String, Map<String, Double>> weightPerNodePerGsk = new HashMap<>();
