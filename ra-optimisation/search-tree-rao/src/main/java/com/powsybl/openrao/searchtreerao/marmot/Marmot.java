@@ -99,10 +99,15 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
 
+        // custom settings for XPRESS optimization
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
+        TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
+        timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
+
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
-        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(initialInputs, consideredCnecs, raoParameters);
+        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
 
         // 2. Get the initial results from the various independent results to avoid recomputing them
@@ -413,9 +418,8 @@ public class Marmot implements TimeCoupledRaoProvider {
             timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
     }
 
-    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15"); // for XPRESS only
-        return raoInputs.mapMultiThreading(raoInput -> runSingleTopologicalOptimization(raoInput, consideredCnecs, raoParameters), PARALLELISM);
+    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, TemporalData<Set<FlowCnec>> consideredCnecs, TemporalData<RaoParameters> raoParameters) {
+        return raoInputs.mapMultiThreading(raoInput -> runSingleTopologicalOptimization(raoInput, consideredCnecs, raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow()), PARALLELISM);
     }
 
     private static RaoResult runSingleTopologicalOptimization(RaoInput raoInput, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
