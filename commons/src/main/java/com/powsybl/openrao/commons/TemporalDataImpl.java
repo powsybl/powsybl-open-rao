@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,15 +27,15 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
     private final Map<OffsetDateTime, T> dataPerTimestamp;
 
     public TemporalDataImpl() {
-        this(new TreeMap<>());
+        this(new ConcurrentHashMap<>());
     }
 
     public TemporalDataImpl(Map<OffsetDateTime, ? extends T> dataPerTimestamp) {
-        this.dataPerTimestamp = new TreeMap<>(dataPerTimestamp);
+        this.dataPerTimestamp = new ConcurrentHashMap<>(dataPerTimestamp);
     }
 
     public Map<OffsetDateTime, T> getDataPerTimestamp() {
-        return new TreeMap<>(dataPerTimestamp);
+        return new ConcurrentHashMap<>(dataPerTimestamp);
     }
 
     public void put(OffsetDateTime timestamp, T data) {
