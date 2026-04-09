@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -220,5 +219,16 @@ public final class MarmotUtils {
         } catch (Exception e) {
             throw new OpenRaoException(e);
         }
+    }
+
+    /**
+     * Select the best TemporalData mapping strategy based on the number of threads.
+     * Necessary not to create a pool for only one thread.
+     */
+    public static <A, B> TemporalData<B> smartMap(TemporalData<A> temporalData, Function<A, B> function, int threads) {
+        if (threads == 1) {
+            return temporalData.map(function);
+        }
+        return temporalData.mapMultiThreading(function, threads);
     }
 }
