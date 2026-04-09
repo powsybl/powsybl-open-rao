@@ -671,9 +671,9 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
 
 #  ----------------------
 #  In the following test, ideally we would need:
-#   From 00:30 to 03:30, 3000 MW of redispatching are necessary.
-#   From 08:30 to 15:30, 1100 MW of redispatching are necessary.
-#   From 20:30 to 23:30, 3000 MW or redispatching are necessary.
+#   From 00:30 to 03:30, 3000 MW of redispatching
+#   From 08:30 to 15:30, 1100 MW of redispatching
+#   From 20:30 to 23:30, 3000 MW or redispatching
 #  ----------------------
 
   Scenario: 4.2.6: No generator constraints
@@ -1070,8 +1070,8 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the total cost for all timestamps is 1750140.0
 
   Scenario: 4.2.9: Same as 4.2.8, with gradient
-  The same issue due to the long lead and lag time + we have a downward and updward gradient.
-    At 3h30 it needs to start stepping down to 2900 MW (Pmin - downward gradient * 1h = 2900 MW)  so that can be shut down at 4h30-> 1000 MW of overload
+  The same issue due to the long lead and lag time + we have a downward and upward gradient.
+    At 3h30 it needs to start stepping down to 2900 MW (Pmin - downward gradient * 1h = 2900 MW)  so that can be shut down at 4h30-> 100 MW of overload
     Same the generator step up to 2900 MW at 20h30 to reach the max at 21h30.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
