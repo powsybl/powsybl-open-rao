@@ -163,14 +163,18 @@ public final class MarmotUtils {
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
         } else {
+            // TODO: close systematically
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
         }
     }
 
     public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
-        return new TemporalDataImpl<>(
-            networks.getDataPerTimestamp().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> new LazyNetwork(entry.getValue())))
-        );
+        TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
+        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
+            lazyNetworks.put(timestamp, new LazyNetwork(network));
+            MarmotUtils.releaseNetwork(network);
+        });
+        return lazyNetworks;
     }
 
     public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {

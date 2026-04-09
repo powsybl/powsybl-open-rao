@@ -26,15 +26,12 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
@@ -91,8 +88,7 @@ public final class IcsImporter {
                                                            InputStream staticInputStream, InputStream seriesInputStream,
                                                            InputStream gskInputStream,
                                                            double icsCostUp,
-                                                           double icsCostDown,
-                                                           String exportDirectory) throws IOException {
+                                                           double icsCostDown) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
@@ -447,7 +443,7 @@ public final class IcsImporter {
         // 1) check that P0 > Pmin or P0 < 1d
         // 2) check that if shutDown not allowe, no switch to 0
         // 3) check that if startUp not allowed, no switch from P0 < 1 to P0 > Pmin
-        CSVRecord p0 =  seriesRecord.get(P0);
+        CSVRecord p0 = seriesRecord.get(P0);
         Boolean shutDownAllowed = Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED));
         Boolean startUpAllowed = Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED));
         Optional<Double> lead = Optional.empty();

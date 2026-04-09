@@ -64,13 +64,12 @@ public final class Helpers {
         // must nor be used
     }
 
-    public static LazyNetwork importNetwork(File networkFile, boolean useRdfId) {
+    public static Network importNetwork(File networkFile, boolean useRdfId) {
         Properties importParams = new Properties();
         if (useRdfId) {
             importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         }
-        Network network = Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-        return new LazyNetwork(network);
+        return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, CracCreationParameters cracCreationParameters) throws IOException {

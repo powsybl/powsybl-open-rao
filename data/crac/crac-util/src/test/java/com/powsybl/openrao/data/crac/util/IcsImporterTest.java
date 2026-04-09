@@ -77,7 +77,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
@@ -126,7 +126,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_shutdown_startup_true.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
@@ -142,7 +142,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse shutDownAllowed value  for raId Redispatching_RA");
     }
 
@@ -154,7 +154,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse shutDownAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -166,7 +166,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse startUpAllowed value  for raId Redispatching_RA");
     }
 
@@ -178,7 +178,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse startUpAllowed value wrongValue for raId Redispatching_RA");
     }
 
@@ -190,7 +190,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse shutDownAllowed value  for nodeId FFR1AA1");
     }
 
@@ -202,7 +202,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse shutDownAllowed value wrongValue for nodeId FFR1AA1");
     }
 
@@ -214,7 +214,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse startUpAllowed value  for nodeId FFR1AA1");
     }
 
@@ -226,7 +226,7 @@ class IcsImporterTest {
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
 
         Assertions.assertThatExceptionOfType(OpenRaoException.class)
-            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR))
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
             .withMessage("Could not parse startUpAllowed value wrongValue for nodeId FFR1AA1");
     }
 
@@ -236,7 +236,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_no_pmin_rd.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
@@ -285,7 +285,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_gradient_no_lead_no_lag.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(1, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         GeneratorConstraints generatorConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
@@ -332,7 +332,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_gradient_not_ok.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(0, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         assertEquals(0, crac1.getInjectionRangeActions().size());
@@ -345,7 +345,7 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_with_gsk.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost, TMP_DIR);
+        timeCoupledRaoInput = IcsImporter.populateInputWithICS(timeCoupledRaoInput, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
         assertEquals(2, timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().size());
         GeneratorConstraints generatorConstraintsBE = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().stream()

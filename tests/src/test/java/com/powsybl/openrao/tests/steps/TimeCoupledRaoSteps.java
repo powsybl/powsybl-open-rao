@@ -40,6 +40,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -197,7 +198,7 @@ public final class TimeCoupledRaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            try (LazyNetwork lazyNetwork = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false)) {
+            try (LazyNetwork lazyNetwork = new LazyNetwork(importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false))) {
                 Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), lazyNetwork, null).getLeft();
                 raoInputs.put(offsetDateTime, RaoInput.build(lazyNetwork, crac).build());
             } catch (Exception e) {
@@ -212,6 +213,7 @@ public final class TimeCoupledRaoSteps {
     @Given("time-coupled rao inputs for CORE are:")
     public static void coreTimeCoupledRaoInputsAre(DataTable arg1) throws IOException {
         loadDataForCoreTimeCoupledRao(arg1);
+        System.gc();
     }
 
     public static void loadDataForCoreTimeCoupledRao(DataTable arg1) throws IOException {
@@ -236,8 +238,9 @@ public final class TimeCoupledRaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
-            try (LazyNetwork lazyNetwork = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false)) {
-                CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(lazyNetwork);
+            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
+            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
+            try (LazyNetwork lazyNetwork = new LazyNetwork(network)) {
                 // Crac
                 Pair<Crac, CracCreationContext> cracImportResult;
                 if (useIndividualCracs) { // only works with json
@@ -254,7 +257,6 @@ public final class TimeCoupledRaoSteps {
             } catch (Exception e) {
                 throw new OpenRaoException(e);
             }
-
         }
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
 
@@ -269,9 +271,10 @@ public final class TimeCoupledRaoSteps {
             new FileInputStream(getFile(icsSeriesPath)),
             gskInputStream,
             fbConstraintParameters.getIcsCostUp(),
-            fbConstraintParameters.getIcsCostDown(),
-            networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]
+            fbConstraintParameters.getIcsCostDown()
         );
+        MarmotUtils.releaseAll(raoInputs.map(RaoInput::getNetwork));
+        MarmotUtils.releaseAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
     }
 
     @When("I launch marmot")
