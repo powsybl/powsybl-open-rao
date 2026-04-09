@@ -270,11 +270,6 @@ public final class TimeCoupledRaoSteps {
         timeCoupledRaoResult = TimeCoupledRao.find("TimeCoupledRao").run(timeCoupledRaoInput, getRaoParameters());
     }
 
-    @When("I launch roda")
-    public static void iLaunchRoda() {
-        timeCoupledRaoResult = TimeCoupledRao.find("Roda").run(timeCoupledRaoInput, getRaoParameters());
-    }
-
     @When("I export marmot results to {string}")
     public static void iExportMarmotResults(String outputPath) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
