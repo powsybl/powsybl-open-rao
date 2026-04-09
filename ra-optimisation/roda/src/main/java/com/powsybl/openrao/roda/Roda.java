@@ -8,7 +8,6 @@
 package com.powsybl.openrao.roda;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
