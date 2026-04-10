@@ -273,6 +273,7 @@ public final class TimeCoupledRaoSteps {
             fbConstraintParameters.getIcsCostUp(),
             fbConstraintParameters.getIcsCostDown(),
             networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]);
+        int debug = 0;
     }
 
     @When("I launch marmot")

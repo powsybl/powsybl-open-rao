@@ -87,7 +87,6 @@ import java.util.stream.Stream;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-
 public class LazyNetwork implements Network {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
