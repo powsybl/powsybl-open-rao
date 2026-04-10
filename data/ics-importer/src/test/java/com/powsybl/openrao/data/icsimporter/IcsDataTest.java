@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstra
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import org.apache.logging.log4j.util.Lazy;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,9 +56,9 @@ public class IcsDataTest {
     private static final double DOUBLE_EPSILON = 1e-6;
     private Crac crac1;
     private Crac crac2;
-    private Network network1;
-    private Network network2;
-    private TemporalData<Network> networkTemporalData;
+    private LazyNetwork network1;
+    private LazyNetwork network2;
+    private TemporalData<LazyNetwork> networkTemporalData;
     private TemporalData<Crac> cracTemporalData;
     List<ILoggingEvent> logsList;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 0, 30, 0, 0, ZoneOffset.UTC);
@@ -68,8 +69,9 @@ public class IcsDataTest {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
-        network1 = Network.read(networkFilePath1, IcsDataTest.class.getResourceAsStream("/network/" + networkFilePath1));
-        network2 = Network.read(networkFilePath2, IcsDataTest.class.getResourceAsStream("/network/" + networkFilePath2));
+        network1 = new LazyNetwork(getResourcePath("/network/" + networkFilePath1));
+        network2 = new LazyNetwork(getResourcePath("/network/" + networkFilePath2));
+
 
         crac1 = Crac.read("/crac/crac-0030.json", getClass().getResourceAsStream("/crac/crac-0030.json"), network1);
         crac2 = Crac.read("/crac/crac-0130.json", getClass().getResourceAsStream("/crac/crac-0130.json"), network2);
@@ -124,8 +126,8 @@ public class IcsDataTest {
         assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraints.isShutDownAllowed());
-        assertFalse(generatorConstraints.isStartUpAllowed());
+        assertTrue(generatorConstraints.isShutDownAllowed());
+        assertTrue(generatorConstraints.isStartUpAllowed());
     }
 
     @Test

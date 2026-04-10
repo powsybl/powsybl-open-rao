@@ -132,9 +132,9 @@ Feature: US 93.3: CORE IDCC data
   Scenario: US 93.3.4: 20240224
     Given network files are in folder "idcc/20240224-FID2-734-v1-10V1001C--00264T-to-10V1001C--00085T"
     Given crac file is "idcc/20240224-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
-    Given ics static file is "_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240224-V001_.csv"
-    Given ics series file is "_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240224-V001_.csv"
-    Given ics gsk file is "_10V1001C--00200I_CSA-INDRA-GSK-D_D7-20240224-V001_.csv"
+    Given ics static file is "idcc/_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240224-V001_.csv"
+    Given ics series file is "idcc/_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240224-V001_.csv"
+    Given ics gsk file is "idcc/_10V1001C--00200I_CSA-INDRA-GSK-D_D7-20240224-V001_.csv"
     Given configuration file is "idcc/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled RefProg file is "idcc/20240224-FID2-632-v3-10V1001C--00264T-to-10V1001C--00085T.xml"
     Given time-coupled rao inputs for CORE are:

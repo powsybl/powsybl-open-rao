@@ -176,48 +176,174 @@ public final class IcsDataImporter {
             return false;
         }
 
-        // Check that the P0 record respects the specified power gradients
-        if (!p0RespectsGradients(staticRecord, seriesPerType.get(P0), sortedTimestampToRun)) {
+        // Check that P0 respects generator constraints
+        if (!p0RespectsConstraints(staticRecord, seriesPerType, sortedTimestampToRun)) {
             return false;
         }
 
         return true;
     }
 
+
     /**
-     * Determines whether the P0 record values respect the specified power gradients for each time interval.
-     * It checks the difference in values between consecutive timestamps and ensures that the differences
-     * fall within the acceptable gradient range defined by the static record.
+     * Determines whether the P0 record values respect the specified constraints for each time interval.
+     * Constraints are not respected when:
+     * - Gradients are not respected, i.e the difference in values between consecutive timestamps
+     *   fall within the acceptable gradient range defined by the static record.
+     * - P0 is strictly above ON_THRESHOLD and strictly below Pmin
+     * - P0 falls from above Pmin to below Pmin even though shut down is not allowed
+     * - P0 rises from below Pmin to above Pmin even though start up is not allowed
+     * - Lead time is defined but not respected, i.e before start up, P0 is below Pmin for less than Lead time.
+     * - Lag time is defined but not respected, i.e after shut down, P0 is below Pmin for less than Lag time + Lead time.
      *
      * @param staticRecord The static record containing gradient constraints, including the maximum positive
      *                     and minimum negative power gradients.
-     * @param p0record The P0 record containing time-series data representing power values at specific timestamps.
+     * @param seriesRecord The series record containing time series data, mapped per RA_ID and series type
+     *                     (e.g., RDP-, RDP+, Pmin_RD, or P0).
      * @param dateTimes A list of timestamps to evaluate the gradient between consecutive entries in the P0 record.
-     * @return {@code true} if the P0 record respects the specified power gradients for all timestamps;
+     * @return {@code true} if the P0 record respects the specified constraints for all timestamps;
      *         {@code false} otherwise.
      */
-    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
+    private static boolean p0RespectsConstraints(CSVRecord staticRecord, Map<String, CSVRecord> seriesRecord, List<OffsetDateTime> dateTimes) {
+        // Generatcr constraints varaibles
+        double timestampDuration = IcsUtil.computeTimestampDuration(dateTimes);
+        Boolean shutDownAllowed = Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED));
+        Boolean startUpAllowed = Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED));
+        Optional<Integer> lead = Optional.empty();
+        Optional<Integer> lagAndLead = Optional.empty();
+        Optional<Double> parsedLead = Optional.empty();
+        if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+            parsedLead = Optional.of(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+            lead = Optional.of((int) Math.ceil( parsedLead.get()/ timestampDuration));
+        }
+        if (!staticRecord.get(LAG_TIME).isEmpty()) {
+            double parsedLag = parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME));
+            double parsedLagAndLead = parsedLead.map(aDouble -> aDouble + parsedLag).orElse(parsedLag);
+            lagAndLead = Optional.of((int) Math.ceil( parsedLagAndLead/ timestampDuration));
+        }
         double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
-            MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
+                MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
         double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?
-            -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
+                -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
+
+
+        // Intermediate variables
+        boolean count_lag = false;
+        int count_consecutive_null_values = 0;
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
         while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
-            double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
-            if (diff > maxGradient || diff < minGradient) {
-                BUSINESS_WARNS.warn(
-                    "Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff = {} / {} / {}",
-                    staticRecord.get(0), minGradient, maxGradient, diff
-                );
-                return false;
+            double next_p0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(nextDateTime.getHour() + OFFSET));
+            double current_p0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET));
+            Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
+            double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+
+            // 1- Check gradients
+            if (!areGradientsRespected(staticRecord, next_p0, current_p0, maxGradient, minGradient, currentDateTime)) return false;
+
+            // 2 - Check Pmin is respected
+            if (!isPminRespected(staticRecord, current_p0, pMin, currentDateTime)) return false;
+
+            // 3 - Starting up next timestamp
+            // a) Check start up is allowed
+            // b) Check lead time is respected
+            // c) Check lag time + lead time is respected
+            if (current_p0 < pMin) {
+                count_consecutive_null_values += 1;
+            }
+            if (current_p0 < pMin && next_p0 >= pMin) {
+                if (!isStartUpRespected(staticRecord, startUpAllowed, currentDateTime)) return false;
+                if (!isLeadTimeRespected(staticRecord, lead, count_consecutive_null_values, currentDateTime)) return false;
+                if (count_lag) {
+                    if (!isLeadTimeAndLagTimeRespected(staticRecord, count_consecutive_null_values, lagAndLead, currentDateTime))
+                        return false;
+                    // Re-initialize
+                    count_lag = false;
+                }
+            }
+            // 4 - Shutting down next timestamp
+            // a) Check shut down is allowed
+            // activate lag time + lead time checking
+            if (current_p0 >= pMin && next_p0 < pMin) {
+                if (!isShutDownRespected(staticRecord, shutDownAllowed, currentDateTime)) return false;
+                if (lagAndLead.isPresent()) {
+                    count_lag = true;
+                }
+            }
+
+            // Re-init count_consecutive_null_values
+            if (current_p0 >= pMin) {
+                count_consecutive_null_values = 0;
             }
             currentDateTime = nextDateTime;
         }
+
+        // Last timestamp
+        double current_p0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET));
+        Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
+        double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+        return isPminRespected(staticRecord, current_p0, pMin, currentDateTime);
+    }
+
+    private static boolean isShutDownRespected(CSVRecord staticRecord, Boolean shutDownAllowed, OffsetDateTime currentDateTime) {
+        if (!shutDownAllowed) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported (hour {}) because it does not respect prohibited shut down",
+                    staticRecord.get(0), currentDateTime.getHour());
+            return false;
+        }
         return true;
     }
+
+    private static boolean isLeadTimeAndLagTimeRespected(CSVRecord staticRecord, int count_consecutive_null_values, Optional<Integer> lagAndLead, OffsetDateTime currentDateTime) {
+        if (count_consecutive_null_values < lagAndLead.get()) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported (hour {}) because it does not respect lagTime + leadTime ({}). RA was OFF after shut down for only {} timestamps",
+                    staticRecord.get(0), currentDateTime.getHour(), lagAndLead.get(), count_consecutive_null_values);
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isLeadTimeRespected(CSVRecord staticRecord, Optional<Integer> lead, int count_consecutive_null_values, OffsetDateTime currentDateTime) {
+        if (lead.isPresent() && count_consecutive_null_values < lead.get()) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported (hour {}) because it does not respect leadTime ({}). RA was OFF before start up for only {} timestamps",
+                    staticRecord.get(0), currentDateTime.getHour(), lead.get(), count_consecutive_null_values);
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isStartUpRespected(CSVRecord staticRecord, Boolean startUpAllowed, OffsetDateTime currentDateTime) {
+        if (!startUpAllowed) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported (hour {}) because it does not respect prohibited start up",
+                    staticRecord.get(0), currentDateTime.getHour());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean areGradientsRespected(CSVRecord staticRecord, double next_p0, double current_p0, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
+        double diff = next_p0 - current_p0;
+        if (diff > maxGradient || diff < minGradient) {
+            BUSINESS_WARNS.warn(
+                    "Redispatching action {} will not be imported (hour {}) because it does not respect power gradients : min/max/diff = {} / {} / {}",
+                    staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, diff
+            );
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isPminRespected(CSVRecord staticRecord, double current_p0, double pMin, OffsetDateTime currentDateTime) {
+        if (current_p0 < pMin && current_p0 > ON_POWER_THRESHOLD) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported (hour {}) because it does not respect Pmin : P0 is {} and Pmin at {}",
+                    staticRecord.get(0), currentDateTime.getHour(), current_p0, pMin);
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * Verifies whether the range of redispatching parameters is valid for the input time series,

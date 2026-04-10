@@ -101,8 +101,8 @@ public class IcsDataImporterTest {
         assertEquals("Node", record.get("RD description mode"));
         assertEquals("BBE1AA1", record.get("UCT Node or GSK ID"));
         assertEquals("50", record.get("Minimum Redispatch [MW]"));
-        assertEquals("FALSE", record.get("Startup allowed"));
-        assertEquals("FALSE", record.get("Shutdown allowed"));
+        assertEquals("TRUE", record.get("Startup allowed"));
+        assertEquals("TRUE", record.get("Shutdown allowed"));
     }
 
     @Test
@@ -282,11 +282,11 @@ public class IcsDataImporterTest {
         return Stream.of(
             Arguments.of(
                 tooHighGradientCsv,
-                "Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / 34.0"
+                "Redispatching action Redispatching_RA will not be imported (hour 0) because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / 34.0"
             ),
             Arguments.of(
                 tooLowGradientCsv,
-                "Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / -36.0"
+                "Redispatching action Redispatching_RA will not be imported (hour 0) because it does not respect power gradients : min/max/diff = -20.0 / 20.0 / -36.0"
             )
         );
     }
@@ -327,6 +327,6 @@ public class IcsDataImporterTest {
             generateOffsetDateTimeList(3));
 
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA will not be imported because it does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA will not be imported (hour 0) because it does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
     }
 }
