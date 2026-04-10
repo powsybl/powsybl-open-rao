@@ -133,15 +133,7 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        LinearProblemStatus status = solver.solve();
-        try {
-            OutputStream os = new FileOutputStream("lp.txt");
-            String exportedModel = solver.getMpSolver().exportModelAsLpFormat();
-            os.write(exportedModel.getBytes());
-        } catch (IOException e) {
-            // do nothing
-        }
-        return status;
+        return solver.solve();
     }
 
     public OpenRaoMPObjective getObjective() {
