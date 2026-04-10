@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
@@ -26,8 +27,12 @@ import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstra
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -36,6 +41,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.openrao.data.icsimporter.IcsData.getDefaultGeneratorIdPerNode;
 import static com.powsybl.openrao.data.icsimporter.IcsDataImporterTest.generateOffsetDateTimeList;
@@ -459,6 +465,40 @@ public class IcsDataTest {
         assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
         assertEquals(postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getNetwork().getVoltageLevel("BBE1AA1").getNominalV(), 400);
 
+    }
+
+    @Test
+    void testProcessAllRedispatchingActionsMissingBusForOneRa() throws IOException {
+
+        String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
+        String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
+        String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
+        Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
+        Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                timestamp2, RaoInput.build(network2, crac2).build()
+            ));
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static_with_two_ra_wrong_node.csv"),
+            getClass().getResourceAsStream("/ics/series_with_two_ra.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
+
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., tmpDir);
+        assertEquals(2, postIcsRaoInputs.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        assertEquals(1, postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(1, postIcsRaoInputs.getRaoInputs().getData(timestamp2).get().getCrac().getInjectionRangeActions().size());
+        assertEquals(
+            Set.of("Redispatching_RA_1_RD"),
+            postIcsRaoInputs.getRaoInputs().getData(timestamp1).get().getCrac().getInjectionRangeActions()
+                .stream()
+                .map(InjectionRangeAction::getId)
+                .collect(Collectors.toSet())
+        );
     }
 
     @Test

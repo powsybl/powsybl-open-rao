@@ -254,7 +254,8 @@ public final class IcsData {
                                                               double costDown,
                                                               String exportDirectory) {
 
-        // Update voltage monitoring
+        // Update nominal voltage in network
+        // TODO: More of a IDCC focused special processing ? Move elsewhere ?
         TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
