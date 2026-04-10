@@ -113,6 +113,11 @@ public final class IcsData {
             Double shiftKey = entry.getValue();
             CSVRecord staticRecord = staticConstraintPerId.get(raId);
             GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementIdPerNodeId.get(nodeId));
+
+            // Shutdown allowed and startup allowed are mandatory fields
+            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+
             if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
                 builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
             } else {
@@ -129,20 +134,7 @@ public final class IcsData {
             if (!staticRecord.get(LAG_TIME).isEmpty()) {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
-            // TODO: instead of throwing an error, just ignore the RA + move the check in the import
-            if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
-                throw new OpenRaoException("Could not parse shutDownAllowed value for raId " + raId + ": " + staticRecord.get(SHUTDOWN_ALLOWED));
-            } else {
-                builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
-            }
-            // TODO: instead of throwing an error, just ignore the RA + move the check in the import
-            if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
-                throw new OpenRaoException("Could not parse startUpAllowed value for raId " + raId + ": " + staticRecord.get(STARTUP_ALLOWED));
-            } else {
-                builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
-            }
+
             GeneratorConstraints generatorConstraints = builder.build();
             generatorConstraintsSet.add(generatorConstraints);
         }
@@ -262,7 +254,8 @@ public final class IcsData {
                                                               double costDown,
                                                               String exportDirectory) {
 
-        // Update voltage monitoring
+        // Update nominal voltage in network
+        // TODO: More of a IDCC focused special processing ? Move elsewhere ?
         TemporalData<LazyNetwork> modifiedInitialNetworks = new TemporalDataImpl<>();
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
