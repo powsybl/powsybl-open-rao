@@ -151,15 +151,6 @@ $$- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}
 
 #### OFF to ON transition
 
-##### With lead time
-
-With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
-under the power gradient constraints.
-
-$$\left ( P_{\min}(g, t + \Delta_{\tau}) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + \Delta_{\tau}) - P(g,s,t) \leq P_{\min}(g, t + \Delta_{\tau}) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
-
-##### Without lead time
-
 $$\left ( P_{\min}(g, t + \Delta_{\tau}) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + \Delta_{\tau}) - P(g,s,t) \leq \left ( P_{\min}(g, t + \Delta_{\tau}) + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
 #### ON to ON transition
@@ -167,15 +158,6 @@ $$\left ( P_{\min}(g, t + \Delta_{\tau}) - \epsilon_{P}^{\text{OFF}} \right ) T_
 $$\nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + \Delta_{\tau}) - P(g,s,t) \leq \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
 #### ON to OFF transition
-
-##### With lag time
-
-With a lag time, the generator must step down from $P_{\min}$ to 0 instead of being shut down from any power value above
-$P_{\min}$.
-
-$$- P_{\min}(g, t) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + \Delta_{\tau}) - P(g,s,t) \leq - \left ( P_{\min}(g, t) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
-
-##### Without lag time
 
 $$- \left ( P_{\min}(g, t) - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + \Delta_{\tau}) - P(g,s,t) \leq - \left ( P_{\min}(g, t) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 
