@@ -288,15 +288,19 @@ public final class IcsDataImporter {
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
+        boolean allValuesAreNullSinceFirstP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET)) < ON_POWER_THRESHOLD;
+
         while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
             double nextP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(nextDateTime.getHour() + OFFSET));
             double currentP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET));
             Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
             double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+            Optional<Double> nextPminPD = parseValue(seriesRecord, P_MIN_RD, nextDateTime, 1);
+            double nextPmin = nextPminPD.orElse(ON_POWER_THRESHOLD);
 
             // 1- Check gradients
-            if (!areGradientsRespected(staticRecord, nextP0, currentP0, maxGradient, minGradient, currentDateTime)) {
+            if (!areGradientsRespected(staticRecord, nextP0, currentP0, pMin, nextPmin, maxGradient, minGradient, currentDateTime)) {
                 return false;
             }
 
@@ -311,12 +315,14 @@ public final class IcsDataImporter {
             // c) Check lag time + lead time is respected
             if (currentP0 < pMin) {
                 countConsecutiveNullValues += 1;
+            } else {
+                allValuesAreNullSinceFirstP0 = false;
             }
             if (currentP0 < pMin && nextP0 >= pMin) {
                 if (!isStartUpRespected(staticRecord, startUpAllowed, currentDateTime)) {
                     return false;
                 }
-                if (!isLeadTimeRespected(staticRecord, lead, countConsecutiveNullValues, currentDateTime)) {
+                if (!isLeadTimeRespected(staticRecord, lead, allValuesAreNullSinceFirstP0, countConsecutiveNullValues, currentDateTime)) {
                     return false;
                 }
                 if (countLag) {
@@ -371,7 +377,11 @@ public final class IcsDataImporter {
         return true;
     }
 
-    private static boolean isLeadTimeRespected(CSVRecord staticRecord, Optional<Integer> lead, int countConsecutiveNullValues, OffsetDateTime currentDateTime) {
+    private static boolean isLeadTimeRespected(CSVRecord staticRecord, Optional<Integer> lead, boolean allValuesAreNullSinceFirstP0, int countConsecutiveNullValues, OffsetDateTime currentDateTime) {
+        // The generator is initially oFF and we don't know when it was last shut down> no lead check.
+        if (allValuesAreNullSinceFirstP0) {
+            return true;
+        }
         if (lead.isPresent() && countConsecutiveNullValues < lead.get()) {
             BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): leadTime ({}) not respected. RA was OFF before start up for only {} timestamps",
                     staticRecord.get(0), currentDateTime.getHour(), lead.get(), countConsecutiveNullValues);
@@ -389,9 +399,9 @@ public final class IcsDataImporter {
         return true;
     }
 
-    private static boolean areGradientsRespected(CSVRecord staticRecord, double nextP0, double currentP0, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
+    private static boolean areGradientsRespected(CSVRecord staticRecord, double nextP0, double currentP0, double pMin, double nextPmin, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
         double diff = nextP0 - currentP0;
-        if (diff > maxGradient || diff < minGradient) {
+        if (currentP0 >= pMin && nextP0 >= nextPmin && diff > maxGradient || diff < minGradient) {
             BUSINESS_WARNS.warn(
                     "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
                     staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, diff
@@ -427,7 +437,7 @@ public final class IcsDataImporter {
             double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
             maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
             if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} is not imported: RDP+ {} or RDP- {} is negative for datetime {}", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus, dateTime);
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): RDP+ {} or RDP- {} is negative for datetime {}", seriesPerType.get(P0).get(RA_RD_ID), dateTime.getHour(), rdpPlus, rdpMinus, dateTime);
                 return false;
             }
         }

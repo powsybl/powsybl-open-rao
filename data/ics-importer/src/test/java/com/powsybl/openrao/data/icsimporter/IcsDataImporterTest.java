@@ -267,15 +267,15 @@ public class IcsDataImporterTest {
 
         return Stream.of(
             Arguments.of(negativeRdpPlusCsv,
-                "Redispatching action Redispatching_RA is not imported: RDP+ -1.0 or RDP- 35.0 is negative for datetime 2025-02-13T01:30Z"),
+                "Redispatching action Redispatching_RA is not imported (hour 1): RDP+ -1.0 or RDP- 35.0 is negative for datetime 2025-02-13T01:30Z"),
             Arguments.of(negativeRdpMinusCsv,
-                "Redispatching action Redispatching_RA is not imported: RDP+ 1.0 or RDP- -35.0 is negative for datetime 2025-02-13T01:30Z"),
+                "Redispatching action Redispatching_RA is not imported (hour 1): RDP+ 1.0 or RDP- -35.0 is negative for datetime 2025-02-13T01:30Z"),
             Arguments.of(tooSmallRangeCsv,
                 "Redispatching action Redispatching_RA is not imported: max range in the day 0.0 MW is too small")
         );
     }
 
-    private static Stream<Arguments> gradientNotRespectCsvCases() {
+    private static Stream<Arguments> gradientNotRespectedCsvCases() {
         String header = """
             RA RD ID;Type of timeseries;00:30;01:30;02:30
             """;
@@ -284,7 +284,7 @@ public class IcsDataImporterTest {
         String tooHighGradientCsv = header + """
             Redispatching_RA;RDP-;35;35;35
             Redispatching_RA;RDP+;43;43;43
-            Redispatching_RA;P0;116;150;117
+            Redispatching_RA;P0;116;150;132
             Redispatching_RA;Pmin_RD;10;15;20
             """;
 
@@ -308,16 +308,139 @@ public class IcsDataImporterTest {
         );
     }
 
+    private static Stream<Arguments> pMinNotRespectedCsvCases() {
+        String baseHeader = """
+            RA RD ID;Type of timeseries;00:30;01:30;02:30
+            """;
+
+        String pMinNotRespectedsv = baseHeader + """
+            Redispatching_RA;RDP-;7;7;7
+            Redispatching_RA;RDP+;7;7;7
+            Redispatching_RA;P0;15;5;15
+            Redispatching_RA;Pmin_RD;10;10;10
+            """;
+        return Stream.of(
+                Arguments.of(pMinNotRespectedsv,
+                        "Redispatching action Redispatching_RA is not imported (hour 1): does not respect Pmin : P0 is 5.0 and Pmin at 10.0")
+        );
+    }
+
+    private static Stream<Arguments> startUpShutDownNotRespectedCsvCases() {
+        String baseHeader = """
+            RA RD ID;Type of timeseries;00:30;01:30;02:30
+            """;
+
+        String startUpNotRespectedCsv = baseHeader + """
+            Redispatching_RA;RDP-;7;7;7
+            Redispatching_RA;RDP+;7;7;7
+            Redispatching_RA;P0;0;15;15
+            Redispatching_RA;Pmin_RD;10;10;10
+            """;
+
+        String shutDownNotRespectedCsv = baseHeader + """
+            Redispatching_RA;RDP-;7;7;7
+            Redispatching_RA;RDP+;7;7;7
+            Redispatching_RA;P0;15;15;0
+            Redispatching_RA;Pmin_RD;10;10;10
+            """;
+        return Stream.of(
+                Arguments.of(startUpNotRespectedCsv,
+                        "Redispatching action Redispatching_RA is not imported (hour 0): start up prohibited"),
+                Arguments.of(shutDownNotRespectedCsv,
+                        "Redispatching action Redispatching_RA is not imported (hour 1): shut down prohibited")
+
+        );
+    }
+
+    private static Stream<Arguments> leadAndLagNotRespectedCsvCases() {
+        String header = """
+            RA RD ID;Type of timeseries;00:30;01:30;02:30
+            """;
+
+        String leadNotRespected = header + """
+            Redispatching_RA;RDP-;35;35;35;35
+            Redispatching_RA;RDP+;43;43;43;43
+            Redispatching_RA;P0;11;0;21;21
+            Redispatching_RA;Pmin_RD;10;15;20;20
+            """;
+
+        String leadAndLagNotRespected = header + """
+            Redispatching_RA;RDP-;35;35;35;35
+            Redispatching_RA;RDP+;43;43;43;43
+            Redispatching_RA;P0;11;0;0;21
+            Redispatching_RA;Pmin_RD;10;15;20;20
+            """;
+
+        return Stream.of(
+                Arguments.of(
+                        leadNotRespected,
+                        "Redispatching action Redispatching_RA is not imported (hour 1): leadTime (2) not respected. RA was OFF before start up for only 1 timestamps"
+                ),
+                Arguments.of(
+                        leadAndLagNotRespected,
+                        "Redispatching action Redispatching_RA is not imported (hour 2): lagTime + leadTime (3) not respected. RA was OFF after shut down for only 2 timestamps"
+                )
+        );
+    }
+
     @ParameterizedTest
-    @MethodSource("gradientNotRespectCsvCases")
+    @MethodSource("gradientNotRespectedCsvCases")
     @MethodSource("rangeIsNotOkayCases")
     @MethodSource("seriesCsvWithMissingSeriesTypeCases")
+    @MethodSource("pMinNotRespectedCsvCases")
     void testSeriesCsv(String seriesCsv, String expectedLogMessage) throws IOException {
         IcsData icsData = IcsDataImporter.read(
-            getClass().getResourceAsStream("/ics/static.csv"),
-            new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
-            getClass().getResourceAsStream("/glsk/gsk.csv"),
-            generateOffsetDateTimeList(3));
+                getClass().getResourceAsStream("/ics/static.csv"),
+                new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
+                getClass().getResourceAsStream("/glsk/gsk.csv"),
+                generateOffsetDateTimeList(3));
+
+        assertEquals(0, icsData.getRedispatchingActions().size());
+        assertEquals(expectedLogMessage, logsList.get(0).getFormattedMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("startUpShutDownNotRespectedCsvCases")
+    void testSeriesWithStatic2Csv(String seriesCsv, String expectedLogMessage) throws IOException {
+        IcsData icsData = IcsDataImporter.read(
+                getClass().getResourceAsStream("/ics/static2.csv"),
+                new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
+                getClass().getResourceAsStream("/glsk/gsk.csv"),
+                generateOffsetDateTimeList(3));
+
+        assertEquals(0, icsData.getRedispatchingActions().size());
+        assertEquals(expectedLogMessage, logsList.get(0).getFormattedMessage());
+    }
+
+    @Test
+    void testGradientNotTakenIntoAccountBelowPmin() throws IOException {
+        String header = """
+            RA RD ID;Type of timeseries;00:30;01:30;02:30
+            """;
+
+        String belowPminCsv = header + """
+            Redispatching_RA;RDP-;35;35;35
+            Redispatching_RA;RDP+;43;43;43
+            Redispatching_RA;P0;0;150;132
+            Redispatching_RA;Pmin_RD;10;15;20
+            """;
+        IcsData icsData = IcsDataImporter.read(
+                getClass().getResourceAsStream("/ics/static.csv"),
+                new ByteArrayInputStream(belowPminCsv.getBytes(StandardCharsets.UTF_8)),
+                getClass().getResourceAsStream("/glsk/gsk.csv"),
+                generateOffsetDateTimeList(3));
+
+        assertEquals(1, icsData.getRedispatchingActions().size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("leadAndLagNotRespectedCsvCases")
+    void testLongSeriesCsv(String seriesCsv, String expectedLogMessage) throws IOException {
+        IcsData icsData = IcsDataImporter.read(
+                getClass().getResourceAsStream("/ics/static.csv"),
+                new ByteArrayInputStream(seriesCsv.getBytes(StandardCharsets.UTF_8)),
+                getClass().getResourceAsStream("/glsk/gsk.csv"),
+                generateOffsetDateTimeList(4));
 
         assertEquals(0, icsData.getRedispatchingActions().size());
         assertEquals(expectedLogMessage, logsList.get(0).getFormattedMessage());

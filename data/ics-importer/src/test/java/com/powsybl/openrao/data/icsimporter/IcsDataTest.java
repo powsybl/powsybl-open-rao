@@ -116,7 +116,7 @@ public class IcsDataTest {
         assertTrue(generatorConstraints.getUpwardPowerGradient().isPresent());
         assertEquals(20., generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLeadTime().isPresent());
-        assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
+        assertEquals(2.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.isShutDownAllowed());
