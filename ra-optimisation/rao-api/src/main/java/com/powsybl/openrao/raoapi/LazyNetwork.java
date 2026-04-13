@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.google.common.annotations.Beta;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.Extension;
@@ -87,7 +88,8 @@ import java.util.stream.Stream;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class LazyNetwork implements Network {
+@Beta
+public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
     private boolean isLoaded;
@@ -99,8 +101,9 @@ public class LazyNetwork implements Network {
     }
 
     public LazyNetwork(Network network) {
-        String networkName = TEMP_DIR + UUID.randomUUID().toString() + ".xiidm";
-        network.write("XIIDM", new Properties(), Path.of(networkName));
+        String networkName = TEMP_DIR + UUID.randomUUID() + ".jiidm";
+        // TODO serialize to BIIDM, not stabilized for the moment (04/2026)
+        network.write("JIIDM", new Properties(), Path.of(networkName));
         this.networkPath = networkName;
         this.isLoaded = false;
     }
@@ -112,10 +115,12 @@ public class LazyNetwork implements Network {
         }
     }
 
-    public void release() {
+    @Override
+    public void close() throws Exception {
         // TODO: currently modifications on the network will not be saved -> perhaps override networkPath with a UUID and write content to it
         network = null;
         isLoaded = false;
+        System.gc();
     }
 
     @Override

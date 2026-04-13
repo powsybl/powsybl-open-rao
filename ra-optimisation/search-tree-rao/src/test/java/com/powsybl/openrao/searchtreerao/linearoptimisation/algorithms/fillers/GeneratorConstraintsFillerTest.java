@@ -840,7 +840,7 @@ class GeneratorConstraintsFillerTest {
         //   - shut down prohibited constraint
 
         assertEquals(51, linearProblem.numVariables());
-        assertEquals(71, linearProblem.numConstraints());
+        assertEquals(70, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkUpwardGradient();
@@ -889,7 +889,7 @@ class GeneratorConstraintsFillerTest {
         //   - start up prohibited first timestamp constraint
 
         assertEquals(51, linearProblem.numVariables());
-        assertEquals(70, linearProblem.numConstraints());
+        assertEquals(71, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkUpwardGradient();

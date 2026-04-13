@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -30,6 +31,9 @@ import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -56,7 +59,7 @@ public final class MarmotUtils {
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, toolProvider, false)
-                .runInitialSensitivityAnalysis(network);
+            .runInitialSensitivityAnalysis(network);
     }
 
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(RaoInput raoInput,
@@ -66,12 +69,12 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         return new PrePerimeterSensitivityAnalysis(
-                crac,
-                crac.getFlowCnecs(), // want results on all cnecs
-                new HashSet<>(), // with no range actions for faster computations, only flow values are required
-                raoParameters,
-                ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters),
-                false
+            crac,
+            crac.getFlowCnecs(), // want results on all cnecs
+            new HashSet<>(), // with no range actions for faster computations, only flow values are required
+            raoParameters,
+            ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters),
+            false
         ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions);
     }
 
@@ -108,7 +111,7 @@ public final class MarmotUtils {
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false)
-                .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
+            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
     }
 
     public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs,
@@ -119,14 +122,14 @@ public final class MarmotUtils {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
         timestamps.forEach(timestamp -> postOptimizationResults.put(
-                timestamp,
-                new PostOptimizationResult(
-                        raoInputs.getData(timestamp).orElseThrow(),
-                        initialResults.getData(timestamp).orElseThrow(),
-                        globalLinearOptimizationResult,
-                        topologicalOptimizationResults.getData(timestamp).orElseThrow(),
-                        raoParameters
-                )
+            timestamp,
+            new PostOptimizationResult(
+                raoInputs.getData(timestamp).orElseThrow(),
+                initialResults.getData(timestamp).orElseThrow(),
+                globalLinearOptimizationResult,
+                topologicalOptimizationResults.getData(timestamp).orElseThrow(),
+                raoParameters
+            )
         ));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
@@ -163,32 +166,69 @@ public final class MarmotUtils {
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
         } else {
+            // TODO: close systematically
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
         }
     }
 
     public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
-        return new TemporalDataImpl<>(
-                networks.getDataPerTimestamp().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> new LazyNetwork(entry.getValue())))
-        );
+        TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
+        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
+            lazyNetworks.put(timestamp, new LazyNetwork(network));
+            MarmotUtils.releaseNetwork(network);
+        });
+        return lazyNetworks;
     }
 
     public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
         Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
-        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
-            raoInputs.put(timestamp, RaoInput.build(network, cracs.getData(timestamp).orElseThrow()).build());
-            network.release();
-        });
+        for (OffsetDateTime timestamp : networks.getTimestamps()) {
+            try (LazyNetwork lazyNetwork = networks.getData(timestamp).orElseThrow()) {
+                raoInputs.put(timestamp, RaoInput.build(lazyNetwork, cracs.getData(timestamp).orElseThrow()).build());
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
         return new TemporalDataImpl<>(raoInputs);
     }
 
-    public static void releaseAll(TemporalData<Network> networks) {
+    public static <N extends Network> void releaseAll(TemporalData<N> networks) {
         networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
     }
 
-    public static void releaseNetwork(Network network) {
+    public static <N extends Network> void releaseNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
-            lazyNetwork.release();
+            try {
+                lazyNetwork.close();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
         }
+    }
+
+    public static OffsetDateTime getTimestamp(RaoInput raoInput) {
+        return raoInput.getCrac().getTimestamp().orElseThrow();
+    }
+
+    public static RaoParameters cloneParameters(RaoParameters raoParameters) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            JsonRaoParameters.write(raoParameters, outputStream);
+            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonRaoParameters.read(inputStream);
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException(e);
+        }
+    }
+
+    /**
+     * Select the best TemporalData mapping strategy based on the number of threads.
+     * Necessary not to create a pool for only one thread.
+     */
+    public static <A, B> TemporalData<B> smartMap(TemporalData<A> temporalData, Function<A, B> function, int threads) {
+        if (threads == 1) {
+            return temporalData.map(function);
+        }
+        return temporalData.mapMultiThreading(function, threads);
     }
 }
