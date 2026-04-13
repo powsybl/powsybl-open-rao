@@ -412,8 +412,9 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 0.0 MW
 
   Scenario: 4.2.4: Long lead and lag times and no gradient
-  The generator has a long lead time (6h), since the generator is initially OFF ie. if it had enough time to warm up to be turn on at 4:00.
-  For now, we assume that the answer is yes. We can set it at its optimal power at 4:00 even if the lead time is 6h.
+  The generator has a long lead time (6h) but it is initially OFF.
+  Meaning that we can't really know when it was last shut down so we don't know if it had enough time to warm up to be turned on at 4:00.
+  For now, we assume that the answer is yes: we can start it at 4:00 even if the lead time is 6h since it was initially OFF.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-long-lead-and-long-lag-times.json" and rao inputs are:
       | Timestamp        | Network                               | CRAC                                 |
@@ -541,7 +542,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
 
   Scenario: 4.2.5: Small upward gradient < PMin and Pmin - downward gradient * 1h = PMax
   We have a small upward gradient more precisely the gradient < PMin, meaning that if we took it into account between [0;PMin] we should
-  not be able to reach the PMin in just one timestamp. However, one of our convention dictate that the gradient only matter above PMin !
+  not be able to reach the PMin in just one timestamp. However, one of our convention dictates that the gradient only matter above PMin !
   At start up the generator can reach up to PMin + gradient * delta_t.
   Similarly, the generator can be shut down in one timestamp if P <= Pmin - downward gradient * delta_t which is the case in this test.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
@@ -812,7 +813,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
   In particular, the generator does not go through PMin during its startup and shutdown -> we should not force it as it is not optimal.
   Since there is no gradient constraint, it should be able to reach optimal power after waiting for sufficient time (satisfying the lead and lag time constraints).
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
-    Given time-coupled constraints are in file "epic93/empty-time-coupled-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times-4_2_7.json" and rao inputs are:
       | Timestamp        | Network                          | CRAC                                   |
       | 2025-11-04 00:30 | epic93/6Nodes_targetP_1500.xiidm | epic93/us93_3_6/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes_targetP_1500.xiidm | epic93/us93_3_6/crac_202511040130.json |
@@ -1070,9 +1071,9 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the total cost for all timestamps is 1750140.0
 
   Scenario: 4.2.9: Same as 4.2.8, with gradient
-  The same issue due to the long lead and lag time + we have a downward and upward gradient.
-    At 3h30 it needs to start stepping down to 2900 MW (Pmin - downward gradient * 1h = 2900 MW)  so that can be shut down at 4h30-> 100 MW of overload
-    Same the generator step up to 2900 MW at 20h30 to reach the max at 21h30.
+  The same issue as 4.2.8 due to the long lead and lag time + we have a downward and upward gradient.
+    At 3h30 it needs to start stepping down to 2900 MW (Pmin - downward gradient * 1h = 2900 MW)  so that it can be shut down at 4h30-> 100 MW of overload
+    Same the generator steps up to 2900 MW at 20h30 to reach the max at 21h30.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
