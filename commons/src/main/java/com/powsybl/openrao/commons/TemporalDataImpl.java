@@ -67,6 +67,7 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
                 return new TemporalDataImpl<>(result);
 
             } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
                 throw new OpenRaoException(e);
             } finally {
                 executor.shutdown();

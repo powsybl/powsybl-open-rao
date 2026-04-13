@@ -369,7 +369,7 @@ public final class IcsDataImporter {
     }
 
     private static boolean isLeadTimeAndLagTimeRespected(CSVRecord staticRecord, int countConsecutiveNullValues, Optional<Integer> lagAndLead, OffsetDateTime currentDateTime) {
-        if (countConsecutiveNullValues < lagAndLead.get()) {
+        if (lagAndLead.isPresent() && countConsecutiveNullValues < lagAndLead.get()) {
             BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): lagTime + leadTime ({}) not respected. RA was OFF after shut down for only {} timestamps",
                     staticRecord.get(0), currentDateTime.getHour(), lagAndLead.get(), countConsecutiveNullValues);
             return false;
