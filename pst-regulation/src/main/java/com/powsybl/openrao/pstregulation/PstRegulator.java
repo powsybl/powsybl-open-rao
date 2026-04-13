@@ -27,10 +27,18 @@ public final class PstRegulator {
     private PstRegulator() {
     }
 
-    public static Map<PstRangeAction, Integer> regulatePsts(Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
-        elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput));
+    public static Map<PstRangeAction, Integer> regulatePsts(Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs,
+                                                            Network network,
+                                                            LoadFlowParameters loadFlowParameters) {
+        elementaryPstRegulationInputs.forEach(
+            elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput)
+        );
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        return elementaryPstRegulationInputs.stream().collect(Collectors.toMap(ElementaryPstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
+        return elementaryPstRegulationInputs.stream()
+            .collect(Collectors.toMap(
+                ElementaryPstRegulationInput::pstRangeAction,
+                pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())
+            ));
     }
 
     private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput) {
