@@ -7,13 +7,16 @@
 
 package com.powsybl.openrao.data.crac.io.nc.parameters;
 
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class SweNcCracCreationParameters extends NcCracCreationParameters {
+public class SweNcCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
 
     @Override

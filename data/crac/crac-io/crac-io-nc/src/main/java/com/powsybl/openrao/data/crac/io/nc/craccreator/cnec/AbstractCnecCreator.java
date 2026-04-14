@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationCo
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.Map;
@@ -44,6 +45,7 @@ public abstract class AbstractCnecCreator {
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
     protected final String border;
+    protected final CracCreationParameters cracCreationParameters;
 
     protected AbstractCnecCreator(Crac crac,
                                   Network network,
@@ -60,20 +62,21 @@ public abstract class AbstractCnecCreator {
         this.linkedContingencies = linkedContingencies;
         this.ncCnecCreationContexts = ncCnecCreationContexts;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
-        String regionEic = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegion();
-        this.aeSecuredForRegion = isAeSecuredForRegion(regionEic);
-        this.aeScannedForRegion = isAeScannedForRegion(regionEic);
-        this.border = getCnecBorder(borderPerTso, borderPerEic);
+        CapacityCalculationRegion capacityCalculationRegion = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegion();
+        this.aeSecuredForRegion = isAeSecuredForRegion(capacityCalculationRegion);
+        this.aeScannedForRegion = isAeScannedForRegion(capacityCalculationRegion);
+        this.border = nativeAssessedElement.overlappingZone();
+        this.cracCreationParameters = cracCreationParameters;
     }
 
-    private boolean isAeSecuredForRegion(String regionEic) {
+    private boolean isAeSecuredForRegion(CapacityCalculationRegion capacityCalculationRegion) {
         String region = nativeAssessedElement.securedForRegion() == null ? null : NcCracUtils.getEicFromUrl(nativeAssessedElement.securedForRegion());
-        return region != null && region.equals(regionEic);
+        return region != null && region.equals(capacityCalculationRegion.getEIC());
     }
 
-    private boolean isAeScannedForRegion(String regionEic) {
+    private boolean isAeScannedForRegion(CapacityCalculationRegion capacityCalculationRegion) {
         String region = nativeAssessedElement.scannedForRegion() == null ? null : NcCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
-        return region != null && region.equals(regionEic);
+        return region != null && region.equals(capacityCalculationRegion.getEIC());
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
