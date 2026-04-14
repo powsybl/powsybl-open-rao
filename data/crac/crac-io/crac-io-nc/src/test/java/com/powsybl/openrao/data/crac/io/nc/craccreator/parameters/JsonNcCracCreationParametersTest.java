@@ -45,7 +45,7 @@ class JsonNcCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/nc-crac-parameters.json"));
         NcCracCreationParameters ncCracCreationParameters = importedParameters.getExtension(NcCracCreationParameters.class);
         assertNotNull(ncCracCreationParameters);
-        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegion());
         assertEquals(Set.of("REE"), ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
         assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), ncCracCreationParameters.getBorders());
@@ -100,7 +100,7 @@ class JsonNcCracCreationParametersTest {
         assertEquals(1, importedParameters.getExtensions().size());
         NcCracCreationParameters ncCracCreationParameters = importedParameters.getExtension(NcCracCreationParameters.class);
         assertNotNull(ncCracCreationParameters);
-        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegion());
         assertTrue(ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().isEmpty());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
         assertTrue(ncCracCreationParameters.getBorders().isEmpty());

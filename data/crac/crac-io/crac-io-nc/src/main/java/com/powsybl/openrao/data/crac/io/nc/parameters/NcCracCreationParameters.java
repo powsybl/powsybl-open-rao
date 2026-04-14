@@ -12,71 +12,42 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class NcCracCreationParameters extends AbstractExtension<CracCreationParameters> {
-    private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
-    private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
-    private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
-    private Set<Border> borders = Set.of();
-    private Map<String, Set<String>> restrictedCurativeBatchesPerTso = Map.of("REE", Set.of("curative 1"));
+    private CapacityCalculationRegion capacityCalculationRegionCode = null;
     private OffsetDateTime timestamp = null;
+    private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
 
     @Override
     public String getName() {
         return "NcCracCreatorParameters";
     }
 
-    public String getCapacityCalculationRegionEicCode() {
-        return capacityCalculationRegionEicCode;
+    public CapacityCalculationRegion getCapacityCalculationRegion() {
+        return capacityCalculationRegionCode;
     }
 
-    public Set<String> getTsosWhichDoNotUsePatlInFinalState() {
-        return tsosWhichDoNotUsePatlInFinalState;
+    public OffsetDateTime getTimestamp() {
+        return timestamp;
     }
 
     public Map<String, Integer> getCurativeInstants() {
         return curativeInstants;
     }
 
-    public Set<Border> getBorders() {
-        return borders;
-    }
-
-    public Map<String, Set<String>> getRestrictedCurativeBatchesPerTso() {
-        return restrictedCurativeBatchesPerTso;
-    }
-
-    public void setCapacityCalculationRegionEicCode(String capacityCalculationRegionEicCode) {
-        this.capacityCalculationRegionEicCode = capacityCalculationRegionEicCode;
-    }
-
-    public void setTsosWhichDoNotUsePatlInFinalState(Set<String> tsosWhichDoNotUsePatlInFinalState) {
-        this.tsosWhichDoNotUsePatlInFinalState = new HashSet<>(tsosWhichDoNotUsePatlInFinalState);
+    public void setCapacityCalculationRegion(CapacityCalculationRegion capacityCalculationRegionCode) {
+        this.capacityCalculationRegionCode = capacityCalculationRegionCode;
     }
 
     public void setCurativeInstants(Map<String, Integer> curativeInstants) {
         this.curativeInstants = new HashMap<>(curativeInstants);
     }
 
-    public void setBorders(Set<Border> borders) {
-        this.borders = new HashSet<>(borders);
-    }
-
-    public void setRestrictedCurativeBatchesPerTso(Map<String, Set<String>> restrictedCurativeBatchesPerTso) {
-        this.restrictedCurativeBatchesPerTso = restrictedCurativeBatchesPerTso;
-    }
-
     public void setTimestamp(OffsetDateTime timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public OffsetDateTime getTimestamp() {
-        return timestamp;
     }
 }

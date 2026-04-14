@@ -60,7 +60,7 @@ public abstract class AbstractCnecCreator {
         this.linkedContingencies = linkedContingencies;
         this.ncCnecCreationContexts = ncCnecCreationContexts;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
-        String regionEic = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegionEicCode();
+        String regionEic = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegion();
         this.aeSecuredForRegion = isAeSecuredForRegion(regionEic);
         this.aeScannedForRegion = isAeScannedForRegion(regionEic);
         this.border = getCnecBorder(borderPerTso, borderPerEic);

@@ -384,7 +384,7 @@ public final class NcCracCreationTestUtil {
     public static CracCreationParameters cracCreationDefaultParametersWithSweCsaExtension() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(NcCracCreationParameters.class, new NcCracCreationParameters());
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCapacityCalculationRegion("10Y1001C--00095L");
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCurativeInstants(Map.of(
             "curative 1", 300,
             "curative 2", 600,
