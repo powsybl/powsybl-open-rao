@@ -103,8 +103,12 @@ class JsonRodaParametersTest extends AbstractSerDeTest {
 
     @Test
     void testWrongForcedActions() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_wrong_ForcedActions.json")));
-        assertEquals("Unexpected token: wrong-key", exception.getMessage());
+        try (var stream = getClass().getResourceAsStream("/RaoParameters_with_wrong_ForcedActions.json")) {
+            OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(stream));
+            assertEquals("Unexpected token: wrong-key", exception.getMessage());
+        } catch (IOException e) {
+            fail(e);
+        }
     }
 
     @Test

@@ -216,7 +216,7 @@ public class Roda implements TimeCoupledRaoProvider {
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 
-    private void applyForcedActions(TemporalData<RaoInput> raoInputs, RodaParameters rodaParameters) {
+    static void applyForcedActions(TemporalData<RaoInput> raoInputs, RodaParameters rodaParameters) {
         if (rodaParameters == null || rodaParameters.getForcedPreventiveActions().isEmpty()) {
             return;
         }
