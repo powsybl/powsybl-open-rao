@@ -126,6 +126,9 @@ public final class PstRegulation {
                 }
             }
             networkPool.shutdownAndAwaitTermination(1000, TimeUnit.SECONDS);
+            // FIXME [VB] All the above looks similar to what is done in CastorPstRegulation on main branch
+            //  The difference here is that we return a RaoResult by calling the method below, whereas on the main branch,
+            //  the regulatePsts() method returns pstRegulationResults and the merging & build of RaoResult is made in 2 separate methods called in CastorFullOptimization
             return mergePstRegulationResultsWithRaoResult(pstRegulationResults, raoResult, network, crac, raoParameters);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
@@ -335,6 +338,10 @@ public final class PstRegulation {
         }
     }
 
+    // FIXME [VB] What causes problems is located in this merging method.
+    //  On the main branch, this methods takes PostPerimeterResult postPraResult, Map<State, PostPerimeterResult> postContingencyResults,
+    //  PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis and FlowResult initialFlowResult.
+    //  Here, the method takes a RaoResult and RaoParameters.
     private static RaoResult mergePstRegulationResultsWithRaoResult(Set<PstRegulationResult> pstRegulationResults,
                                                                     RaoResult raoResult,
                                                                     Network network,
@@ -356,6 +363,9 @@ public final class PstRegulation {
 
         // create a new network variant from initial variant for performing the results merging
         String variantName = "PSTRegulationResultsMerging";
+        // FIXME Maybe that's an odd question, but why do we set working variant to initial scenario before cloning if
+        //  we jump to the new variant right after?
+        //  => Seems that we don't really need to do so
         network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
         network.getVariantManager().cloneVariant(INITIAL_SCENARIO, variantName);
         network.getVariantManager().setWorkingVariant(variantName);
@@ -363,10 +373,14 @@ public final class PstRegulation {
         // apply PRAs
         State preventiveState = crac.getPreventiveState();
         applyOptimalRemedialActionsForState(network, raoResult, preventiveState);
+        // FIXME [VB] Why is "postPraResult" a PrePerimeterResult here, whereas it is a PostPerimeterResult on the main branch?
+        //  => Bad naming of this variable
         PrePerimeterResult postPraResult = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
             network, initialFlowResult, Set.of(), new AppliedRemedialActions()
         );
 
+        // FIXME [VB] Is this preventiveResult supposed to be equivalent to postPraResult.optimizationResult() of the main branch?
+        //  => YES
         OptimizationResult preventiveResult = new OptimizationResultImpl(
             postPraResult, postPraResult, postPraResult,
             new NetworkActionsResultImpl(Map.of(
@@ -376,10 +390,14 @@ public final class PstRegulation {
                 new RangeActionSetpointResultImpl(raoResult.getOptimizedSetPointsOnState(preventiveState))
             )
         );
+        // FIXME [VB] Is this postPreventivePerimeterResult supposed to be equivalent to postPraResult of the main branch?
+        //  => YES
         PostPerimeterResult postPreventivePerimeterResult =
             new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
                 .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, postPraResult, Set.of(), preventiveResult, new AppliedRemedialActions());
 
+        // FIXME [VB] Is this postRegulationPostContingencyResults supposed to be equivalent to postContingencyResults of the main branch?
+        //  =>YES
         Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>();
 
         List<Instant> postOutageInstants = crac.getSortedInstants().stream()
@@ -396,11 +414,16 @@ public final class PstRegulation {
 
             for (Instant instant : postOutageInstants) {
                 State state = crac.getState(contingency, instant);
+                // FIXME [VB] What happens in this second for-loop should correspond to what is done on lines 494-500 & 532-543 of
+                //  original code in CastorFullOptimization
                 if (state != null) {
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                    // FIXME [VB] Does raoResult.getOptimizedSetPointsOnState(state) return all PRA+ARA+CRA?
+                    //  On main branch, we must use postPraResult for PRA and postPerimeterResult (from postContingencyResults) for ARA+CRA
                     appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
 
                     if (resultsPerState.containsKey(state)) {
+                        // FIXME [VB] This code seems to correspond to the code on lines 506-515 of the main branch
                         PstRegulationResult pstRegulationResult = resultsPerState.get(state);
                         pstRegulationResult.regulatedTapPerPst().forEach(
                             (pstRangeAction, regulatedTap) ->
@@ -411,10 +434,18 @@ public final class PstRegulation {
                     appliedRemedialActions.getAppliedNetworkActions(state).forEach(
                         networkAction -> networkAction.apply(network)
                     );
+                    // FIXME [VB] Here all remedialActions will be applied on network.
+                    //  However it seems that we don't apply regulatedPst on network in the main branch's code.
                     appliedRemedialActions.getAppliedRangeActions(state).forEach(
                         (rangeAction, setPoint) -> rangeAction.apply(network, setPoint)
                     );
+                    // FIXME [VB] The appliedRemedialActions variable is never used later in the code...
+                    //  As we are in a loop, it will possibly be filled with more data in the next iterations, which means that
+                    //  there will be more actions applied on the network variants (or different actions if some existing ones are overridden?)
 
+                    // FIXME [VB] Is this postInstantPerimeterResult supposed to be an equivalent to postCraSensitivityAnalysisOutput of the main branch?
+                    //  But postCraSensitivityAnalysisOutput is outside of a loop and here we are inside a loop... Does it make a difference?
+                    //  Furthermore, why do we use an empty AppliedRemedialActions object instead of using the appliedRemedialActions instance that has been populated above?
                     PrePerimeterResult postInstantPerimeterResult = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
                         network, initialFlowResult, Collections.emptySet(), new AppliedRemedialActions()
                     );
