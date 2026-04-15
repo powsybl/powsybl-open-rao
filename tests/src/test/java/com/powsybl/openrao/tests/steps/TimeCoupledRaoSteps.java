@@ -35,10 +35,7 @@ import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRao;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -270,7 +267,12 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.run(timeCoupledRaoInput, getRaoParameters());
+        timeCoupledRaoResult = TimeCoupledRao.find("TimeCoupledRao").run(timeCoupledRaoInput, getRaoParameters());
+    }
+
+    @When("I launch roda")
+    public static void iLaunchRoda() {
+        timeCoupledRaoResult = TimeCoupledRao.find("Roda").run(timeCoupledRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
@@ -526,13 +528,22 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
+    @Then("the initial margin on {string} for timestamp {string} is {double} MW")
+    public static void theInitialMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        checkMarginInMw(cnecId, timestamp, margin, null);
+    }
+
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
     public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(getOffsetDateTimeFromBrusselsTimestamp(timestamp)).orElseThrow().getCrac().getLastInstant();
+        checkMarginInMw(cnecId, timestamp, margin, afterCra);
+    }
+
+    private static void checkMarginInMw(String cnecId, String timestamp, double margin, Instant optimizedInstant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         FlowCnec flowCnec = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 

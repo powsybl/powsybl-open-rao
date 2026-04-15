@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -23,6 +24,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.roda.parameters.RodaParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -71,6 +73,8 @@ public class Roda implements TimeCoupledRaoProvider {
 
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
+        applyForcedActions(timeCoupledRaoInput.getRaoInputs(), raoParameters.getExtension(RodaParameters.class));
+
         if (timeCoupledRaoInput.getRaoInputs().getTimestamps().size() == 1) {
             TECHNICAL_LOGS.info("[RODA] Only one time-step in inputs. Calling single time-step RAO directly: {}", DEFAULT_SINGLE_TS_RAO);
             return runSingleTsRao(timeCoupledRaoInput, raoParameters);
@@ -210,6 +214,18 @@ public class Roda implements TimeCoupledRaoProvider {
         logCost("[RODA] After global linear optimization: ", fullResults, raoParameters, 10);
 
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
+    }
+
+    static void applyForcedActions(TemporalData<RaoInput> raoInputs, RodaParameters rodaParameters) {
+        if (rodaParameters == null || rodaParameters.getForcedPreventiveActions().isEmpty()) {
+            return;
+        }
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info(String.format("Applying %d forced preventive actions before running RAO.", rodaParameters.getForcedPreventiveActions().size()));
+        raoInputs.getDataPerTimestamp().values().stream().map(RaoInput::getNetwork).forEach(network -> {
+            rodaParameters.getForcedPreventiveActions().stream().filter(action -> !action.toModification().apply(network, true))
+                .forEach(action -> OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("Action '%s' could not be applied.", action.getId())));
+            rodaParameters.getForcedPreventiveActions().forEach(action -> action.toModification().apply(network, false));
+        });
     }
 
     private CompletableFuture<TimeCoupledRaoResult> runSingleTsRao(TimeCoupledRaoInput raoInputs, RaoParameters raoParameters) {
