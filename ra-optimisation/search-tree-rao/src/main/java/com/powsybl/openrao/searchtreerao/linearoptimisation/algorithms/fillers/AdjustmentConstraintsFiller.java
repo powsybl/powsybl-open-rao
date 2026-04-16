@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.AdjustmentConstraints;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -65,7 +66,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
 
     // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
     // TODO: move this check at a prior moment
-    private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
+    private double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
             throw new OpenRaoException("There must be at least two timestamps.");
         }
@@ -106,7 +107,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                     if (timestampIndex < numberOfTimestamps - 1) {
                         OffsetDateTime nextTimestamp = timestamps.get(timestampIndex + 1);
                         // Change objective function
-                        changeObjectiveFunctionCoefficients(linearProblem, rangeActionId, timestamp);
+                        changeObjectiveFunctionCoefficients(linearProblem, rangeActionId, timestamp, nextTimestamp, rangeActions.orElseThrow().getData(timestamp).orElseThrow());
                         // link transition to current state
                         addStateFromTransitionConstraints(linearProblem, rangeActionId, timestamp);
                         // link transition to next state
@@ -125,11 +126,30 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
     }
 
-    private void changeObjectiveFunctionCoefficients(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+    private void changeObjectiveFunctionCoefficients(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp, OffsetDateTime nextTimestamp, RangeAction<?> rangeAction) {
         OpenRaoMPVariable activationVariation = linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveStates.getData(timestamp).orElseThrow());
         // remove cost of activation for each timestamp
         double coefficient = linearProblem.getObjective().getCoefficient(activationVariation);
         linearProblem.getObjective().setCoefficient(activationVariation, 0.);
+        if (nextTimestamp == timestamps.getLast()) {
+            OpenRaoMPVariable lastActivationVariation = linearProblem.getRangeActionVariationBinary(rangeActionId, preventiveStates.getData(nextTimestamp).orElseThrow());
+            linearProblem.getObjective().setCoefficient(lastActivationVariation, 0.);
+        }
+        // for psts, remove cost of being far from initial setpoint
+        if (rangeActionId.contains("_PST")) {
+            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+            OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
+            linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
+            OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
+            linearProblem.getObjective().setCoefficient(tapVariationDownward, 0.);
+            if (nextTimestamp == timestamps.getLast()) {
+                OpenRaoMPVariable lastTapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), UPWARD);
+                linearProblem.getObjective().setCoefficient(lastTapVariationUpward, 0.);
+                OpenRaoMPVariable lastTapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), DOWNWARD);
+                linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
+
+            }
+        }
         // instead penalize number of adjustments
         OpenRaoMPVariable upFlatTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
         OpenRaoMPVariable downFlatTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN, LinearProblem.AdjustmentState.FLAT);
@@ -163,11 +183,23 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
     }
 
-    private static void addStateTransitionVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+    private void addStateTransitionVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
         for (LinearProblem.AdjustmentState stateFrom : LinearProblem.AdjustmentState.values()) {
             for (LinearProblem.AdjustmentState stateTo : LinearProblem.AdjustmentState.values()) {
                 if (stateFrom == stateTo || !Set.of(stateFrom, stateTo).equals(Set.of(LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.DOWN))) {
-                    linearProblem.addAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo);
+                    OpenRaoMPVariable transitionVariable = linearProblem.addAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo);
+                    // ct specific constraints
+                    if (rangeActionId.contains("_CT")) {
+                        // ct should move in one ts
+                        if (stateFrom == LinearProblem.AdjustmentState.UP && stateTo == LinearProblem.AdjustmentState.UP ||
+                            stateFrom == LinearProblem.AdjustmentState.DOWN && stateTo == LinearProblem.AdjustmentState.DOWN) {
+                            transitionVariable.setUb(0.);
+                        }
+                        // ct variations only on round hours
+                        if ((stateFrom == LinearProblem.AdjustmentState.UP || stateFrom == LinearProblem.AdjustmentState.DOWN) && (timestamp.getMinute() + Math.round(timestampDuration * 60)) % 60 != 0) {
+                            transitionVariable.setUb(0.);
+                        }
+                    }
                 }
             }
         }
@@ -180,7 +212,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
      * <br/>
      * ON + OFF = 1
      */
-    private static void addUniqueAdjustmentStateConstraint(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
+    private void addUniqueAdjustmentStateConstraint(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp) {
         OpenRaoMPConstraint uniqueAdjustmentStateConstraint = linearProblem.addUniqueAdjustmentStateConstraint(rangeActionId, timestamp);
         uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP), 1);
         uniqueAdjustmentStateConstraint.setCoefficient(linearProblem.getAdjustmentStateVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.DOWN), 1);
