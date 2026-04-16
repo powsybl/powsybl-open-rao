@@ -88,7 +88,7 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
-    private static final int PARALLELISM = 4; // TODO: configure as a parameter in MARMOT extension
+    private static final int PARALLELISM = 1; // TODO: configure as a parameter in MARMOT extension
 
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
