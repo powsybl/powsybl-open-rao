@@ -58,6 +58,7 @@ PowSyBl-OpenRAO falls under the [PowSyBl governance](https://www.powsybl.org/pag
 ## Contributing
 
 Please read the instructions on contributing to the code [here](CONTRIBUTING.md).  
+See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
 If you want to discuss technical aspects of the code with other developers, are welcome to join the PowSyBl TSC
 discussions during one of our [monthly meetings](https://lists.lfenergy.org/g/powsybl-tsc).
 
