@@ -401,7 +401,7 @@ public final class IcsDataImporter {
 
     private static boolean areGradientsRespected(CSVRecord staticRecord, double nextP0, double currentP0, double pMin, double nextPmin, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
         double diff = nextP0 - currentP0;
-        if (currentP0 >= pMin && nextP0 >= nextPmin && diff > maxGradient || diff < minGradient) {
+        if (currentP0 >= pMin && nextP0 >= nextPmin && (diff > maxGradient || diff < minGradient)) {
             BUSINESS_WARNS.warn(
                     "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
                     staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, diff
