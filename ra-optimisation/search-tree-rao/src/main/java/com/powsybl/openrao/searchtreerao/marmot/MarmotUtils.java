@@ -19,7 +19,9 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -29,6 +31,9 @@ import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,10 +78,10 @@ public final class MarmotUtils {
         ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions);
     }
 
-    public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
+    public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
-        inputs.getTimestamps().forEach(timestamp -> {
-            Crac crac = inputs.getData(timestamp).orElseThrow().getCrac();
+        cracs.getTimestamps().forEach(timestamp -> {
+            Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
             AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
             // TODO: maybe check it is indeed curative
@@ -153,6 +158,7 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
 
         State preventiveState = crac.getPreventiveState();
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), initialVariantId);
         network.getVariantManager().setWorkingVariant(initialVariantId);
         network.getVariantManager().cloneVariant(initialVariantId, newVariantId);
         network.getVariantManager().setWorkingVariant(newVariantId);
@@ -160,7 +166,69 @@ public final class MarmotUtils {
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
         } else {
+            // TODO: close systematically
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
         }
+    }
+
+    public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
+        TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
+        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
+            lazyNetworks.put(timestamp, new LazyNetwork(network));
+            MarmotUtils.releaseNetwork(network);
+        });
+        return lazyNetworks;
+    }
+
+    public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
+        Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
+        for (OffsetDateTime timestamp : networks.getTimestamps()) {
+            try (LazyNetwork lazyNetwork = networks.getData(timestamp).orElseThrow()) {
+                raoInputs.put(timestamp, RaoInput.build(lazyNetwork, cracs.getData(timestamp).orElseThrow()).build());
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+        return new TemporalDataImpl<>(raoInputs);
+    }
+
+    public static <N extends Network> void releaseAll(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
+    }
+
+    public static <N extends Network> void releaseNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.close();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static OffsetDateTime getTimestamp(RaoInput raoInput) {
+        return raoInput.getCrac().getTimestamp().orElseThrow();
+    }
+
+    public static RaoParameters cloneParameters(RaoParameters raoParameters) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            JsonRaoParameters.write(raoParameters, outputStream);
+            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonRaoParameters.read(inputStream);
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException(e);
+        }
+    }
+
+    /**
+     * Select the best TemporalData mapping strategy based on the number of threads.
+     * Necessary not to create a pool for only one thread.
+     */
+    public static <A, B> TemporalData<B> smartMap(TemporalData<A> temporalData, Function<A, B> function, int threads) {
+        if (threads == 1) {
+            return temporalData.map(function);
+        }
+        return temporalData.mapMultiThreading(function, threads);
     }
 }

@@ -10,9 +10,12 @@ package com.powsybl.openrao.data.icsimporter;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.csv.CSVRecord;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -135,5 +138,28 @@ public final class IcsUtil {
 
     private static boolean safeDoubleEquals(double a, double b) {
         return Math.abs(a - b) < 1e-3;
+    }
+
+    private static double computeTimeGap(OffsetDateTime timestamp1, OffsetDateTime timestamp2) {
+        if (timestamp1 == null || timestamp2 == null) {
+            throw new OpenRaoException("timestamp1 and timestamp2 cannot both be null");
+        } else if (timestamp1.isAfter(timestamp2)) {
+            throw new OpenRaoException("timestamp1 is expected to come before timestamp2");
+        }
+        return timestamp1.until(timestamp2, ChronoUnit.SECONDS) / 3600.0;
+    }
+
+    public static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
+        if (timestamps.size() < 2) {
+            throw new OpenRaoException("There must be at least two timestamps.");
+        }
+        double referenceTimestampDuration = computeTimeGap(timestamps.getFirst(), timestamps.get(1));
+        for (int timestampIndex = 1; timestampIndex < timestamps.size() - 1; timestampIndex++) {
+            double timestampDuration = computeTimeGap(timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
+            if (timestampDuration != referenceTimestampDuration) {
+                throw new OpenRaoException("All timestamps are not evenly spread.");
+            }
+        }
+        return referenceTimestampDuration;
     }
 }

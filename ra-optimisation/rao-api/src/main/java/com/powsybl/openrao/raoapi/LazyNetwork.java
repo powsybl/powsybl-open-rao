@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.google.common.annotations.Beta;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.Extension;
@@ -16,14 +17,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaAdder;
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.BoundaryLine;
-import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcGround;
@@ -71,12 +72,14 @@ import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VscConverterStation;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -85,7 +88,9 @@ import java.util.stream.Stream;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class LazyNetwork implements Network {
+@Beta
+public class LazyNetwork implements Network, AutoCloseable {
+    private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
     private boolean isLoaded;
     private Network network;
@@ -95,11 +100,27 @@ public class LazyNetwork implements Network {
         this.isLoaded = false;
     }
 
+    public LazyNetwork(Network network) {
+        String networkName = TEMP_DIR + UUID.randomUUID() + ".jiidm";
+        // TODO serialize to BIIDM, not stabilized for the moment (04/2026)
+        network.write("JIIDM", new Properties(), Path.of(networkName));
+        this.networkPath = networkName;
+        this.isLoaded = false;
+    }
+
     private void load() {
         if (!isLoaded) {
             network = Network.read(networkPath);
             isLoaded = true;
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        // TODO: currently modifications on the network will not be saved -> perhaps override networkPath with a UUID and write content to it
+        network = null;
+        isLoaded = false;
+        System.gc();
     }
 
     @Override
