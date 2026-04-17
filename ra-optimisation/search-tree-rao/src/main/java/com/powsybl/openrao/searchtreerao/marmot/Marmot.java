@@ -102,7 +102,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         // custom settings for XPRESS optimization
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp but this prevents concurrent access
         // when multi threading is activated
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
+//        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
 
