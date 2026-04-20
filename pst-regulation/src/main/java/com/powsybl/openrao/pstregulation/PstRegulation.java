@@ -356,10 +356,10 @@ public final class PstRegulation {
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(
             RaoInput.build(network, crac).build(), raoParameters
         );
-        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+        final PrePerimeterSensitivityAnalysis initialPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true
         );
-        PrePerimeterResult initialFlowResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
+        PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
 
         // create a new network variant from initial variant for performing the results merging
         String variantName = "PSTRegulationResultsMerging";
@@ -375,7 +375,7 @@ public final class PstRegulation {
         applyOptimalRemedialActionsForState(network, raoResult, preventiveState);
         // FIXME [VB] Why is "postPraResult" a PrePerimeterResult here, whereas it is a PostPerimeterResult on the main branch?
         //  => Bad naming of this variable
-        PrePerimeterResult postPraResult = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+        PrePerimeterResult postPraResult = initialPrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
             network, initialFlowResult, Set.of(), new AppliedRemedialActions()
         );
 
@@ -417,17 +417,23 @@ public final class PstRegulation {
                 // FIXME [VB] What happens in this second for-loop should correspond to what is done on lines 494-500 & 532-543 of
                 //  original code in CastorFullOptimization
                 if (state != null) {
+                    final RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(prePerimeterResult);
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
                     // FIXME [VB] Does raoResult.getOptimizedSetPointsOnState(state) return all PRA+ARA+CRA?
                     //  On main branch, we must use postPraResult for PRA and postPerimeterResult (from postContingencyResults) for ARA+CRA
                     appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
+                    raoResult.getOptimizedSetPointsOnState(state).forEach(
+                        (rangeAction, setpoint) -> rangeActionActivationResult.putResult(rangeAction, state, setpoint)
+                    );
 
                     if (resultsPerState.containsKey(state)) {
                         // FIXME [VB] This code seems to correspond to the code on lines 506-515 of the main branch
                         PstRegulationResult pstRegulationResult = resultsPerState.get(state);
                         pstRegulationResult.regulatedTapPerPst().forEach(
-                            (pstRangeAction, regulatedTap) ->
-                                appliedRemedialActions.addAppliedRangeAction(state, pstRangeAction, pstRangeAction.convertTapToAngle(regulatedTap))
+                            (pstRangeAction, regulatedTap) -> {
+                                appliedRemedialActions.addAppliedRangeAction(state, pstRangeAction, pstRangeAction.convertTapToAngle(regulatedTap));
+                                rangeActionActivationResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(regulatedTap));
+                            }
                         );
                     }
 
@@ -446,7 +452,11 @@ public final class PstRegulation {
                     // FIXME [VB] Is this postInstantPerimeterResult supposed to be an equivalent to postCraSensitivityAnalysisOutput of the main branch?
                     //  But postCraSensitivityAnalysisOutput is outside of a loop and here we are inside a loop... Does it make a difference?
                     //  Furthermore, why do we use an empty AppliedRemedialActions object instead of using the appliedRemedialActions instance that has been populated above?
-                    PrePerimeterResult postInstantPerimeterResult = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+                    PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                        crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
+                    );
+
+                    PrePerimeterResult postInstantPerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
                         network, initialFlowResult, Collections.emptySet(), new AppliedRemedialActions()
                     );
 
@@ -455,10 +465,15 @@ public final class PstRegulation {
                         postInstantPerimeterResult,
                         postInstantPerimeterResult,
                         new NetworkActionsResultImpl(Map.of(state, raoResult.getActivatedNetworkActionsDuringState(state))),
-                        new RangeActionActivationResultImpl(postInstantPerimeterResult)
+                        rangeActionActivationResult
                     );
+                    final Set<FlowCnec> statePostPerimeterFlowCnecs = crac.getFlowCnecs().stream()
+                        .filter(cnec -> !cnec.getState().getInstant().comesBefore(instant))
+                        .filter(cnec -> cnec.getState().getContingency().orElseThrow().equals(contingency))
+                        .collect(Collectors.toSet());
+
                     PostPerimeterResult postPerimeterStateResult =
-                        new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
+                        new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
                             .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, prePerimeterResult, Set.of(), newOptimizationResult, new AppliedRemedialActions());
                     postRegulationPostContingencyResults.put(state, postPerimeterStateResult);
 
