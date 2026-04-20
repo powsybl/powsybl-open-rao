@@ -794,8 +794,9 @@ public class RaoSteps {
         Set<FlowCnec> worstCnecs = new HashSet<>();
         double margin;
         //Filter flow cnecs from failed perimeters
+        final RaoResult commonTestRaoResult = CommonTestData.getRaoResult();
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> raoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
+                .filter(state -> commonTestRaoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
                         .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
@@ -803,17 +804,17 @@ public class RaoSteps {
             }
             try {
                 if (relative) {
-                    margin = raoResult.getRelativeMargin(flowCnec.getState().getInstant(), flowCnec, unit);
+                    margin = commonTestRaoResult.getRelativeMargin(flowCnec.getState().getInstant(), flowCnec, unit);
                 } else {
-                    margin = raoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, unit);
+                    margin = commonTestRaoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, unit);
                 }
                 if (Double.isNaN(margin)) {
                     // Try getting margin before flowCnec's state afterOptimizing state
                     // This could happen for instance if optimization on said state failed
                     if (relative) {
-                        margin = raoResult.getRelativeMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
+                        margin = commonTestRaoResult.getRelativeMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
                     } else {
-                        margin = raoResult.getMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
+                        margin = commonTestRaoResult.getMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
                     }
                 }
             } catch (OpenRaoException e) {
