@@ -177,7 +177,7 @@ Feature: 6.1.1: PST Regulation
     # Overall
     Then the value of the objective function after CRA should be 758.18
     Then the worst margin is -758.18 A
-    Then the margin on cnec "cnecFr23Preventive" after ARA should be -758.18 A
+    Then the margin on cnec "cnecFr23Preventive" after PRA should be -758.18 A
 
   @ac @fast @rao @pst-regulation @max-min-margin
   Scenario: 6.1.1.4: Regulation with two equivalent parallel PSTs
