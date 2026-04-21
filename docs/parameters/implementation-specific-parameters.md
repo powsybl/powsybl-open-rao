@@ -52,7 +52,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
 
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / ° (per degree)
-- **Default value**: 0.0
+- **Default value**: 1e-6
 - **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
   zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks
   for the RAO:
@@ -61,7 +61,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
 
 ##### hvdc-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
-- **Default value**: 0.0
+- **Default value**: 1e-6
 - **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
   to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
   following perks regarding the RAO:
@@ -70,7 +70,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
 
 ##### injection-ra-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
-- **Default value**: 0.0
+- **Default value**: 1e-6
 - **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
   considered equal to zero by the linear optimisation problem.  
   The perks are the same as the two parameters above.
@@ -172,7 +172,7 @@ when searching for the best network actions.
   evaluated in the search-tree.  
   If the value is set to 1, topological actions from direct neighbors will also be considered, etc.  
   *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
-  considered direct neighbors; dangling lines are not considered linked (ie BE and DE are not considered neighbors, even
+  considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
 
 #### Second preventive RAO parameters
@@ -233,12 +233,12 @@ from inside the RAO.
 - **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the sensitivity provider to use in the RAO
 
-##### sensitivity-failure-over-cost
+##### sensitivity-failure-overcost
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 10000.0
 - **Usage**: if the systematic sensitivity analysis fails (= diverged) due to a combination of remedial actions, its
   objective function assessment will be penalized by this value. In other words, the criterion for this combination of RA
-  will be (e.g.) : minMargin - sensitivity-failure-over-cost.  
+  will be (e.g.) : minMargin - sensitivity-failure-overcost.  
   If this parameter is strictly positive, the RAO will discriminate the combinations of RA for which the systematic
   analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has
   lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated
@@ -426,10 +426,10 @@ These parameters are meant to be used in costly optimization only.
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
-        "pst-sensitivity-threshold" : 0.0,
+        "pst-sensitivity-threshold" : 0.01,
         "pst-model" : "APPROXIMATED_INTEGERS",
-        "hvdc-sensitivity-threshold" : 0.0,
-        "injection-ra-sensitivity-threshold" : 0.0,
+        "hvdc-sensitivity-threshold" : 0.01,
+        "injection-ra-sensitivity-threshold" : 0.01,
         "linear-optimization-solver" : {
           "solver" : "CBC",
           "relative-mip-gap" : 0.001,
@@ -439,7 +439,10 @@ These parameters are meant to be used in costly optimization only.
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 2,
-        "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
+        "predefined-combinations" : [
+          [ "na1", "na2" ],
+          [ "na4", "na5", "na6" ]
+        ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2
       },
@@ -453,7 +456,7 @@ These parameters are meant to be used in costly optimization only.
       "load-flow-and-sensitivity-computation" : {
         "load-flow-provider" : "OpenLoadFlow",
         "sensitivity-provider" : "OpenLoadFlow",
-        "sensitivity-failure-over-cost" : 0.0,
+        "sensitivity-failure-overcost" : 0.0,
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
@@ -461,7 +464,7 @@ These parameters are meant to be used in costly optimization only.
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
-            "noGeneratorReactiveLimits" : false,
+            "useReactiveLimits" : true,
             "twtSplitShuntAdmittance" : false,
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
@@ -483,10 +486,9 @@ These parameters are meant to be used in costly optimization only.
                 "newtonRaphsonConvEpsPerEq" : 1.0E-3,
                 "slackBusSelectionMode" : "MOST_MESHED",
                 "slackBusesIds" : [ ],
-                "throwsExceptionInCaseOfSlackDistributionFailure" : false,
+                "slackDistributionFailureBehavior" : "THROW",
                 "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
                 "loadPowerFactorConstant" : false,
-                "addRatioToLinesWithDifferentNominalVoltageAtBothEnds" : true,
                 "slackBusPMaxMismatch" : 1.0,
                 "voltagePerReactivePowerControl" : false,
                 "voltageInitModeOverride" : "NONE",
@@ -545,7 +547,10 @@ search-tree-linear-optimization-solver:
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
   max-curative-search-tree-depth: 3
-  predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
+  predefined-combinations: [
+    [ "na1", "na2" ],
+    [ "na4", "na5", "na6" ]
+  ]
   relative-minimum-impact-threshold: 0.0
   absolute-minimum-impact-threshold: 2.0
 

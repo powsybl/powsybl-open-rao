@@ -120,7 +120,7 @@ public final class ExhaustiveCracCreation {
             .withName("complexNetworkAction2Name")
             .withOperator("RTE")
             .newLoadAction().withActivePowerValue(260.0).withNetworkElement("LD1").add()
-            .newDanglingLineAction().withActivePowerValue(-120.0).withNetworkElement("DL1").add()
+            .newBoundaryLineAction().withActivePowerValue(-120.0).withNetworkElement("BL1").add()
             .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("BR1").add()
             .newShuntCompensatorPositionAction().withSectionCount(13).withNetworkElement("SC1").add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.FR).add()

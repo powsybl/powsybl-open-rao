@@ -87,8 +87,10 @@ public final class CneConstants {
     /* RegisteredResource */
     // pSRType.psrType
     public static final String PST_RANGE_PSR_TYPE = "A06";
+    public static final String DC_LINK_PSR_TYPE = "B22";
     // resourceCapacity.unitSymbol
     public static final String WITHOUT_UNIT_SYMBOL = "C62";
+    public static final String MEGAWATTS_UNIT_SYMBOL = "MAW";
     // marketObjectStatus.status
     public static final String ABSOLUTE_MARKET_OBJECT_STATUS = "A26";
 

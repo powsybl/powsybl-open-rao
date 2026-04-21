@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
@@ -136,8 +136,8 @@ public class CimContingencyCreator {
             networkElementToReturn = networkElement;
         }
 
-        if (networkElement instanceof DanglingLine danglingLine) {
-            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+        if (networkElement instanceof BoundaryLine boundaryLine) {
+            Optional<TieLine> optionalTieLine = boundaryLine.getTieLine();
             if (optionalTieLine.isPresent()) {
                 networkElementToReturn = optionalTieLine.get();
             }

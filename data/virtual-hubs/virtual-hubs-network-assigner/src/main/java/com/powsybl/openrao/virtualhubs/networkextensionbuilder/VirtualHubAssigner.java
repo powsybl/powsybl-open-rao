@@ -8,7 +8,7 @@
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
@@ -52,11 +52,11 @@ public class VirtualHubAssigner {
             return;
         }
 
-        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.nodeName());
-        if (danglingLine.isPresent()) {
-            // virtual hub is on a Xnode which has been merged in a dangling line during network import
-            if (danglingLine.get().getTerminal().isConnected()) {
-                addVirtualHubOnNewFictitiousLoad(danglingLine.get().getTerminal().getBusBreakerView().getConnectableBus(), virtualHub);
+        Optional<BoundaryLine> boundaryLine = findBoundaryLineWithXNode(network, virtualHub.nodeName());
+        if (boundaryLine.isPresent()) {
+            // virtual hub is on a Xnode which has been merged in a boundary line during network import
+            if (boundaryLine.get().getTerminal().isConnected()) {
+                addVirtualHubOnNewFictitiousLoad(boundaryLine.get().getTerminal().getBusBreakerView().getConnectableBus(), virtualHub);
             } else {
                 LOGGER.warn("Virtual hub {} was not assigned on node {} as it is disconnected from the main network", virtualHub.eic(), virtualHub.nodeName());
             }
@@ -95,9 +95,9 @@ public class VirtualHubAssigner {
             .findFirst();
     }
 
-    private Optional<DanglingLine> findDanglingLineWithXNode(Network network, String xNodeId) {
-        return network.getDanglingLineStream()
-            .filter(danglingLine -> danglingLine.getPairingKey().equals(xNodeId))
+    private Optional<BoundaryLine> findBoundaryLineWithXNode(Network network, String xNodeId) {
+        return network.getBoundaryLineStream()
+            .filter(boundaryLine -> boundaryLine.getPairingKey().equals(xNodeId))
             .findFirst();
     }
 }

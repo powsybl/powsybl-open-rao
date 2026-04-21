@@ -201,7 +201,7 @@ final class ExampleGenerator {
             .setBus1("Bus BE 1").setBus2("Bus BE 2")
             .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
-        voltageLevelBe.newDanglingLine()
+        voltageLevelBe.newBoundaryLine()
             .setId("BE1-XBE").setBus("Bus BE 1").setPairingKey("XBE")
             .setP0(25).setQ0(0)
             .setR(0).setX(5).setB(0).setG(0)
