@@ -6,13 +6,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>7.2.0-SNAPSHOT</version>
+        <version>7.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-pst-regulation</artifactId>
     <packaging>jar</packaging>
     <name>PST Regulation</name>
-    <description>Post-RAO PST regulatoin module</description>
+    <description>Post-RAO PST regulation module</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -23,17 +23,14 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -43,12 +40,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-sensitivity-analysis</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-search-tree-rao</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -80,7 +75,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons-test</artifactId>
-            <version>${powsybl.core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

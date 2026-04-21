@@ -15,7 +15,7 @@ Feature: 6.2.2: Voltage Monitoring
     Given configuration file is "epic94/monitoring_parameters.json"
     When I launch rao
     When I launch voltage monitoring on 1 threads
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through voltage monitoring"
     Then its security status should be "UNSECURED"
     Then the voltage monitoring result is "HIGH_CONSTRAINT"
     Then the min voltage of CNEC "vc" should be 363.58 kV at "curative"
@@ -32,7 +32,7 @@ Feature: 6.2.2: Voltage Monitoring
     Given configuration file is "epic94/monitoring_parameters.json"
     When I launch rao
     When I launch voltage monitoring on 1 threads
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through voltage monitoring"
     Then its security status should be "UNSECURED"
     Then the voltage monitoring result is "HIGH_CONSTRAINT"
     Then the min voltage of CNEC "vc - preventive" should be 385.70 kV at "preventive"
