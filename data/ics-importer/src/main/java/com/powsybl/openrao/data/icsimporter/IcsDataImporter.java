@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
@@ -198,6 +199,11 @@ public final class IcsDataImporter {
                 BUSINESS_WARNS.warn("Redispatching action {} is not imported: defined on a GSK but sum of weights is not equal to 1", raId);
                 return false;
             }
+
+            // Check GSK generators' P0
+            while (dropInconsistentNodes(raId, staticRecord.get(UCT_NODE_OR_GSK_ID), seriesPerType, weightPerNodePerGsk, sortedTimestampToRun)) {
+                // do nothing, wait for gsks to be finalized
+            }
         }
 
         // Check that remedial action should at least be defined on preventive instant
@@ -223,6 +229,53 @@ public final class IcsDataImporter {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if the generators defined in GSK have an equivalent P0 (P0 * weight) consistent with definition of
+     * ON/OFF state. Indeed, if P0 for RA is defined as ON but weights are such that the node's P0 is below
+     * ON_POWER_THRESHOLD, then this node is dropped.
+     *
+     * @param raId
+     * @param gskId
+     * @param seriesPerType The series record containing time series data, mapped per RA_ID and series type
+     *                     (e.g., RDP-, RDP+, Pmin_RD, or P0).
+     * @param weightPerNodePerGsk
+     * @param dateTimes A list of timestamps to evaluate the gradient between consecutive entries in the P0 record.
+
+     * @return {@code true} if weightPerNodePerGsk has been modified : a node has been dropped.
+     *         {@code false} otherwise.
+     */
+    private static boolean dropInconsistentNodes(String raId, String gskId, Map<String, CSVRecord> seriesPerType, Map<String, Map<String, Double>> weightPerNodePerGsk, List<OffsetDateTime> dateTimes) {
+        Map<String, Double> sortedByWeight = weightPerNodePerGsk.get(gskId).entrySet().stream().sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        for (Map.Entry<String, Double> entry : sortedByWeight.entrySet()) {
+            Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
+
+            while (dateTimeIterator.hasNext()) {
+                OffsetDateTime currentDateTime = dateTimeIterator.next();
+                double currentP0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(currentDateTime.getHour() + OFFSET));
+                Optional<Double> pMinRD = parseValue(seriesPerType, P_MIN_RD, currentDateTime, 1);
+                double pMin = Math.max(ON_POWER_THRESHOLD, pMinRD.orElse(ON_POWER_THRESHOLD));
+                // RA defined on ON state
+                if (currentP0 >= pMin) {
+                    // Compute node's currentP0
+                    double nodeP0 = currentP0 * entry.getValue();
+                    // GSK ill defined => delete from weightPerNodePerGsk
+                    if (nodeP0 < ON_POWER_THRESHOLD) {
+                        weightPerNodePerGsk.get(gskId).remove(entry.getKey());
+                        for (Map.Entry<String, Double> remainingEntry : weightPerNodePerGsk.get(gskId).entrySet()) {
+                            Double updatedValue = remainingEntry.getValue() + entry.getValue() / weightPerNodePerGsk.get(gskId).size();
+                            weightPerNodePerGsk.get(gskId).put(remainingEntry.getKey(), updatedValue);
+                        }
+                        BUSINESS_WARNS.warn("{} has been removed from {}", entry.getKey(), raId);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -261,7 +314,7 @@ public final class IcsDataImporter {
      *         {@code false} otherwise.
      */
     private static boolean p0RespectsConstraints(CSVRecord staticRecord, Map<String, CSVRecord> seriesRecord, List<OffsetDateTime> dateTimes) {
-        // Generatcr constraints varaibles
+        // Generator constraints varaibles
         double timestampDuration = IcsUtil.computeTimestampDuration(dateTimes);
         Boolean shutDownAllowed = Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED));
         Boolean startUpAllowed = Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED));
@@ -295,7 +348,7 @@ public final class IcsDataImporter {
             double nextP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(nextDateTime.getHour() + OFFSET));
             double currentP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET));
             Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
-            double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+            double pMin = Math.max(ON_POWER_THRESHOLD, pMinRD.orElse(ON_POWER_THRESHOLD));
             Optional<Double> nextPminPD = parseValue(seriesRecord, P_MIN_RD, nextDateTime, 1);
             double nextPmin = nextPminPD.orElse(ON_POWER_THRESHOLD);
 
@@ -355,7 +408,7 @@ public final class IcsDataImporter {
         // Last timestamp
         double currentP0 = parseDoubleWithPossibleCommas(seriesRecord.get(P0).get(currentDateTime.getHour() + OFFSET));
         Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
-        double pMin = pMinRD.orElse(ON_POWER_THRESHOLD);
+        double pMin = Math.max(ON_POWER_THRESHOLD, pMinRD.orElse(ON_POWER_THRESHOLD));
         return isPminRespected(staticRecord, currentP0, pMin, currentDateTime);
     }
 
