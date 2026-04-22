@@ -171,6 +171,7 @@ public final class MarmotUtils {
         }
     }
 
+    // Use releaseNetwork : we don't want to delete networks.
     public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
         TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
         networks.getDataPerTimestamp().forEach((timestamp, network) -> {
@@ -183,11 +184,8 @@ public final class MarmotUtils {
     public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
         Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
         for (OffsetDateTime timestamp : networks.getTimestamps()) {
-            try (LazyNetwork lazyNetwork = networks.getData(timestamp).orElseThrow()) {
-                raoInputs.put(timestamp, RaoInput.build(lazyNetwork, cracs.getData(timestamp).orElseThrow()).build());
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
+            raoInputs.put(timestamp, RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build());
+            MarmotUtils.releaseNetwork(networks.getData(timestamp).orElseThrow());
         }
         return new TemporalDataImpl<>(raoInputs);
     }
@@ -196,7 +194,31 @@ public final class MarmotUtils {
         networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
     }
 
+    public static <N extends Network> void closeAll(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::closeNetwork);
+    }
+
     public static <N extends Network> void releaseNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.release();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static <N extends Network> void releaseNetworkWithoutOverwrite(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.releaseWithOverwrite(false);
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static <N extends Network> void closeNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
             try {
                 lazyNetwork.close();

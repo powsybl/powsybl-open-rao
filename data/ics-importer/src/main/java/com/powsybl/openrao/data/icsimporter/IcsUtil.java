@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import org.apache.commons.csv.CSVRecord;
 
 import java.time.OffsetDateTime;
@@ -161,5 +162,25 @@ public final class IcsUtil {
             }
         }
         return referenceTimestampDuration;
+    }
+
+    public static <N extends Network> void releaseNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.release();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static <N extends Network> void closeNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.close();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
     }
 }

@@ -261,13 +261,8 @@ public final class IcsData {
             Network network = raoInput.getNetwork();
             updateNominalVoltage(network);
             modifiedInitialNetworks.put(dateTime, new LazyNetwork(network));
-            if (network instanceof LazyNetwork lazyNetwork) {
-                try {
-                    lazyNetwork.close();
-                } catch (Exception e) {
-                    throw new OpenRaoException(e);
-                }
-            }
+            // TODO For IDCC cases, we'd like to close network here to delete temp file
+            IcsUtil.releaseNetwork(network);
         });
 
         TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
@@ -298,13 +293,11 @@ public final class IcsData {
         modifiedInitialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
             String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
             initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
-            try (LazyNetwork postIcsNetwork = new LazyNetwork(exportedNetworkPath)) {
-                postIcsRaoInputs.put(dateTime, RaoInput.build(postIcsNetwork, timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
+            LazyNetwork postIcsNetwork = new LazyNetwork(exportedNetworkPath);
+            postIcsRaoInputs.put(dateTime, RaoInput.build(postIcsNetwork, timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
             try {
                 initialNetwork.close();
+                postIcsNetwork.release();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

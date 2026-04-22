@@ -117,10 +117,25 @@ public class LazyNetwork implements Network, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        // TODO: currently modifications on the network will not be saved -> perhaps override networkPath with a UUID and write content to it
         network = null;
         isLoaded = false;
-        System.gc();
+        new File(networkPath).delete();
+    }
+
+    public void release() {
+        releaseWithOverwrite(true);
+    }
+
+    public void releaseWithOverwrite(boolean overwrite) {
+        if (isLoaded) {
+            // TODO do we want to write systematically ? augmentation temps de calcul?
+            if (overwrite) {
+                // Save modifications on network before releasing
+                network.write("JIIDM", new Properties(), Path.of(networkPath));
+            }
+            network = null;
+            isLoaded = false;
+        }
     }
 
     @Override
