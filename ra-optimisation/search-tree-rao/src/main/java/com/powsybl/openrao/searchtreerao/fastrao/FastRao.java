@@ -143,13 +143,13 @@ public class FastRao implements RaoProvider {
                 false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResult_withoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
+            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
             PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
-                    initialResult_withoutUpdatedRangeActionSetpointResult.getFlowResult(),
-                    initialResult_withoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
                     initialRangeActionSetpointResult,
-                    initialResult_withoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
             );
 
             if (crac.getFlowCnecs().isEmpty()) {
