@@ -79,16 +79,26 @@ public final class MarmotUtils {
     }
 
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
+
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
+
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
             AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+
+
             // TODO: maybe check it is indeed curative
             for (State state : crac.getStates(crac.getLastInstant())) {
                 try {
+
+                    // appliedRemedialActions now only contains the curative network actions and does not consider the curative range actions anymore
+                    // this is the object that is transmitted to the sensitivity analysis
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                    raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
+
+
+                    //raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
+
                 } catch (OpenRaoException e) {
                     if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
                         throw e;
