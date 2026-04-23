@@ -2,42 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>open-rao-crac</artifactId>
         <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-data</artifactId>
         <version>7.3.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>open-rao-crac-util</artifactId>
+    <artifactId>open-rao-ics-importer</artifactId>
     <packaging>jar</packaging>
-    <name>CRAC utility package</name>
-    <description>CRAC utility package</description>
+    <name>ICS Data</name>
+    <description>Module for ICS data</description>
 
     <dependencies>
-        <!-- Compile scope -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.powsybl</groupId>
             <artifactId>open-rao-rao-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-time-coupled-constraints</artifactId>
-        </dependency>
-
-        <!-- Runtime scope -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
         </dependency>
 
         <!-- Test scope -->
@@ -50,7 +34,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -61,12 +44,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-ics-importer</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -89,6 +66,15 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
     </dependencies>
+
 </project>

@@ -14,6 +14,8 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.icsimporter.IcsData;
+import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -28,7 +30,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
-import com.powsybl.openrao.data.crac.util.IcsImporter;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
@@ -254,15 +255,18 @@ public final class TimeCoupledRaoSteps {
             TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
             fbConstraintParameters = new FbConstraintCracCreationParameters();
         }
-        timeCoupledRaoInput = IcsImporter.populateInputWithICS(
-            new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints()),
+
+        IcsData icsData = IcsDataImporter.read(
             new FileInputStream(getFile(icsStaticPath)),
             new FileInputStream(getFile(icsSeriesPath)),
             gskInputStream,
+            raoInputs.getTimestamps().stream().sorted().toList());
+
+        timeCoupledRaoInput = icsData.processAllRedispatchingActions(
+            new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints()),
             fbConstraintParameters.getIcsCostUp(),
             fbConstraintParameters.getIcsCostDown(),
-            networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]
-        );
+            networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]);
     }
 
     @When("I launch marmot")

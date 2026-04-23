@@ -3,6 +3,9 @@
 Welcome to the OpenRAO developers and users community!  
 Here is all the information you need to know before making your first contribution.
 
+See [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.md) for explanations
+on how to contribute to the code.
+
 ## Submitting your ideas
 If you are an OpenRAO user, and you found a bug, or you would like a new feature, or 
 if you are an active OpenRAO developer, and have ideas to improve the code, please let us know! 
