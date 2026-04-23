@@ -585,3 +585,51 @@ fast-rao-parameters:
 ~~~
 :::
 ::::
+
+### RODA parameters
+
+RODA implementation specific parameters ("roda-parameters"). Optional.
+
+#### forced-preventive-actions-list
+
+You can create an optional forced-preventive-actions-list to force some preventive actions before running the RAO.  
+While this is equivalent to pre-processing the network file before running the RAO, it can be useful if
+you want to test different preventive actions in an outside loop, without having to pre-process (and
+eventually serialize) the network.  
+Note that this is not currently supported in the yaml format.  
+Also note that when using lazy networks, this will make all the networks load at the beginning of the RAO. So you may encounter memory issues.  
+
+- **Expected value**: a list of PowSyBl Actions. In JSON, this should be represented by a serialized ActionList.
+- **Default value**: empty array
+- **Usage**: these actions will be applied on the network before running the RAO. In the case of time-coupled RAO,
+  the actions will be applied for all timestamps.  
+  Actions that cannot be applied (for example if the ID of the element is wrong) will be ignored (the issue will be logged in a warning).
+
+#### Example
+::::{tabs}
+:::{group-tab} JSON
+~~~json
+"roda-parameters": {
+  "forced-preventive-actions-list": {
+    "version": "1.3",
+    "actions": [
+      {
+        "type": "PHASE_TAP_CHANGER_TAP_POSITION",
+        "id": "PRA_PST_BE",
+        "transformerId": "BBE2AA1  BBE3AA1  1",
+        "tapPosition": -16,
+        "relativeValue": false,
+        "side": "TWO"
+      },
+      {
+        "type": "TERMINALS_CONNECTION",
+        "id": "Open FR1 FR2",
+        "elementId": "FFR1AA1  FFR2AA1  1",
+        "open": true
+      }
+    ]
+  }
+}
+~~~
+:::
+::::
