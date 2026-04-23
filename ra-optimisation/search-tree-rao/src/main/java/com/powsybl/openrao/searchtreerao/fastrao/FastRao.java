@@ -46,6 +46,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
@@ -142,8 +143,14 @@ public class FastRao implements RaoProvider {
                 false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
+            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
+            PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
+                    initialRangeActionSetpointResult,
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
+            );
 
             if (crac.getFlowCnecs().isEmpty()) {
                 return new UnoptimizedRaoResultImpl(initialResult);
