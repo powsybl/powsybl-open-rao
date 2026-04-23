@@ -164,16 +164,6 @@ public final class IcsUtil {
         return referenceTimestampDuration;
     }
 
-    public static <N extends Network> void releaseNetwork(N network) {
-        if (network instanceof LazyNetwork lazyNetwork) {
-            try {
-                lazyNetwork.release();
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
-        }
-    }
-
     public static <N extends Network> void closeNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
             try {

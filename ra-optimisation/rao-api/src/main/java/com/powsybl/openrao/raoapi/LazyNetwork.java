@@ -93,11 +93,13 @@ public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private final String networkPath;
     private boolean isLoaded;
+    private boolean isInTempDir;
     private Network network;
 
     public LazyNetwork(String networkPath) {
         this.networkPath = networkPath;
         this.isLoaded = false;
+        this.isInTempDir = false;
     }
 
     public LazyNetwork(Network network) {
@@ -106,6 +108,7 @@ public class LazyNetwork implements Network, AutoCloseable {
         network.write("JIIDM", new Properties(), Path.of(networkName));
         this.networkPath = networkName;
         this.isLoaded = false;
+        this.isInTempDir = true;
     }
 
     private void load() {
@@ -119,7 +122,9 @@ public class LazyNetwork implements Network, AutoCloseable {
     public void close() throws Exception {
         network = null;
         isLoaded = false;
-        new File(networkPath).delete();
+        if (isInTempDir) {
+            new File(networkPath).delete();
+        }
     }
 
     public void release() {

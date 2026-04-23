@@ -272,8 +272,6 @@ public final class TimeCoupledRaoSteps {
     @When("I launch marmot")
     public static void iLaunchMarmot() {
         timeCoupledRaoResult = TimeCoupledRao.run(timeCoupledRaoInput, getRaoParameters());
-        // TODO check this with non ics
-        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
     }
 
     @When("I export marmot results to {string}")

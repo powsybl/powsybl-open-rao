@@ -261,8 +261,7 @@ public final class IcsData {
             Network network = raoInput.getNetwork();
             updateNominalVoltage(network);
             modifiedInitialNetworks.put(dateTime, new LazyNetwork(network));
-            // TODO For IDCC cases, we'd like to close network here to delete temp file
-            IcsUtil.releaseNetwork(network);
+            IcsUtil.closeNetwork(network);
         });
 
         TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
