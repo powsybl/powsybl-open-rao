@@ -40,7 +40,8 @@ public class JsonSweNcCracCreationParameters implements JsonCracCreationParamete
         while (!jsonParser.nextToken().isStructEnd()) {
             if (jsonParser.currentName().equals(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE)) {
                 jsonParser.nextToken();
-                parameters.setTsosWhichDoNotUsePatlInFinalState(jsonParser.readValueAs(new TypeReference<HashSet<String>>() {}));
+                parameters.setTsosWhichDoNotUsePatlInFinalState(jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
+                }));
             } else {
                 throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }

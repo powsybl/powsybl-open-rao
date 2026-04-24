@@ -64,17 +64,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                            Set<Contingency> linkedContingencies,
                            Set<ElementaryCreationContext> ncCnecCreationContexts,
                            String rejectedLinksAssessedElementContingency,
-                           CracCreationParameters cracCreationParameters,
-                           Map<String, String> borderPerTso,
-                           Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+                           CracCreationParameters cracCreationParameters) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
         ncCracCreationParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
         if (ncCracCreationParameters == null) {
             throw new OpenRaoException("No NcCracCreatorParameters extension provided.");
         }
-        this.instantHelper = new FlowCnecInstantHelper(ncCracCreationParameters, crac);
+        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters, crac);
         checkCnecDefinitionMode();
     }
 

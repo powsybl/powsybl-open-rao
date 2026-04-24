@@ -53,7 +53,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                     break;
                 case CAPACITY_CALCULATION_REGION:
                     jsonParser.nextToken();
-                    parameters.setCapacityCalculationRegion(CapacityCalculationRegion.valueOf(jsonParser.readValueAs(String.class)));
+                    parameters.setCapacityCalculationRegion(CapacityCalculationRegion.fromEIC(jsonParser.readValueAs(String.class)));
                     break;
                 case CURATIVE_INSTANTS:
                     jsonParser.nextToken();

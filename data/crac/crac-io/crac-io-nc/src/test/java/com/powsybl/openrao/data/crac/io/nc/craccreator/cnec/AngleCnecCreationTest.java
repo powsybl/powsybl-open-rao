@@ -42,7 +42,7 @@ class AngleCnecCreationTest {
             60d,
             -60d,
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(1),
@@ -53,7 +53,7 @@ class AngleCnecCreationTest {
             null,
             60d,
             -60d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(2),
@@ -64,7 +64,7 @@ class AngleCnecCreationTest {
             "contingency-1",
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(3),
@@ -75,7 +75,7 @@ class AngleCnecCreationTest {
             "contingency-2",
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(4),
@@ -86,7 +86,7 @@ class AngleCnecCreationTest {
             null,
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(5),
@@ -97,7 +97,7 @@ class AngleCnecCreationTest {
             "contingency-1",
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(6),
@@ -108,7 +108,7 @@ class AngleCnecCreationTest {
             "contingency-2",
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(7),
@@ -119,7 +119,7 @@ class AngleCnecCreationTest {
             null,
             45d,
             -45d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(8),
@@ -130,7 +130,7 @@ class AngleCnecCreationTest {
             "contingency-2",
             60d,
             null,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(9),
@@ -141,7 +141,7 @@ class AngleCnecCreationTest {
             null,
             null,
             -30d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         assertEquals(8, cracCreationContext.getCnecCreationContexts().stream()
             .filter(context -> !context.isImported())

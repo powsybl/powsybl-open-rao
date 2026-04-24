@@ -28,7 +28,6 @@ import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -53,9 +52,7 @@ public abstract class AbstractCnecCreator {
                                   Set<Contingency> linkedContingencies,
                                   Set<ElementaryCreationContext> ncCnecCreationContexts,
                                   String rejectedLinksAssessedElementContingency,
-                                  CracCreationParameters cracCreationParameters,
-                                  Map<String, String> borderPerTso,
-                                  Map<String, String> borderPerEic) {
+                                  CracCreationParameters cracCreationParameters) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
@@ -65,7 +62,7 @@ public abstract class AbstractCnecCreator {
         CapacityCalculationRegion capacityCalculationRegion = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegion();
         this.aeSecuredForRegion = isAeSecuredForRegion(capacityCalculationRegion);
         this.aeScannedForRegion = isAeScannedForRegion(capacityCalculationRegion);
-        this.border = nativeAssessedElement.overlappingZone();
+        this.border = getBorderEIC(nativeAssessedElement.overlappingZone());
         this.cracCreationParameters = cracCreationParameters;
     }
 
@@ -77,6 +74,10 @@ public abstract class AbstractCnecCreator {
     private boolean isAeScannedForRegion(CapacityCalculationRegion capacityCalculationRegion) {
         String region = nativeAssessedElement.scannedForRegion() == null ? null : NcCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
         return region != null && region.equals(capacityCalculationRegion.getEIC());
+    }
+
+    private static String getBorderEIC(String overlappingZone) {
+        return overlappingZone == null ? null : NcCracUtils.getEicFromUrl(overlappingZone);
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -150,13 +151,6 @@ public abstract class AbstractCnecCreator {
                 "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency
             ));
         }
-    }
-
-    protected String getCnecBorder(Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
-        if (nativeAssessedElement.overlappingZone() != null) {
-            return borderPerEic.getOrDefault(NcCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
-        }
-        return borderPerTso.getOrDefault(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
     }
 
     protected VoltageLevel getVoltageLevel(Identifiable<?> networkElement) {

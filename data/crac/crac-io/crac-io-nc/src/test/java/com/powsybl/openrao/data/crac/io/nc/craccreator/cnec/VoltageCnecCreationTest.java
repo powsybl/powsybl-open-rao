@@ -40,7 +40,7 @@ class VoltageCnecCreationTest {
             "contingency-1",
             135d,
             null,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(1),
@@ -50,7 +50,7 @@ class VoltageCnecCreationTest {
             "contingency-1",
             null,
             -72d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(2),
@@ -60,7 +60,7 @@ class VoltageCnecCreationTest {
             "contingency-2",
             null,
             -72d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(3),
@@ -70,7 +70,7 @@ class VoltageCnecCreationTest {
             null,
             null,
             -72d,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(4),
@@ -80,7 +80,7 @@ class VoltageCnecCreationTest {
             null,
             100d,
             null,
-            "RTE", "ES-FR");
+            "RTE", null);
 
         assertEquals(5, cracCreationContext.getCnecCreationContexts().stream()
             .filter(context -> !context.isImported())
