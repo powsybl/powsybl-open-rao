@@ -15,7 +15,9 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.parameters.SweNcCracCreationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -49,7 +51,7 @@ class FlowCnecInstantHelperTest {
         initCrac();
         initTatls();
         initCracCreationParameters();
-        helper = new FlowCnecInstantHelper(ncParameters, crac);
+        helper = new FlowCnecInstantHelper(parameters, crac);
     }
 
     @Test
@@ -385,9 +387,12 @@ class FlowCnecInstantHelperTest {
     private void initCracCreationParameters() {
         parameters = new CracCreationParameters();
         ncParameters = new NcCracCreationParameters();
+        SweNcCracCreationParameters sweParameters = new SweNcCracCreationParameters();
+        ncParameters.setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
         ncParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
-        ncParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
+        sweParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         parameters.addExtension(NcCracCreationParameters.class, ncParameters);
+        parameters.addExtension(SweNcCracCreationParameters.class, sweParameters);
     }
 
     private void initTatls() {

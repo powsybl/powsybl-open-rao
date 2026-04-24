@@ -507,7 +507,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.NOT_FOR_RAO, "AssessedElement assessed-element-2 ignored because it is not enabled");
 
@@ -525,7 +525,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElement assessed-element-1 ignored because it is not enabled");
     }
@@ -545,7 +545,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
 
         // With SSI
@@ -561,7 +561,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
     }
 
@@ -582,7 +582,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3"),
@@ -594,7 +594,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"),
@@ -606,7 +606,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO3 - curative 3"),
@@ -618,7 +618,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertCnecNotImported(
             cracCreationContext,
@@ -642,7 +642,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO2 - curative 3"),
@@ -654,7 +654,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"),
@@ -666,7 +666,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertCnecNotImported(
             cracCreationContext,
@@ -702,7 +702,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative 3"),
@@ -714,7 +714,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"),
@@ -726,7 +726,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative 3"),
@@ -738,7 +738,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE3 (assessed-element-3) - preventive"),
@@ -750,7 +750,7 @@ class NcSsiTest {
             15d,
             -15d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE3 (assessed-element-3) - RTE_CO - curative 3"),
@@ -762,7 +762,7 @@ class NcSsiTest {
             15d,
             -15d,
             "RTE",
-            "ES-FR"
+            null
         );
 
         List<NetworkAction> remedialActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
@@ -812,7 +812,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative 3"),
@@ -824,7 +824,7 @@ class NcSsiTest {
             30d,
             -30d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"),
@@ -836,7 +836,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
         assertAngleCnecEquality(
             crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative 3"),
@@ -848,7 +848,7 @@ class NcSsiTest {
             45d,
             -45d,
             "RTE",
-            "ES-FR"
+            null
         );
 
         remedialActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();

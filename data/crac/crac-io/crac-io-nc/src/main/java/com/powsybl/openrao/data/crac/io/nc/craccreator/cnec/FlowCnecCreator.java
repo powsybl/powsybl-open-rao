@@ -30,7 +30,9 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.parameters.SweNcCracCreationParameters;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -62,17 +64,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                            Set<Contingency> linkedContingencies,
                            Set<ElementaryCreationContext> ncCnecCreationContexts,
                            String rejectedLinksAssessedElementContingency,
-                           CracCreationParameters cracCreationParameters,
-                           Map<String, String> borderPerTso,
-                           Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+                           CracCreationParameters cracCreationParameters) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
         ncCracCreationParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
         if (ncCracCreationParameters == null) {
             throw new OpenRaoException("No NcCracCreatorParameters extension provided.");
         }
-        this.instantHelper = new FlowCnecInstantHelper(ncCracCreationParameters, crac);
+        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters, crac);
         checkCnecDefinitionMode();
     }
 
@@ -240,7 +240,19 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 twoSides -> twoSides,
                 twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)
             ));
-            boolean operatorDoesNotUsePatlInFinalState = ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
+
+            // SWE specific rule -> TODO: think of how to handle this more properly
+            boolean operatorDoesNotUsePatlInFinalState;
+            if (CapacityCalculationRegion.SOUTH_WESTERN_EUROPE.equals(ncCracCreationParameters.getCapacityCalculationRegion())) {
+                SweNcCracCreationParameters sweParameters = cracCreationParameters.getExtension(SweNcCracCreationParameters.class);
+                if (sweParameters != null) {
+                    operatorDoesNotUsePatlInFinalState = sweParameters.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
+                } else {
+                    operatorDoesNotUsePatlInFinalState = false;
+                }
+            } else {
+                operatorDoesNotUsePatlInFinalState = false;
+            }
 
             // If an operator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
             Map<TwoSides, Boolean> forceUseOfPatl = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(

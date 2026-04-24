@@ -102,235 +102,235 @@ class FlowCnecCreationTest {
             "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(1),
             "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(2),
             "RTE_AE1 (assessed-element-1) - preventive - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, null,
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(3),
             "RTE_AE11 (assessed-element-11) - RTE_CO1 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(4),
             "RTE_AE11 (assessed-element-11) - RTE_CO1 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(5),
             "RTE_AE2 (assessed-element-2) - RTE_CO1 - outage - TATL 60",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-1",
             null, null, +5000d, -5000d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(6),
             "RTE_AE2 (assessed-element-2) - RTE_CO2 - outage - TATL 60",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-2",
             null, null, +5000d, -5000d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(7),
             "RTE_AE3 (assessed-element-3) - RTE_CO2 - auto - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-2",
             null, null, +4000d, -4000d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(8),
             "RTE_AE3 (assessed-element-3) - RTE_CO2 - curative 1 - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-2",
             null, null, +4000d, -4000d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(9),
             "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(10),
             "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(11),
             "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-2",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(12),
             "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-2",
             null, null, +2500d, -2500d, Set.of(TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(13),
             "RTE_AE5 (assessed-element-5) - RTE_CO1 - auto - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-1",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(14),
             "RTE_AE5 (assessed-element-5) - RTE_CO1 - curative 1 - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-1",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(15),
             "RTE_AE5 (assessed-element-5) - RTE_CO1 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(16),
             "RTE_AE5 (assessed-element-5) - RTE_CO1 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(17),
             "RTE_AE5 (assessed-element-5) - RTE_CO1 - outage - TATL 60",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-1",
             +5000d, -5000d, +5000d, -5000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(18),
             "RTE_AE5 (assessed-element-5) - RTE_CO2 - auto - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-2",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(19),
             "RTE_AE5 (assessed-element-5) - RTE_CO2 - curative 1 - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-2",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(20),
             "RTE_AE5 (assessed-element-5) - RTE_CO2 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-2",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(21),
             "RTE_AE5 (assessed-element-5) - RTE_CO2 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-2",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(22),
             "RTE_AE5 (assessed-element-5) - RTE_CO2 - outage - TATL 60",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-2",
             +5000d, -5000d, +5000d, -5000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(23),
             "RTE_AE5 (assessed-element-5) - preventive - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, null,
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(24),
             "RTE_AE6 (assessed-element-6) - RTE_CO1 - auto - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-1",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(25),
             "RTE_AE6 (assessed-element-6) - RTE_CO1 - curative 1 - TATL 900",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-1",
             +4000d, -4000d, +4000d, -4000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(26),
             "RTE_AE6 (assessed-element-6) - RTE_CO1 - curative 2 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(27),
             "RTE_AE6 (assessed-element-6) - RTE_CO1 - curative 3 - PATL",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             +2500d, -2500d, +2500d, -2500d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(28),
             "RTE_AE6 (assessed-element-6) - RTE_CO1 - outage - TATL 60",
             "FFR2AA1  FFR3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-1",
             +5000d, -5000d, +5000d, -5000d, Set.of(TwoSides.ONE, TwoSides.TWO),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(29),
             "RTE_AE7 (assessed-element-7) - RTE_CO1 - auto - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-1",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(30),
             "RTE_AE7 (assessed-element-7) - RTE_CO1 - curative 1 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-1",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(31),
             "RTE_AE7 (assessed-element-7) - RTE_CO1 - curative 2 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-1",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(32),
             "RTE_AE7 (assessed-element-7) - RTE_CO1 - curative 3 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-1",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(33),
             "RTE_AE7 (assessed-element-7) - RTE_CO1 - outage - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-1",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(34),
             "RTE_AE7 (assessed-element-7) - RTE_CO2 - auto - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency-2",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(35),
             "RTE_AE7 (assessed-element-7) - RTE_CO2 - curative 1 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency-2",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(36),
             "RTE_AE7 (assessed-element-7) - RTE_CO2 - curative 2 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency-2",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(37),
             "RTE_AE7 (assessed-element-7) - RTE_CO2 - curative 3 - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency-2",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(38),
             "RTE_AE7 (assessed-element-7) - RTE_CO2 - outage - PATL",
             "NNL2AA1  BBE3AA1  1", NcCracCreationTestUtil.OUTAGE_INSTANT_ID, "contingency-2",
             +5000d, null, null, null, Set.of(TwoSides.ONE),
-            "RTE", "ES-FR");
+            "RTE", null);
     }
 
     @Test
@@ -355,7 +355,7 @@ class FlowCnecCreationTest {
             -2250d,
             Set.of(TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(1),
@@ -369,7 +369,7 @@ class FlowCnecCreationTest {
             -2250d,
             Set.of(TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(2),
@@ -383,7 +383,7 @@ class FlowCnecCreationTest {
             -2250d,
             Set.of(TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(3),
@@ -397,7 +397,7 @@ class FlowCnecCreationTest {
             -3400d,
             Set.of(TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(4),
@@ -411,7 +411,7 @@ class FlowCnecCreationTest {
             -3400d,
             Set.of(TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(5),
@@ -425,7 +425,7 @@ class FlowCnecCreationTest {
             -3200d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(6),
@@ -439,7 +439,7 @@ class FlowCnecCreationTest {
             -3200d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(7),
@@ -453,7 +453,7 @@ class FlowCnecCreationTest {
             -2000d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(8),
@@ -467,7 +467,7 @@ class FlowCnecCreationTest {
             -2000d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(9),
@@ -481,7 +481,7 @@ class FlowCnecCreationTest {
             -4000d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
 
         NcCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(10),
@@ -495,7 +495,7 @@ class FlowCnecCreationTest {
             -2000d,
             Set.of(TwoSides.ONE, TwoSides.TWO),
             "RTE",
-            "ES-FR");
+            null);
     }
 
     @Test
@@ -504,10 +504,10 @@ class FlowCnecCreationTest {
             "/profiles/cnecs/AssessedElementBorders.zip",
             NcCracCreationTestUtil.NETWORK
         );
-        assertEquals("ES-FR", cracCreationContext.getCrac().getFlowCnec("RTE_AE1 (assessed-element-1) - preventive - PATL").getBorder());
-        assertEquals("ES-PT", cracCreationContext.getCrac().getFlowCnec("REN_AE2 (assessed-element-2) - preventive - PATL").getBorder());
+        assertNull(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 (assessed-element-1) - preventive - PATL").getBorder());
+        assertNull(cracCreationContext.getCrac().getFlowCnec("REN_AE2 (assessed-element-2) - preventive - PATL").getBorder());
         assertNull(cracCreationContext.getCrac().getFlowCnec("REE_AE3 (assessed-element-3) - preventive - PATL").getBorder());
-        assertEquals("ES-FR", cracCreationContext.getCrac().getFlowCnec("REE_AE4 (assessed-element-4) - preventive - PATL").getBorder());
-        assertEquals("ES-PT", cracCreationContext.getCrac().getFlowCnec("REE_AE5 (assessed-element-5) - preventive - PATL").getBorder());
+        assertEquals("10YDOM--ES-FR--D", cracCreationContext.getCrac().getFlowCnec("REE_AE4 (assessed-element-4) - preventive - PATL").getBorder());
+        assertEquals("10YDOM--ES-PT--T", cracCreationContext.getCrac().getFlowCnec("REE_AE5 (assessed-element-5) - preventive - PATL").getBorder());
     }
 }

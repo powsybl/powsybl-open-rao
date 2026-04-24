@@ -221,9 +221,7 @@ public class NcRemedialActionsCreator {
         }
 
         InstantKind instantKind = getInstantKind(nativeRemedialAction);
-        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null
-            ? null
-            : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        Set<Instant> instants = crac.getInstants(instantKind);
         instants.forEach(instant -> addUsageRules(
             nativeRemedialAction.mrid(),
             linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
@@ -252,16 +250,6 @@ public class NcRemedialActionsCreator {
                 String.join(". ", alterations)
             ));
         }
-    }
-
-    private Set<Instant> getInstants(InstantKind instantKind, String operator) {
-        Set<Instant> instants = crac.getInstants(instantKind);
-        if (instantKind == InstantKind.CURATIVE && operator != null && ncCracCreationParameters.getRestrictedCurativeBatchesPerTso().containsKey(operator)) {
-            return instants.stream()
-                .filter(instant -> ncCracCreationParameters.getRestrictedCurativeBatchesPerTso().get(operator).contains(instant.getId()))
-                .collect(Collectors.toSet());
-        }
-        return instants;
     }
 
     private void addUsageRules(String remedialActionId,
