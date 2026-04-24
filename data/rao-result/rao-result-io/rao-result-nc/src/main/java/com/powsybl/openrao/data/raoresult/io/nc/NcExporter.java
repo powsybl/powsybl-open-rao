@@ -1,12 +1,19 @@
-package com.powsybl.openrao.data.raoresult.nc;
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.data.raoresult.io.nc;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,6 +32,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Set;
 
 @AutoService(Exporter.class)
 public class NcExporter implements Exporter {
@@ -34,8 +42,18 @@ public class NcExporter implements Exporter {
     }
 
     @Override
+    public Set<String> getRequiredProperties() {
+        return Set.of();
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return null;
+    }
+
+    @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        if (cracCreationContext instanceof CsaProfileCracCreationContext ncCracCreationContext) {
+        if (cracCreationContext instanceof NcCracCreationContext ncCracCreationContext) {
             Document document = initXmlDocument();
             OffsetDateTime timeStamp = ncCracCreationContext.getTimeStamp();
 
@@ -73,7 +91,7 @@ public class NcExporter implements Exporter {
 
     private static Element createRootRdfElement(Document document) {
         Element rootRdfElement = document.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
-        Arrays.stream(Namespace.values()).forEach(namespace -> rootRdfElement.setAttribute("xmlns:%s".formatted(namespace.getKeyword()), namespace.getUri()));
+        Arrays.stream(Namespace.values()).forEach(namespace -> rootRdfElement.setAttribute("xmlns:%s".formatted(namespace.getKeyword()), namespace.getURI()));
         document.appendChild(rootRdfElement);
         return rootRdfElement;
     }

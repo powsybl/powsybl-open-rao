@@ -1,4 +1,11 @@
-package com.powsybl.openrao.data.raoresult.nc;
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.data.raoresult.io.nc;
 
 import com.powsybl.action.Action;
 import com.powsybl.action.GeneratorAction;
@@ -7,14 +14,15 @@ import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -30,7 +38,7 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
     }
 
     @Override
-    public void addProfileContent(Document document, Element rootRdfElement, RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext) {
+    public void addProfileContent(Document document, Element rootRdfElement, RaoResult raoResult, NcCracCreationContext ncCracCreationContext) {
         ncCracCreationContext.getCrac().getStates().forEach(
             state -> {
                 raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> writeRemedialActionResult(document, rootRdfElement, rangeAction, state, raoResult, ncCracCreationContext));
@@ -39,7 +47,7 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
         );
     }
 
-    private static void writeRemedialActionResult(Document document, Element rootRdfElement, RemedialAction<?> remedialAction, State state, RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext) {
+    private static void writeRemedialActionResult(Document document, Element rootRdfElement, RemedialAction<?> remedialAction, State state, RaoResult raoResult, NcCracCreationContext ncCracCreationContext) {
         // Step 1: Create RemedialActionSchedule to indicate the application state of the remedial action
         String remedialActionScheduleMRid = generateRemedialActionScheduleMRid(remedialAction, state);
         Element remedialActionScheduleElement = writeRemedialActionScheduleElement(document, remedialActionScheduleMRid, remedialAction, state);
@@ -92,7 +100,7 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
         remedialActionScheduleElement.appendChild(mRidElement);
 
         Element statusKindElement = document.createElement("nc:RemedialActionSchedule.statusKind");
-        NcProfileWriter.setRdfResourceReference(statusKindElement, Namespace.NC.getUri() + "RemedialActionScheduleStatusKind.proposed");
+        NcProfileWriter.setRdfResourceReference(statusKindElement, Namespace.NC.getURI() + "RemedialActionScheduleStatusKind.proposed");
         remedialActionScheduleElement.appendChild(statusKindElement);
 
         Element remedialActionElement = document.createElement("nc:RemedialActionSchedule.RemedialAction");
@@ -113,11 +121,11 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
         gridStateIntensityScheduleElement.setAttribute("rdf:ID", NcProfileWriter.getMRidReference(gridStateIntensityScheduleMRid));
 
         Element valueKindElement = document.createElement("nc:GridStateIntensitySchedule.valueKind");
-        NcProfileWriter.setRdfResourceReference(valueKindElement, Namespace.NC.getUri() + "ValueOffsetKind.absolute");
+        NcProfileWriter.setRdfResourceReference(valueKindElement, Namespace.NC.getURI() + "ValueOffsetKind.absolute");
         gridStateIntensityScheduleElement.appendChild(valueKindElement);
 
         Element interpolationKindElement = document.createElement("nc:BaseTimeSeries.interpolationKind");
-        NcProfileWriter.setRdfResourceReference(interpolationKindElement, Namespace.NC.getUri() + "TimeSeriesInterpolationKind.none");
+        NcProfileWriter.setRdfResourceReference(interpolationKindElement, Namespace.NC.getURI() + "TimeSeriesInterpolationKind.none");
         gridStateIntensityScheduleElement.appendChild(interpolationKindElement);
 
         Element mRidElement = document.createElement("cim:IdentifiedObject.mRID");
@@ -135,11 +143,15 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
         return gridStateIntensityScheduleElement;
     }
 
-    private static Element writeGenericValueTimePoint(Document document, String genericValueScheduleMRid, State state, Number setPoint, CsaProfileCracCreationContext ncCracCreationContext) {
+    private static Element writeGenericValueTimePoint(Document document, String genericValueScheduleMRid, State state, Number setPoint, NcCracCreationContext ncCracCreationContext) {
         Element genericValueTimePointElement = document.createElement("nc:GenericValueTimePoint");
 
         Element atTimeElement = document.createElement("nc:GenericValueTimePoint.atTime");
-        atTimeElement.setTextContent(NcProfileWriter.formatOffsetDateTime(getRemedialActionApplicationTimeStamp(ncCracCreationContext.getTimeStamp(), ncCracCreationContext.getInstantApplicationTimeMap(), state)));
+        // -----
+        Crac crac = ncCracCreationContext.getCrac();
+        Map<Instant, Integer> curativeInstants = Map.of(crac.getInstant("preventive"), 0, crac.getInstant("curative 1"), 300, crac.getInstant("curative 2"), 600, crac.getInstant("curative 3"), 1200); // TODO: do not hardcode this
+        // -----
+        atTimeElement.setTextContent(NcProfileWriter.formatOffsetDateTime(getRemedialActionApplicationTimeStamp(ncCracCreationContext.getTimeStamp(), curativeInstants, state)));
         genericValueTimePointElement.appendChild(atTimeElement);
 
         Element valueElement = document.createElement("nc:GenericValueTimePoint.value");

@@ -1,4 +1,11 @@
-package com.powsybl.openrao.data.raoresult.nc;
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.data.raoresult.io.nc;
 
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
@@ -6,20 +13,21 @@ import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -44,9 +52,10 @@ class NcExporterTest {
     private Instant preventiveInstant;
     private Instant curative1Instant;
     private Instant curative2Instant;
+    private Instant curative3Instant;
 
     @BeforeEach
-    private void setUp() {
+    public void setUp() {
         initCrac();
         initRaoResult();
     }
@@ -57,6 +66,12 @@ class NcExporterTest {
         preventiveInstant = Mockito.mock(Instant.class);
         curative1Instant = Mockito.mock(Instant.class);
         curative2Instant = Mockito.mock(Instant.class);
+        curative3Instant = Mockito.mock(Instant.class);
+
+        Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant("curative 1")).thenReturn(curative1Instant);
+        Mockito.when(crac.getInstant("curative 2")).thenReturn(curative2Instant);
+        Mockito.when(crac.getInstant("curative 3")).thenReturn(curative3Instant);
 
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency-1");
@@ -124,12 +139,12 @@ class NcExporterTest {
     }
 
     @Test
-    void exportRasProfile() throws FileNotFoundException {
-        CsaProfileCracCreationContext ncContext = Mockito.mock(CsaProfileCracCreationContext.class);
+    void exportRasProfile() throws IOException {
+        NcCracCreationContext ncContext = Mockito.mock(NcCracCreationContext.class);
         Mockito.when(ncContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2024, 10, 10, 14, 42, 0, 0, ZoneOffset.UTC));
         Mockito.when(ncContext.getCrac()).thenReturn(crac);
-        Mockito.when(ncContext.getInstantApplicationTimeMap()).thenReturn(Map.of(preventiveInstant, 0, curative1Instant, 600, curative2Instant, 1200));
-        OutputStream outputStream = new FileOutputStream("RAS.xml");
-        new NcExporter().exportData(raoResult, ncContext, null, outputStream);
+        try (OutputStream outputStream = new FileOutputStream("RAS.xml")) {
+            new NcExporter().exportData(raoResult, ncContext, null, outputStream);
+        }
     }
 }

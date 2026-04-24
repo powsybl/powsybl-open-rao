@@ -24,5 +24,6 @@
         <module>virtual-hubs</module>
         <module>crac/crac-io/crac-io-network</module>
         <module>ics-importer</module>
+        <module>rao-result/rao-result-io/rao-result-nc</module>
     </modules>
 </project>

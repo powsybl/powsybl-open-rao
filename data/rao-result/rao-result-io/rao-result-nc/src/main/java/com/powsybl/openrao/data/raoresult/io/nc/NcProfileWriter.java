@@ -1,7 +1,14 @@
-package com.powsybl.openrao.data.raoresult.nc;
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+package com.powsybl.openrao.data.raoresult.io.nc;
+
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -17,9 +24,9 @@ public interface NcProfileWriter {
         header.appendChild(keywordElement);
     }
 
-    void addProfileContent(Document document, Element rootRdfElement, RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext);
+    void addProfileContent(Document document, Element rootRdfElement, RaoResult raoResult, NcCracCreationContext ncCracCreationContext);
 
-    default void addWholeProfile(Document document, Element rootRdfElement, Element header, RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext) {
+    default void addWholeProfile(Document document, Element rootRdfElement, Element header, RaoResult raoResult, NcCracCreationContext ncCracCreationContext) {
         addProfileKeywordToHeader(document, header);
         addProfileContent(document, rootRdfElement, raoResult, ncCracCreationContext);
     }
