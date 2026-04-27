@@ -28,9 +28,13 @@ import org.w3c.dom.Element;
 
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
     @Override
     public String getKeyword() {
@@ -76,24 +80,21 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
     }
 
     private static Number getActionSetPoint(Action elementaryAction) {
-        if (elementaryAction instanceof SwitchAction switchAction) {
-            return switchAction.isOpen() ? 1 : 0;
-        } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-            return shuntCompensatorPositionAction.getSectionCount();
-        } else if (elementaryAction instanceof GeneratorAction generatorAction) {
-            return generatorAction.getActivePowerValue().orElseThrow();
-        } else if (elementaryAction instanceof LoadAction loadAction) {
-            return loadAction.getActivePowerValue().orElseThrow();
-        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction tapPositionAction) {
-            return tapPositionAction.getTapPosition();
-        } else {
-            throw new OpenRaoException("Unsupported elementary action type %s".formatted(elementaryAction.getClass().getSimpleName()));
-        }
+        return switch (elementaryAction) {
+            case SwitchAction switchAction -> switchAction.isOpen() ? 1 : 0;
+            case ShuntCompensatorPositionAction shuntCompensatorPositionAction ->
+                shuntCompensatorPositionAction.getSectionCount();
+            case GeneratorAction generatorAction -> generatorAction.getActivePowerValue().orElseThrow();
+            case LoadAction loadAction -> loadAction.getActivePowerValue().orElseThrow();
+            case PhaseTapChangerTapPositionAction tapPositionAction -> tapPositionAction.getTapPosition();
+            default ->
+                throw new OpenRaoException("Unsupported elementary action type %s".formatted(elementaryAction.getClass().getSimpleName()));
+        };
     }
 
     private static Element writeRemedialActionScheduleElement(Document document, String remedialActionScheduleMRid, RemedialAction<?> remedialAction, State state) {
         Element remedialActionScheduleElement = document.createElement("nc:RemedialActionSchedule");
-        remedialActionScheduleElement.setAttribute("rdf:ID", NcProfileWriter.getMRidReference(remedialActionScheduleMRid));
+        remedialActionScheduleElement.setAttribute("rdf:ID", NcProfileWriter.getMRidIdDeclaration(remedialActionScheduleMRid));
 
         Element mRidElement = document.createElement("cim:IdentifiedObject.mRID");
         mRidElement.setTextContent(remedialActionScheduleMRid);
@@ -118,7 +119,7 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
 
     private static Element writeGridStateIntensitySchedule(Document document, String gridStateIntensityScheduleMRid, String remedialActionScheduleMRid, String elementaryActionId) {
         Element gridStateIntensityScheduleElement = document.createElement("nc:GridStateIntensitySchedule");
-        gridStateIntensityScheduleElement.setAttribute("rdf:ID", NcProfileWriter.getMRidReference(gridStateIntensityScheduleMRid));
+        gridStateIntensityScheduleElement.setAttribute("rdf:ID", NcProfileWriter.getMRidIdDeclaration(gridStateIntensityScheduleMRid));
 
         Element valueKindElement = document.createElement("nc:GridStateIntensitySchedule.valueKind");
         NcProfileWriter.setRdfResourceReference(valueKindElement, Namespace.NC.getURI() + "ValueOffsetKind.absolute");
@@ -151,7 +152,9 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
         Crac crac = ncCracCreationContext.getCrac();
         Map<Instant, Integer> curativeInstants = Map.of(crac.getInstant("preventive"), 0, crac.getInstant("curative 1"), 300, crac.getInstant("curative 2"), 600, crac.getInstant("curative 3"), 1200); // TODO: do not hardcode this
         // -----
-        atTimeElement.setTextContent(NcProfileWriter.formatOffsetDateTime(getRemedialActionApplicationTimeStamp(ncCracCreationContext.getTimeStamp(), curativeInstants, state)));
+        OffsetDateTime timestamp = getRemedialActionApplicationTimeStamp(ncCracCreationContext.getTimeStamp(), curativeInstants, state);
+        genericValueTimePointElement.setAttribute("rdf:ID", NcProfileWriter.getMRidIdDeclaration(generateGenericValueTimePointMRid(timestamp, setPoint, genericValueScheduleMRid)));
+        atTimeElement.setTextContent(NcProfileWriter.formatOffsetDateTime(timestamp));
         genericValueTimePointElement.appendChild(atTimeElement);
 
         Element valueElement = document.createElement("nc:GenericValueTimePoint.value");
@@ -175,5 +178,9 @@ public class RemedialActionScheduleProfileExporter implements NcProfileWriter {
 
     private static String generateGridStateIntensityScheduleMRid(String elementaryActionId, State state) {
         return UUID.nameUUIDFromBytes("%s@%s::set-point".formatted(elementaryActionId, state.getId()).getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    private static String generateGenericValueTimePointMRid(OffsetDateTime timestamp, Number value, String scheduleMRid) {
+        return UUID.nameUUIDFromBytes("%S@%s::%s".formatted(scheduleMRid, timestamp.format(DateTimeFormatter.ISO_DATE_TIME), value).getBytes(StandardCharsets.UTF_8)).toString();
     }
 }

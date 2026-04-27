@@ -15,6 +15,9 @@ import org.w3c.dom.Element;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public interface NcProfileWriter {
     String getKeyword();
 
@@ -37,6 +40,10 @@ public interface NcProfileWriter {
 
     static void setRdfResourceReference(Element element, String reference) {
         element.setAttribute("rdf:resource", reference);
+    }
+
+    static String getMRidIdDeclaration(String mRid) {
+        return "_%s".formatted(mRid);
     }
 
     static String getMRidReference(String mRid) {

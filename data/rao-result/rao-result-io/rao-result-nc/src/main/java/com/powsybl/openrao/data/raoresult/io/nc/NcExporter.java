@@ -34,6 +34,9 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 @AutoService(Exporter.class)
 public class NcExporter implements Exporter {
     @Override

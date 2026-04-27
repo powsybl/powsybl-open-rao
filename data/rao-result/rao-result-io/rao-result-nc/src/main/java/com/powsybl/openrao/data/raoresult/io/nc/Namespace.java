@@ -14,7 +14,7 @@ public enum Namespace {
     CIM("cim", "http://iec.ch/TC57/CIM100#"),
     DCAT("dcat", "http://www.w3.org/ns/dcat#"),
     MD("md", "http://iec.ch/TC57/61970-552/ModelDescription/1#"),
-    NC("nc","http://entsoe.eu/ns/nc#"),
+    NC("nc", "http://entsoe.eu/ns/nc#"),
     RDF("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
     private final String keyword;
