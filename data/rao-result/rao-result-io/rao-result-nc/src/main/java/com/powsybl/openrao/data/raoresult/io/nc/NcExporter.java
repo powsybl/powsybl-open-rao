@@ -35,6 +35,10 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
+ * RAO Result exporter in ENTSO-E's standard Network Code profiles.
+ * The Remedial Action Schedule (RAS) profile is always exported.
+ * Other profiles may be exported if stated in the export properties.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(Exporter.class)
@@ -78,7 +82,7 @@ public class NcExporter implements Exporter {
     }
 
     private static String formatOffsetDateTime(OffsetDateTime offsetDateTime) {
-        return offsetDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+        return offsetDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
     private static Document initXmlDocument() {
@@ -101,6 +105,16 @@ public class NcExporter implements Exporter {
 
     private static Element writeProfileHeader(Document document, OffsetDateTime timeStamp) {
         Element header = document.createElement("md:FullModel");
+
+        OffsetDateTime now = OffsetDateTime.now();
+
+        Element generatedAtTime = document.createElement("prov:generatedAtTime");
+        generatedAtTime.setTextContent(formatOffsetDateTime(now));
+        header.appendChild(generatedAtTime);
+
+        Element issueDate = document.createElement("dcterms:issued");
+        issueDate.setTextContent(formatOffsetDateTime(now));
+        header.appendChild(issueDate);
 
         Element startDate = document.createElement("dcat:startDate");
         startDate.setTextContent(formatOffsetDateTime(timeStamp));
