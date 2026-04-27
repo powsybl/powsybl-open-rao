@@ -4,7 +4,7 @@
   "generatorConstraints": [
     {
       "generatorId": "BBE1AA1 _generator",
-      "leadTime": 1.25,
+      "leadTime": 2.25,
       "lagTime": 2.5
     }
   ]
