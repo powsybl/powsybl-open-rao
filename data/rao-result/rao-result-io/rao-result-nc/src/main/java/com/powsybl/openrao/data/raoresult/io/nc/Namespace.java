@@ -34,4 +34,8 @@ public enum Namespace {
     public String getURI() {
         return uri;
     }
+
+    public String format(String fieldName) {
+        return "%s:%s".formatted(keyword, fieldName);
+    }
 }

@@ -61,16 +61,8 @@ public class NcExporter implements Exporter {
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         if (cracCreationContext instanceof NcCracCreationContext ncCracCreationContext) {
-            Document document = initXmlDocument();
             OffsetDateTime timeStamp = ncCracCreationContext.getTimeStamp();
-
-            Element rootRdfElement = createRootRdfElement(document);
-            Element header = writeProfileHeader(document, timeStamp);
-            rootRdfElement.appendChild(header);
-
-            new RemedialActionScheduleProfileExporter().addWholeProfile(document, rootRdfElement, header, raoResult, ncCracCreationContext);
-
-            writeOutputXmlFile(document, outputStream);
+            new RASProfileExporter().fill(timeStamp, raoResult, ncCracCreationContext).write(outputStream);
         } else {
             throw new OpenRaoException("CRAC Creation Context is not NC-compliant.");
         }
