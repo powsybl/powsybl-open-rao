@@ -422,11 +422,9 @@ crac.newFlowCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **network element**: one network element  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element name**  
+🔴 **networkElementId**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**    
 ⚪ **border**: default value = ""  
 ⚪ **reliabilityMargin**: default value = 0 MW  
@@ -435,8 +433,8 @@ crac.newFlowCnec()
 🔴 **thresholds**: list of 1 to N thresholds, a FlowCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **side**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of minValue/maxValue should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 :::
 ::::
 
@@ -589,10 +587,10 @@ cnec2 = crac.newAngleCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **importing network element**: one network element, must be the id of a PowSyBl network identifiable  
-🔴 **exporting network element**: one network element, must be the id of a PowSyBl network identifiable  
+🔴 **importingNetworkElement**: one network element, must be the id of a PowSyBl network identifiable  
+🔴 **exportingNetworkElement**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**  
 ⚪ **border**: default value = ""  
 ⚪ **reliabilityMargin**: default value = 0 °  
@@ -600,8 +598,8 @@ cnec2 = crac.newAngleCnec()
 ⚪ **monitored**: default value = false  
 🔴 **thresholds**: list of 1 to N thresholds, an AngleCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  : must be in degrees  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of these two values (min/max) is required   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined    
 :::
 ::::
 
@@ -688,9 +686,9 @@ crac.newVoltageCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **network element**: one network element, must be the id of a PowSyBl network identifiable  
+🔴 **networkElementId**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**  
 ⚪ **border**: default value = ""   
 ⚪ **reliabilityMargin**: default value = 0 kV  
@@ -698,8 +696,8 @@ crac.newVoltageCnec()
 ⚪ **monitored**: default value = false  
 🔴 **thresholds**: list of 1 to N thresholds, a VoltageCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  : must be in kilovolts  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of these two values (min/max) is required   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 :::
 ::::
 
@@ -1182,8 +1180,8 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 🔵 **speed**: mandatory if it is an automaton  
 🔵 **ranges**: list of 0 to N TapRange (if none provided, the whole PST's range will be used)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one value must be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
@@ -1257,8 +1255,8 @@ In that case, the validity domain of the HVDC is [-5; 10].
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **ranges**: list of 0 to N HvdcRange  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))
@@ -1340,8 +1338,8 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **ranges**: list of 1 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
@@ -1424,8 +1422,8 @@ exported from France to Spain.
 🔵 **speed**: mandatory if it is an automaton  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
