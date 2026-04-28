@@ -122,19 +122,19 @@ class LinearProblemTest {
         assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_upward_constraint has not been created yet", e.getMessage());
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
         assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_downward_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getUpOrDownVariationConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_upordownvariation_constraint has not been created yet", e.getMessage());
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_taptoangleconversion_constraint has not been created yet", e.getMessage());
 
         linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
         linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
-        linearProblem.addUpOrDownPstVariationConstraint(rangeAction, state);
+        linearProblem.addUpOrDownVariationConstraint(rangeAction, state);
         linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction, state);
 
         assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
         assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
-        assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        assertNotNull(linearProblem.getUpOrDownVariationConstraint(rangeAction, state));
         assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
     }
 

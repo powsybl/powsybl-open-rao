@@ -15,9 +15,11 @@ import java.util.Set;
  */
 public class TimeCoupledConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
+    private final Set<AdjustmentConstraints> adjustmentConstraints;
 
     public TimeCoupledConstraints() {
         this.generatorConstraints = new HashSet<>();
+        this.adjustmentConstraints = new HashSet<>();
     }
 
     public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints) {
@@ -28,7 +30,15 @@ public class TimeCoupledConstraints {
         this.generatorConstraints.add(generatorConstraints);
     }
 
+    public void addAdjustmentConstraints(AdjustmentConstraints adjustmentConstraints) {
+        this.adjustmentConstraints.add(adjustmentConstraints);
+    }
+
     public Set<GeneratorConstraints> getGeneratorConstraints() {
         return generatorConstraints;
+    }
+
+    public Set<AdjustmentConstraints> getAdjustmentConstraints() {
+        return adjustmentConstraints;
     }
 }
