@@ -487,6 +487,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
                         maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
                     }
+                    case MINIMUM_ADJUSTMENT -> {
+                        // do nothing
+                    }
                     default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
