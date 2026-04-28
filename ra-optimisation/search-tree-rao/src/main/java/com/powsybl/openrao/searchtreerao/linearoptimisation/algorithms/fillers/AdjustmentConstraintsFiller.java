@@ -55,6 +55,11 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private static final double OFF_POWER_THRESHOLD = 1.0;
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
+    /* TODO: instead of relying on ids to have different constraints for PSTs, CT etc, add some booleans in AdjustmentConstraints to check
+            - if the variation cost is compared to the initial position in the network or the previous timestep setpoint (eg rd/ct vs psts)
+            - if the physical adjustments are happening on the setpoint, or if the setpoint only really makes sense as a delta (eg rd/pst vs ct)
+            - if the adjustments can only happen on round hours (eg ct)
+     */
     public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActionsPerTimestamp, TemporalData<State> preventiveStates, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints) {
         this.rangeActionsPerTimestamp = rangeActionsPerTimestamp;
         this.preventiveStates = preventiveStates;
@@ -163,12 +168,6 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         linearProblem.getObjective().setCoefficient(flatUpTransition, coefficient);
         linearProblem.getObjective().setCoefficient(flatDownTransition, coefficient);
         linearProblem.getObjective().setCoefficient(flatOffTransition, coefficient);
-        /*// and number of off -> something, to avoid using different groups?
-        OpenRaoMPVariable offDownTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
-        OpenRaoMPVariable offUpTransition = linearProblem.getAdjustmentStateTransitionVariable(rangeActionId, timestamp, LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.FLAT);
-        linearProblem.getObjective().setCoefficient(upFlatTransition, coefficient);
-        linearProblem.getObjective().setCoefficient(downFlatTransition, coefficient);
-        linearProblem.getObjective().setCoefficient(offFlatTransition, coefficient);*/
     }
 
     private void addStateVariables(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp, RangeAction<?> rangeAction) {
@@ -188,6 +187,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
             for (LinearProblem.AdjustmentState stateTo : LinearProblem.AdjustmentState.values()) {
                 if (stateFrom == stateTo || !Set.of(stateFrom, stateTo).equals(Set.of(LinearProblem.AdjustmentState.UP, LinearProblem.AdjustmentState.DOWN))) {
                     OpenRaoMPVariable transitionVariable = linearProblem.addAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo);
+                    // TODO: compare these constraints with constraints on the adjustment states (never UP or DOWN except the timestamp preceding a round hour)
                     // ct specific constraints
                     if (rangeActionId.contains("_CT")) {
                         // ct should move in one ts
@@ -221,7 +221,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     }
 
     /**
-     * C2 - The previous state of the generator must match the transition.
+     * C2 - The previous state of the adjustment must match the transition.
      * <br/>
      * state_j{t} = /Sigma T{state_i -> state_j}
      */
@@ -238,7 +238,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     }
 
     /**
-     * C3 - The current state of the generator must match the transition.
+     * C3 - The current state of the adjustment must match the transition.
      * <br/>
      * state_j{t+1} = /Sigma T{state_j -> state_i}
      */
