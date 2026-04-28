@@ -104,7 +104,7 @@ public class SearchTree {
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
-    private final Function<Network, NetworkVariant> networkVariantSupplier = LazyNetworkVariant::new;
+    private final Function<Network, NetworkVariant> networkVariantSupplier = VariantFreeNetwork::new;
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,

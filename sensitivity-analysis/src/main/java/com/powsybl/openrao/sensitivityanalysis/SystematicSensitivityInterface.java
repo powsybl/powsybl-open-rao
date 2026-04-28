@@ -149,8 +149,8 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network, AppliedRemedialActions additionnalAppliedRemedialActions) {
-        SystematicSensitivityResult result = runWithConfig(network, additionnalAppliedRemedialActions);
+    public SystematicSensitivityResult run(Network network, AppliedRemedialActions appliedRemedialActionsBefore) {
+        SystematicSensitivityResult result = runWithConfig(network, appliedRemedialActionsBefore);
         if (!result.isSuccess()) {
             BUSINESS_WARNS.warn("Sensitivity analysis failed.");
         }
@@ -165,23 +165,13 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, AppliedRemedialActions additionnalAppliedRemedialActions) {
+    private SystematicSensitivityResult runWithConfig(Network network, AppliedRemedialActions appliedRemedialActionsBefore) {
         if (cnecSensitivityProvider.getFlowCnecs().isEmpty()) {
             TECHNICAL_LOGS.error("Sensitivity analysis skipped: no FlowCNEC provided.");
             return new SystematicSensitivityResult();
         }
-        AppliedRemedialActions mergedAppliedRemedialActions = null;
-        if (appliedRemedialActions != null || additionnalAppliedRemedialActions != null) {
-            mergedAppliedRemedialActions = new AppliedRemedialActions();
-            if (appliedRemedialActions != null) {
-                mergedAppliedRemedialActions.add(appliedRemedialActions);
-            }
-            if (additionnalAppliedRemedialActions != null) {
-                mergedAppliedRemedialActions.add(additionnalAppliedRemedialActions);
-            }
-        }
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, mergedAppliedRemedialActions, parameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActionsBefore, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
             TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
