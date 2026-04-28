@@ -2,7 +2,7 @@
 title: Internal JSON CRAC format
 ---
 
-# JSON CRAC format
+# OpenRAO JSON CRAC format
 
 ## Introduction
 
@@ -1471,3 +1471,77 @@ For instance, let us consider a CRAC with 3 curative instants and the following 
 ```
 
 The maximum number of applicable remedial actions defined for the second curative instant (3) is a cumulated value that includes the maximum number of applicable remedial actions during the first curative instant (1). Thus, if 1 remedial action was applied during the first curative instant, only 2 remedial actions can actually be applied during the second curative instant. Likewise, the maximum number of remedial actions for the third curative instant includes the remedial actions applied at curative 1 and 2 instants. Depending on the number of previously applied remedial actions, the number of actually applicable remedial actions during the third curative instant can vary between 4 and 7.
+
+## Changelog
+
+**v2.10**
+- Renamed `danglingLineActions` to `boundaryLineActions`.
+- Removed `max-tso` from `ra-usage-limits-per-instant`.
+- Added `rangeType` for all range actions.
+
+**v2.9**
+- Added `acEmulationDeactivationAction`.
+
+**v2.8**
+- Removed initial set-points from range actions.
+- Removed `iMax` from FlowCNECs.
+- Removed usage methods.
+- Made ranges optional for PST range actions.
+
+**v2.7**
+- Added `timestamp`.
+
+**v2.6**
+- Added `activation-cost` and `variation-costs` for remedial actions.
+
+**v2.5**
+- Updated elementary actions to use the new type coming from PowSyBl core remedial actions.
+
+**v2.4**
+- Introduced new names for `onConstraint` and `cnecId`.
+- Replaced side names `left` and `right` with `one` and `two`.
+
+**v2.3**
+- Added the `RELATIVE_TO_PREVIOUS_TIME_STEP` range type.
+- Added the `border` attribute for CNECs.
+
+**v2.2**
+- Added the contingency ID in `on-flow-constraint-in-country`.
+
+**v2.1**
+- Added `ra-usage-limits`.
+
+**v2.0**
+- Added instants.
+- Changed the usage method logic; usage methods are now mandatory.
+
+**v1.9**
+- Added `counterTradeRangeAction`.
+
+**v1.8**
+- Added shunt compensator set-point action.
+
+**v1.7**
+- Added voltage constraint usage rules.
+
+**v1.6**
+- Replaced FlowCNEC's `rule` by `side`.
+- Renamed `freeToUse` to `onInstant`.
+- Renamed `onState` to `onContingencyState`.
+
+**v1.5**
+- Added VoltageCNECs.
+
+**v1.4**
+- Added AngleCNECs.
+- Renamed `frm` to `reliabilityMargin`.
+
+**v1.3**
+- Added initial set-points for HVDC range actions and injection range actions.
+- Added `onFlowConstraintInCountry`.
+
+**v1.2**
+- Added `injectionRangeAction`.
+
+**v1.1**
+- Added `switchPairs`.
