@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTIVE_POWER_VALUE;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.BOUNDARYLINE_ACTIONS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
@@ -30,9 +28,6 @@ public final class BoundaryLineActionArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", BOUNDARYLINE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BoundaryLineActionAdder adder = ownerAdder.newBoundaryLineAction();
             while (!jsonParser.nextToken().isStructEnd()) {

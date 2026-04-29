@@ -31,13 +31,11 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.I
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.MONITORED;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NAME;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPERATOR;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPTIMIZED;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.RELIABILITY_MARGIN;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.THRESHOLDS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNECS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
@@ -50,9 +48,6 @@ public final class VoltageCnecArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", VOLTAGE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec();
             List<Extension<VoltageCnec>> extensions = new ArrayList<>();

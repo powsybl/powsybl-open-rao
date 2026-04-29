@@ -25,9 +25,6 @@ public final class PstSetpointArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.PST_SETPOINTS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PhaseTapChangerTapPositionActionAdder adder = ownerAdder.newPhaseTapChangerTapPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {

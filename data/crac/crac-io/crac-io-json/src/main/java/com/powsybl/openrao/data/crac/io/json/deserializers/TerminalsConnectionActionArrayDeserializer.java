@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTION_TYPE;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeActionType;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
@@ -31,9 +29,6 @@ public final class TerminalsConnectionActionArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", TERMINALS_CONNECTION_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             TerminalsConnectionActionAdder adder = ownerAdder.newTerminalsConnectionAction();
             while (!jsonParser.nextToken().isStructEnd()) {

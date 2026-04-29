@@ -26,9 +26,6 @@ public final class NetworkActionArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.NETWORK_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction();
             while (!jsonParser.nextToken().isStructEnd()) {

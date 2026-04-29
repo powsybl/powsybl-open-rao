@@ -26,12 +26,6 @@ public final class CounterTradeRangeActionArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format(
-                "Cannot deserialize %s before %s",
-                JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID
-            ));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 

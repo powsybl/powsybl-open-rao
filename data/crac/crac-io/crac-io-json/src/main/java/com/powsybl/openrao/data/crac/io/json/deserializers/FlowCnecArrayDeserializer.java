@@ -41,9 +41,6 @@ public final class FlowCnecArrayDeserializer {
                                    Crac crac,
                                    Map<String, String> networkElementsNamesPerId,
                                    Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.FLOW_CNECS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
             String networkElementId = null;

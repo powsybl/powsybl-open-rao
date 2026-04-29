@@ -33,9 +33,6 @@ public final class AngleCnecArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.ANGLE_CNECS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnecAdder angleCnecAdder = crac.newAngleCnec();
             List<Extension<AngleCnec>> extensions = new ArrayList<>();

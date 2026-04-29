@@ -33,9 +33,6 @@ public final class PstRangeActionArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.PST_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {

@@ -114,7 +114,9 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         }
 
         // Write all
-        gen.writeObjectField(JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID, networkElementsNamesPerId);
+        if (!networkElementsNamesPerId.isEmpty()) {
+            gen.writeObjectField(JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID, networkElementsNamesPerId);
+        }
     }
 
     private void serializeContingencies(Crac crac, JsonGenerator gen) throws IOException {
