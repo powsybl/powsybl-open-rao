@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.io.nc.parameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -21,10 +20,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -32,26 +28,18 @@ import java.util.Set;
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonNcCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<NcCracCreationParameters> {
 
-    private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
-    private static final String TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE = "tsos-which-do-not-use-patl-in-final-state";
+    private static final String CAPACITY_CALCULATION_REGION = "capacity-calculation-region";
     private static final String CURATIVE_INSTANTS = "curative-instants";
     private static final String NAME = "name";
     private static final String APPLICATION_TIME = "application-time";
-    private static final String BORDERS = "borders";
-    private static final String EIC = "eic";
-    private static final String DEFAULT_FOR_TSO = "default-for-tso";
-    private static final String RESTRICTED_CURATIVE_BATCHES_PER_TSO = "restricted-curative-batches-per-tso";
     private static final String TIMESTAMP = "timestamp";
 
     @Override
     public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        serializeCapacityCalculationRegionEicCode(ncParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
-        serializeTsosWhichDoNotUsePatlInFinalState(ncParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
-        serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
-        serializeBorders(ncParameters.getBorders(), jsonGenerator);
-        serializeRestrictedCurativeBatchesPerTso(ncParameters.getRestrictedCurativeBatchesPerTso(), jsonGenerator);
         serializeTimestamp(ncParameters.getTimestamp(), jsonGenerator);
+        serializeCapacityCalculationRegion(ncParameters.getCapacityCalculationRegion(), jsonGenerator);
+        serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -59,29 +47,17 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     public NcCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, NcCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case CAPACITY_CALCULATION_REGION_EIC_CODE:
+                case TIMESTAMP:
                     jsonParser.nextToken();
-                    parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
+                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
-                case TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE:
+                case CAPACITY_CALCULATION_REGION:
                     jsonParser.nextToken();
-                    parameters.setTsosWhichDoNotUsePatlInFinalState(jsonParser.readValueAs(new TypeReference<HashSet<String>>() { }));
+                    parameters.setCapacityCalculationRegion(CapacityCalculationRegion.fromEIC(jsonParser.readValueAs(String.class)));
                     break;
                 case CURATIVE_INSTANTS:
                     jsonParser.nextToken();
                     parameters.setCurativeInstants(deserializeCurativeInstants(jsonParser));
-                    break;
-                case BORDERS:
-                    jsonParser.nextToken();
-                    parameters.setBorders(deserializeBorders(jsonParser));
-                    break;
-                case RESTRICTED_CURATIVE_BATCHES_PER_TSO:
-                    jsonParser.nextToken();
-                    parameters.setRestrictedCurativeBatchesPerTso(deserializeRestrictedCurativeBatchesPerTso(jsonParser));
-                    break;
-                case TIMESTAMP:
-                    jsonParser.nextToken();
-                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
@@ -106,21 +82,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         return NcCracCreationParameters.class;
     }
 
-    private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
-    }
-
-    private void serializeTsosWhichDoNotUsePatlInFinalState(Set<String> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE);
-        jsonGenerator.writeStartArray();
-        usePatlInFinalState.forEach(tso -> {
-            try {
-                jsonGenerator.writeString(tso);
-            } catch (IOException e) {
-                throwSerializationError(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE, e);
-            }
-        });
-        jsonGenerator.writeEndArray();
+    private void serializeCapacityCalculationRegion(CapacityCalculationRegion capacityCalculationRegion, JsonGenerator jsonGenerator) throws IOException {
+        if (capacityCalculationRegion != null) {
+            jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION, capacityCalculationRegion.getEIC());
+        }
     }
 
     private void serializeCurativeInstants(Map<String, Integer> curativeInstants, JsonGenerator jsonGenerator) throws IOException {
@@ -134,45 +99,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throwSerializationError(CURATIVE_INSTANTS, e);
-            }
-        });
-        jsonGenerator.writeEndArray();
-    }
-
-    private void serializeRestrictedCurativeBatchesPerTso(Map<String, Set<String>> restrictedCurativeBatchesPerTso, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(RESTRICTED_CURATIVE_BATCHES_PER_TSO);
-        jsonGenerator.writeStartObject();
-        restrictedCurativeBatchesPerTso.forEach((operator, curativeInstants) -> {
-            try {
-                jsonGenerator.writeFieldName(operator);
-                jsonGenerator.writeStartArray();
-                curativeInstants.forEach(curativeInstant -> {
-                    try {
-                        jsonGenerator.writeString(curativeInstant);
-                    } catch (IOException e) {
-                        throwSerializationError(RESTRICTED_CURATIVE_BATCHES_PER_TSO, e);
-                    }
-                });
-                jsonGenerator.writeEndArray();
-            } catch (IOException e) {
-                throwSerializationError(RESTRICTED_CURATIVE_BATCHES_PER_TSO, e);
-            }
-        });
-        jsonGenerator.writeEndObject();
-    }
-
-    private void serializeBorders(Set<Border> borders, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(BORDERS);
-        jsonGenerator.writeStartArray();
-        borders.forEach(border -> {
-            try {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField(NAME, border.name());
-                jsonGenerator.writeStringField(EIC, border.eic());
-                jsonGenerator.writeStringField(DEFAULT_FOR_TSO, border.defaultForTso());
-                jsonGenerator.writeEndObject();
-            } catch (IOException e) {
-                throwSerializationError(BORDERS, e);
             }
         });
         jsonGenerator.writeEndArray();
@@ -209,29 +135,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
             curativeInstants.put(name, applicationTime);
         }
         return curativeInstants;
-    }
-
-    private Map<String, Set<String>> deserializeRestrictedCurativeBatchesPerTso(JsonParser jsonParser) throws IOException {
-        Map<String, Set<String>> restrictedCurativeBatchesPerTso = new HashMap<>();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            String operator = jsonParser.currentName();
-            jsonParser.nextToken();
-            String[] instants = jsonParser.readValueAs(String[].class);
-            restrictedCurativeBatchesPerTso.put(operator, new HashSet<>(List.of(instants)));
-        }
-        return restrictedCurativeBatchesPerTso;
-    }
-
-    private Set<Border> deserializeBorders(JsonParser jsonParser) throws IOException {
-        Set<Border> borders = new HashSet<>();
-        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Map<String, String> borderData = new HashMap<>();
-            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                borderData.put(jsonParser.getCurrentName(), jsonParser.nextTextValue());
-            }
-            borders.add(new Border(borderData.get(NAME), borderData.get(EIC), borderData.get(DEFAULT_FOR_TSO)));
-        }
-        return borders;
     }
 
     private static void throwSerializationError(String nonSerializableField, IOException e) {

@@ -25,8 +25,6 @@ import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingenc
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
 import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
 import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
-import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +45,6 @@ public class NcCnecCreator {
     private Set<ElementaryCreationContext> ncCnecCreationContexts;
     private final NcCracCreationContext cracCreationContext;
     private final CracCreationParameters cracCreationParameters;
-    private final Map<String, String> borderPerTso;
-    private final Map<String, String> borderPerEic;
 
     public NcCnecCreator(Crac crac, Network network, NcCrac nativeCrac, NcCracCreationContext cracCreationContext, CracCreationParameters cracCreationParameters) {
         this.crac = crac;
@@ -64,10 +60,6 @@ public class NcCnecCreator {
             .collect(Collectors.toMap(VoltageAngleLimit::mrid, voltageAngleLimit -> voltageAngleLimit));
         this.cracCreationContext = cracCreationContext;
         this.cracCreationParameters = cracCreationParameters;
-        this.borderPerTso = cracCreationParameters.getExtension(NcCracCreationParameters.class).getBorders().stream()
-            .collect(Collectors.toMap(Border::defaultForTso, Border::name));
-        this.borderPerEic = cracCreationParameters.getExtension(NcCracCreationParameters.class).getBorders().stream()
-            .collect(Collectors.toMap(Border::eic, Border::name));
         this.createAndAddCnecs();
     }
 
@@ -124,9 +116,7 @@ public class NcCnecCreator {
                 combinableContingencies,
                 ncCnecCreationContexts,
                 rejectedLinksAssessedElementContingency,
-                cracCreationParameters,
-                borderPerTso,
-                borderPerEic
+                cracCreationParameters
             ).addFlowCnecs();
             return;
         }
@@ -141,9 +131,7 @@ public class NcCnecCreator {
                     combinableContingencies,
                     ncCnecCreationContexts,
                     rejectedLinksAssessedElementContingency,
-                    cracCreationParameters,
-                    borderPerTso,
-                    borderPerEic
+                    cracCreationParameters
                 ).addFlowCnecs();
             case VOLTAGE ->
                 new VoltageCnecCreator(
@@ -154,9 +142,7 @@ public class NcCnecCreator {
                     combinableContingencies,
                     ncCnecCreationContexts,
                     rejectedLinksAssessedElementContingency,
-                    cracCreationParameters,
-                    borderPerTso,
-                    borderPerEic
+                    cracCreationParameters
                 ).addVoltageCnecs();
             case ANGLE ->
                 new AngleCnecCreator(
@@ -167,9 +153,7 @@ public class NcCnecCreator {
                     combinableContingencies,
                     ncCnecCreationContexts,
                     rejectedLinksAssessedElementContingency,
-                    cracCreationParameters,
-                    borderPerTso,
-                    borderPerEic
+                    cracCreationParameters
                 ).addAngleCnecs();
             default -> throw new OpenRaoException("Unexpected limit type: " + limitType);
         }
