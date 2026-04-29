@@ -60,8 +60,9 @@ An OpenRAO JSON CRAC file must contain a header, which is made of four fields, a
 - `id`: the identifier of the CRAC
 - `name`: the name of the CRAC
 
-> An optional `info` field can be added to the header. It is a free-form text field that can be used to add any
-> information about the CRAC.
+An optional `info` field can be added to the header. It is a free-form text field that can be used to add any
+information about the CRAC. Additionally, a `timestamp` field can be added to the header, which is a string
+representing the date and time of validity the CRAC. The format of the timestamp is ISO 8601.
 
 ```json
 {
@@ -69,7 +70,8 @@ An OpenRAO JSON CRAC file must contain a header, which is made of four fields, a
   "version": "2.10",
   "id": "my-crac",
   "name": "My CRAC",
-  "info" : "Whatever information worth mentioning about the CRAC."
+  "info" : "Whatever information worth mentioning about the CRAC.",
+  "timestamp" : "2026-01-01T00:00:00Z"
 }
 ```
 
