@@ -51,6 +51,32 @@ The following paragraphs of this page explain, step by step, the content of thes
 > 🔵 marks a field that can be **mandatory in some cases**  
 > ⭐ marks a field that must be **unique** in the CRAC  
 
+## Header
+
+An OpenRAO JSON CRAC file must contain a header, which is made of four fields, all mandatory:
+
+- `type`: the type of JSON document being processed, must be "CRAC"
+- `version`: the version of the CRAC format, the latest version is 2.10
+- `id`: the identifier of the CRAC
+- `name`: the name of the CRAC
+
+> An optional `info` field can be added to the header. It is a free-form text field that can be used to add any
+> information about the CRAC.
+
+```json
+{
+  "type": "CRAC",
+  "version": "2.10",
+  "id": "my-crac",
+  "name": "My CRAC",
+  "info" : "Whatever information worth mentioning about the CRAC."
+}
+```
+
+The JSON CRAC importer supports backwards compatibility with previous versions of the CRAC format. It is therefore
+possible to import a CRAC with a version anterior to the latest version. However, this documentation page only refers to
+the latest version of the CRAC format. For previous versions, please refer to the [changelog](#changelog) section.
+
 ## Network elements 
 OpenRAO relies on the [PowSyBl framework](https://www.powsybl.org/), and OpenRAO's CRAC relies on some elements of
 [PowSyBl network model](inv:powsyblcore:*:*#grid_model/index): the so-called network elements.
