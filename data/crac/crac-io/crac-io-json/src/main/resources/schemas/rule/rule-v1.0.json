@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/rule/rule-v1.0.json",
+  "description": "Generic rule of flow monitoring on a branch",
   "enum": [
     "onLeftSide",
     "onRightSide"

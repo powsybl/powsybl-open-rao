@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/shunt-compensator-position-action/shunt-compensator-position-action-v2.5.json",
+  "description": "Action that specifies the new position of a shunt compensator",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the action applies",
       "type": "string"
     },
     "sectionCount": {
+      "description": "The new position of the shunt compensator",
       "type": "number"
     }
   },

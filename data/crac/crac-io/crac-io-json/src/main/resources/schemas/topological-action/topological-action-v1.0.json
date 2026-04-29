@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/topological-action/topological-action-v1.0.json",
+  "description": "Action that specifies a topological change in the network",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the action applies",
       "type": "string"
     },
     "actionType": {
+      "description": "The type of action",
       "$ref": "../action-type/action-type-v1.0.json"
     }
   },

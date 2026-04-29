@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/boundary-line-action/boundary-line-action-v2.10.json",
+  "description": "Action that specifies the new active power set-point of a boundary line",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the action applies",
       "type": "string"
     },
     "activePowerValue": {
+      "description": "The new active power set-point of the boundary line",
       "type": "number"
     }
   },

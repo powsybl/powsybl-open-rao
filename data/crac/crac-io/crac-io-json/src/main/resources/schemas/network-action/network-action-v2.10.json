@@ -1,105 +1,125 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/network-action/network-action-v2.10.json",
+  "description": "Remedial action interface specifying a direct action on the network",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the remedial action",
       "type": "string"
     },
     "name": {
+      "description": "The name of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "operator": {
+      "description": "The operator of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "activationCost": {
+      "description": "The cost to activate the remedial action",
       "type": "number"
     },
     "variationCosts": {
+      "description": "The variation costs to increase or decrease the set-point",
       "$ref": "../variation-costs/variation-costs-v2.6.json"
     },
     "speed": {
+      "description": "The time it takes to trigger the remedial action",
       "type": "number"
     },
     "terminalsConnectionActions": {
+      "description": "The list of actions that specify the new connection state of an element's terminals",
       "type": "array",
       "items": {
         "$ref": "../terminals-connection-action/terminals-connection-action-v2.5.json"
       }
     },
     "phaseTapChangerTapPositionActions": {
+      "description": "The list of actions that specify the new tap position of a phase tap changer",
       "type": "array",
       "items": {
         "$ref": "../phase-tap-changer-position-action/phase-tap-changer-position-action-v2.5.json"
       }
     },
     "generatorActions": {
+      "description": "The list of actions that specify the new active power setpoint of a generator",
       "type": "array",
       "items": {
         "$ref": "../generator-action/generator-action-v2.5.json"
       }
     },
     "loadActions": {
+      "description": "The list of actions that specify the new active power setpoint of a load",
       "type": "array",
       "items": {
         "$ref": "../load-action/load-action-v2.5.json"
       }
     },
     "boundaryLineActions": {
+      "description": "The list of actions that specify the new active power setpoint of a boundary line",
       "type": "array",
       "items": {
         "$ref": "../boundary-line-action/boundary-line-action-v2.10.json"
       }
     },
     "shuntCompensatorPositionActions": {
+      "description": "The list of actions that specify the new position of a shunt compensator",
       "type": "array",
       "items": {
         "$ref": "../shunt-compensator-position-action/shunt-compensator-position-action-v2.5.json"
       }
     },
     "switchActions": {
+      "description": "The list of actions that specify the new state of a switch",
       "type": "array",
       "items": {
         "$ref": "../switch-action/switch-action-v2.5.json"
       }
     },
     "switchPairs": {
+      "description": "The list of pairs of switches to be operated together, in opposite ways",
       "type": "array",
       "items": {
         "$ref": "../switch-pair/switch-pair-v1.1.json"
       }
     },
     "acEmulationDeactivationActions": {
+      "description": "The list of actions that specify the deactivation of the AC emulation of a HVDC",
       "type": "array",
       "items": {
         "$ref": "../ac-emulation-deactivation-action/ac-emulation-deactivation-action-v2.9.json"
       }
     },
     "onInstantUsageRules": {
+      "description": "The list of usage rules defined at a given instant",
       "type": "array",
       "items": {
         "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v2.8.json"
       }
     },
     "onContingencyStateUsageRules": {
+      "description": "The list of usage rules defined on a given state",
       "type": "array",
       "items": {
         "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.8.json"
       }
     },
     "onConstraintUsageRules": {
+      "description": "The list of usage rules defined at a given instant for a given CNEC",
       "type": "array",
       "items": {
         "$ref": "../on-constraint-usage-rule/on-constraint-usage-rule-v2.8.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
+      "description": "The list of usage rules defined on a given country, triggered when a flow CNEC of that country is constrained",
       "type": "array",
       "items": {
         "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.8.json"

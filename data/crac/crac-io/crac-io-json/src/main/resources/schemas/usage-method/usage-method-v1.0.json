@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/usage-method/usage-method-v1.0.json",
+  "description": "Represents how the RAO should consider a valid usage rule of a remedial action",
   "enum": [
     "available",
     "forced",

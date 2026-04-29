@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/flow-unit/flow-unit-v1.0.json",
+  "description": "Unit for the flow on a branch",
   "enum": [
     "ampere",
     "megawatt",

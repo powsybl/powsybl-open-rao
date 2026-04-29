@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/switch-pair/switch-pair-v1.1.json",
+  "description": "Pair of switches to be operated together, in opposite ways",
   "type": "object",
   "properties": {
     "open": {
+      "description": "The identifier of the switch that should be opened",
       "type": "string"
     },
     "close": {
+      "description": "The identifier of the switch that should be closed",
       "type": "string"
     }
   },

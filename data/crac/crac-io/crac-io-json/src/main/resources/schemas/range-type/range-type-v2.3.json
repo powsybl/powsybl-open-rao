@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/range-type/range-type-v2.3.json",
+  "description": "Represents the logic of a range",
   "enum": [
     "absolute",
     "relativeToPreviousInstant",

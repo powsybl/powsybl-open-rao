@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/two-sides/two-sides-v2.4.json",
+  "description": "Represents the two sides of a branch",
   "enum": [
     1,
     2

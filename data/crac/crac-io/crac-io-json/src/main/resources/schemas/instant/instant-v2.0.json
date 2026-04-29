@@ -1,9 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/instant/instant-v2.0.json",
+  "description": "Instance of an instant with a unique identifier and a kind",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the instant",
       "type": "string"
     },
     "kind": {

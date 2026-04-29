@@ -1,18 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/flow-threshold/flow-threshold-v2.4.json",
+  "description": "Threshold for the flow on a branch",
   "type": "object",
   "properties": {
     "unit": {
       "$ref": "../flow-unit/flow-unit-v1.0.json"
     },
     "max": {
+      "description": "The maximum flow allowed on the branch",
       "type": "number"
     },
     "min": {
+      "description": "The minimum flow allowed on the branch",
       "type": "number"
     },
     "side": {
+      "description": "The side of the branch",
       "$ref": "../two-sides/two-sides-v2.4.json"
     }
   },

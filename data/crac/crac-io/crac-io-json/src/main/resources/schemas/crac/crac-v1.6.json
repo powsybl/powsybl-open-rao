@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/crac/crac-v1.6.json",
+  "description": "Contingency list, Remedial Actions and additional Constraints",
   "title": "CRAC",
-  "description": "CRAC data for electric grid operation",
   "type": "object",
   "properties": {
     "type": {
@@ -12,27 +12,33 @@
       "const": "1.6"
     },
     "info": {
+      "description": "Information about the CRAC",
       "type": "string"
     },
     "id": {
+      "description": "The unique identifier of the CRAC",
       "type": "string"
     },
     "name": {
+      "description": "The name of the CRAC",
       "type": "string"
     },
     "networkElementsNamePerId": {
+      "description": "A map of network element names indexed by their identifiers",
       "type": "object",
       "additionalProperties": {
         "type": "string"
       }
     },
     "contingencies": {
+      "description": "The list of contingencies to be studied",
       "type": "array",
       "items": {
         "$ref": "../contingency/contingency-v1.0.json"
       }
     },
     "flowCnecs": {
+      "description": "The list of flow CNECs to be monitored",
       "type": "array",
       "items": {
         "items": {
@@ -41,6 +47,7 @@
       }
     },
     "angleCnecs": {
+      "description": "The list of angle CNECs to be monitored",
       "type": "array",
       "items": {
         "items": {
@@ -49,6 +56,7 @@
       }
     },
     "voltageCnecs": {
+      "description": "The list of voltage CNECs to be monitored",
       "type": "array",
       "items": {
         "items": {
@@ -57,24 +65,28 @@
       }
     },
     "pstRangeActions": {
+      "description": "The list of PST range actions",
       "type": "array",
       "items": {
         "$ref": "../pst-range-action/pst-range-action-v1.6.json"
       }
     },
     "hvdcRangeActions": {
+      "description": "The list of HVDC range actions",
       "type": "array",
       "items": {
         "$ref": "../hvdc-range-action/hvdc-range-action-v1.6.json"
       }
     },
     "injectionRangeActions": {
+      "description": "The list of injection range actions",
       "type": "array",
       "items": {
         "$ref": "../injection-range-action/injection-range-action-v1.6.json"
       }
     },
     "networkActions": {
+      "description": "The list of network actions",
       "type": "array",
       "items": {
         "$ref": "../network-action/network-action-v1.6.json"

@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/terminals-connection-action/terminals-connection-action-v2.5.json",
+  "description": "Action that specifies the new connection state of an element's terminals",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the action applies",
       "type": "string"
     },
     "actionType": {
+      "description": "The type of action",
       "$ref": "../action-type/action-type-v1.0.json"
     }
   },

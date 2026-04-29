@@ -1,15 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/angle-threshold/angle-threshold-v1.4.json",
+  "description": "Threshold for phase angle shift between two ends of a branch",
   "type": "object",
   "properties": {
     "unit": {
       "const": "degree"
     },
     "max": {
+      "description": "The maximum phase angle shift allowed",
       "type": "number"
     },
     "min": {
+      "description": "The minimum phase angle shift allowed",
       "type": "number"
     }
   },

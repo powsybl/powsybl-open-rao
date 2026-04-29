@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/action-type/action-type-v1.0.json",
+  "description": "Represents a open-close binary action",
   "enum": [
     "close",
     "open"

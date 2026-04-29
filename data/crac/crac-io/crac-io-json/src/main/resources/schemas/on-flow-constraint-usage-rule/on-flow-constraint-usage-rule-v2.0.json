@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v2.0.json",
+  "description": "Usage rule triggered when a flow CNEC is constrained",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     },
     "flowCnecId": {
+      "description": "The identifier of the flow CNEC of the usage rule",
       "type": "string"
     },
     "usageMethod": {
+      "description": "The usage method of the remedial action",
       "$ref": "../usage-method/usage-method-v1.0.json"
     }
   },

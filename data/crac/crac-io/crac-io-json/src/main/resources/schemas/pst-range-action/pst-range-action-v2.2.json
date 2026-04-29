@@ -1,33 +1,40 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/pst-range-action/pst-range-action-v2.2.json",
+  "description": "A range action interface specifying an action on a PST",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the remedial action",
       "type": "string"
     },
     "name": {
+      "description": "The name of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "operator": {
+      "description": "The operator of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "groupId": {
+      "description": "The group identifier of the range action. All range actions which share the same group identifier should have the same setpoint.",
       "type": [
         "string",
         "null"
       ]
     },
     "speed": {
+      "description": "The time it takes to trigger the remedial action",
       "type": "number"
     },
     "networkElementId": {
+      "description": "The identifier of the network element on which the remedial action applies",
       "type": "string"
     },
     "initialTap": {
@@ -40,11 +47,13 @@
       }
     },
     "ranges": {
+      "description": "The list of operational ranges delimiting the bounds of the range action, if several are defined the RAO will only consider their intersection",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "rangeType": {
+            "description": "The type of range",
             "$ref": "../range-type/range-type-v1.0.json"
           },
           "max": {
@@ -61,12 +70,14 @@
       }
     },
     "onInstantUsageRules": {
+      "description": "The list of usage rules defined at a given instant",
       "type": "array",
       "items": {
         "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
       }
     },
     "onContingencyStateUsageRules": {
+      "description": "The list of usage rules defined on a given state",
       "type": "array",
       "items": {
         "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
@@ -91,6 +102,7 @@
       }
     },
     "onFlowConstraintInCountryUsageRules": {
+      "description": "The list of usage rules defined on a given country, triggered when a flow CNEC of that country is constrained",
       "type": "array",
       "items": {
         "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"

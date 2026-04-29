@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/contingency/contingency-v1.0.json",
+  "description": "Represents a N-1 or any N-k contingency",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the contingency",
       "type": "string"
     },
     "name": {
+      "description": "The name of the contingency",
       "type": "string"
     },
     "networkElementsIds": {
+      "description": "The list of network elements identifiers that are part of the contingency",
       "type": "array",
       "items": {
         "type": "string"

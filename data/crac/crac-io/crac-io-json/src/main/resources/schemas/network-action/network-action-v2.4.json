@@ -1,24 +1,29 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/network-action/network-action-v2.4.json",
+  "description": "Remedial action interface specifying a direct action on the network",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the remedial action",
       "type": "string"
     },
     "name": {
+      "description": "The name of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "operator": {
+      "description": "The operator of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "speed": {
+      "description": "The time it takes to trigger the remedial action",
       "type": "number"
     },
     "injectionSetpoints": {
@@ -40,30 +45,35 @@
       }
     },
     "switchPairs": {
+      "description": "The list of pairs of switches to be operated together, in opposite ways",
       "type": "array",
       "items": {
         "$ref": "../switch-pair/switch-pair-v1.1.json"
       }
     },
     "onInstantUsageRules": {
+      "description": "The list of usage rules defined at a given instant",
       "type": "array",
       "items": {
         "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
       }
     },
     "onContingencyStateUsageRules": {
+      "description": "The list of usage rules defined on a given state",
       "type": "array",
       "items": {
         "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
       }
     },
     "onConstraintUsageRules": {
+      "description": "The list of usage rules defined at a given instant for a given CNEC",
       "type": "array",
       "items": {
         "$ref": "../on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
+      "description": "The list of usage rules defined on a given country, triggered when a flow CNEC of that country is constrained",
       "type": "array",
       "items": {
         "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"

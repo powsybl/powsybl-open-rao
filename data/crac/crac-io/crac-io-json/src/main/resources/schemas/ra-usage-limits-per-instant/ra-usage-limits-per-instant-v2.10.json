@@ -1,33 +1,40 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.10.json",
+  "description": "Remedial action usage limitations for a given instant",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage limitations",
       "type": "string"
     },
     "max-ra": {
+      "description": "The maximum number of remedial actions allowed for the instant",
       "type": "number"
     },
     "max-topo-per-tso": {
+      "description": "The maximum number of topological remedial actions allowed per TSO for the instant",
       "type": "object",
       "additionalProperties": {
         "type": "number"
       }
     },
     "max-pst-per-tso": {
+      "description": "The maximum number of PST remedial actions allowed per TSO for the instant",
       "type": "object",
       "additionalProperties": {
         "type": "number"
       }
     },
     "max-ra-per-tso": {
+      "description": "The maximum number of remedial actions allowed per TSO for the instant",
       "type": "object",
       "additionalProperties": {
         "type": "number"
       }
     },
     "max-elementary-actions-per-tso": {
+      "description": "The maximum number of elementary actions allowed per TSO for the instant",
       "type": "object",
       "additionalProperties": {
         "type": "number"

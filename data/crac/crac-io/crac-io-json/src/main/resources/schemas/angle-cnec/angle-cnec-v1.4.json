@@ -1,57 +1,70 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/angle-cnec/angle-cnec-v1.4.json",
+  "description": "Specific type of CNEC that monitors phase angle shift between two ends of a branch",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the CNEC",
       "type": "string"
     },
     "name": {
+      "description": "The name of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "exportingNetworkElementId": {
+      "description": "The identifier of the network element of the exporting end of the branch",
       "type": "string"
     },
     "importingNetworkElementId": {
+      "description": "The identifier of the network element of the importing end of the branch",
       "type": "string"
     },
     "operator": {
+      "description": "The operator of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "border": {
+      "description": "The border to which the CNEC belongs",
       "type": [
         "string",
         "null"
       ]
     },
     "instant": {
+      "description": "The identifier of the instant of the CNEC",
       "type": "string"
     },
     "contingencyId": {
+      "description": "The identifier of the contingency of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "optimized": {
+      "description": "Indicates whether the CNEC is optimized",
       "type": "boolean"
     },
     "monitored": {
+      "description": "Indicates whether the CNEC is monitored",
       "type": "boolean"
     },
     "reliabilityMargin": {
+      "description": "The reliability margin of the CNEC",
       "type": "number"
     },
     "thresholds": {
+      "description": "The list of thresholds of the CNEC, if several are defined the RAO will only consider their intersection",
       "type": "array",
       "items": {
-        "$ref": "../angle-threshold/angle-threshold-v1.4.json"
+      "$ref": "../angle-threshold/angle-threshold-v1.4.json"
       },
       "minItems": 1
     }

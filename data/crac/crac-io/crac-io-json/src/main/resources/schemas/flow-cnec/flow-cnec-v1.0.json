@@ -1,39 +1,48 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/flow-cnec/flow-cnec-v1.0.json",
+  "description": "Specific type of Branch CNEC whose monitored physical parameter is implicitly the flow on the branch",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the CNEC",
       "type": "string"
     },
     "name": {
+      "description": "The name of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "networkElementId": {
+      "description": "The identifier of the network element on which the CNEC is defined",
       "type": "string"
     },
     "operator": {
+      "description": "The operator of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "instant": {
+      "description": "The identifier of the instant of the CNEC",
       "type": "string"
     },
     "contingencyId": {
+      "description": "The identifier of the contingency of the CNEC",
       "type": [
         "string",
         "null"
       ]
     },
     "optimized": {
+      "description": "Indicates whether the CNEC is optimized",
       "type": "boolean"
     },
     "monitored": {
+      "description": "Indicates whether the CNEC is monitored",
       "type": "boolean"
     },
     "frm": {
@@ -56,6 +65,7 @@
       "maxItems": 2
     },
     "thresholds": {
+      "description": "The list of thresholds of the CNEC, if several are defined the RAO will only consider their intersection",
       "type": "array",
       "items": {
         "$ref": "../flow-threshold/flow-threshold-v1.0.json"
@@ -63,7 +73,7 @@
       "minItems": 1
     },
     "extensions": {
-      "type": "",
+      "type": "object",
       "additionalProperties": true
     }
   },

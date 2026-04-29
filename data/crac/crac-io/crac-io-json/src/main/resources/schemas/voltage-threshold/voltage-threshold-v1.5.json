@@ -1,15 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/voltage-threshold/voltage-threshold-v1.5.json",
+  "description": "Threshold for the voltage of a VoltageLevel",
   "type": "object",
   "properties": {
     "unit": {
       "const": "kilovolt"
     },
     "max": {
+      "description": "The maximum voltage allowed",
       "type": "number"
     },
     "min": {
+      "description": "The minimum voltage allowed",
       "type": "number"
     }
   },

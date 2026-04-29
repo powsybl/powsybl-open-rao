@@ -1,21 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/crac/minimum-viable-crac.json",
+  "description": "Contingency list, Remedial Actions and additional Constraints",
   "title": "Minimum Viable CRAC",
-  "description": "Minimum Viable CRAC data for electric grid operation",
   "type": "object",
   "properties": {
     "type": {
       "const": "CRAC"
     },
     "version": {
+      "description": "The version of the CRAC schema",
       "type": "string",
       "pattern": "^[1-9]\\d*\\.\\d+$"
     },
     "id": {
+      "description": "The unique identifier of the CRAC",
       "type": "string"
     },
     "name": {
+      "description": "The name of the CRAC",
       "type": "string"
     }
   },

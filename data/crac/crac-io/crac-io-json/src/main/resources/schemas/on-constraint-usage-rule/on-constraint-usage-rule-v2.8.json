@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.8.json",
+  "description": "Usage rule defined at a given instant for a given CNEC",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     },
     "cnecId": {
+      "description": "The identifier of the CNEC of the usage rule",
       "type": "string"
     }
   },

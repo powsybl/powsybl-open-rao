@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/injection-unit/injection-unit-v1.8.json",
+  "description": "Unit for an injection",
   "enum": [
     "megawatt",
     "section_count"

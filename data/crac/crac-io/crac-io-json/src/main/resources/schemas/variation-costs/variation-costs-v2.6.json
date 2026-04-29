@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/variation-costs/variation-costs-v2.6.json",
+  "description": "Costs associated with the variation of a range action set-point",
   "type": "object",
   "properties": {
     "up": {
+      "description": "The cost to increase the set-point by one unit",
       "type": "number"
     },
     "down": {
+      "description": "The cost to decrease the set-point by one unit",
       "type": "number"
     }
   },

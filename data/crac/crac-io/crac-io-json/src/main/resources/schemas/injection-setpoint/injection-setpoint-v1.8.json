@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/injection-setpoint/injection-setpoint-v1.8.json",
+  "description": "Set-point for an injection range action",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the set-point applies",
       "type": "string"
     },
     "setpoint": {
+      "description": "The value of the set-point",
       "type": "number"
     },
     "unit": {

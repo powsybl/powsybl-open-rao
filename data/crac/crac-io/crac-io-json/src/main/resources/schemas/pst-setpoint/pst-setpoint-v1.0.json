@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/pst-setpoint/pst-setpoint-v1.0.json",
+  "description": "Setpoint for a PST range action",
   "type": "object",
   "properties": {
     "networkElementId": {
+      "description": "The identifier of the network element on which the setpoint applies",
       "type": "string"
     },
     "setpoint": {
+      "description": "The value of the setpoint",
       "type": "number"
     }
   },

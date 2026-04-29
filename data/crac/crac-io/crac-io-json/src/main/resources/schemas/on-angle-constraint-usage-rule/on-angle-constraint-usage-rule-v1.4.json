@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json",
+  "description": "Usage rule triggered when an angle CNEC is constrained",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     },
     "angleCnecId": {
+      "description": "The identifier of the angle CNEC of the usage rule",
       "type": "string"
     },
     "usageMethod": {
+      "description": "The usage method of the remedial action",
       "$ref": "../usage-method/usage-method-v1.0.json"
     }
   },

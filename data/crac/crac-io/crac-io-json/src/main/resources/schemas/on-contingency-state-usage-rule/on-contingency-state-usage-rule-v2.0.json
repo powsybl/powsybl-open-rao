@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json",
+  "description": "Usage rule defined on a given state",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     },
     "contingencyId": {
+      "description": "The identifier of the contingency of the usage rule",
       "type": "string"
     },
     "usageMethod": {
+      "description": "The usage method of the remedial action",
       "$ref": "../usage-method/usage-method-v1.0.json"
     }
   },

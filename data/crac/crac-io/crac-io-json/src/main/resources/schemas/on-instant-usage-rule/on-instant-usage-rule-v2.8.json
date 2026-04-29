@@ -1,9 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v2.8.json",
+  "description": "Usage rule defined at a given instant",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     }
   },

@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.8.json",
+  "description": "Usage rule defined on a given country, triggered when a flow CNEC of that country is constrained",
   "type": "object",
   "properties": {
     "instant": {
+      "description": "The identifier of the instant of the usage rule",
       "type": "string"
     },
     "contingencyId": {
+      "description": "The identifier of the contingency of the usage rule",
       "type": [
         "string",
         "null"

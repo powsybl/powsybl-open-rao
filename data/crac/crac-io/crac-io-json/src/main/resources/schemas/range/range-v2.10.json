@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/range/range-v2.10.json",
+  "description": "Generic interface for the definition of ranges",
   "type": "object",
   "properties": {
     "rangeType": {
+      "description": "The type of range",
       "$ref": "../range-type/range-type-v2.3.json"
     },
     "max": {
+      "description": "The upper bound of the range",
       "type": "number"
     },
     "min": {
+      "description": "The lower bound of the range",
       "type": "number"
     }
   },

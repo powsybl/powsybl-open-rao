@@ -1,42 +1,51 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.0.json",
+  "description": "A range action interface specifying a counter-trade action between two countries",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the remedial action",
       "type": "string"
     },
     "name": {
+      "description": "The name of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "operator": {
+      "description": "The operator of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "groupId": {
+      "description": "The group identifier of the range action. All range actions which share the same group identifier should have the same setpoint.",
       "type": [
         "string",
         "null"
       ]
     },
     "speed": {
+      "description": "The time it takes to trigger the remedial action",
       "type": "number"
     },
     "exportingCountry": {
+      "description": "The exporting country",
       "$ref": "../country/country-v1.3.json"
     },
     "importingCountry": {
+      "description": "The importing country",
       "$ref": "../country/country-v1.3.json"
     },
     "initialSetpoint": {
       "type": "number"
     },
     "ranges": {
+      "description": "The list of operational ranges delimiting the bounds of the range action, if several are defined the RAO will only consider their intersection",
       "type": "array",
       "items": {
         "type": "object",
@@ -52,12 +61,14 @@
       }
     },
     "onInstantUsageRules": {
+      "description": "The list of usage rules defined at a given instant",
       "type": "array",
       "items": {
         "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
       }
     },
     "onContingencyStateUsageRules": {
+      "description": "The list of usage rules defined on a given state",
       "type": "array",
       "items": {
         "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
@@ -82,6 +93,7 @@
       }
     },
     "onFlowConstraintInCountryUsageRules": {
+      "description": "The list of usage rules defined on a given country, triggered when a flow CNEC of that country is constrained",
       "type": "array",
       "items": {
         "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.0.json"

@@ -1,25 +1,29 @@
-
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
   "$id": "resource:/schemas/network-action/network-action-v1.1.json",
+  "description": "Remedial action interface specifying a direct action on the network",
   "type": "object",
   "properties": {
     "id": {
+      "description": "The unique identifier of the remedial action",
       "type": "string"
     },
     "name": {
+      "description": "The name of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "operator": {
+      "description": "The operator of the remedial action",
       "type": [
         "string",
         "null"
       ]
     },
     "speed": {
+      "description": "The time it takes to trigger the remedial action",
       "type": "number"
     },
     "injectionSetpoints": {
@@ -41,6 +45,7 @@
       }
     },
     "switchPairs": {
+      "description": "The list of pairs of switches to be operated together, in opposite ways",
       "type": "array",
       "items": {
         "$ref": "../switch-pair/switch-pair-v1.1.json"
