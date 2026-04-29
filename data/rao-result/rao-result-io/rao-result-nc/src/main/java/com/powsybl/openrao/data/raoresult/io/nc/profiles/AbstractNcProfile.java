@@ -5,11 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.raoresult.io.nc;
+package com.powsybl.openrao.data.raoresult.io.nc.profiles;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.io.nc.Namespace;
+import com.powsybl.openrao.data.raoresult.io.nc.RdfElement;
+import com.powsybl.openrao.data.raoresult.io.nc.XmlHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -47,27 +50,28 @@ public abstract class AbstractNcProfile {
 
     private void fillHeader(OffsetDateTime startDateTime) {
         OffsetDateTime now = OffsetDateTime.now();
-        addObject("FullModel", Namespace.MD)
-            .addValue("generatedAtTime", Namespace.PROV, XmlHelper.formatOffsetDateTime(now))
-            .addValue("issued", Namespace.DCTERMS, XmlHelper.formatOffsetDateTime(now))
-            .addValue("startDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime))
-            .addValue("endDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime.plusHours(1)))
-            .addValue("keyword", Namespace.DCAT, keyword);
+        addRdfElement("FullModel", Namespace.MD)
+            .addAttribute("generatedAtTime", Namespace.PROV, XmlHelper.formatOffsetDateTime(now))
+            .addAttribute("issued", Namespace.DCTERMS, XmlHelper.formatOffsetDateTime(now))
+            .addAttribute("startDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime))
+            .addAttribute("endDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime.plusHours(1)))
+            .addAttribute("keyword", Namespace.DCAT, keyword)
+            .addResource("accessRights", Namespace.DCTERMS, "http://energy.referencedata.eu/Confidentiality/Restricted");
     }
 
     protected abstract void fillContent(RaoResult raoResult, NcCracCreationContext ncCracCreationContext);
 
-    protected RdfObject addObject(String name, Namespace namespace) {
+    protected RdfElement addRdfElement(String name, Namespace namespace) {
         Element element = document.createElement(namespace.format(name));
         rootRdfElement.appendChild(element);
-        return new RdfObject(element);
+        return new RdfElement(element);
     }
 
-    protected RdfObject addObject(String name, Namespace namespace, String id) {
+    protected RdfElement addRdfElement(String name, Namespace namespace, String id) {
         Element element = document.createElement(namespace.format(name));
-        element.setAttribute(Namespace.RDF.format("ID"), id);
+        element.setAttribute(Namespace.RDF.format("ID"), "_" + id);
         rootRdfElement.appendChild(element);
-        return new RdfObject(element);
+        return new RdfElement(element);
     }
 
     public void write(OutputStream outputStream) {

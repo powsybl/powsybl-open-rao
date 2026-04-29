@@ -20,7 +20,10 @@ import java.util.UUID;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class XmlHelper {
+public final class XmlHelper {
+    private XmlHelper() {
+    }
+
     public static Document initXmlDocument() {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -37,6 +40,10 @@ public class XmlHelper {
     }
 
     public static String generateStaticUUID(String... data) {
-        return UUID.fromString(String.join("-", data)).toString();
+        return UUID.nameUUIDFromBytes(String.join("-", data).getBytes()).toString();
+    }
+
+    public static String getMRidReference(String mRid) {
+        return "#_%s".formatted(mRid);
     }
 }

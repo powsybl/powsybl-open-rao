@@ -12,23 +12,23 @@ import org.w3c.dom.Element;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class RdfObject {
+public class RdfElement {
     private final Element element;
 
-    private final static String RESOURCE = "resource";
+    private static final String RESOURCE = "resource";
 
-    public RdfObject(Element element) {
+    public RdfElement(Element element) {
         this.element = element;
     }
 
-    public RdfObject addValue(String fieldName, Namespace namespace, String value) {
+    public RdfElement addAttribute(String fieldName, Namespace namespace, String value) {
         Element valueElement = element.getOwnerDocument().createElement(namespace.format(fieldName));
         valueElement.setTextContent(value);
         element.appendChild(valueElement);
         return this;
     }
 
-    public RdfObject addResource(String fieldName, Namespace namespace, String reference) {
+    public RdfElement addResource(String fieldName, Namespace namespace, String reference) {
         Element valueElement = element.getOwnerDocument().createElement(namespace.format(fieldName));
         valueElement.setAttribute(Namespace.RDF.format(RESOURCE), reference);
         element.appendChild(valueElement);
