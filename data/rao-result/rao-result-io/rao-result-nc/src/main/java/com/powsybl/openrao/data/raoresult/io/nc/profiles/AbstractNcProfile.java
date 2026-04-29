@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.nc.Namespace;
+import com.powsybl.openrao.data.raoresult.io.nc.NcExporterConfiguration;
 import com.powsybl.openrao.data.raoresult.io.nc.RdfElement;
 import com.powsybl.openrao.data.raoresult.io.nc.XmlHelper;
 import org.w3c.dom.Document;
@@ -30,39 +31,42 @@ import java.util.Arrays;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractNcProfile {
-    protected final String keyword;
+    protected final NetworkCodeProfile networkCodeProfile;
     protected final Document document;
     protected final Element rootRdfElement;
 
-    protected AbstractNcProfile(String keyword) {
-        this.keyword = keyword;
+    protected AbstractNcProfile(NetworkCodeProfile networkCodeProfile) {
+        this.networkCodeProfile = networkCodeProfile;
         this.document = XmlHelper.initXmlDocument();
         this.rootRdfElement = this.document.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
         Arrays.stream(Namespace.values()).forEach(namespace -> this.rootRdfElement.setAttribute("xmlns:%s".formatted(namespace.getKeyword()), namespace.getURI()));
         this.document.appendChild(this.rootRdfElement);
     }
 
-    public AbstractNcProfile fill(OffsetDateTime startDateTime, RaoResult raoResult, NcCracCreationContext ncCracCreationContext) {
-        fillHeader(startDateTime);
+    public AbstractNcProfile fill(OffsetDateTime startDateTime, RaoResult raoResult, NcCracCreationContext ncCracCreationContext, NcExporterConfiguration configuration) {
+        fillHeader(startDateTime, configuration);
         fillContent(raoResult, ncCracCreationContext);
         return this;
     }
 
-    private void fillHeader(OffsetDateTime startDateTime) {
+    private void fillHeader(OffsetDateTime startDateTime, NcExporterConfiguration configuration) {
         OffsetDateTime now = OffsetDateTime.now();
-        addRdfElement("FullModel", Namespace.MD)
+        addRdfDescription("FullModel", Namespace.MD, networkCodeProfile.getIdentifier())
             .addAttribute("generatedAtTime", Namespace.PROV, XmlHelper.formatOffsetDateTime(now))
             .addAttribute("issued", Namespace.DCTERMS, XmlHelper.formatOffsetDateTime(now))
             .addAttribute("startDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime))
-            .addAttribute("endDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime.plusHours(1)))
-            .addAttribute("keyword", Namespace.DCAT, keyword)
-            .addResource("accessRights", Namespace.DCTERMS, "http://energy.referencedata.eu/Confidentiality/Restricted");
+            .addAttribute("endDate", Namespace.DCAT, XmlHelper.formatOffsetDateTime(startDateTime.plus(configuration.getValidityDuration())))
+            .addAttribute("keyword", Namespace.DCAT, networkCodeProfile.getKeyword())
+            .addAttribute("creator", Namespace.DCTERMS, "PowSyBl OpenRAO (https://www.powsybl.org/)")
+            .addResource("accessRights", Namespace.DCTERMS, "http://energy.referencedata.eu/Confidentiality/" + configuration.getConfidentialityLevel().getIdentifier())
+            .addAttribute("comformsTo", Namespace.DCTERMS, networkCodeProfile.getVersionIri());
     }
 
     protected abstract void fillContent(RaoResult raoResult, NcCracCreationContext ncCracCreationContext);
 
-    protected RdfElement addRdfElement(String name, Namespace namespace) {
+    protected RdfElement addRdfDescription(String name, Namespace namespace, String sourceId) {
         Element element = document.createElement(namespace.format(name));
+        element.setAttribute(Namespace.RDF.format("about"), sourceId);
         rootRdfElement.appendChild(element);
         return new RdfElement(element);
     }

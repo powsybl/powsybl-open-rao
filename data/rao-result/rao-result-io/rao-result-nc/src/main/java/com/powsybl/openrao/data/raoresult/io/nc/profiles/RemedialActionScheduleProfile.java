@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 public class RemedialActionScheduleProfile extends AbstractNcProfile {
     public RemedialActionScheduleProfile() {
-        super("RAS");
+        super(NetworkCodeProfile.REMEDIAL_ACTION_SCHEDULE);
     }
 
     @Override

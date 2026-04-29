@@ -16,21 +16,10 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.io.nc.profiles.RemedialActionScheduleProfile;
 import org.apache.commons.lang3.NotImplementedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
+import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
@@ -44,6 +33,9 @@ import java.util.Set;
  */
 @AutoService(Exporter.class)
 public class NcExporter implements Exporter {
+    private static final String VALIDITY_DURATION = "rao-result.export.nc.validity-duration";
+    private static final String CONFIDENTIALITY_LEVEL = "rao-result.export.nc.confidentiality-level";
+
     @Override
     public String getFormat() {
         return "NC";
@@ -63,7 +55,8 @@ public class NcExporter implements Exporter {
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         if (cracCreationContext instanceof NcCracCreationContext ncCracCreationContext) {
             OffsetDateTime timeStamp = ncCracCreationContext.getTimeStamp();
-            new RemedialActionScheduleProfile().fill(timeStamp, raoResult, ncCracCreationContext).write(outputStream);
+            NcExporterConfiguration configuration = getConfiguration(properties == null ? new Properties() : properties);
+            new RemedialActionScheduleProfile().fill(timeStamp, raoResult, ncCracCreationContext, configuration).write(outputStream);
         } else {
             throw new OpenRaoException("CRAC Creation Context is not NC-compliant.");
         }
@@ -72,5 +65,21 @@ public class NcExporter implements Exporter {
     @Override
     public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
         throw new NotImplementedException("CracCreationContext is required for NC export.");
+    }
+
+    private static NcExporterConfiguration getConfiguration(Properties properties) {
+        NcExporterConfiguration configuration = new NcExporterConfiguration();
+        if (properties.containsKey(VALIDITY_DURATION)) {
+            configuration.setValidityDuration(Duration.parse(properties.getProperty(VALIDITY_DURATION)));
+        }
+        if (properties.containsKey(CONFIDENTIALITY_LEVEL)) {
+            Arrays.stream(ConfidentialityLevel.values())
+                .filter(cl -> cl.getName().equals(properties.getProperty(CONFIDENTIALITY_LEVEL)))
+                .findFirst()
+                .ifPresentOrElse(configuration::setConfidentialityLevel, () -> {
+                    throw new OpenRaoException("Confidentiality level not recognized.");
+                });
+        }
+        return configuration;
     }
 }

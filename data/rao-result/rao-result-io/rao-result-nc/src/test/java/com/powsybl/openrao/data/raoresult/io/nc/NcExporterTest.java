@@ -32,6 +32,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -144,8 +145,11 @@ class NcExporterTest {
         NcCracCreationContext ncContext = Mockito.mock(NcCracCreationContext.class);
         Mockito.when(ncContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2024, 10, 10, 14, 42, 0, 0, ZoneOffset.UTC));
         Mockito.when(ncContext.getCrac()).thenReturn(crac);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.nc.confidentiality-level", "Restricted");
+        properties.setProperty("rao-result.export.nc.validity-duration", "P30D");
         try (OutputStream outputStream = new FileOutputStream("RAS.xml")) {
-            new NcExporter().exportData(raoResult, ncContext, null, outputStream);
+            new NcExporter().exportData(raoResult, ncContext, properties, outputStream);
         }
     }
 }
