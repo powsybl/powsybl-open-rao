@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.crac.io.nc.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 
+import java.util.Arrays;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -36,19 +38,9 @@ public enum CapacityCalculationRegion {
     }
 
     public static CapacityCalculationRegion fromEIC(String eic) {
-        return switch (eic) {
-            case "10Y1001C--00120B" -> CapacityCalculationRegion.BALTIC;
-            case "10Y1001C--00145W" -> CapacityCalculationRegion.CENTRAL_EUROPE;
-            case "10Y1001C--000239" -> CapacityCalculationRegion.CHANNEL;
-            case "10Y1001C--00059P" -> CapacityCalculationRegion.CORE;
-            case "10Y1001C--00136X" -> CapacityCalculationRegion.HANSA;
-            case "10Y1001C--00138T" -> CapacityCalculationRegion.GREECE_ITALY;
-            case "10Y1001C--00022B" -> CapacityCalculationRegion.IRELAND_UK;
-            case "10Y1001C--00137V" -> CapacityCalculationRegion.ITALY_NORTH;
-            case "10Y1001A1001A91G" -> CapacityCalculationRegion.NORDIC;
-            case "10Y1001C--00139R" -> CapacityCalculationRegion.SELENE;
-            case "10Y1001C--00095L" -> CapacityCalculationRegion.SOUTH_WESTERN_EUROPE;
-            default -> throw new OpenRaoException("Unrecognized Capacity Calculation Region with EIC %s.".formatted(eic));
-        };
+        return Arrays.stream(CapacityCalculationRegion.values())
+            .filter(region -> region.getEIC().equals(eic))
+            .findFirst()
+            .orElseThrow(() -> new OpenRaoException("Unrecognized Capacity Calculation Region with EIC %s.".formatted(eic)));
     }
 }
