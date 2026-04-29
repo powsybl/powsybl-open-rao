@@ -18,7 +18,9 @@
         "null"
       ]
     },
-    "activationCost": "number",
+    "activationCost": {
+      "type": "number"
+    },
     "variationCosts": {
       "$ref": "../variation-costs/variation-costs-v2.6.json"
     },
@@ -37,19 +39,7 @@
     "ranges": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "rangeType": {
-            "$ref": "../range-type/range-type-v2.3.json"
-          },
-          "max": {
-            "type": "number"
-          },
-          "min": {
-            "type": "number"
-          }
-        },
-        "additionalProperties": false
+        "$ref": "../range/range-v2.10.json"
       }
     },
     "onInstantUsageRules": {
