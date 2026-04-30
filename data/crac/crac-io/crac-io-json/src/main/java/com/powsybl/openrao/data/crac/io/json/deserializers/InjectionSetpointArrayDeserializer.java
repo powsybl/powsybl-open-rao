@@ -54,7 +54,7 @@ public final class InjectionSetpointArrayDeserializer {
                         unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in InjectionSetpoint: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in InjectionSetpoint: " + jsonParser.currentName());
                 }
             }
             Identifiable<?> identifiable = network.getIdentifiable(networkElementId);

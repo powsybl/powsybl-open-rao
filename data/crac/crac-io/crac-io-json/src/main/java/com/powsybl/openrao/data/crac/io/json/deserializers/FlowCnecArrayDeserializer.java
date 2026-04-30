@@ -115,7 +115,7 @@ public final class FlowCnecArrayDeserializer {
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.currentName());
                 }
             }
             FlowCnec cnec = flowCnecAdder.add();
