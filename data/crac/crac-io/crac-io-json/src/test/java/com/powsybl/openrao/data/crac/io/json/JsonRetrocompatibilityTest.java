@@ -439,7 +439,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
         Crac crac = Crac.read(cracFilePath, cracFile, network);
-        testContentOfV2Point10Crac(crac);
+        testContentOfV2Point11Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {

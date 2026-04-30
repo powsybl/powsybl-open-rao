@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -159,18 +158,6 @@ public final class PstRangeActionArrayDeserializer {
             jsonParser.nextToken();
             OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         }
-    }
-
-    private static Map<Integer, Double> readIntToDoubleMap(JsonParser jsonParser) throws IOException {
-        HashMap<Integer, Double> map = jsonParser.readValueAs(new TypeReference<Map<Integer, Double>>() {
-        });
-        // Check types
-        map.forEach((Object o, Object o2) -> {
-            if (!(o instanceof Integer) || !(o2 instanceof Double)) {
-                throw new OpenRaoException("Unexpected key or value type in a Map<Integer, Double> parameter!");
-            }
-        });
-        return map;
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
