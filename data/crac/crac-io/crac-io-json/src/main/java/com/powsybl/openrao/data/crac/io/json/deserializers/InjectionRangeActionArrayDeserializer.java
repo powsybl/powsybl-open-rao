@@ -37,25 +37,25 @@ public final class InjectionRangeActionArrayDeserializer {
 
     static Set<String> networkElementsUsedList;
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
         networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
             String injectionRangeActionId = null;
-            Map<String, Double> injectionDistributionKeys = null;
+            Map<String, Double> injectionDistributionKeys = new HashMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (jsonParser.getCurrentName().equals(JsonSerializationConstants.ID)) {
+                if (jsonParser.currentName().equals(JsonSerializationConstants.ID)) {
                     injectionRangeActionId = jsonParser.nextTextValue();
                     injectionRangeActionAdder.withId(injectionRangeActionId);
                     continue;
                 } else if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
-                if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
+                if (jsonParser.currentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
                     jsonParser.nextToken();
-                    injectionDistributionKeys = deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
+                    injectionDistributionKeys.putAll(deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder));
                 } else {
-                    throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
                 }
             }
             // Check while getting current setpoint if all the network elements used in injection distribution keys definition exist else throw error
@@ -89,11 +89,11 @@ public final class InjectionRangeActionArrayDeserializer {
         }
     }
 
-    private static Map<String, Double> deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    private static Map<String, Double> deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder) throws IOException {
         Map<String, Double> injectionDistributionKeys = new HashMap<>();
         while (!jsonParser.nextToken().isStructEnd()) {
-            String networkElementId = jsonParser.getCurrentName();
-            // check if an another injection action was already defined on the same network element.
+            String networkElementId = jsonParser.currentName();
+            // check if another injection action was already defined on the same network element.
             if (networkElementsUsedList.contains(networkElementId)) {
                 LOGGER.warn("If the injection range action is used to represent a redispatching remedial action : " +
                     "two different injection actions in the crac can not be defined on the same network element : " + networkElementId);
@@ -101,11 +101,7 @@ public final class InjectionRangeActionArrayDeserializer {
             networkElementsUsedList.add(networkElementId);
             jsonParser.nextToken();
             double key = jsonParser.getDoubleValue();
-            if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                adder.withNetworkElementAndKey(key, networkElementId, networkElementsNamesPerId.get(networkElementId));
-            } else {
-                adder.withNetworkElementAndKey(key, networkElementId);
-            }
+            adder.withNetworkElementAndKey(key, networkElementId);
             injectionDistributionKeys.put(networkElementId, key);
         }
         return injectionDistributionKeys;

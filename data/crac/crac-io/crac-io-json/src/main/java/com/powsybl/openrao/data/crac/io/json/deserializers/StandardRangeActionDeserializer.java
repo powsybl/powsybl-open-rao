@@ -33,7 +33,7 @@ public final class StandardRangeActionDeserializer {
      * @throws IOException
      */
     public static boolean addCommonElement(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
-        switch (jsonParser.getCurrentName()) {
+        switch (jsonParser.currentName()) {
             case JsonSerializationConstants.ID:
                 standardRangeActionAdder.withId(jsonParser.nextTextValue());
                 break;
@@ -135,7 +135,7 @@ public final class StandardRangeActionDeserializer {
     private static void deserializeVariationCosts(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
+            standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.currentName()));
         }
     }
 

@@ -31,7 +31,7 @@ public final class OnInstantArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.INSTANT:
                         adder.withInstant(jsonParser.nextTextValue());
                         break;
@@ -40,10 +40,10 @@ public final class OnInstantArrayDeserializer {
                             CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
-                            throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());
+                            throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.currentName());
                         }
                     default:
-                        throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.currentName());
                 }
             }
             adder.add();

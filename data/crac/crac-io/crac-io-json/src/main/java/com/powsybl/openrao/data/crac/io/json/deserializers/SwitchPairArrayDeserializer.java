@@ -24,19 +24,19 @@ public final class SwitchPairArrayDeserializer {
     private SwitchPairArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             SwitchPairAdder adder = ownerAdder.newSwitchPair();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.OPEN_ACTION:
-                        readSwitchToOpen(jsonParser, networkElementsNamesPerId, adder);
+                        adder.withSwitchToOpen(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.CLOSE_ACTION:
-                        readSwitchToClose(jsonParser, networkElementsNamesPerId, adder);
+                        adder.withSwitchToClose(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in SwitchPair: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in SwitchPair: " + jsonParser.currentName());
                 }
             }
             adder.add();

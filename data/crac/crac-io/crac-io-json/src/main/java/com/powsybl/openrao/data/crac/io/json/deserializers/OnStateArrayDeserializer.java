@@ -31,7 +31,7 @@ public final class OnStateArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnContingencyStateAdder<?> adder = ownerAdder.newOnContingencyStateUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.INSTANT:
                         adder.withInstant(jsonParser.nextTextValue());
                         break;
@@ -40,13 +40,13 @@ public final class OnStateArrayDeserializer {
                             CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
-                            throw new OpenRaoException("Unexpected field in OnContingencyState: " + jsonParser.getCurrentName());
+                            throw new OpenRaoException("Unexpected field in OnContingencyState: " + jsonParser.currentName());
                         }
                     case JsonSerializationConstants.CONTINGENCY_ID:
                         adder.withContingency(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in OnContingencyState: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnContingencyState: " + jsonParser.currentName());
                 }
             }
             adder.add();

@@ -14,10 +14,8 @@ import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationAc
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -26,16 +24,14 @@ public final class AcEmulationDeactivationActionDeserializer {
     private AcEmulationDeactivationActionDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AcEmulationDeactivationActionAdder adder = ownerAdder.newAcEmulationDeactivationAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-                    case NETWORK_ELEMENT_ID:
-                        deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
-                        break;
-                    default:
-                        throw new OpenRaoException("Unexpected field in AcEmulationDeactivationAction: " + jsonParser.getCurrentName());
+                if (jsonParser.currentName().equals(NETWORK_ELEMENT_ID)) {
+                    adder.withNetworkElement(jsonParser.nextTextValue());
+                } else {
+                    throw new OpenRaoException("Unexpected field in AcEmulationDeactivationAction: " + jsonParser.currentName());
                 }
             }
             adder.add();

@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -32,12 +31,12 @@ public final class AngleCnecArrayDeserializer {
     private AngleCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnecAdder angleCnecAdder = crac.newAngleCnec();
             List<Extension<AngleCnec>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         angleCnecAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -45,10 +44,10 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.EXPORTING_NETWORK_ELEMENT_ID:
-                        readExportingNetworkElementId(jsonParser, networkElementsNamesPerId, angleCnecAdder);
+                        angleCnecAdder.withExportingNetworkElement(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.IMPORTING_NETWORK_ELEMENT_ID:
-                        readImportingNetworkElementId(jsonParser, networkElementsNamesPerId, angleCnecAdder);
+                        angleCnecAdder.withImportingNetworkElement(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.OPERATOR:
                         angleCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -83,7 +82,7 @@ public final class AngleCnecArrayDeserializer {
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in AngleCnec: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in AngleCnec: " + jsonParser.currentName());
                 }
             }
             AngleCnec cnec = angleCnecAdder.add();
@@ -109,23 +108,5 @@ public final class AngleCnecArrayDeserializer {
         }
         jsonParser.nextToken();
         angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
-    }
-
-    private static void readImportingNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, AngleCnecAdder angleCnecAdder) throws IOException {
-        String importingNetworkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
-            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId, networkElementsNamesPerId.get(importingNetworkElementId));
-        } else {
-            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId);
-        }
-    }
-
-    private static void readExportingNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, AngleCnecAdder angleCnecAdder) throws IOException {
-        String exportingNetworkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(exportingNetworkElementId)) {
-            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId, networkElementsNamesPerId.get(exportingNetworkElementId));
-        } else {
-            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId);
-        }
     }
 }

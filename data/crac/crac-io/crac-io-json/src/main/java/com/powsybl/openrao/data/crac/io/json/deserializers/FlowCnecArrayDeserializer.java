@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
@@ -39,7 +38,6 @@ public final class FlowCnecArrayDeserializer {
                                    DeserializationContext deserializationContext,
                                    String version,
                                    Crac crac,
-                                   Map<String, String> networkElementsNamesPerId,
                                    Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
@@ -54,7 +52,8 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        networkElementId = readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
+                        networkElementId = jsonParser.nextTextValue();
+                        flowCnecAdder.withNetworkElement(networkElementId);
                         break;
                     case JsonSerializationConstants.OPERATOR:
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -142,15 +141,5 @@ public final class FlowCnecArrayDeserializer {
         }
         jsonParser.nextToken();
         flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
-    }
-
-    private static String readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, FlowCnecAdder flowCnecAdder) throws IOException {
-        String networkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-            flowCnecAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-        } else {
-            flowCnecAdder.withNetworkElement(networkElementId);
-        }
-        return networkElementId;
     }
 }

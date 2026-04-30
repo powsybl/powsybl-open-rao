@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdde
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -25,7 +24,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
     private CounterTradeRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
@@ -41,7 +40,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
         if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version)) {
             return;
         }
-        switch (jsonParser.getCurrentName()) {
+        switch (jsonParser.currentName()) {
             case JsonSerializationConstants.EXPORTING_COUNTRY:
                 counterTradeRangeActionAdder.withExportingCountry(Country.valueOf(jsonParser.nextTextValue()));
                 break;
@@ -49,7 +48,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
                 counterTradeRangeActionAdder.withImportingCountry(Country.valueOf(jsonParser.nextTextValue()));
                 break;
             default:
-                throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
+                throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
         }
     }
 }

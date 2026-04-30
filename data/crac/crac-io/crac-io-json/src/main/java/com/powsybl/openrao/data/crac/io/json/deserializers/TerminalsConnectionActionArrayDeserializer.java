@@ -14,12 +14,10 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.TerminalsConnectionActionAdder;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTION_TYPE;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeActionType;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
@@ -28,19 +26,19 @@ public final class TerminalsConnectionActionArrayDeserializer {
     private TerminalsConnectionActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             TerminalsConnectionActionAdder adder = ownerAdder.newTerminalsConnectionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case NETWORK_ELEMENT_ID:
-                        deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
+                        adder.withNetworkElement(jsonParser.nextTextValue());
                         break;
                     case ACTION_TYPE:
                         adder.withActionType(deserializeActionType(jsonParser.nextTextValue()));
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in TerminalsConnectionAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in TerminalsConnectionAction: " + jsonParser.currentName());
                 }
             }
             adder.add();

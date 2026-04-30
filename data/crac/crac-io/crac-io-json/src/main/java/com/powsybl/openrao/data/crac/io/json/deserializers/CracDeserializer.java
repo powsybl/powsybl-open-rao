@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -86,16 +85,16 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                 .newInstant("curative", InstantKind.CURATIVE);
         }
 
-        Map<String, String> deserializedNetworkElementsNamesPerId = new HashMap<>();
-
         // deserialize the following lines of the Crac
         while (nextToken != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
                     jsonParser.nextToken();
+                    // TODO: create method for all fields ignored (initial tap, iMax, ...)
                     if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
                         JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 10) {
                         LOGGER.warn("The network elements names are now ignored and can be retrieved from the network");
+                        jsonParser.readValueAs(HashMap.class);
                     } else {
                         throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.currentName());
                     }
@@ -107,42 +106,42 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.FLOW_CNECS:
                     jsonParser.nextToken();
-                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId, network);
+                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, network);
                     break;
 
                 case JsonSerializationConstants.ANGLE_CNECS:
                     jsonParser.nextToken();
-                    AngleCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
+                    AngleCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac);
                     break;
 
                 case JsonSerializationConstants.VOLTAGE_CNECS:
                     jsonParser.nextToken();
-                    VoltageCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
+                    VoltageCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac);
                     break;
 
                 case JsonSerializationConstants.PST_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    PstRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
+                    PstRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, network);
                     break;
 
                 case JsonSerializationConstants.HVDC_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
+                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, network);
                     break;
 
                 case JsonSerializationConstants.INJECTION_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
+                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, network);
                     break;
 
                 case JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    CounterTradeRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    CounterTradeRangeActionArrayDeserializer.deserialize(jsonParser, version, crac);
                     break;
 
                 case JsonSerializationConstants.NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    NetworkActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
+                    NetworkActionArrayDeserializer.deserialize(jsonParser, version, crac, network);
                     break;
                 case JsonSerializationConstants.EXTENSIONS:
                     jsonParser.nextToken();

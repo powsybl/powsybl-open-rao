@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.PhaseTapChangerTapPositio
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -24,20 +23,20 @@ public final class PstSetpointArrayDeserializer {
     private PstSetpointArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PhaseTapChangerTapPositionActionAdder adder = ownerAdder.newPhaseTapChangerTapPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        JsonSerializationConstants.deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
+                        adder.withNetworkElement(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.SETPOINT:
                         jsonParser.nextToken();
                         adder.withTapPosition(jsonParser.getIntValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in PstSetpoint: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in PstSetpoint: " + jsonParser.currentName());
                 }
             }
             adder.add();

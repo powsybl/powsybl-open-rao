@@ -32,11 +32,11 @@ public final class PstRangeActionArrayDeserializer {
     private PstRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         pstRangeActionAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -81,7 +81,13 @@ public final class PstRangeActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        deserializeNetworkElementId(jsonParser, networkElementsNamesPerId, pstRangeActionAdder, network);
+                        String networkElementId = jsonParser.nextTextValue();
+                        pstRangeActionAdder.withNetworkElement(networkElementId);
+                        PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network, networkElementId);
+                        pstRangeActionAdder.withInitialTap(phaseTapChanger.getTapPosition());
+                        Map<Integer, Double> tapToAngleConversionMap = new HashMap<>();
+                        phaseTapChanger.getAllSteps().forEach((tap, ptcStep) -> tapToAngleConversionMap.put(tap, ptcStep.getAlpha()));
+                        pstRangeActionAdder.withTapToAngleConversionMap(tapToAngleConversionMap);
                         break;
                     case JsonSerializationConstants.GROUP_ID:
                         pstRangeActionAdder.withGroupId(jsonParser.nextTextValue());
@@ -120,25 +126,11 @@ public final class PstRangeActionArrayDeserializer {
                         deserializeVariationCosts(pstRangeActionAdder, jsonParser);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in PstRangeAction: " + jsonParser.currentName());
                 }
             }
             pstRangeActionAdder.add();
         }
-    }
-
-    private static void deserializeNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, PstRangeActionAdder pstRangeActionAdder, Network network) throws IOException {
-        String networkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-            pstRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-        } else {
-            pstRangeActionAdder.withNetworkElement(networkElementId);
-        }
-        PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network, networkElementId);
-        pstRangeActionAdder.withInitialTap(phaseTapChanger.getTapPosition());
-        Map<Integer, Double> tapToAngleConversionMap = new HashMap<>();
-        phaseTapChanger.getAllSteps().forEach((tap, ptcStep) -> tapToAngleConversionMap.put(tap, ptcStep.getAlpha()));
-        pstRangeActionAdder.withTapToAngleConversionMap(tapToAngleConversionMap);
     }
 
     private static PhaseTapChanger getPhaseTapChanger(Network network, String networkElementId) {
@@ -195,7 +187,7 @@ public final class PstRangeActionArrayDeserializer {
     private static void deserializeVariationCosts(PstRangeActionAdder pstRangeActionAdder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
+            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.currentName()));
         }
     }
 }

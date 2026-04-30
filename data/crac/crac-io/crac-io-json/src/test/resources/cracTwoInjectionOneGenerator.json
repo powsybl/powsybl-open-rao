@@ -38,12 +38,6 @@
       "FR" : 21
     }
   } ],
-  "networkElementsNamePerId" : {
-    "ne5Id" : "ne5Name",
-    "ne2Id" : "ne2Name",
-    "to-close" : "to-close-name",
-    "generator2Id" : "generator2Name"
-  },
   "contingencies" : [ {
     "id" : "contingency1Id",
     "networkElementsIds" : [ "ne1Id" ]

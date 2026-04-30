@@ -35,7 +35,7 @@ public final class OnConstraintArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnConstraintAdder<?, ?> adder = ownerAdder.newOnConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
@@ -45,7 +45,7 @@ public final class OnConstraintArrayDeserializer {
                             CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
-                            throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());
+                            throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.currentName());
                         }
                     case CNEC_ID:
                         adder.withCnec(jsonParser.nextTextValue());
@@ -60,7 +60,7 @@ public final class OnConstraintArrayDeserializer {
                         deserializeOlderOnConstraintUsageRules(jsonParser, VOLTAGE_CNEC_ID, version, adder);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.currentName());
                 }
             }
             adder.add();

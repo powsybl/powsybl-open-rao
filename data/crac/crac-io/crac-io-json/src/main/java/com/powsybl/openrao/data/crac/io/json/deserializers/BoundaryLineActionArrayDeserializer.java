@@ -14,11 +14,9 @@ import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTIVE_POWER_VALUE;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
@@ -27,13 +25,13 @@ public final class BoundaryLineActionArrayDeserializer {
     private BoundaryLineActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BoundaryLineActionAdder adder = ownerAdder.newBoundaryLineAction();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case NETWORK_ELEMENT_ID:
-                        deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
+                        adder.withNetworkElement(jsonParser.nextTextValue());
                         break;
                     case ACTIVE_POWER_VALUE:
                         jsonParser.nextToken();

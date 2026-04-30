@@ -34,7 +34,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintInCountryAdder<?> adder = ownerAdder.newOnFlowConstraintInCountryUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
@@ -47,13 +47,13 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                             CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
-                            throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
+                            throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.currentName());
                         }
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.currentName());
                 }
             }
             adder.add();
