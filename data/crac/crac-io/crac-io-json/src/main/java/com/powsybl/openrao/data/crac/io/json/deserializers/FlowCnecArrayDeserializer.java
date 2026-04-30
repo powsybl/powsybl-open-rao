@@ -79,14 +79,14 @@ public final class FlowCnecArrayDeserializer {
                         break;
                     case JsonSerializationConstants.I_MAX:
                         JsonSerializationConstants.logDeprecatedField(
-                            jsonParser.currentName(), 2, 8,
+                            2, 8,
                             "The iMax is now fetched in the network so the value in the CRAC will not be read.",
                             jsonParser, Double[].class, version
                         );
                         break;
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
                         JsonSerializationConstants.logDeprecatedField(
-                            jsonParser.currentName(), 2, 8,
+                            2, 8,
                             "The nominalV is now fetched in the network so the value in the CRAC will not be read.",
                             jsonParser, Double[].class, version
                         );

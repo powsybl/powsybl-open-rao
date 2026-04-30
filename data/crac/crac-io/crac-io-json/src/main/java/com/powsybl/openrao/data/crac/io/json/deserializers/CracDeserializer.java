@@ -90,7 +90,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             switch (jsonParser.currentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
                     JsonSerializationConstants.logDeprecatedField(
-                        jsonParser.currentName(), 2, 11,
+                        2, 11,
                         "The network elements names are now ignored and can be retrieved from the network",
                         jsonParser, HashMap.class, version
                     );

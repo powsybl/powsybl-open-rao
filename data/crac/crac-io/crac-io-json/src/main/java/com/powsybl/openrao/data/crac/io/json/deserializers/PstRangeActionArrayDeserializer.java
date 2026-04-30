@@ -93,14 +93,14 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case JsonSerializationConstants.INITIAL_TAP:
                         JsonSerializationConstants.logDeprecatedField(
-                            jsonParser.currentName(), 2, 7,
+                            2, 7,
                             "The initial tap is now read from the network so the value in the CRAC will not be read.",
                             jsonParser, Integer.class, version
                         );
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
                         JsonSerializationConstants.logDeprecatedField(
-                            jsonParser.currentName(), 2, 7,
+                            2, 7,
                             "The tap to angle conversion map is now read from the network so the value in the CRAC will not be read.",
                             jsonParser, HashMap.class, version
                         );

@@ -43,7 +43,7 @@ public final class OnConstraintArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         JsonSerializationConstants.logDeprecatedField(
-                            jsonParser.currentName(), 2, 8,
+                            2, 8,
                             "Usage methods are no longer used.",
                             jsonParser, String.class, version
                         );

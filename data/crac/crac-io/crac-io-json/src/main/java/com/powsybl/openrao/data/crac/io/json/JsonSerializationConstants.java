@@ -66,6 +66,7 @@ public final class JsonSerializationConstants {
     v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions, deletion of usage methods
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
+    v2.11: removal of networkElementsNamePerId
      */
 
     // headers
@@ -502,22 +503,21 @@ public final class JsonSerializationConstants {
      * fields that are ignored even for older versions (e.g., values retrieved from the network,
      * fields removed from the API, redundant information, etc.).
      *
-     * @param fieldName The name of the field that has been removed.
-     * @param major The major version in which the field was removed.
-     * @param minor The minor version in which the field was removed.
-     * @param message A custom message describing the deprecation or removal of the field.
+     * @param major      The major version in which the field was removed.
+     * @param minor      The minor version in which the field was removed.
+     * @param message    A custom message describing the deprecation or removal of the field.
      * @param parseClass The class type that the field is expected to parse into.
-     * @param version The current version to compare against the removed field's version.
+     * @param version    The current version to compare against the removed field's version.
      * @throws OpenRaoException If the field is not expected based on the version constraints.
      */
-    public static void logDeprecatedField(String fieldName, int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, String version) throws IOException {
+    public static void logDeprecatedField(int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, String version) throws IOException {
         jsonParser.nextToken();
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) < major ||
             JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) < minor) {
             LOGGER.warn(message);
             jsonParser.readValueAs(parseClass);
         } else {
-            throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, fieldName));
+            throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
         }
     }
 }
