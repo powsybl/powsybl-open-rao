@@ -66,13 +66,13 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         scrollJsonUntilField(jsonParser, JsonSerializationConstants.ID);
         String id = jsonParser.nextTextValue();
         jsonParser.nextToken();
-        if (!jsonParser.getCurrentName().equals(JsonSerializationConstants.NAME)) {
+        if (!jsonParser.currentName().equals(JsonSerializationConstants.NAME)) {
             throw new OpenRaoException(String.format("The JSON Crac must contain a %s field after the %s field", JsonSerializationConstants.NAME, JsonSerializationConstants.ID));
         }
         String name = jsonParser.nextTextValue();
         JsonToken nextToken = jsonParser.nextToken();
         OffsetDateTime timestamp;
-        if (jsonParser.getCurrentName().equals(JsonSerializationConstants.TIMESTAMP)) {
+        if (jsonParser.currentName().equals(JsonSerializationConstants.TIMESTAMP)) {
             timestamp = OffsetDateTime.parse(jsonParser.nextTextValue());
             nextToken = jsonParser.nextToken();
         } else {
@@ -90,12 +90,16 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
         // deserialize the following lines of the Crac
         while (nextToken != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
                     jsonParser.nextToken();
-                    deserializedNetworkElementsNamesPerId = jsonParser.readValueAs(HashMap.class);
+                    if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
+                        JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 10) {
+                        LOGGER.warn("The network elements names are now ignored and can be retrieved from the network");
+                    } else {
+                        throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.currentName());
+                    }
                     break;
-
                 case JsonSerializationConstants.CONTINGENCIES:
                     jsonParser.nextToken();
                     ContingencyArrayDeserializer.deserialize(jsonParser, crac, network);
@@ -157,7 +161,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     break;
 
                 default:
-                    throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.currentName());
             }
             nextToken = jsonParser.nextToken();
         }
@@ -181,7 +185,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     }
 
     private void scrollJsonUntilField(JsonParser jsonParser, String field) throws IOException {
-        while (!jsonParser.getCurrentName().equals(field)) {
+        while (!jsonParser.currentName().equals(field)) {
             if (jsonParser.nextToken() == JsonToken.END_OBJECT) {
                 throw new OpenRaoException(String.format("The JSON Crac must contain an %s field", field));
             }
