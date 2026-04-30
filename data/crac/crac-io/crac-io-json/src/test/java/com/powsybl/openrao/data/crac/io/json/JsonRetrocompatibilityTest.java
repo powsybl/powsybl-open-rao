@@ -433,6 +433,15 @@ class JsonRetrocompatibilityTest {
                      exception.getMessage());
     }
 
+    @Test
+    void importV2Point11Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.11.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point10Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -1015,5 +1024,9 @@ class JsonRetrocompatibilityTest {
                 .filter(range -> range.getRangeType().equals(RangeType.ABSOLUTE))
                 .count()
         );
+    }
+
+    private void testContentOfV2Point11Crac(Crac crac) {
+        testContentOfV2Point10Crac(crac);
     }
 }
