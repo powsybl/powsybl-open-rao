@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -80,23 +78,19 @@ public final class FlowCnecArrayDeserializer {
                         readReliabilityMargin(jsonParser, version, flowCnecAdder);
                         break;
                     case JsonSerializationConstants.I_MAX:
-                        jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
-                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
-                            jsonParser.readValueAs(Double[].class);
-                            LOGGER.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
-                            break;
-                        }
-                        throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated and is read from the network.");
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 8,
+                            "The iMax is now fetched in the network so the value in the CRAC will not be read.",
+                            jsonParser, Double[].class, version
+                        );
+                        break;
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
-                        jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
-                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
-                            jsonParser.readValueAs(Double[].class);
-                            LOGGER.warn("The nominalV is now fetched in the network so the value in the CRAC will not be read.");
-                            break;
-                        }
-                        throw new OpenRaoException("From version 2.8 onwards, nominalV is deprecated and is read from the network.");
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 8,
+                            "The nominalV is now fetched in the network so the value in the CRAC will not be read.",
+                            jsonParser, Double[].class, version
+                        );
+                        break;
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
                         if (networkElementId == null) {

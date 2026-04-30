@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
@@ -20,8 +21,6 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.C
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.COUNTRY;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -43,12 +42,12 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         adder.withContingency(jsonParser.nextTextValue());
                         break;
                     case USAGE_METHOD:
-                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
-                            break;
-                        } else {
-                            throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.currentName());
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 8,
+                            "Usage methods are no longer used.",
+                            jsonParser, String.class, version
+                        );
+                        break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));
                         break;

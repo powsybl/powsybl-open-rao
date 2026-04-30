@@ -89,15 +89,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         while (nextToken != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
-                    jsonParser.nextToken();
-                    // TODO: create method for all fields ignored (initial tap, iMax, ...)
-                    if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                        JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 10) {
-                        LOGGER.warn("The network elements names are now ignored and can be retrieved from the network");
-                        jsonParser.readValueAs(HashMap.class);
-                    } else {
-                        throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.currentName());
-                    }
+                    JsonSerializationConstants.logDeprecatedField(
+                        jsonParser.currentName(), 2, 11,
+                        "The network elements names are now ignored and can be retrieved from the network",
+                        jsonParser, HashMap.class, version
+                    );
                     break;
                 case JsonSerializationConstants.CONTINGENCIES:
                     jsonParser.nextToken();

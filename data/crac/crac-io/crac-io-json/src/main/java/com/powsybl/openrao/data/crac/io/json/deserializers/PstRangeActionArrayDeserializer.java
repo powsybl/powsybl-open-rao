@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
-import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -93,19 +92,18 @@ public final class PstRangeActionArrayDeserializer {
                         pstRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.INITIAL_TAP:
-                        jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            LOGGER.warn("The initial tap is now read from the network so the value in the crac will not be read");
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 7,
+                            "The initial tap is now read from the network so the value in the CRAC will not be read.",
+                            jsonParser, Integer.class, version
+                        );
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
-                        jsonParser.nextToken();
-                        readIntToDoubleMap(jsonParser);
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            LOGGER.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 7,
+                            "The tap to angle conversion map is now read from the network so the value in the CRAC will not be read.",
+                            jsonParser, HashMap.class, version
+                        );
                         break;
                     case JsonSerializationConstants.RANGES:
                         jsonParser.nextToken();

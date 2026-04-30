@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
@@ -41,12 +42,12 @@ public final class OnConstraintArrayDeserializer {
                         adder.withInstant(instantId);
                         break;
                     case USAGE_METHOD:
-                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
-                            break;
-                        } else {
-                            throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.currentName());
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            jsonParser.currentName(), 2, 8,
+                            "Usage methods are no longer used.",
+                            jsonParser, String.class, version
+                        );
+                        break;
                     case CNEC_ID:
                         adder.withCnec(jsonParser.nextTextValue());
                         break;
