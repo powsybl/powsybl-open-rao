@@ -433,6 +433,15 @@ class JsonRetrocompatibilityTest {
                      exception.getMessage());
     }
 
+    @Test
+    void importV2Point11Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.11.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point11Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -466,9 +475,7 @@ class JsonRetrocompatibilityTest {
 
         // check network element
         assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne2Name", crac.getFlowCnec("cnec3prevId").getNetworkElement().getName());
         assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getName());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
@@ -664,7 +671,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, networkElementAndKeys.size());
         assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
@@ -1015,5 +1021,9 @@ class JsonRetrocompatibilityTest {
                 .filter(range -> range.getRangeType().equals(RangeType.ABSOLUTE))
                 .count()
         );
+    }
+
+    private void testContentOfV2Point11Crac(Crac crac) {
+        testContentOfV2Point10Crac(crac);
     }
 }

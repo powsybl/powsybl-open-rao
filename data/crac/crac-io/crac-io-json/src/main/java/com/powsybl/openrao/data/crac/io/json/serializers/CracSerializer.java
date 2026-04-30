@@ -13,11 +13,8 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -33,12 +30,9 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -58,7 +52,6 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
 
         serializeInstants(crac, gen);
         serializeRaUsageLimits(crac, gen);
-        serializeNetworkElements(crac, gen);
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
         serializeAngleCnecs(crac, gen);
@@ -96,25 +89,6 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
             gen.writeObject(instant);
         }
         gen.writeEndArray();
-    }
-
-    private void serializeNetworkElements(Crac crac, JsonGenerator gen) throws IOException {
-        Map<String, String> networkElementsNamesPerId = new HashMap<>();
-
-        // Get network elements from Cnecs
-        for (Set<NetworkElement> networkElements : crac.getCnecs().stream().map(Cnec::getNetworkElements).collect(Collectors.toSet())) {
-            networkElements.stream().filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
-                .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
-        }
-
-        // Get network elements from RemedialActions
-        for (RemedialAction<?> remedialAction : crac.getRemedialActions()) {
-            remedialAction.getNetworkElements().stream().filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
-                    .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
-        }
-
-        // Write all
-        gen.writeObjectField(JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID, networkElementsNamesPerId);
     }
 
     private void serializeContingencies(Crac crac, JsonGenerator gen) throws IOException {

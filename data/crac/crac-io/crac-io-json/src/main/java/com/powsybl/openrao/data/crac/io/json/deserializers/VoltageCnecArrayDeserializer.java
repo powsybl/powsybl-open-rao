@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.BORDER;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CONTINGENCY_ID;
@@ -31,13 +30,11 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.I
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.MONITORED;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NAME;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPERATOR;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPTIMIZED;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.RELIABILITY_MARGIN;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.THRESHOLDS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNECS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
@@ -49,15 +46,12 @@ public final class VoltageCnecArrayDeserializer {
     private VoltageCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", VOLTAGE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
-        }
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec();
             List<Extension<VoltageCnec>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case ID:
                         voltageCnecAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -65,7 +59,7 @@ public final class VoltageCnecArrayDeserializer {
                         voltageCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case NETWORK_ELEMENT_ID:
-                        readNetworkElementId(jsonParser, networkElementsNamesPerId, voltageCnecAdder);
+                        voltageCnecAdder.withNetworkElement(jsonParser.nextTextValue());
                         break;
                     case OPERATOR:
                         voltageCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -100,7 +94,7 @@ public final class VoltageCnecArrayDeserializer {
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in VoltageCnec: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in VoltageCnec: " + jsonParser.currentName());
                 }
             }
             VoltageCnec cnec = voltageCnecAdder.add();
@@ -126,14 +120,5 @@ public final class VoltageCnecArrayDeserializer {
         }
         jsonParser.nextToken();
         voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
-    }
-
-    private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, VoltageCnecAdder voltageCnecAdder) throws IOException {
-        String importingNetworkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
-            voltageCnecAdder.withNetworkElement(importingNetworkElementId, networkElementsNamesPerId.get(importingNetworkElementId));
-        } else {
-            voltageCnecAdder.withNetworkElement(importingNetworkElementId);
-        }
     }
 }

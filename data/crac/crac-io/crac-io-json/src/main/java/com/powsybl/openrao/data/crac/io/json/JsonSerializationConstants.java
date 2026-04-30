@@ -8,13 +8,13 @@
 package com.powsybl.openrao.data.crac.io.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -31,9 +31,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -65,6 +66,7 @@ public final class JsonSerializationConstants {
     v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions, deletion of usage methods
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
+    v2.11: removal of networkElementsNamePerId
      */
 
     // headers
@@ -462,14 +464,6 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static void deserializeNetworkElement(String networkElementId, Map<String, String> networkElementsNamesPerId, SingleNetworkElementActionAdder<?> adder) {
-        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-        } else {
-            adder.withNetworkElement(networkElementId);
-        }
-    }
-
     public static void serializeActivationCost(RemedialAction<?> remedialAction, JsonGenerator gen) throws IOException {
         Optional<Double> activationCost = remedialAction.getActivationCost();
         if (activationCost.isPresent()) {
@@ -500,6 +494,30 @@ public final class JsonSerializationConstants {
             return VariationDirection.DOWN;
         } else {
             throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));
+        }
+    }
+
+    /**
+     * Logs a message for deprecated fields based on the provided version and throws an exception
+     * if the field is not expected for the specified version. This method should be used only for
+     * fields that are ignored even for older versions (e.g., values retrieved from the network,
+     * fields removed from the API, redundant information, etc.).
+     *
+     * @param major      The major version in which the field was removed.
+     * @param minor      The minor version in which the field was removed.
+     * @param message    A custom message describing the deprecation or removal of the field.
+     * @param parseClass The class type that the field is expected to parse into.
+     * @param version    The current version to compare against the removed field's version.
+     * @throws OpenRaoException If the field is not expected based on the version constraints.
+     */
+    public static void logDeprecatedField(int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, String version) throws IOException {
+        jsonParser.nextToken();
+        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < major ||
+            JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) < minor) {
+            LOGGER.warn(message);
+            jsonParser.readValueAs(parseClass);
+        } else {
+            throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
         }
     }
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
@@ -35,18 +36,18 @@ public final class OnConstraintArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnConstraintAdder<?, ?> adder = ownerAdder.newOnConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
                         break;
                     case USAGE_METHOD:
-                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
-                            break;
-                        } else {
-                            throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            2, 8,
+                            "Usage methods are no longer used.",
+                            jsonParser, String.class, version
+                        );
+                        break;
                     case CNEC_ID:
                         adder.withCnec(jsonParser.nextTextValue());
                         break;
@@ -60,7 +61,7 @@ public final class OnConstraintArrayDeserializer {
                         deserializeOlderOnConstraintUsageRules(jsonParser, VOLTAGE_CNEC_ID, version, adder);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.currentName());
                 }
             }
             adder.add();

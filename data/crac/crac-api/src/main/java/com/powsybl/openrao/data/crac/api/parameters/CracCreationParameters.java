@@ -58,21 +58,6 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         }
     }
 
-    public enum DurationThresholdsLimits {
-        DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT(60),
-        DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT(900);
-
-        private final int limit;
-
-        DurationThresholdsLimits(int limit) {
-            this.limit = limit;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
-    }
-
     private MonitoredLineSide defaultMonitoredLineSide = DEFAULT_DEFAULT_MONITORED_LINE_SIDE;
 
     private Map<String, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
