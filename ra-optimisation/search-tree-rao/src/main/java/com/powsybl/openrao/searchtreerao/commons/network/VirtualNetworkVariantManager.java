@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class VirtualNetworkVariant implements NetworkVariant {
+public class VirtualNetworkVariantManager implements NetworkVariantManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualNetworkVariant.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualNetworkVariantManager.class);
 
     protected record VirtualVariant(String variantId, AppliedRemedialActions appliedRemedialActions) {
     }
@@ -23,7 +23,7 @@ public class VirtualNetworkVariant implements NetworkVariant {
     private final Map<String, VirtualVariant> variantsById = new HashMap<>();
     private VirtualVariant workingVariant;
 
-    public VirtualNetworkVariant(Network network) {
+    public VirtualNetworkVariantManager(Network network) {
         this.network = Objects.requireNonNull(network);
     }
 

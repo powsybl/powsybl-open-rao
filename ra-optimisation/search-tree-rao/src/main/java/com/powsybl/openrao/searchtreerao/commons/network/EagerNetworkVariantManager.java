@@ -11,11 +11,11 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class EagerNetworkVariant implements NetworkVariant {
+public class EagerNetworkVariantManager implements NetworkVariantManager {
     private final Network network;
     private final Set<String> createdWorkingVariantIds = new HashSet<>();
 
-    public EagerNetworkVariant(Network network) {
+    public EagerNetworkVariantManager(Network network) {
         this.network = Objects.requireNonNull(network);
     }
 

@@ -35,7 +35,7 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariant;
+import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
@@ -95,7 +95,7 @@ class SearchTreeTest {
     private SearchTreeInput searchTreeInput;
 
     private Network network;
-    private NetworkVariant networkVariant;
+    private NetworkVariantManager networkVariantManager;
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
@@ -176,7 +176,7 @@ class SearchTreeTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         when(network.getVariantManager()).thenReturn(variantManager);
         when(variantManager.getWorkingVariantId()).thenReturn("ID");
-        networkVariant = Mockito.mock(NetworkVariant.class);
+        networkVariantManager = Mockito.mock(NetworkVariantManager.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         availableNetworkActions = new HashSet<>();
@@ -328,8 +328,8 @@ class SearchTreeTest {
         searchTree.initLeaves(searchTreeInput);
 
         // 2) Create 2 Leaf with different shouldRangeActionBeRemoved value
-        Leaf filteredLeaf = searchTree.createChildLeaf(networkVariant, naCombination, true);
-        Leaf unfilteredLeaf = searchTree.createChildLeaf(networkVariant, naCombination, false);
+        Leaf filteredLeaf = searchTree.createChildLeaf(networkVariantManager, naCombination, true);
+        Leaf unfilteredLeaf = searchTree.createChildLeaf(networkVariantManager, naCombination, false);
 
         // 3) Mocks a sensitivity computer to set leaf.status to EVALUATED
         setLeafStatusToEvaluated(filteredLeaf);

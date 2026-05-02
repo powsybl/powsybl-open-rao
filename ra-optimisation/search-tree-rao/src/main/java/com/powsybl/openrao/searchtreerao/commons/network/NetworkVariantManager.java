@@ -1,22 +1,22 @@
 package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 
-import java.util.Objects;
-import java.util.WeakHashMap;
-import java.util.function.Function;
+public interface NetworkVariantManager {
 
-public class NetworkVariantManager {
+    Network getNetwork();
 
-    private final Function<Network, NetworkVariant> networkVariantSupplier;
+    void setWorkingVariant(String fromVariant, String newVariantId);
 
-    private final WeakHashMap<Network, NetworkVariant> variants = new WeakHashMap<>();
+    void removeWorkingVariants();
 
-    public NetworkVariantManager(Function<Network, NetworkVariant> networkVariantSupplier) {
-        this.networkVariantSupplier = Objects.requireNonNull(networkVariantSupplier);
-    }
+    void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint);
 
-    public NetworkVariant getVariant(Network network) {
-        return variants.computeIfAbsent(network, networkVariantSupplier);
-    }
+    void applyNetworkAction(State state, NetworkAction networkAction);
+
+    void compute(SensitivityComputer sensitivityComputer);
 }
