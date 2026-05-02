@@ -22,10 +22,9 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.network.EagerNetworkVariant;
-import com.powsybl.openrao.searchtreerao.commons.network.LazyNetworkVariant;
 import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariant;
-import com.powsybl.openrao.searchtreerao.commons.network.VariantFreeNetwork;
+import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManager;
+import com.powsybl.openrao.searchtreerao.commons.network.VirtualNetworkVariant;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -52,8 +51,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
@@ -104,7 +101,7 @@ public class SearchTree {
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
-    private final Function<Network, NetworkVariant> networkVariantSupplier = VariantFreeNetwork::new;
+    private final NetworkVariantManager networkVariantManager = new NetworkVariantManager(VirtualNetworkVariant::new);
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,
@@ -209,7 +206,7 @@ public class SearchTree {
     }
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, networkVariantSupplier.apply(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        return new Leaf(optimizationPerimeter, networkVariantManager.getVariant(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -293,7 +290,7 @@ public class SearchTree {
 
     private NetworkVariant getRawAvailableNetworkVariantTree(AbstractNetworkPool networkPool) throws InterruptedException, OpenRaoException {
         Network networkClone = networkPool.getRawAvailableNetwork(); //This is where the threads actually wait for available networks
-        NetworkVariant networkVariant = networkVariantSupplier.apply(networkClone);
+        NetworkVariant networkVariant = networkVariantManager.getVariant(networkClone);
         networkVariant.setWorkingVariant(networkPool.getStateSaveVariant(), networkPool.getWorkingVariant());
         return networkVariant;
     }

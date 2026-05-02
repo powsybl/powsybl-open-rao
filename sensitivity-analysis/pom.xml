@@ -86,5 +86,10 @@
             <artifactId>powsybl-ucte-converter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-open-loadflow</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

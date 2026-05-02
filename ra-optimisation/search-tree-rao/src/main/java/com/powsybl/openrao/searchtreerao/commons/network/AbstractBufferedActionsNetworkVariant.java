@@ -56,6 +56,7 @@ abstract class AbstractBufferedActionsNetworkVariant implements NetworkVariant {
     public void applyNetworkAction(State state, NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
+        System.out.println("ADD " + networkAction.getId() + " to " + workingVariant.newVariantId);
         workingVariant.appliedRemedialActions.addAppliedNetworkAction(state, networkAction);
     }
 }
