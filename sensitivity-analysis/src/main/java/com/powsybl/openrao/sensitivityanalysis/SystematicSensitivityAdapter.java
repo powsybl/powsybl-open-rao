@@ -59,22 +59,13 @@ final class SystematicSensitivityAdapter {
             List<OperatorStrategy> operatorStrategies = new ArrayList<>();
             List<Action> actions = new ArrayList<>();
             if (appliedRemedialActionsBefore != null && !appliedRemedialActionsBefore.isEmpty(network)) {
-                System.out.println("PROUT");
                 for (State state : appliedRemedialActionsBefore.getStatesWithRa(network)) {
                     actions.addAll(appliedRemedialActionsBefore.getAppliedNetworkActions(state).stream().flatMap(a -> a.getElementaryActions().stream()).toList());
                 }
-                operatorStrategyId = "TOTO";
+                operatorStrategyId = "OS";
                 operatorStrategies.add(new OperatorStrategy(operatorStrategyId, ContingencyContext.none(), new TrueCondition(),
                         actions.stream().map(Action::getId).toList()));
-                System.out.println("PROUT2 " + actions.size());
-                if (actions.size() > 0) {
-                    System.out.println("YES");
-                }
                 sensitivityComputationParameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES);
-//                if (actions.size() > 1) {
-//                    var a = sensitivityComputationParameters.getExtension(OpenSensitivityAnalysisParameters.class);
-//                    a.setDebugDir("/Users/geo/caca");
-//                }
             }
             SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
                     .setParameters(sensitivityComputationParameters)
@@ -86,12 +77,6 @@ final class SystematicSensitivityAdapter {
                     network.getVariantManager().getWorkingVariantId(),
                     factors,
                     runParameters);
-            System.out.println(result.getValues(new SensitivityState(null, null)));
-            System.out.println(result.getValues(new SensitivityState(null, operatorStrategyId)));
-            for (Contingency contingency : contingencies) {
-                System.out.println(result.getValues(new SensitivityState(contingency.getId(), null)));
-                System.out.println(result.getValues(new SensitivityState(contingency.getId(), operatorStrategyId)));
-            }
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);

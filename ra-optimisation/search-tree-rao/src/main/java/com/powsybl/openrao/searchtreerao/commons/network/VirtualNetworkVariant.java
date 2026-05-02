@@ -51,8 +51,8 @@ public class VirtualNetworkVariant implements NetworkVariant {
     @Override
     public void removeWorkingVariants() {
         LOGGER.info("Remove all virtual variants");
-//        variantsById.clear();
-//        workingVariant = null;
+        variantsById.clear();
+        workingVariant = null;
     }
 
     protected void checkWorkingVariantIsSet() {
