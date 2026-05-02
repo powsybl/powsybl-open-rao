@@ -146,8 +146,9 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network, AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
-        SystematicSensitivityResult result = runWithConfig(network, appliedRemedialActionsBefore);
+    public SystematicSensitivityResult run(Network network,
+                                           AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions) {
+        SystematicSensitivityResult result = runWithConfig(network, preventiveAppliedRemedialActions);
         if (!result.isSuccess()) {
             BUSINESS_WARNS.warn("Sensitivity analysis failed.");
         }
@@ -162,13 +163,14 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
+    private SystematicSensitivityResult runWithConfig(Network network,
+                                                      AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions) {
         if (cnecSensitivityProvider.getFlowCnecs().isEmpty()) {
             TECHNICAL_LOGS.error("Sensitivity analysis skipped: no FlowCNEC provided.");
             return new SystematicSensitivityResult();
         }
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActionsBefore, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, preventiveAppliedRemedialActions, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
             TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");

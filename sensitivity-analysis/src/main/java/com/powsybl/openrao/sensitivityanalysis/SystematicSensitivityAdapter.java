@@ -49,7 +49,7 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
-                                                      AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
+                                                      AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         String operatorStrategyId = null;
@@ -58,9 +58,9 @@ final class SystematicSensitivityAdapter {
             List<SensitivityFactor> factors = cnecSensitivityProvider.getAllFactors(network);
             List<OperatorStrategy> operatorStrategies = new ArrayList<>();
             List<Action> actions = new ArrayList<>();
-            if (appliedRemedialActionsBefore != null && !appliedRemedialActionsBefore.isEmpty(network)) {
-                actions.addAll(appliedRemedialActionsBefore.getNetworkActions().stream().flatMap(a -> a.getElementaryActions().stream()).toList());
-                if (!appliedRemedialActionsBefore.getRangeActions().isEmpty()) {
+            if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
+                actions.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(a -> a.getElementaryActions().stream()).toList());
+                if (!preventiveAppliedRemedialActions.getRangeActions().isEmpty()) {
                     throw new OpenRaoException("TODO");
                 }
                 operatorStrategyId = "OS";
@@ -90,14 +90,14 @@ final class SystematicSensitivityAdapter {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
-                                                      AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore,
+                                                      AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
                                                       Instant outageInstant) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant,
-                    appliedRemedialActionsBefore);
+                    preventiveAppliedRemedialActions);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
