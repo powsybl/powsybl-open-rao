@@ -19,6 +19,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.SensitivityResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRemedialActionsPerState;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
@@ -41,7 +42,7 @@ public final class SensitivityComputer {
         compute(network, null);
     }
 
-    public void compute(Network network, AppliedRemedialActions appliedRemedialActionsBefore) {
+    public void compute(Network network, AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
         result = systematicSensitivityInterface.run(network, appliedRemedialActionsBefore);
     }
 

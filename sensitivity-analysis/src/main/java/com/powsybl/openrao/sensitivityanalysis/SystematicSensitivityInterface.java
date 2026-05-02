@@ -13,13 +13,10 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -149,7 +146,7 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network, AppliedRemedialActions appliedRemedialActionsBefore) {
+    public SystematicSensitivityResult run(Network network, AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
         SystematicSensitivityResult result = runWithConfig(network, appliedRemedialActionsBefore);
         if (!result.isSuccess()) {
             BUSINESS_WARNS.warn("Sensitivity analysis failed.");
@@ -165,7 +162,7 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, AppliedRemedialActions appliedRemedialActionsBefore) {
+    private SystematicSensitivityResult runWithConfig(Network network, AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
         if (cnecSensitivityProvider.getFlowCnecs().isEmpty()) {
             TECHNICAL_LOGS.error("Sensitivity analysis skipped: no FlowCNEC provided.");
             return new SystematicSensitivityResult();

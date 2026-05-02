@@ -311,7 +311,7 @@ public class SearchTree {
                     // If the HVDC line is in AC emulation the we won't be able to apply setpoint
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkVariantManager.getNetwork())
                         .forEach(ra ->
-                            networkVariantManager.applyRangeAction(input.getOptimizationPerimeter().getMainOptimizationState(), ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                            networkVariantManager.applyRangeAction(ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 
                 } else {
@@ -321,7 +321,7 @@ public class SearchTree {
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkVariantManager.getNetwork())
                         .forEach(ra ->
-                            networkVariantManager.applyRangeAction(input.getOptimizationPerimeter().getMainOptimizationState(), ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            networkVariantManager.applyRangeAction(ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
                 }
                 optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkVariantManager);

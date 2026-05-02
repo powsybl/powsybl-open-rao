@@ -49,7 +49,7 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
-                                                      AppliedRemedialActions appliedRemedialActionsBefore) {
+                                                      AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         String operatorStrategyId = null;
@@ -59,8 +59,9 @@ final class SystematicSensitivityAdapter {
             List<OperatorStrategy> operatorStrategies = new ArrayList<>();
             List<Action> actions = new ArrayList<>();
             if (appliedRemedialActionsBefore != null && !appliedRemedialActionsBefore.isEmpty(network)) {
-                for (State state : appliedRemedialActionsBefore.getStatesWithRa(network)) {
-                    actions.addAll(appliedRemedialActionsBefore.getAppliedNetworkActions(state).stream().flatMap(a -> a.getElementaryActions().stream()).toList());
+                actions.addAll(appliedRemedialActionsBefore.getNetworkActions().stream().flatMap(a -> a.getElementaryActions().stream()).toList());
+                if (!appliedRemedialActionsBefore.getRangeActions().isEmpty()) {
+                    throw new OpenRaoException("TODO");
                 }
                 operatorStrategyId = "OS";
                 operatorStrategies.add(new OperatorStrategy(operatorStrategyId, ContingencyContext.none(), new TrueCondition(),
@@ -89,7 +90,7 @@ final class SystematicSensitivityAdapter {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
-                                                      AppliedRemedialActions appliedRemedialActionsBefore,
+                                                      AppliedRemedialActions.AppliedRemedialActionsPerState appliedRemedialActionsBefore,
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,

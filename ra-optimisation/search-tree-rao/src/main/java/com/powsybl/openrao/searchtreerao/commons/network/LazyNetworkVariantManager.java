@@ -2,11 +2,10 @@ package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRemedialActionsPerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(LazyNetworkVariantManager.class);
 
     protected record WorkingVariant(String fromVariant, String newVariantId,
-                                    AppliedRemedialActions appliedRemedialActions) {
+                                    AppliedRemedialActionsPerState appliedRemedialActions) {
     }
 
     private final Network network;
@@ -44,7 +43,7 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     @Override
     public void setWorkingVariant(String fromVariant, String newVariantId) {
         checkWorkingVariantIsNotSet();
-        workingVariant = new WorkingVariant(fromVariant, newVariantId, new AppliedRemedialActions());
+        workingVariant = new WorkingVariant(fromVariant, newVariantId, new AppliedRemedialActionsPerState());
     }
 
     private void ensureWorkingVariantIsCreated() {
@@ -55,9 +54,7 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
             createdWorkingVariantIds.add(workingVariant.newVariantId());
             network.getVariantManager().setWorkingVariant(workingVariant.newVariantId());
             // apply buffered actions
-            for (State state : workingVariant.appliedRemedialActions().getStatesWithRa(network)) {
-                workingVariant.appliedRemedialActions().applyOnNetwork(state, network);
-            }
+            workingVariant.appliedRemedialActions().applyOnNetwork(network);
             workingVariant = null;
         }
     }
@@ -76,19 +73,19 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     }
 
     @Override
-    public void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
+    public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
         LOGGER.info("Add range action '" + rangeAction.getId() + "' to variant '" + workingVariant.newVariantId + "'");
-        workingVariant.appliedRemedialActions.addAppliedRangeAction(state, rangeAction, setpoint);
+        workingVariant.appliedRemedialActions.addAppliedRangeAction(rangeAction, setpoint);
     }
 
     @Override
-    public void applyNetworkAction(State state, NetworkAction networkAction) {
+    public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
         LOGGER.info("Add network action '" + networkAction.getId() + "' to variant '" + workingVariant.newVariantId + "'");
-        workingVariant.appliedRemedialActions.addAppliedNetworkAction(state, networkAction);
+        workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
     }
 
     @Override

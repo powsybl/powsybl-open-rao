@@ -2,7 +2,6 @@ package com.powsybl.openrao.searchtreerao.commons.network;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -41,12 +40,12 @@ public class EagerNetworkVariantManager implements NetworkVariantManager {
     }
 
     @Override
-    public void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
+    public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction).apply(network, setpoint);
     }
 
     @Override
-    public void applyNetworkAction(State state, NetworkAction networkAction) {
+    public void applyNetworkAction(NetworkAction networkAction) {
         boolean applicationSuccess = Objects.requireNonNull(networkAction).apply(network);
         if (!applicationSuccess) {
             throw new OpenRaoException(String.format("%s could not be applied on the network", networkAction.getId()));

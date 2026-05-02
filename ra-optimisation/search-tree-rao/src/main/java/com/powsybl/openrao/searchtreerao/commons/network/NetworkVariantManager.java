@@ -14,9 +14,9 @@ public interface NetworkVariantManager {
 
     void removeWorkingVariants();
 
-    void applyRangeAction(State state, RangeAction<?> rangeAction, double setpoint);
+    void applyRangeAction(RangeAction<?> rangeAction, double setpoint);
 
-    void applyNetworkAction(State state, NetworkAction networkAction);
+    void applyNetworkAction(NetworkAction networkAction);
 
     void compute(SensitivityComputer sensitivityComputer);
 }

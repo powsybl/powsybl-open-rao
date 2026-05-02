@@ -27,9 +27,36 @@ public class AppliedRemedialActions {
 
     private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
-    private static final class AppliedRemedialActionsPerState {
+    public static final class AppliedRemedialActionsPerState {
         private final Set<NetworkAction> networkActions = new HashSet<>();
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+
+        public Set<NetworkAction> getNetworkActions() {
+            return networkActions;
+        }
+
+        public Map<RangeAction<?>, Double> getRangeActions() {
+            return rangeActions;
+        }
+
+        public void addAppliedRangeAction(RangeAction<?> rangeAction, double setpoint) {
+            rangeActions.put(rangeAction, setpoint);
+        }
+
+        public void addAppliedNetworkAction(NetworkAction networkAction) {
+            networkActions.add(networkAction);
+        }
+
+        public void applyOnNetwork(Network network) {
+            // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
+            networkActions.forEach(networkAction -> networkAction.apply(network));
+            rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
+        }
+
+        public boolean isEmpty(Network network) {
+            return networkActions.isEmpty() && rangeActions.entrySet().stream()
+                    .noneMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6);
+        }
     }
 
     public void add(AppliedRemedialActions other) {
@@ -44,7 +71,7 @@ public class AppliedRemedialActions {
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
         if (networkAction != null) {
             checkState(state);
-            appliedRa.get(state).networkActions.add(networkAction);
+            appliedRa.get(state).addAppliedNetworkAction(networkAction);
         }
     }
 
@@ -58,7 +85,7 @@ public class AppliedRemedialActions {
     public void addAppliedRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
         if (rangeAction != null) {
             checkState(state);
-            appliedRa.get(state).rangeActions.put(rangeAction, setpoint);
+            appliedRa.get(state).addAppliedRangeAction(rangeAction, setpoint);
         }
     }
 
@@ -77,8 +104,7 @@ public class AppliedRemedialActions {
         // state with at least one network action applied
         // or state with at least one range action whose setpoint is different from the one in the network
         return appliedRa.entrySet().stream()
-            .filter(stateE -> !stateE.getValue().networkActions.isEmpty() || stateE.getValue().rangeActions.entrySet().stream()
-                .anyMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6))
+            .filter(stateE -> !stateE.getValue().isEmpty(network))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
@@ -105,11 +131,7 @@ public class AppliedRemedialActions {
             (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
                 && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
-            .forEach(stateBefore -> {
-                // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
-                appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
-                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
-            });
+            .forEach(stateBefore -> appliedRa.get(stateBefore).applyOnNetwork(network));
     }
 
     public AppliedRemedialActions copy() {
@@ -133,9 +155,9 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
-//        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
-//            throw new OpenRaoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
-//        }
+        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
+            throw new OpenRaoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
+        }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 
