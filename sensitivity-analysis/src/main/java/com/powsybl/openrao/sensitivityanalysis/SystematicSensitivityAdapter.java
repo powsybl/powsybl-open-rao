@@ -68,12 +68,9 @@ final class SystematicSensitivityAdapter {
         sensitivityComputationParameters.setOperatorStrategiesCalculationMode(operatorStrategyId != null
                 ? SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES
                 : SensitivityOperatorStrategiesCalculationMode.NONE);
-        if (contingencies.isEmpty()) {
-            instantOrderByState.put(new SensitivityState(null, operatorStrategyId), outageInstant.getOrder());
-        } else {
-            for (Contingency contingency : contingencies) {
-                instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), outageInstant.getOrder());
-            }
+        instantOrderByState.put(new SensitivityState(null, operatorStrategyId), outageInstant.getOrder());
+        for (Contingency contingency : contingencies) {
+            instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), outageInstant.getOrder());
         }
         return new SensitivityAnalysisRunParameters()
                 .setParameters(sensitivityComputationParameters)
@@ -159,10 +156,11 @@ final class SystematicSensitivityAdapter {
                     preventiveAppliedRemedialActions,
                     instantOrderByState);
 
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                allFactorsWithoutRa,
-                runParameters), instantOrderByState);
+            var sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
+                    network.getVariantManager().getWorkingVariantId(),
+                    allFactorsWithoutRa,
+                    runParameters);
+            result.completeData(sensiResult, instantOrderByState);
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis without RA failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
