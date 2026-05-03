@@ -102,7 +102,7 @@ public class SearchTree {
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
-    private final NetworkVariantManagerProvider networkVariantManagerProvider = new NetworkVariantManagerProvider(VirtualNetworkVariantManager::new);
+    private final NetworkVariantManagerProvider networkVariantManagerProvider = new NetworkVariantManagerProvider(LazyNetworkVariantManager::new);
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,

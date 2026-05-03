@@ -58,10 +58,7 @@ final class SystematicSensitivityAdapter {
         // curative actions after contingency.
         // As a workaround, we re-apply the preventive actions as curative actions with all contingencies.
         if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
-            actions.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(a -> a.getElementaryActions().stream()).toList());
-            if (!preventiveAppliedRemedialActions.getRangeActions().isEmpty()) {
-                throw new OpenRaoException("TODO");
-            }
+            actions.addAll(preventiveAppliedRemedialActions.toActions());
             operatorStrategyId = "OS";
             // associate to N state and all contingencies
             ContingencyContext contingencyContext = contingencies.isEmpty() ? ContingencyContext.none() : ContingencyContext.all();
@@ -71,9 +68,12 @@ final class SystematicSensitivityAdapter {
         sensitivityComputationParameters.setOperatorStrategiesCalculationMode(operatorStrategyId != null
                 ? SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES
                 : SensitivityOperatorStrategiesCalculationMode.NONE);
-        instantOrderByState.put(new SensitivityState(null, operatorStrategyId), outageInstant.getOrder());
-        for (Contingency contingency : contingencies) {
-            instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), outageInstant.getOrder());
+        if (contingencies.isEmpty()) {
+            instantOrderByState.put(new SensitivityState(null, operatorStrategyId), outageInstant.getOrder());
+        } else {
+            for (Contingency contingency : contingencies) {
+                instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), outageInstant.getOrder());
+            }
         }
         return new SensitivityAnalysisRunParameters()
                 .setParameters(sensitivityComputationParameters)
@@ -180,15 +180,9 @@ final class SystematicSensitivityAdapter {
         // we concat preventive actions and remedial actions
         // - preventive actions are applied to all contingencies
         if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
-            List<Action> networkActions = preventiveAppliedRemedialActions.getNetworkActions()
-                    .stream()
-                    .flatMap(a -> a.getElementaryActions().stream())
-                    .toList();
-            actions.addAll(networkActions);
-            preventionActionIds.addAll(networkActions.stream().map(Action::getId).toList());
-            if (!preventiveAppliedRemedialActions.getRangeActions().isEmpty()) {
-                throw new OpenRaoException("TODO");
-            }
+            List<Action> preventiveActions = preventiveAppliedRemedialActions.toActions();
+            actions.addAll(preventiveActions);
+            preventionActionIds.addAll(preventiveActions.stream().map(Action::getId).toList());
         }
         // - remedial actions are applied to the contingency of the state with RA
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
@@ -198,16 +192,11 @@ final class SystematicSensitivityAdapter {
             );
             contingencies.add(contingency);
 
-            Set<NetworkAction> networkActions = appliedRemedialActions.getAppliedNetworkActions(state);
-            Map<RangeAction<?>, Double> rangeActions = appliedRemedialActions.getAppliedRangeActions(state);
-            Set<Action> actionsForState = new LinkedHashSet<>(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).toList());
-            if (!rangeActions.isEmpty()) {
-                throw new OpenRaoException("TODO");
-            }
-            actions.addAll(actionsForState);
+            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
+            actions.addAll(curativeActionsForState);
             String operatorStrategyId = "OS-" + contingency.getId();
             List<String> actionIds = new ArrayList<>(preventionActionIds);
-            actionIds.addAll(actionsForState.stream().map(Action::getId).toList());
+            actionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
             operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
                     ContingencyContext.specificContingency(contingency.getId()),
                     new TrueCondition(),

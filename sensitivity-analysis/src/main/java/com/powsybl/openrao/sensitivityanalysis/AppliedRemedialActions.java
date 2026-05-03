@@ -7,17 +7,14 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +53,13 @@ public class AppliedRemedialActions {
         public boolean isEmpty(Network network) {
             return networkActions.isEmpty() && rangeActions.entrySet().stream()
                     .noneMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6);
+        }
+
+        public List<Action> toActions() {
+            List<Action> actions = new ArrayList<>(networkActions.size() + rangeActions.size());
+            actions.addAll(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).toList());
+            actions.addAll(rangeActions.entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList());
+            return actions;
         }
     }
 
@@ -107,6 +111,14 @@ public class AppliedRemedialActions {
             .filter(stateE -> !stateE.getValue().isEmpty(network))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
+    }
+
+    public List<Action> toActions(State state) {
+        var appliedRemedialActionForThisState = appliedRa.get(state);
+        if (appliedRemedialActionForThisState == null) {
+            return Collections.emptyList();
+        }
+        return appliedRemedialActionForThisState.toActions();
     }
 
     public Set<NetworkAction> getAppliedNetworkActions(State state) {

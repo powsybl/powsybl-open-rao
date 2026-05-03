@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -27,6 +28,10 @@ import java.util.Optional;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T> {
+
+    default Action toAction(double setpoint) {
+        throw new UnsupportedOperationException("toAction method not implemented");
+    }
 
     /**
      * Apply the action on a given network, with a given setpoint
