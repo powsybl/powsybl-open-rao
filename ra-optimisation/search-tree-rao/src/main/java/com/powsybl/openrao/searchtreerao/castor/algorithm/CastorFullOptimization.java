@@ -27,7 +27,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulati
 import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.CastorPstRegulation;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.PstRegulationResult;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
@@ -92,7 +91,7 @@ public class CastorFullOptimization {
     private final RaoParameters raoParameters;
     private final java.time.Instant targetEndInstant;
 
-    public CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, java.time.Instant targetEndInstant) {
+    CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, java.time.Instant targetEndInstant) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -100,11 +99,10 @@ public class CastorFullOptimization {
         this.targetEndInstant = targetEndInstant;
     }
 
-    public CompletableFuture<RaoResult> run() {
+    CompletableFuture<RaoResult> run() {
         String currentStep = "data initialization";
 
         try {
-            RaoUtil.initData(raoInput, raoParameters);
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
             if (crac.getFlowCnecs().isEmpty()) {
                 PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
@@ -295,7 +293,7 @@ public class CastorFullOptimization {
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(
                     pstsToRegulate, finalPostContingencyResults, network, crac, raoParameters, mergedRaoResults);
                 Map<State, PostPerimeterResult> postRegulationResults = mergeRaoAndPstRegulationResults(
-                    pstRegulationResults, finalSecondPreventiveResult, finalPostContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
+                    pstRegulationResults, finalSecondPreventiveResult, finalPostContingencyResults, prePerimeterSensitivityAnalysis, initialOutput);
                 RaoResult raoResultWithRegulation = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,
                     initialOutput,
@@ -474,8 +472,7 @@ public class CastorFullOptimization {
                                                                             PostPerimeterResult postPraResult,
                                                                             Map<State, PostPerimeterResult> postContingencyResults,
                                                                             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
-                                                                            FlowResult initialFlowResult,
-                                                                            ToolProvider toolProvider) {
+                                                                            FlowResult initialFlowResult) {
         // create a new network variant from initial variant for performing the results merging
         String variantName = "PSTRegulationResultsMerging";
         network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
