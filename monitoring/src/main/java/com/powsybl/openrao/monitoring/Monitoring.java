@@ -49,7 +49,8 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
+//import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -217,12 +218,12 @@ public class Monitoring {
     }
 
     private @Nullable Object optimizeOneContingencyState(MonitoringInput monitoringInput,
-                                       State state,
-                                       AbstractNetworkPool networkPool,
-                                       Crac crac,
-                                       MonitoringResult monitoringResult,
-                                       PhysicalParameter physicalParameter,
-                                       RaoResult raoResult) throws InterruptedException {
+                                                         State state,
+                                                         AbstractNetworkPool networkPool,
+                                                         Crac crac,
+                                                         MonitoringResult monitoringResult,
+                                                         PhysicalParameter physicalParameter,
+                                                         RaoResult raoResult) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork();
         Contingency contingency = state.getContingency().orElseThrow();
 

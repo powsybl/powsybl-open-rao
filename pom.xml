@@ -98,34 +98,20 @@
 
         <!-- Dependencies versions -->
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
-        <commons.csv.version>1.13.0</commons.csv.version>
-        <commonsio.version>2.18.0</commonsio.version>
-        <google.autoservice.version>1.1.1</google.autoservice.version>
-        <google.guava.version>33.2.1-jre</google.guava.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
-        <jackson.version>2.18.6</jackson.version>
+        <jackson.version>2.21.2</jackson.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
-        <jimfs.version>1.3.0</jimfs.version>
-        <junit.bom.version>5.11.3</junit.bom.version>
-        <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <logback.version>1.5.32</logback.version>
-        <maven.compiler.version>3.11.0</maven.compiler.version>
-        <maven.dependency.version>3.6.0</maven.dependency.version>
-        <maven.deploy.version>3.1.1</maven.deploy.version>
-        <maven.gpg.version>3.1.0</maven.gpg.version>
-        <maven.jar.version>3.3.0</maven.jar.version>
+        <junit.bom.version>5.14.4</junit.bom.version>
+        <junit-jupiter.version>5.14.4</junit-jupiter.version>
+        <junit-platform-surefire-provider.version>1.3.2</junit-platform-surefire-provider.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
-        <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>7.2.0</powsybl.core.version>
-        <powsybl.entsoe.version>3.2.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>2.2.0</powsybl.openloadflow.version>
-        <rdf4j.version>5.1.3</rdf4j.version>
-        <slf4j.version>2.0.13</slf4j.version>
-        <xmlunit.core.version>2.10.0</xmlunit.core.version>
+        <powsybl.core.version>7.3.0-SNAPSHOT</powsybl.core.version>
+        <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>2.3.0-SNAPSHOT</powsybl.openloadflow.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <com.networknt.version>1.5.3</com.networknt.version>
-        <assertj-core.version>3.27.7</assertj-core.version>
     </properties>
 
     <build>
@@ -146,22 +132,6 @@
                         <schemaDirectory>src/main/resources/xsd</schemaDirectory>
                         <bindingDirectory>src/main/resources/xjb</bindingDirectory>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.junit.platform</groupId>
-                            <artifactId>junit-platform-surefire-provider</artifactId>
-                            <version>1.2.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.junit.jupiter</groupId>
-                            <artifactId>junit-jupiter-engine</artifactId>
-                            <version>${junit-jupiter.version}</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -212,7 +182,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>3.4.0</version>
                         <configuration>
                             <configLocation>checkstyle.xml</configLocation>
                             <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
@@ -488,12 +457,16 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Compile dependencies -->
+            <!-- PowSyBl-Core dependencies -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-core</artifactId>
+                <version>${powsybl.core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+
+            <!-- Compile dependencies -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -505,16 +478,6 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.auto.service</groupId>
-                <artifactId>auto-service</artifactId>
-                <version>${google.autoservice.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${google.guava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
@@ -523,21 +486,6 @@
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
                 <version>${com.networknt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-action-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-commons</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-contingency-api</artifactId>
-                <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
@@ -555,51 +503,6 @@
                 <version>${powsybl.entsoe.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-iidm-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-iidm-serde</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-loadflow-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-math</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-sensitivity-analysis-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-tools</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-ucte-util</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind.version}</version>
@@ -608,21 +511,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>${javax.validation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-csv</artifactId>
-                <version>${commons.csv.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.rdf4j</groupId>
-                <artifactId>rdf4j-rio-rdfxml</artifactId>
-                <version>${rdf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->
@@ -647,45 +535,9 @@
 
             <!-- Test dependencies -->
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jsonSchema</artifactId>
                 <version>${jackson.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.jimfs</groupId>
-                <artifactId>jimfs</artifactId>
-                <version>${jimfs.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-cgmes-conversion</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-commons-test</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-config-test</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-iidm-impl</artifactId>
-                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -708,29 +560,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj-core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.xmlunit</groupId>
-                <artifactId>xmlunit-core</artifactId>
-                <version>${xmlunit.core.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
