@@ -118,6 +118,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
 
         // 2. Get the initial results from the various independent results to avoid recomputing them
+        // TODO: do not rely on FastRaoResult for this and move it as the first step of the workflow (same for objective function)
         TemporalData<PrePerimeterResult> initialResults = buildInitialResults(topologicalOptimizationResults);
 
         // TODO : Add time-coupled constraint check if none violated then return
@@ -469,6 +470,25 @@ public class Marmot implements TimeCoupledRaoProvider {
         topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) ->
                 initialResults.put(timestamp, ((FastRaoResultImpl) raoResult).getInitialResult()));
         return initialResults;
+    }
+
+    // TODO: keep this method even though it is not used at the moment
+    private static TemporalData<PrePerimeterResult> runAllInitialSensitivityAnalyses(TemporalData<RaoInput> raoInputs,
+                                                                                     TemporalData<RaoParameters> raoParameters,
+                                                                                     int parallelism) {
+        return MarmotUtils.smartMap(
+            raoInputs,
+            raoInput -> {
+                OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+                PrePerimeterResult sensitivityAnalysisResult = MarmotUtils.runSensitivityAnalysis(
+                    raoInput,
+                    raoParameters.getData(timestamp).orElseThrow()
+                );
+                MarmotUtils.releaseNetwork(raoInput.getNetwork());
+                return sensitivityAnalysisResult;
+            },
+            parallelism
+        );
     }
 
     private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(TemporalData<RaoInput> raoInputs,
