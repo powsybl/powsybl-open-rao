@@ -105,7 +105,11 @@ public class Marmot implements TimeCoupledRaoProvider {
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
 
+        // Configure parallelism for multi-threading computation
         int parallelism = Math.min(PARALLELISM, timeCoupledRaoInput.getTimestampsToRun().size());
+        if (parallelism > 1) {
+            TECHNICAL_LOGS.info("[MARMOT] Optimizer set to work on {} threads", parallelism);
+        }
 
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
@@ -120,7 +124,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
 
         // 3. Evaluate objective function after independent optimizations
-        // TODO pq construit on la global objective function avant d'appliquer les topos
+        // TODO pq construit on la global objective function avant d'appliquer les topos -> ANSWER: pour avoir les résultats initiaux, comme un PrePerimeter global
         TECHNICAL_LOGS.info("[MARMOT] Evaluating global result after independent optimizations");
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction);
@@ -177,7 +181,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     inputsForMip,
                     curativeRemedialActions,
                     initialResults,
-                    raoParameters,
+                    raoParametersDuplicates,
                     consideredCnecs,
                     parallelism
             );
@@ -452,6 +456,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
                     NetworkActionsResult networkActionsResult = preventiveTopologicalActionsResults.getData(timestamp).orElseThrow();
                     MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
+                    // TODO: it is useless to release the network here since it will be reopened in the RaoInput builder of next line
                     MarmotUtils.releaseNetwork(raoInput.getNetwork());
                     return RaoInput.build(raoInput.getNetwork(), raoInput.getCrac()).build();
                 },
@@ -469,7 +474,7 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(TemporalData<RaoInput> raoInputs,
                                                                                                   TemporalData<AppliedRemedialActions> curativeRemedialActions,
                                                                                                   TemporalData<? extends FlowResult> initialFlowResults,
-                                                                                                  RaoParameters raoParameters,
+                                                                                                  TemporalData<RaoParameters> raoParameters,
                                                                                                   TemporalData<Set<FlowCnec>> consideredCnecs, int parallelism) {
         return MarmotUtils.smartMap(
                 raoInputs,
@@ -479,7 +484,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                             raoInput,
                             curativeRemedialActions.getData(timestamp).orElseThrow(),
                             initialFlowResults.getData(timestamp).orElseThrow(),
-                            raoParameters,
+                            raoParameters.getData(timestamp).orElseThrow(),
                             consideredCnecs.getData(timestamp).orElseThrow()
                     );
                     MarmotUtils.releaseNetwork(raoInput.getNetwork());

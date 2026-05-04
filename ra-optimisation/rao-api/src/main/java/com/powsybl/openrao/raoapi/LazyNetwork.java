@@ -91,10 +91,15 @@ import java.util.stream.Stream;
 @Beta
 public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
+    private static final String EXPORT_FORMAT = "JIIDM"; // TODO: change to BIIDM, not stabilized for the moment (04/2026)
+    private static final String EXPORT_EXTENSION = ".jiidm"; // TODO: change to .biidm, not stabilized for the moment (04/2026)
+
     private final String networkPath;
     private boolean isLoaded;
     private boolean isInTempDir;
     private Network network;
+
+    // TODO: create private attributes exportAtClosing and deleteAtClosing (both default to false) -> to configure properly at different points of the code
 
     public LazyNetwork(String networkPath) {
         this.networkPath = networkPath;
@@ -103,9 +108,8 @@ public class LazyNetwork implements Network, AutoCloseable {
     }
 
     public LazyNetwork(Network network) {
-        String networkName = TEMP_DIR + UUID.randomUUID() + ".jiidm";
-        // TODO serialize to BIIDM, not stabilized for the moment (04/2026)
-        network.write("JIIDM", new Properties(), Path.of(networkName));
+        String networkName = TEMP_DIR + UUID.randomUUID() + EXPORT_EXTENSION;
+        network.write(EXPORT_FORMAT, new Properties(), Path.of(networkName));
         this.networkPath = networkName;
         this.isLoaded = false;
         this.isInTempDir = true;
@@ -136,7 +140,7 @@ public class LazyNetwork implements Network, AutoCloseable {
             // TODO do we want to write systematically ? augmentation temps de calcul?
             if (overwrite) {
                 // Save modifications on network before releasing
-                network.write("JIIDM", new Properties(), Path.of(networkPath));
+                network.write(EXPORT_FORMAT, new Properties(), Path.of(networkPath)); // FIXME: why not work with non-jiidm files
             }
             network = null;
             isLoaded = false;
