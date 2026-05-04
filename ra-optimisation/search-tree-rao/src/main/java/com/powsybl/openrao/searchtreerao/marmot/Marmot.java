@@ -447,6 +447,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         RaoResult raoResult = FastRao.launchFastRaoOptimization(raoInput, raoParameters, null, cnecs);
         TECHNICAL_LOGS.info(logMessage, "end");
         consideredCnecs.put(timestamp, cnecs);
+        MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         return raoResult;
     }
 
@@ -457,9 +458,11 @@ public class Marmot implements TimeCoupledRaoProvider {
                     OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
                     NetworkActionsResult networkActionsResult = preventiveTopologicalActionsResults.getData(timestamp).orElseThrow();
                     MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
-                    // TODO: it is useless to release the network here since it will be reopened in the RaoInput builder of next line
+                    RaoInput newRaoInput = RaoInput.build(raoInput.getNetwork(), raoInput.getCrac()).build();
+                    // TODO: what's the point of not returning the initial RAO Input?
                     MarmotUtils.releaseNetwork(raoInput.getNetwork());
-                    return RaoInput.build(raoInput.getNetwork(), raoInput.getCrac()).build();
+                    MarmotUtils.releaseNetwork(newRaoInput.getNetwork());
+                    return newRaoInput;
                 },
                 parallelism
         );
