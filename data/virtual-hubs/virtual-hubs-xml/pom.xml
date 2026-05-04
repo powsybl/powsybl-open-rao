@@ -15,13 +15,53 @@
     <name>Virtual hubs XML converter</name>
     <description>Conversion between XML data and virtual hubs</description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb</groupId>
+                <artifactId>jaxb-maven-plugin</artifactId>
+                <configuration>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xinheritance</arg>
+                    </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb</groupId>
+                            <artifactId>jaxb-plugins</artifactId>
+                            <version>${maven.jvnet.jaxb.version}</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-virtual-hubs-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
 
+        <!-- Runtime dependencies -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb</groupId>
+            <artifactId>jaxb-plugins-runtime</artifactId>
+            <version>${maven.jvnet.jaxb.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -37,5 +77,4 @@
             <artifactId>assertj-core</artifactId>
         </dependency>
     </dependencies>
-
 </project>
