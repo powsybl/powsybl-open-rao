@@ -435,7 +435,6 @@ public class Marmot implements TimeCoupledRaoProvider {
     }
 
     private static RaoResult runSingleTopologicalOptimization(RaoInput raoInput, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
-        LazyNetwork ignored = (LazyNetwork) raoInput.getNetwork();
         Set<FlowCnec> cnecs = new HashSet<>();
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
         String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(timestamp);
@@ -443,8 +442,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         RaoResult raoResult = FastRao.launchFastRaoOptimization(raoInput, raoParameters, null, cnecs);
         TECHNICAL_LOGS.info(logMessage, "end");
         consideredCnecs.put(timestamp, cnecs);
-        // TODO why ?
-        MarmotUtils.releaseNetworkWithoutOverwrite(ignored);
         return raoResult;
     }
 
