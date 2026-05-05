@@ -18,29 +18,24 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

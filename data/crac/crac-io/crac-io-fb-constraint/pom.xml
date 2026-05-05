@@ -58,17 +58,14 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-commons</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-loopflow-extension</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-virtual-hubs-xml</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -78,24 +75,21 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb</groupId>
+            <artifactId>jaxb-plugins-runtime</artifactId>
+        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.jaxb</groupId>
-            <artifactId>jaxb-plugins-runtime</artifactId>
-            <version>${maven.jvnet.jaxb.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

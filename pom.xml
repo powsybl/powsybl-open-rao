@@ -97,6 +97,7 @@
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependencies versions -->
+        <commons-collections4.version>4.1</commons-collections4.version><!-- TODO: update this to 4.5 -->
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
         <jackson.version>2.21.2</jackson.version>
@@ -298,26 +299,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-flowbased-computation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-flowbased-computation-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-flowbased-computation-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-flowbased-domain</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-glsk</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -438,11 +419,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <!-- TODO: missing in distribution? -->
                 <artifactId>open-rao-virtual-hubs-json</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <!-- TODO: missing in distribution? -->
                 <artifactId>open-rao-virtual-hubs-network-assigner</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -467,16 +450,6 @@
             </dependency>
 
             <!-- Compile dependencies -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
@@ -503,33 +476,42 @@
                 <version>${powsybl.entsoe.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-open-loadflow</artifactId>
+                <version>${powsybl.openloadflow.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-ucte-converter</artifactId>
+                <version>${powsybl.core.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind.version}</version>
             </dependency>
             <dependency>
+                <!-- TODO: not used? -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>${javax.validation.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jvnet.jaxb</groupId>
+                <artifactId>jaxb-plugins-runtime</artifactId>
+                <version>${maven.jvnet.jaxb.version}</version>
+            </dependency>
 
             <!-- Runtime dependencies -->
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-config-classic</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>runtime</scope>
-            </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
@@ -538,18 +520,6 @@
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jsonSchema</artifactId>
                 <version>${jackson.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-open-loadflow</artifactId>
-                <version>${powsybl.openloadflow.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-ucte-converter</artifactId>
-                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -19,7 +19,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-virtual-hubs-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
