@@ -111,7 +111,7 @@
         <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
         <powsybl.openloadflow.version>2.3.0-SNAPSHOT</powsybl.openloadflow.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <com.networknt.version>1.5.3</com.networknt.version>
+        <com.networknt.version>2.0.1</com.networknt.version><!-- TODO: update to v3 when powsybl-core updates Jackson dependency to v3 -->
     </properties>
 
     <build>
