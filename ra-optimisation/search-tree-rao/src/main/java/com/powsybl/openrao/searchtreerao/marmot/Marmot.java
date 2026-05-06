@@ -82,7 +82,7 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivit
 public class Marmot implements TimeCoupledRaoProvider {
 
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
-    private static final String INITIAL_SCENARIO = "InitialScenario";
+    private static final String INITIAL_SCENARIO = "InitialScenario"; // initial variant coming from CASTOR
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
@@ -98,10 +98,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
 
-        // custom settings for XPRESS optimization
-        // RaoParametes are stored in a TemporalData. They're the same for every timestamp but this prevents concurrent access
-        // when multi threading is activated
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
+        // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
 
@@ -148,12 +145,19 @@ public class Marmot implements TimeCoupledRaoProvider {
             cracs.map(Crac::getPreventiveState),
             parallelism);
 
-        // if no time-coupled constraints are defined, the results can be returned
-        // TODO
-        // if (noTimeCoupledConstraints) {
-        //      TECHNICAL_LOGS.info("[MARMOT] No time-coupled constraint provided; no need to re-optimize range actions");
-        //      return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
-        // }
+        // TODO: check time-coupled constraints. If one of the following requirements is met, exit:
+        //  - no time-coupled constraints provided
+        //  - all time-coupled constraints respected by the individual RAO results (this covers the case when the post-topological optimization cost is 0)
+        //  if (noTimeCoupledConstraints) {
+        //       TECHNICAL_LOGS.info("[MARMOT] No time-coupled constraint provided; no need to re-optimize range actions");
+        //       <!-- Log limiting elements and costs -->
+        //       return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
+        //  } else if (areTimeCoupledConstraintsRespected(timeCoupledRaoInput, topologicalOptimizationResults)) {
+        //       TECHNICAL_LOGS.info("[MARMOT] All time-coupled constraint are respected; no need to re-optimize range actions");
+        //       <!-- Log limiting elements and costs -->
+        //       return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
+        //  }
+        //  TECHNICAL_LOGS.info("[MARMOT] Some time-coupled constraint are not respected; range actions will be re-optimized");
 
         // 5. Create and iteratively solve MIP to find optimal range actions' set-points
         // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
@@ -162,8 +166,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
         // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
         replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
-
-        // TODO: do not enter MIP if objective function is already optimal (=0 in MIN_COST mode)
 
         TemporalData<PrePerimeterResult> sensiResults;
         GlobalLinearOptimizationResult linearOptimizationResults;
@@ -208,7 +210,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     filteredObjectiveFunction,
                     parallelism
             );
-            MarmotUtils.releaseAll(inputsForMip.map(RaoInput::getNetwork));
+            MarmotUtils.releaseAllWithoutOverwrite(inputsForMip.map(RaoInput::getNetwork));
             TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", counter);
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
@@ -243,6 +245,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 8. Log initial and final results
         logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
+        // TODO: does it make sense to log the post topological results if they violated the TC constraints? IMO nope
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
 
@@ -436,6 +439,14 @@ public class Marmot implements TimeCoupledRaoProvider {
         return MarmotUtils.smartMap(raoInputs, raoInput -> runSingleTopologicalOptimization(raoInput, consideredCnecs, raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow()), parallelism);
     }
 
+    /**
+     * Runs a CASTOR optimization for a given RAO input and applies the optimal preventive network actions on the input network.
+     *
+     * @param raoInput        The RAO input for the optimization.
+     * @param consideredCnecs The temporal data of flow CNECs to be considered by FastRAO.
+     * @param raoParameters   The RAO parameters for the optimization.
+     * @return The resulting RaoResult after the optimization.
+     */
     private static RaoResult runSingleTopologicalOptimization(RaoInput raoInput, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
         Set<FlowCnec> cnecs = new HashSet<>();
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
@@ -448,7 +459,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)));
         TECHNICAL_LOGS.info("[MARMOT] >>> Applying preventive remedial actions after optimization for timestamp %s".formatted(timestamp));
         MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
-        MarmotUtils.releaseNetwork(raoInput.getNetwork());
         return raoResult;
     }
 
@@ -463,7 +473,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     raoInput,
                     raoParameters.getData(timestamp).orElseThrow()
                 );
-                MarmotUtils.releaseNetwork(raoInput.getNetwork());
+                MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResult;
             },
             parallelism
@@ -486,7 +496,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                             raoParameters.getData(timestamp).orElseThrow(),
                             consideredCnecs.getData(timestamp).orElseThrow()
                     );
-                    MarmotUtils.releaseNetwork(raoInput.getNetwork());
+                    MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                     return sensitivityAnalysisResult;
                 },
                 parallelism
@@ -541,7 +551,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                             .withOutageInstant(individualRaoInput.getCrac().getOutageInstant())
                             .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
                             .build();
-                    MarmotUtils.releaseNetwork(individualRaoInput.getNetwork());
+                    MarmotUtils.releaseNetworkWithoutOverwrite(individualRaoInput.getNetwork());
                     return iteratingLinearOptimizerInput;
                 },
                 parallelism
@@ -552,7 +562,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer
-        MarmotUtils.releaseAll(timeCoupledLinearOptimizerInput.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
+        MarmotUtils.releaseAllWithoutOverwrite(timeCoupledLinearOptimizerInput.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
 
         // Build parameters
         // Unoptimized cnec parameters ignored because only PRAs

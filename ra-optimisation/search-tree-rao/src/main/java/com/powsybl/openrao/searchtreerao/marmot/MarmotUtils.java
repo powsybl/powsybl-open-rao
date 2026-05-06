@@ -166,9 +166,10 @@ public final class MarmotUtils {
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
+            MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         } else {
-            // TODO: close systematically
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
+            MarmotUtils.releaseNetwork(raoInput.getNetwork());
         }
     }
 
@@ -177,7 +178,7 @@ public final class MarmotUtils {
         TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
         networks.getDataPerTimestamp().forEach((timestamp, network) -> {
             lazyNetworks.put(timestamp, new LazyNetwork(network));
-            MarmotUtils.releaseNetwork(network);
+            MarmotUtils.releaseNetworkWithoutOverwrite(network);
         });
         return lazyNetworks;
     }
@@ -186,13 +187,13 @@ public final class MarmotUtils {
         Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
         for (OffsetDateTime timestamp : networks.getTimestamps()) {
             raoInputs.put(timestamp, RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build());
-            MarmotUtils.releaseNetwork(networks.getData(timestamp).orElseThrow());
+            MarmotUtils.releaseNetworkWithoutOverwrite(networks.getData(timestamp).orElseThrow());
         }
         return new TemporalDataImpl<>(raoInputs);
     }
 
-    public static <N extends Network> void releaseAll(TemporalData<N> networks) {
-        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
+    public static <N extends Network> void releaseAllWithoutOverwrite(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetworkWithoutOverwrite);
     }
 
     public static <N extends Network> void closeAll(TemporalData<N> networks) {
