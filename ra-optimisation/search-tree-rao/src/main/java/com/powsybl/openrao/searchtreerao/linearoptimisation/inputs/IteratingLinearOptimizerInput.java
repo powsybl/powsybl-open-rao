@@ -37,6 +37,7 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
         return new IteratingLinearOptimizerInputBuilder();
     }
 
+    // FIXME: not sure that we need a builder for a record class
     public static class IteratingLinearOptimizerInputBuilder {
         private Network network;
         private OptimizationPerimeter optimizationPerimeter;
