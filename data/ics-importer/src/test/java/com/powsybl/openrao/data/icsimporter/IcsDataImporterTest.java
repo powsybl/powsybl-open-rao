@@ -321,7 +321,7 @@ public class IcsDataImporterTest {
             """;
         return Stream.of(
                 Arguments.of(pMinNotRespectedsv,
-                        "Redispatching action Redispatching_RA is not imported (hour 1): does not respect Pmin : P0 is 5.0 and Pmin at 10.0")
+                        "Redispatching action Redispatching_RA is not imported (hour 1): does not respect Pmin : P0 is 5.0 and Pmin at 10.0 (generator must be either off or with its power greater or equal than its minimal value)")
         );
     }
 
@@ -421,8 +421,8 @@ public class IcsDataImporterTest {
         String belowPminCsv = header + """
             Redispatching_RA;RDP-;35;35;35
             Redispatching_RA;RDP+;43;43;43
-            Redispatching_RA;P0;0;150;132
-            Redispatching_RA;Pmin_RD;10;15;20
+            Redispatching_RA;P0;0;30;11
+            Redispatching_RA;Pmin_RD;10;15;10
             """;
         IcsData icsData = IcsDataImporter.read(
                 getClass().getResourceAsStream("/ics/static.csv"),
