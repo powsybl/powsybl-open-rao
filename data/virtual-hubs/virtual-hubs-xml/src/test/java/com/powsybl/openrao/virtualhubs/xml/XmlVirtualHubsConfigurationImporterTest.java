@@ -9,10 +9,10 @@ package com.powsybl.openrao.virtualhubs.xml;
 
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
+import jakarta.xml.bind.JAXBException;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +76,7 @@ class XmlVirtualHubsConfigurationImporterTest {
         try (InputStream inputStream = getClass().getResourceAsStream("/truncatedFile.xml")) {
             Assertions.assertThatExceptionOfType(VirtualHubsConfigProcessingException.class)
                 .isThrownBy(() -> XmlVirtualHubsConfiguration.importConfiguration(inputStream))
-                .withCauseInstanceOf(SAXException.class);
+                .withCauseInstanceOf(JAXBException.class);
         }
     }
 }
