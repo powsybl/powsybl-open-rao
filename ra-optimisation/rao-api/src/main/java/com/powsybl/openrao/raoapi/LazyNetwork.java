@@ -82,6 +82,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 /**
  * A LazyNetwork is a specific {@link Network} implementation that is defined using a file path.
  * The actual network data is only loaded in memory the first time a method is called on the lazy network.
@@ -127,7 +128,10 @@ public class LazyNetwork implements Network, AutoCloseable {
         network = null;
         isLoaded = false;
         if (isInTempDir) {
-            new File(networkPath).delete();
+            boolean fileIsDeleted = new File(networkPath).delete();
+            if (!fileIsDeleted) {
+                BUSINESS_WARNS.debug("File created from {} could not be deleted.", networkPath);
+            }
         }
     }
 
