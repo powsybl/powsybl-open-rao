@@ -178,7 +178,7 @@ public final class IcsData {
                 Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(index)) * shiftKey;
                 // pMin can be undefined
                 Optional<Double> pMinRd = IcsUtil.parseValue(seriesPerType, P_MIN_RD, dateTime, shiftKey);
-                processBus(bus, generatorId, p0, pMinRd.orElse(ON_POWER_THRESHOLD));
+                processBus(bus, generatorId, p0, Math.max(ON_POWER_THRESHOLD, pMinRd.orElse(ON_POWER_THRESHOLD)));
             }
 
             networkElementPerGskElement.put(nodeId, generatorId);

@@ -14,25 +14,43 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.icsimporter.IcsUtil.*;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.CURATIVE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.FALSE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.GENERATOR_NAME;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.GSK;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.GSK_ID;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.LAG_TIME;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.LEAD_TIME;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_NEGATIVE_POWER_GRADIENT;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAXIMUM_POSITIVE_POWER_GRADIENT;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.MAX_GRADIENT;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.NODE;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.OFFSET;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.ON_POWER_THRESHOLD;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.P0;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.PREVENTIVE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.P_MIN_RD;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.RA_RD_ID;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_DOWN;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.RDP_UP;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.RD_DESCRIPTION_MODE;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.SHUTDOWN_ALLOWED;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.STARTUP_ALLOWED;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.TRUE;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.UCT_NODE_OR_GSK_ID;
 import static com.powsybl.openrao.data.icsimporter.IcsUtil.parseDoubleWithPossibleCommas;
+import static com.powsybl.openrao.data.icsimporter.IcsUtil.parseValue;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -335,6 +353,11 @@ public final class IcsDataImporter {
         double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?
                 -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
 
+        if (maxGradient == 0.0 && minGradient == 0.0) {
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported: set-point cannot vary because of null gradient constraints", staticRecord.get(0));
+            return false;
+        }
+
         // Intermediate variables
         boolean countLag = false;
         int countConsecutiveNullValues = 0;
@@ -350,19 +373,26 @@ public final class IcsDataImporter {
             Optional<Double> pMinRD = parseValue(seriesRecord, P_MIN_RD, currentDateTime, 1);
             double pMin = Math.max(ON_POWER_THRESHOLD, pMinRD.orElse(ON_POWER_THRESHOLD));
             Optional<Double> nextPminPD = parseValue(seriesRecord, P_MIN_RD, nextDateTime, 1);
-            double nextPmin = nextPminPD.orElse(ON_POWER_THRESHOLD);
+            double nextPmin = Math.max(ON_POWER_THRESHOLD, nextPminPD.orElse(ON_POWER_THRESHOLD));
 
-            // 1- Check gradients
+            // 1. Filter out negative p0
+            if (currentP0 < 0) {
+                BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): P0 ({}) is negative",
+                        staticRecord.get(0), currentDateTime.getHour(), currentP0);
+                return false;
+            }
+
+            // 2. Check gradients
             if (!areGradientsRespected(staticRecord, nextP0, currentP0, pMin, nextPmin, maxGradient, minGradient, currentDateTime)) {
                 return false;
             }
 
-            // 2 - Check Pmin is respected
+            // 3. Check Pmin is respected
             if (!isPminRespected(staticRecord, currentP0, pMin, currentDateTime)) {
                 return false;
             }
 
-            // 3 - Starting up next timestamp
+            // 4. Starting up next timestamp
             // a) Check start up is allowed
             // b) Check lead time is respected
             // c) Check lag time + lead time is respected
@@ -386,7 +416,7 @@ public final class IcsDataImporter {
                     countLag = false;
                 }
             }
-            // 4 - Shutting down next timestamp
+            // 5. Shutting down next timestamp
             // a) Check shut down is allowed
             // activate lag time + lead time checking
             if (currentP0 >= pMin && nextP0 < pMin) {
@@ -454,6 +484,7 @@ public final class IcsDataImporter {
 
     private static boolean areGradientsRespected(CSVRecord staticRecord, double nextP0, double currentP0, double pMin, double nextPmin, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
         double diff = nextP0 - currentP0;
+        // ON -> ON check
         if (currentP0 >= pMin && nextP0 >= nextPmin && (diff > maxGradient || diff < minGradient)) {
             BUSINESS_WARNS.warn(
                     "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
@@ -461,12 +492,39 @@ public final class IcsDataImporter {
             );
             return false;
         }
+
+        // OFF -> ON check
+        if (currentP0 < pMin && nextP0 >= nextPmin) {
+            // gradient only considered above pMin
+            double onDiff = nextP0 - pMin;
+            if (onDiff > maxGradient || onDiff < minGradient) {
+                BUSINESS_WARNS.warn(
+                    "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
+                    staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, onDiff
+                );
+                return false;
+            }
+        }
+
+        // ON -> OFF check
+        if (currentP0 >= pMin && nextP0 < nextPmin) {
+            // gradient only considered above pMin
+            double onDiff = nextPmin - currentP0;
+            if (onDiff > maxGradient || onDiff < minGradient) {
+                BUSINESS_WARNS.warn(
+                    "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
+                    staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, onDiff
+                );
+                return false;
+            }
+        }
+
         return true;
     }
 
     private static boolean isPminRespected(CSVRecord staticRecord, double currentP0, double pMin, OffsetDateTime currentDateTime) {
-        if (currentP0 < pMin && currentP0 > ON_POWER_THRESHOLD) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): does not respect Pmin : P0 is {} and Pmin at {}",
+        if (currentP0 > 0.0 && currentP0 < pMin) {
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): does not respect Pmin : P0 is {} and Pmin at {} (generator must be either off or with its power greater or equal than its minimal value)",
                     staticRecord.get(0), currentDateTime.getHour(), currentP0, pMin);
             return false;
         }
