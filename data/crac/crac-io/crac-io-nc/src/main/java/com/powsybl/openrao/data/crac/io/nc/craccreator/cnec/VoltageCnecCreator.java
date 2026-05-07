@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,10 +37,8 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                               Set<Contingency> linkedContingencies,
                               Set<ElementaryCreationContext> ncCnecCreationContexts,
                               String rejectedLinksAssessedElementContingency,
-                              CracCreationParameters cracCreationParameters,
-                              Map<String, String> borderPerTso,
-                              Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+                              CracCreationParameters cracCreationParameters) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters);
         this.nativeVoltageLimit = nativeVoltageLimit;
     }
 
