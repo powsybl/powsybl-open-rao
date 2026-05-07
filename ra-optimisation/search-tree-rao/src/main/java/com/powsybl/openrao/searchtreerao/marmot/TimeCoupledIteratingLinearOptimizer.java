@@ -95,7 +95,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
+            linearProblem.export("sensitive/global-model-before.lp");
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
+            linearProblem.export("sensitive/global-model-after.lp");
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");

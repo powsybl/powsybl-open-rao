@@ -159,6 +159,10 @@ public class Marmot implements TimeCoupledRaoProvider {
         //  }
         //  TECHNICAL_LOGS.info("[MARMOT] Some time-coupled constraint are not respected; range actions will be re-optimized");
 
+        TECHNICAL_LOGS.info("[MARMOT] ----- Checking time-coupled constraints [start]");
+        TimeCoupledConstraintsChecker.check(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints(), topologicalOptimizationResults);
+        TECHNICAL_LOGS.info("[MARMOT] ----- Checking time-coupled constraints [end]");
+
         // 5. Create and iteratively solve MIP to find optimal range actions' set-points
         // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);

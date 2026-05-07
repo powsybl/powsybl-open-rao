@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -20,6 +21,9 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -435,7 +439,7 @@ public final class LinearProblem {
     }
 
     public OpenRaoMPVariable addRangeActionVariationVariable(double ub, RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
-        return solver.makeNumVar(0.0, ub, rangeActionVariationVariableId(rangeAction, state, variationDirection));
+        return solver.makeNumVar(0.0, rangeAction instanceof InjectionRangeAction ? 0.0 : ub, rangeActionVariationVariableId(rangeAction, state, variationDirection));
     }
 
     public OpenRaoMPVariable getRangeActionVariationVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
@@ -588,5 +592,13 @@ public final class LinearProblem {
 
     public double infinity() {
         return solver.infinity();
+    }
+
+    public void export(String path) {
+        try (FileOutputStream outputStream = new FileOutputStream(path)) {
+            outputStream.write(solver.getMpSolver().exportModelAsLpFormat().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new OpenRaoException("Failed to export linear problem to LP format", e);
+        }
     }
 }
