@@ -28,6 +28,7 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -371,6 +372,10 @@ public final class CommonTestData {
 
         if (!raoParameters.hasExtension(FastRaoParameters.class)) {
             raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        }
+
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
 
         // Monitoring GLSK

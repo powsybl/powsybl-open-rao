@@ -32,6 +32,13 @@
       "add-unsecure-cnecs" : false,
       "margin-limit" : 5.0
     },
+    "marmot-parameters" : {
+      "number-of-cnecs-to-add-per-virtual-cost-name" : 25,
+      "min-relative-improvement-on-margin" : 12.0,
+      "margin-window-to-consider" : 7.0,
+      "max-mip-iterations" : 13,
+      "parallelism" : 1515
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 983.0

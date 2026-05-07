@@ -19,6 +19,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
@@ -138,6 +139,14 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         fastRaoParameters.setMarginLimit(5);
         fastRaoParameters.setAddUnsecureCnecs(false);
         fastRaoParameters.setNumberOfCnecsToAdd(20);
+        // -- Marmot Parameters
+        parameters.addExtension(MarmotParameters.class, new MarmotParameters());
+        MarmotParameters marmotParameters = parameters.getExtension(MarmotParameters.class);
+        marmotParameters.setMarginWindowToConsider(7);
+        marmotParameters.setMinRelativeImprovementOnMargin(12);
+        marmotParameters.setNumberOfCnecsToAddPerVirtualCostName(25);
+        marmotParameters.setMaxMipIterations(13);
+        marmotParameters.setParallelism(1515);
 
         // -- PST regulation parameters
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
