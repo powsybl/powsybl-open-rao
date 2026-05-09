@@ -76,7 +76,7 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add range action '" + rangeAction.getId() + "' to variant '" + workingVariant.newVariantId + "'");
+        LOGGER.info("Add range action '{}' to variant '{}'", rangeAction.getId(), workingVariant.newVariantId);
         workingVariant.appliedRemedialActions.addAppliedRangeAction(rangeAction, setpoint);
     }
 
@@ -84,7 +84,7 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add network action '" + networkAction.getId() + "' to variant '" + workingVariant.newVariantId + "'");
+        LOGGER.info("Add network action '{}' to variant '{}'", networkAction.getId(), workingVariant.newVariantId);
         workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
     }
 

@@ -40,7 +40,7 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
             workingVariant = variant;
         } else {
             if (network.getVariantManager().getVariantIds().contains(fromVariant)) {
-                LOGGER.info("Create virtual variant '" + newVariantId + "' from variant '" + fromVariant + "'");
+                LOGGER.info("Create virtual variant '{}' from variant '{}'", newVariantId, fromVariant);
                 workingVariant = new VirtualVariant(newVariantId, new AppliedRemedialActionsPerState());
                 variantsById.put(newVariantId, workingVariant);
             } else {
@@ -66,7 +66,7 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
     public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add range action '" + rangeAction.getId() + "' to virtual variant '" + workingVariant.variantId + "'");
+        LOGGER.info("Add range action '{}' to virtual variant '{}'", rangeAction.getId(), workingVariant.variantId);
         workingVariant.appliedRemedialActions.addAppliedRangeAction(rangeAction, setpoint);
     }
 
@@ -74,7 +74,7 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
     public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add network action '" + networkAction.getId() + "' to virtual variant '" + workingVariant.variantId + "'");
+        LOGGER.info("Add network action '{}' to virtual variant '{}'", networkAction.getId(), workingVariant.variantId);
         workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
     }
 
