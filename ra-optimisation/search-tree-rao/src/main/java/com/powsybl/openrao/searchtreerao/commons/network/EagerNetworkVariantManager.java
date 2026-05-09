@@ -24,9 +24,9 @@ public class EagerNetworkVariantManager implements NetworkVariantManager {
     }
 
     @Override
-    public void setWorkingVariant(String fromVariant, String newVariantId) {
+    public void setWorkingVariant(String fromVariantId, String newVariantId) {
         if (!network.getVariantManager().getVariantIds().contains(newVariantId)) {
-            network.getVariantManager().cloneVariant(fromVariant, newVariantId, true);
+            network.getVariantManager().cloneVariant(fromVariantId, newVariantId, true);
         }
         createdWorkingVariantIds.add(newVariantId);
         network.getVariantManager().setWorkingVariant(newVariantId);

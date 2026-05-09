@@ -41,9 +41,9 @@ public class LazyNetworkVariantManager implements NetworkVariantManager {
     }
 
     @Override
-    public void setWorkingVariant(String fromVariant, String newVariantId) {
+    public void setWorkingVariant(String fromVariantId, String newVariantId) {
         checkWorkingVariantIsNotSet();
-        workingVariant = new WorkingVariant(fromVariant, newVariantId, new AppliedRemedialActionsPerState());
+        workingVariant = new WorkingVariant(fromVariantId, newVariantId, new AppliedRemedialActionsPerState());
     }
 
     private void ensureWorkingVariantIsCreated() {

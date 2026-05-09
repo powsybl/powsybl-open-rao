@@ -17,7 +17,21 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VirtualNetworkVariantManager.class);
 
-    protected record VirtualVariant(String variantId, AppliedRemedialActionsPerState appliedRemedialActions) {
+    protected record VirtualVariant(String variantId, AppliedRemedialActionsPerState appliedRemedialActions, VirtualVariant parent) {
+
+        private void add(AppliedRemedialActionsPerState fullAppliedRemedialActions) {
+            fullAppliedRemedialActions.getRangeActions().putAll(appliedRemedialActions.getRangeActions());
+            fullAppliedRemedialActions.getNetworkActions().addAll(appliedRemedialActions.getNetworkActions());
+            if (parent != null) {
+                parent.add(fullAppliedRemedialActions);
+            }
+        }
+
+        public AppliedRemedialActionsPerState getFullAppliedRemedialActions() {
+            AppliedRemedialActionsPerState fullAppliedRemedialActions = new AppliedRemedialActionsPerState();
+            add(fullAppliedRemedialActions);
+            return fullAppliedRemedialActions;
+        }
     }
 
     private final Network network;
@@ -34,18 +48,23 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
     }
 
     @Override
-    public void setWorkingVariant(String fromVariant, String newVariantId) {
+    public void setWorkingVariant(String fromVariantId, String newVariantId) {
         VirtualVariant variant = variantsById.get(newVariantId);
         if (variant != null) {
             workingVariant = variant;
         } else {
-            if (network.getVariantManager().getVariantIds().contains(fromVariant)) {
-                LOGGER.info("Create virtual variant '{}' from variant '{}'", newVariantId, fromVariant);
-                workingVariant = new VirtualVariant(newVariantId, new AppliedRemedialActionsPerState());
-                variantsById.put(newVariantId, workingVariant);
+            VirtualVariant fromVariant = null;
+            if (network.getVariantManager().getVariantIds().contains(fromVariantId)) {
+                LOGGER.info("Create virtual variant '{}' from variant '{}'", newVariantId, fromVariantId);
             } else {
-                throw new OpenRaoException("Cannot set working variant from " + fromVariant + " to " + newVariantId + ": variant not found");
+                fromVariant = variantsById.get(fromVariantId);
+                if (fromVariant == null) {
+                    throw new OpenRaoException("From variant '" + fromVariantId + "' not found");
+                }
+                LOGGER.info("Create virtual variant '{}' from virtual variant '{}'", newVariantId, fromVariantId);
             }
+            workingVariant = new VirtualVariant(newVariantId, new AppliedRemedialActionsPerState(), fromVariant);
+            variantsById.put(newVariantId, workingVariant);
         }
     }
 
@@ -80,6 +99,6 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
 
     @Override
     public void compute(SensitivityComputer sensitivityComputer) {
-        sensitivityComputer.compute(network, workingVariant.appliedRemedialActions());
+        sensitivityComputer.compute(network, workingVariant.getFullAppliedRemedialActions());
     }
 }

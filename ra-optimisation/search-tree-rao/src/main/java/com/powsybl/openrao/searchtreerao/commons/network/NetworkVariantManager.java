@@ -10,7 +10,7 @@ public interface NetworkVariantManager {
 
     Network getNetwork();
 
-    void setWorkingVariant(String fromVariant, String newVariantId);
+    void setWorkingVariant(String fromVariantId, String newVariantId);
 
     void removeWorkingVariants();
 
