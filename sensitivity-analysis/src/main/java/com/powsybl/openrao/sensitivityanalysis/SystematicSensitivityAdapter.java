@@ -111,6 +111,52 @@ final class SystematicSensitivityAdapter {
                 .postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
+    static SensitivityAnalysisRunParameters configureSensiAnalysisWithRemedialActions(Network network,
+                                                                                      List<SensitivityVariableSet> variableSets,
+                                                                                      SensitivityAnalysisParameters sensitivityComputationParameters,
+                                                                                      Set<State> statesWithRa,
+                                                                                      AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
+                                                                                      AppliedRemedialActions appliedRemedialActions,
+                                                                                      Map<SensitivityState, Integer> instantOrderByState) {
+        List<Contingency> contingencies = new ArrayList<>();
+        List<Action> actions = new ArrayList<>();
+        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
+        List<String> preventionActionIds = new ArrayList<>();
+        // we concat preventive actions and remedial actions
+        // - preventive actions are applied to all contingencies
+        if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
+            List<Action> preventiveActions = preventiveAppliedRemedialActions.toActions();
+            actions.addAll(preventiveActions);
+            preventionActionIds.addAll(preventiveActions.stream().map(Action::getId).toList());
+        }
+        // - remedial actions are applied to the contingency of the state with RA
+        for (State state : statesWithRa) {
+            Contingency contingency = state.getContingency().orElseThrow(() ->
+                    new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.")
+            );
+            contingencies.add(contingency);
+
+            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
+            actions.addAll(curativeActionsForState);
+            String operatorStrategyId = "OS-" + contingency.getId();
+            List<String> actionIds = new ArrayList<>(preventionActionIds);
+            actionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
+            operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
+                    ContingencyContext.specificContingency(contingency.getId()),
+                    new TrueCondition(),
+                    actionIds));
+
+            instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
+        }
+        sensitivityComputationParameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES);
+        return new SensitivityAnalysisRunParameters()
+                .setParameters(sensitivityComputationParameters)
+                .setContingencies(contingencies)
+                .setOperatorStrategies(operatorStrategies)
+                .setActions(actions)
+                .setVariableSets(variableSets);
+    }
+
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
@@ -169,48 +215,15 @@ final class SystematicSensitivityAdapter {
 
         TECHNICAL_LOGS.debug("{} state(s) with RA {}", statesWithRa.size());
 
-        List<Contingency> contingencies = new ArrayList<>();
-        List<Action> actions = new ArrayList<>();
-        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        List<String> preventionActionIds = new ArrayList<>();
-        // we concat preventive actions and remedial actions
-        // - preventive actions are applied to all contingencies
-        if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
-            List<Action> preventiveActions = preventiveAppliedRemedialActions.toActions();
-            actions.addAll(preventiveActions);
-            preventionActionIds.addAll(preventiveActions.stream().map(Action::getId).toList());
-        }
-        // - remedial actions are applied to the contingency of the state with RA
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
-        for (State state : statesWithRa) {
-            Contingency contingency = state.getContingency().orElseThrow(() ->
-                new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.")
-            );
-            contingencies.add(contingency);
+        SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithRemedialActions(network,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters,
+                statesWithRa, preventiveAppliedRemedialActions, appliedRemedialActions,
+                instantOrderByState);
 
-            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
-            actions.addAll(curativeActionsForState);
-            String operatorStrategyId = "OS-" + contingency.getId();
-            List<String> actionIds = new ArrayList<>(preventionActionIds);
-            actionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
-            operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
-                    ContingencyContext.specificContingency(contingency.getId()),
-                    new TrueCondition(),
-                    actionIds));
-
-            instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
-        }
-
-        var factors = cnecSensitivityProvider.getContingencyFactors(network, contingencies);
+        var factors = cnecSensitivityProvider.getContingencyFactors(network, runParameters.getContingencies());
         try {
-            sensitivityComputationParameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES);
-            SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
-                    .setParameters(sensitivityComputationParameters)
-                    .setContingencies(contingencies)
-                    .setOperatorStrategies(operatorStrategies)
-                    .setActions(actions)
-                    .setVariableSets(cnecSensitivityProvider.getVariableSets());
-
             var sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
                                                                                 network.getVariantManager().getWorkingVariantId(),
                                                                                 factors,
@@ -220,9 +233,9 @@ final class SystematicSensitivityAdapter {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis with RA failed: %s", e.getMessage()));
             SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
                 factors,
-                contingencies.stream().map(c -> new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(c.getId()), SensitivityAnalysisResult.Status.FAILURE)).toList(),
-                contingencies.stream().map(Contingency::getId).toList(),
-                operatorStrategies.stream().map(OperatorStrategy::getId).toList(),
+                runParameters.getContingencies().stream().map(c -> new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(c.getId()), SensitivityAnalysisResult.Status.FAILURE)).toList(),
+                runParameters.getContingencies().stream().map(Contingency::getId).toList(),
+                runParameters.getOperatorStrategies().stream().map(OperatorStrategy::getId).toList(),
                 List.of()
             );
             result.completeData(failedResult, instantOrderByState);
