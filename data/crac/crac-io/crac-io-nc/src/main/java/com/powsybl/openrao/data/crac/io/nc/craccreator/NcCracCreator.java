@@ -34,14 +34,15 @@ class NcCracCreator {
 
     private Crac crac;
     private Network network;
-    NcCracCreationContext creationContext;
+    private NcCracCreationContext creationContext;
     private NcCrac nativeCrac;
+    private NcCracCreationParameters ncParameters;
 
     NcCracCreationContext createCrac(NcCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
-        NcCracCreationParameters ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
-        OffsetDateTime offsetDateTime = null;
+        ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
+        OffsetDateTime offsetDateTime;
         if (ncParameters == null) {
             ncParameters = new NcCracCreationParameters();
         }
@@ -75,7 +76,7 @@ class NcCracCreator {
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(ncParameters);
+        createRemedialActions();
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
@@ -92,8 +93,8 @@ class NcCracCreator {
         sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
-    private void createRemedialActions(NcCracCreationParameters ncCracCreationParameters) {
-        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, creationContext.getCnecCreationContexts(), ncCracCreationParameters);
+    private void createRemedialActions() {
+        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, ncParameters);
     }
 
     private void createContingencies() {

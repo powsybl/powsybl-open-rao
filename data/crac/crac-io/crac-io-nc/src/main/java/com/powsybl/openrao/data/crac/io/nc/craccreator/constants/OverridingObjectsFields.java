@@ -26,6 +26,8 @@ public enum OverridingObjectsFields {
                                           NcConstants.NORMAL_AVAILABLE, NcConstants.OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
     GRID_STATE_ALTERATION("gridStateAlterationOverriding", NcConstants.GRID_STATE_ALTERATION,
                           NcConstants.NORMAL_ENABLED, NcConstants.OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+    COUNTERTRADE_REMEDIAL_ACTION("countertradeRemedialActionOverriding", NcConstants.REQUEST_COUNTERTRADE_REMEDIAL_ACTION,
+            NcConstants.NORMAL_AVAILABLE, NcConstants.OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
     STATIC_PROPERTY_RANGE("staticPropertyRangeOverriding", NcConstants.STATIC_PROPERTY_RANGE,
                           NcConstants.NORMAL_VALUE, NcConstants.OVERRIDE_VALUE, HeaderType.START_END_DATE),
     REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", NcConstants.REMEDIAL_ACTION_SCHEME,
