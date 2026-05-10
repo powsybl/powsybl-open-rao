@@ -14,24 +14,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
-import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
-import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -145,6 +128,11 @@ public class NcCrac {
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
         return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag)
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+    }
+
+    public Set<CountertradeRemedialAction> getCountertradeRemedialActions() {
+        return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag)
+                .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, /*OverridingObjectsFields.COUNTERTRADE_REMEDIAL_ACTION,*/ NcConstants.COUNTERTRADE_REMEDIAL_ACTION));
     }
 
     public Set<TopologyAction> getTopologyActions() {
