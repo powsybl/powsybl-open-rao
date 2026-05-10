@@ -88,6 +88,8 @@ public final class NcConstants {
     public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String COUNTERTRADE_REMEDIAL_ACTION = "countertradeRemedialAction";
+    public static final String COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING = "countertradeRemedialActionOverriding";
     public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
@@ -119,6 +121,16 @@ public final class NcConstants {
     public static final String POWER_TRANSFORMER = "powerTransformer";
     public static final String REQUEST_TAP_CHANGER = "tapChanger";
     public static final String IS_MANUAL = "isManual";
+    public static final String MAX_REGULATING_UP = "maxRegulatingUp";
+    public static final String MAX_REGULATING_DOWN = "maxRegulatingDown";
+    public static final String APPOINTED_TO_REGION = "appointedToRegion";
+    public static final String PENALTY_FACTOR = "penaltyFactor";
+    public static final String IS_CROSS_BORDER_RELEVANT = "isCrossBorderRelevant";
+    public static final String IMPACT_THRESHOLD_MARGIN = "impactThresholdMargin";
+    public static final String DESCRIPTION = "description";
+
+    public static Double COUNTER_TRADING_RANGE_MIN_RANGE = -5000.0;
+    public static Double COUNTER_TRADING_RANGE_MAX_RANGE = 5000.0;
 
     /**
      * requests for flow cnec
@@ -127,6 +139,7 @@ public final class NcConstants {
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
     public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
     public static final String REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String REQUEST_COUNTERTRADE_REMEDIAL_ACTION = "countertradeRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
