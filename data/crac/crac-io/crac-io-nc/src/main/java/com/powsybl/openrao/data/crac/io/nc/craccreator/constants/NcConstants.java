@@ -143,7 +143,6 @@ public final class NcConstants {
         }
     }
 
-
     /**
      * requests for flow cnec
      */
