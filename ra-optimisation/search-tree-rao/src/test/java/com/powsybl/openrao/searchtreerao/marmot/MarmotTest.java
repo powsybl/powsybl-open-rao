@@ -7,9 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
@@ -21,6 +25,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +33,7 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -53,7 +59,7 @@ class MarmotTest {
     @Test
     void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
-        String networkFilePath = "/network/2Nodes2ParallelLinesPST.uct";
+        String networkFilePath = "/network/2Nodes2ParallelLinesPST_1000MW.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         // Create postIcsNetwork:
@@ -488,6 +494,44 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac8, timeCoupledRaoResult, 125010.0, 2500.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac9, timeCoupledRaoResult, 125010.0, 2500.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 1250.0);
+    }
+
+    @Test
+    void testCaseWithInfeasibleLinearProblem() throws IOException {
+        // set-up log appender
+        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        // simple 2-timestamp case with a generator power dropping by 500 MW in one hour (in the network) whereas its gradient is 250 MW/h
+        // independent RAO results are ignored and the final result rolls back to the initial situation
+        Network network00 = Network.read("/network/2Nodes2ParallelLinesPST_1000MW.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST_1000MW.uct"));
+        Network network01 = Network.read("/network/2Nodes2ParallelLinesPST_500MW.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST_500MW.uct"));
+        Crac crac00 = Crac.read("crac-pst-rd-0030.json", MarmotTest.class.getResourceAsStream("/crac/crac-pst-rd-0030.json"), network00);
+        Crac crac01 = Crac.read("crac-pst-rd-0130.json", MarmotTest.class.getResourceAsStream("/crac/crac-pst-rd-0130.json"), network01);
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withDownwardPowerGradient(-250.0).build());
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+
+        TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
+        TimeCoupledRaoResult timeCoupledRaoResult = new Marmot().run(timeCoupledRaoInput, raoParameters).join();
+
+        listAppender.stop();
+
+        // in independent RAOs, the PST is activated
+        assertTrue(timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac00.getPreventiveState()).isEmpty());
+        assertTrue(timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getPreventiveState()).isEmpty());
+
+        List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).toList();
+        assertTrue(logMessages.contains("pstBeFr2 variation of -9.00 taps at state preventive - 202605110030 (0.00 -> -9.00)"));
+        assertTrue(logMessages.contains("pstBeFr2 variation of -4.00 taps at state preventive - 202605110130 (0.00 -> -4.00)"));
+        assertTrue(logMessages.contains("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are uncoherent or that cannot be met. Rolling back to initial situation."));
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, TimeCoupledRaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
