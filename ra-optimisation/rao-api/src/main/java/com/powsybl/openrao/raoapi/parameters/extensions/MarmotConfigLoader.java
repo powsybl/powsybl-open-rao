@@ -18,12 +18,12 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARMOT_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PARALLELISM;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_THREADS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MARGIN_WINDOW_TO_CONSIDER;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
-import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_PARALLELISM;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_NUMBER_OF_THREADS;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
@@ -39,7 +39,7 @@ public class MarmotConfigLoader implements RaoParameters.ConfigLoader<MarmotPara
                 parameters.setMinRelativeImprovementOnMargin(config.getDoubleProperty(MIN_RELATIVE_IMPROVEMENT_ON_MARGIN, DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN));
                 parameters.setMarginWindowToConsider(config.getDoubleProperty(MARGIN_WINDOW_TO_CONSIDER, DEFAULT_MARGIN_WINDOW_TO_CONSIDER));
                 parameters.setMaxMipIterations(config.getIntProperty(MAX_MIP_ITERATIONS, DEFAULT_MAX_MIP_ITERATIONS));
-                parameters.setParallelism(config.getIntProperty(PARALLELISM, DEFAULT_PARALLELISM));
+                parameters.setNumberOfThreads(config.getIntProperty(NUMBER_OF_THREADS, DEFAULT_NUMBER_OF_THREADS));
                 return parameters;
             })
             .orElse(null);

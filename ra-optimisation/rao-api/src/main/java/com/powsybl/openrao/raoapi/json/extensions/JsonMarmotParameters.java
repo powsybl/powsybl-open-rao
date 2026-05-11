@@ -23,7 +23,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARMOT_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PARALLELISM;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_THREADS;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
@@ -38,7 +38,7 @@ public class JsonMarmotParameters implements JsonRaoParameters.ExtensionSerializ
         jsonGenerator.writeNumberField(MIN_RELATIVE_IMPROVEMENT_ON_MARGIN, marmotParameters.getMinRelativeImprovementOnMargin());
         jsonGenerator.writeNumberField(MARGIN_WINDOW_TO_CONSIDER, marmotParameters.getMarginWindowToConsider());
         jsonGenerator.writeNumberField(MAX_MIP_ITERATIONS, marmotParameters.getMaxMipIterations());
-        jsonGenerator.writeNumberField(PARALLELISM, marmotParameters.getParallelism());
+        jsonGenerator.writeNumberField(NUMBER_OF_THREADS, marmotParameters.getNumberOfThreads());
         jsonGenerator.writeEndObject();
     }
 
@@ -63,9 +63,9 @@ public class JsonMarmotParameters implements JsonRaoParameters.ExtensionSerializ
                     jsonParser.nextToken();
                     marmotParameters.setMaxMipIterations(jsonParser.getIntValue());
                 }
-                case PARALLELISM -> {
+                case NUMBER_OF_THREADS -> {
                     jsonParser.nextToken();
-                    marmotParameters.setParallelism(jsonParser.getIntValue());
+                    marmotParameters.setNumberOfThreads(jsonParser.getIntValue());
                 }
                 default -> throw new OpenRaoException(String.format("Cannot deserialize marmot parameters: unexpected field in %s (%s)", MARMOT_PARAMETERS, jsonParser.currentName()));
             }

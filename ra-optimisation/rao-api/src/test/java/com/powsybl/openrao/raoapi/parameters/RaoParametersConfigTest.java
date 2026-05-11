@@ -361,7 +361,7 @@ class RaoParametersConfigTest {
         Mockito.when(marmotModuleConfig.getDoubleProperty(eq("min-relative-improvement-on-margin"), anyDouble())).thenReturn(0.5);
         Mockito.when(marmotModuleConfig.getDoubleProperty(eq("margin-window-to-consider"), anyDouble())).thenReturn(3.2);
         Mockito.when(marmotModuleConfig.getIntProperty(eq("max-mip-iterations"), anyInt())).thenReturn(15);
-        Mockito.when(marmotModuleConfig.getIntProperty(eq("parallelism"), anyInt())).thenReturn(42);
+        Mockito.when(marmotModuleConfig.getIntProperty(eq("number-of-threads"), anyInt())).thenReturn(42);
 
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("marmot-parameters")).thenReturn(Optional.of(marmotModuleConfig));
 
@@ -372,6 +372,6 @@ class RaoParametersConfigTest {
         assertEquals(0.5, parameters.getMinRelativeImprovementOnMargin(), DOUBLE_TOLERANCE);
         assertEquals(3.2, parameters.getMarginWindowToConsider(), DOUBLE_TOLERANCE);
         assertEquals(15, parameters.getMaxMipIterations());
-        assertEquals(42, parameters.getParallelism());
+        assertEquals(42, parameters.getNumberOfThreads());
     }
 }

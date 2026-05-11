@@ -144,7 +144,7 @@ public final class RaoParametersCommons {
     public static final String NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME = "number-of-cnecs-to-add-per-virtual-cost-name";
     public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
     public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
-    public static final String PARALLELISM = "parallelism";
+    public static final String NUMBER_OF_THREADS = "number-of-threads";
 
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";

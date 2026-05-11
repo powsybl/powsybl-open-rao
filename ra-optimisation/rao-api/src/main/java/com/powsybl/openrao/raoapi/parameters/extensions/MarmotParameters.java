@@ -26,13 +26,13 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     static final double DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = 0.1;
     static final double DEFAULT_MARGIN_WINDOW_TO_CONSIDER = 5.0;
     static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
-    static final int DEFAULT_PARALLELISM = 3;
+    static final int DEFAULT_NUMBER_OF_THREADS = 1;
 
     private int numberOfCnecsToAddPerVirtualCostName = DEFAULT_NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
     private double minRelativeImprovementOnMargin = DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
     private double marginWindowToConsider = DEFAULT_MARGIN_WINDOW_TO_CONSIDER;
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
-    private int parallelism = DEFAULT_PARALLELISM;
+    private int numberOfThreads = DEFAULT_NUMBER_OF_THREADS;
 
     public int getNumberOfCnecsToAddPerVirtualCostName() {
         return numberOfCnecsToAddPerVirtualCostName;
@@ -66,11 +66,11 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
         this.maxMipIterations = maxMipIterations;
     }
 
-    public int getParallelism() {
-        return parallelism;
+    public int getNumberOfThreads() {
+        return numberOfThreads;
     }
 
-    public void setParallelism(final int parallelism) {
-        this.parallelism = parallelism;
+    public void setNumberOfThreads(final int numberOfThreads) {
+        this.numberOfThreads = numberOfThreads;
     }
 }

@@ -37,7 +37,7 @@
       "min-relative-improvement-on-margin" : 12.0,
       "margin-window-to-consider" : 7.0,
       "max-mip-iterations" : 13,
-      "parallelism" : 1515
+      "number-of-threads" : 1515
     },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {

@@ -109,7 +109,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
 
         // Configure parallelism for multi-threading computation
-        int parallelism = Math.min(marmotParameters.getParallelism(), timeCoupledRaoInput.getTimestampsToRun().size());
+        int parallelism = Math.min(marmotParameters.getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
         if (parallelism > 1) {
             TECHNICAL_LOGS.info("[MARMOT] Optimizer set to work on {} threads", parallelism);
         }
@@ -237,7 +237,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             counter++;
         } while (
             shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters), marmotParameters)
-            && counter < 10); // Stop if the worst element of each TS has been considered during MIP
+            && counter < marmotParameters.getMaxMipIterations()); // Stop if the worst element of each TS has been considered during MIP
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 7. Merge topological and linear result

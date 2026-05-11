@@ -146,7 +146,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         marmotParameters.setMinRelativeImprovementOnMargin(12);
         marmotParameters.setNumberOfCnecsToAddPerVirtualCostName(25);
         marmotParameters.setMaxMipIterations(13);
-        marmotParameters.setParallelism(1515);
+        marmotParameters.setNumberOfThreads(1515);
 
         // -- PST regulation parameters
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
