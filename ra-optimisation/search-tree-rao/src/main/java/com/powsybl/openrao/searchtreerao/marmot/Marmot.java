@@ -25,6 +25,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
@@ -67,6 +68,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
@@ -91,10 +93,14 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
-    private static final int PARALLELISM = 3; // TODO: configure as a parameter in MARMOT extension
-
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            BUSINESS_WARNS.warn("Parameters are missing MarmotParameters extension. Default MarmotParameters will be used");
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
+        }
+        final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
+
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
         TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
@@ -107,7 +113,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters)));
 
         // Configure parallelism for multi-threading computation
-        int parallelism = Math.min(PARALLELISM, timeCoupledRaoInput.getTimestampsToRun().size());
+        int parallelism = Math.min(marmotParameters.getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
         if (parallelism > 1) {
             TECHNICAL_LOGS.info("[MARMOT] Optimizer set to work on {} threads", parallelism);
         }
@@ -244,7 +250,9 @@ public class Marmot implements TimeCoupledRaoProvider {
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
             counter++;
-        } while (shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters)) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
+        } while (
+            shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters), marmotParameters)
+            && counter < marmotParameters.getMaxMipIterations()); // Stop if the worst element of each TS has been considered during MIP
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 7. Merge topological and linear result
@@ -282,12 +290,15 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
     }
 
-    private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<FlowCnec>> consideredCnecs, Unit flowUnit) {
-        int cnecsToAddPerVirtualCostName = 20;
-        double minRelativeImprovementOnMargin = 0.1;
-        double marginWindowToConsider = 5.0;
+    private boolean shouldContinueAndAddCnecs(final TemporalData<PrePerimeterResult> loadFlowResults,
+                                              final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                              final Unit flowUnit,
+                                              final MarmotParameters marmotParameters) {
+        final int cnecsToAddPerVirtualCostName = marmotParameters.getNumberOfCnecsToAddPerVirtualCostName();
+        final double minRelativeImprovementOnMargin = marmotParameters.getMinRelativeImprovementOnMargin();
+        final double marginWindowToConsider = marmotParameters.getMarginWindowToConsider();
 
-        AtomicBoolean shouldContinue = new AtomicBoolean(false);
+        final AtomicBoolean shouldContinue = new AtomicBoolean(false);
         updateShouldContinue(loadFlowResults, consideredCnecs, minRelativeImprovementOnMargin, shouldContinue, flowUnit);
 
         if (shouldContinue.get()) {
