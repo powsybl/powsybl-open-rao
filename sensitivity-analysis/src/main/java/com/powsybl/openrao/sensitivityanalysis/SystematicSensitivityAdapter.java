@@ -50,7 +50,7 @@ final class SystematicSensitivityAdapter {
                                                                                          AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                                                          Map<SensitivityState, Integer> instantOrderByState) {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        List<Action> actions = new ArrayList<>();
+        Set<Action> actions = new LinkedHashSet<>();
         String operatorStrategyId = null;
         // To fix on OLF side, when a preventive action is applied it is not reapplied when calculating
         // curative actions after contingency.
@@ -74,7 +74,7 @@ final class SystematicSensitivityAdapter {
                 .setParameters(sensitivityComputationParameters)
                 .setContingencies(contingencies)
                 .setOperatorStrategies(operatorStrategies)
-                .setActions(actions)
+                .setActions(new ArrayList<>(actions))
                 .setVariableSets(variableSets);
     }
 
@@ -119,7 +119,7 @@ final class SystematicSensitivityAdapter {
                                                                                       AppliedRemedialActions appliedRemedialActions,
                                                                                       Map<SensitivityState, Integer> instantOrderByState) {
         List<Contingency> contingencies = new ArrayList<>();
-        List<Action> actions = new ArrayList<>();
+        Set<Action> actions = new LinkedHashSet<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         List<String> preventionActionIds = new ArrayList<>();
         // we concat preventive actions and remedial actions
@@ -139,12 +139,12 @@ final class SystematicSensitivityAdapter {
             List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
             actions.addAll(curativeActionsForState);
             String operatorStrategyId = "OS-" + contingency.getId();
-            List<String> actionIds = new ArrayList<>(preventionActionIds);
+            Set<String> actionIds = new LinkedHashSet<>(preventionActionIds);
             actionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
             operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
                     ContingencyContext.specificContingency(contingency.getId()),
                     new TrueCondition(),
-                    actionIds));
+                    new ArrayList<>(actionIds)));
 
             instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
         }
@@ -153,7 +153,7 @@ final class SystematicSensitivityAdapter {
                 .setParameters(sensitivityComputationParameters)
                 .setContingencies(contingencies)
                 .setOperatorStrategies(operatorStrategies)
-                .setActions(actions)
+                .setActions(new ArrayList<>(actions))
                 .setVariableSets(variableSets);
     }
 
