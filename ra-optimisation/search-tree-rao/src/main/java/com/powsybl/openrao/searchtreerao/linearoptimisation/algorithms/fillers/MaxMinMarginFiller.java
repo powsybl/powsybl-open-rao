@@ -79,7 +79,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void addMinMarginShiftedViolationConstraint(LinearProblem linearProblem) {
         OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(
-            Optional.ofNullable(timestamp), costlyMinMarginParameters.getShiftedViolationThreshold());
+            Optional.ofNullable(timestamp), 0);
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), 1.0);
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
@@ -120,6 +120,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
 
         for (FlowCnec cnec : validFlowCnecs) {
+            double coef = 1.0;
+            if (cnec.getState().getInstant().isOutage()) {
+                coef = 0.1;
+            } else if (cnec.getState().getInstant().isCurative()) {
+                coef = 0.01;
+            }
             for (TwoSides side : cnec.getMonitoredSides()) {
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
@@ -131,26 +137,26 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 if (minFlow.isPresent()) {
                     OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(
                         -linearProblem.infinity(),
-                        -minFlow.get(),
+                        -minFlow.get() - costlyMinMarginParameters.getShiftedViolationThreshold(),
                         cnec,
                         side,
                         LinearProblem.MarginExtension.BELOW_THRESHOLD,
                         Optional.ofNullable(timestamp)
                     );
-                    minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
+                    minimumMarginNegative.setCoefficient(minimumMarginVariable, 1 / coef);
                     minimumMarginNegative.setCoefficient(flowVariable, -1);
                 }
 
                 if (maxFlow.isPresent()) {
                     OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(
                         -linearProblem.infinity(),
-                        maxFlow.get(),
+                        maxFlow.get() - costlyMinMarginParameters.getShiftedViolationThreshold(),
                         cnec,
                         side,
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD,
                         Optional.ofNullable(timestamp)
                     );
-                    minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
+                    minimumMarginPositive.setCoefficient(minimumMarginVariable, 1 / coef);
                     minimumMarginPositive.setCoefficient(flowVariable, 1);
                 }
             }

@@ -142,17 +142,21 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
         // for psts, remove cost of being far from initial setpoint
         if (rangeActionId.contains("_PST")) {
-            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
-            OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
-            linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
-            OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
-            linearProblem.getObjective().setCoefficient(tapVariationDownward, 0.);
-            if (nextTimestamp == timestamps.getLast()) {
-                OpenRaoMPVariable lastTapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), UPWARD);
-                linearProblem.getObjective().setCoefficient(lastTapVariationUpward, 0.);
-                OpenRaoMPVariable lastTapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), DOWNWARD);
-                linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
+            try {
+                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
+                linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
+                OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
+                linearProblem.getObjective().setCoefficient(tapVariationDownward, 0.);
+                if (nextTimestamp == timestamps.getLast()) {
+                    OpenRaoMPVariable lastTapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), UPWARD);
+                    linearProblem.getObjective().setCoefficient(lastTapVariationUpward, 0.);
+                    OpenRaoMPVariable lastTapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), DOWNWARD);
+                    linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
 
+                }
+            } catch (OpenRaoException e) {
+                // nothing to do
             }
         }
         // instead penalize number of adjustments

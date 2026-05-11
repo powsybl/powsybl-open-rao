@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -15,6 +17,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
@@ -50,19 +54,15 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
@@ -171,6 +171,8 @@ public class Marmot implements TimeCoupledRaoProvider {
                 consideredCnecs
             );
 
+            Set<String> ignoredContingencies = getContingenciesThatCannotBeSecured(timeCoupledRaoInput, consideredCnecs, postTopoResults);
+
             // Create and iteratively solve MIP to find optimal range actions' set-points FOR THE CONSIDERED CNECS
             TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start] for iteration {}", counter);
             linearOptimizationResults = optimizeLinearRemedialActions(
@@ -222,6 +224,100 @@ public class Marmot implements TimeCoupledRaoProvider {
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
 
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
+    }
+
+    private static @NonNull Set<String> getContingenciesThatCannotBeSecured(TimeCoupledRaoInput timeCoupledRaoInput, TemporalData<Set<FlowCnec>> consideredCnecs, TemporalData<PrePerimeterResult> postTopoResults) {
+        Set<String> ignoredContingencies = new HashSet<>();
+        Map<String, Double> results = new HashMap<>();
+        for (OffsetDateTime timestamp : consideredCnecs.getTimestamps()) {
+            PrePerimeterResult initialSensi = postTopoResults.getData(timestamp).orElseThrow();
+            Crac crac = timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().get(timestamp).getCrac();
+            Network network = timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().get(timestamp).getNetwork();
+            Map<RangeAction<?>, Double> availableUpRange = new HashMap<>();
+            Map<RangeAction<?>, Double> availableDownRange = new HashMap<>();
+            // TODO only PSTs available in preventive are considered. not ok. can lead to false positives. fix this
+            Set<PstRangeAction> availablePsts = crac.getPstRangeActions().stream()
+                .filter(ra -> ra.isAvailableForState(crac.getPreventiveState()))
+                .collect(Collectors.toSet());
+            Set<InjectionRangeAction> availableInjections = crac.getInjectionRangeActions().stream()
+                .filter(ra -> ra.isAvailableForState(crac.getPreventiveState()))
+                .collect(Collectors.toSet());
+            crac.getRangeActions().stream().filter(ra -> ra.isAvailableForState(crac.getPreventiveState()))
+                .forEach(ra -> {
+                    availableUpRange.put(ra,
+                        ra.getMaxAdmissibleSetpoint(ra.getCurrentSetpoint(network)) - ra.getCurrentSetpoint(network));
+                    availableDownRange.put(ra,
+                        ra.getCurrentSetpoint(network) - ra.getMinAdmissibleSetpoint(ra.getCurrentSetpoint(network)));
+                });
+
+            for (FlowCnec cnec : initialSensi.getMostLimitingElements(Integer.MAX_VALUE)) {
+                if (cnec.getState().isPreventive()) { // || ignoredContingencies.contains(cnec.getState().getContingency().orElseThrow().getId())) {
+                    continue;
+                }
+
+                String coId = cnec.getState().getContingency().orElseThrow().getId();
+                double margin = initialSensi.getMargin(cnec, Unit.MEGAWATT);
+                if (margin > 0) {
+                    continue;
+                }
+                double overload = Math.abs(margin);
+
+                var preventiveCnec = crac.getFlowCnecs(crac.getPreventiveState()).stream()
+                    .filter(c -> c.getNetworkElement().equals(cnec.getNetworkElement()))
+                    .findAny();
+                if (preventiveCnec.isPresent()) {
+                    double preventiveMargin = initialSensi.getMargin(preventiveCnec.get(), Unit.MEGAWATT);
+                    if (preventiveMargin < 0) {
+                        overload += preventiveMargin;
+                    }
+                }
+
+                boolean negativeFlow = initialSensi.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT) < 0;
+                Map<PstRangeAction, Double> pstSensis = availablePsts.stream().collect(Collectors.toMap(ra -> ra, ra -> initialSensi.getSensitivityValue(cnec, TwoSides.ONE, ra, Unit.MEGAWATT)));
+                Map<InjectionRangeAction, Double> injSensis = availableInjections.stream().collect(Collectors.toMap(ra -> ra, ra -> initialSensi.getSensitivityValue(cnec, TwoSides.ONE, ra, Unit.MEGAWATT)));
+                while (overload > 0 && !pstSensis.isEmpty()) {
+                    PstRangeAction pst = pstSensis.entrySet().stream()
+                        .max(Comparator.comparingDouble(e -> Math.abs(e.getValue())))
+                        .map(Map.Entry::getKey)
+                        .orElse(null);
+                    double sensi = pstSensis.get(pst);
+                    if (sensi > 0 || negativeFlow) {
+                        overload -= Math.abs(sensi) * availableDownRange.get(pst);
+                    } else {
+                        overload -= Math.abs(sensi) * availableUpRange.get(pst);
+                    }
+                    pstSensis.remove(pst);
+                }
+                double totalRd = 0;
+                while (overload > 0 && !injSensis.isEmpty()) {
+                    InjectionRangeAction inj = injSensis.entrySet().stream()
+                        .max(Comparator.comparingDouble(e -> Math.abs(e.getValue())))
+                        .map(Map.Entry::getKey)
+                        .orElse(null);
+                    double sensi = injSensis.get(inj);
+                    if (sensi > 0 || negativeFlow) {
+                        overload -= Math.abs(sensi) * availableDownRange.get(inj);
+                        totalRd += availableDownRange.get(inj);
+                    } else {
+                        overload -= Math.abs(sensi) * availableUpRange.get(inj);
+                        totalRd += availableUpRange.get(inj);
+                    }
+                    injSensis.remove(inj);
+                }
+                if (overload > 0 || totalRd > 5000) {
+                    BUSINESS_WARNS.warn(String.format("CNEC %s at timestamp %s cannot be secured alone with less than %.2f MW redispatching. The contingency will be ignored", cnec.getId(), timestamp, totalRd));
+                    ignoredContingencies.add(coId);
+                }
+                if (!results.containsKey(coId) || results.get(coId) < totalRd) {
+                    results.put(coId, totalRd);
+                }
+            }
+        }
+        results.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .forEach(entry -> TECHNICAL_LOGS.info("Contingency {}: {} MW redispatching", entry.getKey(), entry.getValue()));
+
+        return ignoredContingencies;
     }
 
     private TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<RaoResult> postTopologicalActionsResults, TemporalData<RaoInput> raoInputs) {
