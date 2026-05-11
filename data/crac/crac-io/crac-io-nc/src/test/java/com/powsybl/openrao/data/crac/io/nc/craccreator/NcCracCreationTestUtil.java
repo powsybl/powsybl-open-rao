@@ -42,7 +42,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
@@ -384,18 +384,12 @@ public final class NcCracCreationTestUtil {
     public static CracCreationParameters cracCreationDefaultParametersWithSweCsaExtension() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(NcCracCreationParameters.class, new NcCracCreationParameters());
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCurativeInstants(Map.of(
             "curative 1", 300,
             "curative 2", 600,
             "curative 3", 1200
         ));
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setBorders(Set.of(
-            new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"),
-            new Border("ES-PT", "10YDOM--ES-PT--T", "REN")
-        ));
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setRestrictedCurativeBatchesPerTso(Map.of("REE", Set.of("curative 1")));
         return cracCreationParameters;
     }
 

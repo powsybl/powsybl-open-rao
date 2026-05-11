@@ -90,6 +90,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
+        logInitialResult(bestResult);
+
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
@@ -155,6 +157,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     )
                 );
             }
+            // TODO: close networks with overwrite?
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -170,6 +173,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
                 input.objectiveFunction()
             );
+            // TODO: close networks with overwrite?
             previousResult = newResult;
 
             // f. Update problem fillers with flows, sensitivity coefficients and set-points
@@ -413,6 +417,20 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     // Logging
+    private static void logInitialResult(LinearOptimizationResult result) {
+        TECHNICAL_LOGS.info(
+            "Global linear optimization -- initial cost of {} (functional: {})",
+            formatDouble(result.getCost()),
+            formatDouble(result.getFunctionalCost()));
+
+        result.getVirtualCostNames().forEach(vc -> {
+            double cost = result.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
+    }
+
     private static void logBetterResult(int iteration, LinearOptimizationResult result) {
         TECHNICAL_LOGS.info(
             "Iteration {}: better solution found with a cost of {} (functional: {})",
