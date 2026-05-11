@@ -48,7 +48,7 @@ that the PST can be regulated.
 
 ```json
 {
-  "version": "3.3",
+  "version": "3.4",
   "extensions": {
     "open-rao-search-tree-parameters": {
       "pst-regulation-parameters" : {
