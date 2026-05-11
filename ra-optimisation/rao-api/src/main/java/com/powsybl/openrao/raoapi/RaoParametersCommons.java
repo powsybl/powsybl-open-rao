@@ -24,6 +24,7 @@ public final class RaoParametersCommons {
         3.2: remove re-optimize-curative-range-actions
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
+        3.4: add marmot-parameters
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.4";
