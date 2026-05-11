@@ -22,7 +22,6 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.network.LazyNetworkVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManagerProvider;
 import com.powsybl.openrao.searchtreerao.commons.network.VirtualNetworkVariantManager;
