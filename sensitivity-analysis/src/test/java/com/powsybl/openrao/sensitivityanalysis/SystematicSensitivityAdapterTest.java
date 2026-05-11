@@ -125,6 +125,7 @@ class SystematicSensitivityAdapterTest {
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
             network,
             factorProvider,
+            null,
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
@@ -209,6 +210,7 @@ class SystematicSensitivityAdapterTest {
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
             network,
             factorProvider,
+            null,
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
@@ -244,6 +246,7 @@ class SystematicSensitivityAdapterTest {
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
             network,
             factorProvider,
+            null,
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",

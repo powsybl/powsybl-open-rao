@@ -18,19 +18,9 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHandler;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
-import com.powsybl.sensitivity.SensitivityValue;
-import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.*;
 
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -92,7 +82,15 @@ public class SystematicSensitivityResult {
     }
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
-        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
+        Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
+        instantOrderByState.put(SensitivityState.PRE_CONTINGENCY, instantOrder);
+        for (String contingencyId : results.getContingencyIds()) {
+            instantOrderByState.put(SensitivityState.postContingency(contingencyId), instantOrder);
+        }
+        return completeData(results, instantOrderByState);
+    }
+
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Map<SensitivityState, Integer> instantOrderByState) {
         // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
         // This boolean will be reused to set the global status to PARITAL_FAILURE if required
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
@@ -102,26 +100,37 @@ public class SystematicSensitivityResult {
             return this;
         }
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
-            sensitivityValue,
-            nStateResult,
-            results.getFactors(),
-            SensitivityAnalysisResult.Status.SUCCESS
-        ));
-        for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
-            if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
-                anyContingencyFailure = true;
+        for (var e : instantOrderByState.entrySet()) {
+            SensitivityState sensiState = e.getKey();
+            Integer instantOrder = e.getValue();
+            if (sensiState.contingencyId() == null) {
+                // FIXME to fix in OLF, why do we not have a status for pre-contingency?
+                SensitivityAnalysisResult.Status status = sensiState.operatorStrategyId() == null
+                        ? SensitivityAnalysisResult.Status.SUCCESS
+                        : results.getStateStatus(sensiState);
+                results.getValues(sensiState).forEach(sensitivityValue -> fillIndividualValue(
+                        sensitivityValue,
+                        nStateResult,
+                        results.getFactors(),
+                        status
+                ));
+            } else {
+                SensitivityAnalysisResult.Status stateStatus = results.getStateStatus(sensiState);
+                if (stateStatus == SensitivityAnalysisResult.Status.FAILURE) {
+                    anyContingencyFailure = true;
+                }
+                StateResult stateResult = new StateResult();
+                stateResult.status = stateStatus == SensitivityAnalysisResult.Status.FAILURE ?
+                        SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+                if (stateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
+                    this.status = SensitivityComputationStatus.SUCCESS;
+                }
+                results.getValues(sensiState).forEach(sensitivityValue ->
+                        fillIndividualValue(sensitivityValue, stateResult, results.getFactors(), stateStatus)
+                );
+                postContingencyResults.computeIfAbsent(instantOrder, k -> new HashMap<>())
+                        .put(sensiState.contingencyId(), stateResult);
             }
-            StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ?
-                SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
-            if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
-                this.status = SensitivityComputationStatus.SUCCESS;
-            }
-            results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
-            );
-            postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
         if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;
