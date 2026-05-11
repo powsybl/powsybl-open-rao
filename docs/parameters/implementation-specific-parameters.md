@@ -405,6 +405,41 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: empty map
 - **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
 
+### Marmot Parameters extension
+
+#### number-of-cnecs-to-add-per-virtual-cost-name
+- **Expected value**: integer, no unit
+- **Default value**: 20
+- **Usage**: This value corresponds to the number of worst CNECs (in terms of margin) per virtual cost name to be added to the set of considered CNECs at each iteration of Marmot.
+
+#### min-relative-improvement-on-margin
+- **Expected value**: numeric value, in MW or A unit (depending on [flow unit](business-parameters.md#objective-function-parameters))
+- **Default value**: 0.1
+- **Usage**: Confidence coefficient to estimate the worst overload in the network against the worst overload among the critical CNECs. The MIP iterations stop only if the worst overload exceeds 100 + `min-relative-improvement-on-margin` % of the worst critical overload.
+
+#### margin-window-to-consider
+- **Expected value**: numeric value, in MW or A unit (depending on [flow unit](business-parameters.md#objective-function-parameters))
+- **Default value**: 5.0
+- **Usage**: This value corresponds to the distance to the worst margin beyond which we stop adding CNECs in MIP iterations.
+
+#### max-mip-iterations
+- **Expected value**: integer, no unit
+- **Default value**: 10
+- **Usage**: This values corresponds to the maximum number of iterations of the MIP.
+
+#### number-of-threads
+- **Expected value**: integer, no unit
+- **Default value**: 1
+- **Usage**: This value corresponds to the number of threads that will be used to run computations in parallel.
+
+#### PST regulation parameters
+
+##### psts-to-regulate
+
+- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
+- **Default value**: empty map
+- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -419,6 +454,13 @@ These parameters are meant to be used in costly optimization only.
       "number-of-cnecs-to-add" : 20,
       "add-unsecure-cnecs" : false,
       "margin-limit" : 5.0
+    },
+    "marmot-parameters" : {
+      "number-of-cnecs-to-add-per-virtual-cost-name" : 25,
+      "min-relative-improvement-on-margin" : 12.0,
+      "margin-window-to-consider" : 7.0,
+      "max-mip-iterations" : 13,
+      "number-of-threads" : 4
     },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
