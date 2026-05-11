@@ -101,8 +101,6 @@ public class NcRemedialActionsCreator {
             countertradeRemedialActions
                     .forEach(countertradeRemedialAction -> addCounterTradeRemedialAction(
                         countertradeRemedialAction,
-                        linkedAeWithRa,
-                        linkedCoWithRa,
                         cnecCreationContexts
                     ));
         }
@@ -110,8 +108,6 @@ public class NcRemedialActionsCreator {
     }
 
     private void addCounterTradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction,
-                                               Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                               Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
                                                Set<ElementaryCreationContext> cnecCreationContexts) {
         String remedialActionId = countertradeRemedialAction.mrid();
 
@@ -125,89 +121,20 @@ public class NcRemedialActionsCreator {
                     countertradeRemedialAction,
                     remedialActionId,
                     alterations);
-            fillAndSaveCounterTradeRemedialActionAdderAndContext(
-                linkedAeWithRa,
-                linkedCoWithRa,
-                cnecCreationContexts,
-                countertradeRemedialAction,
-                alterations,
-                remedialActionAdder,
-                countertradeRemedialAction.getUniqueName()
-            );
 
+            contextByRaId.put(countertradeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
+                    countertradeRemedialAction.mrid(),
+                    countertradeRemedialAction.name(),
+                    countertradeRemedialAction.mrid(),
+                    false,
+                    String.join(". ", alterations)
+            ));
         } catch (OpenRaoImportException e) {
 
             contextByRaId.put(countertradeRemedialAction.mrid(), StandardElementaryCreationContext.notImported(
                     countertradeRemedialAction.mrid(), null, e.getImportStatus(), e.getMessage()
             ));
         }
-    }
-
-    private void fillAndSaveCounterTradeRemedialActionAdderAndContext(Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                                                      Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                                                      Set<ElementaryCreationContext> cnecCreationContexts,
-                                                                      CountertradeRemedialAction countertradeRemedialAction,
-                                                                      List<String> alterations,
-                                                                      CounterTradeRangeActionAdder remedialActionAdder,
-                                                                      String remedialActionName) {
-
-        try {
-            remedialActionAdder.withName(remedialActionName);
-            if (countertradeRemedialAction.operator() != null) {
-                remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()));
-            }
-            if (countertradeRemedialAction.getTimeToImplementInSeconds() != null) {
-                remedialActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
-            }
-            RemedialActionKind kind = RemedialActionKind.valueOf(countertradeRemedialAction.kind());
-            if (!Objects.equals(RemedialActionKind.PREVENTIVE, kind)) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "unsupported kind is provided");
-            }
-
-            remedialActionAdder.add();
-
-            cnecCreationContexts.add(StandardElementaryCreationContext.imported(
-                    countertradeRemedialAction.mrid(),
-                    countertradeRemedialAction.name(),
-                    countertradeRemedialAction.mrid(),
-                    !alterations.isEmpty(),
-                    alterations.isEmpty() ? "" : String.join(". ", alterations)
-            ));
-        } catch (OpenRaoImportException e) {
-            cnecCreationContexts.add(StandardElementaryCreationContext.notImported(
-                    countertradeRemedialAction.mrid(), null, e.getImportStatus(), e.getMessage()));
-        }
-
-//        InstantKind instantKind = getInstantKind(nativeRemedialAction);
-//        Set<Instant> instants = crac.getInstants(instantKind);
-//        instants.forEach(instant -> addUsageRules(
-//            nativeRemedialAction.mrid(),
-//            linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
-//            linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
-//            cnecCreationContexts,
-//            remedialActionAdder,
-//            alterations,
-//            instant
-//        ));
-//        remedialActionAdder.add();
-//
-//        if (alterations.isEmpty()) {
-//            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
-//                nativeRemedialAction.mrid(),
-//                null,
-//                nativeRemedialAction.mrid(),
-//                false,
-//                ""
-//            ));
-//        } else {
-//            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
-//                nativeRemedialAction.mrid(),
-//                null,
-//                nativeRemedialAction.mrid(),
-//                true,
-//                String.join(". ", alterations)
-//            ));
-//        }
     }
 
     private void addGridStatRemedialAction(GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
@@ -322,32 +249,32 @@ public class NcRemedialActionsCreator {
     private void fillAndSaveRemedialActionAdderAndContext(Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
                                                           Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
                                                           Set<ElementaryCreationContext> cnecCreationContexts,
-                                                          GridStateAlterationRemedialAction nativeRemedialAction,
+                                                          GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
                                                           List<String> alterations,
                                                           RemedialActionType remedialActionType,
                                                           RemedialActionAdder<?> remedialActionAdder,
                                                           String remedialActionName) {
 
         remedialActionAdder.withName(remedialActionName);
-        if (nativeRemedialAction.operator() != null) {
-            remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        if (gridStateAlterationRemedialAction.operator() != null) {
+            remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(gridStateAlterationRemedialAction.operator()));
         }
-        if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
-            remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
-        } else if (!nativeRemedialAction.isManual() && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
+        if (gridStateAlterationRemedialAction.getTimeToImplementInSeconds() != null) {
+            remedialActionAdder.withSpeed(gridStateAlterationRemedialAction.getTimeToImplementInSeconds());
+        } else if (!gridStateAlterationRemedialAction.isManual() && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 String.format("Remedial action %s will not be imported because an auto PST range action must have a speed defined",
-                              nativeRemedialAction.mrid())
+                              gridStateAlterationRemedialAction.mrid())
             );
         }
 
-        InstantKind instantKind = getInstantKind(nativeRemedialAction);
+        InstantKind instantKind = getInstantKind(gridStateAlterationRemedialAction);
         Set<Instant> instants = crac.getInstants(instantKind);
         instants.forEach(instant -> addUsageRules(
-            nativeRemedialAction.mrid(),
-            linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
-            linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
+            gridStateAlterationRemedialAction.mrid(),
+            linkedAeWithRa.getOrDefault(gridStateAlterationRemedialAction.mrid(), Set.of()),
+            linkedCoWithRa.getOrDefault(gridStateAlterationRemedialAction.mrid(), Set.of()),
             cnecCreationContexts,
             remedialActionAdder,
             alterations,
@@ -356,18 +283,18 @@ public class NcRemedialActionsCreator {
         remedialActionAdder.add();
 
         if (alterations.isEmpty()) {
-            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
-                nativeRemedialAction.mrid(),
+            contextByRaId.put(gridStateAlterationRemedialAction.mrid(), StandardElementaryCreationContext.imported(
+                gridStateAlterationRemedialAction.mrid(),
                 null,
-                nativeRemedialAction.mrid(),
+                gridStateAlterationRemedialAction.mrid(),
                 false,
                 "")
             );
         } else {
-            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
-                nativeRemedialAction.mrid(),
+            contextByRaId.put(gridStateAlterationRemedialAction.mrid(), StandardElementaryCreationContext.imported(
+                gridStateAlterationRemedialAction.mrid(),
                 null,
-                nativeRemedialAction.mrid(),
+                gridStateAlterationRemedialAction.mrid(),
                 true,
                 String.join(". ", alterations)
             ));
@@ -475,27 +402,27 @@ public class NcRemedialActionsCreator {
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private InstantKind getInstantKind(GridStateAlterationRemedialAction nativeRemedialAction) {
-        if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+    private InstantKind getInstantKind(GridStateAlterationRemedialAction gridStateAlterationRemedialAction) {
+        if (RemedialActionKind.PREVENTIVE.toString().equals(gridStateAlterationRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
-        if (!nativeRemedialAction.isManual()) {
+        if (!gridStateAlterationRemedialAction.isManual()) {
             return InstantKind.AUTO;
         }
         return InstantKind.CURATIVE;
     }
 
-    private static void checkKind(GridStateAlterationRemedialAction nativeRemedialAction) {
-        if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+    private static void checkKind(GridStateAlterationRemedialAction gridStateAlterationRemedialAction) {
+        if (!RemedialActionKind.CURATIVE.toString().equals(gridStateAlterationRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(gridStateAlterationRemedialAction.kind())) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", nativeRemedialAction.mrid())
+                String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", gridStateAlterationRemedialAction.mrid())
             );
         }
-        if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind()) && !nativeRemedialAction.isManual()) {
+        if (RemedialActionKind.PREVENTIVE.toString().equals(gridStateAlterationRemedialAction.kind()) && !gridStateAlterationRemedialAction.isManual()) {
             throw new OpenRaoImportException(
                 ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
-                "OpenRAO does not support preventive automatons, remedial action %s will be ignored".formatted(nativeRemedialAction.mrid())
+                "OpenRAO does not support preventive automatons, remedial action %s will be ignored".formatted(gridStateAlterationRemedialAction.mrid())
             );
         }
     }
