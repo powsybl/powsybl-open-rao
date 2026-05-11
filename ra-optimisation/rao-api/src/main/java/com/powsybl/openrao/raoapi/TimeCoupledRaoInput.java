@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.google.common.annotations.Beta;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.time.OffsetDateTime;
@@ -20,16 +22,23 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
+@Beta
 public class TimeCoupledRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
     private final TimeCoupledConstraints timeCoupledConstraints;
+    private final TemporalData<RaoResult> preComputedRaoResults;
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints, TemporalData<RaoResult> preComputedRaoResults) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
         this.timeCoupledConstraints = timeCoupledConstraints;
+        this.preComputedRaoResults = preComputedRaoResults;
         checkTimestampsToRun();
+    }
+
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints) {
+        this(raoInputs, timestampsToRun, timeCoupledConstraints, null);
     }
 
     public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
@@ -46,6 +55,10 @@ public class TimeCoupledRaoInput {
 
     public TimeCoupledConstraints getTimeCoupledConstraints() {
         return timeCoupledConstraints;
+    }
+
+    public TemporalData<RaoResult> getPreComputedRaoResults() {
+        return preComputedRaoResults;
     }
 
     private void checkTimestampsToRun() {
