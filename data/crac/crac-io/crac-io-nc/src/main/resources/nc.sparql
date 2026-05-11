@@ -281,8 +281,9 @@ SELECT *
             rdf:type nc:CountertradeRemedialAction ;
             cim:IdentifiedObject.mRID ?mRID ;
             nc:RemedialAction.normalAvailable ?normalAvailable ;
-            nc:RemedialAction.kind ?kind .
-
+            nc:RemedialAction.kind ?kind ;
+            nc:RemedialAction.isCrossBorderRelevant ?isCrossBorderRelevant ;
+            nc:RemedialAction.AppointedToRegion ?appointedToRegion .
         OPTIONAL {
             ?countertradeRemedialAction cim:IdentifiedObject.name ?name .
         }
@@ -296,13 +297,7 @@ SELECT *
             ?countertradeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
         }
         OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.AppointedToRegion ?appointedToRegion .
-        }
-        OPTIONAL {
             ?countertradeRemedialAction nc:RemedialAction.penaltyFactor ?penaltyFactor .
-        }
-        OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.isCrossBorderRelevant ?isCrossBorderRelevant .
         }
         OPTIONAL {
             ?countertradeRemedialAction nc:RemedialAction.impactThresholdMargin ?impactThresholdMargin .

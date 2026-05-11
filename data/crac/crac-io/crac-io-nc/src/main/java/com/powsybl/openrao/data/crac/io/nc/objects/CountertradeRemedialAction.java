@@ -30,15 +30,11 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_CROSS_BORDER_RELEVANT, "true")),
                 Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_MANUAL, "true")),
                 propertyBag.get(NcConstants.IMPACT_THRESHOLD_MARGIN),
-                parseOptionalDouble(propertyBag.get(NcConstants.MAX_ECONOMIC_P_MARGIN)),
-                parseOptionalDouble(propertyBag.get(NcConstants.MIN_ECONOMIC_P_MARGIN)),
+                Double.parseDouble(propertyBag.get(NcConstants.MAX_ECONOMIC_P_MARGIN)),
+                Double.parseDouble(propertyBag.get(NcConstants.MIN_ECONOMIC_P_MARGIN)),
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
                 propertyBag.get(NcConstants.APPOINTED_TO_REGION)
         );
-    }
-
-    private static Double parseOptionalDouble(String value) {
-        return value == null ? null : Double.parseDouble(value);
     }
 
     public Integer getTimeToImplementInSeconds() {

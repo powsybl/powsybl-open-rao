@@ -132,7 +132,7 @@ public class NcCrac {
 
     public Set<CountertradeRemedialAction> getCountertradeRemedialActions() {
         return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag)
-            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION));
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.COUNTERTRADE_REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION));
     }
 
     public Set<TopologyAction> getTopologyActions() {

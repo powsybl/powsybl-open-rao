@@ -150,6 +150,7 @@ public final class NcConstants {
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
     public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
     public static final String REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String REQUEST_COUNTERTRADE_REMEDIAL_ACTION = "countertradeRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
