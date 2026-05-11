@@ -26,7 +26,7 @@ public final class RaoParametersCommons {
         3.3: remove objective function unit field
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.3";
+    public static final String RAO_PARAMETERS_VERSION = "3.4";
 
     // header
     public static final String VERSION = "version";
