@@ -211,10 +211,10 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
         AngleResult raoResultAngleResult = new AngleResult();
-        raoResultAngleResult.addAngle(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE);
-        raoResultAngleResult.addAngle(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE);
-        raoResultAngleResult.addAngle(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE);
-        raoResultAngleResult.addAngle(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
+        raoResultAngleResult.addMeasurement(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE);
+        raoResultAngleResult.addMeasurement(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE);
+        raoResultAngleResult.addMeasurement(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE);
+        raoResultAngleResult.addMeasurement(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
 
         // No violation -> 1 decimal
         Assertions.assertEquals(39.5, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMax, mockCrac, raoResultAngleResult).doubleValue());

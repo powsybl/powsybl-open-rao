@@ -292,7 +292,7 @@ class RaoResultImplTest {
                 .add();
 
         AngleResult angleResult = new AngleResult();
-        angleResult.addAngle(35.0, autoInstant, angleCnec, DEGREE);
+        angleResult.addMeasurement(35.0, autoInstant, angleCnec, DEGREE);
         raoResult.addExtension(AngleResult.class, angleResult);
 
         assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
@@ -341,9 +341,9 @@ class RaoResultImplTest {
         addVoltageCnecs();
 
         AngleResult angleResult = new AngleResult();
-        angleResult.addAngle(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
-        angleResult.addAngle(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
-        angleResult.addAngle(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
+        angleResult.addMeasurement(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
+        angleResult.addMeasurement(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addMeasurement(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
         raoResult.addExtension(AngleResult.class, angleResult);
 
         VoltageCnecResult voltageResult1 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecPreventive"));

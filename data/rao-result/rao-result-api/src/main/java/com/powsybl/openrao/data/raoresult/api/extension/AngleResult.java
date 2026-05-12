@@ -51,7 +51,7 @@ public class AngleResult extends AbstractRaoResultExtension {
         return results.getOrDefault(angleCnec, AngleCnecResult.of(angleCnec)).getAngle(optimizedInstant).orElse(Double.NaN);
     }
 
-    public void addAngle(double angle, Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
+    public void addMeasurement(double angle, Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         checkUnit(unit);
         results.computeIfAbsent(angleCnec, k -> AngleCnecResult.of(angleCnec)).addAngleMeasurement(optimizedInstant, angle);
     }

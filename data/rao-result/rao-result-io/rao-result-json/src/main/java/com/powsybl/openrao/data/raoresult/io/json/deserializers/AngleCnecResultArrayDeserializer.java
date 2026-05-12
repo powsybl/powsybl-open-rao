@@ -55,7 +55,6 @@ final class AngleCnecResultArrayDeserializer {
         }
 
         raoResult.addExtension(AngleResult.class, angleResult);
-        angleResult.setExtendable(raoResult);
     }
 
     private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleCnecResult angleCnecResult, AngleResult angleResult, String jsonFileVersion, Crac crac) throws IOException {
@@ -65,7 +64,7 @@ final class AngleCnecResultArrayDeserializer {
             jsonParser.nextToken();
             eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
-            angleResult.addAngle(eAngleCnecResult.getAngle(Unit.DEGREE), optimizedInstant, angleCnec, Unit.DEGREE);
+            angleResult.addMeasurement(eAngleCnecResult.getAngle(Unit.DEGREE), optimizedInstant, angleCnec, Unit.DEGREE);
         }
     }
 
