@@ -11,7 +11,17 @@ import com.powsybl.action.Action;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.networkaction.*;
+import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.LoadActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.PhaseTapChangerTapPositionActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.ShuntCompensatorPositionActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.SwitchActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.SwitchPairAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.TerminalsConnectionActionAdder;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,8 +74,8 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     }
 
     @Override
-    public DanglingLineActionAdder newDanglingLineAction() {
-        return new DanglingLineActionAdderImpl(this);
+    public BoundaryLineActionAdder newBoundaryLineAction() {
+        return new BoundaryLineActionAdderImpl(this);
     }
 
     @Override

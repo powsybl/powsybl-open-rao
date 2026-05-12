@@ -12,7 +12,8 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_MARGIN_DECREASE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS_SECTION;
 
 /**
  * Extension : MNEC parameters for RAO

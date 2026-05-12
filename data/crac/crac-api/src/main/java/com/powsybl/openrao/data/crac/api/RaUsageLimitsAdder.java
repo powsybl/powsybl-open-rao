@@ -16,8 +16,6 @@ public interface RaUsageLimitsAdder {
 
     RaUsageLimitsAdder withMaxRa(int maxRa);
 
-    RaUsageLimitsAdder withMaxTso(int maxTso);
-
     RaUsageLimitsAdder withMaxTopoPerTso(Map<String, Integer> maxTopoPerTso);
 
     RaUsageLimitsAdder withMaxPstPerTso(Map<String, Integer> maxPstPerTso);

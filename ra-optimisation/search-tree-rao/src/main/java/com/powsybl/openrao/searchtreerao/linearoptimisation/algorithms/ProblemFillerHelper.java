@@ -152,7 +152,10 @@ public final class ProblemFillerHelper {
                 pstRangeActions,
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
-                parameters.getObjectiveFunction().costOptimization()
+                parameters.getObjectiveFunction().costOptimization(),
+                parameters.getRaLimitationParameters() != null
+                    && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
+                    .anyMatch(state -> !parameters.getRaLimitationParameters().getMaxElementaryActionsPerTso(state).isEmpty())
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
@@ -176,7 +179,6 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                input.network(),
                 parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);

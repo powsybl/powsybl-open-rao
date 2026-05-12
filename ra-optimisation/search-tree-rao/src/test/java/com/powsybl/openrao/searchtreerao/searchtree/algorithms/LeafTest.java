@@ -12,16 +12,18 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -30,23 +32,25 @@ import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,15 +59,25 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.openrao.commons.Unit.*;
-import static org.mockito.Mockito.*;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -175,8 +189,24 @@ class LeafTest {
     void testMultipleLeafsDefinition() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf1 = new Leaf(
+            optimizationPerimeter,
+            network,
+            rootLeaf.getActivatedNetworkActions(),
+            new NetworkActionCombination(na1),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
+        Leaf leaf2 = new Leaf(
+            optimizationPerimeter,
+            network,
+            leaf1.getActivatedNetworkActions(),
+            new NetworkActionCombination(na2),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
         assertEquals(1, leaf1.getActivatedNetworkActions().size());
         assertEquals(2, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf1.getActivatedNetworkActions().contains(na1));
@@ -194,8 +224,24 @@ class LeafTest {
     void testMultipleLeafDefinitionWithSameNetworkAction() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf1 = new Leaf(
+            optimizationPerimeter,
+            network,
+            rootLeaf.getActivatedNetworkActions(),
+            new NetworkActionCombination(na1),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
+        Leaf leaf2 = new Leaf(
+            optimizationPerimeter,
+            network,
+            leaf1.getActivatedNetworkActions(),
+            new NetworkActionCombination(na1),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
         assertEquals(1, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
@@ -224,7 +270,15 @@ class LeafTest {
         // Set the active power setpoint before deactivating AC emulation. This is done in the root of the search tree.
         networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").setActivePowerSetpoint(812.28);
 
-        new Leaf(optimizationPerimeter, networkWithAngleDroop, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        new Leaf(
+            optimizationPerimeter,
+            networkWithAngleDroop,
+            rootLeaf.getActivatedNetworkActions(),
+            new NetworkActionCombination(na1),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
 
         // AC emulation is deactivated but the active power setpoint is the one we set before hand.
         assertFalse(networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
@@ -261,11 +315,23 @@ class LeafTest {
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
-    private Leaf prepareLeafForEvaluation(NetworkAction networkAction, ComputationStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
+    private Leaf prepareLeafForEvaluation(NetworkAction networkAction,
+                                          ComputationStatus expectedSensitivityStatus,
+                                          FlowResult expectedFlowResult,
+                                          double expectedCost,
+                                          List<FlowCnec> mostLimitingCnecs) {
         when(networkAction.apply(any())).thenReturn(true);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        Leaf leaf = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf = new Leaf(
+            optimizationPerimeter,
+            network,
+            rootLeaf.getActivatedNetworkActions(),
+            new NetworkActionCombination(networkAction),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions
+        );
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
@@ -809,7 +875,10 @@ class LeafTest {
         when(na2.apply(any())).thenReturn(false);
         when(naCombinationToApply.getNetworkActionSet()).thenReturn(Set.of(na1, na2));
         Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new Leaf(optimizationPerimeter, network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions));
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> new Leaf(optimizationPerimeter, network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions)
+        );
         assertEquals("null could not be applied on the network", exception.getMessage());
     }
 

@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.glsk.virtual.hubs;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -56,7 +58,7 @@ class GlskVirtualHubsTest {
         assertTrue(glsks.getData("15XGDYRHKLKAAAAS").getVariablesById().containsKey("NNL3AA1 _load"));
         assertEquals(1., glsks.getData("15XGDYRHKLKAAAAS").getVariablesById().get("NNL3AA1 _load").getWeight(), DOUBLE_TOLERANCE);
 
-        // check data for virtual hub on dangling line
+        // check data for virtual hub on boundary line
         assertNotNull(glsks.getData("17YXTYUDHGKAAAAS"));
         assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getVariables().size());
         assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().containsKey("FFR1AA1  X_GBFR1  1"));

@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Set;

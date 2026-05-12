@@ -11,11 +11,12 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 
 /**
  * Configures how PST range actions are created.
@@ -24,7 +25,7 @@ import java.util.function.BiPredicate;
  */
 public class PstRangeActions extends AbstractCountriesFilter {
     private Map<String, TapRange> availableTapRangesAtInstants = new HashMap<>();
-    private BiPredicate<TwoWindingsTransformer, State> pstRaPredicate = (pst, state) -> true;
+    private TriFunction<TwoWindingsTransformer, State, NetworkCracCreationContext, Boolean> pstRaPredicate = (pst, state, c) -> true;
 
     public record TapRange(int min, int max, RangeType rangeType) {
     }
@@ -49,11 +50,11 @@ public class PstRangeActions extends AbstractCountriesFilter {
      * Set the function that says if the PST is available for optimization at a given {@code State}.
      * Defaults to true.
      */
-    public void setPstRaPredicate(BiPredicate<TwoWindingsTransformer, State> pstRaPredicate) {
+    public void setPstRaPredicate(TriFunction<TwoWindingsTransformer, State, NetworkCracCreationContext, Boolean> pstRaPredicate) {
         this.pstRaPredicate = pstRaPredicate;
     }
 
-    public boolean isAvailable(TwoWindingsTransformer pst, State state) {
-        return pstRaPredicate.test(pst, state);
+    public boolean isAvailable(TwoWindingsTransformer pst, State state, NetworkCracCreationContext context) {
+        return pstRaPredicate.apply(pst, state, context);
     }
 }

@@ -11,11 +11,11 @@ package com.powsybl.openrao.virtualhubs.json;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigurationSerializationException extends RuntimeException {
-    public VirtualHubsConfigurationSerializationException(String message) {
+    VirtualHubsConfigurationSerializationException(String message) {
         super(message);
     }
 
-    public VirtualHubsConfigurationSerializationException(Throwable cause) {
+    VirtualHubsConfigurationSerializationException(Throwable cause) {
         super(cause);
     }
 }

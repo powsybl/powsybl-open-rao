@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.Map;
@@ -32,7 +32,7 @@ public final class NetworkActionArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         networkActionAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -77,24 +77,40 @@ public final class NetworkActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.TOPOLOGICAL_ACTIONS:
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
-                            throw new OpenRaoException(String.format("%s is either %s or %s since CRAC version 2.5", JsonSerializationConstants.TOPOLOGICAL_ACTIONS, JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS, JsonSerializationConstants.SWITCH_ACTIONS));
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format(
+                                "%s is either %s or %s since CRAC version 2.5",
+                                JsonSerializationConstants.TOPOLOGICAL_ACTIONS, JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS, JsonSerializationConstants.SWITCH_ACTIONS
+                            ));
                         } else {
                             jsonParser.nextToken();
                             TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
                         }
                         break;
                     case JsonSerializationConstants.PST_SETPOINTS:
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
-                            throw new OpenRaoException(String.format("%s is now %s since CRAC version 2.5", JsonSerializationConstants.PST_SETPOINTS, JsonSerializationConstants.PHASETAPCHANGER_TAPPOSITION_ACTIONS));
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format(
+                                "%s is now %s since CRAC version 2.5",
+                                JsonSerializationConstants.PST_SETPOINTS, JsonSerializationConstants.PHASETAPCHANGER_TAPPOSITION_ACTIONS
+                            ));
                         } else {
                             jsonParser.nextToken();
                             PstSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         }
                         break;
                     case JsonSerializationConstants.INJECTION_SETPOINTS:
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
-                            throw new OpenRaoException(String.format("%s is either %s, or %s, or %s, or %s since CRAC version 2.5", JsonSerializationConstants.INJECTION_SETPOINTS, JsonSerializationConstants.GENERATOR_ACTIONS, JsonSerializationConstants.LOAD_ACTIONS, JsonSerializationConstants.DANGLINGLINE_ACTIONS, JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS));
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format(
+                                "%s is either %s, or %s, or %s, or %s since CRAC version 2.5",
+                                JsonSerializationConstants.INJECTION_SETPOINTS,
+                                JsonSerializationConstants.GENERATOR_ACTIONS,
+                                JsonSerializationConstants.LOAD_ACTIONS,
+                                JsonSerializationConstants.BOUNDARYLINE_ACTIONS,
+                                JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS
+                            ));
                         } else {
                             jsonParser.nextToken();
                             InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
@@ -121,8 +137,20 @@ public final class NetworkActionArrayDeserializer {
                         LoadActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case JsonSerializationConstants.DANGLINGLINE_ACTIONS:
+                        int majorVersion = JsonSerializationConstants.getPrimaryVersionNumber(version);
+                        if (majorVersion == 1 || majorVersion == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
+                            jsonParser.nextToken();
+                            BoundaryLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                            break;
+                        } else {
+                            throw new OpenRaoException("%s were renamed to %s from version 2.10.".formatted(JsonSerializationConstants.DANGLINGLINE_ACTIONS, JsonSerializationConstants.BOUNDARYLINE_ACTIONS));
+                        }
+                    case JsonSerializationConstants.BOUNDARYLINE_ACTIONS:
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
+                            throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
+                        }
                         jsonParser.nextToken();
-                        DanglingLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        BoundaryLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS:
                         jsonParser.nextToken();
@@ -147,7 +175,7 @@ public final class NetworkActionArrayDeserializer {
                         networkActionAdder.withActivationCost(jsonParser.getDoubleValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
                 }
             }
             networkActionAdder.add();
@@ -173,7 +201,8 @@ public final class NetworkActionArrayDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, NetworkActionAdder networkActionAdder) throws IOException {
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
+        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2
+            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));

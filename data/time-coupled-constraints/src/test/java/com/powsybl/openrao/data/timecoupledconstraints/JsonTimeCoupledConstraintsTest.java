@@ -79,7 +79,9 @@ class JsonTimeCoupledConstraintsTest {
     @Test
     void testDeserialization() throws IOException {
         TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
-        List<GeneratorConstraints> generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList();
+        List<GeneratorConstraints> generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().stream()
+            .sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId))
+            .toList();
 
         assertEquals(3, generatorConstraints.size());
 
@@ -107,14 +109,18 @@ class JsonTimeCoupledConstraintsTest {
 
     @Test
     void testDeserializationWithIllegalField() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/invalid-time-coupled-constraints.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/invalid-time-coupled-constraints.json"))
+        );
         assertEquals("Unexpected field 'unknownField' in JSON time-coupled constraints.", exception.getMessage());
     }
 
     @Test
     void testDeserializationWithIllegalFieldInGeneratorConstraints() {
         // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints-with-invalid-generator-constraints.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints-with-invalid-generator-constraints.json"))
+        );
         assertEquals("Unexpected field 'unknownField' in JSON generator constraints.", exception.getMessage());
     }
 

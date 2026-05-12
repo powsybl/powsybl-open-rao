@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.range.StandardRange;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -20,8 +20,8 @@ public class StandardRangeImpl extends AbstractRange implements StandardRange {
     private final double min;
     private final double max;
 
-    StandardRangeImpl(double min, double max) {
-        super(RangeType.ABSOLUTE, Unit.MEGAWATT);
+    StandardRangeImpl(double min, double max, RangeType rangeType) {
+        super(rangeType, Unit.MEGAWATT);
         this.min = min;
         this.max = max;
     }

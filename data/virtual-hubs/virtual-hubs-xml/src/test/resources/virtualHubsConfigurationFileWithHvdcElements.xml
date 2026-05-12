@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration>
+  <MarketAreas>
+    <MarketArea Code="BE" Eic="10YBE----------2" MCParticipant="false"/>
+    <MarketArea Code="ES" Eic="10YES-REE------0" MCParticipant="true" AHC="true"/>
+    <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true" AHC="false"/>
+  </MarketAreas>
+  <VirtualHubs>
+    <VirtualHub Eic="17Y000000930814J" Code="Virtual_Hub_FR_1" RelatedMA="FR"
+                MCParticipant="true" NodeName="XFR_ES11" OppositeHub="Virtual_Hub_ES_FR"/>
+    <VirtualHub Eic="17Y000000930814E" Code="Virtual_Hub_FR_2" RelatedMA="FR"
+                MCParticipant="false" NodeName="XFR_BE11" AHC="true"/>
+    <VirtualHub Eic="17Y000000930808E" Code="Virtual_Hub_ES_FR" RelatedMA="ES"
+                MCParticipant="true" NodeName="EFR_ES11" OppositeHub="Virtual_Hub_FR_1" AHC="false"/>
+    <VirtualHub Eic="17Y0000009308082" Code="Virtual_Hub_ES_MA" RelatedMA="ES"
+                MCParticipant="false" NodeName="XMA_ES11"/>
+  </VirtualHubs>
+  <InternalHVDCs>
+    <HVDC>
+      <pole id="1">
+        <converterList>
+          <converter node="AAAAA11A" station="Station 1" />
+          <converter node="BBBBB11B" station="Station 2" />
+        </converterList>
+        <lineList>
+          <line from="AAAAA11A" to="BBBBB11B" />
+        </lineList>
+      </pole>
+      <pole id="2">
+        <converterList>
+          <converter node="AAAAA21A" station="Station 1" />
+          <converter node="BBBBB21B" station="Station 2" />
+        </converterList>
+        <lineList>
+          <line from="AAAAA21A" to="BBBBB21B" />
+        </lineList>
+      </pole>
+    </HVDC>
+  </InternalHVDCs>
+  <BorderDirections>
+    <BorderDirection From="A1" To="B1"/>
+    <BorderDirection From="A1" To="B2" AHC="true"/>
+    <BorderDirection From="A2" To="B1" AHC="false"/>
+    <BorderDirection From="A2" To="C1"/>
+  </BorderDirections>
+</Configuration>

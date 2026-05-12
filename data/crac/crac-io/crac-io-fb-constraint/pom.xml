@@ -12,7 +12,7 @@
     <parent>
         <artifactId>open-rao-crac-io</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.2.0-SNAPSHOT</version>
+        <version>7.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +63,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-loopflow-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-virtual-hubs-xml</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

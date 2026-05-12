@@ -1,5 +1,5 @@
 {
-  "version" : "3.3",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : true
@@ -31,6 +31,13 @@
       "number-of-cnecs-to-add" : 20,
       "add-unsecure-cnecs" : false,
       "margin-limit" : 5.0
+    },
+    "marmot-parameters" : {
+      "number-of-cnecs-to-add-per-virtual-cost-name" : 25,
+      "min-relative-improvement-on-margin" : 12.0,
+      "margin-window-to-consider" : 7.0,
+      "max-mip-iterations" : 13,
+      "number-of-threads" : 1515
     },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
@@ -65,7 +72,7 @@
         "sensitivity-provider" : "OpenSensitivityAnalysis",
         "sensitivity-failure-overcost" : 10000.0,
         "sensitivity-parameters" : {
-          "version" : "1.1",
+          "version" : "1.2",
           "load-flow-parameters" : {
             "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
@@ -88,7 +95,8 @@
           "flow-flow-sensitivity-value-threshold" : 0.0,
           "voltage-voltage-sensitivity-value-threshold" : 0.0,
           "flow-voltage-sensitivity-value-threshold" : 0.0,
-          "angle-flow-sensitivity-value-threshold" : 0.0
+          "angle-flow-sensitivity-value-threshold" : 0.0,
+          "operator-strategies-calculation-mode" : "NONE"
         }
       },
       "multi-threading" : {

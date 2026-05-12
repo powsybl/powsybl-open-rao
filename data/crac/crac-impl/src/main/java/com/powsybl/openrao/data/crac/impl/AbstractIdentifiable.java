@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 
 /**
  * Common abstract class to inherit from for all identifiable classes

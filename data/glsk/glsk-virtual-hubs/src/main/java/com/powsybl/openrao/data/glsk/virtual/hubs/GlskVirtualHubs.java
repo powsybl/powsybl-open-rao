@@ -7,19 +7,27 @@
 
 package com.powsybl.openrao.data.glsk.virtual.hubs;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -76,9 +84,13 @@ public final class GlskVirtualHubs {
         Map<String, Injection<?>> injections = new HashMap<>();
         virtualHubsConfiguration.getVirtualHubs()
                 .forEach(virtualHub -> {
-                    Injection<?> injection = getInjection(network, virtualHub);
-                    if (injection != null) {
-                        injections.put(virtualHub.eic(), injection);
+                    if (virtualHub.nodeName() == null) {
+                        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} will be ignored as it has no nodeName", virtualHub.eic());
+                    } else {
+                        Injection<?> injection = getInjection(network, virtualHub);
+                        if (injection != null) {
+                            injections.put(virtualHub.eic(), injection);
+                        }
                     }
                 });
         return injections;
@@ -107,9 +119,9 @@ public final class GlskVirtualHubs {
             return busLoad.get();
         }
 
-        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.nodeName());
-        if (danglingLine.isPresent() && !danglingLine.get().isPaired()) {
-            return danglingLine.get();
+        Optional<BoundaryLine> boundaryLine = findBoundaryLineWithXNode(network, virtualHub.nodeName());
+        if (boundaryLine.isPresent() && !boundaryLine.get().isPaired()) {
+            return boundaryLine.get();
         }
 
         OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.eic(), virtualHub.nodeName());
@@ -123,9 +135,9 @@ public final class GlskVirtualHubs {
             .findFirst();
     }
 
-    private static Optional<DanglingLine> findDanglingLineWithXNode(Network network, String xNodeId) {
-        return network.getDanglingLineStream()
-            .filter(danglingLine -> danglingLine.getPairingKey().equals(xNodeId))
+    private static Optional<BoundaryLine> findBoundaryLineWithXNode(Network network, String xNodeId) {
+        return network.getBoundaryLineStream()
+            .filter(boundaryLine -> boundaryLine.getPairingKey().equals(xNodeId))
             .findFirst();
     }
 }

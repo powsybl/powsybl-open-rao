@@ -53,12 +53,20 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         // TODO: shall we filter out states with contingencies in 'contingenciesToExclude' from evaluate?
-        return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()).sum();
+        return optimizedStates.stream()
+            .mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream()
+                .mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult))
+                .sum())
+            .sum();
     }
 
     private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
-        double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
-        double after = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) : remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+        double variation = rangeAction instanceof PstRangeAction pstRangeAction ?
+            (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) :
+            remedialActionActivationResult.getSetPointVariation(rangeAction, state);
+        double after = rangeAction instanceof PstRangeAction pstRangeAction ?
+            (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) :
+            remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         if (Math.abs(variation) < 1e-6) {
             return 0.0;
         }

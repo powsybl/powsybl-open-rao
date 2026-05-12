@@ -58,7 +58,7 @@ class RedispatchingCreator {
             .filter(generator -> Utils.injectionIsInCountries(generator, parameters.getCountries().orElse(null)))
             .filter(generator -> !generatorsInCombinations.contains(generator.getId()))
             .forEach(generator ->
-                instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(generator, instant))
+                instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(generator, instant, creationContext))
                     .forEach(instant -> {
                         try {
                             addGeneratorActionForInstant(generator, instant);
@@ -69,7 +69,7 @@ class RedispatchingCreator {
         network.getLoadStream()
             .filter(load -> Utils.injectionIsInCountries(load, parameters.getCountries().orElse(null)))
             .forEach(load ->
-                instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(load, instant))
+                instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(load, instant, creationContext))
                     .forEach(instant -> {
                             try {
                                 addLoadActionForInstant(load, instant);
@@ -89,7 +89,7 @@ class RedispatchingCreator {
     }
 
     private void addGeneratorCombinationActionForInstant(String combinationId, Set<String> generatorIds, Instant instant) {
-        Set<Generator> consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant)).collect(Collectors.toSet());
+        Set<Generator> consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant, creationContext)).collect(Collectors.toSet());
         if (consideredGenerators.contains(null)) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
                 String.format("Combination '%s' could not be considered because at least one generator could not be found in the network.", combinationId));
@@ -136,7 +136,14 @@ class RedispatchingCreator {
         load.setP0(Math.round(load.getP0()));
         double initialP = load.getP0();
         if (parameters.getRaRange(load, instant).getMin().isEmpty() || parameters.getRaRange(load, instant).getMax().isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Could not create range action for load %s at instant %s, because you did not define its min or max value in the parameters.", load.getId(), instant.getId()));
+            throw new OpenRaoImportException(
+                ImportStatus.INCOMPLETE_DATA,
+                String.format(
+                    "Could not create range action for load %s at instant %s, because you did not define its min or max value in the parameters.",
+                    load.getId(),
+                    instant.getId()
+                )
+            );
         }
         double minP = Math.min(initialP, parameters.getRaRange(load, instant).getMin().orElseThrow());
         double maxP = Math.max(initialP, parameters.getRaRange(load, instant).getMax().orElseThrow());

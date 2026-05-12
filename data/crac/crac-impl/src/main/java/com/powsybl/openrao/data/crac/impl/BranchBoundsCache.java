@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.iidm.network.TwoSides;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.String.format;
 

@@ -13,10 +13,18 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.*;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.LoopFlowViolationCostEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MinMarginViolationEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MnecViolationCostEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.ArrayList;
@@ -36,7 +44,13 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimizeInCurative;
 
-    protected ObjectiveFunctionCreator(Set<FlowCnec> flowCnecs, Set<State> optimizedStates, RaoParameters raoParameters, Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, FlowResult prePerimeterFlowResult, Set<String> operatorsNotToOptimizeInCurative) {
+    protected ObjectiveFunctionCreator(Set<FlowCnec> flowCnecs,
+                                       Set<State> optimizedStates,
+                                       RaoParameters raoParameters,
+                                       Set<FlowCnec> loopFlowCnecs,
+                                       FlowResult initialFlowResult,
+                                       FlowResult prePerimeterFlowResult,
+                                       Set<String> operatorsNotToOptimizeInCurative) {
         super(flowCnecs, optimizedStates, raoParameters);
         this.loopFlowCnecs = loopFlowCnecs;
         this.initialFlowResult = initialFlowResult;
@@ -47,7 +61,9 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
     @Override
     protected MarginEvaluator getMarginEvaluator() {
         // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
-        return raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras() && !operatorsNotToOptimizeInCurative.isEmpty() ? new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(super.getMarginEvaluator(), operatorsNotToOptimizeInCurative, prePerimeterFlowResult) : super.getMarginEvaluator();
+        return raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras() && !operatorsNotToOptimizeInCurative.isEmpty() ?
+            new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(super.getMarginEvaluator(), operatorsNotToOptimizeInCurative, prePerimeterFlowResult) :
+            super.getMarginEvaluator();
     }
 
     @Override

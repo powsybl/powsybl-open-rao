@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.raoresult.io.cne.core;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.*;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ContingencySeries;
@@ -30,10 +29,18 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A01_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A02_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AMP_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIMENSIONLESS_SYMBOL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIRECT_POSITIVE_FLOW_IN;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.MAW_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OPPOSITE_POSITIVE_FLOW_IN;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.cutString;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.limitFloatInterval;
-import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.createEsmpDateTimeInterval;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.createPartyIDString;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.createResourceIDString;
 
 /**
  * Creates the classes that constitute the CNE file structure
@@ -177,12 +184,20 @@ public final class CoreCneClassCreator {
         return remedialActionSeries;
     }
 
-    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, int setpoint, String unitSymbol, String marketObjectStatus) {
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(final String id, final String name, final String psrType, final int setpoint, final String unitSymbol, final String marketObjectStatus) {
+        return getRemedialActionRegisteredResource(id, name, psrType, BigDecimal.valueOf(setpoint), unitSymbol, marketObjectStatus);
+    }
+
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(final String id, final String name, final String psrType, final double setpoint, final String unitSymbol, final String marketObjectStatus) {
+        return getRemedialActionRegisteredResource(id, name, psrType, BigDecimal.valueOf(setpoint), unitSymbol, marketObjectStatus);
+    }
+
+    private static RemedialActionRegisteredResource getRemedialActionRegisteredResource(final String id, final String name, final String psrType, final BigDecimal setpoint, final String unitSymbol, final String marketObjectStatus) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, id));
         remedialActionRegisteredResource.setName(name);
         remedialActionRegisteredResource.setPSRTypePsrType(psrType);
-        remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(setpoint));
+        remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(setpoint);
         remedialActionRegisteredResource.setResourceCapacityUnitSymbol(unitSymbol);
         remedialActionRegisteredResource.setMarketObjectStatusStatus(marketObjectStatus);
         return remedialActionRegisteredResource;

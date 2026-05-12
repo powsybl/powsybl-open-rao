@@ -13,7 +13,15 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -98,7 +106,8 @@ public class MonitoringResult {
         this.status = combineStatuses(this.status, monitoringResult.getStatus());
     }
 
-    public static SecurityStatus combineStatuses(SecurityStatus... statuses) {
+    // Add synchronized in the signature to make the function blocking to avoid overwriting conflict.
+    public static synchronized SecurityStatus combineStatuses(SecurityStatus... statuses) {
         boolean atLeastOneFailed = Arrays.asList(statuses).contains(SecurityStatus.FAILURE);
         if (atLeastOneFailed) {
             return SecurityStatus.FAILURE;

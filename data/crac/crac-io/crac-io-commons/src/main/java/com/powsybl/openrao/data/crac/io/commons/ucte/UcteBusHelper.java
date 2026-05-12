@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
 
 import java.util.HashSet;
 import java.util.Set;

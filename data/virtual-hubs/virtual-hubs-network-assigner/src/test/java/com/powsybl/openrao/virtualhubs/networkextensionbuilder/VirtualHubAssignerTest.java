@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.networkextension.AssignedVirtualHub;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -66,7 +69,7 @@ class VirtualHubAssignerTest {
     @Test
     void testAssignerDisconnectedXNode() {
 
-        network.getDanglingLine("FFR1AA1  X_GBFR1  1").getTerminal().disconnect();
+        network.getBoundaryLine("FFR1AA1  X_GBFR1  1").getTerminal().disconnect();
 
         virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, false, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true, false), null));
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);

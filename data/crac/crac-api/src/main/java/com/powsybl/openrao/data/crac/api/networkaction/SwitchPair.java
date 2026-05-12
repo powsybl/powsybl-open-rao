@@ -29,8 +29,12 @@ public interface SwitchPair extends Action {
 
     default boolean isCompatibleWith(Action otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && getSwitchToClose().equals(switchPair.getSwitchToClose())
-                || !getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && !getSwitchToOpen().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToOpen());
+            return getSwitchToOpen().equals(switchPair.getSwitchToOpen())
+                    && getSwitchToClose().equals(switchPair.getSwitchToClose())
+                || !getSwitchToOpen().equals(switchPair.getSwitchToOpen())
+                    && !getSwitchToOpen().equals(switchPair.getSwitchToClose())
+                    && !getSwitchToClose().equals(switchPair.getSwitchToClose())
+                    && !getSwitchToClose().equals(switchPair.getSwitchToOpen());
         }
         return true;
     }

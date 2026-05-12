@@ -16,7 +16,7 @@ import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluat
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;

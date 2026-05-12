@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.Optional;
 import java.util.Set;

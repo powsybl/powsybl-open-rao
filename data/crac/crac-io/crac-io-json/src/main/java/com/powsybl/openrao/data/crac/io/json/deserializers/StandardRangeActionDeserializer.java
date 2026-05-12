@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeActionAdder;
-import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
@@ -91,7 +91,8 @@ public final class StandardRangeActionDeserializer {
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.INITIAL_SETPOINT:
-                if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 7) {
+                if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                    || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 7) {
                     throw new OpenRaoException("initialSetpoint field is no longer used since CRAC version 2.8, the value is now directly determined from the network");
                 } else {
                     jsonParser.nextToken();
@@ -123,7 +124,8 @@ public final class StandardRangeActionDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, StandardRangeActionAdder<?> standardRangeActionAdder) throws IOException {
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
+        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2
+            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));

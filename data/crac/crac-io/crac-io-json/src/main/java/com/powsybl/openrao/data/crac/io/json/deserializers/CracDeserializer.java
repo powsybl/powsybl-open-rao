@@ -7,19 +7,19 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,13 +192,22 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     private static void checkVersion(String cracVersion) {
 
         if (JsonSerializationConstants.getPrimaryVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) > JsonSerializationConstants.getPrimaryVersionNumber(cracVersion)) {
-            LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", JsonSerializationConstants.CRAC_IO_VERSION, cracVersion);
+            LOGGER.warn(
+                "CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file",
+                JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
+            );
         }
         if (JsonSerializationConstants.getPrimaryVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) < JsonSerializationConstants.getPrimaryVersionNumber(cracVersion)) {
-            throw new OpenRaoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading open-rao version", JsonSerializationConstants.CRAC_IO_VERSION, cracVersion));
+            throw new OpenRaoException(String.format(
+                "CRAC importer %s cannot handle json CRAC version %s, consider upgrading open-rao version",
+                JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
+            ));
         }
         if (JsonSerializationConstants.getSubVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) < JsonSerializationConstants.getSubVersionNumber(cracVersion)) {
-            LOGGER.warn("CRAC importer {} might not be compatible with json CRAC version {}, consider upgrading open-rao version", JsonSerializationConstants.CRAC_IO_VERSION, cracVersion);
+            LOGGER.warn(
+                "CRAC importer {} might not be compatible with json CRAC version {}, consider upgrading open-rao version",
+                JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
+            );
         }
 
         // otherwise, all is good !

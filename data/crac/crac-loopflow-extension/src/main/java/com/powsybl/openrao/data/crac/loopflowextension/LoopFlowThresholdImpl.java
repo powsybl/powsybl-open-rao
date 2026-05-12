@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.crac.loopflowextension;
 
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
  * Cnec extension for loop flow

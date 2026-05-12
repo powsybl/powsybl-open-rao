@@ -26,8 +26,8 @@ Static ICS data defines a remedial action's generator's static constraints:
 | **Maximum negative power gradient [MW/h]** | Maximum negative power gradient for RA RD in MW/h.                                                             |
 | **Lead time [h]**                          | Lead time for activation of RA RD in h.                                                                        |
 | **Lag time [h]**                           | Lag time for deactivation of RA RD in h.                                                                       |
-| Startup allowed                            | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
-| Shutdown allowed                           | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
+| **Shutdown allowed**                       | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
+| **Startup allowed**                        | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
 
 ### Series
 
@@ -42,4 +42,34 @@ RDP+, positive values), and the Pmin of redispatching (Pmin_RD). These values ar
 | Node   | UCT code of the node described with 8 characters.                                        |
 | Weight | Weight for GSK at respective node.  Sum of weights for all nodes in one GSK should be 1. |
 
-![ICS Importer](../../_static/img/ics-importer.png)
+
+## Read ICS data
+
+```java
+InputStream staticIcs = new FileInputStream("path/to/ics/static.csv");
+InputStream seriesIcs = new FileInputStream("path/to/ics/series.csv");
+InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
+IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
+```
+
+## ICS data to to create TimeCoupledRaoInput
+
+![ICS Importer](../../_static/img/icsdata.png)_
+
+```java
+        Network network1 = LazyNetwork.of("networkPath");
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                // other timestamps
+            ));
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static.csv"),
+            getClass().getResourceAsStream("/ics/series.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            timestampsToRun);
+
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, costUp, costDown, exportDirectory);
+```

@@ -7,16 +7,20 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_APPROXIMATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VIOLATION_COST;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.stringToPtdfApproximation;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -40,7 +44,7 @@ public final class JsonLoopFlowParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case PTDF_APPROXIMATION -> loopFlowParameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
                 case CONSTRAINT_ADJUSTMENT_COEFFICIENT -> {
                     jsonParser.nextToken();
@@ -50,7 +54,7 @@ public final class JsonLoopFlowParameters {
                     jsonParser.nextToken();
                     loopFlowParameters.setViolationCost(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.currentName()));
             }
         }
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);

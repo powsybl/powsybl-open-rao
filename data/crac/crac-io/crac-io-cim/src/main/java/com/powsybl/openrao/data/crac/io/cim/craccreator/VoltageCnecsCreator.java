@@ -7,16 +7,16 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
+import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
+import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
+import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,9 +106,13 @@ public class VoltageCnecsCreator {
         elementsAndNominalV.forEach((key, value) -> {
             VoltageThreshold threshold = thresholdPerNominalV.get(value);
             if (threshold == null) {
-                cracCreationContext.addVoltageCnecCreationContext(
-                    VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(key), instantId, null, ImportStatus.INCOMPLETE_DATA, String.format("the threshold for its nominalV (%.2f) was not defined.", value))
-                );
+                cracCreationContext.addVoltageCnecCreationContext(VoltageCnecCreationContext.notImported(
+                    networkElementNativeIdPerId.get(key),
+                    instantId,
+                    null,
+                    ImportStatus.INCOMPLETE_DATA,
+                    String.format("the threshold for its nominalV (%.2f) was not defined.", value)
+                ));
                 return;
             }
             if (!filteredContingencies.isEmpty()) {
@@ -135,13 +139,20 @@ public class VoltageCnecsCreator {
                 .withMonitored()
                 .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.getMin()).withMax(threshold.getMax()).add()
                 .add();
-            cracCreationContext.addVoltageCnecCreationContext(
-                VoltageCnecCreationContext.imported(networkElementNativeIdPerId.get(networkElementId), instantId, contingencyNativeNamePerId.get(contingencyId), cnecId)
-            );
+            cracCreationContext.addVoltageCnecCreationContext(VoltageCnecCreationContext.imported(
+                networkElementNativeIdPerId.get(networkElementId),
+                instantId,
+                contingencyNativeNamePerId.get(contingencyId),
+                cnecId
+            ));
         } catch (OpenRaoException e) {
-            cracCreationContext.addVoltageCnecCreationContext(
-                VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(networkElementId), instantId, contingencyNativeNamePerId.get(contingencyId), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
-            );
+            cracCreationContext.addVoltageCnecCreationContext(VoltageCnecCreationContext.notImported(
+                networkElementNativeIdPerId.get(networkElementId),
+                instantId,
+                contingencyNativeNamePerId.get(contingencyId),
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                e.getMessage()
+            ));
         }
     }
 }

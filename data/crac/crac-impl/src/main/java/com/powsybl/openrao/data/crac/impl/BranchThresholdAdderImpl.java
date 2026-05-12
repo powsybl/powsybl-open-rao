@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 
 import java.util.Objects;

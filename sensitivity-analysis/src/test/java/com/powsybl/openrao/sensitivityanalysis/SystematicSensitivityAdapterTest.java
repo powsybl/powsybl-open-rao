@@ -7,20 +7,20 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -122,7 +122,14 @@ class SystematicSensitivityAdapterTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            appliedRemedialActions,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            crac.getOutageInstant()
+        );
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
@@ -199,7 +206,14 @@ class SystematicSensitivityAdapterTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            appliedRemedialActions,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            crac.getOutageInstant()
+        );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
 
@@ -227,7 +241,14 @@ class SystematicSensitivityAdapterTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            appliedRemedialActions,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            crac.getOutageInstant()
+        );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
     }
 }

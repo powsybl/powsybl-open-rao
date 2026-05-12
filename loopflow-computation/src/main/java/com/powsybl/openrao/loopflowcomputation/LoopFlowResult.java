@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 
 import java.util.EnumMap;
 import java.util.HashMap;

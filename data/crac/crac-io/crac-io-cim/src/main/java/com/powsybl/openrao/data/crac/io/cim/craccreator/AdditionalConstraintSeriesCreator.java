@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.io.cim.xsd.AdditionalConstraintRegisteredResource;
-import com.powsybl.openrao.data.crac.io.cim.xsd.AdditionalConstraintSeries;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
+import com.powsybl.openrao.data.crac.io.cim.xsd.AdditionalConstraintRegisteredResource;
+import com.powsybl.openrao.data.crac.io.cim.xsd.AdditionalConstraintSeries;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
@@ -30,7 +30,12 @@ public class AdditionalConstraintSeriesCreator {
     private String contingencyId;
     private String cimSerieId;
 
-    public AdditionalConstraintSeriesCreator(Crac crac, Network network, AdditionalConstraintSeries additionalConstraintSerie, String contingencyId, String cimSerieId, CimCracCreationContext cracCreationContext) {
+    public AdditionalConstraintSeriesCreator(Crac crac,
+                                             Network network,
+                                             AdditionalConstraintSeries additionalConstraintSerie,
+                                             String contingencyId,
+                                             String cimSerieId,
+                                             CimCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
         this.additionalConstraintSerie = additionalConstraintSerie;
@@ -59,7 +64,13 @@ public class AdditionalConstraintSeriesCreator {
         for (AdditionalConstraintRegisteredResource rr : additionalConstraintSerie.getRegisteredResource()) {
             String networkElement = rr.getMRID().getValue();
             if (Objects.isNull(network.getVoltageLevel(networkElement))) {
-                this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not a Voltage Level", networkElement)));
+                this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                    additionalConstraintSerieId,
+                    contingencyId,
+                    cimSerieId,
+                    ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                    String.format("%s is not a Voltage Level", networkElement)
+                ));
                 return null;
             }
             String marketObjectStatus = rr.getMarketObjectStatusStatus();
@@ -68,12 +79,20 @@ public class AdditionalConstraintSeriesCreator {
             } else if (marketObjectStatus.equals(CimConstants.EXPORTING_ELEMENT)) {
                 angleCnecAdder.withExportingNetworkElement(networkElement);
             } else {
-                this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong market object status : %s", marketObjectStatus)));
+                this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                    additionalConstraintSerieId,
+                    contingencyId,
+                    cimSerieId,
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Wrong market object status : %s", marketObjectStatus)
+                ));
                 return null;
             }
         }
 
-        this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.imported(additionalConstraintSerieId, contingencyId, cimSerieId, ""));
+        this.cracCreationContext.addAngleCnecCreationContext(
+            AngleCnecCreationContext.imported(additionalConstraintSerieId, contingencyId, cimSerieId, "")
+        );
         return angleCnecAdder.add();
     }
 
@@ -81,22 +100,45 @@ public class AdditionalConstraintSeriesCreator {
         String additionalConstraintSerieId = additionalConstraintSerie.getMRID();
         // Read business type
         if (!additionalConstraintSerie.getBusinessType().equals(CimConstants.PHASE_SHIFT_ANGLE)) {
-            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong businessType: %s", additionalConstraintSerie.getBusinessType())));
+            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                additionalConstraintSerieId,
+                contingencyId,
+                cimSerieId,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong businessType: %s", additionalConstraintSerie.getBusinessType())
+            ));
             return false;
         }
         // Check measurement unit
         if (!additionalConstraintSerie.getMeasurementUnitName().equals(CimConstants.DEGREE)) {
-            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong measurement unit : %s", additionalConstraintSerie.getMeasurementUnitName())));
+            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                additionalConstraintSerieId,
+                contingencyId,
+                cimSerieId,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong measurement unit : %s", additionalConstraintSerie.getMeasurementUnitName())
+            ));
             return false;
         }
         // Check number of registered resources
         if (additionalConstraintSerie.getRegisteredResource().size() != 2) {
-            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong number of registered resources : %s instead of 2", additionalConstraintSerie.getRegisteredResource().size())));
+            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                additionalConstraintSerieId,
+                contingencyId,
+                cimSerieId,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong number of registered resources : %s instead of 2", additionalConstraintSerie.getRegisteredResource().size())
+            ));
             return false;
         }
         // Check that quantity is defined
         if (Objects.isNull(additionalConstraintSerie.getQuantityQuantity())) {
-            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(additionalConstraintSerieId, contingencyId, cimSerieId, ImportStatus.INCOMPLETE_DATA, "Missing quantity"));
+            this.cracCreationContext.addAngleCnecCreationContext(AngleCnecCreationContext.notImported(
+                additionalConstraintSerieId,
+                contingencyId,
+                cimSerieId,
+                ImportStatus.INCOMPLETE_DATA,
+                "Missing quantity"));
             return false;
         }
         return true;

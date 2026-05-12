@@ -16,7 +16,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMa
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.COSTLY_MIN_MARGIN_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_PENALTY;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_THRESHOLD;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -43,7 +45,11 @@ final class JsonMinMarginsParameters {
             switch (jsonParser.getCurrentName()) {
                 case SHIFTED_VIOLATION_PENALTY -> minMarginsParameters.setShiftedViolationPenalty(jsonParser.getValueAsDouble());
                 case SHIFTED_VIOLATION_THRESHOLD -> minMarginsParameters.setShiftedViolationThreshold(jsonParser.getValueAsDouble());
-                default -> throw new OpenRaoException(String.format("Cannot deserialize min margins parameters: unexpected field in %s (%s)", COSTLY_MIN_MARGIN_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize min margins parameters: unexpected field in %s (%s)",
+                    COSTLY_MIN_MARGIN_PARAMETERS,
+                    jsonParser.getCurrentName())
+                );
             }
             searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
         }

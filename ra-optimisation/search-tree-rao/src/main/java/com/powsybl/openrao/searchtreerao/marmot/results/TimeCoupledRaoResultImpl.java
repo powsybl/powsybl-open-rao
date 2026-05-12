@@ -21,8 +21,8 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
@@ -46,7 +46,9 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
 
-    public TimeCoupledRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<? extends RaoResult> raoResultPerTimestamp) {
+    public TimeCoupledRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult,
+                                    ObjectiveFunctionResult finalGlobalObjectiveFunctionResult,
+                                    TemporalData<? extends RaoResult> raoResultPerTimestamp) {
         this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
         this.finalGlobalObjectiveFunctionResult = finalGlobalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;
@@ -164,7 +166,8 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        throw new OpenRaoException("Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
+        throw new OpenRaoException("Calling getVirtualCost with an instant and a name alone is ambiguous. " +
+            "For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
     }
 
     @Override
@@ -225,7 +228,9 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public String getExecutionDetails() {
         List<String> executionDetails = new ArrayList<>();
-        getTimestamps().forEach(timestamp -> executionDetails.add(timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + ": " + raoResultPerTimestamp.getData(timestamp).orElseThrow().getExecutionDetails()));
+        getTimestamps().forEach(timestamp -> executionDetails.add(
+            timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + ": " + raoResultPerTimestamp.getData(timestamp).orElseThrow().getExecutionDetails()
+        ));
         return String.join(" - ", executionDetails);
     }
 

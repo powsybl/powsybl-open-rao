@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ public final class InstantArrayDeserializer {
             String instantId = null;
             InstantKind instantKind = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         instantId = jsonParser.nextTextValue();
                         break;
@@ -37,7 +37,7 @@ public final class InstantArrayDeserializer {
                         instantKind = JsonSerializationConstants.deseralizeInstantKind(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in Instant: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in Instant: " + jsonParser.currentName());
                 }
             }
             crac.newInstant(instantId, instantKind);

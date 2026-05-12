@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.openrao.commons.EICode;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.openrao.commons.EICode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -40,7 +40,7 @@ class UsageRuleTest {
     public static class OnInstantMock implements OnInstant {
         private final Instant instant;
 
-        public OnInstantMock(Instant instant) {
+        OnInstantMock(Instant instant) {
             this.instant = instant;
         }
 
@@ -53,7 +53,7 @@ class UsageRuleTest {
     public static class OnContingencyStateMock implements OnContingencyState {
         private final State state;
 
-        public OnContingencyStateMock(State state) {
+        OnContingencyStateMock(State state) {
             this.state = state;
         }
 
@@ -77,7 +77,7 @@ class UsageRuleTest {
         private final Instant instant;
         private final FlowCnec flowCnec;
 
-        public OnConstraintMock(Instant instant, FlowCnec flowCnec) {
+        OnConstraintMock(Instant instant, FlowCnec flowCnec) {
             this.instant = instant;
             this.flowCnec = flowCnec;
         }
@@ -98,7 +98,7 @@ class UsageRuleTest {
         private final Country country;
         private final Contingency contingency;
 
-        public OnFlowConstraintInCountryMock(Instant instant, Country country, Contingency contingency) {
+        OnFlowConstraintInCountryMock(Instant instant, Country country, Contingency contingency) {
             this.instant = instant;
             this.country = country;
             this.contingency = contingency;

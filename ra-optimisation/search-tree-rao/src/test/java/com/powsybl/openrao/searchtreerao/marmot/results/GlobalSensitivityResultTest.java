@@ -64,14 +64,21 @@ class GlobalSensitivityResultTest {
 
     @Test
     void testSensitivityStatusWithFailure() {
-        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1, TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2, TestsUtils.TIMESTAMP_3, sensitivityResultTimestamp3)));
+        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, sensitivityResultTimestamp3
+        )));
         assertEquals(ComputationStatus.FAILURE, globalSensitivityResult.getSensitivityStatus());
         assertEquals(ComputationStatus.FAILURE, globalSensitivityResult.getSensitivityStatus());
     }
 
     @Test
     void testComputationStatusWithPartialFailure() {
-        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1, TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2)));
+        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2
+        )));
         assertEquals(ComputationStatus.PARTIAL_FAILURE, globalSensitivityResult.getSensitivityStatus());
         assertEquals(ComputationStatus.PARTIAL_FAILURE, globalSensitivityResult.getSensitivityStatus());
     }
@@ -85,7 +92,11 @@ class GlobalSensitivityResultTest {
 
     @Test
     void testSensitivityValue() {
-        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1, TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2, TestsUtils.TIMESTAMP_3, sensitivityResultTimestamp3)));
+        SensitivityResult globalSensitivityResult = new GlobalSensitivityResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, sensitivityResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, sensitivityResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, sensitivityResultTimestamp3
+        )));
         assertEquals(15., globalSensitivityResult.getSensitivityValue(flowCnecTimestamp1, TwoSides.ONE, pstRangeActionTimestamp1, Unit.MEGAWATT));
         assertEquals(30., globalSensitivityResult.getSensitivityValue(flowCnecTimestamp2, TwoSides.ONE, pstRangeActionTimestamp2, Unit.MEGAWATT));
         assertEquals(45., globalSensitivityResult.getSensitivityValue(flowCnecTimestamp3, TwoSides.ONE, pstRangeActionTimestamp3, Unit.MEGAWATT));

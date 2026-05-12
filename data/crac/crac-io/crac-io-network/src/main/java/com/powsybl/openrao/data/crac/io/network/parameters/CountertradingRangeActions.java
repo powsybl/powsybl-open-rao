@@ -11,12 +11,13 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 
 /**
  * Adds counter-trading remedial actions with a given list of countries.
@@ -24,7 +25,7 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CountertradingRangeActions extends AbstractCountriesFilter {
-    private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
+    private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate = (injection, instant, c) -> true;
     private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
     private ZonalData<SensitivityVariableSet> glsks = null;
@@ -37,12 +38,12 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
      * Set the function that indicates if a given injection should be included in the RA.
      * (Injections included in Redispatch RAs are automatically excluded)
      */
-    public void setInjectionPredicate(BiPredicate<Injection<?>, Instant> injectionPredicate) {
+    public void setInjectionPredicate(TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate) {
         this.injectionPredicate = injectionPredicate;
     }
 
-    public boolean shouldIncludeInjection(Injection<?> injection, Instant instant) {
-        return injectionPredicate.test(injection, instant);
+    public boolean shouldIncludeInjection(Injection<?> injection, Instant instant, NetworkCracCreationContext context) {
+        return injectionPredicate.apply(injection, instant, context);
     }
 
     /**

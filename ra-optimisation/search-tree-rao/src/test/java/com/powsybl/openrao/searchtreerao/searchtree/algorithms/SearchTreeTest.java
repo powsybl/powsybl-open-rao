@@ -10,6 +10,9 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -20,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -37,14 +39,15 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,13 +56,30 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -350,6 +370,8 @@ class SearchTreeTest {
     void runAndIterateOnTreeStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
+        NetworkActionParameters networkActionParameters = searchTreeParameters.getNetworkActionParameters();
+        when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of());
 
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
@@ -373,7 +395,8 @@ class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.getFirst()), eq(false));
+        // both networkAction1 and the predefined combination return childLeaf1 with a higher cost than childLeaf2
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), any(), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
@@ -529,7 +552,8 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), " +
+            "no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -555,7 +579,8 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), " +
+            "no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -577,8 +602,6 @@ class SearchTreeTest {
 
     @Test
     void testCostSatisfiesStopCriterion() {
-        setSearchTreeParameters();
-
         // MIN_COST
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         assertTrue(searchTree.costSatisfiesStopCriterion(0));
@@ -605,7 +628,6 @@ class SearchTreeTest {
     }
 
     private void setUpForVirtualLogs() {
-        setSearchTreeParameters();
         setSearchTreeInput();
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
 
@@ -633,7 +655,11 @@ class SearchTreeTest {
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.getFirst());
+        assertEquals(
+            "Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, " +
+                "element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            logs.getFirst()
+        );
     }
 
     @Test
@@ -653,8 +679,15 @@ class SearchTreeTest {
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
-        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.getFirst().toString());
-        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
+        assertEquals(
+            "[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost",
+            business.list.getFirst().toString()
+        );
+        assertEquals(
+            "[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, " +
+                "element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            business.list.get(1).toString()
+        );
     }
 
     @Test

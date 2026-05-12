@@ -48,7 +48,11 @@ class GlobalRangeActionActivationResultTest {
         RangeActionActivationResult rangeActionActivationResultTimestamp2 = TestsUtils.mockRangeActionActivationResult(stateTimestamp2, pstRangeActionTimestamp2, 8, 12.11);
         RangeActionActivationResult rangeActionActivationResultTimestamp3 = TestsUtils.mockRangeActionActivationResult(stateTimestamp3, pstRangeActionTimestamp3, 1, 0.55);
 
-        globalRangeActionActivationResult = new GlobalRangeActionActivationResult(new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1, TestsUtils.TIMESTAMP_2, rangeActionActivationResultTimestamp2, TestsUtils.TIMESTAMP_3, rangeActionActivationResultTimestamp3)));
+        globalRangeActionActivationResult = new GlobalRangeActionActivationResult(new TemporalDataImpl<>(Map.of(
+            TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1,
+            TestsUtils.TIMESTAMP_2, rangeActionActivationResultTimestamp2,
+            TestsUtils.TIMESTAMP_3, rangeActionActivationResultTimestamp3
+        )));
     }
 
     @Test

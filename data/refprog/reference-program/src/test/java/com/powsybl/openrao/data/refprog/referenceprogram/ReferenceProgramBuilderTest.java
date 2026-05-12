@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.EICode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,8 +46,8 @@ class ReferenceProgramBuilderTest {
     }
 
     @Test
-    void testDanglingLines() {
-        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
+    void testBoundaryLines() {
+        Network network = Network.read("TestCaseBoundary.xiidm", getClass().getResourceAsStream("/TestCaseBoundary.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, referenceProgram.getGlobalNetPosition(eiCodeBelgium), DOUBLE_TOLERANCE);

@@ -9,7 +9,11 @@ package com.powsybl.openrao.data.refprog.referenceprogram;
 
 import com.powsybl.openrao.commons.EICode;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -60,11 +64,16 @@ public class ReferenceProgram {
     }
 
     public double getExchange(EICode areaOrigin, EICode areaExtremity) {
-        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).toList();
+        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream()
+            .filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity))
+            .toList();
         if (!entries.isEmpty()) {
             return entries.stream().mapToDouble(ReferenceExchangeData::getFlow).sum();
         } else {
-            return -referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaExtremity, areaOrigin)).mapToDouble(ReferenceExchangeData::getFlow).sum();
+            return -referenceExchangeDataList.stream()
+                .filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaExtremity, areaOrigin))
+                .mapToDouble(ReferenceExchangeData::getFlow)
+                .sum();
         }
     }
 

@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api.cnec;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
 import java.util.Set;

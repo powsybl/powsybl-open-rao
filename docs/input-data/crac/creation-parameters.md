@@ -21,7 +21,7 @@ Some examples:
 CracCreationParameters parameters = new CracCreationParameters();
 
 // Writing it to an output stream
-OutputStream outputStreeam = ...
+OutputStream outputStream = ...
 JsonCracCreationParameters.write(parameters, outputStream);
 
 // Reading an object from a file
@@ -485,7 +485,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 
 ## Flow Based Constraint-specific parameters
 
-The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need additional information to be converted to the internal OpenRAO CRAC format. 
 The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### timestamp
@@ -493,6 +493,10 @@ The user can define a [FbConstraintCracCreationParameters](https://github.com/po
 This parameter allows the user to define the timestamp for which to create the CRAC.
 
 In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+### internal-hvdcs
+
+This parameter allows the user to add in the CRAC creation parameters some data extracted from [VirtualHubs file](../specific-input-data/virtual-hubs.md#internal-hvdcs) and required in Core CC to properly import German HVDC remedial actions.
 
 
 ### Full FbConstraint example
@@ -502,10 +506,13 @@ In the json file, the timestamp has to be defined using the ISO 8601 standard ex
 ```java
 // Create CracCreationParameters and set global parameters
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
-// Create NC-specific parameters
+// Create FbConstraint-specific parameters
 FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
 // Add timestamp
 fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Read HVDC-related data from VirtualHubs file and add it to FbConstraint-specific parameters
+VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(...);
+fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
 // Add FbConstraint extension to CracCreationParameters
 cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParameters);
 ```
@@ -517,7 +524,20 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "FbConstraintCracCreatorParameters" : {
-      "timestamp": "2019-01-08T12:00+02:00"
+      "timestamp": "2019-01-08T12:00+02:00",
+      "internal-hvdcs" : [ {
+        "converters" : [ {
+          "node" : "NODE__1A",
+          "station" : "Station1"
+        }, {
+          "node" : "NODE__1B",
+          "station" : "Station2"
+        } ],
+        "lines" : [ {
+          "from" : "NODE__1A",
+          "to" : "NODE__1B"
+        } ]
+      } ]
     }
   }
 }

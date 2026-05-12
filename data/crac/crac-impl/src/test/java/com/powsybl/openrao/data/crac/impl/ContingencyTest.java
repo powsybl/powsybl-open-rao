@@ -7,16 +7,24 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.contingency.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.contingency.BranchContingency;
+import com.powsybl.contingency.BusbarSectionContingency;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementFactory;
+import com.powsybl.contingency.GeneratorContingency;
+import com.powsybl.contingency.LineContingency;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -97,13 +105,13 @@ class ContingencyTest {
     }
 
     @Test
-    void testApplyOnDanglingLine() {
+    void testApplyOnBoundaryLine() {
         network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
         Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElementFactory.create(network.getIdentifiable("BBE2AA1  XLI_OB1B 1"))));
         assertEquals(1, contingencyImpl.getElements().size());
-        assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
+        assertTrue(network.getBoundaryLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
         contingencyImpl.isValid(network);
         contingencyImpl.toModification().apply(network, computationManager);
-        assertFalse(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
+        assertFalse(network.getBoundaryLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
     }
 }

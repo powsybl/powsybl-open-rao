@@ -7,33 +7,44 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
-import com.powsybl.contingency.*;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.contingency.BranchContingency;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -255,7 +266,7 @@ class SystematicSensitivityResultTest {
     }
 
     @Test
-        // Test case where N succeeds and all N-1 fail
+    // Test case where N succeeds and all N-1 fail
     void testPartialContingencyFailures() {
         setUpWith12Nodes();
 
@@ -404,7 +415,9 @@ class SystematicSensitivityResultTest {
 
         sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(contingency.getId(), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(contingency.getId()),
+            List.of(),
             List.of()
         );
 
@@ -431,7 +444,9 @@ class SystematicSensitivityResultTest {
 
         SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(contingency.getId(), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(contingency.getId()),
+            List.of(),
             List.of()
         );
 

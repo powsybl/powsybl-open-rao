@@ -10,15 +10,15 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.LoadActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 
 import java.util.List;
@@ -36,7 +36,8 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     private final Double initialSetpoint;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, Double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+                             List<StandardRange> ranges, Double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys,
+                             Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;

@@ -54,6 +54,7 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+        raoResult.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
 
         // --------------------
         // --- Cost results ---
@@ -130,19 +131,19 @@ public final class ExhaustiveRaoResultCreation {
             NetworkActionResult nar = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
 
             switch (networkAction.getId()) {
-                case "complexNetworkActionId" :
+                case "complexNetworkActionId":
                     // free to use preventive, activated
                     nar.addActivationForState(crac.getPreventiveState());
                     break;
-                case "injectionSetpointRaId" :
+                case "injectionSetpointRaId":
                     // automaton, activated
                     nar.addActivationForState(crac.getState("contingency2Id", autoInstant));
                     break;
-                case "pstSetpointRaId" :
+                case "pstSetpointRaId":
                     // forced in curative, activated
                     nar.addActivationForState(crac.getState("contingency1Id", curativeInstant));
                     break;
-                case "switchPairRaId" :
+                case "switchPairRaId":
                     // available in curative, not activated
                     break;
                 default:

@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
 import java.time.OffsetDateTime;
@@ -48,10 +48,8 @@ public final class LinearProblemIdGenerator {
     private static final String MNEC_FLOW = "mnecflow";
     private static final String OPTIMIZE_CNEC = "optimizecnec";
     private static final String MAX_RA = "maxra";
-    private static final String MAX_TSO = "maxtso";
     private static final String MAX_RA_PER_TSO = "maxrapertso";
     private static final String MAX_PST_PER_TSO = "maxpstpertso";
-    private static final String TSO_RA_USED = "tsoraused";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
@@ -66,12 +64,14 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_STATE_FROM = "generatorstatefrom";
     private static final String GENERATOR_STATE_TO = "generatorstateto";
     private static final String GENERATOR_POWER_OFF = "generatorpoweroff";
-    private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
     private static final String GENERATOR_STARTINGUP = "generatorstartingup";
     private static final String GENERATOR_SHUTTINGDOWN = "generatorshuttingdown";
+    private static final String PROHIBIT_GENERATOR_SHUTTINGDOWN = "prohibitgeneratorshuttingdown";
+    private static final String PROHIBIT_GENERATOR_STARTINGUP = "prohibitgeneratorstartingup";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final String ON_FIRST_TIMESTAMP = "onfirsttimestamp";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -130,8 +130,18 @@ public final class LinearProblemIdGenerator {
         return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, CONSTRAINT_SUFFIX);
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction,
+                                                            State state,
+                                                            LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration,
+                                                            LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(
+            rangeAction.getId(),
+            state.getId(),
+            TAP_VARIATION_BINARY,
+            preperimeterOrPreviousIteration.toString().toLowerCase(),
+            upwardOrDownward.toString().toLowerCase(),
+            CONSTRAINT_SUFFIX
+        );
     }
 
     public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state
@@ -207,24 +217,12 @@ public final class LinearProblemIdGenerator {
         return formatName(MAX_RA, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxTsoConstraintId(State state) {
-        return formatName(MAX_TSO, state.getId(), CONSTRAINT_SUFFIX);
-    }
-
     public static String maxRaPerTsoConstraintId(String operator, State state) {
         return formatName(MAX_RA_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String maxPstPerTsoConstraintId(String operator, State state) {
         return formatName(MAX_PST_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
-    }
-
-    public static String tsoRaUsedVariableId(String operator, State state) {
-        return formatName(TSO_RA_USED, operator, state.getId(), VARIABLE_SUFFIX);
-    }
-
-    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
-        return formatName(TSO_RA_USED, operator, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state) {
@@ -287,7 +285,10 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), UNIQUE_GENERATOR_STATE, generatorId, CONSTRAINT_SUFFIX);
     }
 
-    public static String generatorStateTransitionVariableId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo, OffsetDateTime timestamp) {
+    public static String generatorStateTransitionVariableId(String generatorId,
+                                                            LinearProblem.GeneratorState generatorStateFrom,
+                                                            LinearProblem.GeneratorState generatorStateTo,
+                                                            OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_TRANSITION, generatorId, generatorStateFrom.toString(), generatorStateTo.toString(), VARIABLE_SUFFIX);
     }
 
@@ -317,5 +318,21 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorShuttingDownConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
         return formatName(GENERATOR_SHUTTINGDOWN, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorShuttingDownConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_SHUTTINGDOWN, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorShuttingDownOnFirstConstraintConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_SHUTTINGDOWN, ON_FIRST_TIMESTAMP, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorStartingUpConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_STARTINGUP, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorStartingUpOnFirstTimestampConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_STARTINGUP, ON_FIRST_TIMESTAMP, generatorId, CONSTRAINT_SUFFIX);
     }
 }

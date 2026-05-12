@@ -7,9 +7,17 @@
 
 package com.powsybl.openrao.data.crac.api.networkaction;
 
-import com.powsybl.action.*;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.action.Action;
+import com.powsybl.action.BoundaryLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -34,7 +42,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @param network Network that serves as reference for the impact.
      * @return True if the remedial action would have an impact on the network.
      */
-    boolean hasImpactOnNetwork(final Network network);
+    boolean hasImpactOnNetwork(Network network);
 
     /**
      * Apply the action on a given network.
@@ -62,7 +70,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             } else {
                 // FIXME: Action equals is only implemented for Action currently used in Rao,
                 //  so the code above is not working for all Action but only for:
-                //  GeneratorAction, LoadAction, DanglingLineAction, ShuntCompensatorPositionAction,
+                //  GeneratorAction, LoadAction, BoundaryLineAction, ShuntCompensatorPositionAction,
                 //  PhaseTapChangerTapPositionAction, TerminalsConnectionAction, SwitchAction
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
                     if (otherElementaryAction instanceof SwitchPair) {
@@ -86,8 +94,8 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             return generatorAction.getGeneratorId();
         } else if (elementaryAction instanceof LoadAction loadAction) {
             return loadAction.getLoadId();
-        } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
-            return danglingLineAction.getDanglingLineId();
+        } else if (elementaryAction instanceof BoundaryLineAction boundaryLineAction) {
+            return boundaryLineAction.getBoundaryLineId();
         } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
             return shuntCompensatorPositionAction.getShuntCompensatorId();
         } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {

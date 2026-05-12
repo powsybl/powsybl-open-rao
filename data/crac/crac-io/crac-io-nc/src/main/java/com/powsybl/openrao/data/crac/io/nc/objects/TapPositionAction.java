@@ -13,7 +13,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record TapPositionAction(String mrid, String tapChangerId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
+public record TapPositionAction(String mrid, String tapChangerId, String propertyReference, boolean normalEnabled,
+                                String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
     public static TapPositionAction fromPropertyBag(PropertyBag propertyBag) {
         return new TapPositionAction(
             propertyBag.getId(NcConstants.TAP_POSITION_ACTION),

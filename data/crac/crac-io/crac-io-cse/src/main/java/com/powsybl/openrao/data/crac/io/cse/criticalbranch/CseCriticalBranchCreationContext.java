@@ -21,7 +21,16 @@ public class CseCriticalBranchCreationContext extends StandardCriticalBranchCrea
     }
 
     CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
-        super(criticalBranchReader.getCriticalBranchName(), criticalBranchReader.getNativeBranch(), criticalBranchReader.isBaseCase(), criticalBranchReader.getContingencyId(), criticalBranchReader.getCreatedCnecIds(), criticalBranchReader.isDirectionInverted(), criticalBranchReader.getImportStatus(), criticalBranchReader.getInvalidBranchReason());
+        super(
+            criticalBranchReader.getCriticalBranchName(),
+            criticalBranchReader.getNativeBranch(),
+            criticalBranchReader.isBaseCase(),
+            criticalBranchReader.getContingencyId(),
+            criticalBranchReader.getCreatedCnecIds(),
+            criticalBranchReader.isDirectionInverted(),
+            criticalBranchReader.getImportStatus(),
+            criticalBranchReader.getInvalidBranchReason()
+        );
         this.selected = criticalBranchReader.isSelected();
     }
 }

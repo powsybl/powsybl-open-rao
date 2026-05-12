@@ -124,13 +124,22 @@ public class CastorOneStateOnly {
 
             Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
             statesToOptimize.add(optPerimeter.getMainOptimizationState());
+            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+                optPerimeter.getFlowCnecs(),
+                optPerimeter.getLoopFlowCnecs(),
+                initialResults,
+                initialResults,
+                operatorsNotToOptimize,
+                raoParameters,
+                statesToOptimize
+            );
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())
                     .withOptimizationPerimeter(optPerimeter)
                     .withInitialFlowResult(initialResults)
                     .withPrePerimeterResult(initialResults)
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
+                    .withObjectiveFunction(objectiveFunction)
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();

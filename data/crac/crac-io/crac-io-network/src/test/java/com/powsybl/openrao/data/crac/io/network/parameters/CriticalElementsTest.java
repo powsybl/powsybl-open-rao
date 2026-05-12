@@ -90,21 +90,21 @@ class CriticalElementsTest extends AbstractTest {
         Contingency co2 = Mockito.mock(Contingency.class);
 
         // Default
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, null));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, co1));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, co2));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, null));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, co1));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, co2));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, null, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, co1, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, co2, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, null, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, co1, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b2, co2, null));
 
         // Custom function
-        parameters.setOptimizedMonitoredProvider((b, c) -> new CriticalElements.OptimizedMonitored(c == null, b == b1 || c == co2));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, null));
-        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b1, co1));
-        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b1, co2));
-        assertEquals(new CriticalElements.OptimizedMonitored(true, false), parameters.isOptimizedOrMonitored(b2, null));
-        assertEquals(new CriticalElements.OptimizedMonitored(false, false), parameters.isOptimizedOrMonitored(b2, co1));
-        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b2, co2));
+        parameters.setOptimizedMonitoredProvider((b, c, cc) -> new CriticalElements.OptimizedMonitored(c == null, b == b1 || c == co2));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, true), parameters.isOptimizedOrMonitored(b1, null, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b1, co1, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b1, co2, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(true, false), parameters.isOptimizedOrMonitored(b2, null, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(false, false), parameters.isOptimizedOrMonitored(b2, co1, null));
+        assertEquals(new CriticalElements.OptimizedMonitored(false, true), parameters.isOptimizedOrMonitored(b2, co2, null));
     }
 
     @Test

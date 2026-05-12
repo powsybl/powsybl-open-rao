@@ -164,6 +164,9 @@ class CracCreationReportTest {
 
         cracCreationReport.addSuccessfulImportMessage(crac);
         assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("CRAC was successfully imported with 3 contingencies, 4 FlowCNECs, 2 AngleCNECs, 1 VoltageCNECs and 3 remedial actions (1 range actions and 2 network actions).", cracCreationReport.getReport().get(0));
+        assertEquals(
+            "CRAC was successfully imported with 3 contingencies, 4 FlowCNECs, 2 AngleCNECs, 1 VoltageCNECs and 3 remedial actions (1 range actions and 2 network actions).",
+            cracCreationReport.getReport().get(0)
+        );
     }
 }

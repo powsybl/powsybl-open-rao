@@ -25,9 +25,11 @@ import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -40,11 +42,23 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
 
-import static com.powsybl.openrao.tests.utils.Helpers.*;
+import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
+import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
+import static com.powsybl.openrao.tests.utils.Helpers.importMonitoringGlskFile;
+import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
+import static com.powsybl.openrao.tests.utils.Helpers.importRaoResult;
+import static com.powsybl.openrao.tests.utils.Helpers.importRefProg;
+import static com.powsybl.openrao.tests.utils.Helpers.importUcteGlskFile;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -100,11 +114,19 @@ public final class CommonTestData {
         }
     }
 
-    public static void setMonitoringResult(MonitoringResult result) {
+    public static void setAngleMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
             CommonTestData.raoResult.addExtension(AngleExtension.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
+        }
+    }
+
+    public static void setVoltageMonitoringResult(MonitoringResult result) {
+        CommonTestData.monitoringResult = result;
+        if (CommonTestData.raoResult != null) {
+            // update RAO result with angle values
+            CommonTestData.raoResult = new RaoResultWithVoltageMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
         }
     }
 
@@ -301,6 +323,38 @@ public final class CommonTestData {
             offsetDateTime = importTimestampFromCracCreationParameters(cracFormat, cracCreationParameters);
         }
 
+        // Loopflow GLSK
+        // only work with UCTE GLSK files
+        if (loopflowGlskPath != null) {
+            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), offsetDateTime, network);
+        }
+
+        // Reference program
+        if (refProgPath != null) {
+            referenceProgram = importRefProg(getFile(refProgPath), offsetDateTime);
+        }
+
+        // Virtual hubs configuration
+        if (virtualHubsConfigPath != null) {
+            boolean virtualHubsUsed = false;
+            final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
+            if (referenceProgram != null && loopflowGlsks != null) {
+                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
+                loopflowGlsks.addAll(glskOfVirtualHubs);
+                virtualHubsUsed = true;
+            }
+            if (!virtualHubsConfiguration.getInternalHvdcs().isEmpty() && offsetDateTime != null && cracCreationParameters != null) {
+                final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
+                fbConstraintCracCreationParameters.setTimestamp(offsetDateTime);
+                fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
+                cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
+                virtualHubsUsed = true;
+            }
+            if (!virtualHubsUsed) {
+                throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file or provide a VirtualHubs file that contains internal-hvdcs element.");
+            }
+        }
+
         // Crac
         Pair<Crac, CracCreationContext> cracImportResult = importCrac(getFile(cracPath), network, cracCreationParameters);
         crac = cracImportResult.getLeft();
@@ -321,10 +375,8 @@ public final class CommonTestData {
             raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
-        // Loopflow GLSK
-        // only work with UCTE GLSK files
-        if (loopflowGlskPath != null) {
-            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), offsetDateTime, network);
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
 
         // Monitoring GLSK
@@ -332,35 +384,19 @@ public final class CommonTestData {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
         }
 
-        // Reference program
-        if (refProgPath != null) {
-            referenceProgram = importRefProg(getFile(refProgPath), offsetDateTime);
-        }
-
         // RaoResult
         if (raoResultPath != null) {
             raoResult = importRaoResult(getFile(raoResultPath));
         }
 
-        // Virtual hubs configuration
-        if (virtualHubsConfigPath != null) {
-            if (referenceProgram != null && loopflowGlsks != null) {
-                VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
-                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
-                loopflowGlsks.addAll(glskOfVirtualHubs);
-            } else {
-                throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
-            }
-        }
-
     }
 
     private static OffsetDateTime importTimestampFromCracCreationParameters(String cracFormat, CracCreationParameters cracCreationParameters) {
-        if (cracFormat.equals("CimCrac")) {
+        if ("CimCrac".equals(cracFormat)) {
             return cracCreationParameters.getExtension(CimCracCreationParameters.class).getTimestamp();
-        } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
+        } else if ("FlowBasedConstraintDocument".equals(cracFormat)) {
             return cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).getTimestamp();
-        } else if (cracFormat.equals("NC")) {
+        } else if ("NC".equals(cracFormat)) {
             return cracCreationParameters.getExtension(NcCracCreationParameters.class).getTimestamp();
         } else {
             return null;
@@ -369,15 +405,15 @@ public final class CommonTestData {
 
     private static void addTimestampToCracCreationParameters(String cracFormat, OffsetDateTime timestamp, CracCreationParameters cracCreationParameters) {
 
-        if (cracFormat.equals("CimCrac")) {
+        if ("CimCrac".equals(cracFormat)) {
             CimCracCreationParameters cimParams = new CimCracCreationParameters();
             cimParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParams);
-        } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
+        } else if ("FlowBasedConstraintDocument".equals(cracFormat)) {
             FbConstraintCracCreationParameters fbConstraintParams = new FbConstraintCracCreationParameters();
             fbConstraintParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParams);
-        } else if (cracFormat.equals("NC")) {
+        } else if ("NC".equals(cracFormat)) {
             NcCracCreationParameters csaParams = new NcCracCreationParameters();
             csaParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(NcCracCreationParameters.class, csaParams);
@@ -387,7 +423,7 @@ public final class CommonTestData {
     private static RaoParameters buildDefaultConfig() {
         try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
             return JsonRaoParameters.read(configStream);
-        } catch (Exception e) {
+        } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
     }

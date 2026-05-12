@@ -18,7 +18,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -57,14 +59,12 @@ class CracCreationParametersJsonTest {
         RaUsageLimits raUsageLimitsCurative = raUsageLimitsFromFile.get("curative");
         RaUsageLimits expectedLimitsPreventive = new RaUsageLimits();
         expectedLimitsPreventive.setMaxRa(3);
-        expectedLimitsPreventive.setMaxTso(5);
         expectedLimitsPreventive.setMaxRaPerTso(Map.of("FR", 4));
         expectedLimitsPreventive.setMaxTopoPerTso(Map.of("FR", 2));
         expectedLimitsPreventive.setMaxPstPerTso(Map.of("FR", 3));
         expectedLimitsPreventive.setMaxElementaryActionsPerTso(Map.of("FR", 10));
         RaUsageLimits expectedLimitsCurative = new RaUsageLimits();
         expectedLimitsCurative.setMaxRa(7);
-        expectedLimitsCurative.setMaxTso(2);
         expectedLimitsCurative.setMaxRaPerTso(Map.of("FR", 7));
         expectedLimitsCurative.setMaxTopoPerTso(Map.of("FR", 1));
         expectedLimitsCurative.setMaxPstPerTso(Map.of("FR", 5));

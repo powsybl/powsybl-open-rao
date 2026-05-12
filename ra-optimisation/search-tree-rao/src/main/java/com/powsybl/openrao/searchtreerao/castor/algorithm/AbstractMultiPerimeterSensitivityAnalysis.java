@@ -13,7 +13,11 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -84,7 +88,8 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         }
         OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
 
-        int oldThreadCount = openSensitivityAnalysisParameters.getThreadCount();
+        int oldThreadCount =
+            openSensitivityAnalysisParameters.getThreadCount();
         if (multiThreadedSensitivities) {
             openSensitivityAnalysisParameters.setThreadCount(MultithreadingParameters.getAvailableCPUs(raoParameters));
         }

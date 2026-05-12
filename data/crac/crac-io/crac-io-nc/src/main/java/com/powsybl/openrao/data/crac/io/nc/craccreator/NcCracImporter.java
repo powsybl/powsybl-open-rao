@@ -10,18 +10,25 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.io.nc.NcCrac;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.NcCrac;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
@@ -74,7 +81,12 @@ public class NcCracImporter implements Importer {
         return new NcCrac(tripleStoreNcProfile, keywordMap);
     }
 
-    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreNcProfile) throws IOException {
+    private static void importZipEntry(ZipEntry zipEntry,
+                                       ZipInputStream zipInputStream,
+                                       int maxSizeEntry,
+                                       Pattern keywordPattern,
+                                       Map<String, Set<String>> keywordMap,
+                                       TripleStore tripleStoreNcProfile) throws IOException {
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("NC crac import : import of file {}", zipEntry.getName());
         int currentSizeEntry = 0;
         File tempFile;

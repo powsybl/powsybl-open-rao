@@ -151,7 +151,7 @@ crac.newContingency()
 ⚪ **contingency elements**: list of 0 to N contingency elements  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element id**: must be the id of a PowSyBl network identifiable  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element type**: type of element in the network. Currently, PowSyBl handles: 
-GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, DANGLING_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
+GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, BOUNDARY_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
 THREE_WINDINGS_TRANSFORMER, LOAD, SWITCH, BATTERY, BUS, TIE_LINE. The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using: 
 `ContingencyElementFactory.create(network.getIdentifiable(id)).getType()`.  
 :::
@@ -822,7 +822,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Phase tap changer tap position action: setting the tap of a PST in the network to a specific position.
 - Generator action: setting the active power of a generator in the network to a specific value.
 - Load action: setting the active power of a load in the network to a specific value.
-- Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
+- Boundary line action: setting the active power of a [boundary line](inv:powsyblcore:*:*#boundary-line) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
 - AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a HVDC line in AC emulation is imported)
@@ -894,13 +894,13 @@ crac.newNetworkAction()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 	
-// dangling line action
+// boundary line action
 crac.newNetworkAction()
-	.withId("dangling-line-na-id")
+	.withId("boundary-line-na-id")
 	.withOperator("operator")
-	.newDanglingLineAction()
+	.newBoundaryLineAction()
 		.withActivePowerValue(260.0)
-		.withNetworkElement("dangling-line-id")
+		.withNetworkElement("boundary-line-id")
 		.add()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
@@ -1004,14 +1004,14 @@ crac.newNetworkAction()
       "activePowerValue" : 260.0
     } ]
   }, {
-    "id" : "dangling-line-action-na-id",
-    "name" : "dangling-line-action-na-id",
+    "id" : "boundary-line-action-na-id",
+    "name" : "boundary-line-action-na-id",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
-    "danglingLineActions" : [ {
-      "networkElementId" : "dangling-line-id",
+    "boundaryLineActions" : [ {
+      "networkElementId" : "boundary-line-id",
       "activePowerValue" : 260.0
     } ]
   }, {
@@ -1067,7 +1067,7 @@ crac.newNetworkAction()
 🔵 **load actions**: list of 0 to N LoadAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
-🔵 **dangling line action**: list of 0 to N DanglingLineAction  
+🔵 **boundary line action**: list of 0 to N BoundaryLineAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
 🔵 **shunt compensator position action**: list of 0 to N ShuntCompensatorPositionAction  

@@ -8,22 +8,24 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.io.nc.NcCrac;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.contingency.NcContingencyCreator;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
+import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.cnec.NcCnecCreator;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.contingency.NcContingencyCreator;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction.NcRemedialActionsCreator;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.*;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.PREVENTIVE_INSTANT;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -40,14 +42,28 @@ class NcCracCreator {
         this.network = network;
         NcCracCreationParameters ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
         OffsetDateTime offsetDateTime = null;
-        if (ncParameters != null) {
-            offsetDateTime = ncParameters.getTimestamp();
+        if (ncParameters == null) {
+            ncParameters = new NcCracCreationParameters();
         }
+
+        offsetDateTime = ncParameters.getTimestamp();
         this.creationContext = new NcCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
 
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for NC crac creator.");
+            creationContext.creationFailure();
+            return creationContext;
+        }
+
+        if (ncParameters.getCapacityCalculationRegion() == null) {
+            creationContext.getCreationReport().error("No Capacity Calculation region provided for the NC CRAC importer.");
+            creationContext.creationFailure();
+            return creationContext;
+        }
+
+        if (ncParameters.getCurativeInstants() == null || ncParameters.getCurativeInstants().isEmpty()) {
+            creationContext.getCreationReport().error("No curative instants defined for the NC CRAC importer.");
             creationContext.creationFailure();
             return creationContext;
         }
@@ -69,7 +85,10 @@ class NcCracCreator {
         crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT, InstantKind.AUTO);
-        List<String> sortedCurativeInstants = ncCracCreationParameters.getCurativeInstants().entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
+        List<String> sortedCurativeInstants = ncCracCreationParameters.getCurativeInstants().entrySet().stream()
+            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+            .map(Map.Entry::getKey)
+            .toList();
         sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 

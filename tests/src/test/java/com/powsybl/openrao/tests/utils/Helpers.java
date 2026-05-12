@@ -27,18 +27,29 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripNcCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
+import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripCimCracCreationContext;
+import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripCseCracCreationContext;
+import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripFbConstraintCreationContext;
+import com.powsybl.openrao.tests.utils.roundtripcrac.RoundTripNcCracCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Paths;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Properties;
@@ -198,11 +209,7 @@ public final class Helpers {
 
     public static File getFile(String path) {
         Objects.requireNonNull(path);
-        try {
-            return new File(path);
-        } catch (Exception e) {
-            throw new OpenRaoException(String.format("Could not load file %s", path));
-        }
+        return new File(path);
     }
 
     private static byte[] getBytesFromInputStream(InputStream inputStream) {

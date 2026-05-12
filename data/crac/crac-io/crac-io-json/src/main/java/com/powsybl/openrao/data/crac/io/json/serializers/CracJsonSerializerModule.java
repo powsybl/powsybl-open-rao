@@ -7,7 +7,15 @@
 
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
-import com.powsybl.action.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.action.BoundaryLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -16,10 +24,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
@@ -28,7 +32,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -61,7 +68,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
         this.addSerializer(GeneratorAction.class, new GeneratorActionSerializer());
         this.addSerializer(LoadAction.class, new LoadActionSerializer());
-        this.addSerializer(DanglingLineAction.class, new DanglingLineActionSerializer());
+        this.addSerializer(BoundaryLineAction.class, new BoundaryLineActionSerializer());
         this.addSerializer(ShuntCompensatorPositionAction.class, new ShuntCompensatorPositionActionSerializer());
         this.addSerializer(SwitchPair.class, new SwitchPairSerializer());
         this.addSerializer(Instant.class, new InstantSerializer());

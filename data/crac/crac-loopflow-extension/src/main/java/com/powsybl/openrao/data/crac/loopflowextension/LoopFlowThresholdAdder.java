@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.loopflowextension;
 
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.commons.extensions.ExtensionAdder;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

@@ -7,9 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -18,35 +17,29 @@ class MarketAreaTest {
     @Test
     void checkThatMarketAreaIsCorrectlyCreated() {
         MarketArea myMarketArea = new MarketArea("AreaCode", "AreaEic", true, false);
-        assertEquals("AreaCode", myMarketArea.code());
-        assertEquals("AreaEic", myMarketArea.eic());
-        assertTrue(myMarketArea.isMcParticipant());
-        assertFalse(myMarketArea.isAhc());
+        Assertions.assertThat(myMarketArea.code()).isEqualTo("AreaCode");
+        Assertions.assertThat(myMarketArea.eic()).isEqualTo("AreaEic");
+        Assertions.assertThat(myMarketArea.isMcParticipant()).isTrue();
+        Assertions.assertThat(myMarketArea.isAhc()).isFalse();
 
         MarketArea myOtherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false, true);
-        assertEquals("OtherAreaCode", myOtherMarketArea.code());
-        assertEquals("OtherAreaEic", myOtherMarketArea.eic());
-        assertFalse(myOtherMarketArea.isMcParticipant());
-        assertTrue(myOtherMarketArea.isAhc());
+        Assertions.assertThat(myOtherMarketArea.code()).isEqualTo("OtherAreaCode");
+        Assertions.assertThat(myOtherMarketArea.eic()).isEqualTo("OtherAreaEic");
+        Assertions.assertThat(myOtherMarketArea.isMcParticipant()).isFalse();
+        Assertions.assertThat(myOtherMarketArea.isAhc()).isTrue();
     }
 
     @Test
     void checkThatMarketAreaCreationThrowsWhenCodeIsNull() {
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new MarketArea(null, "AreaEic", true, false),
-            "Null code in MarketArea creation should throw but does not"
-        );
-        assertEquals("MarketArea creation does not allow null code", thrown.getMessage());
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new MarketArea(null, "AreaEic", true, false))
+            .withMessage("MarketArea creation does not allow null code");
     }
 
     @Test
     void checkThatMarketAreaCreationThrowsWhenEicIsNull() {
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new MarketArea("AreaCode", null, true, false),
-            "Null eic in MarketArea creation should throw but does not"
-        );
-        assertEquals("MarketArea creation does not allow null eic", thrown.getMessage());
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new MarketArea("AreaCode", null, true, false))
+            .withMessage("MarketArea creation does not allow null eic");
     }
 }

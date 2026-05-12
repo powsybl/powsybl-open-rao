@@ -7,10 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -23,10 +26,27 @@ import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredReso
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A02_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AMP_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AUTO_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CURATIVE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIRECT_POSITIVE_FLOW_IN;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.FLOW_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OPPOSITE_POSITIVE_FLOW_IN;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.TATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_FLOWS;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_THRESHOLDS;
 
@@ -68,8 +88,14 @@ public class SweMonitoredSeriesCreator {
                                 cnecCreationContext -> {
                                     FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
                                     Contingency contingency = cnec.getState().getContingency().orElse(null);
-                                    cnecCreationContextsMap.computeIfAbsent(contingency, c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
-                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
+                                    cnecCreationContextsMap.computeIfAbsent(
+                                        contingency,
+                                        c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId))
+                                    );
+                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(
+                                        monitoredSeriesCreationContext,
+                                        cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId))
+                                    );
                                     cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
                                 })));
     }
@@ -114,7 +140,9 @@ public class SweMonitoredSeriesCreator {
         );
     }
 
-    private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {
+    private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext,
+                                                          Set<CnecCreationContext> cnecCreationContexts,
+                                                          boolean includeMeasurements) {
         Crac crac = sweCneHelper.getCrac();
         Map<Double, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
@@ -175,9 +203,9 @@ public class SweMonitoredSeriesCreator {
 
     void setInOutAggregateNodes(String networkElementId, String monitoredSeriesId, MonitoredRegisteredResource registeredResource) {
         Branch<?> branch = cracCreationContext.getNetworkBranches().get(networkElementId);
-        if (branch instanceof TieLine tieLine && tieLine.getDanglingLine1().hasProperty("CGMES.TopologicalNode_Boundary")) {
+        if (branch instanceof TieLine tieLine && tieLine.getBoundaryLine1().hasProperty("CGMES.TopologicalNode_Boundary")) {
             Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(monitoredSeriesId.substring(0, 3));
-            String xNodeMRId = tieLine.getDanglingLine1().getProperty("CGMES.TopologicalNode_Boundary");
+            String xNodeMRId = tieLine.getBoundaryLine1().getProperty("CGMES.TopologicalNode_Boundary");
             if (SweCneUtil.getBranchCountry(branch, TwoSides.ONE).equals(cnecOperatorCountry)) {
                 registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
                 registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, xNodeMRId));

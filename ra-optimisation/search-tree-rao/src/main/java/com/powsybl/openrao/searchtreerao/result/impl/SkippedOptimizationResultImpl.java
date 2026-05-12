@@ -8,12 +8,12 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -21,7 +21,12 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -35,7 +40,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     private final ComputationStatus computationStatus;
     private final double sensitivityFailureOverCost;
 
-    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus, double sensitivityFailureOverCost) {
+    public SkippedOptimizationResultImpl(State state,
+                                         Set<NetworkAction> activatedNetworkActions,
+                                         Set<RangeAction<?>> activatedRangeActions,
+                                         ComputationStatus computationStatus,
+                                         double sensitivityFailureOverCost) {
         this.state = state;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;

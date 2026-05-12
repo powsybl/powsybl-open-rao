@@ -12,7 +12,9 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_PENALTY;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_COSTLY_MIN_MARGIN_SECTION;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

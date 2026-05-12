@@ -7,13 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -77,7 +78,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * Each unit of minMarginShiftedViolationConstraint over 0 is penalized by shiftedViolationPenalty.
      */
     private void addMinMarginShiftedViolationConstraint(LinearProblem linearProblem) {
-        OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(Optional.ofNullable(timestamp), costlyMinMarginParameters.getShiftedViolationThreshold());
+        OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(
+            Optional.ofNullable(timestamp), costlyMinMarginParameters.getShiftedViolationThreshold());
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), 1.0);
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
@@ -117,26 +119,42 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private void buildMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
 
-        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
+        for (FlowCnec cnec : validFlowCnecs) {
+            for (TwoSides side : cnec.getMonitoredSides()) {
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
-            Optional<Double> minFlow;
-            Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(side, unit);
-            maxFlow = cnec.getUpperBound(side, unit);
+                Optional<Double> minFlow;
+                Optional<Double> maxFlow;
+                minFlow = cnec.getLowerBound(side, unit);
+                maxFlow = cnec.getUpperBound(side, unit);
 
-            if (minFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
-                minimumMarginNegative.setCoefficient(flowVariable, -1);
+                if (minFlow.isPresent()) {
+                    OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(
+                        -linearProblem.infinity(),
+                        -minFlow.get(),
+                        cnec,
+                        side,
+                        LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
+                    minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
+                    minimumMarginNegative.setCoefficient(flowVariable, -1);
+                }
+
+                if (maxFlow.isPresent()) {
+                    OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(
+                        -linearProblem.infinity(),
+                        maxFlow.get(),
+                        cnec,
+                        side,
+                        LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
+                    minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
+                    minimumMarginPositive.setCoefficient(flowVariable, 1);
+                }
             }
-
-            if (maxFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
-                minimumMarginPositive.setCoefficient(flowVariable, 1);
-            }
-        }));
+        }
     }
 
     /**

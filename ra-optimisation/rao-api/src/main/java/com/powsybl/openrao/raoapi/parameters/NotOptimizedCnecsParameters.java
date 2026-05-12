@@ -9,8 +9,10 @@ package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.*;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import java.util.Objects;
+
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.DO_NOT_OPTIMIZE_CURATIVE_CNECS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NOT_OPTIMIZED_CNECS_SECTION;
 
 /**
  * Not optimized cnecs parameters for RAO

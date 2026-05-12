@@ -305,8 +305,8 @@ Exists if the CNEC is monitored after a contingency (if the CNEC is preventive, 
 
 When sensitivity computation fails in a given perimeter (in basecase or after a specific contingency identified by
 **Contingency_Series**), this tag is present with the following information:
-- **code**: "B40"
-- **text**: "Load flow divergence"
+- **code**: "B18"
+- **text**: "Rao failure"
 
 Then no more results are exported for the failed perimeter.
 
@@ -437,12 +437,12 @@ This means that the RAO completed successfully and that the network is secure (i
 This means that the RAO completed successfully but that the network is unsecure (i.e. there remains at least one flow or
 one angle constraints).
 
-#### Load-flow divergence
+#### Rao Failure
 
 ~~~xml
 <Reason>
-    <code>B40</code>
-    <text>Load flow divergence</text>
+    <code>B18</code>
+    <text>Rao failure</text>
 </Reason>
 ~~~
 This means that the RAO or the angle monitoring could not be conducted normally because at least one perimeter lead to

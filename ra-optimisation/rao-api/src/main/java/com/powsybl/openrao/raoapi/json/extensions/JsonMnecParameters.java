@@ -7,16 +7,18 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VIOLATION_COST;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -39,7 +41,7 @@ public final class JsonMnecParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoMnecParameters mnecParameters = new SearchTreeRaoMnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case VIOLATION_COST -> {
                     jsonParser.nextToken();
                     mnecParameters.setViolationCost(jsonParser.getDoubleValue());
@@ -48,7 +50,7 @@ public final class JsonMnecParameters {
                     jsonParser.nextToken();
                     mnecParameters.setConstraintAdjustmentCoefficient(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.currentName()));
             }
         }
         searchTreeParameters.setMnecParameters(mnecParameters);

@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 
@@ -138,7 +138,9 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
             I do not think that nominalVoltage are absolutely required with thresholds in MEGAWATT, but I'm not 100% sure.
              */
-            throw new OpenRaoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
+            throw new OpenRaoException(String.format(
+                "nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id
+            ));
         }
 
         for (BranchThresholdImpl branchThreshold : thresholds) {

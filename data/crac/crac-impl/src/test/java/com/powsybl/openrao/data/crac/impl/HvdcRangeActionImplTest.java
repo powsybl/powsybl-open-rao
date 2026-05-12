@@ -7,22 +7,24 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
-import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -137,14 +139,14 @@ class HvdcRangeActionImplTest {
     void hvdcWithNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
         OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
-        assertEquals("StandardRange min value was not defined.", exception.getMessage());
+        assertEquals("StandardRange min value was not defined for absolute range.", exception.getMessage());
     }
 
     @Test
     void hvdcWithNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
         OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
-        assertEquals("StandardRange max value was not defined.", exception.getMessage());
+        assertEquals("StandardRange max value was not defined for absolute range.", exception.getMessage());
     }
 
     @Test

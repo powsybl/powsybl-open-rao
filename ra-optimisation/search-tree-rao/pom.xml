@@ -5,7 +5,7 @@
     <parent>
         <artifactId>open-rao-ra-optimisation</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.2.0-SNAPSHOT</version>
+        <version>7.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +16,11 @@
 
     <dependencies>
         <!-- compile -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-loopflow-extension</artifactId>
@@ -52,13 +57,6 @@
         </dependency>
 
         <!-- test -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>

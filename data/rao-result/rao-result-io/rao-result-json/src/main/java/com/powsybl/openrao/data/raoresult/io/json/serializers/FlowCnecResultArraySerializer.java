@@ -7,16 +7,16 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -77,7 +77,12 @@ final class FlowCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeFlowCnecResultForOptimizationState(Instant optInstant, FlowCnec flowCnec, RaoResult raoResult, Crac crac, Set<Unit> flowUnits, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeFlowCnecResultForOptimizationState(Instant optInstant,
+                                                                    FlowCnec flowCnec,
+                                                                    RaoResult raoResult,
+                                                                    Crac crac,
+                                                                    Set<Unit> flowUnits,
+                                                                    JsonGenerator jsonGenerator) throws IOException {
         if (!containsAnyResultForOptimizationState(raoResult, flowCnec, optInstant, MEGAWATT) && !containsAnyResultForOptimizationState(raoResult, flowCnec, optInstant, AMPERE)) {
             return;
         }
@@ -88,7 +93,12 @@ final class FlowCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeFlowCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, FlowCnec flowCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeFlowCnecResultForOptimizationStateAndUnit(Instant optInstant,
+                                                                           Unit unit,
+                                                                           FlowCnec flowCnec,
+                                                                           RaoResult raoResult,
+                                                                           Crac crac,
+                                                                           JsonGenerator jsonGenerator) throws IOException {
         if (!containsAnyResultForFlowCnec(raoResult, flowCnec, crac, unit)) {
             return;
         }
@@ -150,7 +160,8 @@ final class FlowCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getPreventiveInstant(), unit) ||
                 crac.hasAutoInstant() && containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit) ||
-                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, flowCnec, curativeInstant, unit));
+                crac.getInstants(InstantKind.CURATIVE).stream()
+                    .anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, flowCnec, curativeInstant, unit));
         }
     }
 

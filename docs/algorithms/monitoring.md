@@ -12,6 +12,13 @@ does not inherently support  angle/voltage constraints.
 The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring)
 package allows monitoring angle/voltage values after a RAO has been run.
 
+> ⚠️ WARNING️ ⚠️
+> 
+> Only angle/voltage CNECs defined on **preventive and last curative instant** can be monitored ! 
+> 
+> If a voltage/angle CNEC is defined on an intermediate instant (ex. auto or not final curative instant), the CNEC won't be monitored (a warning will be issued) and 
+>  will be ignored in the final augmented RaoResult.
+
 ![Monitoring](../_static/img/monitoring.png){.forced-white-background}
 
 ## The Java API

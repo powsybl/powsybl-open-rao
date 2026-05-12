@@ -16,7 +16,12 @@ import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -30,7 +35,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     boolean shouldRecomputeSetpointsPerState;
 
-    private Map<String, Map<State, Double> > setpointPerStatePerPstId;
+    private Map<String, Map<State, Double>> setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
     private static final class ElementaryResult {

@@ -142,8 +142,14 @@ public class StateTree {
      * <p>
      * The method returns whether curative perimeters were added to the contingency scenario or not.
      **/
-    private boolean processCurativeInstants(Contingency contingency, Crac crac, ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder, Perimeter defaultPerimeter, boolean automatonCnecsExist) {
-        Set<Instant> instantsWithCnecs = crac.getInstants(InstantKind.CURATIVE).stream().filter(instant -> anyCnec(crac, crac.getState(contingency, instant))).collect(Collectors.toSet());
+    private boolean processCurativeInstants(Contingency contingency,
+                                            Crac crac,
+                                            ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder,
+                                            Perimeter defaultPerimeter,
+                                            boolean automatonCnecsExist) {
+        Set<Instant> instantsWithCnecs = crac.getInstants(InstantKind.CURATIVE).stream()
+            .filter(instant -> anyCnec(crac, crac.getState(contingency, instant)))
+            .collect(Collectors.toSet());
         if (!automatonCnecsExist && instantsWithCnecs.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingency.getId());
             return false;
@@ -161,7 +167,8 @@ public class StateTree {
         // add the CNECs of the curative instants to the different perimeters:
         // - if the associated instant is null, the CNECs are added to the default perimeter
         // - otherwise, they are added to the perimeter corresponding to their associated optimization instant
-        instantsWithCnecs.forEach(cnecInstant -> curativePerimeters.getOrDefault(associatedOptimizationInstant.get(cnecInstant), defaultPerimeter).addOtherState(crac.getState(contingency, cnecInstant)));
+        instantsWithCnecs.forEach(cnecInstant -> curativePerimeters.getOrDefault(associatedOptimizationInstant.get(cnecInstant), defaultPerimeter)
+            .addOtherState(crac.getState(contingency, cnecInstant)));
 
         // add the curative perimeters to the contingency scenario builder
         if (!defaultPerimeter.equals(preventivePerimeter) && associatedOptimizationInstant.containsValue(null)) {

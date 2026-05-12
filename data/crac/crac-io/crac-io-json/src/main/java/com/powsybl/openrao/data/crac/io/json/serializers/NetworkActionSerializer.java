@@ -7,13 +7,20 @@
 
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
-import com.powsybl.action.Action;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.action.*;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
+import com.powsybl.action.Action;
+import com.powsybl.action.BoundaryLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -38,7 +45,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         serializeElementaryActions(value, PhaseTapChangerTapPositionAction.class, JsonSerializationConstants.PHASETAPCHANGER_TAPPOSITION_ACTIONS, gen);
         serializeElementaryActions(value, GeneratorAction.class, JsonSerializationConstants.GENERATOR_ACTIONS, gen);
         serializeElementaryActions(value, LoadAction.class, JsonSerializationConstants.LOAD_ACTIONS, gen);
-        serializeElementaryActions(value, DanglingLineAction.class, JsonSerializationConstants.DANGLINGLINE_ACTIONS, gen);
+        serializeElementaryActions(value, BoundaryLineAction.class, JsonSerializationConstants.BOUNDARYLINE_ACTIONS, gen);
         serializeElementaryActions(value, ShuntCompensatorPositionAction.class, JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS, gen);
         serializeElementaryActions(value, SwitchPair.class, JsonSerializationConstants.SWITCH_PAIRS, gen);
         serializeElementaryActions(value, HvdcAction.class, JsonSerializationConstants.AC_EMULATION_DEACTIVATION_ACTIONS, gen);

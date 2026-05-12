@@ -4,10 +4,10 @@
   "generatorConstraints": [
     {
       "generatorId": "BBE1AA1 _generator",
-      "leadTime": 2.33,
-      "lagTime": 0.75,
-      "upwardPowerGradient": 1500.0,
-      "downwardPowerGradient": -2000.0
+      "leadTime": 2.25,
+      "lagTime": 2.75,
+      "upwardPowerGradient": 1900.0,
+      "downwardPowerGradient": -1900.0
     }
   ]
 }

@@ -7,16 +7,22 @@
       "leadTime": 1.15,
       "lagTime": 2.0,
       "upwardPowerGradient": 100.0,
-      "downwardPowerGradient": -50.0
+      "downwardPowerGradient": -50.0,
+      "shutDownAllowed": true,
+      "startUpAllowed": true
     },
     {
-      "generatorId": "generator-2"
+      "generatorId": "generator-2",
+      "shutDownAllowed": true,
+      "startUpAllowed": true
     },
     {
       "generatorId": "generator-3",
       "leadTime": 0.5,
       "lagTime": 4.0,
-      "downwardPowerGradient": -1000.0
+      "downwardPowerGradient": -1000.0,
+      "shutDownAllowed": true,
+      "startUpAllowed": true
     }
   ]
 }

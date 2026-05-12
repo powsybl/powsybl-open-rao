@@ -13,7 +13,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RotatingMachineAction(String mrid, String rotatingMachineId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
+public record RotatingMachineAction(String mrid, String rotatingMachineId, String propertyReference, boolean normalEnabled,
+                                    String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
     public static RotatingMachineAction fromPropertyBag(PropertyBag propertyBag) {
         return new RotatingMachineAction(
             propertyBag.getId(NcConstants.ROTATING_MACHINE_ACTION),

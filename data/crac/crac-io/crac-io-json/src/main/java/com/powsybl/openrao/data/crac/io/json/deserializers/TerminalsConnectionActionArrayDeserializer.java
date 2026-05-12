@@ -7,16 +7,21 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.TerminalsConnectionActionAdder;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTION_TYPE;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeActionType;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}

@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.State;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -74,11 +75,21 @@ public class PostContingencyState implements State {
         }
         State state = (State) o;
         Optional<Contingency> oContingency = state.getContingency();
+        if (oContingency.isEmpty()) {
+            return false;
+        }
         // Check for contingency ID & elements IDs equality, because two same contingencies can have
         // different implementations (e.g. LineContingency & BranchContingency)
+        Set<String> oContingencyElementIds = oContingency.get().getElements().stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.toSet());
+        Set<String> contingencyElementIds = contingency.getElements().stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.toSet());
+
         return state.getInstant().equals(instant)
-            && oContingency.isPresent() && oContingency.get().getId().equals(contingency.getId())
-            && oContingency.get().getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet()).equals(contingency.getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet()))
+            && oContingency.get().getId().equals(contingency.getId())
+            && oContingencyElementIds.equals(contingencyElementIds)
             && state.getTimestamp().equals(Optional.ofNullable(timestamp));
     }
 

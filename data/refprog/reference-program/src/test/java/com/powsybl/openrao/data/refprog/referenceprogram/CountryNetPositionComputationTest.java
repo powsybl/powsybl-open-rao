@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.EICode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,8 +47,8 @@ class CountryNetPositionComputationTest {
     }
 
     @Test
-    void testDanglingLines() {
-        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
+    void testBoundaryLines() {
+        Network network = Network.read("TestCaseBoundary.xiidm", getClass().getResourceAsStream("/TestCaseBoundary.xiidm"));
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         assertEquals(0.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);

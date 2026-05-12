@@ -9,7 +9,10 @@ package com.powsybl.openrao.data.crac.io.cse.parameters;
 
 import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

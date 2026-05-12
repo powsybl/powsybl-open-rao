@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -15,13 +17,17 @@ import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLECNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.DEGREE_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -56,7 +62,7 @@ final class AngleCnecResultArrayDeserializer {
     private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleCnecResult angleCnecResult, AngleExtension angleExtension, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
@@ -66,8 +72,8 @@ final class AngleCnecResultArrayDeserializer {
 
     private static void deserializeElementaryAngleCnecResult(JsonParser jsonParser, ElementaryAngleCnecResult eAngleCnecResult) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (!jsonParser.getCurrentName().equals(DEGREE_UNIT)) {
-                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.getCurrentName()));
+            if (!jsonParser.currentName().equals(DEGREE_UNIT)) {
+                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.currentName()));
             } else {
                 jsonParser.nextToken();
                 deserializeElementaryAngleCnecResultForUnit(jsonParser, eAngleCnecResult, Unit.DEGREE);
@@ -77,7 +83,7 @@ final class AngleCnecResultArrayDeserializer {
 
     private static void deserializeElementaryAngleCnecResultForUnit(JsonParser jsonParser, ElementaryAngleCnecResult eAngleCnecResult, Unit unit) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case ANGLE:
                     jsonParser.nextToken();
                     eAngleCnecResult.setAngle(jsonParser.getDoubleValue(), unit);
@@ -87,7 +93,7 @@ final class AngleCnecResultArrayDeserializer {
                     eAngleCnecResult.setMargin(jsonParser.getDoubleValue(), unit);
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.currentName()));
             }
         }
     }

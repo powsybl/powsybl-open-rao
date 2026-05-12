@@ -29,9 +29,11 @@ class PstRangeActionsCreator {
     private final Network network;
     private final PstRangeActions parameters;
     private final Map<String, String> raGroupPerNetworkElement;
+    private final NetworkCracCreationContext creationContext;
 
-    public PstRangeActionsCreator(Crac crac, Network network, PstRangeActions parameters, Map<String, String> raGroupPerNetworkElement) {
-        this.crac = crac;
+    PstRangeActionsCreator(NetworkCracCreationContext creationContext, Network network, PstRangeActions parameters, Map<String, String> raGroupPerNetworkElement) {
+        this.creationContext = creationContext;
+        this.crac = creationContext.getCrac();
         this.network = network;
         this.parameters = parameters;
         this.raGroupPerNetworkElement = raGroupPerNetworkElement;
@@ -42,8 +44,8 @@ class PstRangeActionsCreator {
         network.getTwoWindingsTransformerStream()
             .filter(twt -> twt.getPhaseTapChanger() != null)
             .filter(twt -> Utils.branchIsInCountries(twt, parameters.getCountries().orElse(null)))
-            .forEach(twt -> instants
-                .stream().filter(instant -> crac.getStates(instant).stream().anyMatch(state -> parameters.isAvailable(twt, state)))
+            .forEach(twt -> instants.stream()
+                .filter(instant -> crac.getStates(instant).stream().anyMatch(state -> parameters.isAvailable(twt, state, creationContext)))
                 .forEach(instant -> addPstRangeActionForInstant(twt, instant)));
     }
 
@@ -60,11 +62,11 @@ class PstRangeActionsCreator {
         }
         // TODO fail if one PST listed in a group is not added as a RA? (to prevent having unrealistic cases)
 
-        boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(twt, state));
+        boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(twt, state, creationContext));
         if (availableForAllStates) {
             pstAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
         } else {
-            crac.getStates().stream().filter(state -> parameters.isAvailable(twt, state))
+            crac.getStates().stream().filter(state -> parameters.isAvailable(twt, state, creationContext))
                 .forEach(
                     state -> pstAdder.newOnContingencyStateUsageRule()
                         .withInstant(instant.getId())

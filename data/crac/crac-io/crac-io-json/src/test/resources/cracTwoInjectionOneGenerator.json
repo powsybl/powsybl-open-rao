@@ -490,7 +490,7 @@
       "activePowerValue" : 260.0
     } ],
     "danglingLineActions" : [ {
-      "networkElementId" : "DL1",
+      "networkElementId" : "BL1",
       "activePowerValue" : -120.0
     } ],
     "shuntCompensatorPositionActions" : [ {

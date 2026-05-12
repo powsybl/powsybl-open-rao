@@ -12,7 +12,9 @@ import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -112,9 +114,9 @@ class IidmCnecElementHelperTest {
     }
 
     @Test
-    void testValidDanglingLine() {
+    void testValidBoundaryLine() {
 
-        // dangling-line with order code
+        // boundary-line with order code
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  XBE2AL1  1", cnecHelper.getIdInNetwork());
@@ -129,8 +131,8 @@ class IidmCnecElementHelperTest {
     }
 
     @Test
-    void testInvalidDanglingLine() {
-        // dangling-line exists but not with this order code
+    void testInvalidBoundaryLine() {
+        // boundary-line exists but not with this order code
         assertFalse(new IidmCnecElementHelper("XBE2AL1  BBE2AA1  2", network).isValid());
     }
 

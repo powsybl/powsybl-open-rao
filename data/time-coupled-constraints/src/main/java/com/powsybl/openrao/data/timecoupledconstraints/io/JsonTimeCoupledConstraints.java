@@ -50,6 +50,8 @@ public final class JsonTimeCoupledConstraints {
     public static final String LAG_TIME = "lagTime";
     public static final String UPWARD_POWER_GRADIENT = "upwardPowerGradient";
     public static final String DOWNWARD_POWER_GRADIENT = "downwardPowerGradient";
+    public static final String SHUTDOWN_ALLOWED = "shutDownAllowed";
+    public static final String STARTUP_ALLOWED = "startUpAllowed";
 
     // IO
 

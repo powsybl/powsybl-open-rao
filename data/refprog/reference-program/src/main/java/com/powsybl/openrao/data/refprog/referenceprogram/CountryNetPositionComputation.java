@@ -7,8 +7,13 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.openrao.commons.EICode;
-import com.powsybl.iidm.network.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,9 +42,9 @@ public class CountryNetPositionComputation {
     private void computeNetPositions() {
         netPositions = new HashMap<>();
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            EICode area = new EICode(getSubstationNullableCountry(danglingLine.getTerminal().getVoltageLevel().getSubstation()));
-            addLeavingFlow(danglingLine, area);
+        network.getBoundaryLineStream().forEach(boundaryLine -> {
+            EICode area = new EICode(getSubstationNullableCountry(boundaryLine.getTerminal().getVoltageLevel().getSubstation()));
+            addLeavingFlow(boundaryLine, area);
         });
 
         network.getLineStream().forEach(line -> {
@@ -71,10 +76,10 @@ public class CountryNetPositionComputation {
         }
     }
 
-    private void addLeavingFlow(DanglingLine danglingLine, EICode area) {
+    private void addLeavingFlow(BoundaryLine boundaryLine, EICode area) {
         Double previousValue = getPreviousValue(area);
         if (!Objects.isNull(area)) {
-            netPositions.put(area, previousValue + getLeavingFlow(danglingLine));
+            netPositions.put(area, previousValue + getLeavingFlow(boundaryLine));
         }
     }
 
@@ -102,8 +107,8 @@ public class CountryNetPositionComputation {
         }
     }
 
-    private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
+    private double getLeavingFlow(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected() && !Double.isNaN(boundaryLine.getTerminal().getP()) ? boundaryLine.getTerminal().getP() : 0;
     }
 
     private double getLeavingFlow(Line line, EICode area) {
@@ -114,9 +119,14 @@ public class CountryNetPositionComputation {
     }
 
     private double getLeavingFlow(HvdcLine hvdcLine, EICode area) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
+        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected()
+            && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ?
+                hvdcLine.getConverterStation1().getTerminal().getP() : 0;
+        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected()
+            && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ?
+                hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
-        return area.equals(new EICode(getSubstationNullableCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()))) ? directFlow : -directFlow;
+        return area.equals(new EICode(getSubstationNullableCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()))) ?
+            directFlow : -directFlow;
     }
 }

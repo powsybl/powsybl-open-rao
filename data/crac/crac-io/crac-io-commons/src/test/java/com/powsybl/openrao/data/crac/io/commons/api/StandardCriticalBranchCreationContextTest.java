@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.api;
 
-import org.apache.commons.lang3.NotImplementedException;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.NativeBranch;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -29,7 +29,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithComprehensiveData() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, false, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, false, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());
@@ -46,7 +48,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithComprehensiveDataBaseCase() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, true, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, true, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());
@@ -63,7 +67,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithoutContingency() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, false, null, createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, false, null, createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());

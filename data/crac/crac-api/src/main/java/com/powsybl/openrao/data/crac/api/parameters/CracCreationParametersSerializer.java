@@ -14,7 +14,10 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.*;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.CRAC_FACTORY;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.DEFAULT_MONITORED_LINE_SIDE;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.serializeMonitoredLineSide;
+import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParametersConstants.serializeRaUsageLimits;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

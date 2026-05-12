@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.inputs;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -14,7 +15,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}

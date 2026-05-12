@@ -13,10 +13,17 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getPredefinedCombinations;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.isSkipActionsFarFromMostLimitingElement;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -91,12 +98,22 @@ public class NetworkActionParameters {
             return false;
         }
         NetworkActionParameters that = (NetworkActionParameters) o;
-        return Double.compare(that.absoluteNetworkActionMinimumImpactThreshold, absoluteNetworkActionMinimumImpactThreshold) == 0 && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0 && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions && Objects.equals(predefinedCombinations, that.predefinedCombinations);
+        return Double.compare(that.absoluteNetworkActionMinimumImpactThreshold, absoluteNetworkActionMinimumImpactThreshold) == 0
+            && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0
+            && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements
+            && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions
+            && Objects.equals(predefinedCombinations, that.predefinedCombinations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(predefinedCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
+        return Objects.hash(
+            predefinedCombinations,
+            absoluteNetworkActionMinimumImpactThreshold,
+            relativeNetworkActionMinimumImpactThreshold,
+            skipNetworkActionFarFromMostLimitingElements,
+            maxNumberOfBoundariesForSkippingNetworkActions
+        );
     }
 
     public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, RaoParameters raoParameters) {
