@@ -18,11 +18,13 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
@@ -69,6 +71,24 @@ public interface RaoResult extends Extendable<RaoResult> {
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
+     * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
+     * given {@link Unit}.
+     *
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec        The angle cnec to be studied.
+     * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
+     * @return The angle on the cnec at the optimization state in the given unit.
+     */
+    @Deprecated()
+    default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
+        AngleExtension angleExtension = getExtension(AngleExtension.class);
+        if (angleExtension != null) {
+            return angleExtension.getAngle(optimizedInstant, angleCnec, unit);
+        }
+        return Double.NaN;
+    }
+
+    /**
      * It gives the minimum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
@@ -105,6 +125,25 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The margin on the branch at the optimization state in the given unit.
      */
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+
+    /**
+     * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
+     * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
+     * angle direction of the given branch. If it is negative the cnec is under constraint.
+     *
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec        The angle cnec to be studied.
+     * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
+     * @return The margin on the angle cnec at the optimization state in the given unit.
+     */
+    @Deprecated()
+    default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
+        AngleExtension angleExtension = getExtension(AngleExtension.class);
+        if (angleExtension != null) {
+            return angleExtension.getMargin(optimizedInstant, angleCnec, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the margin on a {@link VoltageCnec} at a given {@link Instant} and in a

@@ -101,12 +101,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
     }
 
-    // TODO: mark as deprecated
-    @Override
-    public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getAngle(unit);
-    }
-
     @Override
     public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMinVoltage(unit);
@@ -120,12 +114,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    // TODO: mark as deprecated
-    @Override
-    public double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
     }
 
     @Override

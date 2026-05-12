@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
-import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
