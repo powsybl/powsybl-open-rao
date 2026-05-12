@@ -79,7 +79,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
-    @Deprecated()
+    @Deprecated(since = "7.3.0", forRemoval = true) // TODO: keep version up to date depending on merging date
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleExtension angleExtension = getExtension(AngleExtension.class);
         if (angleExtension != null) {
@@ -136,7 +136,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
-    @Deprecated()
+    @Deprecated(since = "7.3.0", forRemoval = true) // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleExtension angleExtension = getExtension(AngleExtension.class);
         if (angleExtension != null) {
