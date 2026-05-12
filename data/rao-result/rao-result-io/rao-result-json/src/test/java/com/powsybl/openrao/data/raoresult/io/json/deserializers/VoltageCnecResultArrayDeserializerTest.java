@@ -45,11 +45,6 @@ class VoltageCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-        assertEquals(380.5, raoResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
-        assertEquals(400.2, raoResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
-        assertEquals(10.0, raoResult.getMargin(null, voltageCnec, Unit.KILOVOLT));
-
         VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
         assertNotNull(voltageResult);
         assertEquals(380.5, voltageResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
@@ -137,10 +132,6 @@ class VoltageCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.5"));
         }
-
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-        assertEquals(390.0, raoResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
-        assertEquals(390.0, raoResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
 
         VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
         assertNotNull(voltageResult);

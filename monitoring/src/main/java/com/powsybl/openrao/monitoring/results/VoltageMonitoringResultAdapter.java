@@ -21,7 +21,7 @@ public final class VoltageMonitoringResultAdapter {
 
     public static VoltageResult convertToVoltageExtension(MonitoringResult voltageMonitoringResult) {
         VoltageResult voltageExtension = new VoltageResult();
-        voltageMonitoringResult.getCnecResults().forEach(voltageResult -> voltageExtension.addMeasurement(((VoltageCnecValue) voltageResult.getValue()).minValue(), ((VoltageCnecValue) voltageResult.getValue()).maxValue(), voltageResult.getCnec().getState().getInstant(), (VoltageCnec) voltageResult.getCnec(), Unit.DEGREE));
+        voltageMonitoringResult.getCnecResults().forEach(voltageResult -> voltageExtension.addMeasurement(((VoltageCnecValue) voltageResult.getValue()).minValue(), ((VoltageCnecValue) voltageResult.getValue()).maxValue(), voltageResult.getCnec().getState().getInstant(), (VoltageCnec) voltageResult.getCnec(), Unit.KILOVOLT));
         return voltageExtension;
     }
 }

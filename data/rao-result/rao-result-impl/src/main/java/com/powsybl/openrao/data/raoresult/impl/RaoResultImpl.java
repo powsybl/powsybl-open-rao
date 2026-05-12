@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,11 +115,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
     }
 
     @Override
@@ -358,16 +354,19 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
                     }
                 }
                 case VOLTAGE -> {
-                    if (crac.getVoltageCnecs().stream()
-                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.KILOVOLT))
-                        .anyMatch(Double::isNaN)) {
-                        throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
-                    }
-                    if (crac.getVoltageCnecs().stream()
-                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
+                    VoltageResult voltageResult = getExtension(VoltageResult.class);
+                    if (voltageResult != null) {
+                        if (crac.getVoltageCnecs().stream()
+                            .mapToDouble(cnec -> voltageResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.KILOVOLT))
+                            .anyMatch(Double::isNaN)) {
+                            throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
+                        }
+                        if (crac.getVoltageCnecs().stream()
+                            .mapToDouble(cnec -> voltageResult.getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
-                        return false;
+                            return false;
+                        }
                     }
                 }
             }

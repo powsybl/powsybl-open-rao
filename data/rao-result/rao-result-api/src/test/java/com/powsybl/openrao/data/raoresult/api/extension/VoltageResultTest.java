@@ -71,6 +71,6 @@ public class VoltageResultTest {
         // invalid unit
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageResult.addMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
-        assertEquals("VoltageCNEC results are only allowed for kilovolts    .", exception.getMessage());
+        assertEquals("VoltageCNEC results are only allowed for kilovolts.", exception.getMessage());
     }
 }
