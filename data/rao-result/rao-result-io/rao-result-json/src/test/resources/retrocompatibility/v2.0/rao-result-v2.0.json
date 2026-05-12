@@ -446,39 +446,6 @@
       }
     }
   ],
-  "voltageCnecResults": [
-    {
-      "voltageCnecId": "voltageCnecId",
-      "initial": {
-        "kilovolt": {
-          "minVoltage": 4146.0,
-          "maxVoltage": 4156.0,
-          "margin": 4141.0
-        }
-      },
-      "preventive": {
-        "kilovolt": {
-          "minVoltage": 4246.0,
-          "maxVoltage": 4256.0,
-          "margin": 4241.0
-        }
-      },
-      "auto": {
-        "kilovolt": {
-          "minVoltage": 4346.0,
-          "maxVoltage": 4356.0,
-          "margin": 4341.0
-        }
-      },
-      "curative": {
-        "kilovolt": {
-          "minVoltage": 4446.0,
-          "maxVoltage": 4456.0,
-          "margin": 4441.0
-        }
-      }
-    }
-  ],
   "networkActionResults": [
     {
       "networkActionId": "complexNetworkActionId",
@@ -589,6 +556,39 @@
               "instant": "curative",
               "angle": 3435.0,
               "margin": -3345.0
+            }
+          ]
+        }
+      }
+    ],
+    "voltage-results": [
+      {
+        "voltageCnecId": "voltageCnecId",
+        "measurements": {
+          "kilovolt": [
+            {
+              "instant": "initial",
+              "minVoltage": 4146.0,
+              "maxVoltage": 4156.0,
+              "margin": 3765.0
+            },
+            {
+              "instant": "preventive",
+              "minVoltage": 4246.0,
+              "maxVoltage": 4256.0,
+              "margin": 3865.0
+            },
+            {
+              "instant": "auto",
+              "minVoltage": 4346.0,
+              "maxVoltage": 4356.0,
+              "margin": 3965.0
+            },
+            {
+              "instant": "curative",
+              "minVoltage": 4446.0,
+              "maxVoltage": 4456.0,
+              "margin": 4065.0
             }
           ]
         }

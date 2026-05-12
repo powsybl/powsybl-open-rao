@@ -8,12 +8,13 @@
 package com.powsybl.openrao.data.raoresult.api.extension;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -24,7 +25,7 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageResult extends AbstractRaoResultExtension {
+public class VoltageResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "voltage-results";
 
     private final Map<VoltageCnec, VoltageCnecResult> results;

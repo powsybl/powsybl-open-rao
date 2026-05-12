@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
@@ -27,7 +28,6 @@ import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
 
 import java.util.Set;
 
@@ -116,10 +116,11 @@ public final class ExhaustiveRaoResultCreation {
         }
         raoResult.addExtension(AngleResult.class, angleResult);
 
+        VoltageResult voltageResult = new VoltageResult();
         for (VoltageCnec cnec : crac.getVoltageCnecs()) {
-            VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(cnec);
-            fillVoltageCnecResult(voltageCnecResult, cnec, crac);
+            fillVoltageCnecResult(voltageResult, cnec, crac);
         }
+        raoResult.addExtension(VoltageResult.class, voltageResult);
 
         // -----------------------------
         // --- NetworkAction results ---
@@ -247,22 +248,18 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillVoltageCnecResult(VoltageCnecResult voltageCnecResult, VoltageCnec cnec, Crac crac) {
+    private static void fillVoltageCnecResult(VoltageResult voltageResult, VoltageCnec cnec, Crac crac) {
 
         double x = 4000;
 
-        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
-        fillElementaryResult(initialEacr, x, 100);
-        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("preventive"));
-        fillElementaryResult(afterPraEacr, x, 200);
+        voltageResult.addMeasurement(x + 100 + 46, x + 100 + 56, null, cnec, KILOVOLT);
+        voltageResult.addMeasurement(x + 200 + 46, x + 200 + 56, crac.getInstant("preventive"), cnec, KILOVOLT);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("auto"));
-            fillElementaryResult(afterAraEacr, x, 300);
+            voltageResult.addMeasurement(x + 300 + 46, x + 300 + 56, crac.getInstant("auto"), cnec, KILOVOLT);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("curative"));
-            fillElementaryResult(afterCraEacr, x, 400);
+            voltageResult.addMeasurement(x + 400 + 46, x + 400 + 56, crac.getInstant("curative"), cnec, KILOVOLT);
         }
     }
 

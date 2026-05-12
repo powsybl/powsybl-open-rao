@@ -412,16 +412,6 @@
       }
     }
   } ],
-  "voltageCnecResults" : [ {
-    "voltageCnecId" : "voltageCnecId",
-    "curative" : {
-      "kilovolt" : {
-        "margin" : 4441.00,
-        "minVoltage" : 4446.00,
-        "maxVoltage" : 4456.00
-      }
-    }
-  } ],
   "networkActionResults" : [ {
     "networkActionId" : "complexNetworkActionId",
     "activatedStates" : [ {
@@ -490,6 +480,32 @@
     "initialTap" : -3
   } ],
   "extensions" : {
+    "voltage-results" : [ {
+      "voltageCnecId" : "voltageCnecId",
+      "measurements" : {
+        "kilovolt" : [ {
+          "instant" : "initial",
+          "minVoltage" : 4146.0,
+          "maxVoltage" : 4156.0,
+          "margin" : 3765.0
+        }, {
+          "instant" : "preventive",
+          "minVoltage" : 4246.0,
+          "maxVoltage" : 4256.0,
+          "margin" : 3865.0
+        }, {
+          "instant" : "auto",
+          "minVoltage" : 4346.0,
+          "maxVoltage" : 4356.0,
+          "margin" : 3965.0
+        }, {
+          "instant" : "curative",
+          "minVoltage" : 4446.0,
+          "maxVoltage" : 4456.0,
+          "margin" : 4065.0
+        } ]
+      }
+    } ],
     "critical-cnecs-result" : [ {
       "flowCnecId" : "cnec1outageId"
     }, {

@@ -116,7 +116,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case ANGLECNEC_RESULTS:
                     if (version.major() == 1) {
-                        System.out.println(version);
                         jsonParser.nextToken();
                         AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                         break;
@@ -125,9 +124,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     }
 
                 case VOLTAGECNEC_RESULTS:
-                    jsonParser.nextToken();
-                    VoltageCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        VoltageCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, AngleCNEC results are no longer in the RAO Result but in the 'angle-results' extension");
+                    }
 
                 case NETWORKACTION_RESULTS:
                     jsonParser.nextToken();
