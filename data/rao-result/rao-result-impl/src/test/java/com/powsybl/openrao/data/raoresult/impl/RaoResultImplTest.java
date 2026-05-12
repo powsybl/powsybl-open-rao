@@ -315,7 +315,6 @@ class RaoResultImplTest {
                 .add()
                 .add();
 
-
         VoltageResult voltageResult = new VoltageResult();
         voltageResult.addMeasurement(200., 220., preventiveInstant, voltageCnec, KILOVOLT);
         voltageResult.addMeasurement(175., 195., autoInstant, voltageCnec, KILOVOLT);
