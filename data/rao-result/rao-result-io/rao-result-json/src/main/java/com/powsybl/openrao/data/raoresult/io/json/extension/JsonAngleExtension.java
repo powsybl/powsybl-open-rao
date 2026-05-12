@@ -18,7 +18,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import com.powsybl.openrao.data.raoresult.io.json.Version;
 
@@ -28,20 +28,20 @@ import java.io.IOException;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(RaoResultJsonUtils.ExtensionSerializer.class)
-public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerializer<AngleExtension> {
+public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerializer<AngleResult> {
     @Override
-    public void serialize(AngleExtension angleExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        angleExtension.serialize(jsonGenerator);
+    public void serialize(AngleResult angleResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        angleResult.serialize(jsonGenerator);
     }
 
     @Override
-    public AngleExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public AngleResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Version version = (Version) deserializationContext.getAttribute("version");
         if (version.major() == 1) {
             throw new OpenRaoException("Angle results extension is only available for JSON RAO Result versions >= 2.");
         }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        AngleExtension angleExtension = new AngleExtension();
+        AngleResult angleResult = new AngleResult();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnec angleCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -74,7 +74,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                                         }
                                     }
                                     if (angle != null) {
-                                        angleExtension.addAngle(angle, instant, angleCnec, Unit.DEGREE);
+                                        angleResult.addAngle(angle, instant, angleCnec, Unit.DEGREE);
                                     }
                                 }
                             } else {
@@ -86,7 +86,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                 }
             }
         }
-        return angleExtension;
+        return angleResult;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
     }
 
     @Override
-    public Class<? super AngleExtension> getExtensionClass() {
-        return AngleExtension.class;
+    public Class<? super AngleResult> getExtensionClass() {
+        return AngleResult.class;
     }
 }

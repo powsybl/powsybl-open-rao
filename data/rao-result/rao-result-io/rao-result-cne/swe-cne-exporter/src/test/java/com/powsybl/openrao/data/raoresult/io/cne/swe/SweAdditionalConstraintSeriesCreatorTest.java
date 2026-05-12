@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.AngleCnecCreationContext
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.AdditionalConstraintSeries;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
     private SweCneHelper sweCneHelper;
     private Crac crac;
     private RaoResult raoResult;
-    private AngleExtension angleExtension;
+    private AngleResult angleResult;
     private CimCracCreationContext cracCreationContext;
     private Instant preventiveInstant;
     private Instant outageInstant;
@@ -50,7 +50,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
-        this.angleExtension = Mockito.mock(AngleExtension.class);
+        this.angleResult = Mockito.mock(AngleResult.class);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
@@ -64,7 +64,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
 
-        Mockito.when(raoResult.getExtension(AngleExtension.class)).thenReturn(angleExtension);
+        Mockito.when(raoResult.getExtension(AngleResult.class)).thenReturn(angleResult);
         Mockito.when(sweCneHelper.getCrac()).thenReturn(crac);
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
     }
@@ -75,8 +75,8 @@ class SweAdditionalConstraintSeriesCreatorTest {
         AngleCnecCreationContext acc2 = createAdcs("AngleCnecId2", "contingency");
         AngleCnec angleCnec1 = Mockito.mock(AngleCnec.class);
         AngleCnec angleCnec2 = Mockito.mock(AngleCnec.class);
-        Mockito.when(angleExtension.getAngle(curativeInstant, angleCnec1, Unit.DEGREE)).thenReturn(1.37);
-        Mockito.when(angleExtension.getAngle(curativeInstant, angleCnec2, Unit.DEGREE)).thenReturn(-21.34);
+        Mockito.when(angleResult.getAngle(curativeInstant, angleCnec1, Unit.DEGREE)).thenReturn(1.37);
+        Mockito.when(angleResult.getAngle(curativeInstant, angleCnec2, Unit.DEGREE)).thenReturn(-21.34);
         Mockito.when(crac.getAngleCnec(acc1.getCreatedObjectId())).thenReturn(angleCnec1);
         Mockito.when(crac.getAngleCnec(acc2.getCreatedObjectId())).thenReturn(angleCnec2);
         Mockito.when(angleCnec1.getName()).thenReturn("AngleCnecName1");
@@ -95,8 +95,8 @@ class SweAdditionalConstraintSeriesCreatorTest {
         AngleCnecCreationContext acc2 = createAdcs("AngleCnecId2", "contingency");
         AngleCnec angleCnec1 = Mockito.mock(AngleCnec.class);
         AngleCnec angleCnec2 = Mockito.mock(AngleCnec.class);
-        Mockito.when(angleExtension.getAngle(curativeInstant, angleCnec1, Unit.DEGREE)).thenReturn(Double.NaN);
-        Mockito.when(angleExtension.getAngle(curativeInstant, angleCnec2, Unit.DEGREE)).thenReturn(Double.NaN);
+        Mockito.when(angleResult.getAngle(curativeInstant, angleCnec1, Unit.DEGREE)).thenReturn(Double.NaN);
+        Mockito.when(angleResult.getAngle(curativeInstant, angleCnec2, Unit.DEGREE)).thenReturn(Double.NaN);
         Mockito.when(crac.getAngleCnec(acc1.getCreatedObjectId())).thenReturn(angleCnec1);
         Mockito.when(crac.getAngleCnec(acc2.getCreatedObjectId())).thenReturn(angleCnec2);
         Mockito.when(angleCnec1.getName()).thenReturn("AngleCnecName1");
@@ -210,26 +210,26 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Instant mockCurativeInstant = Mockito.mock(Instant.class);
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
-        AngleExtension raoResultAngleExtension = new AngleExtension();
-        raoResultAngleExtension.addAngle(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE);
-        raoResultAngleExtension.addAngle(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE);
-        raoResultAngleExtension.addAngle(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE);
-        raoResultAngleExtension.addAngle(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
+        AngleResult raoResultAngleResult = new AngleResult();
+        raoResultAngleResult.addAngle(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE);
+        raoResultAngleResult.addAngle(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE);
+        raoResultAngleResult.addAngle(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE);
+        raoResultAngleResult.addAngle(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
 
         // No violation -> 1 decimal
-        Assertions.assertEquals(39.5, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMax, mockCrac, raoResultAngleExtension).doubleValue());
-        Assertions.assertEquals(1, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMax, mockCrac, raoResultAngleExtension).scale());
+        Assertions.assertEquals(39.5, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMax, mockCrac, raoResultAngleResult).doubleValue());
+        Assertions.assertEquals(1, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMax, mockCrac, raoResultAngleResult).scale());
 
         // Big violation -> 1 decimal
-        Assertions.assertEquals(35.0, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMin, mockCrac, raoResultAngleExtension).doubleValue());
-        Assertions.assertEquals(1, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMin, mockCrac, raoResultAngleExtension).scale());
+        Assertions.assertEquals(35.0, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMin, mockCrac, raoResultAngleResult).doubleValue());
+        Assertions.assertEquals(1, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMin, mockCrac, raoResultAngleResult).scale());
 
         // 0.002 violation -> 3 decimals
-        Assertions.assertEquals(40.002, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin1, mockCrac, raoResultAngleExtension).doubleValue());
-        Assertions.assertEquals(3, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin1, mockCrac, raoResultAngleExtension).scale());
+        Assertions.assertEquals(40.002, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin1, mockCrac, raoResultAngleResult).doubleValue());
+        Assertions.assertEquals(3, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin1, mockCrac, raoResultAngleResult).scale());
 
         // 0.00007 violation -> 5 decimals
-        Assertions.assertEquals(38.99993, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin2, mockCrac, raoResultAngleExtension).doubleValue());
-        Assertions.assertEquals(5, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin2, mockCrac, raoResultAngleExtension).scale());
+        Assertions.assertEquals(38.99993, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin2, mockCrac, raoResultAngleResult).doubleValue());
+        Assertions.assertEquals(5, SweAdditionalConstraintSeriesCreator.roundAngleValue(angleCnecWithMaxAndMin2, mockCrac, raoResultAngleResult).scale());
     }
 }

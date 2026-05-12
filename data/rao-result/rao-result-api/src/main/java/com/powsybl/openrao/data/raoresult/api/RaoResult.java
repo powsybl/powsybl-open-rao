@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
@@ -81,9 +81,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        AngleExtension angleExtension = getExtension(AngleExtension.class);
-        if (angleExtension != null) {
-            return angleExtension.getAngle(optimizedInstant, angleCnec, unit);
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult != null) {
+            return angleResult.getAngle(optimizedInstant, angleCnec, unit);
         }
         return Double.NaN;
     }
@@ -138,9 +138,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        AngleExtension angleExtension = getExtension(AngleExtension.class);
-        if (angleExtension != null) {
-            return angleExtension.getMargin(optimizedInstant, angleCnec, unit);
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult != null) {
+            return angleResult.getMargin(optimizedInstant, angleCnec, unit);
         }
         return Double.NaN;
     }

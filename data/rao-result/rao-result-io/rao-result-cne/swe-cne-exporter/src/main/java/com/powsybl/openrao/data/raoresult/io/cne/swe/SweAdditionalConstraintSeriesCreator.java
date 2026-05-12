@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.AngleCnecCreationContext
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
@@ -73,15 +73,15 @@ public class SweAdditionalConstraintSeriesCreator {
         RaoResult raoResult = sweCneHelper.getRaoResult();
 
         // only export if angle check ran
-        AngleExtension angleExtension = raoResult.getExtension(AngleExtension.class);
+        AngleResult angleResult = raoResult.getExtension(AngleResult.class);
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)
-            && angleExtension != null
-            && !Double.isNaN(angleExtension.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
+            && angleResult != null
+            && !Double.isNaN(angleResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
             AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
             additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedObjectId());
             additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
             additionalConstraintSeries.setName(angleCnec.getName());
-            additionalConstraintSeries.setQuantityQuantity(roundAngleValue(angleCnec, crac, angleExtension));
+            additionalConstraintSeries.setQuantityQuantity(roundAngleValue(angleCnec, crac, angleResult));
             return additionalConstraintSeries;
         }
         return null;
@@ -93,9 +93,9 @@ public class SweAdditionalConstraintSeriesCreator {
      * the number of decimals must be increased so the violation can be
      * read directly in the results.
      */
-    static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, AngleExtension angleExtension) {
-        double angle = angleExtension.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
-        double margin = angleExtension.getMargin(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
+    static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, AngleResult angleResult) {
+        double angle = angleResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
+        double margin = angleResult.getMargin(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
         return roundValueBasedOnMargin(angle, margin, DEFAULT_DECIMALS_FOR_ROUNDING_ANGLES);
     }
 }

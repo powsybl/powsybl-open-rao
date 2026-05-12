@@ -36,7 +36,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -347,10 +347,10 @@ class AngleMonitoringTest {
         assertEquals(0, raoResultWithAngleMonitoring.getActivatedRangeActionsDuringState(crac.getState("Co-2", curativeInstant)).size());
 
         // angle values
-        AngleExtension angleExtension = raoResultWithAngleMonitoring.getExtension(AngleExtension.class);
-        assertNotNull(angleExtension);
-        assertEquals(5.22, angleExtension.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
-        assertEquals(-19.33, angleExtension.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
+        AngleResult angleResult = raoResultWithAngleMonitoring.getExtension(AngleResult.class);
+        assertNotNull(angleResult);
+        assertEquals(5.22, angleResult.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
+        assertEquals(-19.33, angleResult.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
     }
 
     @Test
@@ -413,11 +413,11 @@ class AngleMonitoringTest {
             .build();
         RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
 
-        AngleExtension angleExtension = raoResultWithAngleMonitoring.getExtension(AngleExtension.class);
-        assertNotNull(angleExtension);
+        AngleResult angleResult = raoResultWithAngleMonitoring.getExtension(AngleResult.class);
+        assertNotNull(angleResult);
 
-        assertEquals(Double.NaN, angleExtension.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
-        assertEquals(2.22, angleExtension.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
+        assertEquals(Double.NaN, angleResult.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
+        assertEquals(2.22, angleResult.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
 
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));

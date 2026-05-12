@@ -23,12 +23,12 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleExtension extends AbstractRaoResultExtension {
+public class AngleResult extends AbstractRaoResultExtension {
     private static final String EXTENSION_NAME = "angle-results";
 
     private final Map<AngleCnec, AngleCnecResult> results;
 
-    public AngleExtension() {
+    public AngleResult() {
         this.results = new HashMap<>();
     }
 

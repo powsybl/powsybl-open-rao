@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -335,15 +335,15 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             switch (physicalParameter) {
                 case ANGLE -> {
                     // TODO: do we want to keep the use of the extension here?
-                    AngleExtension angleExtension = getExtension(AngleExtension.class);
-                    if (angleExtension != null) {
+                    AngleResult angleResult = getExtension(AngleResult.class);
+                    if (angleResult != null) {
                         if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> angleExtension.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                            .mapToDouble(cnec -> angleResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
                             .anyMatch(Double::isNaN)) {
                             throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
                         }
                         if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> angleExtension.getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                            .mapToDouble(cnec -> angleResult.getMargin(optimizedInstant, cnec, Unit.DEGREE))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
                             return false;

@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -291,9 +291,9 @@ class RaoResultImplTest {
                 .add()
                 .add();
 
-        AngleExtension angleExtension = new AngleExtension();
-        angleExtension.addAngle(35.0, autoInstant, angleCnec, DEGREE);
-        raoResult.addExtension(AngleExtension.class, angleExtension);
+        AngleResult angleResult = new AngleResult();
+        angleResult.addAngle(35.0, autoInstant, angleCnec, DEGREE);
+        raoResult.addExtension(AngleResult.class, angleResult);
 
         assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
         assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
@@ -340,11 +340,11 @@ class RaoResultImplTest {
         addAngleCnecs();
         addVoltageCnecs();
 
-        AngleExtension angleExtension = new AngleExtension();
-        angleExtension.addAngle(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
-        angleExtension.addAngle(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
-        angleExtension.addAngle(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
-        raoResult.addExtension(AngleExtension.class, angleExtension);
+        AngleResult angleResult = new AngleResult();
+        angleResult.addAngle(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
+        angleResult.addAngle(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addAngle(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
+        raoResult.addExtension(AngleResult.class, angleResult);
 
         VoltageCnecResult voltageResult1 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecPreventive"));
         ElementaryVoltageCnecResult elementaryVoltageCnecResult1 = voltageResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
@@ -386,14 +386,14 @@ class RaoResultImplTest {
 
         // check extensions
 
-        assertEquals(50.0, raoResult.getExtension(AngleExtension.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
-        assertEquals(10.0, raoResult.getExtension(AngleExtension.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+        assertEquals(50.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+        assertEquals(10.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
 
-        assertEquals(90.0, raoResult.getExtension(AngleExtension.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
-        assertEquals(30.0, raoResult.getExtension(AngleExtension.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
+        assertEquals(90.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
+        assertEquals(30.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
 
-        assertEquals(35.0, raoResult.getExtension(AngleExtension.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-        assertEquals(-5.0, raoResult.getExtension(AngleExtension.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(35.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(-5.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
     }
 
     private void addVoltageCnecs() {

@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.impl.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
@@ -110,11 +110,11 @@ public final class ExhaustiveRaoResultCreation {
             fillFlowCnecResult(flowCnecResult, cnec, crac);
         }
 
-        AngleExtension angleExtension = new AngleExtension();
+        AngleResult angleResult = new AngleResult();
         for (AngleCnec cnec : crac.getAngleCnecs()) {
-            fillAngleCnecResult(angleExtension, cnec, crac);
+            fillAngleCnecResult(angleResult, cnec, crac);
         }
-        raoResult.addExtension(AngleExtension.class, angleExtension);
+        raoResult.addExtension(AngleResult.class, angleResult);
 
         for (VoltageCnec cnec : crac.getVoltageCnecs()) {
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(cnec);
@@ -232,18 +232,18 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillAngleCnecResult(AngleExtension angleExtension, AngleCnec cnec, Crac crac) {
+    private static void fillAngleCnecResult(AngleResult angleResult, AngleCnec cnec, Crac crac) {
 
         double x = 3000;
 
-        angleExtension.addAngle(x + 100 + 35, null, cnec, DEGREE);
-        angleExtension.addAngle(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
+        angleResult.addAngle(x + 100 + 35, null, cnec, DEGREE);
+        angleResult.addAngle(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            angleExtension.addAngle(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
+            angleResult.addAngle(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            angleExtension.addAngle(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
+            angleResult.addAngle(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
         }
     }
 
