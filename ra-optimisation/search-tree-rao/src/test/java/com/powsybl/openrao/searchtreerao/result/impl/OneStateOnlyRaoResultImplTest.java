@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -426,15 +425,11 @@ class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    void testAngleAndVoltageCnec() {
-        AngleCnec angleCnec = mock(AngleCnec.class);
+    void testVoltageCnec() {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         Instant optInstant = mock(Instant.class);
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, angleCnec, MEGAWATT));
-        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
-        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
+        OpenRaoException exception;
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, voltageCnec, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
@@ -444,11 +439,6 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getMaxVoltage(optInstant, voltageCnec, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-
-        exception = assertThrows(OpenRaoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));
-        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
-        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
 
     @Test
