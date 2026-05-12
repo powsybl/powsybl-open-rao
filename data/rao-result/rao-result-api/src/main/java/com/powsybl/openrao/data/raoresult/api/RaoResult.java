@@ -97,6 +97,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
@@ -110,6 +111,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
@@ -155,6 +157,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
