@@ -412,15 +412,6 @@
       }
     }
   } ],
-  "angleCnecResults" : [ {
-    "angleCnecId" : "angleCnecId",
-    "curative" : {
-      "degree" : {
-        "angle" : 3435.00,
-        "margin" : 3431.00
-      }
-    }
-  } ],
   "voltageCnecResults" : [ {
     "voltageCnecId" : "voltageCnecId",
     "curative" : {
