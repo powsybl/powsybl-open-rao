@@ -441,6 +441,7 @@ public class SearchTree {
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+            .withNetworkActions(input.getOptimizationPerimeter().getNetworkActions())
             .withOutageInstant(input.getOutageInstant());
 
         if (isRootLeaf) {

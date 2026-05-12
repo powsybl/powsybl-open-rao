@@ -18,6 +18,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
@@ -39,29 +40,35 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
                                                       Instant outageInstant) {
-        return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant, null);
+        return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant, Collections.emptySet(), null);
     }
 
-    static SensitivityAnalysisRunParameters configureSensiAnalysisWithoutRemedialActions(Network network,
-                                                                                         List<Contingency> contingencies,
+    static SensitivityAnalysisRunParameters configureSensiAnalysisWithoutRemedialActions(List<Contingency> contingencies,
                                                                                          List<SensitivityVariableSet> variableSets,
                                                                                          SensitivityAnalysisParameters sensitivityComputationParameters,
                                                                                          Instant outageInstant,
+                                                                                         Set<NetworkAction> networkActions,
                                                                                          AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                                                          Map<SensitivityState, Integer> instantOrderByState) {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        Set<Action> actions = new LinkedHashSet<>();
+        // maximal set of possible actions is made from all network actions (even if not referenced in the operator strategy
+        // to be able to efficiently fast restart sensitivity calculation)
+        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).toList());
+        Set<String> simulatedActionIds = new LinkedHashSet<>();
         String operatorStrategyId = null;
         // To fix on OLF side, when a preventive action is applied it is not reapplied when calculating
         // curative actions after contingency.
         // As a workaround, we re-apply the preventive actions as curative actions with all contingencies.
-        if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
-            actions.addAll(preventiveAppliedRemedialActions.toActions());
+        if (preventiveAppliedRemedialActions != null) {
+            // only add preventive range actions, all network actions are already added
+            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList();
+            actions.addAll(preventiveRangeActions);
+            simulatedActionIds.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(e -> e.getElementaryActions().stream().map(Action::getId)).toList());
+            simulatedActionIds.addAll(preventiveRangeActions.stream().map(Action::getId).toList());
             operatorStrategyId = "OS";
             // associate to N state and all contingencies
             ContingencyContext contingencyContext = contingencies.isEmpty() ? ContingencyContext.none() : ContingencyContext.all();
-            operatorStrategies.add(new OperatorStrategy(operatorStrategyId, contingencyContext, new TrueCondition(),
-                    actions.stream().map(Action::getId).toList()));
+            operatorStrategies.add(new OperatorStrategy(operatorStrategyId, contingencyContext, new TrueCondition(), new ArrayList<>(simulatedActionIds)));
         }
         sensitivityComputationParameters.setOperatorStrategiesCalculationMode(operatorStrategyId != null
                 ? SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES
@@ -83,6 +90,7 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
+                                                      Set<NetworkAction> networkActions,
                                                       AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
@@ -90,11 +98,12 @@ final class SystematicSensitivityAdapter {
         try {
             List<Contingency> contingencies = cnecSensitivityProvider.getContingencies(network);
             List<SensitivityFactor> factors = cnecSensitivityProvider.getAllFactors(network);
-            SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithoutRemedialActions(network,
+            SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithoutRemedialActions(
                     contingencies,
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters,
                     outageInstant,
+                    networkActions,
                     preventiveAppliedRemedialActions,
                     instantOrderByState);
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
@@ -111,23 +120,28 @@ final class SystematicSensitivityAdapter {
                 .postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
-    static SensitivityAnalysisRunParameters configureSensiAnalysisWithRemedialActions(Network network,
-                                                                                      List<SensitivityVariableSet> variableSets,
+    static SensitivityAnalysisRunParameters configureSensiAnalysisWithRemedialActions(List<SensitivityVariableSet> variableSets,
                                                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                                                       Set<State> statesWithRa,
+                                                                                      Set<NetworkAction> networkActions,
                                                                                       AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                                                       AppliedRemedialActions appliedRemedialActions,
                                                                                       Map<SensitivityState, Integer> instantOrderByState) {
         List<Contingency> contingencies = new ArrayList<>();
-        Set<Action> actions = new LinkedHashSet<>();
+
+        // maximal set of possible actions is made from all network actions (even if not referenced in the operator strategy
+        // to be able to efficiently fast restart sensitivity calculation)
+        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).toList());
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        List<String> preventionActionIds = new ArrayList<>();
+        Set<String> simulatedActionIds = new LinkedHashSet<>();
         // we concat preventive actions and remedial actions
         // - preventive actions are applied to all contingencies
-        if (preventiveAppliedRemedialActions != null && !preventiveAppliedRemedialActions.isEmpty(network)) {
-            List<Action> preventiveActions = preventiveAppliedRemedialActions.toActions();
-            actions.addAll(preventiveActions);
-            preventionActionIds.addAll(preventiveActions.stream().map(Action::getId).toList());
+        if (preventiveAppliedRemedialActions != null) {
+            // only add preventive range actions, all network actions are already added
+            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList();
+            actions.addAll(preventiveRangeActions);
+            simulatedActionIds.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(e -> e.getElementaryActions().stream().map(Action::getId)).toList());
+            simulatedActionIds.addAll(preventiveRangeActions.stream().map(Action::getId).toList());
         }
         // - remedial actions are applied to the contingency of the state with RA
         for (State state : statesWithRa) {
@@ -139,12 +153,11 @@ final class SystematicSensitivityAdapter {
             List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
             actions.addAll(curativeActionsForState);
             String operatorStrategyId = "OS-" + contingency.getId();
-            Set<String> actionIds = new LinkedHashSet<>(preventionActionIds);
-            actionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
+            simulatedActionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
             operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
                     ContingencyContext.specificContingency(contingency.getId()),
                     new TrueCondition(),
-                    new ArrayList<>(actionIds)));
+                    new ArrayList<>(simulatedActionIds)));
 
             instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
         }
@@ -163,10 +176,11 @@ final class SystematicSensitivityAdapter {
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
-                                                      Instant outageInstant) {
+                                                      Instant outageInstant,
+                                                      Set<NetworkAction> networkActions) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant,
-                    preventiveAppliedRemedialActions);
+                    networkActions, preventiveAppliedRemedialActions);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
@@ -192,11 +206,12 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         try {
             Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
-            SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithoutRemedialActions(network,
+            SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithoutRemedialActions(
                     contingenciesWithoutRa,
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters,
                     outageInstant,
+                    networkActions,
                     preventiveAppliedRemedialActions,
                     instantOrderByState);
 
@@ -216,10 +231,10 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("{} state(s) with RA {}", statesWithRa.size());
 
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
-        SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithRemedialActions(network,
+        SensitivityAnalysisRunParameters runParameters = configureSensiAnalysisWithRemedialActions(
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters,
-                statesWithRa, preventiveAppliedRemedialActions, appliedRemedialActions,
+                statesWithRa, networkActions, preventiveAppliedRemedialActions, appliedRemedialActions,
                 instantOrderByState);
 
         var factors = cnecSensitivityProvider.getContingencyFactors(network, runParameters.getContingencies());

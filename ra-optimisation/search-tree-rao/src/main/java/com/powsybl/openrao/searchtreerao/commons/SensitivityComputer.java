@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapter;
@@ -23,6 +24,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRem
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -69,6 +71,7 @@ public final class SensitivityComputer {
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
         private Instant outageInstant;
+        private Set<NetworkAction> networkActions = Collections.emptySet();
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -120,6 +123,11 @@ public final class SensitivityComputer {
             return this;
         }
 
+        public SensitivityComputerBuilder withNetworkActions(Set<NetworkAction> networkActions) {
+            this.networkActions = Objects.requireNonNull(networkActions);
+            return this;
+        }
+
         public SensitivityComputer build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(flowCnecs);
@@ -134,7 +142,8 @@ public final class SensitivityComputer {
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,
-                    outageInstant);
+                    outageInstant,
+                    networkActions);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);
