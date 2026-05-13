@@ -359,7 +359,7 @@ public class SearchTree {
     }
 
     AbstractNetworkPool makeOpenRaoNetworkPool(Network network, int leavesInParallel) {
-        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
+        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false, true);
     }
 
     void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {

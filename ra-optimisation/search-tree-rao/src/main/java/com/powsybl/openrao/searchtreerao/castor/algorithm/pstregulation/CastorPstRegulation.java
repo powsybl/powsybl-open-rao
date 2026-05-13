@@ -103,7 +103,7 @@ public final class CastorPstRegulation {
         applyOptimalRemedialActionsForState(network, raoResult, crac.getPreventiveState());
 
         // regulate PSTs for each curative scenario in parallel
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true)) {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true, true)) {
             List<ForkJoinTask<PstRegulationResult>> tasks = statesToRegulate.stream().map(pstRegulationInput ->
                 networkPool.submit(() -> regulatePstsForContingencyScenario(pstRegulationInput, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool))
             ).toList();

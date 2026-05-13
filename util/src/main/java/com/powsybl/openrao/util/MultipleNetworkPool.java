@@ -28,7 +28,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
     private int networkNumberOfClones = 0;
 
-    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism, boolean initClones) {
+    public MultipleNetworkPool(Network network, String targetVariant, int parallelism, boolean initClones) {
         super(network, targetVariant, parallelism);
         if (initClones) {
             initClones(parallelism);

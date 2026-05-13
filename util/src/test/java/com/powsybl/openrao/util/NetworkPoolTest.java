@@ -46,6 +46,20 @@ class NetworkPoolTest {
     void testCreate() {
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 10, true) instanceof MultipleNetworkPool);
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 1, true) instanceof SingleNetworkPool);
+        assertTrue(AbstractNetworkPool.create(network, otherVariant, 10, true, true) instanceof MultiThreadNetworkPool);
+    }
+
+    @Test
+    void multiThreadNetworkPoolUsageTest() throws InterruptedException {
+        try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10, true, true)) {
+            Network networkCopy = pool.getAvailableNetwork();
+
+            assertNotNull(networkCopy);
+            assertEquals(network, networkCopy);
+            assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("OpenRaoNetworkPool working variant"));
+
+            pool.releaseUsedNetwork(networkCopy);
+        }
     }
 
     @Test
