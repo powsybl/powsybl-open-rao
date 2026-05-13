@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -146,20 +145,6 @@ public final class RaoUtil {
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
                 }
             });
-        }
-    }
-
-    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new OpenRaoException("Only conversions between MW and A are supported.");
         }
     }
 

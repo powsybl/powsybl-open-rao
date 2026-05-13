@@ -72,12 +72,7 @@ public class FlowResultImpl implements FlowResult {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side);
         } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
-            if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
-            } else {
-                return intensity;
-            }
+            return systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
         } else {
             throw new OpenRaoException("Unknown unit for flow.");
         }
@@ -88,12 +83,7 @@ public class FlowResultImpl implements FlowResult {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant);
         } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side, instant);
-            if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
-            } else {
-                return intensity;
-            }
+            return systematicSensitivityResult.getReferenceIntensity(flowCnec, side, instant);
         } else {
             throw new OpenRaoException("Unknown unit for flow.");
         }

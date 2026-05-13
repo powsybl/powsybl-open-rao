@@ -146,8 +146,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             maxMinRelativeMarginParameters,
             null);
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnecFr, TwoSides.ONE), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
-        double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnecFr, TwoSides.ONE, MEGAWATT, MEGAWATT);
-        constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecNl, cnecFr), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
+        constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecNl, cnecFr), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
             Set.of(cnecNl, cnecFr),
