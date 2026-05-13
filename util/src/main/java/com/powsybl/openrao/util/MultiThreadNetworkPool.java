@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,8 @@ public class MultiThreadNetworkPool extends AbstractNetworkPool {
         if (initVariants) {
             initClones(parallelism);
         }
+        // FIXME: workaround to fix later and avoid unknown variant in 3.4.3.4
+        network.getVariantManager().cloneVariant(targetVariant, stateSaveVariant);
     }
 
     @Override
@@ -76,6 +79,11 @@ public class MultiThreadNetworkPool extends AbstractNetworkPool {
     public void releaseUsedNetwork(Network networkToRelease, boolean deleteWorkingVariant) throws InterruptedException {
         String variantName = threadVariant.get();
         if (variantName != null) {
+            if (deleteWorkingVariant) {
+                // If some actions were applied, we want to reset the variant to the target variant state
+                // instead of deleting it, to avoid creating it again at each iteration
+                networkToRelease.getVariantManager().cloneVariant(targetVariant, Collections.singletonList(variantName), true);
+            }
             availableVariants.put(variantName);
             threadVariant.remove();
         }
@@ -83,16 +91,25 @@ public class MultiThreadNetworkPool extends AbstractNetworkPool {
     }
 
     @Override
+    protected void cleanVariants(Network networkClone, boolean deleteWorkingVariant) {
+        // MultiThreadNetworkPool manages its variants internally
+    }
+
+    @Override
     public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         super.shutdown();
         super.awaitTermination(timeout, unit);
-        cleanBaseNetwork();
+        this.cleanBaseNetwork();
         network.getVariantManager().allowVariantMultiThreadAccess(false);
     }
 
     @Override
     protected void cleanBaseNetwork() {
         network.getVariantManager().setWorkingVariant(networkInitialVariantId);
-        cleanVariants(network);
+        List<String> variantsToRemove = network.getVariantManager().getVariantIds().stream()
+            .filter(variantId -> variantId.startsWith(workingVariant))
+            .filter(variantId -> !variantId.equals(workingVariant))
+            .toList();
+        variantsToRemove.forEach(variantId -> network.getVariantManager().removeVariant(variantId));
     }
 }
