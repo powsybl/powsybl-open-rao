@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
@@ -40,6 +41,7 @@ final class VoltageCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
+        VoltageResult voltageResult = new VoltageResult();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(VOLTAGECNEC_ID)) {
@@ -53,17 +55,20 @@ final class VoltageCnecResultArrayDeserializer {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: voltageCnec with id %s does not exist in the Crac", voltageCnecId));
             }
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, jsonFileVersion, crac);
+            deserializeVoltageCnecResult(jsonParser, voltageCnec, voltageCnecResult, voltageResult, jsonFileVersion, crac);
         }
+
+        raoResult.addExtension(VoltageResult.class, voltageResult);
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnec voltageCnec, VoltageCnecResult voltageCnecResult, VoltageResult voltageResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult, jsonFileVersion);
+            voltageResult.addMeasurement(eVoltageCnecResult.getMinVoltage(Unit.KILOVOLT), eVoltageCnecResult.getMaxVoltage(Unit.KILOVOLT), optimizedInstant, voltageCnec, Unit.KILOVOLT);
         }
     }
 
