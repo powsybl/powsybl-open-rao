@@ -150,7 +150,7 @@ public final class IcsData {
      * @return A map associating each node identifier to its corresponding generator identifier.
      *         Returns an empty map if the process is aborted due to missing network components.
      */
-    public static Map<String, String> createGeneratorAndLoadAndUpdateNetworks(TemporalData<Network> initialNetworksToModify,
+    public static Map<String, String> createGeneratorAndLoadAndUpdateNetworks(TemporalData<LazyNetwork> initialNetworksToModify,
                                                                               String raId) {
 
         Map<String, String> networkElementPerGskElement = new HashMap<>();
@@ -163,7 +163,7 @@ public final class IcsData {
             Double shiftKey = entry.getValue();
             String generatorId = getGeneratorIdFromRaIdAndNodeId(raId, nodeId);
 
-            for (Map.Entry<OffsetDateTime, Network> networkEntry : initialNetworksToModify.getDataPerTimestamp().entrySet()) {
+            for (Map.Entry<OffsetDateTime, LazyNetwork> networkEntry : initialNetworksToModify.getDataPerTimestamp().entrySet()) {
                 OffsetDateTime dateTime = networkEntry.getKey();
                 Network network = networkEntry.getValue();
 
@@ -178,7 +178,7 @@ public final class IcsData {
                 Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(index)) * shiftKey;
                 // pMin can be undefined
                 Optional<Double> pMinRd = IcsUtil.parseValue(seriesPerType, P_MIN_RD, dateTime, shiftKey);
-                processBus(bus, generatorId, p0, pMinRd.orElse(ON_POWER_THRESHOLD));
+                processBus(bus, generatorId, p0, Math.max(ON_POWER_THRESHOLD, pMinRd.orElse(ON_POWER_THRESHOLD)));
             }
 
             networkElementPerGskElement.put(nodeId, generatorId);
@@ -256,11 +256,12 @@ public final class IcsData {
 
         // Update nominal voltage in network
         // TODO: More of a IDCC focused special processing ? Move elsewhere ?
-        TemporalData<Network> modifiedInitialNetworks = new TemporalDataImpl<>();
+        TemporalData<LazyNetwork> modifiedInitialNetworks = new TemporalDataImpl<>();
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
             updateNominalVoltage(network);
-            modifiedInitialNetworks.put(dateTime, network);
+            modifiedInitialNetworks.put(dateTime, new LazyNetwork(network));
+            IcsUtil.closeNetwork(network);
         });
 
         TemporalData<Crac> cracToModify = new TemporalDataImpl<>();
@@ -289,9 +290,16 @@ public final class IcsData {
         TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
 
         modifiedInitialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
-            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%m%d_%H%M%S")) + ".jiidm";
+            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ofPattern("%y%M%d_%H%m%s")) + ".jiidm";
             initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
-            postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+            LazyNetwork postIcsNetwork = new LazyNetwork(exportedNetworkPath);
+            postIcsRaoInputs.put(dateTime, RaoInput.build(postIcsNetwork, timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+            try {
+                initialNetwork.close();
+                postIcsNetwork.release();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
 
         return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());

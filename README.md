@@ -44,7 +44,7 @@ implementation.
 ### Quick tutorial
 
 If you prefer to get familiar with OpenRAO using a real example, take a look at
-this [tutorial](https://powsybl.readthedocs.io/projects/openrao/en/stable/tutorial.html).
+this [tutorial](https://powsybl.readthedocs.io/projects/openrao/en/stable/getting-started/tutorial.html).
 
 ## License
 

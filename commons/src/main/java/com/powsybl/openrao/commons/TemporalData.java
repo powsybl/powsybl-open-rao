@@ -30,4 +30,6 @@ public interface TemporalData<T> {
     void put(OffsetDateTime timestamp, T data);
 
     <U> TemporalData<U> map(Function<T, U> function);
+
+    <U> TemporalData<U> mapMultiThreading(Function<T, U> function, int parallelism);
 }
