@@ -421,9 +421,14 @@ public final class PstRegulation {
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
                     // FIXME [VB] Does raoResult.getOptimizedSetPointsOnState(state) return all PRA+ARA+CRA?
                     //  On main branch, we must use postPraResult for PRA and postPerimeterResult (from postContingencyResults) for ARA+CRA
-                    appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
-                    raoResult.getOptimizedSetPointsOnState(state).forEach(
-                        (rangeAction, setpoint) -> rangeActionActivationResult.putResult(rangeAction, state, setpoint)
+                    appliedRemedialActions.addAppliedRangeActions(state, raoResult.getActivatedRangeActionsDuringState(state)
+                        .stream()
+                        .collect(Collectors.toMap(
+                            Function.identity(),
+                            rangeAction -> raoResult.getOptimizedSetPointOnState(state, rangeAction)
+                        )));
+                    raoResult.getActivatedRangeActionsDuringState(state).forEach(
+                        rangeAction -> rangeActionActivationResult.putResult(rangeAction, state, raoResult.getOptimizedSetPointOnState(state, rangeAction))
                     );
 
                     if (resultsPerState.containsKey(state)) {

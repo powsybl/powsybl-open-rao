@@ -305,6 +305,12 @@
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-pst-regulation</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
@@ -329,12 +335,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-pst-regulation</artifactId>
-            <version>7.2.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
