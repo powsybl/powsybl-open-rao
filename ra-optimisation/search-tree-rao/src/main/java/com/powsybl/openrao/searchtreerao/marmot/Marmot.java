@@ -107,6 +107,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+        MarmotUtils.exportInputs(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints());
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -139,6 +140,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
+        MarmotUtils.exportIntermediateRaoResults(topologicalOptimizationResults, initialInputs);
 
         // TODO : Add time-coupled constraint check if none violated then return
         boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -272,6 +274,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
 
+        MarmotUtils.exportRaoResults(timeCoupledRaoResult, initialInputs);
         MarmotUtils.releaseAllWithoutOverwrite(initialNetworks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }

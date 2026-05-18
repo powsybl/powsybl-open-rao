@@ -21,7 +21,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -36,14 +39,23 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -279,5 +291,115 @@ public final class MarmotUtils {
             return standardRangeAction.getInitialSetpoint();
         }
         return Double.NaN;
+    }
+
+    public static void exportInputs(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
+        String businessDate = raoInputs.getTimestamps().getLast().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String exportPath = "sensitive/" + businessDate + "/";
+        new File(exportPath).mkdirs();
+        new File(exportPath.concat("time-coupled-constraints/")).mkdir();
+        new File(exportPath.concat("networks/")).mkdir();
+        new File(exportPath.concat("cracs/")).mkdir();
+
+        int nTimestamps = raoInputs.getTimestamps().size();
+
+        TECHNICAL_LOGS.info("----- Exporting input data in folder {} [start]", exportPath);
+
+        // 1. Export time-coupled constraints
+        TECHNICAL_LOGS.debug("----- Exporting time-coupled constraints [start]");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(exportPath.concat("time-coupled-constraints/time-coupled-constraints.json"))) {
+            JsonTimeCoupledConstraints.write(timeCoupledConstraints, fileOutputStream);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        }
+        TECHNICAL_LOGS.debug("----- Exporting time-coupled constraints [end]");
+
+        // 2. Export pre-processed networks
+        TECHNICAL_LOGS.debug("----- Exporting pre-processed networks [start]");
+        AtomicInteger i = new AtomicInteger(1);
+        raoInputs.getDataPerTimestamp().forEach(
+            (timestamp, raoInput) -> {
+                String networkPath = exportPath.concat("networks/").concat(timestamp.toString()).concat(".jiidm");
+                raoInput.getNetwork().write("JIIDM", new Properties(), Path.of(networkPath));
+                TECHNICAL_LOGS.debug(">>> [{}/{}] Exported pre-processed network for timestamp: {}", i.get(), nTimestamps, timestamp);
+                i.getAndIncrement();
+            }
+        );
+        TECHNICAL_LOGS.debug("----- Exporting pre-processed networks [end]");
+
+        // 3. Export pre-processed CRACs
+        TECHNICAL_LOGS.debug("----- Exporting pre-processed CRACs [start]");
+        i.set(1);
+        raoInputs.getDataPerTimestamp().forEach(
+            (timestamp, raoInput) -> {
+                String cracPath = exportPath.concat("cracs/").concat(timestamp.toString()).concat(".json");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(cracPath)) {
+                    raoInput.getCrac().write("JSON", fileOutputStream);
+                } catch (IOException e) {
+                    throw new OpenRaoException(e);
+                }
+                TECHNICAL_LOGS.debug(">>> [{}/{}] Exported pre-processed CRAC for timestamp: {}", i.get(), nTimestamps, timestamp);
+                i.getAndIncrement();
+            }
+        );
+        TECHNICAL_LOGS.debug("----- Exporting pre-processed CRACs [end]");
+
+        TECHNICAL_LOGS.info("----- Exporting input data in folder {} [end]", exportPath);
+    }
+
+    public static void exportIntermediateRaoResults(TemporalData<RaoResult> raoResults, TemporalData<RaoInput> raoInputs) {
+        String businessDate = raoResults.getTimestamps().getLast().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String exportPath = "sensitive/" + businessDate + "/";
+        new File(exportPath.concat("intermediate-rao-results/")).mkdirs();
+
+        int nTimestamps = raoResults.getTimestamps().size();
+
+        TECHNICAL_LOGS.debug("----- Exporting intermediate RAO Results [start]");
+        AtomicInteger i = new AtomicInteger(1);
+        raoResults.getTimestamps().forEach(
+            timestamp -> {
+                RaoResult individualRaoResult = raoResults.getData(timestamp).orElseThrow();
+                Crac crac = raoInputs.getData(timestamp).orElseThrow().getCrac();
+                String raoResultPath = exportPath.concat("intermediate-rao-results/").concat(timestamp.toString()).concat(".json");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
+                    Properties properties = new Properties();
+                    properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+                    individualRaoResult.write("JSON", crac, properties, fileOutputStream);
+                    TECHNICAL_LOGS.debug(">>> [{}/{}] Exported intermediate RAO Result for timestamp: {}", i.get(), nTimestamps, timestamp);
+                    i.getAndIncrement();
+                } catch (IOException e) {
+                    throw new OpenRaoException(e);
+                }
+            }
+        );
+        TECHNICAL_LOGS.debug("----- Exporting intermediate RAO Results [end]");
+    }
+
+    public static void exportRaoResults(TimeCoupledRaoResult raoResult, TemporalData<RaoInput> raoInputs) {
+        String businessDate = raoResult.getTimestamps().getLast().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String exportPath = "sensitive/" + businessDate + "/";
+        new File(exportPath.concat("rao-results/")).mkdirs();
+
+        int nTimestamps = raoResult.getTimestamps().size();
+
+        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [start]");
+        AtomicInteger i = new AtomicInteger(1);
+        raoResult.getTimestamps().forEach(
+            timestamp -> {
+                RaoResult individualRaoResult = raoResult.getIndividualRaoResult(timestamp);
+                Crac crac = raoInputs.getData(timestamp).orElseThrow().getCrac();
+                String raoResultPath = exportPath.concat("rao-results/").concat(timestamp.toString()).concat(".json");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
+                    Properties properties = new Properties();
+                    properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+                    individualRaoResult.write("JSON", crac, properties, fileOutputStream);
+                    TECHNICAL_LOGS.debug(">>> [{}/{}] Exported RAO Result for timestamp: {}", i.get(), nTimestamps, timestamp);
+                    i.getAndIncrement();
+                } catch (IOException e) {
+                    throw new OpenRaoException(e);
+                }
+            }
+        );
+        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [end]");
     }
 }
