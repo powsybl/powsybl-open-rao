@@ -8,7 +8,6 @@
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -67,7 +66,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -78,7 +76,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.tests.steps.CommonTestData.buildConfig;
 import static com.powsybl.openrao.tests.steps.CommonTestData.cracPath;
@@ -244,8 +241,8 @@ public final class TimeCoupledRaoSteps {
                 cracImportResult = importCrac(cracFile, lazyNetwork, cracCreationParameters);
             }
             RaoInput raoInput = RaoInput
-                .build(lazyNetwork, cracImportResult.getLeft())
-                .build();
+                    .build(lazyNetwork, cracImportResult.getLeft())
+                    .build();
             raoInputs.put(offsetDateTime, raoInput);
             cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
             lazyNetwork.release();
@@ -559,142 +556,5 @@ public final class TimeCoupledRaoSteps {
         } else {
             return crac.getState(contingencyId, crac.getInstant(instantId));
         }
-    }
-
-    @When("I export pre-processed files for business date {string}")
-    public void exportPreProcessedFiles(String businessDate) throws IOException {
-        String exportPath = getResourcesPath().concat("marmot/sensitive/").concat(businessDate).concat("/");
-        new File(exportPath).mkdirs();
-        new File(exportPath.concat("time-coupled-constraints/")).mkdir();
-        new File(exportPath.concat("networks/")).mkdir();
-        new File(exportPath.concat("cracs/")).mkdir();
-        new File(exportPath.concat("rao-results/")).mkdir();
-
-        // 1. Export time-coupled constraints
-        BUSINESS_LOGS.info("----- Exporting time-coupled constraints [start]");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(exportPath.concat("time-coupled-constraints/time-coupled-constraints.json"))) {
-            JsonTimeCoupledConstraints.write(timeCoupledRaoInput.getTimeCoupledConstraints(), fileOutputStream);
-        }
-        BUSINESS_LOGS.info("----- Exporting time-coupled constraints [end]");
-
-        // 2. Export pre-processed networks
-        BUSINESS_LOGS.info("----- Exporting pre-processed networks [start]");
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach(
-            (timestamp, raoInput) -> {
-                String networkPath = exportPath.concat("networks/").concat(timestamp.toString()).concat(".jiidm");
-                raoInput.getNetwork().write("JIIDM", new Properties(), Path.of(networkPath));
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting pre-processed networks [end]");
-
-        // 3. Export pre-processed CRACs
-        BUSINESS_LOGS.info("----- Exporting pre-processed CRACs [start]");
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach(
-            (timestamp, raoInput) -> {
-                String cracPath = exportPath.concat("cracs/").concat(timestamp.toString()).concat(".json");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(cracPath)) {
-                    raoInput.getCrac().write("JSON", fileOutputStream);
-                } catch (IOException e) {
-                    throw new OpenRaoException(e);
-                }
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting pre-processed CRACs [end]");
-
-        // 4. Export independent RAO Results
-        BUSINESS_LOGS.info("----- Exporting independent RAO Results [start]");
-        timeCoupledRaoResult.getTimestamps().forEach(
-            timestamp -> {
-                RaoResult raoResult = timeCoupledRaoResult.getIndividualRaoResult(timestamp);
-                Crac crac = timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
-                String raoResultPath = exportPath.concat("rao-results/").concat(timestamp.toString()).concat(".json");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
-                    Properties properties = new Properties();
-                    properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-                    raoResult.write("JSON", crac, properties, fileOutputStream);
-                } catch (IOException e) {
-                    throw new OpenRaoException(e);
-                }
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting independent RAO Results [end]");
-    }
-
-    @When("I import data from preprocessed files for business date {string}")
-    public void importDataFromPreprocessedFiles(String businessDate) throws IOException {
-        String importPath = getResourcesPath().concat("marmot/sensitive/").concat(businessDate).concat("/");
-
-        // 1. Import time-coupled constraints
-        TimeCoupledConstraints timeCoupledConstraints;
-        BUSINESS_LOGS.info("----- Importing time-coupled constraints [start]");
-        try (FileInputStream fileInputStream = new FileInputStream(importPath.concat("time-coupled-constraints/time-coupled-constraints.json"))) {
-            timeCoupledConstraints = JsonTimeCoupledConstraints.read(fileInputStream);
-        }
-        BUSINESS_LOGS.info("----- Importing time-coupled constraints [end]");
-
-        // 2. Import networks
-        BUSINESS_LOGS.info("----- Importing networks [start]");
-        TemporalData<Network> networks = new TemporalDataImpl<>();
-        File[] networkFiles = new File(importPath.concat("networks/")).listFiles((dir, name) -> name.endsWith(".jiidm"));
-
-        if (networkFiles != null) {
-            for (File networkFile : networkFiles) {
-                String timestamp = networkFile.getName().replace(".jiidm", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
-                Network network = Network.read(networkFile.toPath());
-                networks.put(offsetDateTime, network);
-                BUSINESS_LOGS.info("Imported network for timestamp: {}", offsetDateTime);
-            }
-        }
-        BUSINESS_LOGS.info("----- Importing networks [end]");
-
-        // 3. Import CRACs
-        BUSINESS_LOGS.info("----- Importing CRACs [start]");
-        TemporalData<Crac> cracs = new TemporalDataImpl<>();
-        File[] cracFiles = new File(importPath.concat("cracs/")).listFiles((dir, name) -> name.endsWith(".json"));
-
-        if (cracFiles != null) {
-            for (File cracFile : cracFiles) {
-                String timestamp = cracFile.getName().replace(".json", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
-                try (FileInputStream cracInputStream = new FileInputStream(cracFile)) {
-                    Crac crac = Crac.read(cracFile.getName(), cracInputStream, networks.getData(offsetDateTime).orElseThrow());
-                    cracs.put(offsetDateTime, crac);
-                    BUSINESS_LOGS.info("Imported CRAC for timestamp: {}", offsetDateTime);
-                }
-            }
-        }
-        BUSINESS_LOGS.info("----- Importing CRACs [end]");
-
-        // 4. Import RAO Results
-        BUSINESS_LOGS.info("----- Importing RAO Results [start]");
-        TemporalData<RaoResult> raoResults = new TemporalDataImpl<>();
-        File[] raoResultFiles = new File(importPath.concat("rao-results/")).listFiles((dir, name) -> name.endsWith(".json"));
-
-        if (raoResultFiles != null) {
-            for (File raoResultFile : raoResultFiles) {
-                String timestamp = raoResultFile.getName().replace(".json", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
-                try (FileInputStream raoResultInputStream = new FileInputStream(raoResultFile)) {
-                    RaoResult raoResult = RaoResult.read(raoResultInputStream, cracs.getData(offsetDateTime).orElseThrow());
-                    raoResults.put(offsetDateTime, raoResult);
-                    BUSINESS_LOGS.info("Imported RAO Result for timestamp: {}", offsetDateTime);
-                }
-            }
-        }
-        BUSINESS_LOGS.info("----- Importing RAO Results [end]");
-
-        List<OffsetDateTime> timestamps = networks.getTimestamps();
-        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
-
-        for (OffsetDateTime timestamp : timestamps) {
-            RaoInput raoInput = RaoInput.build(new LazyNetwork(networks.getData(timestamp).orElseThrow()), cracs.getData(timestamp).orElseThrow()).build();
-            raoInputs.put(timestamp, raoInput);
-            BUSINESS_LOGS.info("Imported RAO Input for timestamp: {}", timestamp);
-        }
-
-        raoParameters = buildConfig(getFile(raoParametersPath));
-
-        timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new HashSet<>(timestamps), timeCoupledConstraints, raoResults);
     }
 }
