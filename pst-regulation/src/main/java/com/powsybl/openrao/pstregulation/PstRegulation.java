@@ -419,19 +419,12 @@ public final class PstRegulation {
                         );
                     }
 
-                    appliedRemedialActions.getAppliedNetworkActions(state).forEach(
-                        networkAction -> networkAction.apply(network)
-                    );
-                    appliedRemedialActions.getAppliedRangeActions(state).forEach(
-                        (rangeAction, setPoint) -> rangeAction.apply(network, setPoint)
-                    );
-
                     final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                         crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
                     );
 
                     final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                        network, initialFlowResult, Collections.emptySet(), new AppliedRemedialActions()
+                        network, initialFlowResult, Collections.emptySet(), appliedRemedialActions
                     );
 
                     final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
@@ -448,7 +441,7 @@ public final class PstRegulation {
 
                     final PostPerimeterResult statePostPerimeterResult =
                         new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
-                            .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, contingencyPrePerimeterResult, Set.of(), stateOptimizationResult, new AppliedRemedialActions());
+                            .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, contingencyPrePerimeterResult, Set.of(), stateOptimizationResult, appliedRemedialActions);
                     postRegulationPostContingencyResults.put(state, statePostPerimeterResult);
 
                     contingencyPrePerimeterResult = statePrePerimeterResult;
