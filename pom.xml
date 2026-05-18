@@ -107,6 +107,7 @@
         <junit.bom.version>5.14.4</junit.bom.version><!-- TODO: unify these two to have a single version? -->
         <junit-jupiter.version>5.14.4</junit-jupiter.version>
         <maven.jvnet.jaxb.version>4.0.12</maven.jvnet.jaxb.version>
+        <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
         <powsybl.core.version>7.3.0-SNAPSHOT</powsybl.core.version>
         <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
         <powsybl.openloadflow.version>2.3.0-SNAPSHOT</powsybl.openloadflow.version>
@@ -182,6 +183,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>${maven.checkstyle.version}</version>
                         <configuration>
                             <configLocation>checkstyle.xml</configLocation>
                             <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
