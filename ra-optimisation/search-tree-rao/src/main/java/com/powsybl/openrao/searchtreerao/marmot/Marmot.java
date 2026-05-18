@@ -87,7 +87,6 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String INITIAL_SCENARIO = "InitialScenario"; // initial variant coming from CASTOR
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
-    private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
@@ -246,9 +245,8 @@ public class Marmot implements TimeCoupledRaoProvider {
             TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are uncoherent or that cannot be met. Rolling back to initial situation.");
             logCost("[MARMOT] Unoptimized RAO results: ", initialObjectiveFunctionResult, raoParameters, 10);
             TemporalData<RaoResult> unoptimizedRaoResults = new TemporalDataImpl<>();
-            initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) -> {
-                unoptimizedRaoResults.put(timestamp, new UnoptimizedRaoResultImpl(prePerimeterResult));
-            });
+            initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) ->
+                unoptimizedRaoResults.put(timestamp, new UnoptimizedRaoResultImpl(prePerimeterResult)));
             TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
                 initialInputs,
                 initialResults,
