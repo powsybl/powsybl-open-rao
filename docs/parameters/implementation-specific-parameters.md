@@ -448,7 +448,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.3",
+  "version" : "3.4",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
