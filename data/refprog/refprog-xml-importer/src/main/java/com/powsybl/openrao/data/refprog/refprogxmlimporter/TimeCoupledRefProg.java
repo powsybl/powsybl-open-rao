@@ -15,8 +15,8 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -87,11 +87,11 @@ public final class TimeCoupledRefProg {
             JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.marshal(publicationDocument, new FileOutputStream(outputPath));
-        } catch (FileNotFoundException e) {
+            try (FileOutputStream fos = new FileOutputStream(outputPath)) {
+                jaxbMarshaller.marshal(publicationDocument, fos);
+            }
+        } catch (IOException | JAXBException e) {
             throw new OpenRaoException(e);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
         }
     }
 

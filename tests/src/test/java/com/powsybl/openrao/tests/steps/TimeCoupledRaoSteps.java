@@ -198,7 +198,10 @@ public final class TimeCoupledRaoSteps {
             lazyNetwork.release();
         }
 
-        TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
+        TimeCoupledConstraints timeCoupledConstraints;
+        try (InputStream is = new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath))) {
+            timeCoupledConstraints = JsonTimeCoupledConstraints.read(is);
+        }
         timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, timeCoupledConstraints);
     }
 
@@ -210,9 +213,7 @@ public final class TimeCoupledRaoSteps {
     public static void loadDataForCoreTimeCoupledRao(DataTable arg1) throws IOException {
         cracCreationContexts = new HashMap<>();
         CracCreationParameters cracCreationParameters;
-        try {
-            String ccpToImport = getResourcesPath().concat(DEFAULT_CRAC_CREATION_PARAMETERS_PATH);
-            InputStream cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(ccpToImport)));
+        try (InputStream cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_CRAC_CREATION_PARAMETERS_PATH))))) {
             cracCreationParameters = JsonCracCreationParameters.read(cracCreationParametersInputStream);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -247,25 +248,28 @@ public final class TimeCoupledRaoSteps {
             cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
             lazyNetwork.release();
         }
-        InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
+        try (InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath))) {
+            FbConstraintCracCreationParameters fbConstraintParameters = cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class);
+            if (fbConstraintParameters == null) {
+                TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
+                fbConstraintParameters = new FbConstraintCracCreationParameters();
+            }
 
-        FbConstraintCracCreationParameters fbConstraintParameters = cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class);
-        if (fbConstraintParameters == null) {
-            TECHNICAL_LOGS.warn("No FB Constraint CRAC creation parameters found. Default parameters will be used.");
-            fbConstraintParameters = new FbConstraintCracCreationParameters();
+            try (InputStream staticIcsIs = new FileInputStream(getFile(icsStaticPath));
+                 InputStream seriesIcsIs = new FileInputStream(getFile(icsSeriesPath))) {
+                IcsData icsData = IcsDataImporter.read(
+                    staticIcsIs,
+                    seriesIcsIs,
+                    gskInputStream,
+                    raoInputs.getTimestamps().stream().sorted().toList());
+
+                timeCoupledRaoInput = icsData.processAllRedispatchingActions(
+                    new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints()),
+                    fbConstraintParameters.getIcsCostUp(),
+                    fbConstraintParameters.getIcsCostDown(),
+                    networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]);
+            }
         }
-
-        IcsData icsData = IcsDataImporter.read(
-            new FileInputStream(getFile(icsStaticPath)),
-            new FileInputStream(getFile(icsSeriesPath)),
-            gskInputStream,
-            raoInputs.getTimestamps().stream().sorted().toList());
-
-        timeCoupledRaoInput = icsData.processAllRedispatchingActions(
-            new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints()),
-            fbConstraintParameters.getIcsCostUp(),
-            fbConstraintParameters.getIcsCostDown(),
-            networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]);
     }
 
     @When("I launch marmot")
@@ -275,12 +279,12 @@ public final class TimeCoupledRaoSteps {
 
     @When("I export marmot results to {string}")
     public static void iExportMarmotResults(String outputPath) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
         properties.put("time-coupled-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("time-coupled-rao-result.export.summary-filename", "summary.json");
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+             ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             timeCoupledRaoResult.write(zipOutputStream, timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac), properties);
         }
     }
@@ -298,8 +302,10 @@ public final class TimeCoupledRaoSteps {
             for (OffsetDateTime offsetDateTime : timeCoupledRaoInput.getTimestampsToRun()) {
                 rdVolumes.put(offsetDateTime, new HashMap<>());
                 String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
-                RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+                RaoResult raoResult;
+                try (FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))))) {
+                    raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+                }
 
                 // Load redispatching volumes
                 Crac crac = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
@@ -327,8 +333,9 @@ public final class TimeCoupledRaoSteps {
             Map<String, Map<String, Map<String, Double>>> becValues = importBecValues();
 
             if (refProgPath != null) {
-                InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-                TimeCoupledRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+                try (InputStream refProgInputStream = new FileInputStream(getFile(refProgPath))) {
+                    TimeCoupledRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+                }
             }
         } finally {
             deleteDirectoryRecursively(tempDir);
@@ -460,9 +467,10 @@ public final class TimeCoupledRaoSteps {
             Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
             for (OffsetDateTime timestamp : timeCoupledRaoInput.getTimestampsToRun()) {
                 String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
-                RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
-                raoResults.put(timestamp, raoResult);
+                try (FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))))) {
+                    RaoResult raoResult = RaoResult.read(raoResultInputStream, timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
+                    raoResults.put(timestamp, raoResult);
+                }
             }
             F711Utils.write(
                 new TemporalDataImpl<>(raoResults),
