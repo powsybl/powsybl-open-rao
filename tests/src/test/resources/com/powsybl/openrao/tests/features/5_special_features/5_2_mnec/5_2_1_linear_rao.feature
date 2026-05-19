@@ -11,7 +11,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   The flow on CNEC "NNL2AA1  NNL3AA1  1 - preventive" is increased because the CNEC is not limiting.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -29,7 +29,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   is adapted. The margin of the MNEC was positive initially, it must remain positive.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -47,7 +47,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   decrease is set at 50 MW by the parameter "acceptable-margin-decrease" in "mnec-parameters".
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -66,7 +66,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   in "mnec-parameters".
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

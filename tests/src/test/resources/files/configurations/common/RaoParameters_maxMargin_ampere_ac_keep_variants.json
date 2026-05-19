@@ -20,7 +20,7 @@
     "remove-added-variants" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 260.0
+    "acceptable-margin-decrease" : 50.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
