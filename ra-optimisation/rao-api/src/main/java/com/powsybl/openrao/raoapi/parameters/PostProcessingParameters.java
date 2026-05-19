@@ -18,7 +18,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.REMOVE_ADDED_VARIA
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class PostProcessingParameters {
-    private static final boolean DEFAULT_REMOVE_ADDED_VARIANTS = false;
+    private static final boolean DEFAULT_REMOVE_ADDED_VARIANTS = true;
     private boolean removeAddedVariants = DEFAULT_REMOVE_ADDED_VARIANTS;
 
     public boolean mustRemoveAddedVariants() {

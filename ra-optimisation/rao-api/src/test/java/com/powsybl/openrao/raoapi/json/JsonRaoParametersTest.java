@@ -96,7 +96,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         // Post-processing parameters
-        parameters.getPostProcessingParameters().setRemoveAddedVariants(true);
+        parameters.getPostProcessingParameters().setRemoveAddedVariants(false);
         // LoadFlow and sensitivity parameters
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");

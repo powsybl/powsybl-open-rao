@@ -14,3 +14,6 @@ rao-topological-actions-optimization:
 
 rao-not-optimized-cnecs:
     do-not-optimize-curative-cnecs-for-tsos-without-cras: false
+
+rao-post-processing:
+    remove-added-variants: true

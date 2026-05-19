@@ -216,7 +216,7 @@ See also: [Modelling the maximum minimum relative margin objective function](../
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "post-processing" : {
-    "remove-added-variants" : false
+    "remove-added-variants" : true
   }
 }
 ~~~
@@ -245,7 +245,7 @@ rao-not-optimized-cnecs:
   do-not-optimize-curative-cnecs-for-tsos-without-cras: false
 
 rao-post-processing:
-  remove-added-variants: false
+  remove-added-variants: true
 ~~~
 :::
 ::::

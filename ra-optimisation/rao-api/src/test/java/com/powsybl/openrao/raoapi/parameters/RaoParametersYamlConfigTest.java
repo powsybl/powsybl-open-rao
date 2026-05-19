@@ -93,7 +93,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
 
         PostProcessingParameters postProcessingParameters = parameters.getPostProcessingParameters();
-        assertFalse(postProcessingParameters.mustRemoveAddedVariants());
+        assertTrue(postProcessingParameters.mustRemoveAddedVariants());
 
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
