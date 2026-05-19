@@ -367,6 +367,7 @@ public final class PstRegulation {
             network, initialFlowResult, Set.of(), new AppliedRemedialActions()
         );
 
+        // this result is only used as a data holder for flows and applied PRAs: it does not contain the proper objective function value in costly
         final OptimizationResult preventiveResult = new OptimizationResultImpl(
             preventivePrePerimeterResult, preventivePrePerimeterResult, preventivePrePerimeterResult,
             new NetworkActionsResultImpl(Map.of(
@@ -450,12 +451,17 @@ public final class PstRegulation {
         }
 
         final StateTree stateTree = new StateTree(crac);
-        return new PreventiveAndCurativesRaoResultImpl(
+        final PreventiveAndCurativesRaoResultImpl postRegulationRaoResult = new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialFlowResult,
             preventivePostPerimeterResult,
             postRegulationPostContingencyResults,
             crac,
-            raoParameters);
+            raoParameters
+        );
+        final String executionDetails = String.format("%s %s", raoResult.getExecutionDetails(), "and went through PST regulation");
+        postRegulationRaoResult.setExecutionDetails(executionDetails);
+
+        return postRegulationRaoResult;
     }
 }
