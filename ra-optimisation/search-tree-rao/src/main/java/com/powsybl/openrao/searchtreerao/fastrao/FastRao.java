@@ -56,6 +56,7 @@ import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
@@ -474,10 +475,17 @@ public class FastRao implements RaoProvider {
     }
 
     public static Crac copyCrac(Crac crac, Network network) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new JsonExport().exportData(crac, outputStream);
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return new JsonImport().importData(inputStream, new CracCreationParameters(), network).getCrac();
+        try (ByteArrayOutputStream cracJsonOutputStream = new ByteArrayOutputStream()) {
+            new JsonExport().exportData(crac, cracJsonOutputStream);
+            byte[] serializedCrac = cracJsonOutputStream.toByteArray();
+
+            try (ByteArrayInputStream cracJsonInputStream = new ByteArrayInputStream(serializedCrac)) {
+                CracCreationParameters cracCreationParameters = new CracCreationParameters();
+                return new JsonImport().importData(cracJsonInputStream, cracCreationParameters, network).getCrac();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to copy CRAC", e);
+        }
     }
 
     // Caution: We might remove CNECs associated to RAs with onConstraint usageRule
