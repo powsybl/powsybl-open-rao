@@ -170,6 +170,15 @@ class RaoParametersConfigTest {
     }
 
     @Test
+    void checkPostProcessingConfig() {
+        MapModuleConfig postProcessingModuleConfig = platformCfg.createModuleConfig("rao-post-processing");
+        postProcessingModuleConfig.setStringProperty("remove-added-variants", Objects.toString(true));
+        RaoParameters parameters = RaoParameters.load(platformCfg);
+        PostProcessingParameters params = parameters.getPostProcessingParameters();
+        assertTrue(params.mustRemoveAddedVariants());
+    }
+
+    @Test
     void checkLoadFlowParametersConfig() {
         MapModuleConfig loadFlowModuleConfig = platformCfg.createModuleConfig("search-tree-load-flow-and-sensitivity-computation");
         loadFlowModuleConfig.setStringProperty("load-flow-provider", "Bonjour");

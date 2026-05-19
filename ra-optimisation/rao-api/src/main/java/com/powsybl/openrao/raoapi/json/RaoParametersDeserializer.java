@@ -24,6 +24,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETE
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.NOT_OPTIMIZED_CNECS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.POST_PROCESSING;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
@@ -72,6 +73,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case NOT_OPTIMIZED_CNECS -> {
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
+                }
+                case POST_PROCESSING -> {
+                    parser.nextToken();
+                    JsonPostProcessingParameters.deserialize(parser, parameters);
                 }
                 case MNEC_PARAMETERS -> {
                     parser.nextToken();

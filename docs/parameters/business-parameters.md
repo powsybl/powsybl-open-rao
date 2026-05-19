@@ -110,6 +110,23 @@ optimisation of specific CNECs in specific conditions.
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
 
+### Post-processing
+
+These parameters are used to manage data created by the RAO during its optimizaton.
+
+#### remove-added-remedial-actions
+
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if this parameter is set to true, the variants created by the RAO will be removed (ex: preventive scenario
+  variant).
+
+#### remove-added-variants
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if this parameter is set to true, the RAO will remove the variants that have been added during the RAO.  
+  This parameter should be set to true for CORE CC.
+
 ### Loop-flow optional parameter
 Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
@@ -197,6 +214,9 @@ See also: [Modelling the maximum minimum relative margin objective function](../
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
+  },
+  "post-processing" : {
+    "remove-added-variants" : false
   }
 }
 ~~~
@@ -223,6 +243,9 @@ search-tree-second-preventive-rao:
 
 rao-not-optimized-cnecs:
   do-not-optimize-curative-cnecs-for-tsos-without-cras: false
+
+rao-post-processing:
+  remove-added-variants: false
 ~~~
 :::
 ::::

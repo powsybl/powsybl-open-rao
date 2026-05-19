@@ -15,5 +15,8 @@
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
+  },
+  "post-processing" : {
+    "remove-added-variants" : false
   }
 }

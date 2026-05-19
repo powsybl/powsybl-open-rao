@@ -98,6 +98,11 @@ public final class RaoParametersCommons {
     public static final String SENSITIVITY_FAILURE_OVERCOST = "sensitivity-failure-overcost";
     public static final String SENSITIVITY_PARAMETERS = "sensitivity-parameters";
 
+    // Post-processing parameters
+    public static final String POST_PROCESSING = "post-processing";
+    public static final String POST_PROCESSING_SECTION = "rao-post-processing";
+    public static final String REMOVE_ADDED_VARIANTS = "remove-added-variants";
+
     // EXTENSIONS
     public static final String CONSTRAINT_ADJUSTMENT_COEFFICIENT = "constraint-adjustment-coefficient";
     public static final String VIOLATION_COST = "violation-cost";
