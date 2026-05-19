@@ -37,7 +37,7 @@ Feature: 6.1.1: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch rao
     When I launch PST regulation
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -1382.77 A
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
@@ -146,7 +146,7 @@ Feature: 6.1.1: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"
     When I launch rao
     When I launch PST regulation
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     # Preventive taps
     Then the tap of PstRangeAction "pstFr12" should be 0 in preventive
@@ -177,7 +177,7 @@ Feature: 6.1.1: PST Regulation
     # Overall
     Then the value of the objective function after CRA should be 758.18
     Then the worst margin is -758.18 A
-    Then the margin on cnec "cnecFr23Preventive" after PRA should be -758.18 A
+    Then the margin on cnec "cnecFr23Preventive" after ARA should be -758.18 A
 
   @ac @fast @rao @pst-regulation @max-min-margin
   Scenario: 6.1.1.4: Regulation with two equivalent parallel PSTs
@@ -189,7 +189,7 @@ Feature: 6.1.1: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac_2pstsRegulation.json"
     When I launch rao
     When I launch PST regulation
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -733.27 A
     Then the margin on cnec "cnecPst2Curative" after CRA should be -733.27 A
@@ -222,7 +222,7 @@ Feature: 6.1.1: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac_pstRegulationSeries.json"
     When I launch rao
     When I launch PST regulation
-    Then the execution details should be "The RAO only went through first preventive"
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -1187.64 A
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive

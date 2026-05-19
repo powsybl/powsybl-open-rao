@@ -36,7 +36,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
@@ -63,7 +62,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingPar
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class PstRegulation {
-    private static final String INITIAL_SCENARIO = "InitialScenario";
+    private static final String PST_REGULATION_VARIANT = "PSTRegulation";
 
     private PstRegulation() {
     }
@@ -72,6 +71,12 @@ public final class PstRegulation {
                                          Crac crac,
                                          RaoResult raoResult,
                                          RaoParameters raoParameters) {
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        Set<String> initialVariants = new HashSet<>(network.getVariantManager().getVariantIds());
+
+        network.getVariantManager().cloneVariant(initialVariantId, PST_REGULATION_VARIANT);
+        network.getVariantManager().setWorkingVariant(PST_REGULATION_VARIANT);
+
         Map<String, String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
         if (pstsToRegulate.isEmpty()) {
             return raoResult;
@@ -126,6 +131,7 @@ public final class PstRegulation {
                 }
             }
             networkPool.shutdownAndAwaitTermination(1000, TimeUnit.SECONDS);
+            network.getVariantManager().setWorkingVariant(initialVariantId);
             return mergePstRegulationResultsWithRaoResult(pstRegulationResults, raoResult, network, crac, raoParameters);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
@@ -133,6 +139,12 @@ public final class PstRegulation {
             return raoResult;
         } finally {
             loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            Set<String> variantsToRemove = network.getVariantManager().getVariantIds()
+                .stream()
+                .filter(variantId -> !initialVariants.contains(variantId))
+                .collect(Collectors.toSet());
+            variantsToRemove.forEach(network.getVariantManager()::removeVariant);
         }
     }
 
@@ -356,26 +368,27 @@ public final class PstRegulation {
 
         // create a new network variant from initial variant for performing the results merging
         final String variantName = "PSTRegulationResultsMerging";
-        network.getVariantManager().cloneVariant(INITIAL_SCENARIO, variantName);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), variantName);
         network.getVariantManager().setWorkingVariant(variantName);
 
         // apply PRAs
         final State preventiveState = crac.getPreventiveState();
         applyOptimalRemedialActionsForState(network, raoResult, preventiveState);
 
+        // this result is only used as a data holder for flows: it does not contain the proper objective function value in costly
         final PrePerimeterResult preventivePrePerimeterResult = initialPrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
             network, initialFlowResult, Set.of(), new AppliedRemedialActions()
         );
 
-        // this result is only used as a data holder for flows and applied PRAs: it does not contain the proper objective function value in costly
+        RangeActionActivationResultImpl preventiveRangeActionActivationResult = new RangeActionActivationResultImpl(initialFlowResult);
+        raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> preventiveRangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
+
         final OptimizationResult preventiveResult = new OptimizationResultImpl(
             preventivePrePerimeterResult, preventivePrePerimeterResult, preventivePrePerimeterResult,
             new NetworkActionsResultImpl(Map.of(
                 preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)
             )),
-            new RangeActionActivationResultImpl(
-                new RangeActionSetpointResultImpl(raoResult.getOptimizedSetPointsOnState(preventiveState))
-            )
+            preventiveRangeActionActivationResult
         );
 
         final PostPerimeterResult preventivePostPerimeterResult =

@@ -8,14 +8,22 @@
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.openrao.pstregulation.PstRegulation;
+import com.powsybl.openrao.tests.utils.RaoUtils;
 import io.cucumber.java.en.When;
+
+import java.io.IOException;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class PstRegulationSteps {
     @When("I launch PST regulation")
-    public void launchPSTRegulation() {
-        CommonTestData.setRaoResult(PstRegulation.regulatePsts(CommonTestData.getNetwork(), CommonTestData.getCrac(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters()));
+    public void launchPSTRegulation() throws IOException {
+        CommonTestData.setRaoResult(
+            RaoUtils.roundTripOnRaoResult(
+                PstRegulation.regulatePsts(CommonTestData.getNetwork(), CommonTestData.getCrac(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters()),
+                CommonTestData.getCrac()
+            )
+        );
     }
 }
