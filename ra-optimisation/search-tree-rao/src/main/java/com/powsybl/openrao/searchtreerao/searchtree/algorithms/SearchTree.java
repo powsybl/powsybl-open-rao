@@ -264,6 +264,8 @@ public class SearchTree {
         int chunkSize = (numberOfCombinations + numberOfChunks - 1) / numberOfChunks;
 
         String previousWorkingVariantId = networkVariantManager.getNetwork().getVariantManager().getWorkingVariantId();
+        boolean previousVariantMultiThreadAccess = networkVariantManager.getNetwork().getVariantManager().isVariantMultiThreadAccessAllowed();
+        networkVariantManager.getNetwork().getVariantManager().allowVariantMultiThreadAccess(true);
         List<String> newVariantIds = new ArrayList<>();
         for (int i = 0; i < numberOfChunks; i++) {
             String newVariantId = "leaf_" + UUID.randomUUID();
@@ -273,10 +275,12 @@ public class SearchTree {
         try {
             List<Future<Object>> tasks = new ArrayList<>();
             for (int i = 0; i < numberOfChunks; i++) {
+                int finalI = i;
                 int fromIndex = i * chunkSize;
                 int toIndex = Math.min(fromIndex + chunkSize, numberOfCombinations);
                 List<NetworkActionCombination> naCombinationsChunk = naCombinationsList.subList(fromIndex, toIndex);
                 tasks.add(executorService.submit(() -> {
+                    networkVariantManager.getNetwork().getVariantManager().setWorkingVariant(newVariantIds.get(finalI));
                     for (NetworkActionCombination naCombination : naCombinationsChunk) {
                         optimizeOneLeaf(networkVariantManager, naCombination, remainingLeaves);
                     }
@@ -295,6 +299,7 @@ public class SearchTree {
             for (String newVariantId : newVariantIds) {
                 networkVariantManager.getNetwork().getVariantManager().removeVariant(newVariantId);
             }
+            networkVariantManager.getNetwork().getVariantManager().allowVariantMultiThreadAccess(previousVariantMultiThreadAccess);
         }
     }
 
