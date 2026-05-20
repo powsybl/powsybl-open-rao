@@ -76,6 +76,7 @@
         <module>data</module>
         <module>distribution</module>
         <module>loopflow-computation</module>
+        <module>pst-regulation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
         <module>util</module>
@@ -365,6 +366,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-monitoring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-pst-regulation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
