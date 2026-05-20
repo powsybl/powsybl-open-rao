@@ -107,7 +107,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
-        MarmotUtils.exportInputs(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints());
+        // MarmotUtils.exportInputs(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints());
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -140,7 +140,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
-        MarmotUtils.exportIntermediateRaoResults(topologicalOptimizationResults, initialInputs);
+        // MarmotUtils.exportIntermediateRaoResults(topologicalOptimizationResults, initialInputs);
 
         // TODO : Add time-coupled constraint check if none violated then return
         boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -190,19 +190,20 @@ public class Marmot implements TimeCoupledRaoProvider {
             replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
         }
 
+        // TODO : this is probably useless : no more variant handling with lazyNetworks
+        // Clone the post-topological actions networks to make sure we work on a clean variant every time
+        // TemporalData<RaoInput> inputsForMip = MarmotUtils.merge(initialNetworks, cracs);
+        // MarmotUtils.releaseAllWithoutOverwrite(inputsForMip.map(RaoInput::getNetwork));
+
         TemporalData<PrePerimeterResult> sensiResults;
         GlobalLinearOptimizationResult linearOptimizationResults;
         GlobalLinearOptimizationResult fullResults;
         int counter = 1;
         do {
-            // TODO : this is probably useless : no more variant handling with lazyNetworks
-            // Clone the post-topological actions networks to make sure we work on a clean variant every time
-            TemporalData<RaoInput> inputsForMip = MarmotUtils.merge(initialNetworks, cracs);
-
             // Run post topo sensitivity analysis on all timestamps ON CONSIDERED CNECS ONLY (which is why we do it every loop)
             TECHNICAL_LOGS.info("[MARMOT] Systematic time-coupled sensitivity analysis [start]");
             TemporalData<PrePerimeterResult> postTopoResults = runAllSensitivityAnalysesBasedOnInitialResult(
-                    inputsForMip,
+                    initialInputs,
                     curativeRemedialActions,
                     initialResults,
                     raoParametersDuplicates,
@@ -222,7 +223,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             // Create and iteratively solve MIP to find optimal range actions' set-points FOR THE CONSIDERED CNECS
             TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start] for iteration {}", counter);
             linearOptimizationResults = optimizeLinearRemedialActions(
-                    new TimeCoupledRaoInput(inputsForMip, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints()),
+                    new TimeCoupledRaoInput(initialInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints()),
                     initialResults,
                     initialSetpointResults,
                     postTopoResults,
@@ -233,7 +234,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     filteredObjectiveFunction,
                     parallelism
             );
-            MarmotUtils.releaseAllWithoutOverwrite(inputsForMip.map(RaoInput::getNetwork));
+            MarmotUtils.releaseAllWithoutOverwrite(initialInputs.map(RaoInput::getNetwork));
             TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", counter);
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
@@ -450,7 +451,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                             curativeRemedialActions.getData(timestamp).orElseThrow(),
                             initialResults.getData(timestamp).orElseThrow(),
                             raoParameters.getData(timestamp).orElseThrow());
-                    MarmotUtils.releaseNetwork(raoInput.getNetwork());
+                    MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                     return sensitivityAnalysisResults;
                 },
                 parallelism

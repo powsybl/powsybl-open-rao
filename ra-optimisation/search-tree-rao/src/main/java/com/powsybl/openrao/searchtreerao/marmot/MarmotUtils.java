@@ -382,7 +382,7 @@ public final class MarmotUtils {
 
         int nTimestamps = raoResult.getTimestamps().size();
 
-        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [start]");
+        TECHNICAL_LOGS.debug("----- Exporting final RAO Results [start]");
         AtomicInteger i = new AtomicInteger(1);
         raoResult.getTimestamps().forEach(
             timestamp -> {
@@ -400,6 +400,6 @@ public final class MarmotUtils {
                 }
             }
         );
-        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [end]");
+        TECHNICAL_LOGS.debug("----- Exporting final RAO Results [end]");
     }
 }
