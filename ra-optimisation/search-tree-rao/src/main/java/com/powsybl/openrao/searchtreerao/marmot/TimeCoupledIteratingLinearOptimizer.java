@@ -90,6 +90,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
+        MarmotUtils.releaseAllWithoutOverwrite(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
         logInitialResult(bestResult);
 
         // 3. Iterate
@@ -202,10 +203,14 @@ public final class TimeCoupledIteratingLinearOptimizer {
     // Linear problem management
     private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         Map<OffsetDateTime, List<ProblemFiller>> problemFillers = new HashMap<>();
-        input.iteratingLinearOptimizerInputs().getDataPerTimestamp().forEach((timestamp, linearOptimizerInput) -> problemFillers.put(
-            timestamp,
-            ProblemFillerHelper.getProblemFillers(linearOptimizerInput, parameters, timestamp)
-        ));
+        for (OffsetDateTime timestamp : input.iteratingLinearOptimizerInputs().getTimestamps()) {
+            IteratingLinearOptimizerInput linearOptimizerInput = input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow();
+            problemFillers.put(
+                timestamp,
+                ProblemFillerHelper.getProblemFillers(linearOptimizerInput, parameters, timestamp)
+            );
+            MarmotUtils.releaseNetworkWithoutOverwrite(linearOptimizerInput.network());
+        }
         return new TemporalDataImpl<>(problemFillers);
     }
 
