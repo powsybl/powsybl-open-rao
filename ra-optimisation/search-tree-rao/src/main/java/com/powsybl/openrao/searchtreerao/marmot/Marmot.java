@@ -242,7 +242,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 7. Merge topological and linear result
         if (fullResults.getStatus() == LinearProblemStatus.INFEASIBLE) {
-            TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are uncoherent or that cannot be met. Rolling back to initial situation.");
+            TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation.");
             logCost("[MARMOT] Unoptimized RAO results: ", initialObjectiveFunctionResult, raoParameters, 10);
             TemporalData<RaoResult> unoptimizedRaoResults = new TemporalDataImpl<>();
             initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) ->
