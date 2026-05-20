@@ -216,24 +216,40 @@ public class SearchTree {
         int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().leavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (ForkJoinPool forkJoinPool = new ForkJoinPool(leavesInParallel)) {
-            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
-                TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
-                previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkVariantManager, forkJoinPool, leavesInParallel);
-                hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
-                if (hasImproved) {
-                    TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
+            String previousWorkingVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
+            boolean previousAllowVariantMultiThreadAccessAllowed = input.getNetwork().getVariantManager().isVariantMultiThreadAccessAllowed();
+            input.getNetwork().getVariantManager().allowVariantMultiThreadAccess(true);
+            List<String> leavesVariantIds = new ArrayList<>();
+            for (int i = 0; i < leavesInParallel; i++) {
+                String newVariantId = "leaf_" + UUID.randomUUID();
+                input.getNetwork().getVariantManager().cloneVariant(previousWorkingVariantId, newVariantId);
+                leavesVariantIds.add(newVariantId);
+            }
+            try {
+                while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+                    TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
+                    previousDepthOptimalLeaf = optimalLeaf;
+                    updateOptimalLeafWithNextDepthBestLeaf(networkVariantManager, forkJoinPool, leavesInParallel, leavesVariantIds);
+                    hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
+                    if (hasImproved) {
+                        TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
 
-                    topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
-                    RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
-                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getFlowUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-                } else {
-                    topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
+                        topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
+                        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
+                        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getFlowUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                    } else {
+                        topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
+                    }
+                    depth += 1;
+                    if (depth >= parameters.getTreeParameters().maximumSearchDepth()) {
+                        topLevelLogger.info("maximum search depth has been reached, exiting search tree");
+                    }
                 }
-                depth += 1;
-                if (depth >= parameters.getTreeParameters().maximumSearchDepth()) {
-                    topLevelLogger.info("maximum search depth has been reached, exiting search tree");
+            } finally {
+                for (String leafVariantId : leavesVariantIds) {
+                    input.getNetwork().getVariantManager().removeVariant(leafVariantId);
                 }
+                input.getNetwork().getVariantManager().allowVariantMultiThreadAccess(previousAllowVariantMultiThreadAccessAllowed);
             }
             forkJoinPool.shutdown();
             forkJoinPool.awaitTermination(24, TimeUnit.HOURS);
@@ -246,7 +262,8 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(NetworkVariantManager networkVariantManager, ExecutorService executorService, int leavesInParallel) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(NetworkVariantManager networkVariantManager, ExecutorService executorService,
+                                                        int leavesInParallel, List<String> leavesVariantIds) throws InterruptedException {
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
         int numberOfCombinations = naCombinationsSorted.size();
@@ -263,43 +280,27 @@ public class SearchTree {
         int numberOfChunks = Math.min(numberOfCombinations, leavesInParallel);
         int chunkSize = (numberOfCombinations + numberOfChunks - 1) / numberOfChunks;
 
-        String previousWorkingVariantId = networkVariantManager.getNetwork().getVariantManager().getWorkingVariantId();
-        boolean previousVariantMultiThreadAccess = networkVariantManager.getNetwork().getVariantManager().isVariantMultiThreadAccessAllowed();
-        networkVariantManager.getNetwork().getVariantManager().allowVariantMultiThreadAccess(true);
-        List<String> newVariantIds = new ArrayList<>();
+        List<Future<Object>> tasks = new ArrayList<>();
         for (int i = 0; i < numberOfChunks; i++) {
-            String newVariantId = "leaf_" + UUID.randomUUID();
-            networkVariantManager.getNetwork().getVariantManager().cloneVariant(previousWorkingVariantId, newVariantId);
-            newVariantIds.add(newVariantId);
-        }
-        try {
-            List<Future<Object>> tasks = new ArrayList<>();
-            for (int i = 0; i < numberOfChunks; i++) {
-                int finalI = i;
-                int fromIndex = i * chunkSize;
-                int toIndex = Math.min(fromIndex + chunkSize, numberOfCombinations);
-                List<NetworkActionCombination> naCombinationsChunk = naCombinationsList.subList(fromIndex, toIndex);
-                tasks.add(executorService.submit(() -> {
-                    networkVariantManager.getNetwork().getVariantManager().setWorkingVariant(newVariantIds.get(finalI));
-                    for (NetworkActionCombination naCombination : naCombinationsChunk) {
-                        optimizeOneLeaf(networkVariantManager, naCombination, remainingLeaves);
-                    }
-                    return null;
-                }));
-            }
-
-            for (Future<Object> task : tasks) {
-                try {
-                    task.get();
-                } catch (ExecutionException e) {
-                    throw new OpenRaoException(e);
+            int finalI = i;
+            int fromIndex = i * chunkSize;
+            int toIndex = Math.min(fromIndex + chunkSize, numberOfCombinations);
+            List<NetworkActionCombination> naCombinationsChunk = naCombinationsList.subList(fromIndex, toIndex);
+            tasks.add(executorService.submit(() -> {
+                networkVariantManager.getNetwork().getVariantManager().setWorkingVariant(leavesVariantIds.get(finalI));
+                for (NetworkActionCombination naCombination : naCombinationsChunk) {
+                    optimizeOneLeaf(networkVariantManager, naCombination, remainingLeaves);
                 }
+                return null;
+            }));
+        }
+
+        for (Future<Object> task : tasks) {
+            try {
+                task.get();
+            } catch (ExecutionException e) {
+                throw new OpenRaoException(e);
             }
-        } finally {
-            for (String newVariantId : newVariantIds) {
-                networkVariantManager.getNetwork().getVariantManager().removeVariant(newVariantId);
-            }
-            networkVariantManager.getNetwork().getVariantManager().allowVariantMultiThreadAccess(previousVariantMultiThreadAccess);
         }
     }
 
