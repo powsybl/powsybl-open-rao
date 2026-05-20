@@ -245,14 +245,18 @@ public class RaoSteps {
 
     @Then("line {string} in network file with PRA has connection status to {string}")
     public void lineConnectionStatusInNetworkWithPra(String line, String isConnectedStr) {
+        CommonTestData.getNetwork().getVariantManager().setWorkingVariant("PreventiveScenario");
         boolean isConnected = Boolean.parseBoolean(isConnectedStr);
         assertEquals(network.getBranch(line).getTerminal1().isConnected(), isConnected);
         assertEquals(network.getBranch(line).getTerminal2().isConnected(), isConnected);
+        CommonTestData.getNetwork().getVariantManager().setWorkingVariant("InitialState");
     }
 
     @Then("PST {string} in network file with PRA is on tap {int}")
     public void pstTapInNetworkWithPra(String pst, int tap) {
+        CommonTestData.getNetwork().getVariantManager().setWorkingVariant("PreventiveScenario");
         assertEquals(tap, network.getTwoWindingsTransformer(pst).getPhaseTapChanger().getTapPosition());
+        CommonTestData.getNetwork().getVariantManager().setWorkingVariant("InitialState");
     }
 
     @Then("the remedial action {string} is not used in preventive")
