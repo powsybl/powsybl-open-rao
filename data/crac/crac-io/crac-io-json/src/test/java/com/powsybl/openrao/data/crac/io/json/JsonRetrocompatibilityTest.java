@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.powsybl.action.Action;
 import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
@@ -29,6 +30,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -409,6 +411,16 @@ class JsonRetrocompatibilityTest {
         Crac crac = Crac.read(cracFilePath, cracFile, network);
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point8Crac(crac);
+    }
+
+    @Test
+    void importV2Point9Test() throws IOException {
+        // added acEmulationDeactivationActions
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.9.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point9Crac(crac);
     }
 
     @Test
@@ -1000,8 +1012,22 @@ class JsonRetrocompatibilityTest {
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
     }
 
-    private void testContentOfV2Point10Crac(Crac crac) {
+    private void testContentOfV2Point9Crac(Crac crac) {
         testContentOfV2Point8Crac(crac);
+
+        NetworkAction acEmulationDeactivationAction = crac.getNetworkAction("hvdc-ac-emulation-deactivation");
+        assertNotNull(acEmulationDeactivationAction);
+        assertEquals("hvdc-ac-emulation-deactivation", acEmulationDeactivationAction.getId());
+
+        assertEquals(1, acEmulationDeactivationAction.getElementaryActions().size());
+        assertInstanceOf(HvdcAction.class, acEmulationDeactivationAction.getElementaryActions().stream().toList().getFirst());
+
+        HvdcAction hvdcAction = (HvdcAction) acEmulationDeactivationAction.getElementaryActions().stream().toList().getFirst();
+        assertEquals("hvdc", hvdcAction.getHvdcId());
+    }
+
+    private void testContentOfV2Point10Crac(Crac crac) {
+        testContentOfV2Point9Crac(crac);
 
         assertEquals(
             1,
