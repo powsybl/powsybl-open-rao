@@ -77,7 +77,8 @@
       "ranges": [
         {
           "min": -1000.0,
-          "max": 1000.0
+          "max": 1000.0,
+          "rangeType": "absolute"
         }
       ]
     }
