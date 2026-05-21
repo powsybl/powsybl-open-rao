@@ -53,6 +53,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -90,7 +91,6 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String INITIAL_SCENARIO = "InitialScenario"; // initial variant coming from CASTOR
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
-    private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
@@ -247,7 +247,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     rangeActionActivationResultTemporalData,
                     preventiveTopologicalActions,
                     fullObjectiveFunction,
-                    LinearProblemStatus.OPTIMAL
+                    linearOptimizationResults.getStatus()
             );
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
@@ -258,6 +258,23 @@ public class Marmot implements TimeCoupledRaoProvider {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 7. Merge topological and linear result
+        if (fullResults.getStatus() == LinearProblemStatus.INFEASIBLE) {
+            TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation.");
+            logCost("[MARMOT] Unoptimized RAO results: ", initialObjectiveFunctionResult, raoParameters, 10);
+            TemporalData<RaoResult> unoptimizedRaoResults = new TemporalDataImpl<>();
+            initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) ->
+                unoptimizedRaoResults.put(timestamp, new UnoptimizedRaoResultImpl(prePerimeterResult)));
+            TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
+                initialInputs,
+                initialResults,
+                initialObjectiveFunctionResult,
+                fullResults,
+                unoptimizedRaoResults,
+                raoParameters
+            );
+            MarmotUtils.closeAll(initialNetworks);
+            return CompletableFuture.completedFuture(timeCoupledRaoResult);
+        }
         TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
         TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
                 initialInputs,
@@ -270,7 +287,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 8. Log initial and final results
         logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
-        // TODO: does it make sense to log the post topological results if they violated the TC constraints? IMO nope
+        // TODO: does it make sense to log the post-topological results if they violated the TC constraints? maybe display in debug mode
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
 
