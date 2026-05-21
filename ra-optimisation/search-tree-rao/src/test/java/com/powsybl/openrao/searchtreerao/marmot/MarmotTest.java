@@ -151,6 +151,11 @@ class MarmotTest {
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
+        // Check initial setpoint value
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
         assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
         assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
         assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
