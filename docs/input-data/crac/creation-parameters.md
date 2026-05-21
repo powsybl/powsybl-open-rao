@@ -70,11 +70,6 @@ The RAs usage limits contain the following fields :
     - _Default value:_ 2^32 -1 (max integer value)
     - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
 
-  - **max-tso :**
-    - _Expected value:_ integer
-    - _Default value:_ 2^32 -1 (max integer value)
-    - _Usage:_ It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
-
   - **max-ra-per-tso :**
     - _Expected value:_ a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
     - _Default value:_ empty map
@@ -419,24 +414,24 @@ This field is used to define the EI Code associated to each border so that the i
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
 cracCreationParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
 // Create NC-specific parameters
-CimCracCreationParameters csaParameters = new CsaCracCreationParameters();
+CimCracCreationParameters ncParameters = new CsaCracCreationParameters();
 // Indicate the EI Code of the CCR region (SWE)
-csaParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+ncParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
 // Indicate that that REE does not use PATL in final state
-csaParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
+ncParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
 // Associate each curative instant to an application time
-csaParameters.setCurativeInstants(Map.of(
+ncParameters.setCurativeInstants(Map.of(
     "curative 1", 300,
     "curative 2", 600,
     "curative 3", 1200
 ));
 // Define borders
-csaParameters.setBorders(Set.of(
+ncParameters.setBorders(Set.of(
     new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"),
     new Border("ES-PT", "10YDOM--ES-PT--T", "REN")
 ));
 // Add NC extension to CracCreationParameters
-cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
+cracCreationParameters.addExtension(CsaCracCreationParameters.class, ncParameters);
 ```
 :::
 
