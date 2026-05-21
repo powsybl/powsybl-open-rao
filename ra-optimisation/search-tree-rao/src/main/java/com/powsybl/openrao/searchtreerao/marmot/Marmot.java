@@ -48,11 +48,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -160,6 +156,21 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
 
         TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(topologicalOptimizationResults, cracs, parallelism);
+
+        // Update initialResults to add RangeActionSetpointResult
+        initialResults = new TemporalDataImpl<>(
+            initialResults.getDataPerTimestamp().entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> new PrePerimeterSensitivityResultImpl(
+                        entry.getValue().getFlowResult(),
+                        entry.getValue().getSensitivityResult(),
+                        initialSetpointResults.getData(entry.getKey()).orElseThrow(),
+                        entry.getValue().getObjectiveFunctionResult()
+                    )
+                ))
+        );
+
         LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(
             initialSetpointResults,
             postTopologicalActionsResults,
