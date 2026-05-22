@@ -691,12 +691,13 @@ public class Marmot implements TimeCoupledRaoProvider {
         return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters);
     }
 
-    static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<Set<FlowCnec>> consideredCnecs, int parallelism) {
+    private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs,
+                                                                                                 TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                                 int parallelism) {
         return MarmotUtils.smartMap(
                 cracs,
                 crac -> {
                     OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
-                    // map associating each state (curative or preventive) to its available range actions
                     Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
                     // get the preventive range actions
                     State preventiveState = crac.getPreventiveState();
@@ -713,6 +714,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                     availableRangeActions.put(state, curativeRangeActions);
                                 }
                             });
+
                     return new GlobalOptimizationPerimeter(
                             preventiveState,
                             consideredCnecs.getData(timestamp).orElseThrow(),
