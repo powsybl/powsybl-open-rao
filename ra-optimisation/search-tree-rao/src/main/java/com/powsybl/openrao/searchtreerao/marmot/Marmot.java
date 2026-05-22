@@ -467,29 +467,23 @@ public class Marmot implements TimeCoupledRaoProvider {
                 raoInput -> {
                     OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
 
-                    // apply the preventive range actions optimized by the mip
                     State preventiveState = raoInput.getCrac().getPreventiveState();
                     raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->
                             rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
                     );
 
-                    // the curative network actions are kept from the independent fast RAO runs
-                    // while the curative range actions are re-optimized by the global MIP
                     AppliedRemedialActions allCurativeActions = new AppliedRemedialActions();
                     AppliedRemedialActions topoCurativeActions = curativeTopologicalActions.getData(timestamp).orElseThrow();
                     raoInput.getCrac().getStates().stream()
                             .filter(state -> state.getInstant().isCurative())
                             .forEach(state -> {
-                                // network actions from independent fast RAOs
                                 topoCurativeActions.getAppliedNetworkActions(state)
                                         .forEach(networkAction ->
                                                 allCurativeActions.addAppliedNetworkAction(state, networkAction));
-                                // range actions from global MIP
                                 filteredResult.getActivatedRangeActions(state).forEach(rangeAction ->
                                         allCurativeActions.addAppliedRangeAction(state, rangeAction, filteredResult.getOptimizedSetpoint(rangeAction, state)));
                             });
 
-                    // initial sensitivity analysis
                     PrePerimeterResult sensitivityAnalysisResults = runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
                             postTopoInputs.getData(timestamp).orElseThrow(),
                             allCurativeActions,
