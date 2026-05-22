@@ -568,7 +568,7 @@ public final class TimeCoupledRaoSteps {
         new File(exportPath.concat("time-coupled-constraints/")).mkdir();
         new File(exportPath.concat("networks/")).mkdir();
         new File(exportPath.concat("cracs/")).mkdir();
-        new File(exportPath.concat("rao-results/")).mkdir();
+        new File(exportPath.concat("intermediate-rao-results/")).mkdir();
 
         // 1. Export time-coupled constraints
         BUSINESS_LOGS.info("----- Exporting time-coupled constraints [start]");
@@ -607,7 +607,7 @@ public final class TimeCoupledRaoSteps {
             timestamp -> {
                 RaoResult raoResult = timeCoupledRaoResult.getIndividualRaoResult(timestamp);
                 Crac crac = timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
-                String raoResultPath = exportPath.concat("rao-results/").concat(timestamp.toString()).concat(".json");
+                String raoResultPath = exportPath.concat("intermediate-rao-results/").concat(timestamp.toString()).concat(".json");
                 try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
                     Properties properties = new Properties();
                     properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
@@ -640,8 +640,9 @@ public final class TimeCoupledRaoSteps {
         if (networkFiles != null) {
             for (File networkFile : networkFiles) {
                 String timestamp = networkFile.getName().replace(".jiidm", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
-                Network network = Network.read(networkFile.toPath());
+                String normalizedTimestamp = timestamp.replace("_", ":");
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
+                LazyNetwork network = new LazyNetwork(networkFile.toPath().toString());
                 networks.put(offsetDateTime, network);
                 BUSINESS_LOGS.info("Imported network for timestamp: {}", offsetDateTime);
             }
@@ -656,7 +657,8 @@ public final class TimeCoupledRaoSteps {
         if (cracFiles != null) {
             for (File cracFile : cracFiles) {
                 String timestamp = cracFile.getName().replace(".json", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
+                String normalizedTimestamp = timestamp.replace("_", ":");
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
                 try (FileInputStream cracInputStream = new FileInputStream(cracFile)) {
                     Crac crac = Crac.read(cracFile.getName(), cracInputStream, networks.getData(offsetDateTime).orElseThrow());
                     cracs.put(offsetDateTime, crac);
@@ -669,12 +671,13 @@ public final class TimeCoupledRaoSteps {
         // 4. Import RAO Results
         BUSINESS_LOGS.info("----- Importing RAO Results [start]");
         TemporalData<RaoResult> raoResults = new TemporalDataImpl<>();
-        File[] raoResultFiles = new File(importPath.concat("rao-results/")).listFiles((dir, name) -> name.endsWith(".json"));
+        File[] raoResultFiles = new File(importPath.concat("intermediate-rao-results/")).listFiles((dir, name) -> name.endsWith(".json"));
 
         if (raoResultFiles != null) {
             for (File raoResultFile : raoResultFiles) {
                 String timestamp = raoResultFile.getName().replace(".json", "");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
+                String normalizedTimestamp = timestamp.replace("_", ":");
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
                 try (FileInputStream raoResultInputStream = new FileInputStream(raoResultFile)) {
                     RaoResult raoResult = RaoResult.read(raoResultInputStream, cracs.getData(offsetDateTime).orElseThrow());
                     raoResults.put(offsetDateTime, raoResult);
@@ -688,7 +691,7 @@ public final class TimeCoupledRaoSteps {
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
 
         for (OffsetDateTime timestamp : timestamps) {
-            RaoInput raoInput = RaoInput.build(new LazyNetwork(networks.getData(timestamp).orElseThrow()), cracs.getData(timestamp).orElseThrow()).build();
+            RaoInput raoInput = RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build();
             raoInputs.put(timestamp, raoInput);
             BUSINESS_LOGS.info("Imported RAO Input for timestamp: {}", timestamp);
         }
