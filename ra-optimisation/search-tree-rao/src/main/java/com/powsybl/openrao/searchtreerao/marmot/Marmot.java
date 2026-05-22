@@ -86,7 +86,6 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String INITIAL_SCENARIO = "InitialScenario"; // initial variant coming from CASTOR
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
-    private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
@@ -103,7 +102,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
-        MarmotUtils.exportInputs(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints());
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -136,7 +134,6 @@ public class Marmot implements TimeCoupledRaoProvider {
             runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
-        MarmotUtils.exportIntermediateRaoResults(topologicalOptimizationResults, initialInputs);
 
         // TODO : Add time-coupled constraint check if none violated then return
         boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -146,7 +143,9 @@ public class Marmot implements TimeCoupledRaoProvider {
         // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
 
-        TemporalData<PrePerimeterResult> postTopologicalActionsResults = runAllSensitivityAnalysesBasedOnInitialResult(
+        TemporalData<PrePerimeterResult> postTopologicalActionsResults = timeCoupledRaoInput.getPreComputedRaoResults() == null
+            ? topologicalOptimizationResults.map(raoResult -> ((FastRaoResultImpl) raoResult).getFinalResult())
+            : runAllSensitivityAnalysesBasedOnInitialResult(
             initialInputs,
             curativeRemedialActions,
             initialResults,
@@ -258,7 +257,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     rangeActionActivationResultTemporalData,
                     preventiveTopologicalActions,
                     fullObjectiveFunction,
-                    LinearProblemStatus.OPTIMAL
+                    linearOptimizationResults.getStatus()
             );
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
@@ -269,6 +268,23 @@ public class Marmot implements TimeCoupledRaoProvider {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 7. Merge topological and linear result
+        if (fullResults.getStatus() == LinearProblemStatus.INFEASIBLE) {
+            TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation.");
+            logCost("[MARMOT] Unoptimized RAO results: ", initialObjectiveFunctionResult, raoParameters, 10);
+            TemporalData<RaoResult> unoptimizedRaoResults = new TemporalDataImpl<>();
+            initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) ->
+                unoptimizedRaoResults.put(timestamp, new UnoptimizedRaoResultImpl(prePerimeterResult)));
+            TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
+                initialInputs,
+                initialResults,
+                initialObjectiveFunctionResult,
+                fullResults,
+                unoptimizedRaoResults,
+                raoParameters
+            );
+            MarmotUtils.closeAll(initialNetworks);
+            return CompletableFuture.completedFuture(timeCoupledRaoResult);
+        }
         TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
         TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
                 initialInputs,
@@ -281,11 +297,10 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 8. Log initial and final results
         logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
-        // TODO: does it make sense to log the post topological results if they violated the TC constraints? IMO nope
+        // TODO: does it make sense to log the post-topological results if they violated the TC constraints? maybe display in debug mode
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
 
-        MarmotUtils.exportRaoResults(timeCoupledRaoResult, initialInputs);
         MarmotUtils.releaseAllWithoutOverwrite(initialNetworks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }

@@ -45,6 +45,10 @@ public class TimeCoupledRaoInput {
         this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraints);
     }
 
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints, TemporalData<RaoResult> preComputedRaoResults) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraints, preComputedRaoResults);
+    }
+
     public TemporalData<RaoInput> getRaoInputs() {
         return raoInputs;
     }

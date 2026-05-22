@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -143,6 +144,8 @@ public final class MarmotUtils {
                 topologicalOptimizationResults.getData(timestamp).orElseThrow(),
                 raoParameters
             );
+
+            // The extension cannot be associated with two different RAO results so a copy is needed
             copyCriticalCnecsExtension(topologicalOptimizationResults.getData(timestamp).orElseThrow(), postOptimizationResult);
             postOptimizationResults.put(
                 timestamp,

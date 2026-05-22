@@ -122,26 +122,28 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @param networkElementIds IDs of the network elements to remove
      */
     void safeRemoveNetworkElements(Set<String> networkElementIds) {
+        Set<String> referencedNetworkElementIds = getReferencedNetworkElementIds();
         networkElementIds.stream()
-            .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
+            .filter(networkElementId -> !referencedNetworkElementIds.contains(networkElementId))
             .forEach(networkElements::remove);
     }
 
     /**
-     * Check if a NetworkElement is referenced in the CRAC (ie in a Contingency, a Cnec or a RemedialAction)
+     * Retrieves a set of unique identifiers for all referenced network elements.
+     * This includes network elements from both CNECs and Remedial Actions.
      *
-     * @param networkElementId ID of the NetworkElement
-     * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
+     * @return a set of unique network element IDs referenced by the current object.
      */
-    private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
-        return getCnecs().stream()
-            .map(Cnec::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
-            || getRemedialActions().stream()
-            .map(RemedialAction::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ne.getId().equals(networkElementId));
+    private Set<String> getReferencedNetworkElementIds() {
+        Set<String> referencedNetworkElementIds = new HashSet<>();
+        referencedNetworkElementIds.addAll(getCnecs().stream()
+                .map(c -> (Cnec<?>) c)
+                .flatMap(c -> c.getNetworkElements().stream().map(NetworkElement::getId))
+                .collect(Collectors.toSet()));
+        referencedNetworkElementIds.addAll(getRemedialActions().stream()
+                .flatMap(remedialAction -> remedialAction.getNetworkElements().stream().map(NetworkElement::getId))
+                .collect(Collectors.toSet()));
+        return referencedNetworkElementIds;
     }
 
     /**
@@ -422,24 +424,29 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @param stateIds IDs of the States to remove
      */
     void safeRemoveStates(Set<String> stateIds) {
+        Set<String> referencedStateIds = getReferencedStateIds();
         stateIds.stream()
-            .filter(stateId -> !isStateUsedWithinCrac(stateId))
+            .filter(stateId -> !referencedStateIds.contains(stateId))
             .forEach(states::remove);
     }
 
     /**
-     * Check if a State is referenced in the CRAC (ie in a Cnec or a RemedialAction's UsageRule)
+     * Retrieves a set of state IDs that are referenced either by CNECs or by the
+     * usage rules within remedial actions.
      *
-     * @param stateId ID of the State
-     * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
+     * @return a set of strings containing the unique identifiers of the referenced states.
      */
-    private boolean isStateUsedWithinCrac(String stateId) {
-        return getCnecs().stream()
-            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
-            || getRemedialActions().stream()
-            .map(RemedialAction::getUsageRules)
-            .flatMap(Set::stream)
-            .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+    private Set<String> getReferencedStateIds() {
+        Set<String> referencedStateIds = new HashSet<>();
+        referencedStateIds.addAll(getCnecs().stream()
+                .map(c -> ((Cnec<?>) c).getState().getId())
+                .collect(Collectors.toSet()));
+        referencedStateIds.addAll(getRemedialActions().stream()
+                .flatMap(ra -> ra.getUsageRules().stream())
+                .map(ur -> ur instanceof OnContingencyState onContingencyState ? onContingencyState.getState().getId() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet()));
+        return referencedStateIds;
     }
 
     //endregion
@@ -947,6 +954,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
         return new RaUsageLimitsAdderImpl(this, instantName);
+    }
+
+    @Override
+    public Set<String> findOperatorsNotSharingCras() {
+        Set<String> tsos = getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
+        tsos.addAll(getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
+        // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
+        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso)).collect(Collectors.toSet());
+    }
+
+    private boolean tsoHasCra(String tso) {
+        Set<State> optimizedCurativeStates = getCurativeStates();
+        return optimizedCurativeStates.stream().anyMatch(state ->
+                getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+                        getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
+        );
     }
 
     @Override
