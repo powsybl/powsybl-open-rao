@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public record CountertradeRemedialAction(String mrid, String name, String operator, String description, String kind, boolean normalAvailable,
                                          String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
-                                         String impactThresholdMargin, Double maxEconomicPMargin, Double minEconomicPMargin,
+                                         String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
                                          String timeToImplement, String region) implements IdentifiedObjectWithOperator {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(
@@ -30,8 +30,8 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_CROSS_BORDER_RELEVANT, "true")),
                 Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_MANUAL, "true")),
                 propertyBag.get(NcConstants.IMPACT_THRESHOLD_MARGIN),
-                Double.parseDouble(propertyBag.get(NcConstants.MAX_ECONOMIC_P_MARGIN)),
-                Double.parseDouble(propertyBag.get(NcConstants.MIN_ECONOMIC_P_MARGIN)),
+                propertyBag.asDouble(NcConstants.MAX_REGULATING_UP),
+                propertyBag.asDouble(NcConstants.MAX_REGULATING_DOWN),
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
                 propertyBag.get(NcConstants.APPOINTED_TO_REGION)
         );

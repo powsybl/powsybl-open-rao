@@ -89,6 +89,7 @@ public final class NcConstants {
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String COUNTERTRADE_REMEDIAL_ACTION = "countertradeRemedialAction";
+    public static final String COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING = "countertradeRemedialActionOverriding";
     public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
@@ -120,28 +121,16 @@ public final class NcConstants {
     public static final String POWER_TRANSFORMER = "powerTransformer";
     public static final String REQUEST_TAP_CHANGER = "tapChanger";
     public static final String IS_MANUAL = "isManual";
-    public static final String MAX_ECONOMIC_P_MARGIN = "maxEconomicPMargin";
-    public static final String MIN_ECONOMIC_P_MARGIN = "minEconomicPMargin";
+    public static final String MAX_REGULATING_UP = "maxRegulatingUp";
+    public static final String MAX_REGULATING_DOWN = "maxRegulatingDown";
     public static final String APPOINTED_TO_REGION = "appointedToRegion";
     public static final String PENALTY_FACTOR = "penaltyFactor";
     public static final String IS_CROSS_BORDER_RELEVANT = "isCrossBorderRelevant";
     public static final String IMPACT_THRESHOLD_MARGIN = "impactThresholdMargin";
-    public static final String MRID = "mRID";
     public static final String DESCRIPTION = "description";
 
-    public enum CounterTradingRange {
-        MIN_RANGE(-5000.0),
-        MAX_RANGE(5000.0);
-        CounterTradingRange(Double value) {
-            this.value = value;
-        }
-
-        private final Double value;
-
-        public Double toDouble() {
-            return this.value;
-        }
-    }
+    public static Double COUNTER_TRADING_RANGE_MIN_RANGE = -5000.0;
+    public static Double COUNTER_TRADING_RANGE_MAX_RANGE = 5000.0;
 
     /**
      * requests for flow cnec

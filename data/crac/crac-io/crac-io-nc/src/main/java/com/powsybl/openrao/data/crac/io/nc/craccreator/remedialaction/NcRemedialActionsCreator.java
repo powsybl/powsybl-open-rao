@@ -36,7 +36,6 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.RemedialActionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.*;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,21 +49,17 @@ public class NcRemedialActionsCreator {
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
-    private final CounterTradingActionCreator counterTradingActionCreator;
+    private final CounterTradingRangeActionCreator counterTradingRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> gridStateAlterationRemedialActions;
     private final Set<CountertradeRemedialAction> countertradeRemedialActions;
-    private final NcCracCreationParameters ncCracCreationParameters;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
                                     NcCrac nativeCrac,
-                                    NcCracCreationContext cracCreationContext,
-                                    Set<ElementaryCreationContext> cnecCreationContexts,
-                                    NcCracCreationParameters ncCracCreationParameters) {
+                                    NcCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        this.ncCracCreationParameters = ncCracCreationParameters;
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
             .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
 
@@ -76,11 +71,11 @@ public class NcRemedialActionsCreator {
         Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
             .aggregate(nativeCrac.getContingencyWithRemedialActions());
 
-        this.counterTradingActionCreator = new CounterTradingActionCreator(this.crac);
+        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
 
         this.gridStateAlterationRemedialActions = new HashSet<>(nativeCrac.getGridStateAlterationRemedialActions());
-        createRemedialActions(linkedAeWithRa, linkedCoWithRa, cnecCreationContexts);
+        createRemedialActions(linkedAeWithRa, linkedCoWithRa, cracCreationContext);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
@@ -90,25 +85,21 @@ public class NcRemedialActionsCreator {
 
     private void createRemedialActions(Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
                                        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                       Set<ElementaryCreationContext> cnecCreationContexts) {
+                                       NcCracCreationContext cracCreationContext) {
 
         if (gridStateAlterationRemedialActions != null) {
             gridStateAlterationRemedialActions
-                    .forEach(action -> addGridStatRemedialAction(action, linkedAeWithRa, linkedCoWithRa, cnecCreationContexts));
+                    .forEach(action -> addGridStatRemedialAction(action, linkedAeWithRa, linkedCoWithRa, cracCreationContext.getCnecCreationContexts()));
         }
 
         if (countertradeRemedialActions != null) {
             countertradeRemedialActions
-                    .forEach(countertradeRemedialAction -> addCounterTradeRemedialAction(
-                        countertradeRemedialAction,
-                        cnecCreationContexts
-                    ));
+                    .forEach(this::addCountertradeRemedialAction);
         }
 
     }
 
-    private void addCounterTradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction,
-                                               Set<ElementaryCreationContext> cnecCreationContexts) {
+    private void addCountertradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction) {
         String remedialActionId = countertradeRemedialAction.mrid();
 
         try {
@@ -117,16 +108,24 @@ public class NcRemedialActionsCreator {
             }
 
             List<String> alterations = new ArrayList<>();
-            CounterTradeRangeActionAdder remedialActionAdder = counterTradingActionCreator.getCounterTradeRangeActionAdder(
+            CounterTradeRangeActionAdder remedialActionAdder = counterTradingRangeActionCreator.getCounterTradeRangeActionAdder(
                     countertradeRemedialAction,
                     remedialActionId,
                     alterations);
+
+            if (countertradeRemedialAction.name() != null) {
+                remedialActionAdder.withName(countertradeRemedialAction.name());
+            }
+            if (countertradeRemedialAction.getTimeToImplementInSeconds() != null) {
+                remedialActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
+            }
+            remedialActionAdder.add();
 
             contextByRaId.put(countertradeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
                     countertradeRemedialAction.mrid(),
                     countertradeRemedialAction.name(),
                     countertradeRemedialAction.mrid(),
-                    false,
+                    !alterations.isEmpty(),
                     String.join(". ", alterations)
             ));
         } catch (OpenRaoImportException e) {

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
-public class CounterTradingActionCreator {
+public class CounterTradingRangeActionCreator {
     private final Crac crac;
 
     public record CounterTradingCountries(Country importingCountry, Country exportingCountry) { }
@@ -33,7 +33,7 @@ public class CounterTradingActionCreator {
      *
      * @param crac Open RAO Crac object
      */
-    public CounterTradingActionCreator(Crac crac) {
+    public CounterTradingRangeActionCreator(Crac crac) {
         this.crac = crac;
     }
 
@@ -51,27 +51,23 @@ public class CounterTradingActionCreator {
     public CounterTradeRangeActionAdder getCounterTradeRangeActionAdder(CountertradeRemedialAction counterTradingRemedialAction,
                                                                         String remedialActionId, List<String> alterations) {
 
-        validateCounterTradingAction(counterTradingRemedialAction, remedialActionId);
+        validateCountertradeRemedialAction(counterTradingRemedialAction, remedialActionId);
 
         // checks for the min and max range
         Double minRange;
-        if (counterTradingRemedialAction.minEconomicPMargin() == null) {
-            minRange = NcConstants.CounterTradingRange.MIN_RANGE.toDouble();
+        if (Double.isNaN(counterTradingRemedialAction.maxRegulatingDown())) {
+            minRange = NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
             alterations.add("the minimum range was not set. It has been set to the minimal range value of " + minRange);
         } else {
-            minRange = counterTradingRemedialAction.minEconomicPMargin();
+            minRange = counterTradingRemedialAction.maxRegulatingDown();
         }
         Double maxRange;
-        if (counterTradingRemedialAction.maxEconomicPMargin() == null) {
-            maxRange = NcConstants.CounterTradingRange.MAX_RANGE.toDouble();
+        if (Double.isNaN(counterTradingRemedialAction.maxRegulatingUp())) {
+            maxRange = NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
             alterations.add("the maximum range was not set. It has been set to the maximal range value of " + maxRange);
         } else {
-            maxRange = counterTradingRemedialAction.maxEconomicPMargin();
+            maxRange = counterTradingRemedialAction.maxRegulatingUp();
         }
-
-        // what to do with the initial set points?
-        // set to 0 for now
-        // what to do if repeated countries. maybe return the counterTradingCountries in a helper function and use it to filter and get te max of the repeated only.
 
         CounterTradingCountries counterTradingCountries = getImportingExportingCountries(counterTradingRemedialAction, remedialActionId);
 
@@ -106,17 +102,16 @@ public class CounterTradingActionCreator {
                 String.format("Remedial action %s will not be imported because system operator %s is not supported.", remedialActionId, operatorEic));
     }
 
-    private static void validateCounterTradingAction(CountertradeRemedialAction counterTradingRemedialAction,
-                                                     String remedialActionId) {
+    private void validateCountertradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction,
+                                                    String remedialActionId) {
 
-        if (!Boolean.TRUE.equals(counterTradingRemedialAction.normalAvailable())) {
+        if (!countertradeRemedialAction.normalAvailable()) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
                     String.format("Remedial action %s will not be imported it is not set to be available.", remedialActionId));
         }
 
         // Check for null conditions
-
-        String operatorUrl = counterTradingRemedialAction.operator();
+        String operatorUrl = countertradeRemedialAction.operator();
         if (operatorUrl == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format("Remedial action %s will not be imported the counter trading remedial action has null operator code.", remedialActionId));
@@ -128,7 +123,7 @@ public class CounterTradingActionCreator {
                 String.format("Remedial action %s will not be imported because operator %s does not contain a valid EIC code.", remedialActionId, operatorUrl));
         }
 
-        String regionUrl = counterTradingRemedialAction.region();
+        String regionUrl = countertradeRemedialAction.region();
         if (regionUrl == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format("Remedial action %s will not be imported the counter trading remedial action has null region code.", remedialActionId));

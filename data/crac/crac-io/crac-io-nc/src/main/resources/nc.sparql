@@ -636,6 +636,28 @@ GRAPH <%s> {
 }
 }
 
+# query: countertradeRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction .
+        ?countertradeRemedialAction nc:RemedialAction.available ?available .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingUp ?maxRegulatingUp .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingDown ?maxRegulatingDown .
+        }
+    }
+}
+
 # query: gridStateAlterationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>

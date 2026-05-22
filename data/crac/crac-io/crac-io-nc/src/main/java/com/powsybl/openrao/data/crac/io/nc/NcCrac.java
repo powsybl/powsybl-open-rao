@@ -131,8 +131,41 @@ public class NcCrac {
     }
 
     public Set<CountertradeRemedialAction> getCountertradeRemedialActions() {
-        return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag)
-            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.COUNTERTRADE_REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION));
+        PropertyBags raProps = getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+        PropertyBags ssiProps = getPropertyBags(NcKeyword.STEADY_STATE_INSTRUCTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING);
+
+        Map<String, PropertyBag> ssiById = new HashMap<>();
+        for (PropertyBag ssiPb : ssiProps) {
+            String id = ssiPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+            if (id != null) {
+                ssiById.put(id, ssiPb);
+            }
+        }
+
+        for (PropertyBag raPb : raProps) {
+            String id = raPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+            PropertyBag ssiPb = ssiById.get(id);
+            if (ssiPb == null) {
+                continue;
+            }
+
+            String maxUp = ssiPb.get(NcConstants.MAX_REGULATING_UP);
+            if (maxUp != null) {
+                raPb.put(NcConstants.MAX_REGULATING_UP, maxUp);
+            }
+
+            String maxDown = ssiPb.get(NcConstants.MAX_REGULATING_DOWN);
+            if (maxDown != null) {
+                raPb.put(NcConstants.MAX_REGULATING_DOWN, maxDown);
+            }
+
+            String available = ssiPb.get(NcConstants.OVERRIDE_AVAILABLE);
+            if (available != null) {
+                raPb.put(NcConstants.NORMAL_AVAILABLE, available);
+            }
+        }
+
+        return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag).convert(raProps);
     }
 
     public Set<TopologyAction> getTopologyActions() {
@@ -263,7 +296,7 @@ public class NcCrac {
     private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
         getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
-                PropertyBag property = properties.get(0);
+                PropertyBag property = properties.getFirst();
                 if (!checkTimeCoherence(property, offsetDateTime)) {
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(
                         "[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s",
