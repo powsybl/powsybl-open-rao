@@ -134,10 +134,9 @@ class CnecCreator {
             .withNominalVoltage(branch.getTerminal(TwoSides.TWO).getVoltageLevel().getNominalV(), TwoSides.TWO);
         cracCreationParameters.getDefaultMonitoredSides().forEach(
             side -> {
-                if (specificParameters.getCriticalElements().getThresholdDefinition() == CriticalElements.ThresholdDefinition.PERM_LIMIT_MULTIPLIER) {
-                    addThresholdFromPermLimit(adder, branch, side, instant);
-                } else {
-                    addThresholdsFromTempLimit(adder, branch, side, instant);
+                switch (specificParameters.getCriticalElements().getThresholdDefinition()) {
+                    case FROM_OPERATIONAL_LIMITS -> addThresholdsFromTempLimit(adder, branch, side, instant);
+                    case PERM_LIMIT_MULTIPLIER -> addThresholdFromPermLimit(adder, branch, side, instant);
                 }
             }
         );
@@ -163,8 +162,8 @@ class CnecCreator {
             return;
         }
         OperationalLimitsGroup olg = optOlg.get();
-        addThresholdFromPermLimit(adder, side, olg.getCurrentLimits().orElse(null), Unit.AMPERE, branch.getTerminal(side).getVoltageLevel().getNominalV(), instant);
-        addThresholdFromPermLimit(adder, side, olg.getActivePowerLimits().orElse(null), Unit.MEGAWATT, branch.getTerminal(side).getVoltageLevel().getNominalV(), instant);
+        addThresholdFromPermLimit(adder, branch.getId(), side, olg.getCurrentLimits().orElse(null), Unit.AMPERE, branch.getTerminal(side).getVoltageLevel().getNominalV(), instant);
+        addThresholdFromPermLimit(adder, branch.getId(), side, olg.getActivePowerLimits().orElse(null), Unit.MEGAWATT, branch.getTerminal(side).getVoltageLevel().getNominalV(), instant);
     }
 
     private void addThresholdsFromTempLimit(FlowCnecAdder adder, Branch<?> branch, TwoSides side, Instant instant) {
@@ -188,17 +187,19 @@ class CnecCreator {
         Optional<LoadingLimits.TemporaryLimit> lowestCurrentLimit = loadingLimits.getTemporaryLimits().stream().filter(tl -> tl.getAcceptableDuration() >= acceptableDuration)
             .filter(tl -> !Double.isNaN(tl.getValue())).max(Comparator.comparingDouble(LoadingLimits.TemporaryLimit::getValue));
         if (lowestCurrentLimit.isPresent()) {
-            addThresholdFromTempLimit(adder, side, lowestCurrentLimit.get(), unit, instant, branch.getTerminal(side).getVoltageLevel().getNominalV());
+            addThresholdFromTempLimit(adder, branch.getId(), side, lowestCurrentLimit.get(), unit, instant, branch.getTerminal(side).getVoltageLevel().getNominalV());
         } else {
             addThresholdFromPermLimit(adder, branch, side, instant);
         }
     }
 
-    private void addThresholdFromPermLimit(FlowCnecAdder adder, TwoSides side, @Nullable LoadingLimits loadingLimits, Unit unit, Double nominalV, Instant instant) {
+    private void addThresholdFromPermLimit(FlowCnecAdder adder, String branchId, TwoSides side, @Nullable LoadingLimits loadingLimits, Unit unit, Double nominalV, Instant instant) {
         if (loadingLimits == null || Double.isNaN(loadingLimits.getPermanentLimit())) {
             return;
         }
-        double limit = specificParameters.getCriticalElements().getLimitMultiplierPerInstant(instant, nominalV) * loadingLimits.getPermanentLimit();
+        double limit = specificParameters.getCriticalElements().getLimitMultiplierPerInstant(instant, nominalV) *
+            specificParameters.getCriticalElements().getLimitMultiplierForBranchAndSide(branchId, side) *
+            loadingLimits.getPermanentLimit();
         adder.newThreshold()
             .withSide(side)
             .withMax(limit)
@@ -207,8 +208,10 @@ class CnecCreator {
             .add();
     }
 
-    private void addThresholdFromTempLimit(FlowCnecAdder adder, TwoSides side, LoadingLimits.TemporaryLimit tempLimit, Unit unit, Instant instant, Double nominalV) {
-        double limit = specificParameters.getCriticalElements().getLimitMultiplierPerInstant(instant, nominalV) * tempLimit.getValue();
+    private void addThresholdFromTempLimit(FlowCnecAdder adder, String branchId, TwoSides side, LoadingLimits.TemporaryLimit tempLimit, Unit unit, Instant instant, Double nominalV) {
+        double limit = specificParameters.getCriticalElements().getLimitMultiplierPerInstant(instant, nominalV) *
+            specificParameters.getCriticalElements().getLimitMultiplierForBranchAndSide(branchId, side) *
+            tempLimit.getValue();
         adder.newThreshold()
             .withSide(side)
             .withMax(limit)
