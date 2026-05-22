@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
@@ -31,6 +32,7 @@ public class CriticalElements extends AbstractCountriesFilter {
     private ThresholdDefinition thresholdDefinition = ThresholdDefinition.FROM_OPERATIONAL_LIMITS;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
+    private Map<String, Map<TwoSides, Double>> limitMultiplierPerBranchAndSide;
     // at least one of the two following attributes is mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
     private Map<String, Double> applicableLimitDurationPerInstant;
     private Map<String, Map<Double, Double>> applicableLimitDurationPerInstantPerNominalV;
@@ -40,7 +42,7 @@ public class CriticalElements extends AbstractCountriesFilter {
 
     public enum ThresholdDefinition {
         FROM_OPERATIONAL_LIMITS, // read perm & temp operational limits in network
-        PERM_LIMIT_MULTIPLIER // multiply perm limits by a given multiplier
+        PERM_LIMIT_MULTIPLIER, // multiply perm limits by a given multiplier
     }
 
     CriticalElements(List<String> instants) {
@@ -119,6 +121,13 @@ public class CriticalElements extends AbstractCountriesFilter {
         return limitMultiplierPerInstantPerNominalV.get(instant.getId()).getOrDefault(nominalV, defaultValue);
     }
 
+    public Double getLimitMultiplierForBranchAndSide(String branchId, TwoSides side) {
+        if (limitMultiplierPerBranchAndSide == null || !limitMultiplierPerBranchAndSide.containsKey(branchId)) {
+            return 1.;
+        }
+        return limitMultiplierPerBranchAndSide.get(branchId).getOrDefault(side, 1.);
+    }
+
     private void checkAllInstantsListed(Map<String, ?> map) {
         if (map == null || !this.instants.equals(map.keySet())) {
             throw new OpenRaoException("You must define the value for every instant.");
@@ -147,6 +156,11 @@ public class CriticalElements extends AbstractCountriesFilter {
     public void setLimitMultiplierPerInstantPerNominalV(Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV) {
         checkAllInstantsListed(limitMultiplierPerInstantPerNominalV);
         this.limitMultiplierPerInstantPerNominalV = limitMultiplierPerInstantPerNominalV;
+    }
+
+    public void setLimitMultiplierPerBranchAndSide(Map<String, Map<TwoSides, Double>> limitMultiplierPerBranchAndSide) {
+        //TODO : checks
+        this.limitMultiplierPerBranchAndSide = limitMultiplierPerBranchAndSide;
     }
 
     public Double getApplicableLimitDuration(Instant instant, Double nominalV) {
