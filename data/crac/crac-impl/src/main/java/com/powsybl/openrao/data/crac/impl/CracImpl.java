@@ -957,6 +957,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Set<String> findOperatorsNotSharingCras() {
+        Set<String> tsos = getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
+        tsos.addAll(getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
+        // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
+        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso)).collect(Collectors.toSet());
+    }
+
+    private boolean tsoHasCra(String tso) {
+        Set<State> optimizedCurativeStates = getCurativeStates();
+        return optimizedCurativeStates.stream().anyMatch(state ->
+                getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+                        getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
+        );
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
