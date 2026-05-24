@@ -43,19 +43,10 @@ public class VirtualNetworkVariantManager {
         }
     }
 
-    private final Network network;
     private final Map<String, VirtualVariant> variantsById = new HashMap<>();
     private VirtualVariant workingVariant;
 
-    public VirtualNetworkVariantManager(Network network) {
-        this.network = Objects.requireNonNull(network);
-    }
-
-    public Network getNetwork() {
-        return network;
-    }
-
-    public void setWorkingVariant(String fromVariantId, String newVariantId) {
+    public void setWorkingVariant(Network network, String fromVariantId, String newVariantId) {
         VirtualVariant variant = variantsById.get(newVariantId);
         if (variant != null) {
             workingVariant = variant;
@@ -101,7 +92,7 @@ public class VirtualNetworkVariantManager {
         workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
     }
 
-    public void compute(SensitivityComputer sensitivityComputer) {
+    public void compute(SensitivityComputer sensitivityComputer, Network network) {
         sensitivityComputer.compute(network, workingVariant.getFullAppliedRemedialActions());
     }
 }
