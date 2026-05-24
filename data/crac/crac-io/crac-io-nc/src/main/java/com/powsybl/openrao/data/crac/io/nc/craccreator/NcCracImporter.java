@@ -130,8 +130,9 @@ public class NcCracImporter implements Importer {
                 Set<String> newFilesSet = NcCracUtils.addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
                 keywordMap.put(keyword, newFilesSet);
             }
-            FileInputStream fileInputStream = new FileInputStream(tempFile);
-            tripleStoreNcProfile.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
+            try (FileInputStream fileInputStream = new FileInputStream(tempFile)) {
+                tripleStoreNcProfile.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
+            }
         }
         try {
             Files.delete(tempFile.toPath());

@@ -92,8 +92,9 @@ class RaoResultArchiveManagerTest {
 
         // Write to a temporary file
         Path tempFile = Files.createTempFile("rao_archive", ".zip");
-        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tempFile));
-        this.globalRaoResultToExport.write(zos, this.cracTemporalData, properties);
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tempFile))) {
+            this.globalRaoResultToExport.write(zos, this.cracTemporalData, properties);
+        }
 
         Set<String> archiveContent = extractZipEntriesFromFile(tempFile);
 

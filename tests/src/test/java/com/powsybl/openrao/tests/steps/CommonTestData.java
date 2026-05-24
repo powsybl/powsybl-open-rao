@@ -304,11 +304,8 @@ public final class CommonTestData {
         // CracCreationParameters
         CracCreationParameters cracCreationParameters = null;
         String ccpToImport = (cracCreationParametersPath == null) ? getResourcesPath().concat(DEFAULT_CRAC_CREATION_PARAMETERS_PATH) : cracCreationParametersPath;
-        InputStream cracCreationParametersInputStream;
-        try {
-            cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(ccpToImport)));
+        try (InputStream cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(ccpToImport)))) {
             cracCreationParameters = JsonCracCreationParameters.read(cracCreationParametersInputStream);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -336,7 +333,10 @@ public final class CommonTestData {
         // Virtual hubs configuration
         if (virtualHubsConfigPath != null) {
             boolean virtualHubsUsed = false;
-            final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
+            VirtualHubsConfiguration virtualHubsConfiguration;
+            try (InputStream is = new FileInputStream(getFile(virtualHubsConfigPath))) {
+                virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(is);
+            }
             if (referenceProgram != null && loopflowGlsks != null) {
                 ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
                 loopflowGlsks.addAll(glskOfVirtualHubs);

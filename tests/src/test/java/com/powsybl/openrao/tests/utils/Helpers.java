@@ -142,31 +142,33 @@ public final class Helpers {
     }
 
     public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, OffsetDateTime timestamp, Network network) throws IOException {
-        InputStream inputStream = new FileInputStream(glskFile);
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(inputStream);
+        try (InputStream inputStream = new FileInputStream(glskFile)) {
+            UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(inputStream);
 
-        Instant instant;
-        if (timestamp == null) {
-            instant = getStartInstantOfUcteGlsk(ucteGlskDocument);
-        } else {
-            instant = timestamp.toInstant();
+            Instant instant;
+            if (timestamp == null) {
+                instant = getStartInstantOfUcteGlsk(ucteGlskDocument);
+            } else {
+                instant = timestamp.toInstant();
+            }
+
+            return ucteGlskDocument.getZonalGlsks(network, instant);
         }
-
-        return ucteGlskDocument.getZonalGlsks(network, instant);
     }
 
     public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, OffsetDateTime timestamp, Network network) throws IOException {
-        InputStream inputStream = new FileInputStream(monitoringGlskFile);
-        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
+        try (InputStream inputStream = new FileInputStream(monitoringGlskFile)) {
+            CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
 
-        Instant instant;
-        if (timestamp == null) {
-            instant = cimGlskDocument.getInstantStart();
-        } else {
-            instant = timestamp.toInstant();
+            Instant instant;
+            if (timestamp == null) {
+                instant = cimGlskDocument.getInstantStart();
+            } else {
+                instant = timestamp.toInstant();
+            }
+
+            return cimGlskDocument.getZonalScalable(network, instant);
         }
-
-        return cimGlskDocument.getZonalScalable(network, instant);
     }
 
     private static Instant getStartInstantOfUcteGlsk(UcteGlskDocument ucteGlskDocument) {
@@ -186,25 +188,30 @@ public final class Helpers {
             throw new OpenRaoException("A timestamp should be provided in order to import the refProg file.");
         }
 
-        InputStream refProgInputStream = new FileInputStream(refProgFile);
-        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
+        try (InputStream refProgInputStream = new FileInputStream(refProgFile)) {
+            return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
+        }
     }
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
-        InputStream inputStream = getStreamFromZippable(raoResultFile);
-        RaoResult raoResult = RaoResult.read(inputStream, CommonTestData.getCrac());
-        inputStream.close();
-        return raoResult;
+        try (InputStream inputStream = getStreamFromZippable(raoResultFile)) {
+            return RaoResult.read(inputStream, CommonTestData.getCrac());
+        }
     }
 
     private static InputStream getStreamFromZippable(File file) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
-        if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals("zip")) {
-            return fileInputStream;
+        try {
+            if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals("zip")) {
+                return fileInputStream;
+            }
+            ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
+            zipInputStream.getNextEntry();
+            return zipInputStream;
+        } catch (IOException | RuntimeException e) {
+            fileInputStream.close();
+            throw e;
         }
-        ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
-        zipInputStream.getNextEntry();
-        return zipInputStream;
     }
 
     public static File getFile(String path) {

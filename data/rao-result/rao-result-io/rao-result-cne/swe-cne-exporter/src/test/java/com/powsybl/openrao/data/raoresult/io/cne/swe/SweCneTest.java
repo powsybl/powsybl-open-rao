@@ -62,40 +62,35 @@ class SweCneTest {
     @BeforeEach
     public void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
-        InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
+        try (InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml")) {
 
-        Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
-        CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
-        cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
-        CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setCracFactoryName("CracImplFactory");
-        cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
-        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
-        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
-        crac = cracCreationContext.getCrac();
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(SweCneTest.class.getResource("/RaoResult.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
+            CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+            cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
+            CracCreationParameters cracCreationParameters = new CracCreationParameters();
+            cracCreationParameters.setCracFactoryName("CracImplFactory");
+            cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
+            cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
+            cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
+            crac = cracCreationContext.getCrac();
+            try (InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/RaoResult.json").getFile())) {
+                RaoResult raoResult = RaoResult.read(inputStream, crac);
+
+                try (InputStream inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile())) {
+                    RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
+
+                    MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
+                        Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
+                        Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
+                        Cnec.SecurityStatus.SECURE);
+
+                    raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
+                    raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
-        RaoResult raoResult = RaoResult.read(inputStream, crac);
-
-        InputStream inputStream3 = null;
-        try {
-            inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
-
-        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
-            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
-            Cnec.SecurityStatus.SECURE);
-
-        raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
-        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
 
         properties = new Properties();
         properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");
@@ -113,8 +108,7 @@ class SweCneTest {
     void testExport() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportData(raoResultWithAngle, cracCreationContext, properties, outputStream);
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
+        try (InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile())) {
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assertions.fail();
@@ -125,8 +119,7 @@ class SweCneTest {
     void testExportWithFailure() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportData(raoResultFailureWithAngle, cracCreationContext, properties, outputStream);
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile());
+        try (InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile())) {
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assertions.fail();
@@ -135,8 +128,7 @@ class SweCneTest {
 
     @Test
     void testValidateSchemaOk() {
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
+        try (InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile())) {
             assertTrue(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
         } catch (IOException e) {
             Assertions.fail();
@@ -145,8 +137,7 @@ class SweCneTest {
 
     @Test
     void testValidateSchemaNok() {
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile());
+        try (InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile())) {
             assertFalse(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
         } catch (IOException e) {
             Assertions.fail();
