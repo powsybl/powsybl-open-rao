@@ -248,7 +248,10 @@ final class SystematicSensitivityAdapter {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis with RA failed: %s", e.getMessage()));
             SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
                 factors,
-                runParameters.getContingencies().stream().map(c -> new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(c.getId()), SensitivityAnalysisResult.Status.FAILURE)).toList(),
+                instantOrderByState.keySet().stream()
+                    .filter(state -> state.contingencyId() != null)
+                    .map(state -> new SensitivityAnalysisResult.SensitivityStateStatus(state, SensitivityAnalysisResult.Status.FAILURE))
+                    .toList(),
                 runParameters.getContingencies().stream().map(Contingency::getId).toList(),
                 runParameters.getOperatorStrategies().stream().map(OperatorStrategy::getId).toList(),
                 List.of()

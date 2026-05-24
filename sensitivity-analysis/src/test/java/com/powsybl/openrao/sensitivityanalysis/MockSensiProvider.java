@@ -10,6 +10,7 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.google.auto.service.AutoService;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -49,17 +50,19 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                 }
             }
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
-            if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
+            boolean hasSpecificOperatorStrategies = sensitivityAnalysisRunParameters.getOperatorStrategies().stream()
+                .anyMatch(os -> os.getContingencyContext().getContextType() == ContingencyContextType.SPECIFIC);
+            if ((pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) && !hasSpecificOperatorStrategies) {
                 // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), network);
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), network, sensitivityAnalysisRunParameters.getOperatorStrategies());
             } else {
-                // used for tests with already applied RangeActions in Curative states
-                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies());
+                // used for tests with already applied RangeActions in Curative states (via PST tap or operator strategies)
+                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), sensitivityAnalysisRunParameters.getOperatorStrategies());
             }
         }, sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
     }
 
-    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network) {
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network, List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -70,6 +73,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
+            int operatorStrategyIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(contingencyIndex).getId());
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
@@ -80,12 +84,24 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                         functionType,
                         variableType,
                         factorIndexContingency,
-                        finalContingencyIndex
+                        finalContingencyIndex,
+                        operatorStrategyIndex
                     );
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
         }
+    }
+
+    private static int findOperatorStrategyIndex(List<OperatorStrategy> operatorStrategies, String contingencyId) {
+        for (int i = 0; i < operatorStrategies.size(); i++) {
+            var ctx = operatorStrategies.get(i).getContingencyContext();
+            if (ctx.getContextType() == ContingencyContextType.ALL
+                    || ctx.getContextType() == ContingencyContextType.SPECIFIC && contingencyId.equals(ctx.getContingencyId())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static void handleSpecificConditionContextAtNeutralTap(SensitivityResultWriter sensitivityResultWriter,
@@ -94,20 +110,21 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                                   SensitivityFunctionType functionType,
                                   SensitivityVariableType variableType,
                                   AtomicReference<Integer> factorIndexContingency,
-                                  int finalContingencyIndex) {
+                                  int finalContingencyIndex,
+                                  int operatorStrategyIndex) {
         if (variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
             switch (functionType) {
                 case BRANCH_ACTIVE_POWER_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, -5, -20);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, -5, -20);
                     break;
                 case BRANCH_ACTIVE_POWER_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, -5.5, -25);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, -5.5, -25);
                     break;
                 case BRANCH_CURRENT_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 5, 200);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 5, 200);
                     break;
                 case BRANCH_CURRENT_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 5.5, 205);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 5.5, 205);
                     break;
                 default:
                     throw new AssertionError();
@@ -115,16 +132,16 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         } else if (variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
             switch (functionType) {
                 case BRANCH_ACTIVE_POWER_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 6, -20);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 6, -20);
                     break;
                 case BRANCH_ACTIVE_POWER_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 6.5, -25);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 6.5, -25);
                     break;
                 case BRANCH_CURRENT_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 12, 40);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 12, 40);
                     break;
                 case BRANCH_CURRENT_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 17, 45);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 17, 45);
                     break;
                 default:
                     throw new AssertionError();
@@ -132,16 +149,16 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         } else if (variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
             switch (functionType) {
                 case BRANCH_ACTIVE_POWER_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 7, -25);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 7, -25);
                     break;
                 case BRANCH_ACTIVE_POWER_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 7.5, -26);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 7.5, -26);
                     break;
                 case BRANCH_CURRENT_1:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 8, -30);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 8, -30);
                     break;
                 case BRANCH_CURRENT_2:
-                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 8.5, -31);
+                    sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 8.5, -31);
                     break;
                 default:
                     throw new AssertionError();
@@ -150,9 +167,9 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             throw new AssertionError();
         }
         if (contingencies.get(finalContingencyIndex).getElements().stream().anyMatch(e -> network.getIdentifiable(e.getId()) == null)) {
-            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.FAILURE);
+            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, operatorStrategyIndex, SensitivityAnalysisResult.Status.FAILURE);
         } else {
-            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.SUCCESS);
+            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, operatorStrategyIndex, SensitivityAnalysisResult.Status.SUCCESS);
         }
     }
 
@@ -216,7 +233,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         }
     }
 
-    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies) {
+    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -227,10 +244,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
+            int operatorStrategyIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(contingencyIndex).getId());
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
-                    handleSpecificContingencyContextNotAtNeutralTap(resultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex);
+                    handleSpecificContingencyContextNotAtNeutralTap(resultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex, operatorStrategyIndex);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
@@ -241,20 +259,21 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                                   SensitivityFunctionType functionType,
                                   SensitivityVariableType variableType,
                                   AtomicReference<Integer> factorIndexContingency,
-                                  int finalContingencyIndex) {
+                                  int finalContingencyIndex,
+                                  int operatorStrategyIndex) {
         if (variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
             switch (functionType) {
                 case BRANCH_ACTIVE_POWER_1:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, -2.5, -40);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, -2.5, -40);
                     break;
                 case BRANCH_ACTIVE_POWER_2:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, -3.0, -45);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, -3.0, -45);
                     break;
                 case BRANCH_CURRENT_1:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 9, 90);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 9, 90);
                     break;
                 case BRANCH_CURRENT_2:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 9.5, 95);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 9.5, 95);
                     break;
                 default:
                     throw new AssertionError();
@@ -262,22 +281,22 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         } else if (variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
             switch (functionType) {
                 case BRANCH_ACTIVE_POWER_1:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 6.6, -40);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 6.6, -40);
                     break;
                 case BRANCH_ACTIVE_POWER_2:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 7.1, -45);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 7.1, -45);
                     break;
                 case BRANCH_CURRENT_1:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 12.6, -80);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 12.6, -80);
                     break;
                 case BRANCH_CURRENT_2:
-                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -1, 13.1, -85);
+                    resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, operatorStrategyIndex, 13.1, -85);
                     break;
                 default:
                     throw new AssertionError();
             }
         }
-        resultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.SUCCESS);
+        resultWriter.writeStateStatus(finalContingencyIndex, operatorStrategyIndex, SensitivityAnalysisResult.Status.SUCCESS);
     }
 
     private static void handleNoneAndAllContingencyContextNotAtNeutralTap(SensitivityResultWriter resultWriter,

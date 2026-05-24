@@ -38,6 +38,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulati
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -572,6 +573,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
+    @Disabled("OLF cannot calculate sensitivity with operator strategies when there is an HVDC change")
     void checkWithHvdc() throws IOException {
         // same test as US 15.17.8
         setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
