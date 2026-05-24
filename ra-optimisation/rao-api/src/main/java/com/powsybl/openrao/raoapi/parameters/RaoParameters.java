@@ -30,6 +30,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
     private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
+    private PostProcessingParameters postProcessingParameters = new PostProcessingParameters();
     private Optional<MnecParameters> mnecParameters = Optional.empty();
     private Optional<RelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
     private Optional<LoopFlowParameters> loopFlowParameters = Optional.empty();
@@ -49,6 +50,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters notOptimizedCnecsParameters) {
         this.notOptimizedCnecsParameters = notOptimizedCnecsParameters;
+    }
+
+    public void setPostProcessingParameters(PostProcessingParameters postProcessingParameters) {
+        this.postProcessingParameters = postProcessingParameters;
     }
 
     public void setMnecParameters(MnecParameters mnecParameters) {
@@ -77,6 +82,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public NotOptimizedCnecsParameters getNotOptimizedCnecsParameters() {
         return notOptimizedCnecsParameters;
+    }
+
+    public PostProcessingParameters getPostProcessingParameters() {
+        return postProcessingParameters;
     }
 
     public Optional<MnecParameters> getMnecParameters() {
@@ -135,6 +144,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
         parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
+        parameters.setPostProcessingParameters(PostProcessingParameters.load(platformConfig));
         MnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
         RelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
         LoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);

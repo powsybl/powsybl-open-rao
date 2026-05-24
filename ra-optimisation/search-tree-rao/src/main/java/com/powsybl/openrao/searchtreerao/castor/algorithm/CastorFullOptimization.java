@@ -102,6 +102,8 @@ public class CastorFullOptimization {
 
     public CompletableFuture<RaoResult> run() {
         String currentStep = "data initialization";
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        Set<String> initialVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
 
         try {
             RaoUtil.initData(raoInput, raoParameters);
@@ -334,6 +336,8 @@ public class CastorFullOptimization {
             //TODO: Check possible exceptions here
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
+        } finally {
+            RaoUtil.resetNetwork(network, initialVariantId, initialVariantIds, raoParameters.getPostProcessingParameters().mustRemoveAddedVariants());
         }
     }
 

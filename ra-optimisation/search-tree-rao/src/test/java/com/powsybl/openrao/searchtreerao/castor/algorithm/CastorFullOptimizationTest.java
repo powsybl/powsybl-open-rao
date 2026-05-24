@@ -31,6 +31,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.PostProcessingParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -479,6 +480,7 @@ class CastorFullOptimizationTest {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
+        when(raoParameters.getPostProcessingParameters()).thenReturn(new PostProcessingParameters());
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals(

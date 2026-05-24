@@ -10,7 +10,7 @@ Feature: 0.1.2.1: HVDC
   Scenario: 0.1.2.1.1 : Outage HVDC modelling 1 (CORE's Cobra)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -26,7 +26,7 @@ Feature: 0.1.2.1: HVDC
   Scenario: 0.1.2.1.2 : Outage HVDC modelling 2 (CORE's Alegro)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case2.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -46,7 +46,7 @@ Feature: 0.1.2.1: HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive.xml"
     Given crac creation parameters file is "epic14/ccp.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
     And the remedial action "D7_RA_99992 + D4_RA_99992" is used in preventive
@@ -77,7 +77,7 @@ Feature: 0.1.2.1: HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
     And the remedial action "D7_RA_99992 + D4_RA_99992" is used in preventive
@@ -109,7 +109,7 @@ Feature: 0.1.2.1: HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is not used in preventive
     And the remedial action "D7_RA_99992 + D4_RA_99992" is not used in preventive
@@ -151,7 +151,7 @@ Feature: 0.1.2.1: HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_curative.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is not used in preventive
     And the remedial action "D7_RA_99992 + D4_RA_99992" is not used in preventive
@@ -195,7 +195,7 @@ Feature: 0.1.2.1: HVDC
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive_and_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_keep_variants.json"
     When I launch rao at "2026-01-27 17:00"
     # HVDC remedial actions have different usage rules => they should not be used during optimisation
     Then 0 remedial actions are used in preventive

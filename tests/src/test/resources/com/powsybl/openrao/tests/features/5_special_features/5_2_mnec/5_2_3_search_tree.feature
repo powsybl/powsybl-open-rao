@@ -10,7 +10,7 @@ Feature: 5.2.3: Handle MNECs in search tree with range actions and network actio
   Scenario: 5.2.3.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -61,7 +61,7 @@ Feature: 5.2.3: Handle MNECs in search tree with range actions and network actio
   Scenario: 5.2.3.4.a: reference run on CBCORA, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_ref.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac_keep_variants.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

@@ -10,7 +10,7 @@ Feature: 5.2.2: Handle MNECs in search tree with only network actions
   Scenario: 5.2.2.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac_keep_variants.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

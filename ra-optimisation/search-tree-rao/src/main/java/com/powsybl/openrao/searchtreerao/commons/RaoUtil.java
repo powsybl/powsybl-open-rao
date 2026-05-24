@@ -271,4 +271,13 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
+    public static void resetNetwork(Network network, String initialVariantId, Set<String> initialVariantIds, boolean removeAddedVariants) {
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        if (removeAddedVariants) {
+            Set<String> variantsToRemove = network.getVariantManager().getVariantIds()
+                .stream().filter(id -> !initialVariantIds.contains(id))
+                .collect(Collectors.toSet());
+            variantsToRemove.forEach(network.getVariantManager()::removeVariant);
+        }
+    }
 }
