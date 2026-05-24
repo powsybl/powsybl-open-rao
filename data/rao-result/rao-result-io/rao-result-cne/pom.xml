@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>open-rao-rao-result-cne</artifactId>
-    <version>7.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>RAO Result CNE export modules</name>
     <description>Module that gathers all the RAO Result CNE exporters</description>
