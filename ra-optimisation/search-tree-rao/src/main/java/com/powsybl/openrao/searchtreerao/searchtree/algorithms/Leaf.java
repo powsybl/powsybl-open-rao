@@ -22,7 +22,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.VirtualNetworkVariantManager;
+import com.powsybl.openrao.searchtreerao.commons.VirtualVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -83,10 +83,10 @@ public class Leaf implements OptimizationResult {
      * this leaf), can be empty for root leaf
      */
     private final OptimizationPerimeter optimizationPerimeter;
-    private final Network network;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
-    private VirtualNetworkVariantManager networkVariantManager;
+    private Network network;
+    private final VirtualVariantManager virtualVariantManager;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
 
@@ -107,7 +107,7 @@ public class Leaf implements OptimizationResult {
 
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
-         VirtualNetworkVariantManager networkVariantManager,
+         VirtualVariantManager virtualVariantManager,
          Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
          NetworkActionCombination newCombinationToApply,
          RangeActionActivationResult raActivationResultFromParentLeaf,
@@ -115,7 +115,7 @@ public class Leaf implements OptimizationResult {
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
-        this.networkVariantManager = networkVariantManager;
+        this.virtualVariantManager = virtualVariantManager;
         this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
@@ -130,7 +130,7 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            networkVariantManager.applyNetworkAction(na); // deactivate the ac emulation
+            virtualVariantManager.applyNetworkAction(na); // deactivate the ac emulation
         }
 
         this.status = Status.CREATED;
@@ -138,10 +138,10 @@ public class Leaf implements OptimizationResult {
 
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
-         VirtualNetworkVariantManager networkVariantManager,
+         VirtualVariantManager virtualVariantManager,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, networkVariantManager, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, network, virtualVariantManager, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
@@ -178,7 +178,7 @@ public class Leaf implements OptimizationResult {
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        networkVariantManager.compute(sensitivityComputer, network);
+        virtualVariantManager.compute(sensitivityComputer, network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
             status = Status.ERROR;
@@ -269,7 +269,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(ra -> networkVariantManager.applyRangeAction(ra, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+            rangeActions.forEach(ra -> virtualVariantManager.applyRangeAction(ra, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     /**
@@ -693,7 +693,7 @@ public class Leaf implements OptimizationResult {
      * Releases data used in optimization to make leaf lighter
      */
     public void finalizeOptimization() {
-        this.networkVariantManager = null;
+        this.network = null;
         this.optimizationDataPresent = false;
     }
 }

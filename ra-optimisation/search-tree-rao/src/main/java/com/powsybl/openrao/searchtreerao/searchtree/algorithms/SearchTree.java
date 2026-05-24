@@ -22,7 +22,7 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.VirtualNetworkVariantManager;
+import com.powsybl.openrao.searchtreerao.commons.VirtualVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -103,8 +103,8 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
-        VirtualNetworkVariantManager networkVariantManager = new VirtualNetworkVariantManager();
-        initLeaves(networkVariantManager, input);
+        VirtualVariantManager virtualVariantManager = new VirtualVariantManager();
+        initLeaves(input, virtualVariantManager);
 
         TECHNICAL_LOGS.debug("Evaluating root leaf");
 
@@ -165,7 +165,7 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        iterateOnTree(networkVariantManager);
+        iterateOnTree(virtualVariantManager);
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
 
@@ -178,14 +178,14 @@ public class SearchTree {
         return CompletableFuture.completedFuture(optimalLeaf);
     }
 
-    void initLeaves(VirtualNetworkVariantManager networkVariantManager, SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), networkVariantManager, input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
+    void initLeaves(SearchTreeInput input, VirtualVariantManager virtualVariantManager) {
+        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), virtualVariantManager, input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, VirtualNetworkVariantManager networkVariantManager, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, input.getNetwork(), networkVariantManager, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, VirtualVariantManager virtualVariantManager, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        return new Leaf(optimizationPerimeter, input.getNetwork(), virtualVariantManager, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -201,7 +201,7 @@ public class SearchTree {
         logVirtualCostInformation(optimalLeaf, "");
     }
 
-    private void iterateOnTree(VirtualNetworkVariantManager networkVariantManager) {
+    private void iterateOnTree(VirtualVariantManager virtualVariantManager) {
         int depth = 0;
         boolean hasImproved = true;
         if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
@@ -225,7 +225,7 @@ public class SearchTree {
                 while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                     TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                     previousDepthOptimalLeaf = optimalLeaf;
-                    updateOptimalLeafWithNextDepthBestLeaf(networkVariantManager, forkJoinPool, leavesInParallel, leavesVariantIds);
+                    updateOptimalLeafWithNextDepthBestLeaf(virtualVariantManager, forkJoinPool, leavesInParallel, leavesVariantIds);
                     hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                     if (hasImproved) {
                         TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
@@ -258,7 +258,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(VirtualNetworkVariantManager networkVariantManager, ExecutorService executorService,
+    private void updateOptimalLeafWithNextDepthBestLeaf(VirtualVariantManager virtualVariantManager, ExecutorService executorService,
                                                         int leavesInParallel, List<String> leavesVariantIds) throws InterruptedException {
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
@@ -285,7 +285,7 @@ public class SearchTree {
             tasks.add(executorService.submit(() -> {
                 input.getNetwork().getVariantManager().setWorkingVariant(leavesVariantIds.get(finalI));
                 for (NetworkActionCombination naCombination : naCombinationsChunk) {
-                    optimizeOneLeaf(networkVariantManager, naCombination, remainingLeaves);
+                    optimizeOneLeaf(virtualVariantManager, naCombination, remainingLeaves);
                 }
                 return null;
             }));
@@ -300,8 +300,8 @@ public class SearchTree {
         }
     }
 
-    private Object optimizeOneLeaf(VirtualNetworkVariantManager networkVariantManager, NetworkActionCombination naCombination, AtomicInteger remainingLeaves) {
-        networkVariantManager.setWorkingVariant(input.getNetwork(), input.getNetwork().getVariantManager().getWorkingVariantId(), "toto" + "_" + UUID.randomUUID());
+    private Object optimizeOneLeaf(VirtualVariantManager virtualVariantManager, NetworkActionCombination naCombination, AtomicInteger remainingLeaves) {
+        virtualVariantManager.setWorkingVariant(input.getNetwork(), input.getNetwork().getVariantManager().getWorkingVariantId(), "toto" + "_" + UUID.randomUUID());
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
@@ -310,7 +310,7 @@ public class SearchTree {
                     // If the HVDC line is in AC emulation the we won't be able to apply setpoint
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), input.getNetwork())
                         .forEach(ra ->
-                            networkVariantManager.applyRangeAction(ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                            virtualVariantManager.applyRangeAction(ra, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 
                 } else {
@@ -320,10 +320,10 @@ public class SearchTree {
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
                     HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), input.getNetwork())
                         .forEach(ra ->
-                            networkVariantManager.applyRangeAction(ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            virtualVariantManager.applyRangeAction(ra, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
                 }
-                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkVariantManager);
+                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, virtualVariantManager);
 
             } else {
                 topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
@@ -332,7 +332,7 @@ public class SearchTree {
             BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
         }
         TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-        networkVariantManager.removeWorkingVariants();
+        virtualVariantManager.removeWorkingVariants();
         return null;
     }
 
@@ -379,11 +379,11 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, VirtualNetworkVariantManager networkVariantManager) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, VirtualVariantManager virtualVariantManager) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(networkVariantManager, naCombination, shouldRangeActionBeRemoved);
+            leaf = createChildLeaf(virtualVariantManager, naCombination, shouldRangeActionBeRemoved);
         } catch (OpenRaoException e) {
             Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
@@ -413,11 +413,11 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(VirtualNetworkVariantManager networkVariantManager, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(VirtualVariantManager virtualVariantManager, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
         return new Leaf(
             input.getOptimizationPerimeter(),
             input.getNetwork(),
-            networkVariantManager,
+            virtualVariantManager,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),

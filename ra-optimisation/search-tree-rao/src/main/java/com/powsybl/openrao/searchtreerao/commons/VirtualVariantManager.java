@@ -22,9 +22,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class VirtualNetworkVariantManager {
+public class VirtualVariantManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualNetworkVariantManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualVariantManager.class);
 
     protected record VirtualVariant(String variantId, AppliedRemedialActionsPerState appliedRemedialActions, VirtualVariant parent) {
 
