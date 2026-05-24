@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -22,8 +21,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.network.EagerNetworkVariantManager;
-import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManager;
+import com.powsybl.openrao.searchtreerao.commons.VirtualNetworkVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -86,7 +84,7 @@ public class Leaf implements OptimizationResult {
     private final OptimizationPerimeter optimizationPerimeter;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
-    private NetworkVariantManager networkVariantManager;
+    private VirtualNetworkVariantManager networkVariantManager;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
 
@@ -106,23 +104,7 @@ public class Leaf implements OptimizationResult {
     private boolean optimizationDataPresent = true;
 
     Leaf(OptimizationPerimeter optimizationPerimeter,
-         Network network,
-         Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
-         NetworkActionCombination newCombinationToApply,
-         RangeActionActivationResult raActivationResultFromParentLeaf,
-         RangeActionSetpointResult prePerimeterSetpoints,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter,
-                new EagerNetworkVariantManager(network),
-                alreadyAppliedNetworkActionsInPrimaryState,
-                newCombinationToApply,
-                raActivationResultFromParentLeaf,
-                prePerimeterSetpoints,
-                appliedRemedialActionsInSecondaryStates);
-    }
-
-    Leaf(OptimizationPerimeter optimizationPerimeter,
-         NetworkVariantManager networkVariantManager,
+         VirtualNetworkVariantManager networkVariantManager,
          Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
          NetworkActionCombination newCombinationToApply,
          RangeActionActivationResult raActivationResultFromParentLeaf,
@@ -151,17 +133,10 @@ public class Leaf implements OptimizationResult {
     }
 
     Leaf(OptimizationPerimeter optimizationPerimeter,
-         Network network,
+         VirtualNetworkVariantManager networkVariantManager,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, new EagerNetworkVariantManager(network), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
-    }
-
-    Leaf(OptimizationPerimeter optimizationPerimeter,
-         NetworkVariantManager variantTree,
-         PrePerimeterResult prePerimeterOutput,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, variantTree, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, networkVariantManager, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;

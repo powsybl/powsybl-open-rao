@@ -5,13 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.network;
+package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRemedialActionsPerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class VirtualNetworkVariantManager implements NetworkVariantManager {
+public class VirtualNetworkVariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VirtualNetworkVariantManager.class);
 
@@ -52,12 +51,10 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
         this.network = Objects.requireNonNull(network);
     }
 
-    @Override
     public Network getNetwork() {
         return network;
     }
 
-    @Override
     public void setWorkingVariant(String fromVariantId, String newVariantId) {
         VirtualVariant variant = variantsById.get(newVariantId);
         if (variant != null) {
@@ -78,7 +75,6 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
         }
     }
 
-    @Override
     public void removeWorkingVariants() {
         LOGGER.info("Remove all virtual variants");
         variantsById.clear();
@@ -91,7 +87,6 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
         }
     }
 
-    @Override
     public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
@@ -99,7 +94,6 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
         workingVariant.appliedRemedialActions.addAppliedRangeAction(rangeAction, setpoint);
     }
 
-    @Override
     public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
@@ -107,7 +101,6 @@ public class VirtualNetworkVariantManager implements NetworkVariantManager {
         workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
     }
 
-    @Override
     public void compute(SensitivityComputer sensitivityComputer) {
         sensitivityComputer.compute(network, workingVariant.getFullAppliedRemedialActions());
     }
