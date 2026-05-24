@@ -15,9 +15,9 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRem
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -43,14 +43,12 @@ public class VirtualVariantManager {
         }
     }
 
-    private final Map<String, VirtualVariant> variantsById = new HashMap<>();
-    private VirtualVariant workingVariant;
+    private final Map<String, VirtualVariant> variantsById = new ConcurrentHashMap<>();
+    // each thread has its own working variant so concurrent leaves don't interfere
+    private final ThreadLocal<VirtualVariant> workingVariant = new ThreadLocal<>();
 
     public void setWorkingVariant(Network network, String fromVariantId, String newVariantId) {
-        VirtualVariant variant = variantsById.get(newVariantId);
-        if (variant != null) {
-            workingVariant = variant;
-        } else {
+        VirtualVariant variant = variantsById.computeIfAbsent(newVariantId, id -> {
             VirtualVariant fromVariant = null;
             if (network.getVariantManager().getVariantIds().contains(fromVariantId)) {
                 LOGGER.info("Create virtual variant '{}' from variant '{}'", newVariantId, fromVariantId);
@@ -61,19 +59,19 @@ public class VirtualVariantManager {
                 }
                 LOGGER.info("Create virtual variant '{}' from virtual variant '{}'", newVariantId, fromVariantId);
             }
-            workingVariant = new VirtualVariant(newVariantId, new AppliedRemedialActionsPerState(), fromVariant);
-            variantsById.put(newVariantId, workingVariant);
-        }
+            return new VirtualVariant(newVariantId, new AppliedRemedialActionsPerState(), fromVariant);
+        });
+        workingVariant.set(variant);
     }
 
     public void removeWorkingVariants() {
         LOGGER.info("Remove all virtual variants");
         variantsById.clear();
-        workingVariant = null;
+        workingVariant.remove();
     }
 
     protected void checkWorkingVariantIsSet() {
-        if (workingVariant == null) {
+        if (workingVariant.get() == null) {
             throw new OpenRaoException("Working variant not set");
         }
     }
@@ -81,18 +79,20 @@ public class VirtualVariantManager {
     public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add range action '{}' to virtual variant '{}'", rangeAction.getId(), workingVariant.variantId);
-        workingVariant.appliedRemedialActions.addAppliedRangeAction(rangeAction, setpoint);
+        VirtualVariant variant = workingVariant.get();
+        LOGGER.info("Add range action '{}' to virtual variant '{}'", rangeAction.getId(), variant.variantId());
+        variant.appliedRemedialActions().addAppliedRangeAction(rangeAction, setpoint);
     }
 
     public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
         checkWorkingVariantIsSet();
-        LOGGER.info("Add network action '{}' to virtual variant '{}'", networkAction.getId(), workingVariant.variantId);
-        workingVariant.appliedRemedialActions.addAppliedNetworkAction(networkAction);
+        VirtualVariant variant = workingVariant.get();
+        LOGGER.info("Add network action '{}' to virtual variant '{}'", networkAction.getId(), variant.variantId());
+        variant.appliedRemedialActions().addAppliedNetworkAction(networkAction);
     }
 
     public void compute(SensitivityComputer sensitivityComputer, Network network) {
-        sensitivityComputer.compute(network, workingVariant.getFullAppliedRemedialActions());
+        sensitivityComputer.compute(network, workingVariant.get().getFullAppliedRemedialActions());
     }
 }
