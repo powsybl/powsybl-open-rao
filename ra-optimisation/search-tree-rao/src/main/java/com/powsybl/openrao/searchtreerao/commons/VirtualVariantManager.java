@@ -108,10 +108,12 @@ public class VirtualVariantManager {
         workingVariant.remove();
     }
 
-    protected void checkWorkingVariantIsSet() {
-        if (workingVariant.get() == null) {
+    protected VirtualVariant checkWorkingVariantIsSet() {
+        VirtualVariant variant = workingVariant.get();
+        if (variant == null) {
             throw new OpenRaoException("Working variant not set");
         }
+        return variant;
     }
 
     /**
@@ -122,8 +124,7 @@ public class VirtualVariantManager {
      */
     public void applyRangeAction(RangeAction<?> rangeAction, double setpoint) {
         Objects.requireNonNull(rangeAction);
-        checkWorkingVariantIsSet();
-        VirtualVariant variant = workingVariant.get();
+        VirtualVariant variant = checkWorkingVariantIsSet();
         LOGGER.info("Add range action '{}' to virtual variant '{}'", rangeAction.getId(), variant.variantId());
         variant.appliedRemedialActions().addAppliedRangeAction(rangeAction, setpoint);
     }
@@ -136,8 +137,7 @@ public class VirtualVariantManager {
      */
     public void applyNetworkAction(NetworkAction networkAction) {
         Objects.requireNonNull(networkAction);
-        checkWorkingVariantIsSet();
-        VirtualVariant variant = workingVariant.get();
+        VirtualVariant variant = checkWorkingVariantIsSet();
         LOGGER.info("Add network action '{}' to virtual variant '{}'", networkAction.getId(), variant.variantId());
         variant.appliedRemedialActions().addAppliedNetworkAction(networkAction);
     }
@@ -150,6 +150,6 @@ public class VirtualVariantManager {
      * {@link SensitivityComputer}. The network is not modified.
      */
     public void compute(SensitivityComputer sensitivityComputer, Network network) {
-        sensitivityComputer.compute(network, workingVariant.get().getFullAppliedRemedialActions());
+        sensitivityComputer.compute(network, checkWorkingVariantIsSet().getFullAppliedRemedialActions());
     }
 }
