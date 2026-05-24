@@ -55,10 +55,10 @@ public class AppliedRemedialActions {
                     .noneMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6);
         }
 
-        public List<Action> toActions() {
+        public List<Action> toActions(Network network) {
             List<Action> actions = new ArrayList<>(networkActions.size() + rangeActions.size());
             actions.addAll(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).toList());
-            actions.addAll(rangeActions.entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList());
+            actions.addAll(rangeActions.entrySet().stream().flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList());
             return actions;
         }
     }
@@ -113,12 +113,12 @@ public class AppliedRemedialActions {
             .collect(Collectors.toSet());
     }
 
-    public List<Action> toActions(State state) {
+    public List<Action> toActions(State state, Network network) {
         var appliedRemedialActionForThisState = appliedRa.get(state);
         if (appliedRemedialActionForThisState == null) {
             return Collections.emptyList();
         }
-        return appliedRemedialActionForThisState.toActions();
+        return appliedRemedialActionForThisState.toActions(network);
     }
 
     public Set<NetworkAction> getAppliedNetworkActions(State state) {

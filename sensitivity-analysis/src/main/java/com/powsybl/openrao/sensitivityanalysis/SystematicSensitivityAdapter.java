@@ -49,7 +49,8 @@ final class SystematicSensitivityAdapter {
                                                                                          Instant outageInstant,
                                                                                          Set<NetworkAction> networkActions,
                                                                                          AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
-                                                                                         Map<SensitivityState, Integer> instantOrderByState) {
+                                                                                         Map<SensitivityState, Integer> instantOrderByState,
+                                                                                         Network network) {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         // maximal set of possible actions is made from all network actions (even if not referenced in the operator strategy
         // to be able to efficiently fast restart sensitivity calculation)
@@ -61,7 +62,7 @@ final class SystematicSensitivityAdapter {
         // As a workaround, we re-apply the preventive actions as curative actions with all contingencies.
         if (preventiveAppliedRemedialActions != null) {
             // only add preventive range actions, all network actions are already added
-            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList();
+            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList();
             actions.addAll(preventiveRangeActions);
             simulatedActionIds.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(e -> e.getElementaryActions().stream().map(Action::getId)).toList());
             simulatedActionIds.addAll(preventiveRangeActions.stream().map(Action::getId).toList());
@@ -105,7 +106,8 @@ final class SystematicSensitivityAdapter {
                     outageInstant,
                     networkActions,
                     preventiveAppliedRemedialActions,
-                    instantOrderByState);
+                    instantOrderByState,
+                    network);
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
                     factors,
@@ -126,7 +128,8 @@ final class SystematicSensitivityAdapter {
                                                                                       Set<NetworkAction> networkActions,
                                                                                       AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                                                       AppliedRemedialActions appliedRemedialActions,
-                                                                                      Map<SensitivityState, Integer> instantOrderByState) {
+                                                                                      Map<SensitivityState, Integer> instantOrderByState,
+                                                                                      Network network) {
         List<Contingency> contingencies = new ArrayList<>();
 
         // maximal set of possible actions is made from all network actions (even if not referenced in the operator strategy
@@ -138,7 +141,7 @@ final class SystematicSensitivityAdapter {
         // - preventive actions are applied to all contingencies
         if (preventiveAppliedRemedialActions != null) {
             // only add preventive range actions, all network actions are already added
-            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().map(e -> e.getKey().toAction(e.getValue())).toList();
+            var preventiveRangeActions = preventiveAppliedRemedialActions.getRangeActions().entrySet().stream().flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList();
             actions.addAll(preventiveRangeActions);
             simulatedActionIds.addAll(preventiveAppliedRemedialActions.getNetworkActions().stream().flatMap(e -> e.getElementaryActions().stream().map(Action::getId)).toList());
             simulatedActionIds.addAll(preventiveRangeActions.stream().map(Action::getId).toList());
@@ -150,7 +153,7 @@ final class SystematicSensitivityAdapter {
             );
             contingencies.add(contingency);
 
-            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state);
+            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state, network);
             actions.addAll(curativeActionsForState);
             String operatorStrategyId = "OS-" + contingency.getId();
             simulatedActionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
@@ -213,7 +216,8 @@ final class SystematicSensitivityAdapter {
                     outageInstant,
                     networkActions,
                     preventiveAppliedRemedialActions,
-                    instantOrderByState);
+                    instantOrderByState,
+                    network);
 
             var sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
@@ -235,7 +239,8 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters,
                 statesWithRa, networkActions, preventiveAppliedRemedialActions, appliedRemedialActions,
-                instantOrderByState);
+                instantOrderByState,
+                network);
 
         var factors = cnecSensitivityProvider.getContingencyFactors(network, runParameters.getContingencies());
         try {
