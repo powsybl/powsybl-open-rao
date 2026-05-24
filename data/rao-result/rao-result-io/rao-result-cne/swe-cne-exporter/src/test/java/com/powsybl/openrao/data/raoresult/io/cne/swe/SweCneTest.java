@@ -55,8 +55,8 @@ class SweCneTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
-    private RaoResultWithAngleMonitoring raoResultWithAngle;
-    private RaoResultWithAngleMonitoring raoResultFailureWithAngle;
+    private RaoResult raoResultWithAngle;
+    private RaoResult raoResultFailureWithAngle;
     private Properties properties;
 
     @BeforeEach

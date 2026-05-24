@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
@@ -280,9 +281,12 @@ class RaoResultRoundTripTest {
         /*
         AngleCnec, angleCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        AngleExtension angleExtension = raoResult.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        assertEquals(3435., raoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., raoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435., angleExtension.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3431., angleExtension.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         /*
         VoltageCnec, voltageCnecId is defined on curative instant, we should only serialize curative instant result.
