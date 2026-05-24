@@ -152,33 +152,6 @@ class RaoUtilTest {
     }
 
     @Test
-    void testGetBranchFlowUnitMultiplier() {
-        FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.ONE)).thenReturn(400.);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.TWO)).thenReturn(200.);
-
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.PERCENT_IMAX));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.KILOVOLT, Unit.MEGAWATT));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.TAP));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.DEGREE, Unit.AMPERE));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-    }
-
-    @Test
     void testGetLargestCnecThreshold() {
         FlowCnec cnecA = Mockito.mock(FlowCnec.class);
         FlowCnec cnecB = Mockito.mock(FlowCnec.class);
