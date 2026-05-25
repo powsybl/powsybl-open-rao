@@ -686,6 +686,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         remedialActions.addAll(hvdcRangeActions.values());
         remedialActions.addAll(injectionRangeActions.values());
         remedialActions.addAll(networkActions.values());
+        remedialActions.addAll(counterTradeRangeActions.values());
         return remedialActions;
     }
 
