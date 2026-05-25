@@ -233,6 +233,7 @@ public class Leaf implements OptimizationResult {
                     .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
                     .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
+                    .withNetworkActions(virtualVariantManager.getNetworkActions())
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
                     .withOutageInstant(searchTreeInput.getOutageInstant())

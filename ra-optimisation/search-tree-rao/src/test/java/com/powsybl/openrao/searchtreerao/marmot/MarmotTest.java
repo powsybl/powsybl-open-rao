@@ -262,7 +262,6 @@ class MarmotTest {
     }
 
     @Test
-    @Disabled("InjectionRangeAction and PST actions not supported as operator strategies in OLF fast DC Security Analysis")
     void testWithPreventiveTopologicalAction() throws IOException {
         String networkFilePath = "/network/2Nodes3ParallelLinesPST2LinesClosed.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));

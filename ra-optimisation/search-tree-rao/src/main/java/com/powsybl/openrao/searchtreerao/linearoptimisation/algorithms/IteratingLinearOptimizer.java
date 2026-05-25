@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -30,9 +31,11 @@ import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions.AppliedRemedialActionsPerState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -136,7 +139,7 @@ public final class IteratingLinearOptimizer {
                 tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), input.networkActions(), iteration);
         return tmpSensitivityComputer;
     }
 
@@ -211,6 +214,10 @@ public final class IteratingLinearOptimizer {
                 .withToolProvider(input.toolProvider())
                 .withOutageInstant(input.outageInstant());
 
+        if (input.networkActions() != null) {
+            builder.withNetworkActions(input.networkActions());
+        }
+
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
@@ -227,11 +234,21 @@ public final class IteratingLinearOptimizer {
         return builder.build();
     }
 
-    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
-        sensitivityComputer.compute(network);
+    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network,
+                                               Set<NetworkAction> networkActions, int iteration) {
+        sensitivityComputer.compute(network, buildApplied(networkActions));
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
         }
+    }
+
+    private static AppliedRemedialActionsPerState buildApplied(Set<NetworkAction> networkActions) {
+        if (networkActions == null || networkActions.isEmpty()) {
+            return null;
+        }
+        AppliedRemedialActionsPerState applied = new AppliedRemedialActionsPerState();
+        networkActions.forEach(applied::addAppliedNetworkAction);
+        return applied;
     }
 
     private static IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,

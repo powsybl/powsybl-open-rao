@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.inputs;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -18,6 +19,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,7 +34,8 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
                                             RangeActionActivationResult raActivationFromParentLeaf,
                                             NetworkActionsResult appliedNetworkActionsInPrimaryState,
                                             ObjectiveFunction objectiveFunction, ToolProvider toolProvider,
-                                            Instant outageInstant) {
+                                            Instant outageInstant,
+                                            Set<NetworkAction> networkActions) {
 
     public static IteratingLinearOptimizerInputBuilder create() {
         return new IteratingLinearOptimizerInputBuilder();
@@ -52,6 +56,7 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
         private Instant outageInstant;
+        private Set<NetworkAction> networkActions;
 
         public IteratingLinearOptimizerInputBuilder withNetwork(Network network) {
             this.network = network;
@@ -118,6 +123,11 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
             return this;
         }
 
+        public IteratingLinearOptimizerInputBuilder withNetworkActions(Set<NetworkAction> networkActions) {
+            this.networkActions = networkActions;
+            return this;
+        }
+
         public IteratingLinearOptimizerInput build() {
             return new IteratingLinearOptimizerInput(network,
                 optimizationPerimeter,
@@ -131,7 +141,8 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
                 appliedNetworkActionsInPrimaryState,
                 objectiveFunction,
                 toolProvider,
-                outageInstant);
+                outageInstant,
+                networkActions);
         }
     }
 }

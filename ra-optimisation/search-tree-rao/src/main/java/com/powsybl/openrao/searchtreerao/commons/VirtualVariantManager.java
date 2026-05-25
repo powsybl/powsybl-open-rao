@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -140,6 +141,22 @@ public class VirtualVariantManager {
         VirtualVariant variant = checkWorkingVariantIsSet();
         LOGGER.info("Add network action '{}' to virtual variant '{}'", networkAction.getId(), variant.variantId());
         variant.appliedRemedialActions().addAppliedNetworkAction(networkAction);
+    }
+
+    /**
+     * Returns the full set of network actions accumulated from the root of the virtual variant tree
+     * down to the calling thread's working variant. Returns {@code null} if no network actions are applied.
+     *
+     * <p>Used to pass topology actions to the optimizer's sensitivity computer so it can model the
+     * correct network state via operator strategies, without physically modifying the network.
+     */
+    public Set<NetworkAction> getNetworkActions() {
+        VirtualVariant variant = workingVariant.get();
+        if (variant == null) {
+            return null;
+        }
+        Set<NetworkAction> networkActions = variant.getFullAppliedRemedialActions().getNetworkActions();
+        return networkActions.isEmpty() ? null : networkActions;
     }
 
     /**
