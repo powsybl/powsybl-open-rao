@@ -606,7 +606,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             individualRaoInput -> {
                 OffsetDateTime timestamp = MarmotUtils.getTimestamp(individualRaoInput);
                 IteratingLinearOptimizerInput iteratingLinearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(individualRaoInput.getNetwork())
+                    .withNetwork(new LazyNetwork(individualRaoInput.getNetwork()))
                     .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow()
                         .copyWithFilteredAvailableHvdcRangeAction(individualRaoInput.getNetwork()))
                     .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
@@ -620,6 +620,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                     .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
                     .build();
                 MarmotUtils.releaseNetworkWithoutOverwrite(individualRaoInput.getNetwork());
+                MarmotUtils.releaseNetworkWithoutOverwrite(iteratingLinearOptimizerInput.network());
                 return iteratingLinearOptimizerInput;
             },
             parallelism
@@ -630,6 +631,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer
+        MarmotUtils.releaseAllWithoutOverwrite(raoInput.getRaoInputs().map(RaoInput::getNetwork));
         MarmotUtils.releaseAllWithoutOverwrite(timeCoupledLinearOptimizerInput.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
 
         // Build parameters

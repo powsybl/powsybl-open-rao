@@ -157,7 +157,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                         parameters
                     )
                 );
-                // TODO: close networks with overwrite to keep applied RAs (WARNING: need a copy of the initial network)
+                MarmotUtils.releaseNetwork(inputForTimestamp.network());
             }
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
@@ -174,7 +174,6 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
                 input.objectiveFunction()
             );
-            // TODO: close networks with overwrite?
             previousResult = newResult;
 
             // f. Update problem fillers with flows, sensitivity coefficients and set-points
@@ -363,9 +362,10 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                        ObjectiveFunction objectiveFunction) {
         Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
         for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
-            FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
+            Network network = networks.getData(timestamp).orElseThrow();
+            FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(network);
             flowResults.put(timestamp, flowResult);
-            // TODO: close networks without overwrite
+            MarmotUtils.releaseNetworkWithoutOverwrite(network);
         }
         return new GlobalLinearOptimizationResult(
             new TemporalDataImpl<>(flowResults),
