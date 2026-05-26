@@ -30,7 +30,7 @@ class CounterTradingRangeActionCreatorTest {
                 NcCracCreationTestUtil.NETWORK
         );
 
-        List<CounterTradeRangeAction> importedCountertradeActions = cracCreationContext.getCrac().getRemedialActions().stream()
+        List<CounterTradeRangeAction> importedCountertradeActions = cracCreationContext.getCrac().getRangeActions().stream()
                 .filter(CounterTradeRangeAction.class::isInstance)
                 .map(CounterTradeRangeAction.class::cast)
                 .sorted(Comparator.comparing(CounterTradeRangeAction::getId))
