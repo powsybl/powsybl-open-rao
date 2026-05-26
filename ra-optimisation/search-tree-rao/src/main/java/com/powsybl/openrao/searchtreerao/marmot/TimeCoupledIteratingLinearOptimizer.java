@@ -65,7 +65,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
     private TimeCoupledIteratingLinearOptimizer() {
     }
 
-    public static GlobalLinearOptimizationResult optimize(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static GlobalLinearOptimizationResult optimize(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, int parallelism) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
@@ -132,7 +132,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers);
+            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -143,21 +143,22 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 return bestResult;
             }
 
-            // e.  Run sensitivity analyses with new set-points
+            // e.  Run sensitivity analyses with new set-points -> TODO: multi-thread
             Map<OffsetDateTime, SensitivityComputer> newSensitivityComputers = new HashMap<>();
             for (OffsetDateTime timestamp : rangeActionActivationPerTimestamp.getTimestamps()) {
+                IteratingLinearOptimizerInput inputForTimestamp = input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow();
                 newSensitivityComputers.put(
                     timestamp,
                     runSensitivityAnalysis(
                         sensitivityComputers.getData(timestamp).orElse(null),
                         iteration,
                         rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
-                        input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(),
+                        inputForTimestamp,
                         parameters
                     )
                 );
+                // TODO: close networks with overwrite to keep applied RAs (WARNING: need a copy of the initial network)
             }
-            // TODO: close networks with overwrite?
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -210,7 +211,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
-        // TODO: add tipe-coupled margin filler (min of all min margins)
+        // TODO: add time-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs()
             .map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
@@ -351,6 +352,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                       TemporalData<RangeActionActivationResult> rangeActionActivations,
                                                                       TemporalData<NetworkActionsResult> preventiveTopologicalActions,
                                                                       ObjectiveFunction objectiveFunction) {
+        // FIXME: this assumes that the post-topological situation respects the time-coupled constraints which is technically not true
         return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
@@ -363,6 +365,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
             FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
             flowResults.put(timestamp, flowResult);
+            // TODO: close networks without overwrite
         }
         return new GlobalLinearOptimizationResult(
             new TemporalDataImpl<>(flowResults),
@@ -381,7 +384,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                           TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
                                                                                           TimeCoupledIteratingLinearOptimizerInput input,
                                                                                           IteratingLinearOptimizerParameters parameters,
-                                                                                          TemporalData<List<ProblemFiller>> problemFillers) {
+                                                                                          TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                          int parallelism) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
             .noneMatch(PstRangeAction.class::isInstance)) {
@@ -405,12 +409,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints),
                     input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter)
                 );
-                Map<OffsetDateTime, RangeActionActivationResult> roundedResults = new HashMap<>();
-                updatedLinearProblemResults.getDataPerTimestamp().forEach((timestamp, rangeActionActivationResult) -> roundedResults.put(
-                    timestamp,
-                    roundResult(rangeActionActivationResult, bestResult, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(), parameters)
-                ));
-                rangeActionActivationResults = new TemporalDataImpl<>(roundedResults);
+
+                rangeActionActivationResults = MarmotUtils.smartMap(
+                    input.iteratingLinearOptimizerInputs(),
+                    i -> {
+                        OffsetDateTime timestamp = i.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElseThrow();
+                        return roundResult(updatedLinearProblemResults.getData(timestamp).orElseThrow(), bestResult, i, parameters);
+                    },
+                    parallelism
+                );
             }
         }
         return rangeActionActivationResults;
@@ -481,7 +488,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                              IteratingLinearOptimizerInput input,
                                                              IteratingLinearOptimizerParameters parameters) {
         if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
-            return BestTapFinder.round(
+            RangeActionActivationResultImpl roundedResult = BestTapFinder.round(
                 linearProblemResult,
                 input.network(),
                 input.optimizationPerimeter(),
@@ -489,6 +496,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 previousResult,
                 parameters.getFlowUnit()
             );
+            MarmotUtils.releaseNetworkWithoutOverwrite(input.network());
+            return roundedResult;
         }
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
         input.optimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)

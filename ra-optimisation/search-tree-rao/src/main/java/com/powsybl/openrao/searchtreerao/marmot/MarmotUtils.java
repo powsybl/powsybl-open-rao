@@ -36,12 +36,17 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -281,5 +286,30 @@ public final class MarmotUtils {
             return standardRangeAction.getInitialSetpoint();
         }
         return Double.NaN;
+    }
+
+    public static File exportRaoResultInTmpDir(RaoResult raoResult, Crac crac) {
+        final String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
+        final OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
+        final String raoResultName = "rao-result-%s.json".formatted(timestamp.toString());
+        final String raoResultPath = tmpDir.concat(raoResultName);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
+            final Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            raoResult.write("JSON", crac, properties, fileOutputStream);
+            return new File(raoResultPath);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        }
+    }
+
+    public static RaoResult readRaoResult(File raoResultFile, Crac crac) {
+        try (FileInputStream fileInputStream = new FileInputStream(raoResultFile)) {
+            return RaoResult.read(fileInputStream, crac);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        } finally {
+            raoResultFile.delete();
+        }
     }
 }

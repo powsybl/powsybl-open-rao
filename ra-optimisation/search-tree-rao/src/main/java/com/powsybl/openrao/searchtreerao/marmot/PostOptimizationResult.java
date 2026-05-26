@@ -60,9 +60,11 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     private final Crac crac;
     private final PrePerimeterResult initialResult;
+    // TODO: replace following RaoResult by Set<NetworkAction> and AppliedRemedialActions to avoid storing flows
     private final RaoResult topologicalOptimizationResult;
     private final GlobalLinearOptimizationResult postMipResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
+    private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
 
     public PostOptimizationResult(RaoInput raoInput,
                                   PrePerimeterResult initialResult,
@@ -274,12 +276,12 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public String getExecutionDetails() {
-        return topologicalOptimizationResult.getExecutionDetails();
+        return executionDetails;
     }
 
     @Override
     public void setExecutionDetails(String executionDetails) {
-        topologicalOptimizationResult.setExecutionDetails(executionDetails);
+        this.executionDetails = executionDetails;
     }
 
     @Override
