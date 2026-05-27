@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -57,6 +58,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,8 +92,6 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivit
 public class Marmot implements TimeCoupledRaoProvider {
 
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
-    private static final String INITIAL_SCENARIO = "InitialScenario"; // initial variant coming from CASTOR
-    private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
@@ -267,7 +267,13 @@ public class Marmot implements TimeCoupledRaoProvider {
         }
 
         TECHNICAL_LOGS.debug("[MARMOT] >>> Loading stashed RAO Results from tmp/ [start]");
-        final TemporalData<RaoResult> intermediateRaoResults = MarmotUtils.smartMap(cracs, crac -> MarmotUtils.readRaoResult(exportedRaoResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow(), crac), parallelism);
+        final TemporalData<RaoResult> intermediateRaoResults = MarmotUtils.smartMap(cracs, crac -> {
+            try {
+                return MarmotUtils.readRaoResult(exportedRaoResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow(), crac);
+            } catch (IOException e) {
+                throw new OpenRaoException(e);
+            }
+        }, parallelism);
         exportedRaoResults.clear();
         TECHNICAL_LOGS.debug("[MARMOT] >>> Loading stashed RAO Results from tmp/ [end]");
 
@@ -499,7 +505,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         State preventiveState = raoInput.getCrac().getPreventiveState();
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)));
         TECHNICAL_LOGS.info("[MARMOT] >>> Applying preventive remedial actions after optimization for timestamp %s".formatted(timestamp));
-        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
+        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult);
         CriticalCnecsResult criticalCnecsResult = new CriticalCnecsResult();
         Set<String> criticalCnecsIds = cnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet());
         criticalCnecsResult.setCriticalCnecIds(criticalCnecsIds);
@@ -516,7 +522,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         State preventiveState = raoInput.getCrac().getPreventiveState();
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)));
         TECHNICAL_LOGS.info("[MARMOT] >>> Applying preventive remedial actions after optimization for timestamp %s".formatted(timestamp));
-        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
+        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult);
         Set<FlowCnec> cnecs = new HashSet<>();
         CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
         if (criticalCnecsResult != null) {

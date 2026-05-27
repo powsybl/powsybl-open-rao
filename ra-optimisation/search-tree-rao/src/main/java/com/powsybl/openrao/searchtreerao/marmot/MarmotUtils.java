@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -166,17 +167,11 @@ public final class MarmotUtils {
         return allStatuses.contains(ComputationStatus.PARTIAL_FAILURE) ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
     }
 
-    public static void applyPreventiveRemedialActions(RaoInput raoInput, NetworkActionsResult networkActionsResult, String initialVariantId, String newVariantId) {
+    public static void applyPreventiveRemedialActions(RaoInput raoInput, NetworkActionsResult networkActionsResult) {
         Network network = raoInput.getNetwork();
         Crac crac = raoInput.getCrac();
-
+        network.getVariantManager().setWorkingVariant("InitialState");
         State preventiveState = crac.getPreventiveState();
-        if (!network.getVariantManager().getVariantIds().contains(initialVariantId)) {
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), initialVariantId);
-        }
-        network.getVariantManager().setWorkingVariant(initialVariantId);
-        network.getVariantManager().cloneVariant(initialVariantId, newVariantId);
-        network.getVariantManager().setWorkingVariant(newVariantId);
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
@@ -303,13 +298,13 @@ public final class MarmotUtils {
         }
     }
 
-    public static RaoResult readRaoResult(File raoResultFile, Crac crac) {
+    public static RaoResult readRaoResult(File raoResultFile, Crac crac) throws IOException {
         try (FileInputStream fileInputStream = new FileInputStream(raoResultFile)) {
             return RaoResult.read(fileInputStream, crac);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         } finally {
-            raoResultFile.delete();
+            Files.delete(raoResultFile.toPath());
         }
     }
 }
