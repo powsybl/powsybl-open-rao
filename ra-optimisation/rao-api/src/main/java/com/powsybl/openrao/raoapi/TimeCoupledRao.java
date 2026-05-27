@@ -47,7 +47,7 @@ public final class TimeCoupledRao {
             this.reportNode = reportNode;
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -60,7 +60,7 @@ public final class TimeCoupledRao {
             return provider.run(raoInput, parameters, reportNode).join();
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
             return run(raoInput, RaoParameters.load(reportNode));
         }
 
@@ -138,11 +138,11 @@ public final class TimeCoupledRao {
         return new TimeCoupledRao.Runner(provider, reportNode);
     }
 
-    public static TimeCoupledRaoResult run(final TimeCoupledRaoInputWithNetworkPaths raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
         return find(reportNode).run(raoInput, parameters);
     }
 
-    public static TimeCoupledRaoResult run(final TimeCoupledRaoInputWithNetworkPaths raoInput, final ReportNode reportNode) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
         return find(reportNode).run(raoInput);
     }
 }

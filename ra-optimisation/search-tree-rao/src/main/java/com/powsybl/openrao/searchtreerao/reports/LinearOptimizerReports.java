@@ -65,6 +65,21 @@ public final class LinearOptimizerReports {
             iteration, bestResultCostFormatted, currentResultCostFormatted, bestResultFunctionalCostFormatted, currentResultFunctionalCostFormatted);
     }
 
+    public static void reportLinearOptimInitialResult(final ReportNode parentNode,
+                                                      final double cost,
+                                                      final double functionalCost) {
+        final String costFormatted = String.format(Locale.ENGLISH, "%.2f", cost);
+        final String functionalCostFormatted = String.format(Locale.ENGLISH, "%.2f", functionalCost);
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportLinearOptimInitialResult")
+            .withUntypedValue("cost", costFormatted)
+            .withUntypedValue("functionalCost", functionalCostFormatted)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("Global linear optimization -- initial cost of {} (functional: {})", costFormatted, functionalCostFormatted);
+    }
+
     public static void reportLinearOptimFoundBetterSolution(final ReportNode parentNode,
                                                             final int iteration,
                                                             final double cost,

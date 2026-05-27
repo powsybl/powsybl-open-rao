@@ -20,6 +20,10 @@ public class TimeCoupledConstraints {
         this.generatorConstraints = new HashSet<>();
     }
 
+    public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints) {
+        this.generatorConstraints = generatorConstraints;
+    }
+
     public void addGeneratorConstraints(GeneratorConstraints generatorConstraints) {
         this.generatorConstraints.add(generatorConstraints);
     }

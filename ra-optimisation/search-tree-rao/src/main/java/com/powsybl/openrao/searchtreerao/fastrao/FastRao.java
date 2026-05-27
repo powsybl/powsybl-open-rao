@@ -33,7 +33,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
@@ -48,6 +47,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
@@ -149,8 +149,14 @@ public class FastRao implements RaoProvider {
                 false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
+            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
+            PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
+                    initialRangeActionSetpointResult,
+                    initialResultWithoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
+            );
 
             if (crac.getFlowCnecs().isEmpty()) {
                 return new UnoptimizedRaoResultImpl(initialResult);
@@ -305,11 +311,10 @@ public class FastRao implements RaoProvider {
         final ReportNode fullSensiAnalysisReportNode = FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysis(reportNode, counter);
 
         // Compute sensitivity analyses after PRA, after ARA, after CRA to build RaoResult
-        StateTree stateTree = new StateTree(crac, fullSensiAnalysisReportNode);
-
         Network networkCopyPra = networkPool.getAvailableNetwork();
         Network networkCopyAra = networkPool.getAvailableNetwork();
         Network networkCopyCra = networkPool.getAvailableNetwork();
+        Set<String> operatorsNotSharingCras = crac.findOperatorsNotSharingCras();
 
         // 1) Post PRA
         CompletableFuture<PostPerimeterResult> postPraSensi = runPostPerimeterAnalysis(
@@ -319,7 +324,7 @@ public class FastRao implements RaoProvider {
             initialResult,
             initialRangeActionSetpointResult,
             CompletableFuture.completedFuture(initialResult),
-            stateTree,
+            operatorsNotSharingCras,
             parameters,
             toolProvider,
             InstantKind.PREVENTIVE,
@@ -334,7 +339,7 @@ public class FastRao implements RaoProvider {
             initialResult,
             initialRangeActionSetpointResult,
             postPraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
-            stateTree,
+            operatorsNotSharingCras,
             parameters,
             toolProvider,
             InstantKind.AUTO,
@@ -349,7 +354,7 @@ public class FastRao implements RaoProvider {
             initialResult,
             initialRangeActionSetpointResult,
             postAraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
-            stateTree,
+            operatorsNotSharingCras,
             parameters,
             toolProvider,
             InstantKind.CURATIVE,
@@ -388,16 +393,16 @@ public class FastRao implements RaoProvider {
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(
-        final Network networkCopy,
-        final Crac crac,
-        final RaoResult raoResult,
-        final PrePerimeterResult initialResult,
-        final RangeActionSetpointResult initialRangeActionSetpointResult,
-        final CompletableFuture<PrePerimeterResult> previousSensiFuture,
-        final StateTree stateTree,
-        final RaoParameters parameters,
-        final ToolProvider toolProvider,
-        final InstantKind instantKind,
+        Network networkCopy,
+        Crac crac,
+        RaoResult raoResult,
+        PrePerimeterResult initialResult,
+        RangeActionSetpointResult initialRangeActionSetpointResult,
+        CompletableFuture<PrePerimeterResult> previousSensiFuture,
+        Set<String> operatorsNotSharingCras,
+        RaoParameters parameters,
+        ToolProvider toolProvider,
+        InstantKind instantKind,
         final ReportNode reportNode) {
 
         // Collect all activated remedial actions (for costly evaluation)
@@ -429,7 +434,7 @@ public class FastRao implements RaoProvider {
             networkCopy,
             initialResult,
             previousSensiFuture,
-            stateTree.getOperatorsNotSharingCras(),
+            operatorsNotSharingCras,
             remedialActionActivationResult,
             appliedRemedialActions,
             reportNode

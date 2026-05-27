@@ -81,3 +81,25 @@ that generator can be started up.
 ```java
 TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
 ```
+
+#### Import Time-Coupled Constraints JSON from ICS data
+
+```java
+// read ICS data
+InputStream staticIcs = new FileInputStream("path/to/ics/static.csv");
+InputStream seriesIcs = new FileInputStream("path/to/ics/series.csv");
+InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
+IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
+
+// Create Generator Constraints
+Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
+TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+// Warning: in exemple we use a default generator id per node
+icsData.getRedispatchingActions().forEach(raId -> generatorConstraintsSet.addAll(icsData.createGeneratorConstraints(raId, getDefaultGeneratorIdPerNode(raId))));
+generatorConstraintsSet.forEach(constraint -> timeCoupledConstraints.addGeneratorConstraints(constraint));
+
+// Write Time-Coupled Constraints JSON
+OutputStream outputStream = Files.newOutputStream(Path.of("output.json"));
+JsonTimeCoupledConstraints.write(timeCoupledConstraints, outputStream);
+TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(icsData);
+```

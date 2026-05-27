@@ -8,7 +8,7 @@
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.action.Action;
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
@@ -503,8 +503,8 @@ public class Monitoring {
         if (ea instanceof LoadAction loadAction) {
             return network.getIdentifiable(loadAction.getLoadId());
         }
-        if (ea instanceof DanglingLineAction danglingLineAction) {
-            return network.getIdentifiable(danglingLineAction.getDanglingLineId());
+        if (ea instanceof BoundaryLineAction boundaryLineAction) {
+            return network.getIdentifiable(boundaryLineAction.getBoundaryLineId());
         }
         if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
             return network.getIdentifiable(shuntCompensatorPositionAction.getShuntCompensatorId());

@@ -184,12 +184,20 @@ public final class CoreCneClassCreator {
         return remedialActionSeries;
     }
 
-    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, int setpoint, String unitSymbol, String marketObjectStatus) {
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(final String id, final String name, final String psrType, final int setpoint, final String unitSymbol, final String marketObjectStatus) {
+        return getRemedialActionRegisteredResource(id, name, psrType, BigDecimal.valueOf(setpoint), unitSymbol, marketObjectStatus);
+    }
+
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(final String id, final String name, final String psrType, final double setpoint, final String unitSymbol, final String marketObjectStatus) {
+        return getRemedialActionRegisteredResource(id, name, psrType, BigDecimal.valueOf(setpoint), unitSymbol, marketObjectStatus);
+    }
+
+    private static RemedialActionRegisteredResource getRemedialActionRegisteredResource(final String id, final String name, final String psrType, final BigDecimal setpoint, final String unitSymbol, final String marketObjectStatus) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, id));
         remedialActionRegisteredResource.setName(name);
         remedialActionRegisteredResource.setPSRTypePsrType(psrType);
-        remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(setpoint));
+        remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(setpoint);
         remedialActionRegisteredResource.setResourceCapacityUnitSymbol(unitSymbol);
         remedialActionRegisteredResource.setMarketObjectStatusStatus(marketObjectStatus);
         return remedialActionRegisteredResource;

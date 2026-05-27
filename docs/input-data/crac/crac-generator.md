@@ -46,12 +46,14 @@ By default, all branches of the network are declared as contingencies. Only N-1 
 You can set the following extra filters:
 - countries: an optional set of countries to choose the branches in. If left empty, all branches in the network are considered. If set to an empty set, no country will be considered.  
 - minAndMaxV: the nominal voltage range in which the branches will be considered as contingency elements. If min and or max is left empty, it will be ignored.
+- branchFilter: a predicate to filter branches based on their properties. If left empty, all branches are considered as contingency elements.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
 networkCracCreationParameters.getContingencies().setCountries(Set.of(Country.FR, Country.BE)); // only branches in France & Belgium are considered as contingency elements
 networkCracCreationParameters.getContingencies().setMinAndMaxV(150, null); // only branches above 150kV are considered ad contingency elements
+networkCracCreationParameters.getContingencies().setBranchFilter(branch -> branch.getId().startsWith("A")); // only branches starting with A are considered as contingency elements
 ~~~
 :::
 ::::

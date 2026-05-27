@@ -388,10 +388,10 @@ class UcteFlowElementHelperTest {
     }
 
     @Test
-    void testValidDanglingLine() {
+    void testValidBoundaryLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
-        // dangling-line with order code
+        // boundary-line with order code
         UcteFlowElementHelper branchHelper = new UcteFlowElementHelper("BBE2AA1 ", "XBE2AL1 ", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("BBE2AA1  XBE2AL1  1", branchHelper.getIdInNetwork());
@@ -408,8 +408,8 @@ class UcteFlowElementHelperTest {
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
 
-        // dangling-line with element name
-        branchHelper = new UcteFlowElementHelper("XDE2AL1 ", "DDE2AA1 ", null, "DL AL", networkHelper);
+        // boundary-line with element name
+        branchHelper = new UcteFlowElementHelper("XDE2AL1 ", "DDE2AA1 ", null, "BL AL", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("XDE2AL1  DDE2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
@@ -419,7 +419,7 @@ class UcteFlowElementHelperTest {
         assertEquals(1245, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
         assertEquals(1245, branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
-        branchHelper = new UcteFlowElementHelper("DDE2AA1 ", "XDE2AL1 ", null, "DL AL", networkHelper);
+        branchHelper = new UcteFlowElementHelper("DDE2AA1 ", "XDE2AL1 ", null, "BL AL", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("XDE2AL1  DDE2AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
@@ -427,13 +427,13 @@ class UcteFlowElementHelperTest {
     }
 
     @Test
-    void testInvalidDanglingLine() {
+    void testInvalidBoundaryLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
-        // dangling-line exists but not with this order code
+        // boundary-line exists but not with this order code
         assertFalse(new UcteFlowElementHelper("XBE2AL1 ", "BBE2AA1 ", "2", null, networkHelper).isValid());
 
-        // dangling-line exists but not with this element name
+        // boundary-line exists but not with this element name
         assertFalse(new UcteFlowElementHelper("DDE2AA1 ", "XDE2AL1 ", null, "COUCOU", networkHelper).isValid());
     }
 
@@ -461,8 +461,8 @@ class UcteFlowElementHelperTest {
         assertTrue(branchReader.isValid());
         assertEquals("FFR1AA2  FFR1AA1  5", branchReader.getIdInNetwork());
 
-        // dangling line with element name, 7 characters in from and to
-        branchReader = new UcteFlowElementHelper("DDE2AA1", "XDE2AL1", null, "DL AL", networkHelper);
+        // boundary line with element name, 7 characters in from and to
+        branchReader = new UcteFlowElementHelper("DDE2AA1", "XDE2AL1", null, "BL AL", networkHelper);
         assertTrue(branchReader.isValid());
         assertEquals("XDE2AL1  DDE2AA1  1", branchReader.getIdInNetwork());
     }

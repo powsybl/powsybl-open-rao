@@ -47,8 +47,8 @@ class CountryNetPositionComputationTest {
     }
 
     @Test
-    void testDanglingLines() {
-        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
+    void testBoundaryLines() {
+        Network network = Network.read("TestCaseBoundary.xiidm", getClass().getResourceAsStream("/TestCaseBoundary.xiidm"));
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         assertEquals(0.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);

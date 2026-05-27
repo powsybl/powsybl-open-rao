@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.glsk.virtual.hubs;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -119,9 +119,9 @@ public final class GlskVirtualHubs {
             return busLoad.get();
         }
 
-        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.nodeName());
-        if (danglingLine.isPresent() && !danglingLine.get().isPaired()) {
-            return danglingLine.get();
+        Optional<BoundaryLine> boundaryLine = findBoundaryLineWithXNode(network, virtualHub.nodeName());
+        if (boundaryLine.isPresent() && !boundaryLine.get().isPaired()) {
+            return boundaryLine.get();
         }
 
         OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.eic(), virtualHub.nodeName());
@@ -135,9 +135,9 @@ public final class GlskVirtualHubs {
             .findFirst();
     }
 
-    private static Optional<DanglingLine> findDanglingLineWithXNode(Network network, String xNodeId) {
-        return network.getDanglingLineStream()
-            .filter(danglingLine -> danglingLine.getPairingKey().equals(xNodeId))
+    private static Optional<BoundaryLine> findBoundaryLineWithXNode(Network network, String xNodeId) {
+        return network.getBoundaryLineStream()
+            .filter(boundaryLine -> boundaryLine.getPairingKey().equals(xNodeId))
             .findFirst();
     }
 }

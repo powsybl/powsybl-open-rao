@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
+import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteGeneratorHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionsSetType;
@@ -174,10 +176,26 @@ class HvdcLineRemedialActionAdder {
 
     private void addComplexVariantCreationContexts(final FbConstraintCreationContext creationContext) {
         if (fromComplexVariantReader != null) {
-            creationContext.addComplexVariantCreationContext(fromComplexVariantReader.getComplexVariantCreationContext());
+            creationContext.addComplexVariantCreationContext(
+                getHvdcCreationContext(fromComplexVariantReader.getComplexVariantCreationContext(), fromNodeName)
+            );
         }
         if (toComplexVariantReader != null) {
-            creationContext.addComplexVariantCreationContext(toComplexVariantReader.getComplexVariantCreationContext());
+            creationContext.addComplexVariantCreationContext(
+                getHvdcCreationContext(toComplexVariantReader.getComplexVariantCreationContext(), toNodeName)
+            );
         }
+    }
+
+    private ElementaryCreationContext getHvdcCreationContext(final ElementaryCreationContext complexVariantCreationContext,
+                                                             final String networkElementName) {
+        return new StandardElementaryCreationContext(
+            complexVariantCreationContext.getNativeObjectId(),
+            networkElementName,
+            complexVariantCreationContext.getCreatedObjectId(),
+            complexVariantCreationContext.getImportStatus(),
+            complexVariantCreationContext.getImportStatusDetail(),
+            complexVariantCreationContext.isAltered()
+        );
     }
 }

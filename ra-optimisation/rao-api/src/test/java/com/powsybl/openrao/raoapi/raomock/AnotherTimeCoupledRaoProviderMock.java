@@ -10,7 +10,7 @@ package com.powsybl.openrao.raoapi.raomock;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @AutoService(TimeCoupledRaoProvider.class)
 public class AnotherTimeCoupledRaoProviderMock implements TimeCoupledRaoProvider {
     @Override
-    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters, ReportNode reportNode) {
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
         return CompletableFuture.completedFuture(new TimeCoupledRaoResultMock());
     }
 

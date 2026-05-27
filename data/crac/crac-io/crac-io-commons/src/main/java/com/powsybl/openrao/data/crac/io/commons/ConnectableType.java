@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.crac.io.commons;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
@@ -22,7 +22,7 @@ public enum ConnectableType {
 
     INTERNAL_LINE,
     TIE_LINE,
-    DANGLING_LINE,
+    BOUNDARY_LINE,
     VOLTAGE_TRANSFORMER,
     PST,
     HVDC,
@@ -33,8 +33,8 @@ public enum ConnectableType {
 
         if (iidmConnectable instanceof TieLine) {
             return ConnectableType.TIE_LINE;
-        } else if (iidmConnectable instanceof DanglingLine) {
-            return ConnectableType.DANGLING_LINE;
+        } else if (iidmConnectable instanceof BoundaryLine) {
+            return ConnectableType.BOUNDARY_LINE;
         } else if (iidmConnectable instanceof TwoWindingsTransformer twt) {
             if (twt.getPhaseTapChanger() != null) {
                 return ConnectableType.PST;

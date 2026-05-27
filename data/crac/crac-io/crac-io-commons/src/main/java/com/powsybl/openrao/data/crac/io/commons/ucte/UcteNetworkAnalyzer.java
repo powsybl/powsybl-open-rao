@@ -42,19 +42,19 @@ public class UcteNetworkAnalyzer {
 
     public UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.BOUNDARY_LINE,
             ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC, ConnectableType.SWITCH);
     }
 
     public UcteMatchingResult findFlowElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.BOUNDARY_LINE,
             ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
 
     public UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.BOUNDARY_LINE,
             ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
     }
 

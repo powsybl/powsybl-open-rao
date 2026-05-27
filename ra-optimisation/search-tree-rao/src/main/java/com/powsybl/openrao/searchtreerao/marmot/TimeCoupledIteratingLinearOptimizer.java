@@ -92,6 +92,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
+        logInitialResult(bestResult, reportNode);
+
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
@@ -158,6 +160,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     )
                 );
             }
+            // TODO: close networks with overwrite?
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -174,6 +177,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 input.objectiveFunction(),
                 reportNode
             );
+            // TODO: close networks with overwrite?
             previousResult = newResult;
 
             // f. Update problem fillers with flows, sensitivity coefficients and set-points
@@ -431,6 +435,17 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     // Logging
+    private static void logInitialResult(final LinearOptimizationResult result, final ReportNode reportNode) {
+        LinearOptimizerReports.reportLinearOptimInitialResult(reportNode, result.getCost(), result.getFunctionalCost());
+
+        result.getVirtualCostNames().forEach(vc -> {
+            double cost = result.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                LinearOptimizerReports.reportCostOf(reportNode, vc, cost);
+            }
+        });
+    }
+
     private static void logBetterResult(final int iteration, final LinearOptimizationResult result, final ReportNode reportNode) {
         LinearOptimizerReports.reportLinearOptimFoundBetterSolution(reportNode, iteration, result.getCost(), result.getFunctionalCost());
 

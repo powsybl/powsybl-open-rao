@@ -24,5 +24,5 @@ public interface TimeCoupledRaoProvider {
      * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters, ReportNode reportNode);
+    CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
 }

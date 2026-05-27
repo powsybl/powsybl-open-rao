@@ -50,7 +50,7 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
             case SHUNT_COMPENSATOR -> builder.addShuntCompensator(contingencyElementId);
             case HVDC_LINE -> builder.addHvdcLine(contingencyElementId);
             case BUSBAR_SECTION -> builder.addBusbarSection(contingencyElementId);
-            case DANGLING_LINE -> builder.addDanglingLine(contingencyElementId);
+            case BOUNDARY_LINE -> builder.addBoundaryLine(contingencyElementId);
             case LINE -> builder.addLine(contingencyElementId);
             case TWO_WINDINGS_TRANSFORMER -> builder.addTwoWindingsTransformer(contingencyElementId);
             case THREE_WINDINGS_TRANSFORMER -> builder.addThreeWindingsTransformer(contingencyElementId);

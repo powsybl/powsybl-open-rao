@@ -56,6 +56,7 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
         return sensitivityResult;
     }
 
+    @Override
     public ObjectiveFunctionResult getObjectiveFunctionResult() {
         return objectiveFunctionResult;
     }

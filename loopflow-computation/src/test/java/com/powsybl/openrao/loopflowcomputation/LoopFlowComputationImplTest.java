@@ -9,7 +9,7 @@ package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -113,57 +113,57 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
-        assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
+        assertEquals("gen1 is neither a generator nor a load nor a boundary line in the network. It is not a valid GLSK.", exception.getMessage());
 
         Mockito.doReturn(Map.of(
             "gen1", new WeightedSensitivityVariable("gen1", 5f),
             "load1", new WeightedSensitivityVariable("load1", 6f),
-            "dl1", new WeightedSensitivityVariable("dl1", 6f)))
+            "bl1", new WeightedSensitivityVariable("bl1", 6f)))
             .when(linearGlsk).getVariablesById();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
-        DanglingLine dl1 = Mockito.mock(DanglingLine.class);
+        BoundaryLine bl1 = Mockito.mock(BoundaryLine.class);
         Mockito.doReturn(gen1).when(network).getGenerator("gen1");
         Mockito.doReturn(load1).when(network).getLoad("load1");
-        Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
+        Mockito.doReturn(bl1).when(network).getBoundaryLine("bl1");
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(bl1).getTerminal();
         assertFalse(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(true)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(bl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(bl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(true)).when(dl1).getTerminal();
+        Mockito.doReturn(mockInjection(true)).when(bl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(true)).when(dl1).getTerminal();
+        Mockito.doReturn(mockInjection(true)).when(bl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
-        Mockito.doReturn(null).when(network).getDanglingLine("gen1");
+        Mockito.doReturn(null).when(network).getBoundaryLine("gen1");
         Mockito.doReturn(null).when(network).getGenerator("load1");
         Mockito.doReturn(null).when(network).getLoad("load1");
-        Mockito.doReturn(null).when(network).getDanglingLine("load1");
-        Mockito.doReturn(null).when(network).getGenerator("dl1");
-        Mockito.doReturn(null).when(network).getLoad("dl1");
-        Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
+        Mockito.doReturn(null).when(network).getBoundaryLine("load1");
+        Mockito.doReturn(null).when(network).getGenerator("bl1");
+        Mockito.doReturn(null).when(network).getLoad("bl1");
+        Mockito.doReturn(bl1).when(network).getBoundaryLine("bl1");
         exception = assertThrows(OpenRaoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
         String message = exception.getMessage();
-        assertTrue(message.contains(" is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK."));
+        assertTrue(message.contains(" is neither a generator nor a load nor a boundary line in the network. It is not a valid GLSK."));
         assertTrue(message.contains("gen1") || message.contains("load1"));
     }
 
@@ -208,7 +208,7 @@ class LoopFlowComputationImplTest {
         Generator genBe = Mockito.mock(Generator.class);
         Load loadFr = Mockito.mock(Load.class);
         Load loadBe = Mockito.mock(Load.class);
-        DanglingLine danglingLine = Mockito.mock(DanglingLine.class);
+        BoundaryLine boundaryLine = Mockito.mock(BoundaryLine.class);
 
         Mockito.when(network.getGenerator("Generator DE")).thenReturn(genDe);
         Mockito.when(network.getGenerator("Generator NL")).thenReturn(genNl);
@@ -220,14 +220,14 @@ class LoopFlowComputationImplTest {
         Mockito.when(network.getLoad("Generator FR")).thenReturn(loadFr);
         Mockito.when(network.getLoad("Generator BE 1")).thenReturn(loadBe);
         Mockito.when(network.getLoad("Generator BE 2")).thenReturn(null);
-        Mockito.when(network.getDanglingLine("BE1-XBE")).thenReturn(danglingLine);
+        Mockito.when(network.getBoundaryLine("BE1-XBE")).thenReturn(boundaryLine);
 
         Mockito.doReturn(mockInjection(true)).when(genDe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(genNl).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(genBe).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(loadFr).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(danglingLine).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(boundaryLine).getTerminal();
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, Unit.MEGAWATT);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);

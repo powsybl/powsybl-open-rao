@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * A UcteConnectable refers to a network element which connect two buses of a UCTE network.
- * For instance, tie-line, dangling-line, transformers and switch are UcteConnectables.
+ * For instance, tie-line, boundary-line, transformers and switch are UcteConnectables.
  *
  * The UcteConnectable class store the iidm Identifiable of the Connectable, as well as some
  * UCTE information about this Identifiable (fromNode, toNode, orderCode,...).

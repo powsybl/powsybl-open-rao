@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.LoadActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -84,14 +84,14 @@ public final class InjectionSetpointArrayDeserializer {
                     }
                     loadActionAdder.add();
                     break;
-                case DANGLING_LINE:
+                case BOUNDARY_LINE:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
-                    DanglingLineActionAdder danglingLineActionAdder = ownerAdder.newDanglingLineAction();
-                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, danglingLineActionAdder);
+                    BoundaryLineActionAdder boundaryLineActionAdder = ownerAdder.newBoundaryLineAction();
+                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, boundaryLineActionAdder);
                     if (setpoint != null) {
-                        danglingLineActionAdder.withActivePowerValue(setpoint);
+                        boundaryLineActionAdder.withActivePowerValue(setpoint);
                     }
-                    danglingLineActionAdder.add();
+                    boundaryLineActionAdder.add();
                     break;
                 case SHUNT_COMPENSATOR:
                     checkExpectedUnit(Unit.SECTION_COUNT, unit, identifiable);
@@ -104,7 +104,7 @@ public final class InjectionSetpointArrayDeserializer {
                     break;
                 default:
                     throw new OpenRaoException(
-                        "InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, but here it is " + identifiable.getType()
+                        "InjectionSetpoint actions must be on network element of type generator, load, boundary line or shunt compensator, but here it is " + identifiable.getType()
                     );
             }
         }

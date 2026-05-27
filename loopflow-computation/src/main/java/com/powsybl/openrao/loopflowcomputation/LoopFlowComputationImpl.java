@@ -104,7 +104,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (String glsk : linearGlsk.getVariablesById().keySet()) {
             Injection<?> injection = getInjection(glsk, network);
             if (injection == null) {
-                throw new OpenRaoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
+                throw new OpenRaoException(String.format("%s is neither a generator nor a load nor a boundary line in the network. It is not a valid GLSK.", glsk));
             }
             // If bus is disconnected, then powsybl returns a null bus
             if (injection.getTerminal().getBusView().getBus() != null && injection.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
@@ -123,7 +123,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         if (load != null) {
             return load;
         }
-        return network.getDanglingLine(injectionId);
+        return network.getBoundaryLine(injectionId);
     }
 
     protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream() {

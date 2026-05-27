@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.action.LoadAction;
@@ -68,7 +68,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
         this.addSerializer(GeneratorAction.class, new GeneratorActionSerializer());
         this.addSerializer(LoadAction.class, new LoadActionSerializer());
-        this.addSerializer(DanglingLineAction.class, new DanglingLineActionSerializer());
+        this.addSerializer(BoundaryLineAction.class, new BoundaryLineActionSerializer());
         this.addSerializer(ShuntCompensatorPositionAction.class, new ShuntCompensatorPositionActionSerializer());
         this.addSerializer(SwitchPair.class, new SwitchPairSerializer());
         this.addSerializer(Instant.class, new InstantSerializer());

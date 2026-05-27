@@ -105,13 +105,13 @@ class ContingencyTest {
     }
 
     @Test
-    void testApplyOnDanglingLine() {
+    void testApplyOnBoundaryLine() {
         network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
         Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElementFactory.create(network.getIdentifiable("BBE2AA1  XLI_OB1B 1"))));
         assertEquals(1, contingencyImpl.getElements().size());
-        assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
+        assertTrue(network.getBoundaryLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
         contingencyImpl.isValid(network);
         contingencyImpl.toModification().apply(network, computationManager);
-        assertFalse(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
+        assertFalse(network.getBoundaryLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
     }
 }

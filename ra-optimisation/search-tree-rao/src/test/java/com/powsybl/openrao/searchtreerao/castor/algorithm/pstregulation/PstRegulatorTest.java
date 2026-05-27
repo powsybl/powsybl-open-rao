@@ -32,7 +32,7 @@ class PstRegulatorTest {
 
     @BeforeEach
     void setUp() {
-        network = Network.read("/network/2Nodes2ParallelLinesPST.uct", PstRegulatorTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
+        network = Network.read("/network/2Nodes2ParallelLinesPST_1000MW.uct", PstRegulatorTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST_1000MW.uct"));
         loadFlowParameters.setPhaseShifterRegulationOn(true);
         OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
         openLoadFlowParameters.setMaxOuterLoopIterations(1000);

@@ -45,7 +45,7 @@ class UcteConnectableCollection {
     UcteConnectableCollection(Network network) {
         connectables = TreeMultimap.create(Ordering.<String>natural().nullsFirst(), Ordering.<UcteConnectable>natural().nullsFirst());
         addBranches(network);
-        addDanglingLines(network);
+        addBoundaryLines(network);
         addSwitches(network);
         addHvdcs(network);
     }
@@ -221,19 +221,19 @@ class UcteConnectableCollection {
         }
     }
 
-    private void addDanglingLines(Network network) {
-        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
-            // A dangling line is an Injection with a generator convention.
-            // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String xNode = danglingLine.getPairingKey();
-            String rNode = getNodeName(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
+    private void addBoundaryLines(Network network) {
+        network.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired()).forEach(boundaryLine -> {
+            // A boundary line is an Injection with a generator convention.
+            // After an UCTE import, the flow on the boundary line is therefore always from the X_NODE to the other node.
+            String xNode = boundaryLine.getPairingKey();
+            String rNode = getNodeName(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
 
-            if (danglingLine.getId().startsWith("X")) {
+            if (boundaryLine.getId().startsWith("X")) {
                 // UCTE definition is in the same direction as iidm definition
-                connectables.put(xNode, new UcteConnectable(xNode, rNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, false));
+                connectables.put(xNode, new UcteConnectable(xNode, rNode, getOrderCode(boundaryLine), getElementNames(boundaryLine), boundaryLine, false));
             } else {
                 // UCTE definition is opposite as the iidm definition
-                connectables.put(rNode, new UcteConnectable(rNode, xNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, true));
+                connectables.put(rNode, new UcteConnectable(rNode, xNode, getOrderCode(boundaryLine), getElementNames(boundaryLine), boundaryLine, true));
             }
         });
     }

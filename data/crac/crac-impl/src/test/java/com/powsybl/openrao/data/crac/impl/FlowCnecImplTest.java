@@ -660,7 +660,7 @@ class FlowCnecImplTest {
     @Test
     void testIsConnected() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        NetworkImportsUtil.addDanglingLine(network);
+        NetworkImportsUtil.addBoundaryLine(network);
 
         // Branch
         FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID)
@@ -675,13 +675,13 @@ class FlowCnecImplTest {
         network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal2().disconnect();
         assertFalse(cnec1.isConnected(network));
 
-        // DanglingLine
-        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DL1").withInstant(PREVENTIVE_INSTANT_ID)
+        // BoundaryLine
+        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("BL1").withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(ONE).add()
             .add();
         assertTrue(cnec2.isConnected(network));
 
-        network.getDanglingLine("DL1").getTerminal().disconnect();
+        network.getBoundaryLine("BL1").getTerminal().disconnect();
         assertFalse(cnec2.isConnected(network));
 
         // Generator

@@ -11,7 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -166,7 +166,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<TwoSides> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
-        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
+        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof BoundaryLine) {
             return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).toList();
         } else {
             throw new OpenRaoException("Unable to create sensitivity function for " + networkElementId);

@@ -16,10 +16,15 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -30,6 +35,9 @@ import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,13 +56,12 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
-    public static PrePerimeterResult runSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
+    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
-        State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
-        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, toolProvider, false)
+        // do not use range actions for speed purposes
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false)
             .runInitialSensitivityAnalysis(network, reportNode);
     }
 
@@ -75,10 +82,10 @@ public final class MarmotUtils {
         ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions, reportNode);
     }
 
-    public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
+    public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
-        inputs.getTimestamps().forEach(timestamp -> {
-            Crac crac = inputs.getData(timestamp).orElseThrow().getCrac();
+        cracs.getTimestamps().forEach(timestamp -> {
+            Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
             AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
             // TODO: maybe check it is indeed curative
@@ -120,17 +127,23 @@ public final class MarmotUtils {
                                                                                   final ReportNode reportNode) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(
-            timestamp,
-            new PostOptimizationResult(
+        timestamps.forEach(timestamp -> {
+            PostOptimizationResult postOptimizationResult = new PostOptimizationResult(
                 raoInputs.getData(timestamp).orElseThrow(),
                 initialResults.getData(timestamp).orElseThrow(),
                 globalLinearOptimizationResult,
                 topologicalOptimizationResults.getData(timestamp).orElseThrow(),
                 raoParameters,
                 reportNode
-            )
-        ));
+            );
+
+            // The extension cannot be associated with two different RAO results so a copy is needed
+            copyCriticalCnecsExtension(topologicalOptimizationResults.getData(timestamp).orElseThrow(), postOptimizationResult);
+            postOptimizationResults.put(
+                timestamp,
+                postOptimizationResult
+            );
+        });
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 
@@ -162,14 +175,120 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
 
         State preventiveState = crac.getPreventiveState();
+        if (!network.getVariantManager().getVariantIds().contains(initialVariantId)) {
+            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), initialVariantId);
+        }
         network.getVariantManager().setWorkingVariant(initialVariantId);
         network.getVariantManager().cloneVariant(initialVariantId, newVariantId);
         network.getVariantManager().setWorkingVariant(newVariantId);
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
             MarmotReports.reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp(reportNode, crac.getTimestamp().orElseThrow());
+            MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         } else {
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
+            MarmotUtils.releaseNetwork(raoInput.getNetwork());
         }
+    }
+
+    // Use releaseNetwork : we don't want to delete networks.
+    public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
+        TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
+        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
+            lazyNetworks.put(timestamp, new LazyNetwork(network));
+            MarmotUtils.releaseNetworkWithoutOverwrite(network);
+        });
+        return lazyNetworks;
+    }
+
+    public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
+        Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
+        for (OffsetDateTime timestamp : networks.getTimestamps()) {
+            raoInputs.put(timestamp, RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build());
+            MarmotUtils.releaseNetworkWithoutOverwrite(networks.getData(timestamp).orElseThrow());
+        }
+        return new TemporalDataImpl<>(raoInputs);
+    }
+
+    public static <N extends Network> void releaseAllWithoutOverwrite(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetworkWithoutOverwrite);
+    }
+
+    public static <N extends Network> void closeAll(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::closeNetwork);
+    }
+
+    public static <N extends Network> void releaseNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.release();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static <N extends Network> void releaseNetworkWithoutOverwrite(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.releaseWithOverwrite(false);
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static <N extends Network> void closeNetwork(N network) {
+        if (network instanceof LazyNetwork lazyNetwork) {
+            try {
+                lazyNetwork.close();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
+            }
+        }
+    }
+
+    public static OffsetDateTime getTimestamp(RaoInput raoInput) {
+        return raoInput.getCrac().getTimestamp().orElseThrow();
+    }
+
+    public static RaoParameters cloneParameters(final RaoParameters raoParameters, final ReportNode reportNode) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            JsonRaoParameters.write(raoParameters, outputStream, reportNode);
+            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonRaoParameters.read(inputStream, reportNode);
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException(e);
+        }
+    }
+
+    /**
+     * Select the best TemporalData mapping strategy based on the number of threads.
+     * Necessary not to create a pool for only one thread.
+     */
+    public static <A, B> TemporalData<B> smartMap(TemporalData<A> temporalData, Function<A, B> function, int threads) {
+        if (threads == 1) {
+            return temporalData.map(function);
+        }
+        return temporalData.mapMultiThreading(function, threads);
+    }
+
+    public static void copyCriticalCnecsExtension(RaoResult raoResultFrom, RaoResult raoResultTo) {
+        CriticalCnecsResult criticalCnecsResultFrom = raoResultFrom.getExtension(CriticalCnecsResult.class);
+        if (criticalCnecsResultFrom != null) {
+            CriticalCnecsResult criticalCnecsResultTo = new CriticalCnecsResult();
+            criticalCnecsResultTo.setCriticalCnecIds(criticalCnecsResultFrom.getCriticalCnecIds());
+            raoResultTo.addExtension(CriticalCnecsResult.class, criticalCnecsResultTo);
+        }
+    }
+
+    public static double getInitialSetPoint(RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+        } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+            return standardRangeAction.getInitialSetpoint();
+        }
+        return Double.NaN;
     }
 }

@@ -29,6 +29,7 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -322,6 +323,38 @@ public final class CommonTestData {
             offsetDateTime = importTimestampFromCracCreationParameters(cracFormat, cracCreationParameters);
         }
 
+        // Loopflow GLSK
+        // only work with UCTE GLSK files
+        if (loopflowGlskPath != null) {
+            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), offsetDateTime, network);
+        }
+
+        // Reference program
+        if (refProgPath != null) {
+            referenceProgram = importRefProg(getFile(refProgPath), offsetDateTime);
+        }
+
+        // Virtual hubs configuration
+        if (virtualHubsConfigPath != null) {
+            boolean virtualHubsUsed = false;
+            final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
+            if (referenceProgram != null && loopflowGlsks != null) {
+                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
+                loopflowGlsks.addAll(glskOfVirtualHubs);
+                virtualHubsUsed = true;
+            }
+            if (!virtualHubsConfiguration.getInternalHvdcs().isEmpty() && offsetDateTime != null && cracCreationParameters != null) {
+                final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
+                fbConstraintCracCreationParameters.setTimestamp(offsetDateTime);
+                fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
+                cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
+                virtualHubsUsed = true;
+            }
+            if (!virtualHubsUsed) {
+                throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file or provide a VirtualHubs file that contains internal-hvdcs element.");
+            }
+        }
+
         // Crac
         Pair<Crac, CracCreationContext> cracImportResult = importCrac(getFile(cracPath), network, cracCreationParameters);
         crac = cracImportResult.getLeft();
@@ -342,10 +375,8 @@ public final class CommonTestData {
             raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
-        // Loopflow GLSK
-        // only work with UCTE GLSK files
-        if (loopflowGlskPath != null) {
-            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), offsetDateTime, network);
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
 
         // Monitoring GLSK
@@ -353,25 +384,9 @@ public final class CommonTestData {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
         }
 
-        // Reference program
-        if (refProgPath != null) {
-            referenceProgram = importRefProg(getFile(refProgPath), offsetDateTime);
-        }
-
         // RaoResult
         if (raoResultPath != null) {
             raoResult = importRaoResult(getFile(raoResultPath));
-        }
-
-        // Virtual hubs configuration
-        if (virtualHubsConfigPath != null) {
-            if (referenceProgram != null && loopflowGlsks != null) {
-                VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
-                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
-                loopflowGlsks.addAll(glskOfVirtualHubs);
-            } else {
-                throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
-            }
         }
 
     }

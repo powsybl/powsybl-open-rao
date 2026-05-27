@@ -21,7 +21,7 @@ Some examples:
 CracCreationParameters parameters = new CracCreationParameters();
 
 // Writing it to an output stream
-OutputStream outputStreeam = ...
+OutputStream outputStream = ...
 JsonCracCreationParameters.write(parameters, outputStream);
 
 // Reading an object from a file
@@ -69,11 +69,6 @@ The RAs usage limits contain the following fields :
     - _Expected value:_ integer
     - _Default value:_ 2^32 -1 (max integer value)
     - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
-
-  - **max-tso :**
-    - _Expected value:_ integer
-    - _Default value:_ 2^32 -1 (max integer value)
-    - _Usage:_ It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
 
   - **max-ra-per-tso :**
     - _Expected value:_ a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
@@ -419,24 +414,24 @@ This field is used to define the EI Code associated to each border so that the i
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
 cracCreationParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
 // Create NC-specific parameters
-CimCracCreationParameters csaParameters = new CsaCracCreationParameters();
+CimCracCreationParameters ncParameters = new CsaCracCreationParameters();
 // Indicate the EI Code of the CCR region (SWE)
-csaParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+ncParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
 // Indicate that that REE does not use PATL in final state
-csaParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
+ncParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
 // Associate each curative instant to an application time
-csaParameters.setCurativeInstants(Map.of(
+ncParameters.setCurativeInstants(Map.of(
     "curative 1", 300,
     "curative 2", 600,
     "curative 3", 1200
 ));
 // Define borders
-csaParameters.setBorders(Set.of(
+ncParameters.setBorders(Set.of(
     new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"),
     new Border("ES-PT", "10YDOM--ES-PT--T", "REN")
 ));
 // Add NC extension to CracCreationParameters
-cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
+cracCreationParameters.addExtension(CsaCracCreationParameters.class, ncParameters);
 ```
 :::
 
@@ -485,7 +480,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 
 ## Flow Based Constraint-specific parameters
 
-The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need additional information to be converted to the internal OpenRAO CRAC format. 
 The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### timestamp
@@ -493,6 +488,10 @@ The user can define a [FbConstraintCracCreationParameters](https://github.com/po
 This parameter allows the user to define the timestamp for which to create the CRAC.
 
 In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+### internal-hvdcs
+
+This parameter allows the user to add in the CRAC creation parameters some data extracted from [VirtualHubs file](../specific-input-data/virtual-hubs.md#internal-hvdcs) and required in Core CC to properly import German HVDC remedial actions.
 
 
 ### Full FbConstraint example
@@ -502,10 +501,13 @@ In the json file, the timestamp has to be defined using the ISO 8601 standard ex
 ```java
 // Create CracCreationParameters and set global parameters
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
-// Create NC-specific parameters
+// Create FbConstraint-specific parameters
 FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
 // Add timestamp
 fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Read HVDC-related data from VirtualHubs file and add it to FbConstraint-specific parameters
+VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(...);
+fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
 // Add FbConstraint extension to CracCreationParameters
 cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParameters);
 ```
@@ -517,7 +519,20 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "FbConstraintCracCreatorParameters" : {
-      "timestamp": "2019-01-08T12:00+02:00"
+      "timestamp": "2019-01-08T12:00+02:00",
+      "internal-hvdcs" : [ {
+        "converters" : [ {
+          "node" : "NODE__1A",
+          "station" : "Station1"
+        }, {
+          "node" : "NODE__1B",
+          "station" : "Station2"
+        } ],
+        "lines" : [ {
+          "from" : "NODE__1A",
+          "to" : "NODE__1B"
+        } ]
+      } ]
     }
   }
 }

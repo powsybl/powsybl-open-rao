@@ -108,7 +108,7 @@ public class SystematicSensitivityResult {
             results.getFactors(),
             SensitivityAnalysisResult.Status.SUCCESS
         ));
-        for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
+        for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
             if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
                 anyContingencyFailure = true;
             }
@@ -118,10 +118,10 @@ public class SystematicSensitivityResult {
             if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
                 this.status = SensitivityComputationStatus.SUCCESS;
             }
-            results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
+            results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
-            postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
+            postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
         if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;

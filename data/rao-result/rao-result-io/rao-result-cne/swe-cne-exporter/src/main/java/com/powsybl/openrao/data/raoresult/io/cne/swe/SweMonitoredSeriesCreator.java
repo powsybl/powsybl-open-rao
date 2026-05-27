@@ -203,9 +203,9 @@ public class SweMonitoredSeriesCreator {
 
     void setInOutAggregateNodes(String networkElementId, String monitoredSeriesId, MonitoredRegisteredResource registeredResource) {
         Branch<?> branch = cracCreationContext.getNetworkBranches().get(networkElementId);
-        if (branch instanceof TieLine tieLine && tieLine.getDanglingLine1().hasProperty("CGMES.TopologicalNode_Boundary")) {
+        if (branch instanceof TieLine tieLine && tieLine.getBoundaryLine1().hasProperty("CGMES.TopologicalNode_Boundary")) {
             Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(monitoredSeriesId.substring(0, 3));
-            String xNodeMRId = tieLine.getDanglingLine1().getProperty("CGMES.TopologicalNode_Boundary");
+            String xNodeMRId = tieLine.getBoundaryLine1().getProperty("CGMES.TopologicalNode_Boundary");
             if (SweCneUtil.getBranchCountry(branch, TwoSides.ONE).equals(cnecOperatorCountry)) {
                 registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
                 registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, xNodeMRId));

@@ -7,7 +7,7 @@
                     <iidm:property name="geographicalName" value="BE1"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="BBE1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="400.0" targetQ="0.0" bus="BBE1AA1 " connectableBus="BBE1AA1 ">
+            <iidm:generator id="BBE1AA1 _generator" energySource="OTHER" minP="100.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="400.0" targetQ="0.0" bus="BBE1AA1 " connectableBus="BBE1AA1 ">
                 <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

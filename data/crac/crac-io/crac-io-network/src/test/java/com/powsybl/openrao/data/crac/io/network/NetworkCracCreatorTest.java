@@ -153,6 +153,18 @@ class NetworkCracCreatorTest {
     }
 
     @Test
+    void testImportUcteContingencyBranchFiltered() {
+        parameters.getContingencies().setBranchFilter(b -> b.getId().startsWith("F"));
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(4, crac.getContingencies().size());
+        assertEquals(136, crac.getFlowCnecs().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(24, crac.getInjectionRangeActions().size());
+    }
+
+    @Test
     void testUctePstsFiltered1() {
         parameters.getPstRangeActions().setCountryFilter(Set.of(Country.FR));
         importCracFrom("TestCase12Nodes.uct");
