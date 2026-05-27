@@ -24,9 +24,10 @@ public final class RaoParametersCommons {
         3.2: remove re-optimize-curative-range-actions
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
+        3.4: add marmot-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.3";
+    public static final String RAO_PARAMETERS_VERSION = "3.4";
 
     // header
     public static final String VERSION = "version";
@@ -138,6 +139,13 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- Marmot Parameters
+    public static final String MARMOT_PARAMETERS = "marmot-parameters";
+    public static final String NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME = "number-of-cnecs-to-add-per-virtual-cost-name";
+    public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
+    public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
+    public static final String NUMBER_OF_THREADS = "number-of-threads";
 
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";

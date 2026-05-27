@@ -42,14 +42,28 @@ class NcCracCreator {
         this.network = network;
         NcCracCreationParameters ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
         OffsetDateTime offsetDateTime = null;
-        if (ncParameters != null) {
-            offsetDateTime = ncParameters.getTimestamp();
+        if (ncParameters == null) {
+            ncParameters = new NcCracCreationParameters();
         }
+
+        offsetDateTime = ncParameters.getTimestamp();
         this.creationContext = new NcCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
 
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for NC crac creator.");
+            creationContext.creationFailure();
+            return creationContext;
+        }
+
+        if (ncParameters.getCapacityCalculationRegion() == null) {
+            creationContext.getCreationReport().error("No Capacity Calculation region provided for the NC CRAC importer.");
+            creationContext.creationFailure();
+            return creationContext;
+        }
+
+        if (ncParameters.getCurativeInstants() == null || ncParameters.getCurativeInstants().isEmpty()) {
+            creationContext.getCreationReport().error("No curative instants defined for the NC CRAC importer.");
             creationContext.creationFailure();
             return creationContext;
         }
