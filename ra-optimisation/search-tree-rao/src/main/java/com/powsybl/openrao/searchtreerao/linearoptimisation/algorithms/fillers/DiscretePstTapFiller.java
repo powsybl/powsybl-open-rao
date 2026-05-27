@@ -61,19 +61,20 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        iteration++;
-        rangeActions.entrySet().stream()
-            .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder())).forEach(entry -> entry.getValue().forEach(rangeAction ->
-                buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
-        if (iteration > 1) {
-            update(linearProblem, rangeActionActivationResult);
-        }
-        fillObjective(linearProblem);
+        // TODO add costly mode cost in objective function (like in fillObjective)
+        iteration = 0;
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        if (iteration == 0) {
+            rangeActions.entrySet().stream()
+                .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder())).forEach(entry -> entry.getValue().forEach(rangeAction ->
+                    buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
+            fillObjective(linearProblem);
+        }
         update(linearProblem, rangeActionActivationResult);
+        iteration++;
     }
 
     private void update(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
