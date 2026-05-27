@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
@@ -32,24 +33,26 @@ import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimization
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -125,7 +128,9 @@ public final class MarmotUtils {
     public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs,
                                                                                   TemporalData<PrePerimeterResult> initialResults,
                                                                                   GlobalLinearOptimizationResult globalLinearOptimizationResult,
-                                                                                  TemporalData<RaoResult> topologicalOptimizationResults,
+                                                                                  TemporalData<Set<NetworkAction>> preventiveNetworkActions,
+                                                                                  TemporalData<AppliedRemedialActions> curativeRemedialActions,
+                                                                                  TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                   RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
@@ -134,12 +139,14 @@ public final class MarmotUtils {
                 raoInputs.getData(timestamp).orElseThrow(),
                 initialResults.getData(timestamp).orElseThrow(),
                 globalLinearOptimizationResult,
-                topologicalOptimizationResults.getData(timestamp).orElseThrow(),
+                preventiveNetworkActions.getData(timestamp).orElseThrow(),
+                curativeRemedialActions.getData(timestamp).orElseThrow(),
                 raoParameters
             );
 
-            // The extension cannot be associated with two different RAO results so a copy is needed
-            copyCriticalCnecsExtension(topologicalOptimizationResults.getData(timestamp).orElseThrow(), postOptimizationResult);
+            CriticalCnecsResult criticalCnecsResult = new CriticalCnecsResult();
+            criticalCnecsResult.setCriticalCnecIds(consideredCnecs.getData(timestamp).orElseThrow().stream().map(FlowCnec::getId).collect(Collectors.toSet()));
+            postOptimizationResult.addExtension(CriticalCnecsResult.class, criticalCnecsResult);
             postOptimizationResults.put(
                 timestamp,
                 postOptimizationResult
@@ -265,15 +272,6 @@ public final class MarmotUtils {
         return temporalData.mapMultiThreading(function, threads);
     }
 
-    public static void copyCriticalCnecsExtension(RaoResult raoResultFrom, RaoResult raoResultTo) {
-        CriticalCnecsResult criticalCnecsResultFrom = raoResultFrom.getExtension(CriticalCnecsResult.class);
-        if (criticalCnecsResultFrom != null) {
-            CriticalCnecsResult criticalCnecsResultTo = new CriticalCnecsResult();
-            criticalCnecsResultTo.setCriticalCnecIds(criticalCnecsResultFrom.getCriticalCnecIds());
-            raoResultTo.addExtension(CriticalCnecsResult.class, criticalCnecsResultTo);
-        }
-    }
-
     public static double getInitialSetPoint(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
@@ -283,28 +281,42 @@ public final class MarmotUtils {
         return Double.NaN;
     }
 
-    public static File exportRaoResultInTmpDir(RaoResult raoResult, Crac crac) {
-        final String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
-        final OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
-        final String raoResultName = "rao-result-%s.json".formatted(timestamp.toString());
-        final String raoResultPath = tmpDir.concat(raoResultName);
-        try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
-            final Properties properties = new Properties();
-            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-            raoResult.write("JSON", crac, properties, fileOutputStream);
-            return new File(raoResultPath);
-        } catch (IOException e) {
-            throw new OpenRaoException(e);
+    public static List<State> getPreviousStates(State state, Crac crac) {
+        Optional<Contingency> contingency = state.getContingency();
+        if (contingency.isEmpty()) {
+            return List.of(); // preventive state
         }
+        List<State> previousStates = new ArrayList<>();
+        previousStates.add(crac.getPreventiveState());
+        previousStates.addAll(
+            crac.getStates(contingency.get()).stream()
+                .filter(s -> s.getInstant().comesBefore(state.getInstant()))
+                .sorted(Comparator.comparing(State::getInstant))
+                .toList()
+        );
+        return previousStates;
     }
 
-    public static RaoResult readRaoResult(File raoResultFile, Crac crac) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(raoResultFile)) {
-            return RaoResult.read(fileInputStream, crac);
-        } catch (IOException e) {
-            throw new OpenRaoException(e);
-        } finally {
-            Files.delete(raoResultFile.toPath());
-        }
+    public static RemedialActionActivationResult getRemedialActionActivationResult(GlobalLinearOptimizationResult postMipResult,
+                                                                                   Set<NetworkAction> preventiveNetworkActions,
+                                                                                   AppliedRemedialActions curativeRemedialActions,
+                                                                                   Crac crac) {
+        Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
+        activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
+
+        RangeActionActivationResultImpl rangeActionActivationResult = (RangeActionActivationResultImpl) postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow());
+
+        crac.getStates().stream()
+            .filter(state -> !state.isPreventive())
+            .forEach(state -> {
+                if (!curativeRemedialActions.getAppliedNetworkActions(state).isEmpty()) {
+                    activatedNetworkActionsPerState.put(state, curativeRemedialActions.getAppliedNetworkActions(state));
+                }
+                curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
+            });
+
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActionsPerState);
+
+        return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
     }
 }

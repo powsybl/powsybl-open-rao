@@ -24,13 +24,12 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,8 +59,8 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     private final Crac crac;
     private final PrePerimeterResult initialResult;
-    // TODO: replace following RaoResult by Set<NetworkAction> and AppliedRemedialActions to avoid storing flows
-    private final RaoResult topologicalOptimizationResult;
+    private final Set<NetworkAction> preventiveTopologicalActions;
+    private final AppliedRemedialActions curativeRemedialActions;
     private final GlobalLinearOptimizationResult postMipResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
     private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
@@ -69,22 +68,19 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     public PostOptimizationResult(RaoInput raoInput,
                                   PrePerimeterResult initialResult,
                                   GlobalLinearOptimizationResult postMipResult,
-                                  RaoResult topologicalOptimizationResult,
+                                  Set<NetworkAction> preventiveTopologicalActions,
+                                  AppliedRemedialActions curativeRemedialActions,
                                   RaoParameters raoParameters) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
-        this.topologicalOptimizationResult = topologicalOptimizationResult;
         this.postMipResult = postMipResult;
+        this.preventiveTopologicalActions = preventiveTopologicalActions;
+        this.curativeRemedialActions = curativeRemedialActions;
 
         State preventiveState = crac.getPreventiveState();
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, Set.of(preventiveState));
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)));
 
-        //TODO: also consider cost of curative actions
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
-            postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()),
-            networkActionsResult
-        );
+        RemedialActionActivationResult remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
     }
 
@@ -189,61 +185,71 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        return topologicalOptimizationResult.wasActivatedBeforeState(state, networkAction);
+        return MarmotUtils.getPreviousStates(state, crac).stream().anyMatch(s -> isActivatedDuringState(s, networkAction));
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return topologicalOptimizationResult.isActivatedDuringState(state, networkAction);
+        if (state.isPreventive()) {
+            return preventiveTopologicalActions.contains(networkAction);
+        } else {
+            return curativeRemedialActions.getAppliedNetworkActions(state).contains(networkAction);
+        }
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        return topologicalOptimizationResult.getActivatedNetworkActionsDuringState(state);
+        if (state.isPreventive()) {
+            return preventiveTopologicalActions;
+        } else {
+            return curativeRemedialActions.getAppliedNetworkActions(state);
+        }
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
+        // TODO: when global 2P is implemented only check postMipResult
+        // TODO: postMipResult should contain curative set-points already (to check)
         if (state.isPreventive()) {
             return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
         } else {
-            return topologicalOptimizationResult.isActivatedDuringState(state, rangeAction);
+            return curativeRemedialActions.getAppliedRangeActions(state).containsKey(rangeAction);
         }
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.isPreventive()) {
-            return initialResult.getTap(pstRangeAction);
-        } else {
-            return topologicalOptimizationResult.getPreOptimizationTapOnState(state, pstRangeAction);
-        }
+        return initialResult.getTap(pstRangeAction);
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
+        // TODO: when global 2P is implemented only check postMipResult
+        // TODO: postMipResult should contain curative set-points already (to check)
         if (state.isPreventive()) {
             return postMipResult.getOptimizedTap(pstRangeAction, state);
+        } else if (curativeRemedialActions.getAppliedRangeActions(state).containsKey(pstRangeAction)) {
+            return pstRangeAction.convertAngleToTap(curativeRemedialActions.getAppliedRangeActions(state).get(pstRangeAction));
         } else {
-            return topologicalOptimizationResult.getOptimizedTapOnState(state, pstRangeAction);
+            return postMipResult.getOptimizedTap(pstRangeAction, state);
         }
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (state.isPreventive()) {
-            return initialResult.getSetpoint(rangeAction);
-        } else {
-            return topologicalOptimizationResult.getPreOptimizationSetPointOnState(state, rangeAction);
-        }
+        return initialResult.getSetpoint(rangeAction);
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
+        // TODO: when global 2P is implemented only check postMipResult
+        // TODO: postMipResult should contain curative set-points already (to check)
         if (state.isPreventive()) {
             return postMipResult.getOptimizedSetpoint(rangeAction, state);
+        } else if (curativeRemedialActions.getAppliedRangeActions(state).containsKey(rangeAction)) {
+            return curativeRemedialActions.getAppliedRangeActions(state).get(rangeAction);
         } else {
-            return topologicalOptimizationResult.getOptimizedSetPointOnState(state, rangeAction);
+            return postMipResult.getOptimizedSetpoint(rangeAction, state);
         }
     }
 
@@ -252,7 +258,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         if (state.isPreventive()) {
             return postMipResult.getActivatedRangeActions(state);
         } else {
-            return topologicalOptimizationResult.getActivatedRangeActionsDuringState(state);
+            return curativeRemedialActions.getAppliedRangeActions(state).keySet();
         }
     }
 
@@ -261,7 +267,13 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         if (state.isPreventive()) {
             return postMipResult.getOptimizedTapsOnState(state);
         } else {
-            return topologicalOptimizationResult.getOptimizedTapsOnState(state);
+            Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
+            curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> {
+                if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                    optimizedTaps.put(pstRangeAction, pstRangeAction.convertAngleToTap(setPoint));
+                }
+            });
+            return optimizedTaps;
         }
     }
 
@@ -270,7 +282,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         if (state.isPreventive()) {
             return postMipResult.getOptimizedSetpointsOnState(state);
         } else {
-            return topologicalOptimizationResult.getOptimizedSetPointsOnState(state);
+            return curativeRemedialActions.getAppliedRangeActions(state);
         }
     }
 
@@ -286,6 +298,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        // TODO: this assumes that MARMOT is always used in costly optimization mode -> either impose or fix
         if (optimizedInstant == null) {
             return initialResult.getVirtualCost() > 1e-6;
         } else {
