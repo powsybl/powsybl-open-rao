@@ -23,5 +23,6 @@
         <module>time-coupled-constraints</module>
         <module>virtual-hubs</module>
         <module>crac/crac-io/crac-io-network</module>
+        <module>ics-importer</module>
     </modules>
 </project>

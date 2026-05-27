@@ -16,12 +16,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.ContingencyAdder;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -35,6 +30,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -1321,5 +1317,14 @@ class CracImplTest {
         badCrac.newInstant("curative", InstantKind.CURATIVE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> badCrac.newInstant("auto", InstantKind.AUTO));
         assertEquals("Only one auto instant is allowed and it must occur between outage and curative instants", exception.getMessage());
+    }
+
+    @Test
+    void testFindOperatorsNotSharingCras() {
+        Crac crac2 = CommonCracCreation.create(new CracImplFactory(), Set.of(TwoSides.ONE));
+        assertEquals(Set.of("operator1", "operator2"), crac2.findOperatorsNotSharingCras());
+
+        crac2 = CommonCracCreation.createWithCurativePstRange();
+        assertEquals(Set.of("operator2"), crac2.findOperatorsNotSharingCras());
     }
 }

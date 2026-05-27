@@ -88,7 +88,8 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         }
         OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
 
-        int oldThreadCount = openSensitivityAnalysisParameters.getThreadCount();
+        int oldThreadCount =
+            openSensitivityAnalysisParameters.getThreadCount();
         if (multiThreadedSensitivities) {
             openSensitivityAnalysisParameters.setThreadCount(MultithreadingParameters.getAvailableCPUs(raoParameters));
         }
