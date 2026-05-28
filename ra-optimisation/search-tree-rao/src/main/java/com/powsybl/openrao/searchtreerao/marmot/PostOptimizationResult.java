@@ -77,8 +77,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.preventiveTopologicalActions = preventiveTopologicalActions;
         this.curativeRemedialActions = curativeRemedialActions;
 
-        State preventiveState = crac.getPreventiveState();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, Set.of(preventiveState));
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
 
         RemedialActionActivationResult remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
