@@ -1,4 +1,4 @@
-# FlowBasedConstraint CRAC format
+# FlowBasedConstraint document
 
 ## Header overview
 

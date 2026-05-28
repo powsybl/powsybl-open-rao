@@ -16,9 +16,12 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -120,16 +123,22 @@ public final class MarmotUtils {
                                                                                   RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(
-            timestamp,
-            new PostOptimizationResult(
+        timestamps.forEach(timestamp -> {
+            PostOptimizationResult postOptimizationResult = new PostOptimizationResult(
                 raoInputs.getData(timestamp).orElseThrow(),
                 initialResults.getData(timestamp).orElseThrow(),
                 globalLinearOptimizationResult,
                 topologicalOptimizationResults.getData(timestamp).orElseThrow(),
                 raoParameters
-            )
-        ));
+            );
+
+            // The extension cannot be associated with two different RAO results so a copy is needed
+            copyCriticalCnecsExtension(topologicalOptimizationResults.getData(timestamp).orElseThrow(), postOptimizationResult);
+            postOptimizationResults.put(
+                timestamp,
+                postOptimizationResult
+            );
+        });
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 
@@ -254,5 +263,23 @@ public final class MarmotUtils {
             return temporalData.map(function);
         }
         return temporalData.mapMultiThreading(function, threads);
+    }
+
+    public static void copyCriticalCnecsExtension(RaoResult raoResultFrom, RaoResult raoResultTo) {
+        CriticalCnecsResult criticalCnecsResultFrom = raoResultFrom.getExtension(CriticalCnecsResult.class);
+        if (criticalCnecsResultFrom != null) {
+            CriticalCnecsResult criticalCnecsResultTo = new CriticalCnecsResult();
+            criticalCnecsResultTo.setCriticalCnecIds(criticalCnecsResultFrom.getCriticalCnecIds());
+            raoResultTo.addExtension(CriticalCnecsResult.class, criticalCnecsResultTo);
+        }
+    }
+
+    public static double getInitialSetPoint(RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+        } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+            return standardRangeAction.getInitialSetpoint();
+        }
+        return Double.NaN;
     }
 }
