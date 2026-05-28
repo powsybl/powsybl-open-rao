@@ -74,4 +74,8 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
             }
         }
     }
+
+    public void clear() {
+        dataPerTimestamp.clear();
+    }
 }

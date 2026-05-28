@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -635,5 +636,46 @@ class MarmotTest {
         File file = new File(Path.of(path).toUri());
         assertTrue(file.exists());
         file.delete();
+    }
+
+    @Test
+    void testWithCurativePst() throws IOException {
+        Network network00 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Network network01 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Crac crac00 = Crac.read("crac-2-psts-0030.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-psts-0030.json"), network00);
+        Crac crac01 = Crac.read("crac-2-psts-0130.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-psts-0130.json"), network01);
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+
+        TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
+
+        TimeCoupledRaoInput input = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
+
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+
+        // FIXME: curative costs of range actions are not taken in account
+        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac00.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
+        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac01.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
+
+        assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
+        assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
+
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
+
+        assertEquals(-5, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getPstRangeAction("pstFr2Fr3")));
+        assertEquals(-5, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getPstRangeAction("pstFr2Fr3")));
+
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getPstRangeAction("pstFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getPstRangeAction("pstFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivated(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getNetworkAction("closeFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivated(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getNetworkAction("closeFr2Fr3")));
+
+        assertEquals(Set.of(crac00.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
+        assertEquals(Set.of(crac01.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
+        assertEquals(Set.of(crac00.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
+        assertEquals(Set.of(crac01.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
     }
 }
