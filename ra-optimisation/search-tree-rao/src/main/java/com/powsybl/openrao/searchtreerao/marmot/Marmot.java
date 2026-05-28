@@ -75,6 +75,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getAppliedRemedialActionsInCurative;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
@@ -145,8 +146,8 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 4. Retrieve post-topological optimization results
         TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(cracs, topologicalOptimizationResults, parallelism);
-        // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
-        TemporalData<AppliedRemedialActions> curativeTopologicalActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
+        // Get the curative topological actions applied in the individual results to be able to apply them during sensitivity computations
+        TemporalData<AppliedRemedialActions> curativeTopologicalActions = getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
 
         TemporalData<PrePerimeterResult> postTopologicalActionsResults = timeCoupledRaoInput.getPreComputedRaoResults() == null
             ? topologicalOptimizationResults.map(raoResult -> ((FastRaoResultImpl) raoResult).getFinalResult())
