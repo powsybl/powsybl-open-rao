@@ -28,21 +28,21 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public final class MarmotReports {
+    private static final String TIMESTAMP = "timestamp";
+
     private MarmotReports() {
         // Utility class should not be instantiated
     }
 
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
-    public static ReportNode reportMissingMarmotParametersExtension(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
+    public static void reportMissingMarmotParametersExtension(final ReportNode parentNode) {
+        parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMissingMarmotParametersExtension")
             .withSeverity(WARN_SEVERITY)
             .add();
 
         BUSINESS_WARNS.warn("Parameters are missing MarmotParameters extension. Default MarmotParameters will be used");
-
-        return addedNode;
     }
 
     public static void reportMarmotOptimizerSetToWorkOnNThreads(final ReportNode parentNode, final int parallelism) {
@@ -97,7 +97,7 @@ public final class MarmotReports {
     public static ReportNode reportMarmotRunningRaoForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotRunningRaoForTimestamp")
-            .withUntypedValue("timestamp", timestamp.toString())
+            .withUntypedValue(TIMESTAMP, timestamp.toString())
             .withSeverity(INFO_SEVERITY)
             .add();
 
@@ -113,7 +113,7 @@ public final class MarmotReports {
     public static void reportMarmotApplyingPraAfterOptimForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotApplyingPraAfterOptimForTimestamp")
-            .withUntypedValue("timestamp", timestamp.toString())
+            .withUntypedValue(TIMESTAMP, timestamp.toString())
             .withSeverity(INFO_SEVERITY)
             .add();
 
@@ -274,7 +274,7 @@ public final class MarmotReports {
             .forEach(addedCnecsElement -> {
                 addedNode.newReportNode()
                     .withMessageTemplate("openrao.searchtreerao.reportMarmotCnecsForTimestampAndVirtualCost")
-                    .withUntypedValue("timestamp", addedCnecsElement.timestamp())
+                    .withUntypedValue(TIMESTAMP, addedCnecsElement.timestamp())
                     .withUntypedValue("vcName", addedCnecsElement.vcName())
                     .withUntypedValue("addedCnecs", addedCnecsElement.addedCnecs())
                     .withSeverity(TRACE_SEVERITY)
@@ -291,7 +291,7 @@ public final class MarmotReports {
     public static void reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp")
-            .withUntypedValue("timestamp", timestamp.toString())
+            .withUntypedValue(TIMESTAMP, timestamp.toString())
             .withSeverity(TRACE_SEVERITY)
             .add();
 
