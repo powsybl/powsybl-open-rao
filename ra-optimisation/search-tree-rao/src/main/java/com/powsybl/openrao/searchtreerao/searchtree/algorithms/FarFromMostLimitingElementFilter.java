@@ -7,18 +7,18 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -39,7 +39,10 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    @Override
+    public Set<NetworkActionCombination> filter(final Set<NetworkActionCombination> naCombinations,
+                                                final OptimizationResult optimizationResult,
+                                                final ReportNode reportNode) {
         Set<Country> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
         Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
@@ -47,7 +50,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
             .collect(Collectors.toSet());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
+            SearchTreeReports.reportNetworkActionCombinationsFilteredOutTooFar(reportNode, naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
     }

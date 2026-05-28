@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -44,7 +45,7 @@ class PstRegulatorTest {
         Mockito.when(networkElement.getId()).thenReturn("BBE1AA1  FFR1AA1  2");
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(pstRangeAction.getNetworkElement()).thenReturn(networkElement);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters, ReportNode.NO_OP);
         // PATL of PST is 500 A; tap must be in range [3; 15]
         assertEquals(Map.of(pstRangeAction, 3), regulatedTapPerPst);
     }
@@ -57,7 +58,7 @@ class PstRegulatorTest {
         Mockito.when(networkElement.getId()).thenReturn("BBE1AA1  FFR1AA1  2");
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(pstRangeAction.getNetworkElement()).thenReturn(networkElement);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters, ReportNode.NO_OP);
         // PATL of PST is 500 A; tap must be in range [3; 15]
         assertEquals(Map.of(pstRangeAction, 8), regulatedTapPerPst);
     }
