@@ -29,7 +29,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,9 +58,8 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     private final Crac crac;
     private final PrePerimeterResult initialResult;
-    private final Set<NetworkAction> preventiveTopologicalActions;
-    private final AppliedRemedialActions curativeRemedialActions;
     private final GlobalLinearOptimizationResult postMipResult;
+    private final RemedialActionActivationResult remedialActionActivationResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
     private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
 
@@ -74,12 +72,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.postMipResult = postMipResult;
-        this.preventiveTopologicalActions = preventiveTopologicalActions;
-        this.curativeRemedialActions = curativeRemedialActions;
+        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
-
-        RemedialActionActivationResult remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
     }
 
@@ -189,31 +184,17 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        if (state.isPreventive()) {
-            return preventiveTopologicalActions.contains(networkAction);
-        } else {
-            return curativeRemedialActions.getAppliedNetworkActions(state).contains(networkAction);
-        }
+        return getActivatedNetworkActionsDuringState(state).contains(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        if (state.isPreventive()) {
-            return preventiveTopologicalActions;
-        } else {
-            return curativeRemedialActions.getAppliedNetworkActions(state);
-        }
+        return remedialActionActivationResult.getActivatedNetworkActionsPerState().getOrDefault(state, Set.of());
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        // TODO: when global 2P is implemented only check postMipResult
-        // TODO: postMipResult should contain curative set-points already (to check)
-        if (state.isPreventive()) {
-            return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
-        } else {
-            return curativeRemedialActions.getAppliedRangeActions(state).containsKey(rangeAction);
-        }
+        return remedialActionActivationResult.getActivatedRangeActions(state).contains(rangeAction);
     }
 
     @Override
@@ -223,15 +204,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        // TODO: when global 2P is implemented only check postMipResult
-        // TODO: postMipResult should contain curative set-points already (to check)
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedTap(pstRangeAction, state);
-        } else if (curativeRemedialActions.getAppliedRangeActions(state).containsKey(pstRangeAction)) {
-            return pstRangeAction.convertAngleToTap(curativeRemedialActions.getAppliedRangeActions(state).get(pstRangeAction));
-        } else {
-            return postMipResult.getOptimizedTap(pstRangeAction, state);
-        }
+        return remedialActionActivationResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
@@ -241,48 +214,22 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        // TODO: when global 2P is implemented only check postMipResult
-        // TODO: postMipResult should contain curative set-points already (to check)
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedSetpoint(rangeAction, state);
-        } else if (curativeRemedialActions.getAppliedRangeActions(state).containsKey(rangeAction)) {
-            return curativeRemedialActions.getAppliedRangeActions(state).get(rangeAction);
-        } else {
-            return postMipResult.getOptimizedSetpoint(rangeAction, state);
-        }
+        return remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getActivatedRangeActions(state);
-        } else {
-            return curativeRemedialActions.getAppliedRangeActions(state).keySet();
-        }
+        return remedialActionActivationResult.getActivatedRangeActions(state);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedTapsOnState(state);
-        } else {
-            Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
-            curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> {
-                if (rangeAction instanceof PstRangeAction pstRangeAction) {
-                    optimizedTaps.put(pstRangeAction, pstRangeAction.convertAngleToTap(setPoint));
-                }
-            });
-            return optimizedTaps;
-        }
+        return remedialActionActivationResult.getOptimizedTapsOnState(state);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedSetpointsOnState(state);
-        } else {
-            return curativeRemedialActions.getAppliedRangeActions(state);
-        }
+        return remedialActionActivationResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override

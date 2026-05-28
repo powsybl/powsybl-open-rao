@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +71,7 @@ class PostOptimizationResultTest {
         Mockito.when(globalLinearOptimizationResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(345.25);
         Mockito.when(globalLinearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction, rangeActionCur));
         Mockito.when(globalLinearOptimizationResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
+        Mockito.when(globalLinearOptimizationResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(rangeAction, 6.2276423729910535));
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(6.2276423729910535);
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
 

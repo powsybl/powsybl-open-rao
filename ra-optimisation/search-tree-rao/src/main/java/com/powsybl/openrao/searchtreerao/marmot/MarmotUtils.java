@@ -297,15 +297,16 @@ public final class MarmotUtils {
         return previousStates;
     }
 
-    public static RemedialActionActivationResult getRemedialActionActivationResult(GlobalLinearOptimizationResult postMipResult,
+    public static RemedialActionActivationResult getRemedialActionActivationResult(PrePerimeterResult initialResult,
+                                                                                   GlobalLinearOptimizationResult postMipResult,
                                                                                    Set<NetworkAction> preventiveNetworkActions,
                                                                                    AppliedRemedialActions curativeRemedialActions,
                                                                                    Crac crac) {
         Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
         activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
 
-        RangeActionActivationResultImpl rangeActionActivationResult = (RangeActionActivationResultImpl) postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow());
-
+        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult);
+        postMipResult.getOptimizedSetpointsOnState(crac.getPreventiveState()).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, crac.getPreventiveState(), setPoint));
         crac.getStates().stream()
             .filter(state -> !state.isPreventive())
             .forEach(state -> {
