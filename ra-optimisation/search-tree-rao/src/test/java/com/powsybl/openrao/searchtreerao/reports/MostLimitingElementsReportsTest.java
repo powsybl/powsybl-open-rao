@@ -26,6 +26,8 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,8 +40,6 @@ import java.util.Set;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,7 +66,7 @@ class MostLimitingElementsReportsTest {
     private ReportNode reportNode;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reportNode = ReportsTestUtils.getTestRootNode();
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
@@ -146,19 +146,19 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(5, traceReports.size());
-        assertEquals(6, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -10, MEGAWATT, cnec1).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, MEGAWATT, cnec2).endsWith(traceReports.get(1).getMessage()));
-        assertTrue(absoluteMarginLog(3, 10, MEGAWATT, cnec3).endsWith(traceReports.get(2).getMessage()));
-        assertTrue(absoluteMarginLog(4, 20, MEGAWATT, cnec4).endsWith(traceReports.get(3).getMessage()));
-        assertTrue(absoluteMarginLog(5, 30, MEGAWATT, cnec5).endsWith(traceReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), technicalLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), technicalLogs.list.get(2).toString());
-        assertEquals(absoluteMarginLog(3, 10, MEGAWATT, cnec3), technicalLogs.list.get(3).toString());
-        assertEquals(absoluteMarginLog(4, 20, MEGAWATT, cnec4), technicalLogs.list.get(4).toString());
-        assertEquals(absoluteMarginLog(5, 30, MEGAWATT, cnec5), technicalLogs.list.get(5).toString());
+        Assertions.assertThat(traceReports).hasSize(5);
+        Assertions.assertThat(technicalLogs.list).hasSize(6);
+        Assertions.assertThat(absoluteMarginLog(1, -10, MEGAWATT, cnec1)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(absoluteMarginLog(2, 0, MEGAWATT, cnec2)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(absoluteMarginLog(3, 10, MEGAWATT, cnec3)).endsWith(traceReports.get(2).getMessage());
+        Assertions.assertThat(absoluteMarginLog(4, 20, MEGAWATT, cnec4)).endsWith(traceReports.get(3).getMessage());
+        Assertions.assertThat(absoluteMarginLog(5, 30, MEGAWATT, cnec5)).endsWith(traceReports.get(4).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -10, MEGAWATT, cnec1));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, MEGAWATT, cnec2));
+        Assertions.assertThat(technicalLogs.list.get(3)).hasToString(absoluteMarginLog(3, 10, MEGAWATT, cnec3));
+        Assertions.assertThat(technicalLogs.list.get(4)).hasToString(absoluteMarginLog(4, 20, MEGAWATT, cnec4));
+        Assertions.assertThat(technicalLogs.list.get(5)).hasToString(absoluteMarginLog(5, 30, MEGAWATT, cnec5));
     }
 
     @Test
@@ -170,19 +170,19 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(5, traceReports.size());
-        assertEquals(6, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -10, MEGAWATT, cnec1).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, MEGAWATT, cnec2).endsWith(traceReports.get(1).getMessage()));
-        assertTrue(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3).endsWith(traceReports.get(2).getMessage()));
-        assertTrue(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4).endsWith(traceReports.get(3).getMessage()));
-        assertTrue(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5).endsWith(traceReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), technicalLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), technicalLogs.list.get(2).toString());
-        assertEquals(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3), technicalLogs.list.get(3).toString());
-        assertEquals(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4), technicalLogs.list.get(4).toString());
-        assertEquals(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5), technicalLogs.list.get(5).toString());
+        Assertions.assertThat(traceReports).hasSize(5);
+        Assertions.assertThat(technicalLogs.list).hasSize(6);
+        Assertions.assertThat(absoluteMarginLog(1, -10, MEGAWATT, cnec1)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(absoluteMarginLog(2, 0, MEGAWATT, cnec2)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3)).endsWith(traceReports.get(2).getMessage());
+        Assertions.assertThat(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4)).endsWith(traceReports.get(3).getMessage());
+        Assertions.assertThat(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5)).endsWith(traceReports.get(4).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -10, MEGAWATT, cnec1));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, MEGAWATT, cnec2));
+        Assertions.assertThat(technicalLogs.list.get(3)).hasToString(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3));
+        Assertions.assertThat(technicalLogs.list.get(4)).hasToString(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4));
+        Assertions.assertThat(technicalLogs.list.get(5)).hasToString(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5));
     }
 
     @Test
@@ -194,19 +194,19 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(5, traceReports.size());
-        assertEquals(6, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -10, AMPERE, cnec2).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, AMPERE, cnec4).endsWith(traceReports.get(1).getMessage()));
-        assertTrue(absoluteMarginLog(3, 10, AMPERE, cnec3).endsWith(traceReports.get(2).getMessage()));
-        assertTrue(absoluteMarginLog(4, 20, AMPERE, cnec5).endsWith(traceReports.get(3).getMessage()));
-        assertTrue(absoluteMarginLog(5, 30, AMPERE, cnec1).endsWith(traceReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), technicalLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), technicalLogs.list.get(2).toString());
-        assertEquals(absoluteMarginLog(3, 10, AMPERE, cnec3), technicalLogs.list.get(3).toString());
-        assertEquals(absoluteMarginLog(4, 20, AMPERE, cnec5), technicalLogs.list.get(4).toString());
-        assertEquals(absoluteMarginLog(5, 30, AMPERE, cnec1), technicalLogs.list.get(5).toString());
+        Assertions.assertThat(traceReports).hasSize(5);
+        Assertions.assertThat(technicalLogs.list).hasSize(6);
+        Assertions.assertThat(absoluteMarginLog(1, -10, AMPERE, cnec2)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(absoluteMarginLog(2, 0, AMPERE, cnec4)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(absoluteMarginLog(3, 10, AMPERE, cnec3)).endsWith(traceReports.get(2).getMessage());
+        Assertions.assertThat(absoluteMarginLog(4, 20, AMPERE, cnec5)).endsWith(traceReports.get(3).getMessage());
+        Assertions.assertThat(absoluteMarginLog(5, 30, AMPERE, cnec1)).endsWith(traceReports.get(4).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -10, AMPERE, cnec2));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, AMPERE, cnec4));
+        Assertions.assertThat(technicalLogs.list.get(3)).hasToString(absoluteMarginLog(3, 10, AMPERE, cnec3));
+        Assertions.assertThat(technicalLogs.list.get(4)).hasToString(absoluteMarginLog(4, 20, AMPERE, cnec5));
+        Assertions.assertThat(technicalLogs.list.get(5)).hasToString(absoluteMarginLog(5, 30, AMPERE, cnec1));
     }
 
     @Test
@@ -218,19 +218,19 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(5, traceReports.size());
-        assertEquals(6, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -10, AMPERE, cnec2).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, AMPERE, cnec4).endsWith(traceReports.get(1).getMessage()));
-        assertTrue(relativeMarginLog(3, 100, .5, AMPERE, cnec5).endsWith(traceReports.get(2).getMessage()));
-        assertTrue(relativeMarginLog(4, 200, .3, AMPERE, cnec3).endsWith(traceReports.get(3).getMessage()));
-        assertTrue(relativeMarginLog(5, 300, .1, AMPERE, cnec1).endsWith(traceReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), technicalLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), technicalLogs.list.get(2).toString());
-        assertEquals(relativeMarginLog(3, 100, .5, AMPERE, cnec5), technicalLogs.list.get(3).toString());
-        assertEquals(relativeMarginLog(4, 200, .3, AMPERE, cnec3), technicalLogs.list.get(4).toString());
-        assertEquals(relativeMarginLog(5, 300, .1, AMPERE, cnec1), technicalLogs.list.get(5).toString());
+        Assertions.assertThat(traceReports).hasSize(5);
+        Assertions.assertThat(technicalLogs.list).hasSize(6);
+        Assertions.assertThat(absoluteMarginLog(1, -10, AMPERE, cnec2)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(absoluteMarginLog(2, 0, AMPERE, cnec4)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(relativeMarginLog(3, 100, .5, AMPERE, cnec5)).endsWith(traceReports.get(2).getMessage());
+        Assertions.assertThat(relativeMarginLog(4, 200, .3, AMPERE, cnec3)).endsWith(traceReports.get(3).getMessage());
+        Assertions.assertThat(relativeMarginLog(5, 300, .1, AMPERE, cnec1)).endsWith(traceReports.get(4).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -10, AMPERE, cnec2));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, AMPERE, cnec4));
+        Assertions.assertThat(technicalLogs.list.get(3)).hasToString(relativeMarginLog(3, 100, .5, AMPERE, cnec5));
+        Assertions.assertThat(technicalLogs.list.get(4)).hasToString(relativeMarginLog(4, 200, .3, AMPERE, cnec3));
+        Assertions.assertThat(technicalLogs.list.get(5)).hasToString(relativeMarginLog(5, 300, .1, AMPERE, cnec1));
     }
 
     @Test
@@ -242,11 +242,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 1);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6));
     }
 
     @Test
@@ -258,11 +258,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6));
     }
 
     @Test
@@ -274,11 +274,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -0.002, AMPERE, cnec6).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, -0.002, AMPERE, cnec6)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -0.002, AMPERE, cnec6));
     }
 
     @Test
@@ -290,11 +290,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -0.002, AMPERE, cnec6).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, -0.002, AMPERE, cnec6)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -0.002, AMPERE, cnec6));
     }
 
     @Test
@@ -306,11 +306,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, 0, MEGAWATT, cnec2).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, 0, MEGAWATT, cnec2), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, 0, MEGAWATT, cnec2)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, 0, MEGAWATT, cnec2));
     }
 
     @Test
@@ -322,15 +322,15 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(3, traceReports.size());
-        assertEquals(4, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -10, MEGAWATT, cnec1).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, MEGAWATT, cnec2).endsWith(traceReports.get(1).getMessage()));
-        assertTrue(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5).endsWith(traceReports.get(2).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), technicalLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), technicalLogs.list.get(2).toString());
-        assertEquals(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5), technicalLogs.list.get(3).toString());
+        Assertions.assertThat(traceReports).hasSize(3);
+        Assertions.assertThat(technicalLogs.list).hasSize(4);
+        Assertions.assertThat(absoluteMarginLog(1, -10, MEGAWATT, cnec1)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(absoluteMarginLog(2, 0, MEGAWATT, cnec2)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5)).endsWith(traceReports.get(2).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, -10, MEGAWATT, cnec1));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, MEGAWATT, cnec2));
+        Assertions.assertThat(technicalLogs.list.get(3)).hasToString(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5));
     }
 
     @Test
@@ -342,11 +342,11 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(1, traceReports.size());
-        assertEquals(2, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, 10, AMPERE, cnec3).endsWith(traceReports.getFirst().getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, 10, AMPERE, cnec3), technicalLogs.list.get(1).toString());
+        Assertions.assertThat(traceReports).hasSize(1);
+        Assertions.assertThat(technicalLogs.list).hasSize(2);
+        Assertions.assertThat(absoluteMarginLog(1, 10, AMPERE, cnec3)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, 10, AMPERE, cnec3));
     }
 
     @Test
@@ -358,13 +358,13 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(stateCo2Curative, stateCo1Auto), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
-        assertEquals(2, traceReports.size());
-        assertEquals(3, technicalLogs.list.size());
-        assertTrue(absoluteMarginLog(1, 0, AMPERE, cnec4).endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(relativeMarginLog(2, 200, .3, AMPERE, cnec3).endsWith(traceReports.get(1).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", technicalLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, 0, AMPERE, cnec4), technicalLogs.list.get(1).toString());
-        assertEquals(relativeMarginLog(2, 200, .3, AMPERE, cnec3), technicalLogs.list.get(2).toString());
+        Assertions.assertThat(traceReports).hasSize(2);
+        Assertions.assertThat(technicalLogs.list).hasSize(3);
+        Assertions.assertThat(absoluteMarginLog(1, 0, AMPERE, cnec4)).endsWith(traceReports.getFirst().getMessage());
+        Assertions.assertThat(relativeMarginLog(2, 200, .3, AMPERE, cnec3)).endsWith(traceReports.get(1).getMessage());
+        Assertions.assertThat(technicalLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        Assertions.assertThat(technicalLogs.list.get(1)).hasToString(absoluteMarginLog(1, 0, AMPERE, cnec4));
+        Assertions.assertThat(technicalLogs.list.get(2)).hasToString(relativeMarginLog(2, 200, .3, AMPERE, cnec3));
     }
 
     @Test
@@ -380,7 +380,7 @@ class MostLimitingElementsReportsTest {
         Perimeter curativePerimeter = new Perimeter(stateCo1Curative, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
             ContingencyScenario.create()
-                .withContingency(stateCo1Auto.getContingency().get())
+                .withContingency(stateCo1Auto.getContingency().orElseThrow())
                 .withAutomatonState(stateCo1Auto)
                 .withCurativePerimeter(curativePerimeter)
                 .build());
@@ -412,19 +412,7 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
-        assertEquals(5, infoReports.size());
-        assertEquals(6, businessLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -8, MEGAWATT, cnec5).endsWith(infoReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, MEGAWATT, cnec2).endsWith(infoReports.get(1).getMessage()));
-        assertTrue(absoluteMarginLog(3, 2, MEGAWATT, cnec1).endsWith(infoReports.get(2).getMessage()));
-        assertTrue(absoluteMarginLog(4, 10, MEGAWATT, cnec3).endsWith(infoReports.get(3).getMessage()));
-        assertTrue(absoluteMarginLog(5, 35, MEGAWATT, cnec4).endsWith(infoReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", businessLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), businessLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), businessLogs.list.get(2).toString());
-        assertEquals(absoluteMarginLog(3, 2, MEGAWATT, cnec1), businessLogs.list.get(3).toString());
-        assertEquals(absoluteMarginLog(4, 10, MEGAWATT, cnec3), businessLogs.list.get(4).toString());
-        assertEquals(absoluteMarginLog(5, 35, MEGAWATT, cnec4), businessLogs.list.get(5).toString());
+        assertAbsoluteMW(infoReports, businessLogs);
 
         // Relative MW
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec4, cnec3, cnec2, cnec1));
@@ -436,19 +424,7 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
-        assertEquals(5, infoReports.size());
-        assertEquals(6, businessLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -8, MEGAWATT, cnec5).endsWith(infoReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, 0, MEGAWATT, cnec2).endsWith(infoReports.get(1).getMessage()));
-        assertTrue(relativeMarginLog(3, 1, null, MEGAWATT, cnec1).endsWith(infoReports.get(2).getMessage()));
-        assertTrue(relativeMarginLog(4, 50, null, MEGAWATT, cnec4).endsWith(infoReports.get(3).getMessage()));
-        assertTrue(relativeMarginLog(5, 100, null, MEGAWATT, cnec3).endsWith(infoReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", businessLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), businessLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), businessLogs.list.get(2).toString());
-        assertEquals(relativeMarginLog(3, 1, null, MEGAWATT, cnec1), businessLogs.list.get(3).toString());
-        assertEquals(relativeMarginLog(4, 50, null, MEGAWATT, cnec4), businessLogs.list.get(4).toString());
-        assertEquals(relativeMarginLog(5, 100, null, MEGAWATT, cnec3), businessLogs.list.get(5).toString());
+        assertRelativeMW(infoReports, businessLogs);
 
         // Absolute A
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec5, cnec1, cnec3, cnec4));
@@ -460,19 +436,7 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
-        assertEquals(5, infoReports.size());
-        assertEquals(6, businessLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -21, AMPERE, cnec4).endsWith(infoReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, -10, AMPERE, cnec2).endsWith(infoReports.get(1).getMessage()));
-        assertTrue(absoluteMarginLog(3, -8, AMPERE, cnec1).endsWith(infoReports.get(2).getMessage()));
-        assertTrue(absoluteMarginLog(4, 10, AMPERE, cnec3).endsWith(infoReports.get(3).getMessage()));
-        assertTrue(absoluteMarginLog(5, 12, AMPERE, cnec5).endsWith(infoReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", businessLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), businessLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), businessLogs.list.get(2).toString());
-        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), businessLogs.list.get(3).toString());
-        assertEquals(absoluteMarginLog(4, 10, AMPERE, cnec3), businessLogs.list.get(4).toString());
-        assertEquals(absoluteMarginLog(5, 12, AMPERE, cnec5), businessLogs.list.get(5).toString());
+        assertAbsoluteA(infoReports, businessLogs);
 
         // Relative A
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec3, cnec5, cnec1, cnec2));
@@ -484,18 +448,78 @@ class MostLimitingElementsReportsTest {
         MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
-        assertEquals(5, infoReports.size());
-        assertEquals(6, businessLogs.list.size());
-        assertTrue(absoluteMarginLog(1, -21, AMPERE, cnec4).endsWith(infoReports.getFirst().getMessage()));
-        assertTrue(absoluteMarginLog(2, -10, AMPERE, cnec2).endsWith(infoReports.get(1).getMessage()));
-        assertTrue(absoluteMarginLog(3, -8, AMPERE, cnec1).endsWith(infoReports.get(2).getMessage()));
-        assertTrue(relativeMarginLog(4, 100, null, AMPERE, cnec5).endsWith(infoReports.get(3).getMessage()));
-        assertTrue(relativeMarginLog(5, 200, null, AMPERE, cnec3).endsWith(infoReports.get(4).getMessage()));
-        assertEquals("[INFO] Most limiting elements:", businessLogs.list.getFirst().toString());
-        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), businessLogs.list.get(1).toString());
-        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), businessLogs.list.get(2).toString());
-        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), businessLogs.list.get(3).toString());
-        assertEquals(relativeMarginLog(4, 100, null, AMPERE, cnec5), businessLogs.list.get(4).toString());
-        assertEquals(relativeMarginLog(5, 200, null, AMPERE, cnec3), businessLogs.list.get(5).toString());
+        assertRelativeA(infoReports, businessLogs);
+    }
+
+    private void assertAbsoluteMW(final List<ReportNode> infoReports, final ListAppender<ILoggingEvent> businessLogs) {
+        final SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(infoReports).hasSize(5);
+        softly.assertThat(businessLogs.list).hasSize(6);
+        softly.assertThat(absoluteMarginLog(1, -8, MEGAWATT, cnec5)).endsWith(infoReports.getFirst().getMessage());
+        softly.assertThat(absoluteMarginLog(2, 0, MEGAWATT, cnec2)).endsWith(infoReports.get(1).getMessage());
+        softly.assertThat(absoluteMarginLog(3, 2, MEGAWATT, cnec1)).endsWith(infoReports.get(2).getMessage());
+        softly.assertThat(absoluteMarginLog(4, 10, MEGAWATT, cnec3)).endsWith(infoReports.get(3).getMessage());
+        softly.assertThat(absoluteMarginLog(5, 35, MEGAWATT, cnec4)).endsWith(infoReports.get(4).getMessage());
+        softly.assertThat(businessLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        softly.assertThat(businessLogs.list.get(1)).hasToString(absoluteMarginLog(1, -8, MEGAWATT, cnec5));
+        softly.assertThat(businessLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, MEGAWATT, cnec2));
+        softly.assertThat(businessLogs.list.get(3)).hasToString(absoluteMarginLog(3, 2, MEGAWATT, cnec1));
+        softly.assertThat(businessLogs.list.get(4)).hasToString(absoluteMarginLog(4, 10, MEGAWATT, cnec3));
+        softly.assertThat(businessLogs.list.get(5)).hasToString(absoluteMarginLog(5, 35, MEGAWATT, cnec4));
+        softly.assertAll();
+    }
+
+    private void assertRelativeMW(final List<ReportNode> infoReports, final ListAppender<ILoggingEvent> businessLogs) {
+        final SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(infoReports).hasSize(5);
+        softly.assertThat(businessLogs.list).hasSize(6);
+        softly.assertThat(absoluteMarginLog(1, -8, MEGAWATT, cnec5)).endsWith(infoReports.getFirst().getMessage());
+        softly.assertThat(absoluteMarginLog(2, 0, MEGAWATT, cnec2)).endsWith(infoReports.get(1).getMessage());
+        softly.assertThat(relativeMarginLog(3, 1, null, MEGAWATT, cnec1)).endsWith(infoReports.get(2).getMessage());
+        softly.assertThat(relativeMarginLog(4, 50, null, MEGAWATT, cnec4)).endsWith(infoReports.get(3).getMessage());
+        softly.assertThat(relativeMarginLog(5, 100, null, MEGAWATT, cnec3)).endsWith(infoReports.get(4).getMessage());
+        softly.assertThat(businessLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        softly.assertThat(businessLogs.list.get(1)).hasToString(absoluteMarginLog(1, -8, MEGAWATT, cnec5));
+        softly.assertThat(businessLogs.list.get(2)).hasToString(absoluteMarginLog(2, 0, MEGAWATT, cnec2));
+        softly.assertThat(businessLogs.list.get(3)).hasToString(relativeMarginLog(3, 1, null, MEGAWATT, cnec1));
+        softly.assertThat(businessLogs.list.get(4)).hasToString(relativeMarginLog(4, 50, null, MEGAWATT, cnec4));
+        softly.assertThat(businessLogs.list.get(5)).hasToString(relativeMarginLog(5, 100, null, MEGAWATT, cnec3));
+        softly.assertAll();
+    }
+
+    private void assertAbsoluteA(final List<ReportNode> infoReports, final ListAppender<ILoggingEvent> businessLogs) {
+        final SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(infoReports).hasSize(5);
+        softly.assertThat(businessLogs.list).hasSize(6);
+        softly.assertThat(absoluteMarginLog(1, -21, AMPERE, cnec4)).endsWith(infoReports.getFirst().getMessage());
+        softly.assertThat(absoluteMarginLog(2, -10, AMPERE, cnec2)).endsWith(infoReports.get(1).getMessage());
+        softly.assertThat(absoluteMarginLog(3, -8, AMPERE, cnec1)).endsWith(infoReports.get(2).getMessage());
+        softly.assertThat(absoluteMarginLog(4, 10, AMPERE, cnec3)).endsWith(infoReports.get(3).getMessage());
+        softly.assertThat(absoluteMarginLog(5, 12, AMPERE, cnec5)).endsWith(infoReports.get(4).getMessage());
+        softly.assertThat(businessLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        softly.assertThat(businessLogs.list.get(1)).hasToString(absoluteMarginLog(1, -21, AMPERE, cnec4));
+        softly.assertThat(businessLogs.list.get(2)).hasToString(absoluteMarginLog(2, -10, AMPERE, cnec2));
+        softly.assertThat(businessLogs.list.get(3)).hasToString(absoluteMarginLog(3, -8, AMPERE, cnec1));
+        softly.assertThat(businessLogs.list.get(4)).hasToString(absoluteMarginLog(4, 10, AMPERE, cnec3));
+        softly.assertThat(businessLogs.list.get(5)).hasToString(absoluteMarginLog(5, 12, AMPERE, cnec5));
+        softly.assertAll();
+    }
+
+    private void assertRelativeA(final List<ReportNode> infoReports, final ListAppender<ILoggingEvent> businessLogs) {
+        final SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(infoReports).hasSize(5);
+        softly.assertThat(businessLogs.list).hasSize(6);
+        softly.assertThat(absoluteMarginLog(1, -21, AMPERE, cnec4)).endsWith(infoReports.getFirst().getMessage());
+        softly.assertThat(absoluteMarginLog(2, -10, AMPERE, cnec2)).endsWith(infoReports.get(1).getMessage());
+        softly.assertThat(absoluteMarginLog(3, -8, AMPERE, cnec1)).endsWith(infoReports.get(2).getMessage());
+        softly.assertThat(relativeMarginLog(4, 100, null, AMPERE, cnec5)).endsWith(infoReports.get(3).getMessage());
+        softly.assertThat(relativeMarginLog(5, 200, null, AMPERE, cnec3)).endsWith(infoReports.get(4).getMessage());
+        softly.assertThat(businessLogs.list.getFirst()).hasToString("[INFO] Most limiting elements:");
+        softly.assertThat(businessLogs.list.get(1)).hasToString(absoluteMarginLog(1, -21, AMPERE, cnec4));
+        softly.assertThat(businessLogs.list.get(2)).hasToString(absoluteMarginLog(2, -10, AMPERE, cnec2));
+        softly.assertThat(businessLogs.list.get(3)).hasToString(absoluteMarginLog(3, -8, AMPERE, cnec1));
+        softly.assertThat(businessLogs.list.get(4)).hasToString(relativeMarginLog(4, 100, null, AMPERE, cnec5));
+        softly.assertThat(businessLogs.list.get(5)).hasToString(relativeMarginLog(5, 200, null, AMPERE, cnec3));
+        softly.assertAll();
     }
 }

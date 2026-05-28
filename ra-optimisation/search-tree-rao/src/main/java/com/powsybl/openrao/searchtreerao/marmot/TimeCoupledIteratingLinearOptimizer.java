@@ -97,7 +97,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
-            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
+            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 LinearOptimizerReports.reportSolverInterrupted(reportNode);
@@ -134,7 +134,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, reportNode);
+            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -290,8 +290,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     private static LinearProblemStatus solveLinearProblem(final LinearProblem linearProblem,
-                                                          final int iteration,
-                                                          final ReportNode reportNode) {
+                                                          final int iteration) {
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         LinearProblemStatus status = linearProblem.solve();
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
@@ -398,8 +397,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                           final TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
                                                                                           final TimeCoupledIteratingLinearOptimizerInput input,
                                                                                           final IteratingLinearOptimizerParameters parameters,
-                                                                                          final TemporalData<List<ProblemFiller>> problemFillers,
-                                                                                          final ReportNode reportNode) {
+                                                                                          final TemporalData<List<ProblemFiller>> problemFillers) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
             .noneMatch(PstRangeAction.class::isInstance)) {
@@ -416,7 +414,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
             updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, rangeActionActivationResults);
 
-            solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
+            solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 TemporalData<RangeActionActivationResult> updatedLinearProblemResults = retrieveRangeActionActivationResults(
                     linearProblem,

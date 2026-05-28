@@ -39,7 +39,7 @@ class AutomatonSimulatorReportsTest {
     private Map<RangeAction<?>, Double> rangeActions;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reportNode = ReportsTestUtils.getTestRootNode();
         curative = Mockito.mock(State.class);
         Contingency contingency = Mockito.mock(Contingency.class);

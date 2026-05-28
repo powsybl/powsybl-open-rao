@@ -525,15 +525,15 @@ class RaoUtilTest {
 
     @Test
     void testGetFlowUnit() {
-        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
 
         // Cas DC -> MEGAWATT
-        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
-        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(raoParameters));
+        getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(true);
+        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(parameters));
 
         // Cas AC -> AMPERE
-        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(false);
-        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
+        getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(parameters));
     }
 }

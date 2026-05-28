@@ -25,6 +25,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public final class LinearOptimizerReports {
+    private static final String ITERATION = "iteration";
+
     private LinearOptimizerReports() {
         // Utility class should not be instantiated
     }
@@ -52,7 +54,7 @@ public final class LinearOptimizerReports {
         final String currentResultFunctionalCostFormatted = String.format(Locale.ENGLISH, "%.2f", currentResultFunctionalCost);
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportLinearOptimFoundWorseResult")
-            .withUntypedValue("iteration", iteration)
+            .withUntypedValue(ITERATION, iteration)
             .withUntypedValue("bestResultCost", bestResultCostFormatted)
             .withUntypedValue("currentResultCost", currentResultCostFormatted)
             .withUntypedValue("bestResultFunctionalCost", bestResultFunctionalCostFormatted)
@@ -88,7 +90,7 @@ public final class LinearOptimizerReports {
         final String functionalCostFormatted = String.format(Locale.ENGLISH, "%.2f", functionalCost);
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportLinearOptimFoundBetterSolution")
-            .withUntypedValue("iteration", iteration)
+            .withUntypedValue(ITERATION, iteration)
             .withUntypedValue("cost", costFormatted)
             .withUntypedValue("functionalCost", functionalCostFormatted)
             .withSeverity(TRACE_SEVERITY)
@@ -100,7 +102,7 @@ public final class LinearOptimizerReports {
     public static void reportSystematicSensitivityComputationFailedAtIteration(final ReportNode parentNode, final int iteration) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSystematicSensitivityComputationFailedAtIteration")
-            .withUntypedValue("iteration", iteration)
+            .withUntypedValue(ITERATION, iteration)
             .withSeverity(WARN_SEVERITY)
             .add();
 
@@ -119,7 +121,7 @@ public final class LinearOptimizerReports {
     public static void reportLinearOptimizationFailedAtIteration(final ReportNode parentNode, final int iteration) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportLinearOptimizationFailedAtIteration")
-            .withUntypedValue("iteration", iteration)
+            .withUntypedValue(ITERATION, iteration)
             .withSeverity(ERROR_SEVERITY)
             .add();
 
@@ -139,7 +141,7 @@ public final class LinearOptimizerReports {
     public static void reportSameResultAsPreviousIterations(final ReportNode parentNode, final int iteration) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSameResultAsPreviousIterations")
-            .withUntypedValue("iteration", iteration)
+            .withUntypedValue(ITERATION, iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();
 

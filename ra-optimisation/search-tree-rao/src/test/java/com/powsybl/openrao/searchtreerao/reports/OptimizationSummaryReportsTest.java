@@ -47,7 +47,7 @@ class OptimizationSummaryReportsTest {
     private Map<RangeAction<?>, Double> rangeActions;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reportNode = ReportsTestUtils.getTestRootNode();
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         preventive = Mockito.mock(State.class);

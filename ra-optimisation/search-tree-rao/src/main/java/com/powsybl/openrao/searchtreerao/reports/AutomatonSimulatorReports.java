@@ -27,6 +27,9 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public final class AutomatonSimulatorReports {
+    private static final String AUTOMATON_STATE_ID = "automatonStateId";
+    private static final String SPEED = "speed";
+
     private AutomatonSimulatorReports() {
         // Utility class should not be instantiated
     }
@@ -34,7 +37,7 @@ public final class AutomatonSimulatorReports {
     public static ReportNode reportOptimizingAutomatonState(final ReportNode parentNode, final String automatonStateId) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportOptimizingAutomatonState")
-            .withUntypedValue("automatonStateId", automatonStateId)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -55,8 +58,8 @@ public final class AutomatonSimulatorReports {
     public static void reportSimulatingAutomatonBatch(final ReportNode parentNode, final int speed, final String automatonStateId) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSimulatingAutomatonBatch")
-            .withUntypedValue("speed", speed)
-            .withUntypedValue("automatonStateId", automatonStateId)
+            .withUntypedValue(SPEED, speed)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -66,7 +69,7 @@ public final class AutomatonSimulatorReports {
     public static void reportAutomatonStateOptimized(final ReportNode parentNode, final String automatonStateId) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportAutomatonStateOptimized")
-            .withUntypedValue("automatonStateId", automatonStateId)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -78,7 +81,7 @@ public final class AutomatonSimulatorReports {
                                                                                         final String failDescription) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportAutomatonSimulationFailedRangeActionSensitivityComputation")
-            .withUntypedValue("automatonStateId", automatonStateId)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
             .withUntypedValue("failDescription", failDescription)
             .withSeverity(TRACE_SEVERITY)
             .add();
@@ -122,8 +125,8 @@ public final class AutomatonSimulatorReports {
                                                                                    final int speed) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportRunSensitivityAnalysisPostApplicationForStateAndSpeed")
-            .withUntypedValue("automatonStateId", automatonStateId)
-            .withUntypedValue("speed", speed)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
+            .withUntypedValue(SPEED, speed)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -155,8 +158,8 @@ public final class AutomatonSimulatorReports {
                                                                              final int speed) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportRunPostRangeSensitivityAnalysisForStateAndSpeed")
-            .withUntypedValue("automatonStateId", automatonStateId)
-            .withUntypedValue("speed", speed)
+            .withUntypedValue(AUTOMATON_STATE_ID, automatonStateId)
+            .withUntypedValue(SPEED, speed)
             .withSeverity(TRACE_SEVERITY)
             .add();
 

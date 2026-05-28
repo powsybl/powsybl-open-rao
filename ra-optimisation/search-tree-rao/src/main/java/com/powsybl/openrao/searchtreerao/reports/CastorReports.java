@@ -50,6 +50,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public final class CastorReports {
+    private static final String STATE_ID = "stateId";
+
     private CastorReports() {
         // Utility class should not be instantiated
     }
@@ -161,7 +163,7 @@ public final class CastorReports {
     public static void reportRaoFailure(final ReportNode parentNode, final String stateId, final Exception exception) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportRaoFailure")
-            .withUntypedValue("stateId", stateId)
+            .withUntypedValue(STATE_ID, stateId)
             .withUntypedValue("exception", Objects.toString(exception))
             .withSeverity(ERROR_SEVERITY)
             .add();
@@ -182,7 +184,7 @@ public final class CastorReports {
     public static void reportOptimizingCurativeState(final ReportNode parentNode, final String stateId) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportOptimizingCurativeState")
-            .withUntypedValue("stateId", stateId)
+            .withUntypedValue(STATE_ID, stateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -192,7 +194,7 @@ public final class CastorReports {
     public static void reportCurativeStateOptimized(final ReportNode parentNode, final String stateId) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCurativeStateOptimized")
-            .withUntypedValue("stateId", stateId)
+            .withUntypedValue(STATE_ID, stateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
 

@@ -69,7 +69,7 @@ public final class IteratingLinearOptimizer {
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
-            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
+            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 LinearOptimizerReports.reportSolverInterrupted(reportNode);
@@ -86,7 +86,7 @@ public final class IteratingLinearOptimizer {
 
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
-            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters, reportNode);
+            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
             if (!hasAnyRangeActionChanged(currentRangeActionActivationResult, previousResult, input.optimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -148,8 +148,7 @@ public final class IteratingLinearOptimizer {
                                                                             final int iteration,
                                                                             final RangeActionActivationResult currentRangeActionActivationResult,
                                                                             final IteratingLinearOptimizerInput input,
-                                                                            final IteratingLinearOptimizerParameters parameters,
-                                                                            final ReportNode reportNode) {
+                                                                            final IteratingLinearOptimizerParameters parameters) {
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
         if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.APPROXIMATED_INTEGERS)) {
@@ -161,7 +160,7 @@ public final class IteratingLinearOptimizer {
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
             linearProblem.updateBetweenMipIteration(rangeActionActivationResult);
 
-            solveStatus = solveLinearProblem(linearProblem, iteration, reportNode);
+            solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
                 rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult, input, parameters);
@@ -170,9 +169,7 @@ public final class IteratingLinearOptimizer {
         return rangeActionActivationResult;
     }
 
-    private static LinearProblemStatus solveLinearProblem(final LinearProblem linearProblem,
-                                                          final int iteration,
-                                                          final ReportNode reportNode) {
+    private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         LinearProblemStatus status = linearProblem.solve();
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);

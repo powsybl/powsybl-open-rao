@@ -36,6 +36,10 @@ import static java.lang.String.format;
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public final class SearchTreeReports {
+    private static final String NB_OF_COMBINATIONS = "nbOfCombinations";
+    private static final String DEPTH = "depth";
+    private static final String RANGE_ACTIONS = "rangeActions";
+
     private SearchTreeReports() {
         // Utility class should not be instantiated
     }
@@ -187,7 +191,7 @@ public final class SearchTreeReports {
     public static void reportNetworkActionCombinationsFilteredOutTooFar(final ReportNode parentNode, final int nbOfCombinations) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsFilteredOutTooFar")
-            .withUntypedValue("nbOfCombinations", nbOfCombinations)
+            .withUntypedValue(NB_OF_COMBINATIONS, nbOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -197,7 +201,7 @@ public final class SearchTreeReports {
     public static void reportNetworkActionCombinationsFilteredOutMaxElementaryActionsExceeded(final ReportNode parentNode, final int nbOfCombinations) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsFilteredOutMaxElementaryActionsExceeded")
-            .withUntypedValue("nbOfCombinations", nbOfCombinations)
+            .withUntypedValue(NB_OF_COMBINATIONS, nbOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -207,7 +211,7 @@ public final class SearchTreeReports {
     public static void reportNetworkActionCombinationsFilteredOutMaxNetworkActionsReached(final ReportNode parentNode, final int nbOfCombinations) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsFilteredOutMaxNetworkActionsReached")
-            .withUntypedValue("nbOfCombinations", nbOfCombinations)
+            .withUntypedValue(NB_OF_COMBINATIONS, nbOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -217,21 +221,11 @@ public final class SearchTreeReports {
     public static void reportNetworkActionCombinationsFilteredOutMaxUsableRasReached(final ReportNode parentNode, final int nbOfCombinations) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsFilteredOutMaxUsableRasReached")
-            .withUntypedValue("nbOfCombinations", nbOfCombinations)
+            .withUntypedValue(NB_OF_COMBINATIONS, nbOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
         TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", nbOfCombinations);
-    }
-
-    public static void reportNetworkActionCombinationsFilteredOutMaxUsableTsosReached(final ReportNode parentNode, final int nbOfCombinations) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsFilteredOutMaxUsableTsosReached")
-            .withUntypedValue("nbOfCombinations", nbOfCombinations)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", nbOfCombinations);
     }
 
     public static void reportNoNetworkActionAvailable(final ReportNode parentNode, final boolean verbose) {
@@ -246,7 +240,7 @@ public final class SearchTreeReports {
     public static ReportNode reportSearchDepth(final ReportNode parentNode, final int depth) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSearchDepth")
-            .withUntypedValue("depth", depth)
+            .withUntypedValue(DEPTH, depth)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -262,7 +256,7 @@ public final class SearchTreeReports {
     public static void reportSearchDepthBestLeaf(final ReportNode parentNode, final boolean verbose, final int depth, final Leaf leaf) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSearchDepthBestLeaf")
-            .withUntypedValue("depth", depth)
+            .withUntypedValue(DEPTH, depth)
             .withUntypedValue("leaf", Objects.toString(leaf))
             .withSeverity(getSeverity(verbose))
             .add();
@@ -273,7 +267,7 @@ public final class SearchTreeReports {
     public static void reportNoBetterResultFoundInSearchDepth(final ReportNode parentNode, final boolean verbose, final int depth) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportNoBetterResultFoundInSearchDepth")
-            .withUntypedValue("depth", depth)
+            .withUntypedValue(DEPTH, depth)
             .withSeverity(getSeverity(verbose))
             .add();
 
@@ -425,7 +419,7 @@ public final class SearchTreeReports {
 
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportRangeActionsActivated")
-            .withUntypedValue("rangeActions", joinedRaSetpoints)
+            .withUntypedValue(RANGE_ACTIONS, joinedRaSetpoints)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -458,7 +452,7 @@ public final class SearchTreeReports {
 
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportBestLeafRangeActionsActivated")
-            .withUntypedValue("rangeActions", joinedRaSetpoints)
+            .withUntypedValue(RANGE_ACTIONS, joinedRaSetpoints)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -481,7 +475,7 @@ public final class SearchTreeReports {
     private static void reportSearchDepthBestLeafNoRangeActionActivated(final ReportNode parentNode, final int depth) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSearchDepthBestLeafNoRangeActionActivated")
-            .withUntypedValue("depth", depth)
+            .withUntypedValue(DEPTH, depth)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
@@ -493,8 +487,8 @@ public final class SearchTreeReports {
 
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSearchDepthBestLeafRangeActionsActivated")
-            .withUntypedValue("depth", depth)
-            .withUntypedValue("rangeActions", joinedRaSetpoints)
+            .withUntypedValue(DEPTH, depth)
+            .withUntypedValue(RANGE_ACTIONS, joinedRaSetpoints)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
