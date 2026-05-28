@@ -1,0 +1,11 @@
+{
+  "type": "OpenRAO Time-Coupled Constraints",
+  "version": "1.0",
+  "generatorConstraints": [
+    {
+      "generatorId": "FFR2AA1 _generator",
+      "upwardPowerGradient": 200,
+      "downwardPowerGradient": -200
+    }
+  ]
+}

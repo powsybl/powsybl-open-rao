@@ -202,11 +202,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        if (state.isPreventive()) {
-            return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
-        } else {
-            return topologicalOptimizationResult.isActivatedDuringState(state, rangeAction);
-        }
+        // since both preventive and curative range actions are optimized by the mip, all the activated range actions
+        // are extracted from postMipResult
+        return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
     }
 
     @Override
@@ -220,11 +218,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedTap(pstRangeAction, state);
-        } else {
-            return topologicalOptimizationResult.getOptimizedTapOnState(state, pstRangeAction);
-        }
+        return postMipResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
@@ -238,38 +232,22 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedSetpoint(rangeAction, state);
-        } else {
-            return topologicalOptimizationResult.getOptimizedSetPointOnState(state, rangeAction);
-        }
+        return postMipResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getActivatedRangeActions(state);
-        } else {
-            return topologicalOptimizationResult.getActivatedRangeActionsDuringState(state);
-        }
+        return postMipResult.getActivatedRangeActions(state);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedTapsOnState(state);
-        } else {
-            return topologicalOptimizationResult.getOptimizedTapsOnState(state);
-        }
+        return postMipResult.getOptimizedTapsOnState(state);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.isPreventive()) {
-            return postMipResult.getOptimizedSetpointsOnState(state);
-        } else {
-            return topologicalOptimizationResult.getOptimizedSetPointsOnState(state);
-        }
+        return postMipResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override
