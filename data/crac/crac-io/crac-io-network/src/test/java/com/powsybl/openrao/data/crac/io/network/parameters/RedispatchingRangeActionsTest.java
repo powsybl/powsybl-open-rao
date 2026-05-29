@@ -97,14 +97,14 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
     @Test
     void testCombinations() {
-        assertTrue(parameters.getGeneratorCombinations().isEmpty());
+        assertTrue(parameters.getInjectionCombinations().isEmpty());
 
         Map<String, Set<String>> combis = Map.of("combi1", Set.of("gen1", "gen2"), "combi2", Set.of("gen3"));
-        parameters.setGeneratorCombinations(combis);
-        assertEquals(combis, parameters.getGeneratorCombinations());
+        parameters.setInjectionCombinations(combis);
+        assertEquals(combis, parameters.getInjectionCombinations());
 
         Map<String, Set<String>> combiWithDuplicate = Map.of("combi1", Set.of("gen1", "gen2"), "combi2", Set.of("gen1"));
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setGeneratorCombinations(combiWithDuplicate));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setInjectionCombinations(combiWithDuplicate));
         assertEquals("A generator can only be used once in generator combinations.", exception.getMessage());
     }
 
