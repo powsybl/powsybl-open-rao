@@ -256,10 +256,11 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteRdWithCombis() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getRedispatchingRangeActions().setGeneratorCombinations(
+        parameters.getRedispatchingRangeActions().setInjectionCombinations(
             Map.of(
                 "combi1", Set.of("DDE1AA1 _generator", "FFR1AA1 _generator"),
-                "combi2", Set.of("NNL2AA1 _generator")
+                "combi2", Set.of("NNL2AA1 _generator"),
+                "combi3", Set.of("DDE2AA1 _generator", "FFR3AA1 _load")
             )
         );
         parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
@@ -267,7 +268,7 @@ class NetworkCracCreatorTest {
         parameters.getRedispatchingRangeActions().setCombinationCostsProvider((combi, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
-        assertEquals(2, crac.getInjectionRangeActions().size());
+        assertEquals(3, crac.getInjectionRangeActions().size());
         assertTrue(crac.getInjectionRangeActions().stream().allMatch(ra -> ra.getId().contains("_preventive")));
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_COMBI_combi1_preventive");
@@ -280,6 +281,14 @@ class NetworkCracCreatorTest {
         assertEquals(Optional.of(1.), ra.getActivationCost());
         assertEquals(Optional.of(2.), ra.getVariationCost(VariationDirection.UP));
         assertEquals(Optional.of(3.), ra.getVariationCost(VariationDirection.DOWN));
+
+        ra = crac.getInjectionRangeAction("RD_COMBI_combi3_preventive");
+        assertNotNull(ra);
+        assertEquals(2, ra.getInjectionDistributionKeys().size());
+        assertEquals(Map.of("FFR3AA1 _load", -3., "DDE2AA1 _generator", 4.), getKeys("RD_COMBI_combi3_preventive"));
+        assertEquals(500., ra.getRanges().getFirst().getMin());
+        assertEquals(1500., ra.getRanges().getFirst().getMax());
+        assertEquals(500., ra.getInitialSetpoint());
     }
 
     @Test
@@ -309,7 +318,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteRdWithWrongCombis() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getRedispatchingRangeActions().setGeneratorCombinations(
+        parameters.getRedispatchingRangeActions().setInjectionCombinations(
             Map.of(
                 "combi1", Set.of("DDE1AA1 _generator", "wrong")
             )
