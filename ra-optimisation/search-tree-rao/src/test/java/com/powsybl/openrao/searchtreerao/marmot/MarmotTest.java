@@ -655,7 +655,6 @@ class MarmotTest {
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
-        // FIXME: curative costs of range actions are not taken in account
         assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac00.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
         assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac01.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
 

@@ -51,7 +51,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -233,9 +232,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         if (fullResults.getStatus() == LinearProblemStatus.INFEASIBLE) {
             TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation.");
             logCost("[MARMOT] Unoptimized RAO results: ", initialObjectiveFunctionResult, raoParameters, 10);
-            TemporalData<RaoResult> unoptimizedRaoResults = new TemporalDataImpl<>();
-            initialResults.getDataPerTimestamp().forEach((timestamp, prePerimeterResult) ->
-                unoptimizedRaoResults.put(timestamp, new UnoptimizedRaoResultImpl(prePerimeterResult)));
             TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
                 initialInputs,
                 initialResults,
@@ -671,7 +667,8 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
         cracs.map(Crac::getFlowCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
-        Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
+        Set<State> allOptimizedStates = new HashSet<>();
+        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
         return ObjectiveFunction.build(allFlowCnecs,
             new HashSet<>(), // no loop flows for now
             globalInitialFlowResult,
