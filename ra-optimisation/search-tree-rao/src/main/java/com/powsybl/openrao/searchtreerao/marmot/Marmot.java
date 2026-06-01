@@ -49,6 +49,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -144,6 +145,21 @@ public class Marmot implements TimeCoupledRaoProvider {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
         TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(cracs, parallelism);
         topologicalOptimizationResults.clear(); // delete RAO results
+
+        // Update initialResults to add RangeActionSetpointResult -> make sure that the initial setpoint field appear
+        // for all range actions in the final raoResult
+        initialResults = new TemporalDataImpl<>(
+            initialResults.getDataPerTimestamp().entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> new PrePerimeterSensitivityResultImpl(
+                        entry.getValue().getFlowResult(),
+                        entry.getValue().getSensitivityResult(),
+                        initialSetpointResults.getData(entry.getKey()).orElseThrow(),
+                        entry.getValue().getObjectiveFunctionResult()
+                    )
+                ))
+        );
 
         // TODO: check time-coupled constraints. If one of the following requirements is met, exit:
         //  - no time-coupled constraints provided
