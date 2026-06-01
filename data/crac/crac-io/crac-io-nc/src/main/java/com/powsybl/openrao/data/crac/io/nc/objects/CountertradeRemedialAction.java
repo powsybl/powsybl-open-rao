@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.nc.objects;
 
-import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -17,7 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record CountertradeRemedialAction(String mrid, String name, String operator, String description, String kind, boolean normalAvailable,
                                          String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
                                          String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
-                                         String timeToImplement, String region) implements IdentifiedObjectWithOperator {
+                                         String timeToImplement, String region) implements NativeRemedialAction {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(
                 propertyBag.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION),
@@ -35,13 +34,6 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
                 propertyBag.get(NcConstants.APPOINTED_TO_REGION)
         );
-    }
-
-    public Integer getTimeToImplementInSeconds() {
-        if (timeToImplement() == null) {
-            return null;
-        }
-        return NcCracUtils.convertDurationToSeconds(timeToImplement());
     }
 
 }

@@ -129,8 +129,8 @@ public final class NcConstants {
     public static final String IMPACT_THRESHOLD_MARGIN = "impactThresholdMargin";
     public static final String DESCRIPTION = "description";
 
-    public static Double COUNTER_TRADING_RANGE_MIN_RANGE = -5000.0;
-    public static Double COUNTER_TRADING_RANGE_MAX_RANGE = 5000.0;
+    public static final Double COUNTER_TRADING_RANGE_MIN_RANGE = -5000.0;
+    public static final Double COUNTER_TRADING_RANGE_MAX_RANGE = 5000.0;
 
     /**
      * requests for flow cnec
