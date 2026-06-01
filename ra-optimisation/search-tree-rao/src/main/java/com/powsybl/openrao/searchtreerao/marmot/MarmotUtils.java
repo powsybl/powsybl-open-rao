@@ -118,8 +118,7 @@ public final class MarmotUtils {
                                                                                 Set<FlowCnec> consideredCnecs) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
-        State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
+        Set<RangeAction<?>> rangeActions = new HashSet<>(crac.getRangeActions());
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false)
             .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
