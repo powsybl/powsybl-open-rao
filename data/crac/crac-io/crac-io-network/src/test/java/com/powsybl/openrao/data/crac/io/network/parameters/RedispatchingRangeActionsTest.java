@@ -105,7 +105,7 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
         Map<String, Set<String>> combiWithDuplicate = Map.of("combi1", Set.of("gen1", "gen2"), "combi2", Set.of("gen1"));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setInjectionCombinations(combiWithDuplicate));
-        assertEquals("A generator can only be used once in generator combinations.", exception.getMessage());
+        assertEquals("An injection can only be used once in injection combinations.", exception.getMessage());
     }
 
     @Test

@@ -68,7 +68,7 @@ class NetworkCracCreationParametersTest {
         RedispatchingRangeActions parameters = new NetworkCracCreationParameters(null, null).getRedispatchingRangeActions();
         Map<String, Set<String>> combinations = Map.of("combi1", Set.of("gen1", "gen2"), "combi2", Set.of("gen1", "gen3"));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setInjectionCombinations(combinations));
-        assertEquals("A generator can only be used once in generator combinations.", exception.getMessage());
+        assertEquals("An injection can only be used once in injection combinations.", exception.getMessage());
     }
 
     @Test
