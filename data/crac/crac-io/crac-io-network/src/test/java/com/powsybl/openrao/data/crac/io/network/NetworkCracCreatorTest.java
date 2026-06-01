@@ -330,7 +330,7 @@ class NetworkCracCreatorTest {
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(1, creationContext.getCreationReport().getReport().size());
         assertEquals(
-            "[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.",
+            "[REMOVED] Combination 'combi1' could not be considered because at least one injection could not be found in the network.",
             creationContext.getCreationReport().getReport().get(0)
         );
         assertTrue(crac.getInjectionRangeActions().isEmpty());
