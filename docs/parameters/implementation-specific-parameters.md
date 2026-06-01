@@ -426,6 +426,7 @@ These parameters are meant to be used in costly optimization only.
 - **Expected value**: integer, no unit
 - **Default value**: 10
 - **Usage**: This values corresponds to the maximum number of iterations of the MIP.
+- ⚠️ **Warning**: If MIP iterations end prematurely, there is no guarantee of result. 
 
 #### number-of-threads
 - **Expected value**: integer, no unit
