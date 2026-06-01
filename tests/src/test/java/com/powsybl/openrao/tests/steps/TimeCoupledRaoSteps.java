@@ -8,7 +8,6 @@
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
