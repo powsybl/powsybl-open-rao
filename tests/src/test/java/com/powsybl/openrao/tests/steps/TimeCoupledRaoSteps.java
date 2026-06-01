@@ -560,65 +560,6 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
-    @When("I export pre-processed files for business date {string}")
-    public void exportPreProcessedFiles(String businessDate) throws IOException {
-        String exportPath = getResourcesPath().concat("marmot/sensitive/").concat(businessDate).concat("/");
-        new File(exportPath).mkdirs();
-        new File(exportPath.concat("time-coupled-constraints/")).mkdir();
-        new File(exportPath.concat("networks/")).mkdir();
-        new File(exportPath.concat("cracs/")).mkdir();
-        new File(exportPath.concat("intermediate-rao-results/")).mkdir();
-
-        // 1. Export time-coupled constraints
-        BUSINESS_LOGS.info("----- Exporting time-coupled constraints [start]");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(exportPath.concat("time-coupled-constraints/time-coupled-constraints.json"))) {
-            JsonTimeCoupledConstraints.write(timeCoupledRaoInput.getTimeCoupledConstraints(), fileOutputStream);
-        }
-        BUSINESS_LOGS.info("----- Exporting time-coupled constraints [end]");
-
-        // 2. Export pre-processed networks
-        BUSINESS_LOGS.info("----- Exporting pre-processed networks [start]");
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach(
-            (timestamp, raoInput) -> {
-                String networkPath = exportPath.concat("networks/").concat(timestamp.toString()).concat(".jiidm");
-                raoInput.getNetwork().write("JIIDM", new Properties(), Path.of(networkPath));
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting pre-processed networks [end]");
-
-        // 3. Export pre-processed CRACs
-        BUSINESS_LOGS.info("----- Exporting pre-processed CRACs [start]");
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach(
-            (timestamp, raoInput) -> {
-                String cracPath = exportPath.concat("cracs/").concat(timestamp.toString()).concat(".json");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(cracPath)) {
-                    raoInput.getCrac().write("JSON", fileOutputStream);
-                } catch (IOException e) {
-                    throw new OpenRaoException(e);
-                }
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting pre-processed CRACs [end]");
-
-        // 4. Export independent RAO Results
-        BUSINESS_LOGS.info("----- Exporting independent RAO Results [start]");
-        timeCoupledRaoResult.getTimestamps().forEach(
-            timestamp -> {
-                RaoResult raoResult = timeCoupledRaoResult.getIndividualRaoResult(timestamp);
-                Crac crac = timeCoupledRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
-                String raoResultPath = exportPath.concat("intermediate-rao-results/").concat(timestamp.toString()).concat(".json");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(raoResultPath)) {
-                    Properties properties = new Properties();
-                    properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-                    raoResult.write("JSON", crac, properties, fileOutputStream);
-                } catch (IOException e) {
-                    throw new OpenRaoException(e);
-                }
-            }
-        );
-        BUSINESS_LOGS.info("----- Exporting independent RAO Results [end]");
-    }
-
     @When("I import data from preprocessed files for business date {string}")
     public void importDataFromPreprocessedFiles(String businessDate) throws IOException {
         String importPath = getResourcesPath().concat("marmot/sensitive/").concat(businessDate).concat("/");
@@ -697,6 +638,6 @@ public final class TimeCoupledRaoSteps {
 
         raoParameters = buildConfig(getFile(raoParametersPath));
 
-        timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new HashSet<>(timestamps), timeCoupledConstraints, raoResults);
+        CommonTestData.setTimeCoupledRaoInput(new TimeCoupledRaoInput(raoInputs, new HashSet<>(timestamps), timeCoupledConstraints, raoResults));
     }
 }
