@@ -276,7 +276,6 @@ public final class MarmotUtils {
         return temporalData.mapMultiThreading(function, threads);
     }
 
-
     public static double getInitialSetPoint(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());

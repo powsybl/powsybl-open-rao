@@ -24,12 +24,9 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
@@ -208,7 +205,6 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         return initialResult.getTap(pstRangeAction);
     }
 
-
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
         return postMipResult.getOptimizedTap(pstRangeAction, state);
@@ -218,7 +214,6 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         return initialResult.getSetpoint(rangeAction);
     }
-
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
