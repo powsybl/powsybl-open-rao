@@ -104,7 +104,7 @@ public final class Utils {
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
 
         if (consideredGenerators.size() > 1) {
-            if (initialTotalP < 1.) {
+            if (Math.abs(initialTotalP) < 1.) {
                 throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format(
                         "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
