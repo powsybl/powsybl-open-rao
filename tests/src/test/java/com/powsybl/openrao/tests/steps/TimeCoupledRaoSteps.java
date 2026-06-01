@@ -507,7 +507,7 @@ public final class TimeCoupledRaoSteps {
 
     @Then("its time coupled security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals(status.equalsIgnoreCase("secured"), timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW));
+        assertTrue(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac).getDataPerTimestamp().values().stream().allMatch(crac -> status.equalsIgnoreCase("secured") == timeCoupledRaoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)));
     }
 
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")

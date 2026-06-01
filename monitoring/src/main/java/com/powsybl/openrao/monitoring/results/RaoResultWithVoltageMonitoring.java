@@ -122,29 +122,4 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
     }
-
-    @Override
-    public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
-        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
-        } else {
-            return raoResult.isSecure(instant, u);
-        }
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
-        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
-        } else {
-            return raoResult.isSecure(u);
-        }
-    }
-
-    @Override
-    public boolean isSecure() {
-        return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
-    }
 }

@@ -281,10 +281,4 @@ class UnoptimizedRaoResultImplTest {
         output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, output.getExecutionDetails());
     }
-
-    @Test
-    void testIsSecureNotAvailableForUnoptimizedRaoResultImpls() {
-        assertThrows(OpenRaoException.class, () -> output.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertThrows(OpenRaoException.class, () -> output.isSecure());
-    }
 }

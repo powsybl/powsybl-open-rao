@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -62,9 +61,6 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertThrows(OpenRaoException.class, failedRaoResultImpl::isSecure);
-        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(optInstant, PhysicalParameter.FLOW));
-        assertEquals("This method should not be used, because the RAO failed: mocked error message 1", e.getMessage());
         assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }
 

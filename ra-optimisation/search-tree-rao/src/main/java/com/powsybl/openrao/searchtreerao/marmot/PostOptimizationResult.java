@@ -281,18 +281,4 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     public void setExecutionDetails(String executionDetails) {
         topologicalOptimizationResult.setExecutionDetails(executionDetails);
     }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost() > 1e-6;
-        } else {
-            return singleTimestampObjectiveFunctionResult.getVirtualCost() > 1e-6;
-        }
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return this.isSecure(crac.getLastInstant(), u);
-    }
 }

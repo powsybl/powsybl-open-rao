@@ -122,10 +122,10 @@ public class SweCne {
         boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
         try {
-            isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
+            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {
             // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
-            isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
+            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), PhysicalParameter.FLOW);
         }
         if (isFailure) {
             reason.setCode(RAO_FAILURE_CODE);

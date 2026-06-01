@@ -66,7 +66,7 @@ public class AngleMonitoringSteps {
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals("secure".equalsIgnoreCase(expectedStatus), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
+        assertEquals("secure".equalsIgnoreCase(expectedStatus), CommonTestData.getRaoResult().isSecure(CommonTestData.getCrac(), PhysicalParameter.ANGLE));
     }
 
     @Then("the applied remedial actions should be:")

@@ -178,7 +178,7 @@ public class RaoSteps {
 
     @Then("its security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals("secured".equalsIgnoreCase(status), raoResult.isSecure(PhysicalParameter.FLOW));
+        assertEquals("secured".equalsIgnoreCase(status), raoResult.isSecure(crac, PhysicalParameter.FLOW));
     }
 
     @Then("the value of the objective function initially should be {double}")

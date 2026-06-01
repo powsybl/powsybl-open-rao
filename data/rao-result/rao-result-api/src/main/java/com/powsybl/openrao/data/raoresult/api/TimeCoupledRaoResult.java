@@ -79,21 +79,15 @@ public interface TimeCoupledRaoResult extends RaoResult {
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
 
+
     /**
      * Indicates whether the all the CNECs of a given type at a given instant of a given timestamp are secure.
      *
-     * @param optimizedInstant The instant to assess
      * @param timestamp        The timestamp to assess
      * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
-    boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u);
-
-    boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u);
-
-    default boolean isSecure(OffsetDateTime timestamp) {
-        return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
-    }
+    boolean isSecure(OffsetDateTime timestamp, Crac crac, PhysicalParameter... u);
 
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 

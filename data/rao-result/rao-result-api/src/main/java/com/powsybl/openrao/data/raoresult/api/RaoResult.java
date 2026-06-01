@@ -32,8 +32,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -439,29 +442,51 @@ public interface RaoResult extends Extendable<RaoResult> {
     void setExecutionDetails(String executionDetails);
 
     /**
-     * Indicates whether the all the CNECs of a given type at a given instant are secure.
+     * Indicates whether all the CNECs of a given type are secure at the last instant (i.e. after RAO).
      *
-     * @param optimizedInstant The instant to assess
-     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
-     */
-    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
-
-    /**
-     * Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO)..
-     *
+     * @param crac The CRAC for which to check security.
      * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
+     * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    boolean isSecure(PhysicalParameter... u);
+    default boolean isSecure(Crac crac, PhysicalParameter... u) {
+        Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("No physical parameter provided.");
+        }
+        if (getComputationStatus() == ComputationStatus.FAILURE) {
+            return false;
+        }
+        if (parameters.contains(PhysicalParameter.FLOW)) {
+            for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+                Optional<Double> minAmpereMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.AMPERE));
+                if (minAmpereMargin.isPresent()) {
+                    if (minAmpereMargin.get() < 0) {
+                        return false;
+                    }
+                } else if (safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.MEGAWATT)).orElseThrow(() -> new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()))) < 0) {
+                    return false;
+                }
+            }
+        }
+        if (parameters.contains(PhysicalParameter.ANGLE)) {
+            for (AngleCnec angleCnec : crac.getAngleCnecs()) {
+                if (safeGetDouble(getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE)).orElseThrow(() -> new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()))) < 0) {
+                    return false;
+                }
+            }
+        }
+        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
+            for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
+                if (safeGetDouble(getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT)).orElseThrow(() -> new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()))) < 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
-    /**
-     * Indicates whether all the CNECs are secure at last instant (i.e. after RAO)..
-     *
-     * @return whether all the CNECs are secure at last instant (i.e. after RAO)..
-     */
-    default boolean isSecure() {
-        return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    private static Optional<Double> safeGetDouble(double value) {
+        return Double.isNaN(value) ? Optional.empty() : Optional.of(value);
     }
 
     /**

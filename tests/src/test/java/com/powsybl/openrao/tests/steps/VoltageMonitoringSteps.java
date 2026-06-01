@@ -53,7 +53,7 @@ public class VoltageMonitoringSteps {
     @Then("the voltage monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.VOLTAGE));
+        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(CommonTestData.getCrac(), PhysicalParameter.VOLTAGE));
     }
 
     @Then("the min voltage of CNEC {string} should be {double} kV at {string}")

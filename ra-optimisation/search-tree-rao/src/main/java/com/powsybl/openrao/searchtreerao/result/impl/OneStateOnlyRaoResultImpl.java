@@ -249,11 +249,6 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(optimizedState.getInstant(), u);
-    }
-
-    @Override
     public String getExecutionDetails() {
         return executionDetails;
     }

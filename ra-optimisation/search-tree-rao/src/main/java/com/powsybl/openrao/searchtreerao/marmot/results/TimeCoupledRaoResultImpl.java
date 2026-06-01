@@ -90,13 +90,8 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(optimizedInstant, u);
-    }
-
-    @Override
-    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
+    public boolean isSecure(OffsetDateTime timestamp, Crac crac, PhysicalParameter... u) {
+        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(crac, u);
     }
 
     @Override
@@ -237,16 +232,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public void setExecutionDetails(String executionDetails) {
         // nothing to do
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.");
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return raoResultPerTimestamp.map(raoResult -> raoResult.isSecure(u)).getDataPerTimestamp().values().stream().allMatch(bool -> bool);
     }
 
     private ObjectiveFunctionResult getRelevantResult(Instant instant) {

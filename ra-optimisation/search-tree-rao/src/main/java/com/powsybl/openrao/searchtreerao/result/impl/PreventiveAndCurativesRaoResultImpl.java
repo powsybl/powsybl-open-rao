@@ -665,11 +665,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
-    }
-
-    @Override
     public String getExecutionDetails() {
         return executionDetails;
     }

@@ -400,22 +400,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             .filter(margin -> !Double.isNaN(margin));
     }
 
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        if (computationStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
-                .anyMatch(state -> ComputationStatus.FAILURE.equals(computationStatusPerState.get(state)))) {
-            return false;
-        }
-        return instantHasNoNegativeMargin(optimizedInstant, u);
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
-    }
 
     @Override
     public String getExecutionDetails() {

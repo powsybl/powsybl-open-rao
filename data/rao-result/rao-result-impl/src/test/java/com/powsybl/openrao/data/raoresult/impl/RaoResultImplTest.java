@@ -253,25 +253,25 @@ class RaoResultImplTest {
     @Test
     void testIsSecureFlowCnecs() {
         setUp();
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
     void testIsNotSecureIfComputationStatusIsFailure() {
         setUp();
         raoResult.setComputationStatus(ComputationStatus.FAILURE);
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW));
     }
 
     @Test
     void testIsSecureIfNoCnecOfGivenParameterType() {
         setUp();
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.ANGLE));
     }
 
     @Test
@@ -294,8 +294,8 @@ class RaoResultImplTest {
         ElementaryAngleCnecResult elementaryAngleCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
         elementaryAngleCnecResult.setAngle(35., DEGREE);
         elementaryAngleCnecResult.setMargin(-5., DEGREE);
-        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
-        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
     }
 
     @Test
@@ -326,10 +326,8 @@ class RaoResultImplTest {
         elementaryVoltageCnecResult.setMinVoltage(200., KILOVOLT);
         elementaryVoltageCnecResult.setMaxVoltage(220., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure());
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -372,8 +370,8 @@ class RaoResultImplTest {
         elementaryVoltageCnecResult3.setMaxVoltage(420., KILOVOLT);
         elementaryVoltageCnecResult3.setMargin(40., KILOVOLT);
 
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
 
         assertEquals(50.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
         assertEquals(10.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
@@ -398,19 +396,19 @@ class RaoResultImplTest {
 
         assertEquals(
             "RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown",
-            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage()
+            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage()
         );
         assertEquals(
             "RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown",
-            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage()
+            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage()
         );
         assertEquals(
             "RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown",
-            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage()
+            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage()
         );
         assertEquals(
             "RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown",
-            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage()
+            assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage()
         );
     }
 

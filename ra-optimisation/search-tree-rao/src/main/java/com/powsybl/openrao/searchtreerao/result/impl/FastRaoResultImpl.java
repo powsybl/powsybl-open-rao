@@ -291,17 +291,4 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
     }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        return getFunctionalCost(optimizedInstant) < 0;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
-    }
 }

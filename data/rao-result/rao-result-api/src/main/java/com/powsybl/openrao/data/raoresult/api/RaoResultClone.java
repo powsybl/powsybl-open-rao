@@ -170,21 +170,6 @@ public class RaoResultClone extends AbstractExtendable<RaoResult> implements Rao
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return raoResult.isSecure(optimizedInstant, u);
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return raoResult.isSecure(u);
-    }
-
-    @Override
-    public boolean isSecure() {
-        return raoResult.isSecure();
-    }
-
-    @Override
     public String getExecutionDetails() {
         return raoResult.getExecutionDetails();
     }

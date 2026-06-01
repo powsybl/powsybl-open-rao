@@ -170,14 +170,4 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     public void setExecutionDetails(String executionDetails) {
         //not used
     }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return false;
-    }
 }

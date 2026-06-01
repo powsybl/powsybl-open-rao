@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -51,6 +52,7 @@ import static org.mockito.Mockito.when;
  */
 class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
+    private Crac crac;
     private State optimizedState;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
@@ -67,6 +69,8 @@ class OneStateOnlyRaoResultImplTest {
 
     @BeforeEach
     public void setUp() {
+        crac = Mockito.mock(Crac.class);
+
         preventiveInstant = Mockito.mock(Instant.class);
         Mockito.when(preventiveInstant.isPreventive()).thenReturn(true);
         curativeInstant = Mockito.mock(Instant.class);
@@ -161,6 +165,10 @@ class OneStateOnlyRaoResultImplTest {
         Set<FlowCnec> cnecs = new HashSet<>();
         cnecs.add(cnec1);
         cnecs.add(cnec2);
+
+        when(crac.getFlowCnecs()).thenReturn(cnecs);
+        when(crac.getAngleCnecs()).thenReturn(Set.of());
+        when(crac.getVoltageCnecs()).thenReturn(Set.of());
 
         output = new OneStateOnlyRaoResultImpl(optimizedState, initialResult, postOptimizationResult, cnecs);
     }
@@ -455,26 +463,22 @@ class OneStateOnlyRaoResultImplTest {
     void testIsSecureOnSecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
-        assertTrue(output.isSecure(PhysicalParameter.FLOW));
-
-        String expectedErrorMessage = "This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown";
-        OpenRaoException angleException = assertThrows(OpenRaoException.class, () -> output.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertEquals(expectedErrorMessage, angleException.getMessage());
-        OpenRaoException voltageException = assertThrows(OpenRaoException.class, () -> output.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertEquals(expectedErrorMessage, voltageException.getMessage());
+        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
+        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
     @Test
     void testIsSecureOnFailureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertFalse(output.isSecure());
+        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
     }
 
     @Test
     void testIsSecureOnUnsecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
-        assertFalse(output.isSecure());
+        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
     }
 }

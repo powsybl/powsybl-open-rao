@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -30,6 +31,7 @@ import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -155,6 +157,8 @@ class RaoResultCloneTest {
         when(crac.getNetworkAction("pstSetpointRaId")).thenReturn(naC);
         when(crac.getNetworkAction("switchPairRaId")).thenReturn(naN);
 
+        when(crac.getFlowCnecs()).thenReturn(Set.of(cnecP, cnecO));
+
         when(raoResult.isActivatedDuringState(pState, naP)).thenReturn(true);
         when(raoResult.isActivated(pState, naP)).thenReturn(true);
         // Mock other methods for NetworkAction as needed
@@ -186,10 +190,13 @@ class RaoResultCloneTest {
         // Mocking voltageCnec results
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         when(crac.getVoltageCnec("voltageCnecId")).thenReturn(voltageCnec);
+        when(crac.getVoltageCnecs()).thenReturn(Set.of(voltageCnec));
 
         when(raoResult.getMinVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
         when(raoResult.getMaxVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(154.38);
         // Mock other methods for VoltageCnec as needed
+
+        when(crac.getAngleCnecs()).thenReturn(Set.of());
 
         // Mocking computation status map
         when(raoResult.getComputationStatus(pState)).thenReturn(ComputationStatus.DEFAULT);
@@ -200,10 +207,9 @@ class RaoResultCloneTest {
         when(raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant))).thenReturn(ComputationStatus.FAILURE);
         when(raoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant))).thenReturn(ComputationStatus.DEFAULT);
 
-        when(raoResult.isSecure()).thenReturn(false);
-        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
-        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(false);
-        when(raoResult.isSecure(any(Instant.class), eq(PhysicalParameter.VOLTAGE))).thenReturn(false);
+        when(raoResult.isSecure(crac)).thenReturn(false);
+        when(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        when(raoResult.isSecure(crac, PhysicalParameter.VOLTAGE)).thenReturn(false);
 
         testRaoResultClone(new RaoResultClone(raoResult), crac);
 
@@ -421,9 +427,9 @@ class RaoResultCloneTest {
         assertEquals(ComputationStatus.FAILURE, raoResultClone.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
 
-        assertFalse(raoResultClone.isSecure());
-        assertTrue(raoResultClone.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertFalse(raoResultClone.isSecure(PhysicalParameter.VOLTAGE));
-        assertFalse(raoResultClone.isSecure(curativeInstant, PhysicalParameter.VOLTAGE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac));
+        assertEquals("No physical parameter provided.", exception.getMessage());
+        assertTrue(raoResultClone.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResultClone.isSecure(crac, PhysicalParameter.VOLTAGE));
     }
 }

@@ -600,22 +600,22 @@ class VoltageMonitoringTest {
             .add();
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.isSecure()).thenReturn(true);
+        when(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(true);
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.VOLTAGE));
         assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac.getInstant(CURATIVE_INSTANT_ID), PhysicalParameter.VOLTAGE));
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
-        assertFalse(raoResultWithVoltageMonitoring.isSecure());
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -633,7 +633,7 @@ class VoltageMonitoringTest {
             .add();
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.isSecure()).thenReturn(true);
+        when(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(true);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
@@ -646,7 +646,7 @@ class VoltageMonitoringTest {
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(raoResultWithVoltageMonitoring.isSecure());
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -659,7 +659,7 @@ class VoltageMonitoringTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));
 
         raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters).join();
-        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW)); // FIXME: crashes if no physical parameter provided
+        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW)); // FIXME: crashes if no physical parameter provided
 
         MonitoringInput monitoringInput = MonitoringInput.buildWithVoltage(network, crac, raoResult).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult(
@@ -669,7 +669,7 @@ class VoltageMonitoringTest {
             monitoringInput
         );
 
-        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)); // FIXME: crashes if no physical parameter provided
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)); // FIXME: crashes if no physical parameter provided
 
         // round trip on RAO Result
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -680,6 +680,6 @@ class VoltageMonitoringTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
-        assertTrue(importedRaoResult.isSecure());
+        assertTrue(importedRaoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

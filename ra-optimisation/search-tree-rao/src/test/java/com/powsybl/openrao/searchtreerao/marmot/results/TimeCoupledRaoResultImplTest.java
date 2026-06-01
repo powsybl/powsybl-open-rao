@@ -76,9 +76,9 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("virtual"));
         Mockito.when(objectiveFunctionResult.getVirtualCost("virtual")).thenReturn(100.);
 
-        final RaoResult raoResultTimestamp1 = mockRaoResult(true, "RAO 1 succeeded.", 450., 0., flowCnecTimestamp1, 850., 10., stateTimestamp1, 0, 0, 0., 0., true);
-        final RaoResult raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
-        final RaoResult raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
+        final RaoResult raoResultTimestamp1 = mockRaoResult("RAO 1 succeeded.", 450., 0., flowCnecTimestamp1, 850., 10., stateTimestamp1, 0, 0, 0., 0., true);
+        final RaoResult raoResultTimestamp2 = mockRaoResult("RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
+        final RaoResult raoResultTimestamp3 = mockRaoResult("RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
         timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
             initialObjectiveFunctionResult,
@@ -145,26 +145,6 @@ class TimeCoupledRaoResultImplTest {
     }
 
     @Test
-    void testIsSecure() {
-        assertFalse(timeCoupledRaoResult.isSecure());
-        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_1));
-        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_2));
-        assertFalse(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_3));
-
-        assertFalse(timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-
-        assertTrue(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW));
-        assertTrue(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW));
-        assertFalse(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW));
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.isSecure(instant, PhysicalParameter.FLOW));
-        assertEquals("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.", exception.getMessage());
-    }
-
-    @Test
     void testExecutionDetails() {
         assertEquals("2025-02-17T13:33:00Z: RAO 1 succeeded. - 2025-02-18T13:33:00Z: RAO 2 succeeded. - 2025-02-19T13:33:00Z: RAO 3 failed.", timeCoupledRaoResult.getExecutionDetails());
     }
@@ -183,8 +163,7 @@ class TimeCoupledRaoResultImplTest {
         assertEquals(-60., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp3, Unit.MEGAWATT));
     }
 
-    private RaoResult mockRaoResult(boolean isSecure,
-                                    String executionDetails,
+    private RaoResult mockRaoResult(String executionDetails,
                                     double functionalCost,
                                     double virtualCost,
                                     FlowCnec flowCnec,
@@ -197,8 +176,6 @@ class TimeCoupledRaoResultImplTest {
                                     double optimizedSetPoint,
                                     boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
-        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(isSecure);
-        Mockito.when(raoResult.isSecure(instant, PhysicalParameter.FLOW)).thenReturn(isSecure);
         Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
         Mockito.when(raoResult.getFunctionalCost(instant)).thenReturn(functionalCost);
         Mockito.when(raoResult.getVirtualCost(instant)).thenReturn(virtualCost);
