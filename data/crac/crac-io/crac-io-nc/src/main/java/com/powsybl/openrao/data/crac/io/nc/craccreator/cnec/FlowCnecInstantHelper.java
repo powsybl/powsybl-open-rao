@@ -12,7 +12,10 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.parameters.SweNcCracCreationParameters;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,11 +28,15 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class FlowCnecInstantHelper {
+    private final CracCreationParameters cracCreationParameters;
     private final NcCracCreationParameters ncCracCreationParameters;
     private final Crac crac;
 
-    FlowCnecInstantHelper(NcCracCreationParameters ncCracCreationParameters, Crac crac) {
-        this.ncCracCreationParameters = ncCracCreationParameters;
+    FlowCnecInstantHelper(CracCreationParameters cracCreationParameters, Crac crac) {
+        this.cracCreationParameters = cracCreationParameters;
+        NcCracCreationParameters ncCracCreationParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
+        this.ncCracCreationParameters = ncCracCreationParameters == null ?
+            new NcCracCreationParameters() : ncCracCreationParameters;
         this.crac = crac;
     }
 
@@ -47,7 +54,13 @@ class FlowCnecInstantHelper {
         Map<String, Integer> instantToLimit = new HashMap<>();
         Map<String, Integer> curativeInstantsMap = ncCracCreationParameters.getCurativeInstants();
         List<String> sortedCurativeInstants = curativeInstantsMap.entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
-        boolean doNotUsePatlInFinalState = ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().contains(tso);
+        boolean doNotUsePatlInFinalState = false;
+        if (CapacityCalculationRegion.SOUTH_WESTERN_EUROPE.equals(ncCracCreationParameters.getCapacityCalculationRegion())) {
+            SweNcCracCreationParameters sweParameters = cracCreationParameters.getExtension(SweNcCracCreationParameters.class);
+            if (sweParameters != null) {
+                doNotUsePatlInFinalState = sweParameters.getTsosWhichDoNotUsePatlInFinalState().contains(tso);
+            }
+        }
         Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
         // raise exception if a TSO not using the PATL has no TATL either
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL

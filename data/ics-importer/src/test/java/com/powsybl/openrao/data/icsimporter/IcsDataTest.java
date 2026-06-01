@@ -50,9 +50,9 @@ public class IcsDataTest {
     private static final double DOUBLE_EPSILON = 1e-6;
     private Crac crac1;
     private Crac crac2;
-    private Network network1;
-    private Network network2;
-    private TemporalData<Network> networkTemporalData;
+    private LazyNetwork network1;
+    private LazyNetwork network2;
+    private TemporalData<LazyNetwork> networkTemporalData;
     private TemporalData<Crac> cracTemporalData;
     List<ILoggingEvent> logsList;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 0, 30, 0, 0, ZoneOffset.UTC);
@@ -63,8 +63,8 @@ public class IcsDataTest {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
         String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
-        network1 = Network.read(networkFilePath1, IcsDataTest.class.getResourceAsStream("/network/" + networkFilePath1));
-        network2 = Network.read(networkFilePath2, IcsDataTest.class.getResourceAsStream("/network/" + networkFilePath2));
+        network1 = new LazyNetwork(getResourcePath("/network/" + networkFilePath1));
+        network2 = new LazyNetwork(getResourcePath("/network/" + networkFilePath2));
 
         crac1 = Crac.read("/crac/crac-0030.json", getClass().getResourceAsStream("/crac/crac-0030.json"), network1);
         crac2 = Crac.read("/crac/crac-0130.json", getClass().getResourceAsStream("/crac/crac-0130.json"), network2);
@@ -116,11 +116,11 @@ public class IcsDataTest {
         assertTrue(generatorConstraints.getUpwardPowerGradient().isPresent());
         assertEquals(20., generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLeadTime().isPresent());
-        assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
+        assertEquals(2.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraints.isShutDownAllowed());
-        assertFalse(generatorConstraints.isStartUpAllowed());
+        assertTrue(generatorConstraints.isShutDownAllowed());
+        assertTrue(generatorConstraints.isStartUpAllowed());
     }
 
     @Test
@@ -523,6 +523,47 @@ public class IcsDataTest {
         JsonNode actualJson = mapper.readTree(actualOutputStream.toString());
 
         assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    void testRedispatchingRangeWithZeroFloor() throws IOException {
+        String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
+        String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
+        String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
+        Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
+        Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                timestamp2, RaoInput.build(network2, crac2).build()
+            ));
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static.csv"),
+            getClass().getResourceAsStream("/ics/series_with_null_p0.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
+
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., tmpDir);
+
+        Crac crac1 = postIcsRaoInputs.getRaoInputs().getData(timestamp1).orElseThrow().getCrac();
+        Crac crac2 = postIcsRaoInputs.getRaoInputs().getData(timestamp2).orElseThrow().getCrac();
+
+        // with P0 = 0 MW and RDP- = 35 MW, the theoretical min value of the range is -35 MW, yet we check that the range is bounded by 0 MW
+        checkRedispatchingAction(0., 0., 43., 5., 4., crac1.getInjectionRangeActions().iterator().next());
+        checkRedispatchingAction(0., 0., 48., 5., 4., crac2.getInjectionRangeActions().iterator().next());
+    }
+
+    private void checkRedispatchingAction(double expectedP0, double expectedMin, double expectedMax, double expectedCostUp, double expectedCostDown, InjectionRangeAction injectionRangeAction) {
+        assertEquals(expectedP0, injectionRangeAction.getInitialSetpoint(), DOUBLE_EPSILON);
+        assertTrue(injectionRangeAction.getVariationCost(VariationDirection.UP).isPresent());
+        assertEquals(expectedCostUp, injectionRangeAction.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
+        assertTrue(injectionRangeAction.getVariationCost(VariationDirection.DOWN).isPresent());
+        assertEquals(expectedCostDown, injectionRangeAction.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
+        assertEquals(expectedMin, injectionRangeAction.getRanges().getFirst().getMin(), DOUBLE_EPSILON);
+        assertEquals(expectedMax, injectionRangeAction.getRanges().getFirst().getMax(), DOUBLE_EPSILON);
     }
 
     private String getResourcePath(String resourcePath) {

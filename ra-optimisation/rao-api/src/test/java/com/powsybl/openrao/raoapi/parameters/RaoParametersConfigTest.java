@@ -18,6 +18,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoConfigLoader;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotConfigLoader;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParametersConfigLoader;
@@ -352,4 +354,24 @@ class RaoParametersConfigTest {
         assertEquals(5.0, parameters.getMarginLimit(), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void checkMarmotConfig() {
+        ModuleConfig marmotModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(marmotModuleConfig.getIntProperty(eq("number-of-cnecs-to-add-per-virtual-cost-name"), anyInt())).thenReturn(18);
+        Mockito.when(marmotModuleConfig.getDoubleProperty(eq("min-relative-improvement-on-margin"), anyDouble())).thenReturn(0.5);
+        Mockito.when(marmotModuleConfig.getDoubleProperty(eq("margin-window-to-consider"), anyDouble())).thenReturn(3.2);
+        Mockito.when(marmotModuleConfig.getIntProperty(eq("max-mip-iterations"), anyInt())).thenReturn(15);
+        Mockito.when(marmotModuleConfig.getIntProperty(eq("number-of-threads"), anyInt())).thenReturn(42);
+
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("marmot-parameters")).thenReturn(Optional.of(marmotModuleConfig));
+
+        MarmotConfigLoader configLoader = new MarmotConfigLoader();
+        MarmotParameters parameters = configLoader.load(mockedPlatformConfig);
+
+        assertEquals(18, parameters.getNumberOfCnecsToAddPerVirtualCostName());
+        assertEquals(0.5, parameters.getMinRelativeImprovementOnMargin(), DOUBLE_TOLERANCE);
+        assertEquals(3.2, parameters.getMarginWindowToConsider(), DOUBLE_TOLERANCE);
+        assertEquals(15, parameters.getMaxMipIterations());
+        assertEquals(42, parameters.getNumberOfThreads());
+    }
 }
