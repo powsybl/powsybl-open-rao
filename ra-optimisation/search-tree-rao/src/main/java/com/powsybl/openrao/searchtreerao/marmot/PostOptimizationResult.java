@@ -30,6 +30,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
 import java.util.Set;
@@ -60,29 +61,24 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     private final Crac crac;
     private final PrePerimeterResult initialResult;
-    private final RaoResult topologicalOptimizationResult;
     private final GlobalLinearOptimizationResult postMipResult;
+    private final RemedialActionActivationResult remedialActionActivationResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
+    private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
 
     public PostOptimizationResult(RaoInput raoInput,
                                   PrePerimeterResult initialResult,
                                   GlobalLinearOptimizationResult postMipResult,
-                                  RaoResult topologicalOptimizationResult,
+                                  Set<NetworkAction> preventiveTopologicalActions,
+                                  AppliedRemedialActions curativeRemedialActions,
                                   RaoParameters raoParameters) {
+
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
-        this.topologicalOptimizationResult = topologicalOptimizationResult;
         this.postMipResult = postMipResult;
+        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
 
-        State preventiveState = crac.getPreventiveState();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, Set.of(preventiveState));
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)));
-
-        //TODO: also consider cost of curative actions
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
-            postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()),
-            networkActionsResult
-        );
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
     }
 
@@ -187,17 +183,17 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        return topologicalOptimizationResult.wasActivatedBeforeState(state, networkAction);
+        return MarmotUtils.getPreviousStates(state, crac).stream().anyMatch(s -> isActivatedDuringState(s, networkAction));
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return topologicalOptimizationResult.isActivatedDuringState(state, networkAction);
+        return getActivatedNetworkActionsDuringState(state).contains(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        return topologicalOptimizationResult.getActivatedNetworkActionsDuringState(state);
+        return remedialActionActivationResult.getActivatedNetworkActionsPerState().getOrDefault(state, Set.of());
     }
 
     @Override
@@ -209,12 +205,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.isPreventive()) {
-            return initialResult.getTap(pstRangeAction);
-        } else {
-            return topologicalOptimizationResult.getPreOptimizationTapOnState(state, pstRangeAction);
-        }
+        return initialResult.getTap(pstRangeAction);
     }
+
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
@@ -223,12 +216,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (state.isPreventive()) {
-            return initialResult.getSetpoint(rangeAction);
-        } else {
-            return topologicalOptimizationResult.getPreOptimizationSetPointOnState(state, rangeAction);
-        }
+        return initialResult.getSetpoint(rangeAction);
     }
+
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
@@ -252,16 +242,17 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public String getExecutionDetails() {
-        return topologicalOptimizationResult.getExecutionDetails();
+        return executionDetails;
     }
 
     @Override
     public void setExecutionDetails(String executionDetails) {
-        topologicalOptimizationResult.setExecutionDetails(executionDetails);
+        this.executionDetails = executionDetails;
     }
 
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        // TODO: this assumes that MARMOT is always used in costly optimization mode -> either impose or fix
         if (optimizedInstant == null) {
             return initialResult.getVirtualCost() > 1e-6;
         } else {
