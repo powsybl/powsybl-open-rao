@@ -194,7 +194,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        return remedialActionActivationResult.getActivatedRangeActions(state).contains(rangeAction);
+        // since both preventive and curative range actions are optimized by the mip, all the activated range actions
+        // are extracted from postMipResult
+        return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
     }
 
     @Override
@@ -204,7 +206,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return remedialActionActivationResult.getOptimizedTap(pstRangeAction, state);
+        return postMipResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
@@ -214,22 +216,22 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+        return postMipResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        return remedialActionActivationResult.getActivatedRangeActions(state);
+        return postMipResult.getActivatedRangeActions(state);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return remedialActionActivationResult.getOptimizedTapsOnState(state);
+        return postMipResult.getOptimizedTapsOnState(state);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return remedialActionActivationResult.getOptimizedSetpointsOnState(state);
+        return postMipResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override

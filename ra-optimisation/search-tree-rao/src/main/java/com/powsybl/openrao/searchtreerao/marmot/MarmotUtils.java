@@ -98,8 +98,8 @@ public final class MarmotUtils {
             // TODO: maybe check it is indeed curative
             for (State state : crac.getStates(crac.getLastInstant())) {
                 try {
+                    // only curative network actions are extracted from the independent fastRAOs and fixed, curative range actions are deferred to the global MIP
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                    raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
                 } catch (OpenRaoException e) {
                     if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
                         throw e;
