@@ -266,12 +266,12 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.find("TimeCoupledRao").run(timeCoupledRaoInput, getRaoParameters());
+        timeCoupledRaoResult = TimeCoupledRao.find("TimeCoupledRao").run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
     }
 
     @When("I launch roda")
     public static void iLaunchRoda() {
-        timeCoupledRaoResult = TimeCoupledRao.find("Roda").run(timeCoupledRaoInput, getRaoParameters());
+        timeCoupledRaoResult = TimeCoupledRao.find("Roda").run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
@@ -401,13 +401,13 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
     public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
-        Instant afterCra = timeCoupledRaoInput.getRaoInputs().getData(getOffsetDateTimeFromBrusselsTimestamp(timestamp)).orElseThrow().getCrac().getLastInstant();
+        Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(getOffsetDateTimeFromBrusselsTimestamp(timestamp)).orElseThrow().getCrac().getLastInstant();
         checkMarginInMw(cnecId, timestamp, margin, afterCra);
     }
 
     private static void checkMarginInMw(String cnecId, String timestamp, double margin, Instant optimizedInstant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        FlowCnec flowCnec = timeCoupledRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
+        FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
         assertEquals(margin,
             timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
