@@ -89,13 +89,13 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     }
 
     /**
-     * Extra generator combinations to include. Every element of this set (combination of generators) will create one injection range action,
-     * with a set of keys that is proportional to the initial distribution of active power production.
+     * Extra injection combinations to include. Every element of this set (combination of injections) will create one injection range action,
+     * with a set of keys that is proportional to the initial distribution of active power production / load.
      */
     public void setInjectionCombinations(Map<String, Set<String>> injectionCombinations) {
         if (injectionCombinations.values().stream().flatMap(Set::stream).distinct().count() !=
             injectionCombinations.values().stream().map(Set::size).mapToDouble(Integer::doubleValue).sum()) {
-            throw new OpenRaoException("A generator can only be used once in generator combinations.");
+            throw new OpenRaoException("An injection can only be used once in injection combinations.");
         }
         this.injectionCombinations = injectionCombinations;
     }
@@ -105,8 +105,8 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     }
 
     /**
-     * Set the function that provides the MW range for redispatching on a generator combination at a given instant.
-     * Not setting this (or using null min/max) will use the physical minP - maxP in the network are used.
+     * Set the function that provides the MW range for redispatching on an injection combination at a given instant.
+     * Not setting this (or using null min/max) will use the physical (minP - maxP / 0 - P0) in the network are used.
      */
     public void setCombinationRangeProvider(BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider) {
         this.combinationRangeProvider = combinationRangeProvider;
