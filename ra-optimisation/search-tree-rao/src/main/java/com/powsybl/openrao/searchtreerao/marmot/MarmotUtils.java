@@ -293,6 +293,47 @@ public final class MarmotUtils {
         return Double.NaN;
     }
 
+
+    public static List<State> getPreviousStates(State state, Crac crac) {
+        Optional<Contingency> contingency = state.getContingency();
+        if (contingency.isEmpty()) {
+            return List.of(); // preventive state
+        }
+        List<State> previousStates = new ArrayList<>();
+        previousStates.add(crac.getPreventiveState());
+        previousStates.addAll(
+            crac.getStates(contingency.get()).stream()
+                .filter(s -> s.getInstant().comesBefore(state.getInstant()))
+                .sorted(Comparator.comparing(State::getInstant))
+                .toList()
+        );
+        return previousStates;
+    }
+
+    public static RemedialActionActivationResult getRemedialActionActivationResult(PrePerimeterResult initialResult,
+                                                                                   GlobalLinearOptimizationResult postMipResult,
+                                                                                   Set<NetworkAction> preventiveNetworkActions,
+                                                                                   AppliedRemedialActions curativeRemedialActions,
+                                                                                   Crac crac) {
+        Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
+        activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
+
+        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult);
+        postMipResult.getOptimizedSetpointsOnState(crac.getPreventiveState()).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, crac.getPreventiveState(), setPoint));
+        crac.getStates().stream()
+            .filter(state -> !state.isPreventive())
+            .forEach(state -> {
+                if (!curativeRemedialActions.getAppliedNetworkActions(state).isEmpty()) {
+                    activatedNetworkActionsPerState.put(state, curativeRemedialActions.getAppliedNetworkActions(state));
+                }
+                curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
+            });
+
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActionsPerState);
+
+        return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
+    }
+
     public static void exportInputs(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
         String businessDate = raoInputs.getTimestamps().getLast().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String exportPath = "sensitive/" + businessDate + "/";
@@ -401,45 +442,5 @@ public final class MarmotUtils {
             }
         );
         TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [end]");
-    }
-
-    public static List<State> getPreviousStates(State state, Crac crac) {
-        Optional<Contingency> contingency = state.getContingency();
-        if (contingency.isEmpty()) {
-            return List.of(); // preventive state
-        }
-        List<State> previousStates = new ArrayList<>();
-        previousStates.add(crac.getPreventiveState());
-        previousStates.addAll(
-            crac.getStates(contingency.get()).stream()
-                .filter(s -> s.getInstant().comesBefore(state.getInstant()))
-                .sorted(Comparator.comparing(State::getInstant))
-                .toList()
-        );
-        return previousStates;
-    }
-
-    public static RemedialActionActivationResult getRemedialActionActivationResult(PrePerimeterResult initialResult,
-                                                                                   GlobalLinearOptimizationResult postMipResult,
-                                                                                   Set<NetworkAction> preventiveNetworkActions,
-                                                                                   AppliedRemedialActions curativeRemedialActions,
-                                                                                   Crac crac) {
-        Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
-        activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
-
-        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult);
-        postMipResult.getOptimizedSetpointsOnState(crac.getPreventiveState()).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, crac.getPreventiveState(), setPoint));
-        crac.getStates().stream()
-            .filter(state -> !state.isPreventive())
-            .forEach(state -> {
-                if (!curativeRemedialActions.getAppliedNetworkActions(state).isEmpty()) {
-                    activatedNetworkActionsPerState.put(state, curativeRemedialActions.getAppliedNetworkActions(state));
-                }
-                curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
-            });
-
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActionsPerState);
-
-        return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
     }
 }
