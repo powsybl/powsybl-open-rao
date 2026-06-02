@@ -312,7 +312,10 @@ public final class MarmotUtils {
                 if (!curativeRemedialActions.getAppliedNetworkActions(state).isEmpty()) {
                     activatedNetworkActionsPerState.put(state, curativeRemedialActions.getAppliedNetworkActions(state));
                 }
-                curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
+                postMipResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) -> {
+                    rangeActionActivationResult.putResult(rangeAction, state, setPoint);
+                });
+                //curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
             });
 
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActionsPerState);

@@ -686,8 +686,8 @@ public class Marmot implements TimeCoupledRaoProvider {
                 return new GlobalOptimizationPerimeter(
                         preventiveState,
                         consideredCnecs.getData(timestamp).orElseThrow(),
-                        new HashSet<>(),
-                        new HashSet<>(),
+                        new HashSet<>(), // no loopflows for now
+                        new HashSet<>(), // don't re-optimize topological actions in Marmot
                         availableRangeActions
                 );
             },
