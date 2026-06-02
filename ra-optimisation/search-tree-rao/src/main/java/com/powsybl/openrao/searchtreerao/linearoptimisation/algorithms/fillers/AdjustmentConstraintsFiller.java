@@ -141,9 +141,8 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
             linearProblem.getObjective().setCoefficient(lastActivationVariation, 0.);
         }
         // for psts, remove cost of being far from initial setpoint
-        if (rangeActionId.contains("_PST")) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
             try {
-                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
                 OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
                 linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
                 OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
@@ -193,7 +192,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                     OpenRaoMPVariable transitionVariable = linearProblem.addAdjustmentStateTransitionVariable(rangeActionId, timestamp, stateFrom, stateTo);
                     // TODO: compare these constraints with constraints on the adjustment states (never UP or DOWN except the timestamp preceding a round hour)
                     // ct specific constraints
-                    if (rangeActionId.contains("_CT")) {
+                    if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
                         // ct should move in one ts
                         if (stateFrom == LinearProblem.AdjustmentState.UP && stateTo == LinearProblem.AdjustmentState.UP ||
                             stateFrom == LinearProblem.AdjustmentState.DOWN && stateTo == LinearProblem.AdjustmentState.DOWN) {
@@ -295,7 +294,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         upConstraint.setCoefficient(setpoint, -1.0);
         upConstraint.setCoefficient(upVariable, -upwardPowerGradient);
         upConstraint.setCoefficient(offVariable, -maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             upConstraint.setUb(upConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -306,7 +305,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         downConstraint.setCoefficient(setpoint, -1.0);
         downConstraint.setCoefficient(downVariable, -downwardPowerGradient);
         downConstraint.setCoefficient(offVariable, maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             downConstraint.setLb(downConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -357,7 +356,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         constantRampUpwardUpperConstraint.setCoefficient(nextSetpoint, 1.);
         constantRampUpwardUpperConstraint.setCoefficient(setpoint, -1.);
         constantRampUpwardUpperConstraint.setCoefficient(upUpTransitionVariable, 2 * maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             constantRampUpwardUpperConstraint.setUb(constantRampUpwardUpperConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -365,7 +364,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         constantRampUpwardLowerConstraint.setCoefficient(nextSetpoint, 1.);
         constantRampUpwardLowerConstraint.setCoefficient(setpoint, -1.);
         constantRampUpwardLowerConstraint.setCoefficient(upUpTransitionVariable, -2 * maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             constantRampUpwardLowerConstraint.setLb(constantRampUpwardLowerConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -378,7 +377,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         constantRampDownwardUpperConstraint.setCoefficient(nextSetpoint, 1.);
         constantRampDownwardUpperConstraint.setCoefficient(setpoint, -1.);
         constantRampDownwardUpperConstraint.setCoefficient(downDownTransitionVariable, 2 * maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             constantRampDownwardUpperConstraint.setUb(constantRampDownwardUpperConstraint.ub() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -386,7 +385,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         constantRampDownwardLowerConstraint.setCoefficient(nextSetpoint, 1.);
         constantRampDownwardLowerConstraint.setCoefficient(setpoint, -1.);
         constantRampDownwardLowerConstraint.setCoefficient(downDownTransitionVariable, -2 * maxChange);
-        if (rangeActionId.contains("_CT")) {
+        if (rangeActionId.endsWith("_CT") || rangeActionId.startsWith("CT_")) {
             constantRampDownwardLowerConstraint.setLb(constantRampDownwardLowerConstraint.lb() + nextPrePerimeterSetpoint - prePerimeterSetpoint);
         }
 
@@ -447,13 +446,13 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private double getMaxChange(RangeAction<?> rangeAction) {
         // TODO: calculate this properly somehow? This works if there's only one range but not when you mix relative and absolute ranges, and the ranges dont change between ts
         //return rangeAction.getMaxAdmissibleSetpoint(0.) - rangeAction.getMinAdmissibleSetpoint(0.);
-        if (rangeAction.getId().contains("_CT")) {
+        if (rangeAction.getId().endsWith("_CT") || rangeAction.getId().startsWith("CT_")) {
             return 1500.;
         }
-        if (rangeAction.getId().contains("_PST")) {
+        if (rangeAction instanceof PstRangeAction) {
             return 100.;
         }
-        if (rangeAction.getId().contains("_RD")) {
+        if (rangeAction.getId().endsWith("_RD") || rangeAction.getId().startsWith("RD_")) {
             return 1000.;
         }
         throw new OpenRaoException("Unsupported range action type: " + rangeAction.getClass().getSimpleName());

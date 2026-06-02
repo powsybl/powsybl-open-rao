@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.InjectionRangeActionCosts;
+import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 
 import java.util.Optional;
@@ -67,7 +67,7 @@ public final class Utils {
                                                Instant instant,
                                                MinAndMax<Double> range,
                                                boolean relativeRange,
-                                               InjectionRangeActionCosts costs) {
+                                               RangeActionCosts costs) {
         if (consideredGenerators.isEmpty()) {
             return;
         }

@@ -55,7 +55,7 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
     @Test
     void testCosts() {
-        InjectionRangeActionCosts zero = new InjectionRangeActionCosts(0, 0, 0);
+        RangeActionCosts zero = new RangeActionCosts(0, 0, 0);
 
         assertEquals(zero, parameters.getRaCosts(generator, prevInstant));
         assertEquals(zero, parameters.getRaCosts(generator, cur1Instant));
@@ -65,13 +65,13 @@ class RedispatchingRangeActionsTest extends AbstractTest {
         parameters.setRaCostsProvider((injection, instant) ->
             injection.getType() ==
                 IdentifiableType.LOAD ?
-                new InjectionRangeActionCosts(1000, 10, 0) :
-                new InjectionRangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
+                new RangeActionCosts(1000, 10, 0) :
+                new RangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
 
-        assertEquals(new InjectionRangeActionCosts(20, 1, 1), parameters.getRaCosts(generator, prevInstant));
-        assertEquals(new InjectionRangeActionCosts(10, 1, 1), parameters.getRaCosts(generator, cur1Instant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getRaCosts(load, prevInstant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getRaCosts(load, cur1Instant));
+        assertEquals(new RangeActionCosts(20, 1, 1), parameters.getRaCosts(generator, prevInstant));
+        assertEquals(new RangeActionCosts(10, 1, 1), parameters.getRaCosts(generator, cur1Instant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getRaCosts(load, prevInstant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getRaCosts(load, cur1Instant));
     }
 
     @Test
@@ -130,7 +130,7 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
     @Test
     void testCombinationCosts() {
-        InjectionRangeActionCosts zero = new InjectionRangeActionCosts(0, 0, 0);
+        RangeActionCosts zero = new RangeActionCosts(0, 0, 0);
 
         assertEquals(zero, parameters.getCombinationCosts("combi1", prevInstant));
         assertEquals(zero, parameters.getCombinationCosts("combi1", cur1Instant));
@@ -139,12 +139,12 @@ class RedispatchingRangeActionsTest extends AbstractTest {
 
         parameters.setCombinationCostsProvider((combi, instant) ->
             Objects.equals(combi, "combi2") ?
-                new InjectionRangeActionCosts(1000, 10, 0) :
-                new InjectionRangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
+                new RangeActionCosts(1000, 10, 0) :
+                new RangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
 
-        assertEquals(new InjectionRangeActionCosts(20, 1, 1), parameters.getCombinationCosts("combi1", prevInstant));
-        assertEquals(new InjectionRangeActionCosts(10, 1, 1), parameters.getCombinationCosts("combi1", cur1Instant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getCombinationCosts("combi2", prevInstant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getCombinationCosts("combi2", cur1Instant));
+        assertEquals(new RangeActionCosts(20, 1, 1), parameters.getCombinationCosts("combi1", prevInstant));
+        assertEquals(new RangeActionCosts(10, 1, 1), parameters.getCombinationCosts("combi1", cur1Instant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getCombinationCosts("combi2", prevInstant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getCombinationCosts("combi2", cur1Instant));
     }
 }

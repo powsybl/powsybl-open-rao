@@ -17,6 +17,7 @@ import org.apache.commons.lang3.function.TriFunction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * Configures how PST range actions are created.
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class PstRangeActions extends AbstractCountriesFilter {
     private Map<String, TapRange> availableTapRangesAtInstants = new HashMap<>();
     private TriFunction<TwoWindingsTransformer, State, NetworkCracCreationContext, Boolean> pstRaPredicate = (pst, state, c) -> true;
+    private BiFunction<TwoWindingsTransformer, Instant, RangeActionCosts> raCostsProvider = (twt, instant) -> new RangeActionCosts(0, 0, 0);
 
     public record TapRange(int min, int max, RangeType rangeType) {
     }
@@ -56,5 +58,17 @@ public class PstRangeActions extends AbstractCountriesFilter {
 
     public boolean isAvailable(TwoWindingsTransformer pst, State state, NetworkCracCreationContext context) {
         return pstRaPredicate.apply(pst, state, context);
+    }
+
+    /**
+     * Set the function that provides the costs of moving taps on a given pst at a given instant.
+     * All costs default to 0.
+     */
+    public void setRaCostsProvider(BiFunction<TwoWindingsTransformer, Instant, RangeActionCosts> raCostsProvider) {
+        this.raCostsProvider = raCostsProvider;
+    }
+
+    public RangeActionCosts getRaCosts(TwoWindingsTransformer twt, Instant instant) {
+        return raCostsProvider.apply(twt, instant);
     }
 }
