@@ -595,7 +595,7 @@ public final class TimeCoupledRaoSteps {
             for (File networkFile : networkFiles) {
                 String timestamp = networkFile.getName().replace(".jiidm", "");
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
-                Network network = Network.read(networkFile.toPath());
+                LazyNetwork network = new LazyNetwork(networkFile.toPath().toString());
                 networks.put(offsetDateTime, network);
                 BUSINESS_LOGS.info("Imported network for timestamp: {}", offsetDateTime);
             }
