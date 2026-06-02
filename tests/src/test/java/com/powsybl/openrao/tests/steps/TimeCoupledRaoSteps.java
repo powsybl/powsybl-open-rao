@@ -408,7 +408,6 @@ public final class TimeCoupledRaoSteps {
     private static void checkMarginInMw(String cnecId, String timestamp, double margin, Instant optimizedInstant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
             timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
