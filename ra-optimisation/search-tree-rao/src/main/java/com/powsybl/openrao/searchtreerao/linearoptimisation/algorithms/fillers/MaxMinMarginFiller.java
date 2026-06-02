@@ -121,11 +121,11 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         for (FlowCnec cnec : validFlowCnecs) {
             double coef = 1.0;
-            if (cnec.getState().getInstant().isOutage()) {
+            /*if (cnec.getState().getInstant().isOutage()) {
                 coef = 0.1;
             } else if (cnec.getState().getInstant().isCurative()) {
                 coef = 0.01;
-            }
+            }*/
             for (TwoSides side : cnec.getMonitoredSides()) {
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
