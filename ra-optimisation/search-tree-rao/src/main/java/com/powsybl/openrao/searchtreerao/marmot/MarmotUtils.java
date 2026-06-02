@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -22,8 +21,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
@@ -193,7 +192,7 @@ public final class MarmotUtils {
         State preventiveState = crac.getPreventiveState();
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
+            TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
             MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         } else {
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
@@ -423,7 +422,7 @@ public final class MarmotUtils {
 
         int nTimestamps = raoResult.getTimestamps().size();
 
-        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [start]");
+        TECHNICAL_LOGS.debug("----- Exporting final RAO Results [start]");
         AtomicInteger i = new AtomicInteger(1);
         raoResult.getTimestamps().forEach(
             timestamp -> {
@@ -441,6 +440,6 @@ public final class MarmotUtils {
                 }
             }
         );
-        TECHNICAL_LOGS.debug("----- Exporting independent RAO Results [end]");
+        TECHNICAL_LOGS.debug("----- Exporting final RAO Results [end]");
     }
 }

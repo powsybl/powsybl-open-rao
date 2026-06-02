@@ -37,6 +37,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -88,7 +89,6 @@ import static com.powsybl.openrao.tests.steps.CommonTestData.raoParametersPath;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
-import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -193,7 +193,7 @@ public final class TimeCoupledRaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            LazyNetwork lazyNetwork = new LazyNetwork(importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false));
+            LazyNetwork lazyNetwork = new LazyNetwork(networkFolderPath.concat(tsInput.get("Network")));
             Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), lazyNetwork, null).getLeft();
             raoInputs.put(offsetDateTime, RaoInput.build(lazyNetwork, crac).build());
             lazyNetwork.release();
@@ -230,9 +230,8 @@ public final class TimeCoupledRaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
-            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
-            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
-            LazyNetwork lazyNetwork = new LazyNetwork(network);
+            LazyNetwork lazyNetwork = new LazyNetwork(networkFolderPath.concat(tsInput.get("Network")));
+            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(lazyNetwork);
             // Crac
             Pair<Crac, CracCreationContext> cracImportResult;
             if (useIndividualCracs) { // only works with json
@@ -559,8 +558,23 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
-    @When("I import data from preprocessed files for business date {string}")
-    public void importDataFromPreprocessedFiles(String businessDate) throws IOException {
+    /**
+     * Imports data from preprocessed files for a specific business date and runs MARMOT.
+     * This method retrieves and processes data, including time-coupled constraints, networks, CRACs,
+     * and RAO results.
+     * <p>
+     * This method looks into the marmot/sensitive/ folder and expects to find preprocessed files
+     * for the specified business date in a folder named after the business date (with format YYYYMMDD).
+     * Four subfolders are expected: time-coupled-constraints, networks, cracs, and intermediate-rao-results.
+     * The constraints file should be named {@code time-coupled-constraints.json}, while the other files should be
+     * named according to their timestamp (date-time parsing is automatically performed).
+     *
+     * @param businessDate the business date for which the preprocessed data is to be imported,
+     *                     formatted as a string (YYYYMMDD)
+     * @throws IOException if an I/O error occurs while reading the files
+     */
+    @When("I run MARMOT from preprocessed files for business date {string}")
+    public void runMarmotFromPreprocessedFiles(String businessDate) throws IOException {
         String importPath = getResourcesPath().concat("marmot/sensitive/").concat(businessDate).concat("/");
 
         // 1. Import time-coupled constraints
@@ -579,8 +593,7 @@ public final class TimeCoupledRaoSteps {
         if (networkFiles != null) {
             for (File networkFile : networkFiles) {
                 String timestamp = networkFile.getName().replace(".jiidm", "");
-                String normalizedTimestamp = timestamp.replace("_", ":");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 LazyNetwork network = new LazyNetwork(networkFile.toPath().toString());
                 networks.put(offsetDateTime, network);
                 BUSINESS_LOGS.info("Imported network for timestamp: {}", offsetDateTime);
@@ -596,8 +609,7 @@ public final class TimeCoupledRaoSteps {
         if (cracFiles != null) {
             for (File cracFile : cracFiles) {
                 String timestamp = cracFile.getName().replace(".json", "");
-                String normalizedTimestamp = timestamp.replace("_", ":");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 try (FileInputStream cracInputStream = new FileInputStream(cracFile)) {
                     Crac crac = Crac.read(cracFile.getName(), cracInputStream, networks.getData(offsetDateTime).orElseThrow());
                     cracs.put(offsetDateTime, crac);
@@ -615,8 +627,7 @@ public final class TimeCoupledRaoSteps {
         if (raoResultFiles != null) {
             for (File raoResultFile : raoResultFiles) {
                 String timestamp = raoResultFile.getName().replace(".json", "");
-                String normalizedTimestamp = timestamp.replace("_", ":");
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(normalizedTimestamp);
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 try (FileInputStream raoResultInputStream = new FileInputStream(raoResultFile)) {
                     RaoResult raoResult = RaoResult.read(raoResultInputStream, cracs.getData(offsetDateTime).orElseThrow());
                     raoResults.put(offsetDateTime, raoResult);
@@ -633,10 +644,13 @@ public final class TimeCoupledRaoSteps {
             RaoInput raoInput = RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build();
             raoInputs.put(timestamp, raoInput);
             BUSINESS_LOGS.info("Imported RAO Input for timestamp: {}", timestamp);
+            MarmotUtils.releaseAllWithoutOverwrite(networks);
+            MarmotUtils.releaseAllWithoutOverwrite(raoInputs.map(RaoInput::getNetwork));
         }
 
-        raoParameters = buildConfig(getFile(raoParametersPath));
-
+        CommonTestData.setRaoParameters(buildConfig(getFile(getResourcesPath().concat("configurations/").concat("idcc/").concat("IDCC_RAO_parameters_v3.json"))));
         CommonTestData.setTimeCoupledRaoInput(new TimeCoupledRaoInput(raoInputs, new HashSet<>(timestamps), timeCoupledConstraints, raoResults));
+
+        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
     }
 }
