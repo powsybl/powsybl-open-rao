@@ -36,7 +36,8 @@ Feature: 6.1.1: PST Regulation
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
+    When I launch PST regulation
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -1382.77 A
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
@@ -77,6 +78,7 @@ Feature: 6.1.1: PST Regulation
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch rao
+    When I launch PST regulation
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
     Then the worst margin is -247.23 A
@@ -143,7 +145,8 @@ Feature: 6.1.1: PST Regulation
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"
     When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
+    When I launch PST regulation
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     # Preventive taps
     Then the tap of PstRangeAction "pstFr12" should be 0 in preventive
@@ -185,7 +188,8 @@ Feature: 6.1.1: PST Regulation
     Given crac file is "epic91/crac-91-13-4.json"
     Given configuration file is "epic91/RaoParameters_ac_2pstsRegulation.json"
     When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
+    When I launch PST regulation
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -733.27 A
     Then the margin on cnec "cnecPst2Curative" after CRA should be -733.27 A
@@ -217,7 +221,8 @@ Feature: 6.1.1: PST Regulation
     Given crac file is "epic91/crac-91-13-5.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulationSeries.json"
     When I launch rao
-    Then the execution details should be "The RAO only went through first preventive"
+    When I launch PST regulation
+    Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -1187.64 A
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
