@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -43,9 +44,9 @@ class RedispatchingCreator {
 
     void addRedispatchRangeActions() {
         Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage()).collect(Collectors.toSet());
-        instants.forEach(instant -> parameters.getGeneratorCombinations().forEach((id, generators) -> {
+        instants.forEach(instant -> parameters.getInjectionCombinations().forEach((id, injections) -> {
             try {
-                addGeneratorCombinationActionForInstant(id, generators, instant);
+                addInjectionCombinationActionForInstant(id, injections, instant);
             } catch (OpenRaoImportException e) {
                 creationContext.getCreationReport().removed(e.getMessage());
             }
@@ -53,11 +54,11 @@ class RedispatchingCreator {
         if (!parameters.includeAllInjections()) {
             return;
         }
-        Set<String> generatorsInCombinations = // should be excluded from individual redispatching
-            parameters.getGeneratorCombinations().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        Set<String> injectionsInCombinations = // should be excluded from individual redispatching
+            parameters.getInjectionCombinations().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
         network.getGeneratorStream()
             .filter(generator -> Utils.injectionIsInCountries(generator, parameters.getCountries().orElse(null)))
-            .filter(generator -> !generatorsInCombinations.contains(generator.getId()))
+            .filter(generator -> !injectionsInCombinations.contains(generator.getId()))
             .forEach(generator ->
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(generator, instant, creationContext))
                     .forEach(instant -> {
@@ -69,6 +70,7 @@ class RedispatchingCreator {
                     }));
         network.getLoadStream()
             .filter(load -> Utils.injectionIsInCountries(load, parameters.getCountries().orElse(null)))
+            .filter(load -> !injectionsInCombinations.contains(load.getId()))
             .forEach(load ->
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(load, instant, creationContext))
                     .forEach(instant -> {
@@ -89,27 +91,30 @@ class RedispatchingCreator {
         }
     }
 
-    private void addGeneratorCombinationActionForInstant(String combinationId, Set<String> generatorIds, Instant instant) {
-        Set<Generator> consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant, creationContext)).collect(Collectors.toSet());
-        if (consideredGenerators.contains(null)) {
+    private void addInjectionCombinationActionForInstant(String combinationId, Set<String> injectionIds, Instant instant) {
+        Set<Injection<?>> consideredInjections = injectionIds.stream()
+            .map(network::getIdentifiable).map(id -> (Injection<?>) id)
+            .filter(g -> parameters.shouldCreateRedispatchingAction(g, instant, creationContext))
+            .collect(Collectors.toSet());
+        if (consideredInjections.contains(null)) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                String.format("Combination '%s' could not be considered because at least one generator could not be found in the network.", combinationId));
+                String.format("Combination '%s' could not be considered because at least one injection could not be found in the network.", combinationId));
         }
 
-        if (consideredGenerators.isEmpty()) {
+        if (consideredInjections.isEmpty()) {
             return;
         }
 
         Utils.addInjectionRangeAction(
             creationContext,
-            consideredGenerators,
+            consideredInjections,
             "RD_COMBI_" + combinationId,
             instant,
             parameters.getCombinationRange(combinationId, instant),
             false,
             parameters.getCombinationCosts(combinationId, instant));
 
-        consideredGenerators.forEach(generator -> generator.connect(SwitchPredicates.IS_OPEN));
+        consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
 
         checkNumberOfActions();
     }
@@ -169,7 +174,7 @@ class RedispatchingCreator {
             .add();
         creationContext.addInjectionUsedInAction(instant, load.getId());
 
-        // connect the generator
+        // connect the load
         load.connect(SwitchPredicates.IS_OPEN);
 
         checkNumberOfActions();
