@@ -89,8 +89,8 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
-    private static final boolean EXPORT_DATA = true;
-    private static final boolean SKIP_MIP = false; // set to true if you just need to export input data and intermediate RAO results
+    private static final boolean EXPORT_DATA = Boolean.parseBoolean(System.getenv().getOrDefault("EXPORT_DATA", "true"));
+    private static final boolean SKIP_MIP = Boolean.parseBoolean(System.getenv().getOrDefault("SKIP_MIP", "false"));; // set to true if you just need to export input data and intermediate RAO results
 
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
