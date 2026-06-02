@@ -9,6 +9,7 @@
     </parent>
     <properties>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
     <modelVersion>4.0.0</modelVersion>
 

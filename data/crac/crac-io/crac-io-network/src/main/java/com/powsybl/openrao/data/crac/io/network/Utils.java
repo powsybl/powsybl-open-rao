@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -62,32 +63,44 @@ public final class Utils {
     }
 
     public static void addInjectionRangeAction(NetworkCracCreationContext creationContext,
-                                               Set<Generator> consideredGenerators,
+                                               Set<Injection<?>> consideredInjections,
                                                String raIdPrefix,
                                                Instant instant,
                                                MinAndMax<Double> range,
                                                boolean relativeRange,
                                                InjectionRangeActionCosts costs) {
-        if (consideredGenerators.isEmpty()) {
+        if (consideredInjections.isEmpty()) {
             return;
         }
 
-        consideredGenerators.forEach(g -> g.setTargetP(Math.round(g.getTargetP())));
-        double initialTotalP = consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum();
-        double minP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getMinP).sum());
+        Set<Generator> generators = consideredInjections.stream().filter(g -> g.getType().equals(IdentifiableType.GENERATOR)).map(Generator.class::cast).collect(Collectors.toSet());
+        Set<Load> loads = consideredInjections.stream().filter(g -> g.getType().equals(IdentifiableType.LOAD)).map(Load.class::cast).collect(Collectors.toSet());
+        if (generators.size() + loads.size() != consideredInjections.size()) {
+            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                "Injection combinations only allows generators and/or loads"
+            );
+        }
+
+        consideredInjections.stream().filter(g -> g.getType().equals(IdentifiableType.GENERATOR))
+            .map(Generator.class::cast)
+            .forEach(g -> g.setTargetP(Math.round(g.getTargetP())));
+        double initialTotalP = generators.stream().mapToDouble(Generator::getTargetP).sum() - loads.stream().mapToDouble(Load::getP0).sum();
+        double minP = Math.round(generators.stream().mapToDouble(Generator::getMinP).sum()
+            - loads.stream().mapToDouble(l -> Math.max(l.getP0(), 0)).sum());
         if (range.getMin().isPresent()) {
             minP = Math.max(minP, (relativeRange ? initialTotalP : 0) + range.getMin().orElseThrow());
         }
         minP = Math.round(Math.min(minP, initialTotalP));
-        double maxP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getMaxP).sum());
+        double maxP = Math.round(generators.stream().mapToDouble(Generator::getMaxP).sum()
+            - loads.stream().mapToDouble(l -> Math.min(l.getP0(), 0)).sum());
         if (range.getMax().isPresent()) {
             maxP = Math.min(maxP, (relativeRange ? initialTotalP : 0) + range.getMax().orElseThrow());
         }
         maxP = Math.round(Math.max(maxP, initialTotalP));
 
-        if (consideredGenerators.size() >= 100) {
+        if (consideredInjections.size() >= 100) {
             creationContext.getCreationReport().warn(
-                String.format("More than 100 generators included in the %s action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", raIdPrefix, instant.getId())
+                String.format("More than 100 injections included in the %s action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", raIdPrefix, instant.getId())
             );
         }
 
@@ -103,8 +116,8 @@ public final class Utils {
             .withActivationCost(costs.activationCost())
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
 
-        if (consideredGenerators.size() > 1) {
-            if (initialTotalP < 1.) {
+        if (consideredInjections.size() > 1) {
+            if (Math.abs(initialTotalP) < 1.) {
                 throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format(
                         "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
@@ -113,12 +126,16 @@ public final class Utils {
                     )
                 );
             }
-            consideredGenerators.forEach(generator -> {
+            generators.forEach(generator -> {
                 injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId());
                 creationContext.addInjectionUsedInAction(instant, generator.getId());
             });
+            loads.forEach(load -> {
+                injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / initialTotalP, load.getId());
+                creationContext.addInjectionUsedInAction(instant, load.getId());
+            });
         } else {
-            injectionRangeActionAdder.withNetworkElementAndKey(1., consideredGenerators.iterator().next().getId());
+            injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId());
         }
 
         injectionRangeActionAdder.add();

@@ -21,7 +21,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
@@ -80,7 +79,7 @@ public class CastorFullOptimization {
     private final RaoParameters raoParameters;
     private final java.time.Instant targetEndInstant;
 
-    public CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, java.time.Instant targetEndInstant) {
+    CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, java.time.Instant targetEndInstant) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -88,12 +87,11 @@ public class CastorFullOptimization {
         this.targetEndInstant = targetEndInstant;
     }
 
-    public CompletableFuture<RaoResult> run() {
+    CompletableFuture<RaoResult> run() {
         String currentStep = "data initialization";
         String initialVariantName = network.getVariantManager().getWorkingVariantId();
 
         try {
-            RaoUtil.initData(raoInput, raoParameters);
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
             if (crac.getFlowCnecs().isEmpty()) {
                 PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
