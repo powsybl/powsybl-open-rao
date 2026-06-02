@@ -37,6 +37,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -645,6 +646,8 @@ public final class TimeCoupledRaoSteps {
             RaoInput raoInput = RaoInput.build(new LazyNetwork(networks.getData(timestamp).orElseThrow()), cracs.getData(timestamp).orElseThrow()).build();
             raoInputs.put(timestamp, raoInput);
             BUSINESS_LOGS.info("Imported RAO Input for timestamp: {}", timestamp);
+            MarmotUtils.releaseAllWithoutOverwrite(networks);
+            MarmotUtils.releaseAllWithoutOverwrite(raoInputs.map(RaoInput::getNetwork));
         }
 
         CommonTestData.setRaoParameters(buildConfig(getFile(getResourcesPath().concat("configurations/").concat("idcc/").concat("IDCC_RAO_parameters_v3.json"))));
