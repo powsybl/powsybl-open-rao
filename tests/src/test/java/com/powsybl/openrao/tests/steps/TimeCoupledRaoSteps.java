@@ -89,7 +89,6 @@ import static com.powsybl.openrao.tests.steps.CommonTestData.raoParametersPath;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
-import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -194,7 +193,7 @@ public final class TimeCoupledRaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            LazyNetwork lazyNetwork = new LazyNetwork(importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false));
+            LazyNetwork lazyNetwork = new LazyNetwork(networkFolderPath.concat(tsInput.get("Network")));
             Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), lazyNetwork, null).getLeft();
             raoInputs.put(offsetDateTime, RaoInput.build(lazyNetwork, crac).build());
             lazyNetwork.release();
@@ -231,9 +230,8 @@ public final class TimeCoupledRaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
-            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
-            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
-            LazyNetwork lazyNetwork = new LazyNetwork(network);
+            LazyNetwork lazyNetwork = new LazyNetwork(networkFolderPath.concat(tsInput.get("Network")));
+            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(lazyNetwork);
             // Crac
             Pair<Crac, CracCreationContext> cracImportResult;
             if (useIndividualCracs) { // only works with json
@@ -643,7 +641,7 @@ public final class TimeCoupledRaoSteps {
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
 
         for (OffsetDateTime timestamp : timestamps) {
-            RaoInput raoInput = RaoInput.build(new LazyNetwork(networks.getData(timestamp).orElseThrow()), cracs.getData(timestamp).orElseThrow()).build();
+            RaoInput raoInput = RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build();
             raoInputs.put(timestamp, raoInput);
             BUSINESS_LOGS.info("Imported RAO Input for timestamp: {}", timestamp);
             MarmotUtils.releaseAllWithoutOverwrite(networks);
