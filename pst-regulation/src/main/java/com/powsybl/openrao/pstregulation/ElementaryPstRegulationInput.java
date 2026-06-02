@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
+package com.powsybl.openrao.pstregulation;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -43,9 +43,7 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
         if (pstRangeAction.getNetworkElement().getId().equals(monitoredNetworkElement)) {
             double thresholdOne = getMostLimitingThreshold(curativeFlowCnecs, TwoSides.ONE);
             double thresholdTwo = getMostLimitingThreshold(curativeFlowCnecs, TwoSides.TWO);
-            return thresholdOne <= thresholdTwo ?
-                new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, thresholdOne) :
-                new ElementaryPstRegulationInput(pstRangeAction, TwoSides.TWO, thresholdTwo);
+            return thresholdOne <= thresholdTwo ? new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, thresholdOne) : new ElementaryPstRegulationInput(pstRangeAction, TwoSides.TWO, thresholdTwo);
         }
 
         // otherwise, the terminal in common with the element in series it monitors is used
@@ -103,7 +101,6 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
             }
         }
 
-        throw new OpenRaoException("Two-windings transformer '%s' and branch '%s' do not share a common terminal so PST regulation cannot be performed."
-                                       .formatted(twoWindingsTransformerId, monitoredNetworkElement));
+        throw new OpenRaoException("Two-windings transformer '%s' and branch '%s' do not share a common terminal so PST regulation cannot be performed.".formatted(twoWindingsTransformerId, monitoredNetworkElement));
     }
 }
