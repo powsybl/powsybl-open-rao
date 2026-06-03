@@ -291,7 +291,8 @@
     "networkElementId" : "hvdc",
     "ranges" : [ {
       "min" : -1000.0,
-      "max" : 1000.0
+      "max" : 1000.0,
+      "rangeType" : "absolute"
     } ]
   }, {
     "id" : "hvdcRange2Id",
@@ -309,7 +310,8 @@
     "groupId" : "group-1-hvdc",
     "ranges" : [ {
       "min" : -1000.0,
-      "max" : 1000.0
+      "max" : 1000.0,
+      "rangeType" : "absolute"
     } ]
   } ],
   "injectionRangeActions" : [ {
@@ -331,7 +333,8 @@
     },
     "ranges" : [ {
       "min" : -500.0,
-      "max" : 500.0
+      "max" : 500.0,
+      "rangeType" : "absolute"
     }, {
       "rangeType" : "relativeToPreviousInstant",
       "min" : -1000.0,
@@ -369,10 +372,12 @@
     "importingCountry" : "DE",
     "ranges" : [ {
       "min" : -500.0,
-      "max" : 500.0
+      "max" : 500.0,
+      "rangeType" : "absolute"
     }, {
       "min" : -1000.0,
-      "max" : 1000.0
+      "max" : 1000.0,
+      "rangeType" : "absolute"
     } ]
   } ],
   "networkActions" : [ {
@@ -480,6 +485,13 @@
     "switchPairs" : [ {
       "open" : "to-open",
       "close" : "to-close"
+    } ]
+  }, {
+    "id" : "hvdc-ac-emulation-deactivation",
+    "name" : "hvdc-ac-emulation-deactivation",
+    "operator" : "RTE",
+    "acEmulationDeactivationActions" : [ {
+      "networkElementId" : "hvdc"
     } ]
   } ]
 }
