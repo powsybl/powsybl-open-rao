@@ -47,7 +47,7 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   Then the preventive power of generator "FFR3AA1 _generator" at timestamp "2025-11-04 20:30" is 580.0 MW
   Then the remedial action "CostlyRDNoConstraint" is used at timestamp "2025-11-04 20:30" in preventive
   Then the tap of PstRangeAction "pstCurativeAction" at timestamp "2025-11-04 20:30" after "Contingency L1" at "curative" should be 2
-  # 10(activation) + 100(variation) * 580MW = 5800
+  # 10(activation) + 100(variation) * 580MW = 58010
   Then the total cost for all timestamps is 58010.0
 
   Scenario: 4.4.2 : Global MIP changes curative pst tap to adapt to power gradient constraint redispatching changes
