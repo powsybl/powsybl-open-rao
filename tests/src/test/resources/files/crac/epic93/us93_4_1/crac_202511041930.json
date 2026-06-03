@@ -113,7 +113,7 @@
       "instant" : "preventive"
     } ],
     "ranges" : [ {
-      "min" : -2000.0,
+      "min" : 0.0,
       "max" : 2000.0,
       "rangeType" : "absolute"
     } ],
