@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
+import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.JsonNcCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -45,11 +45,8 @@ class JsonNcCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/nc-crac-parameters.json"));
         NcCracCreationParameters ncCracCreationParameters = importedParameters.getExtension(NcCracCreationParameters.class);
         assertNotNull(ncCracCreationParameters);
-        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegionEicCode());
-        assertEquals(Set.of("REE"), ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
+        assertEquals(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE, ncCracCreationParameters.getCapacityCalculationRegion());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
-        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), ncCracCreationParameters.getBorders());
-        assertEquals(Map.of("REE", Set.of("curative 1", "curative 2"), "REN", Set.of("curative 1")), ncCracCreationParameters.getRestrictedCurativeBatchesPerTso());
     }
 
     @Test
@@ -89,6 +86,9 @@ class JsonNcCracCreationParametersTest {
     void serializeDefaultParameters() {
         CracCreationParameters parameters = new CracCreationParameters();
         NcCracCreationParameters csaParameters = new NcCracCreationParameters();
+        csaParameters.setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
+        csaParameters.setTimestamp(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC));
+        csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         parameters.addExtension(NcCracCreationParameters.class, csaParameters);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -100,11 +100,9 @@ class JsonNcCracCreationParametersTest {
         assertEquals(1, importedParameters.getExtensions().size());
         NcCracCreationParameters ncCracCreationParameters = importedParameters.getExtension(NcCracCreationParameters.class);
         assertNotNull(ncCracCreationParameters);
-        assertEquals("10Y1001C--00095L", ncCracCreationParameters.getCapacityCalculationRegionEicCode());
-        assertTrue(ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().isEmpty());
+        assertEquals(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC), ncCracCreationParameters.getTimestamp());
+        assertEquals(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE, ncCracCreationParameters.getCapacityCalculationRegion());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
-        assertTrue(ncCracCreationParameters.getBorders().isEmpty());
-        assertEquals(Map.of("REE", Set.of("curative 1")), ncCracCreationParameters.getRestrictedCurativeBatchesPerTso());
     }
 
 }
