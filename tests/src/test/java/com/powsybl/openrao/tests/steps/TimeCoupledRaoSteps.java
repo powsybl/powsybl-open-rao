@@ -592,7 +592,7 @@ public final class TimeCoupledRaoSteps {
 
         if (networkFiles != null) {
             for (File networkFile : networkFiles) {
-                String timestamp = networkFile.getName().replace(".jiidm", "");
+                String timestamp = networkFile.getName().replace("_", ":").replace(".jiidm", "");
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 LazyNetwork network = new LazyNetwork(networkFile.toPath().toString());
                 networks.put(offsetDateTime, network);
@@ -608,7 +608,7 @@ public final class TimeCoupledRaoSteps {
 
         if (cracFiles != null) {
             for (File cracFile : cracFiles) {
-                String timestamp = cracFile.getName().replace(".json", "");
+                String timestamp = cracFile.getName().replace("_", ":").replace(".json", "");
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 try (FileInputStream cracInputStream = new FileInputStream(cracFile)) {
                     Crac crac = Crac.read(cracFile.getName(), cracInputStream, networks.getData(offsetDateTime).orElseThrow());
@@ -626,7 +626,7 @@ public final class TimeCoupledRaoSteps {
 
         if (raoResultFiles != null) {
             for (File raoResultFile : raoResultFiles) {
-                String timestamp = raoResultFile.getName().replace(".json", "");
+                String timestamp = raoResultFile.getName().replace("_", ":").replace(".json", "");
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(timestamp);
                 try (FileInputStream raoResultInputStream = new FileInputStream(raoResultFile)) {
                     RaoResult raoResult = RaoResult.read(raoResultInputStream, cracs.getData(offsetDateTime).orElseThrow());
