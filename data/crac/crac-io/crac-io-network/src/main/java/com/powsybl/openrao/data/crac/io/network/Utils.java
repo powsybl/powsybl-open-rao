@@ -85,20 +85,35 @@ public final class Utils {
             .map(Generator.class::cast)
             .forEach(g -> g.setTargetP(Math.round(g.getTargetP())));
         double initialTotalP = generators.stream().mapToDouble(Generator::getTargetP).sum() - loads.stream().mapToDouble(Load::getP0).sum();
+
+        // We have to filter out injections with participation smaller than 1e-3
+        // If we don't, InjectionRangeActionAdderImpl will, and we will end up with a sum of keys different from 1
+        // TODO : add tests
+        Set<Generator> generatorsToIgnore = generators.stream().filter(generator ->
+            Math.abs(generator.getTargetP() / initialTotalP) < 1e-3
+        ).collect(Collectors.toSet());
+        generators.removeAll(generatorsToIgnore);
+        Set<Load> loadsToIgnore = loads.stream().filter(load ->
+            Math.abs(-load.getP0() / initialTotalP) < 1e-3
+        ).collect(Collectors.toSet());
+        loads.removeAll(loadsToIgnore);
+
+        double totalP = generators.stream().mapToDouble(Generator::getTargetP).sum() - loads.stream().mapToDouble(Load::getP0).sum();
+
         double minP = Math.round(generators.stream().mapToDouble(Generator::getMinP).sum()
             - loads.stream().mapToDouble(l -> Math.max(l.getP0(), 0)).sum());
         if (range.getMin().isPresent()) {
-            minP = Math.max(minP, (relativeRange ? initialTotalP : 0) + range.getMin().orElseThrow());
+            minP = Math.max(minP, (relativeRange ? totalP : 0) + range.getMin().orElseThrow());
         }
-        minP = Math.round(Math.min(minP, initialTotalP));
+        minP = Math.round(Math.min(minP, totalP));
         double maxP = Math.round(generators.stream().mapToDouble(Generator::getMaxP).sum()
             - loads.stream().mapToDouble(l -> Math.min(l.getP0(), 0)).sum());
         if (range.getMax().isPresent()) {
-            maxP = Math.min(maxP, (relativeRange ? initialTotalP : 0) + range.getMax().orElseThrow());
+            maxP = Math.min(maxP, (relativeRange ? totalP : 0) + range.getMax().orElseThrow());
         }
-        maxP = Math.round(Math.max(maxP, initialTotalP));
+        maxP = Math.round(Math.max(maxP, totalP));
 
-        if (consideredInjections.size() >= 100) {
+        if (generators.size() + loads.size() >= 100) {
             creationContext.getCreationReport().warn(
                 String.format("More than 100 injections included in the %s action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", raIdPrefix, instant.getId())
             );
@@ -110,14 +125,14 @@ public final class Utils {
             .withMin(minP)
             .withMax(maxP)
             .add()
-            .withInitialSetpoint(initialTotalP)
+            .withInitialSetpoint(totalP)
             .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
             .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
             .withActivationCost(costs.activationCost())
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
 
         if (consideredInjections.size() > 1) {
-            if (Math.abs(initialTotalP) < 1.) {
+            if (Math.abs(totalP) < 1.) {
                 throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format(
                         "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
@@ -127,11 +142,11 @@ public final class Utils {
                 );
             }
             generators.forEach(generator -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId());
+                injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / totalP, generator.getId());
                 creationContext.addInjectionUsedInAction(instant, generator.getId());
             });
             loads.forEach(load -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / initialTotalP, load.getId());
+                injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / totalP, load.getId());
                 creationContext.addInjectionUsedInAction(instant, load.getId());
             });
         } else {
