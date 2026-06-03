@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
+package com.powsybl.openrao.pstregulation;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -31,7 +31,7 @@ class PstRegulatorTest {
 
     @BeforeEach
     void setUp() {
-        network = Network.read("/network/2Nodes2ParallelLinesPST.uct", PstRegulatorTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
+        network = Network.read("/network/2Nodes2ParallelLinesPST_1000MW.uct", PstRegulatorTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST_1000MW.uct"));
         loadFlowParameters.setPhaseShifterRegulationOn(true);
         OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
         openLoadFlowParameters.setMaxOuterLoopIterations(1000);

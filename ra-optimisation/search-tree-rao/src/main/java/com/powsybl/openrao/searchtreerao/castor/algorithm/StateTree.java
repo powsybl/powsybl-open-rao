@@ -13,17 +13,10 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +38,7 @@ public class StateTree {
             processAutoAndCurativeInstants(contingency, crac);
         }
 
-        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac);
+        this.operatorsNotSharingCras = crac.findOperatorsNotSharingCras();
     }
 
     /**
@@ -216,20 +209,5 @@ public class StateTree {
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
         return !crac.getNetworkActions(state).isEmpty() ||
             !crac.getRangeActions(state).isEmpty();
-    }
-
-    private static Set<String> findOperatorsNotSharingCras(Crac crac) {
-        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
-        tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
-        // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso, crac)).collect(Collectors.toSet());
-    }
-
-    static boolean tsoHasCra(String tso, Crac crac) {
-        Set<State> optimizedCurativeStates = crac.getCurativeStates();
-        return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
-                crac.getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
-        );
     }
 }
