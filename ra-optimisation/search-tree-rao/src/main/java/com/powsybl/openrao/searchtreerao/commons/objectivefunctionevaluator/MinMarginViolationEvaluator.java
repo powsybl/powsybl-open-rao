@@ -42,19 +42,9 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
         return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), true);
     }
 
-    private static double getCoef(FlowCnec flowCnec) {
-        if (flowCnec.getState().getInstant().isOutage()) {
-            return 0.1;
-        }
-        if (flowCnec.getState().getInstant().isCurative()) {
-            return 0.01;
-        }
-        return 1;
-    }
-
     private Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
         Map<FlowCnec, Double> costPerCnec = new HashMap<>();
-        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, getCoef(cnec) * Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * shiftedViolationPenalty));
+        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * shiftedViolationPenalty));
         return costPerCnec;
     }
 }

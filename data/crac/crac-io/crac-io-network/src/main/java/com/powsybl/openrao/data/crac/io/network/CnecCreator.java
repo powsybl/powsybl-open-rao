@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationPa
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -177,34 +176,8 @@ class CnecCreator {
         if (olg.isEmpty()) {
             return;
         }
-        AtomicReference<Double> limit = new AtomicReference<>(0.);
-        //TODO: clean this up (currently gets the highest limit corresponding to the instant between both sides)
-        //also this only does currents atm
-        branch.getSelectedOperationalLimitsGroup1()
-            .flatMap(OperationalLimitsGroup::getCurrentLimits)
-            .flatMap(currentLimits -> currentLimits.getTemporaryLimits().stream()
-                .filter(tl -> tl.getAcceptableDuration() >= duration)
-                .filter(tl -> !Double.isNaN(tl.getValue()))
-                .max(Comparator.comparingDouble(LoadingLimits.TemporaryLimit::getValue)))
-            .ifPresent(tl -> limit.set(Math.max(
-                limit.get(),
-                tl.getValue()
-            )));
-        branch.getSelectedOperationalLimitsGroup2()
-            .flatMap(OperationalLimitsGroup::getCurrentLimits)
-            .flatMap(currentLimits -> currentLimits.getTemporaryLimits().stream()
-                .filter(tl -> tl.getAcceptableDuration() >= duration)
-                .filter(tl -> !Double.isNaN(tl.getValue()))
-                .max(Comparator.comparingDouble(LoadingLimits.TemporaryLimit::getValue)))
-            .ifPresent(tl -> limit.set(Math.max(
-                limit.get(),
-                tl.getValue()
-            )));
-        if (limit.get() != 0.) {
-            addThresholdFromTempLimit(adder, branch.getId(), side, limit.get(), Unit.AMPERE, instant, branch.getTerminal(side).getVoltageLevel().getNominalV());
-        } else {
-            addThresholdFromPermLimit(adder, branch, side, instant);
-        }
+        addThresholdsFromTempLimit(adder, branch, side, instant, olg.get().getCurrentLimits().orElse(null), Unit.AMPERE, duration);
+        addThresholdsFromTempLimit(adder, branch, side, instant, olg.get().getActivePowerLimits().orElse(null), Unit.MEGAWATT, duration);
     }
 
     private void addThresholdsFromTempLimit(FlowCnecAdder adder, Branch<?> branch, TwoSides side, Instant instant, @Nullable LoadingLimits loadingLimits, Unit unit, double acceptableDuration) {
@@ -246,17 +219,4 @@ class CnecCreator {
             .withUnit(unit)
             .add();
     }
-
-    private void addThresholdFromTempLimit(FlowCnecAdder adder, String branchId, TwoSides side, Double branchTempLimit, Unit unit, Instant instant, Double nominalV) {
-        double limit = specificParameters.getCriticalElements().getLimitMultiplierPerInstant(instant, nominalV) *
-            specificParameters.getCriticalElements().getLimitMultiplierForBranchAndSide(branchId, side) *
-            branchTempLimit;
-        adder.newThreshold()
-            .withSide(side)
-            .withMax(limit)
-            .withMin(-limit)
-            .withUnit(unit)
-            .add();
-    }
-
 }

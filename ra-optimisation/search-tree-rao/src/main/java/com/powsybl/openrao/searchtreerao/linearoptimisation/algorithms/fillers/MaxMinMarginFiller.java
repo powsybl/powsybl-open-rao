@@ -79,7 +79,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void addMinMarginShiftedViolationConstraint(LinearProblem linearProblem) {
         OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(
-            Optional.ofNullable(timestamp), 0);
+            Optional.ofNullable(timestamp), costlyMinMarginParameters.getShiftedViolationThreshold());
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), 1.0);
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
@@ -120,12 +120,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
 
         for (FlowCnec cnec : validFlowCnecs) {
-            double coef = 1.0;
-            /*if (cnec.getState().getInstant().isOutage()) {
-                coef = 0.1;
-            } else if (cnec.getState().getInstant().isCurative()) {
-                coef = 0.01;
-            }*/
             for (TwoSides side : cnec.getMonitoredSides()) {
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
@@ -137,13 +131,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 if (minFlow.isPresent()) {
                     OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(
                         -linearProblem.infinity(),
-                        -minFlow.get() - costlyMinMarginParameters.getShiftedViolationThreshold(),
+                        -minFlow.get(),
                         cnec,
                         side,
                         LinearProblem.MarginExtension.BELOW_THRESHOLD,
                         Optional.ofNullable(timestamp)
                     );
-                    minimumMarginNegative.setCoefficient(minimumMarginVariable, 1 / coef);
+                    minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
                     minimumMarginNegative.setCoefficient(flowVariable, -1);
                 }
 
@@ -156,7 +150,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD,
                         Optional.ofNullable(timestamp)
                     );
-                    minimumMarginPositive.setCoefficient(minimumMarginVariable, 1 / coef);
+                    minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
                     minimumMarginPositive.setCoefficient(flowVariable, 1);
                 }
             }
