@@ -470,7 +470,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                         allCurativeActions,
                         initialResults.getData(timestamp).orElseThrow(),
                         raoParameters.getData(timestamp).orElseThrow());
-                MarmotUtils.releaseNetwork(raoInput.getNetwork());
+                MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResults;
             },
             parallelism
