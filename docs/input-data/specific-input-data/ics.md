@@ -52,7 +52,10 @@ InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
 IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
 ```
 
-## ICS data to to create TimeCoupledRaoInput
+## ICS data to create TimeCoupledRaoInput
+
+When the redispatching actions are imported using ICS data, for each action and each timestamp, the network is modified to add the missing generators
+on the right bus and the crac is modified to add the redispatching actions. 
 
 ![ICS Importer](../../_static/img/icsdata.png)_
 
@@ -72,4 +75,20 @@ IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
             timestampsToRun);
 
         TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, costUp, costDown, exportDirectory);
+        
+        // Export Time-Coupled Constraints JSON
+        OutputStream outputStream = Files.newOutputStream(Path.of(exportPath.concat("time-coupled-constraints.json")));
+        JsonTimeCoupledConstraints.write(postIcsRaoInputs.getTimeCoupledConstraints(), outputStream);
+        
+        postIcsRaoInputs.getRaoInputs().getDataPerTimestamp().forEach( (timestamp, raoInput) -> {
+            
+            // Export network in JIIDM format with the added generators
+            String networkPath = exportPath.concat("networks/").concat(timestamp.toString()).concat(".jiidm");
+            raoInput.getNetwork().write("JIIDM", new Properties(), Path.of(networkPath));
+            
+            // Export CRAC in JSON format with the added redispatching actions
+            OutputStream fileOutputStream = Files.newOutputStream(Path.of(exportPath.concat("cracs/").concat(timestamp.toString()).concat(".json")));
+            raoInput.getCrac().write("JSON", fileOutputStream);
+        });
+        
 ```
