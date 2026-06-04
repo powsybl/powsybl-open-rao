@@ -49,7 +49,7 @@ The following paragraphs of this page explain, step by step, the content of thes
 > 🔴 marks a **mandatory** field  
 > ⚪ marks an **optional** field  
 > 🔵 marks a field that can be **mandatory in some cases**  
-> ⭐ marks a field that must be **unique** in the CRAC  
+> ⭐ marks a field that must be **unique** in the CRAC
 
 ## Header
 
@@ -67,7 +67,7 @@ representing the date and time of validity the CRAC. The format of the timestamp
 ```json
 {
   "type": "CRAC",
-  "version": "2.10",
+  "version": "2.11",
   "id": "my-crac",
   "name": "My CRAC",
   "info" : "Whatever information worth mentioning about the CRAC.",
@@ -1517,6 +1517,9 @@ The maximum number of applicable remedial actions defined for the second curativ
 
 ## Changelog
 
+**v2.11**
+- Removed `networkElementsNamePerId`.
+- 
 **v2.10**
 - Renamed `danglingLineActions` to `boundaryLineActions`.
 - Removed `max-tso` from `ra-usage-limits-per-instant`.

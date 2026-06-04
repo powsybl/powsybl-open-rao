@@ -123,10 +123,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                 if (NAME.equals(jsonParser.currentName())) {
                     name = jsonParser.nextTextValue();
-                } else if (APPLICATION_TIME.equals(jsonParser.getCurrentName())) {
+                } else if (APPLICATION_TIME.equals(jsonParser.currentName())) {
                     applicationTime = jsonParser.nextIntValue(0);
                 } else {
-                    throw new OpenRaoException("Unexpected field in %s: %s".formatted(CURATIVE_INSTANTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException("Unexpected field in %s: %s".formatted(CURATIVE_INSTANTS, jsonParser.currentName()));
                 }
             }
             if (name == null || applicationTime == null) {
