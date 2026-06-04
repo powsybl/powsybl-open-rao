@@ -104,8 +104,7 @@
         <jackson.version>2.21.2</jackson.version>
         <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
-        <junit.bom.version>5.14.4</junit.bom.version><!-- TODO: unify these two to have a single version? -->
-        <junit-jupiter.version>5.14.4</junit-jupiter.version>
+        <junit.bom.version>5.14.4</junit.bom.version>
         <maven.jvnet.jaxb.version>4.0.12</maven.jvnet.jaxb.version>
         <powsybl.core.version>7.3.0-SNAPSHOT</powsybl.core.version>
         <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
