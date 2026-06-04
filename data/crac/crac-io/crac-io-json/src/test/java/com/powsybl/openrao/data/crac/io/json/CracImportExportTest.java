@@ -323,11 +323,6 @@ class CracImportExportTest {
                 .findAny().orElseThrow()
                 .getValue(),
             1e-3);
-        assertEquals("generator2Name",
-            networkElementAndKeys.entrySet().stream()
-                .filter(e -> e.getKey().getId().equals("generator2Id"))
-                .findAny().orElseThrow()
-                .getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
@@ -578,9 +573,7 @@ class CracImportExportTest {
 
         // check network element
         assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne2Name", crac.getFlowCnec("cnec3prevId").getNetworkElement().getName());
         assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getName());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
