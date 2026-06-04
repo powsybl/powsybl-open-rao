@@ -102,7 +102,6 @@
         <cucumber.bom.version>7.20.1</cucumber.bom.version><!-- TODO: update this to 7.34.3 -->
         <google.ortools.version>9.11.4210</google.ortools.version>
         <jackson.version>2.21.2</jackson.version>
-        <javax.validation.version>2.0.1.Final</javax.validation.version><!-- TODO: update this (artifact changed!) or remove if not used -->
         <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <junit.bom.version>5.14.4</junit.bom.version><!-- TODO: unify these two to have a single version? -->
@@ -455,12 +454,6 @@
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind.version}</version>
-            </dependency>
-            <dependency>
-                <!-- TODO: not used? -->
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
