@@ -292,7 +292,6 @@ public final class MarmotUtils {
         return Double.NaN;
     }
 
-
     public static List<State> getPreviousStates(State state, Crac crac) {
         Optional<Contingency> contingency = state.getContingency();
         if (contingency.isEmpty()) {
