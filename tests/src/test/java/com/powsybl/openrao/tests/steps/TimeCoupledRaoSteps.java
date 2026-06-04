@@ -648,7 +648,6 @@ public final class TimeCoupledRaoSteps {
             MarmotUtils.releaseAllWithoutOverwrite(raoInputs.map(RaoInput::getNetwork));
         }
 
-        CommonTestData.setRaoParameters(buildConfig(getFile(getResourcesPath().concat("configurations/").concat("idcc/").concat("IDCC_RAO_parameters_v3.json"))));
         CommonTestData.setTimeCoupledRaoInput(new TimeCoupledRaoInput(raoInputs, new HashSet<>(timestamps), timeCoupledConstraints, raoResults));
 
         timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
