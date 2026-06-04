@@ -53,7 +53,7 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
                     unit = deserializeUnit(jsonParser.nextTextValue());
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
         LoopFlowThresholdUtils.checkAttributes(inputThreshold, unit);
