@@ -97,7 +97,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-core-idcc-exporter</artifactId>
-            <!-- TODO: Why is this artifact not defined in the main POM and also not imported in distribution? -->
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -129,7 +128,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-nc</artifactId>
-            <!-- TODO: Why is this artifact not defined in the main POM and also not imported in distribution? -->
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

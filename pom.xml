@@ -178,6 +178,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-core-idcc-exporter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-core-cne-exporter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -213,11 +218,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-crac-io-csa-profiles</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-crac-io-cse</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -229,6 +229,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-crac-io-json</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-crac-io-nc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -383,13 +388,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <!-- TODO: missing in distribution? -->
                 <artifactId>open-rao-virtual-hubs-json</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <!-- TODO: missing in distribution? -->
                 <artifactId>open-rao-virtual-hubs-network-assigner</artifactId>
                 <version>${project.version}</version>
             </dependency>
