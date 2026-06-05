@@ -144,7 +144,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 if (maxFlow.isPresent()) {
                     OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(
                         -linearProblem.infinity(),
-                        maxFlow.get() - costlyMinMarginParameters.getShiftedViolationThreshold(),
+                        maxFlow.get(),
                         cnec,
                         side,
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD,

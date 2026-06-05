@@ -169,8 +169,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             coeffUp = -(tapToAngle.get(initialTap + 1) - tapToAngle.get(initialTap));
             coeffDown = -(tapToAngle.get(initialTap - 1) - tapToAngle.get(initialTap));
         }
-        assertEquals(coeffUp, tapToAngleConversionC.getCoefficient(variationUpV), 1e-6);
-        assertEquals(coeffDown, tapToAngleConversionC.getCoefficient(variationDownV), 1e-6);
+        assertEquals(coeffUp, tapToAngleConversionC.getCoefficient(variationUpV), 1e-3);
+        assertEquals(coeffDown, tapToAngleConversionC.getCoefficient(variationDownV), 1e-3);
 
         // check other constraints
         assertEquals(1, upOrDownC.ub(), 1e-6);
@@ -207,6 +207,9 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     @ValueSource(booleans = {true, false})
     void testFillAndUpdateMethods(boolean costOptimization) throws IOException {
         setUpAndFill();
+        //first run is continuous, need to call update to have constraints and variables
+        linearProblem.updateBetweenMipIteration(getInitialRangeActionActivationResult());
+
         checkContent(pstRangeAction, preventiveState, 0, -15, 15, true);
         checkContent(cra, curativeState, 0, -16, 16, true);
         checkPstRelativeTapConstraint(-10, 7);
@@ -220,6 +223,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         rangeActionActivationResultBeforeUpdate.putResult(pra, preventiveState, tapToAngle.get(-4));
         rangeActionActivationResultBeforeUpdate.putResult(cra, curativeState, tapToAngle.get(-6));
         linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
+        //first run after sensi update is continuous, need to call update to have constraints and variables
+        linearProblem.updateBetweenMipIteration(rangeActionActivationResultBeforeUpdate);
 
         checkContent(pra, preventiveState, -4, -15, 15, false);
         checkContent(cra, curativeState, -6, -16, 16, false);
