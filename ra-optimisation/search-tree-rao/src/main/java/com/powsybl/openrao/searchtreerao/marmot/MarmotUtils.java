@@ -98,7 +98,7 @@ public final class MarmotUtils {
             // TODO: maybe check it is indeed curative
             for (State state : crac.getStates(crac.getLastInstant())) {
                 try {
-                    // only curative network actions are extracted from the independent fastRAOs and fixed, curative range actions are deferred to the global MIP
+                    // only curative network actions are extracted from the topological optimization and fixed, curative range actions are deferred to the global MIP
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
                 } catch (OpenRaoException e) {
                     if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
@@ -128,18 +128,23 @@ public final class MarmotUtils {
                                                                                   TemporalData<PrePerimeterResult> initialResults,
                                                                                   GlobalLinearOptimizationResult globalLinearOptimizationResult,
                                                                                   TemporalData<Set<NetworkAction>> preventiveNetworkActions,
-                                                                                  TemporalData<AppliedRemedialActions> curativeRemedialActions,
+                                                                                  TemporalData<AppliedRemedialActions> curativeNetworkActions,
                                                                                   TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                   RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
         timestamps.forEach(timestamp -> {
+            RaoInput raoInput = raoInputs.getData(timestamp).orElseThrow();
+            Crac crac = raoInput.getCrac();
+            Set<NetworkAction> preventiveActions = preventiveNetworkActions.getData(timestamp).orElseThrow();
+            AppliedRemedialActions curativeActions = curativeNetworkActions.getData(timestamp).orElseThrow();
+            // merge preventive and curative network actions into one networkActionsResult before entering the postOptimizationResult constructor
+            NetworkActionsResult networkActionsResult = getNetworkActionsResult(crac, preventiveActions, curativeActions);
             PostOptimizationResult postOptimizationResult = new PostOptimizationResult(
-                raoInputs.getData(timestamp).orElseThrow(),
+                raoInput,
                 initialResults.getData(timestamp).orElseThrow(),
                 globalLinearOptimizationResult,
-                preventiveNetworkActions.getData(timestamp).orElseThrow(),
-                curativeRemedialActions.getData(timestamp).orElseThrow(),
+                networkActionsResult,
                 raoParameters
             );
 
@@ -152,6 +157,24 @@ public final class MarmotUtils {
             );
         });
         return new TemporalDataImpl<>(postOptimizationResults);
+    }
+
+    public static NetworkActionsResult getNetworkActionsResult(Crac crac,
+                                                               Set<NetworkAction> preventiveNetworkActions,
+                                                               AppliedRemedialActions curativeNetworkActions) {
+        Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
+        // Add preventive network actions
+        activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
+        // Add curative network actions
+        crac.getStates().stream()
+                .filter(state -> state.getInstant().isCurative())
+                .forEach(state -> {
+                    Set<NetworkAction> appliedCurativeNetworkActions = curativeNetworkActions.getAppliedNetworkActions(state);
+                    if (!appliedCurativeNetworkActions.isEmpty()) {
+                        activatedNetworkActionsPerState.put(state, appliedCurativeNetworkActions);
+                    }
+                });
+        return new NetworkActionsResultImpl(activatedNetworkActionsPerState);
     }
 
     public static <T> T getDataFromState(TemporalData<T> temporalData, State state) {
@@ -298,28 +321,22 @@ public final class MarmotUtils {
 
     public static RemedialActionActivationResult getRemedialActionActivationResult(PrePerimeterResult initialResult,
                                                                                    GlobalLinearOptimizationResult postMipResult,
-                                                                                   Set<NetworkAction> preventiveNetworkActions,
-                                                                                   AppliedRemedialActions curativeRemedialActions,
+                                                                                   NetworkActionsResult networkActionsResult,
                                                                                    Crac crac) {
-        Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
-        activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
-
         RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult);
-        postMipResult.getOptimizedSetpointsOnState(crac.getPreventiveState()).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, crac.getPreventiveState(), setPoint));
         crac.getStates().stream()
-            .filter(state -> !state.isPreventive())
-            .forEach(state -> {
-                if (!curativeRemedialActions.getAppliedNetworkActions(state).isEmpty()) {
-                    activatedNetworkActionsPerState.put(state, curativeRemedialActions.getAppliedNetworkActions(state));
-                }
-                postMipResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) -> {
-                    rangeActionActivationResult.putResult(rangeAction, state, setPoint);
-                });
-                //curativeRemedialActions.getAppliedRangeActions(state).forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
-            });
-
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActionsPerState);
-
+                // only preventive and curative states have range actions optimized by the MIP
+                .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+                .forEach(state ->
+                        postMipResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) ->
+                                rangeActionActivationResult.putResult(rangeAction, state, setPoint)));
         return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
+    }
+
+    public static void addRangeActionsPerState(Map<State, Set<RangeAction<?>>> availableRangeActions, Crac crac, State state) {
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(state);
+        if (!rangeActions.isEmpty()) {
+            availableRangeActions.put(state, rangeActions);
+        }
     }
 }

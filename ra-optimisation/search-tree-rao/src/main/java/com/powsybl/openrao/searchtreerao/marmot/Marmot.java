@@ -285,15 +285,9 @@ public class Marmot implements TimeCoupledRaoProvider {
             cracs,
             crac -> {
                 Map<RangeAction<?>, Double> setPointMap = new HashMap<>();
-                // get the initial setpoints of the preventive and curative range actions :
-                crac.getRangeActions(crac.getPreventiveState()).forEach(rangeAction ->
+                crac.getRangeActions().forEach(rangeAction ->
                     setPointMap.put(rangeAction, MarmotUtils.getInitialSetPoint(rangeAction))
                 );
-                crac.getStates().stream().filter(s -> s.getInstant().isCurative())
-                        .forEach(state -> crac.getRangeActions(state).forEach(
-                                rangeAction -> setPointMap.put(rangeAction,
-                                        MarmotUtils.getInitialSetPoint(rangeAction))
-                        ));
                 return new RangeActionSetpointResultImpl(setPointMap);
             },
             parallelism
@@ -664,22 +658,11 @@ public class Marmot implements TimeCoupledRaoProvider {
             crac -> {
                 OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
                 Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
-                // get the preventive range actions
                 State preventiveState = crac.getPreventiveState();
-                Set<RangeAction<?>> preventiveRangeActions = new HashSet<>(crac.getRangeActions(preventiveState));
-                if (!preventiveRangeActions.isEmpty()) {
-                    availableRangeActions.put(preventiveState, preventiveRangeActions);
-                }
-                // get the curative range actions for all the post contingency states
+                // set of range actions optimized by the mip
                 crac.getStates().stream()
-                        .filter(state -> state.getInstant().isCurative())
-                        .forEach(state -> {
-                            Set<RangeAction<?>> curativeRangeActions = new HashSet<>(crac.getRangeActions(state));
-                            if (!curativeRangeActions.isEmpty()) {
-                                availableRangeActions.put(state, curativeRangeActions);
-                            }
-                        });
-
+                        .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+                        .forEach(state -> MarmotUtils.addRangeActionsPerState(availableRangeActions, crac, state));
                 return new GlobalOptimizationPerimeter(
                         preventiveState,
                         consideredCnecs.getData(timestamp).orElseThrow(),

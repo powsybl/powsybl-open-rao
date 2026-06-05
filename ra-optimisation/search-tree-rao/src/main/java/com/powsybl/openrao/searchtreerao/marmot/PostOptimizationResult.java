@@ -24,10 +24,10 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
 import java.util.Set;
@@ -66,14 +66,12 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     public PostOptimizationResult(RaoInput raoInput,
                                   PrePerimeterResult initialResult,
                                   GlobalLinearOptimizationResult postMipResult,
-                                  Set<NetworkAction> preventiveTopologicalActions,
-                                  AppliedRemedialActions curativeRemedialActions,
+                                  NetworkActionsResult networkActionsResult,
                                   RaoParameters raoParameters) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.postMipResult = postMipResult;
-        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
-
+        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
     }
