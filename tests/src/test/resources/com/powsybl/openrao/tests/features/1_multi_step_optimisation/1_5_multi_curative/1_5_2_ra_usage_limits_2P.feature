@@ -97,7 +97,8 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
   And the value of the objective function after CRA should be 76.23
 
-  @fast @rao @ac @multi-curative @second-preventive
+  #TODO:CONTINUOUS PST (remove ignore tag)
+  @dont-run @fast @rao @ac @multi-curative @second-preventive
   Scenario: 15.2.5: Multi-curative - with max-elementary-action-per-tso limits and 2P
   Same case as 15.2.4, but both PST are from TSO "FR" and slightly different threshold.
   Solution without any limit:

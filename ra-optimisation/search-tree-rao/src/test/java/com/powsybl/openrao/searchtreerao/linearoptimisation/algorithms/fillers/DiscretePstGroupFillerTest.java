@@ -95,8 +95,9 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
 
-        // fill problem
+        // fill problem (the fill method does not create the constraints / variables, the update does (first run is done with continuous taps))
         linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.updateBetweenMipIteration(getInitialRangeActionActivationResult());
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
         OpenRaoMPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId, state);
@@ -129,7 +130,8 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         double newAlpha = tapToAngle.get(-10);
         RangeActionActivationResult updatedRangeActionActivationResult = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha)));
         linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, updatedRangeActionActivationResult);
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, updatedRangeActionActivationResult);
+        //first run is done with continuous taps, need to call update before checking variables/constraints
+        linearProblem.updateBetweenMipIteration(updatedRangeActionActivationResult);
 
         // Re-fetch the constraints because the MIP has been rebuilt
         groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);

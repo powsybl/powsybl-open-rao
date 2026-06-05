@@ -213,6 +213,7 @@ public final class JsonSerializationConstants {
     public static final String RELATIVE_TO_PREVIOUS_INSTANT_RANGE = "relativeToPreviousInstant";
     public static final String RELATIVE_TO_INITIAL_NETWORK_RANGE = "relativeToInitialNetwork";
     public static final String RELATIVE_TO_PREVIOUS_TIME_STEP = "relativeToPreviousTimeStep";
+    public static final String MINIMUM_ADJUSTMENT_RANGE = "minimumAdjustment";
 
     // action types
     public static final String OPEN_ACTION = "open";
@@ -375,6 +376,8 @@ public final class JsonSerializationConstants {
                 return RELATIVE_TO_INITIAL_NETWORK_RANGE;
             case RELATIVE_TO_PREVIOUS_TIME_STEP:
                 return RELATIVE_TO_PREVIOUS_TIME_STEP;
+            case MINIMUM_ADJUSTMENT:
+                return MINIMUM_ADJUSTMENT_RANGE;
             default:
                 throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
         }
@@ -390,6 +393,8 @@ public final class JsonSerializationConstants {
                 return RangeType.RELATIVE_TO_INITIAL_NETWORK;
             case RELATIVE_TO_PREVIOUS_TIME_STEP:
                 return RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP;
+            case MINIMUM_ADJUSTMENT_RANGE:
+                return RangeType.MINIMUM_ADJUSTMENT;
             default:
                 throw new OpenRaoException(String.format("Unrecognized range type %s", stringValue));
         }

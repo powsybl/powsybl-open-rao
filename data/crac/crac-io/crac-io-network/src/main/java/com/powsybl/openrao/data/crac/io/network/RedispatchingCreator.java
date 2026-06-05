@@ -14,10 +14,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.InjectionRangeActionCosts;
+import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 import com.powsybl.openrao.data.crac.io.network.parameters.RedispatchingRangeActions;
 
 import java.util.Collection;
@@ -152,13 +153,19 @@ class RedispatchingCreator {
         }
         double minP = Math.min(initialP, parameters.getRaRange(load, instant).getMin().orElseThrow());
         double maxP = Math.max(initialP, parameters.getRaRange(load, instant).getMax().orElseThrow());
-        InjectionRangeActionCosts costs = parameters.getRaCosts(load, instant);
+        RangeActionCosts costs = parameters.getRaCosts(load, instant);
+        //TODO: remove minimum adjustment range and find a way to specify it in the InjectionRangeActions parameters.
         crac.newInjectionRangeAction()
             .withId("RD_LOAD_" + load.getId() + "_" + instant.getId())
             .withNetworkElementAndKey(1.0, load.getId())
             .newRange()
-            .withMin(minP)
-            .withMax(maxP).add()
+                .withMin(minP)
+                .withMax(maxP)
+                .add()
+            .newRange()
+                .withMin(50)
+                .withRangeType(RangeType.MINIMUM_ADJUSTMENT)
+                .add()
             .newOnInstantUsageRule().withInstant(instant.getId()).add()
             .withInitialSetpoint(initialP)
             .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)

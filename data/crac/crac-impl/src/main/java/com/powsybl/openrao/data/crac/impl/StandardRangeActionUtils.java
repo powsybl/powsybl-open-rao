@@ -35,8 +35,10 @@ public final class StandardRangeActionUtils {
                 case RELATIVE_TO_PREVIOUS_INSTANT:
                     minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, previousInstantSetPoint + range.getMin());
                     break;
+                case MINIMUM_ADJUSTMENT:
+                    break;
                 default:
-                    throw new NotImplementedException("Range Action type is not implemented yet.");
+                    throw new NotImplementedException("Range type is not implemented yet.");
             }
         }
         return minAdmissibleSetpoint;
@@ -55,8 +57,10 @@ public final class StandardRangeActionUtils {
                 case RELATIVE_TO_PREVIOUS_INSTANT:
                     maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, previousInstantSetPoint + range.getMax());
                     break;
+                case MINIMUM_ADJUSTMENT:
+                    break;
                 default:
-                    throw new NotImplementedException("Range Action type is not implemented yet.");
+                    throw new NotImplementedException("Range type is not implemented yet.");
             }
         }
         return maxAdmissibleSetpoint;
