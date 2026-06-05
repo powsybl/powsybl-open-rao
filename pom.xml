@@ -99,6 +99,7 @@
 
         <!-- Dependencies versions -->
         <commons-collections4.version>4.5.0</commons-collections4.version>
+        <commons.csv.version>1.13.0</commons.csv.version>
         <cucumber.bom.version>7.34.3</cucumber.bom.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
         <jackson.version>2.21.2</jackson.version>
