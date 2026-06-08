@@ -85,6 +85,19 @@
         <module>ra-optimisation/roda</module>
     </modules>
 
+    <distributionManagement>
+        <repository>
+            <id>deployment</id>
+            <name>accel-r</name>
+            <url>https://devin-depot.rte-france.com/repository/accel-r-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>deployment-snapshot</id>
+            <name>accel-r</name>
+            <url>https://devin-depot.rte-france.com/repository/accel-r-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
