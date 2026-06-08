@@ -111,7 +111,7 @@ public class FastRao implements RaoProvider {
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
-    static RaoResult launchFastRaoOptimization(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
+    public static RaoResult launchFastRaoOptimization(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
             BUSINESS_WARNS.warn("Parameters are missing FastRaoParameters extension. Default FastRaoParameters will be used");
