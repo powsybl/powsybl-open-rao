@@ -11,12 +11,17 @@ import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.ContingencyAdder;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -1150,8 +1155,8 @@ class CracImplTest {
         // ra10 : preventive only, counter trade
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
-            .withExportingCountry(Country.FR)
-            .withImportingCountry(Country.DE)
+            .withExportingArea("FR")
+            .withImportingArea("DE")
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()

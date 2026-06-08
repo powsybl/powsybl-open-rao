@@ -1378,8 +1378,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two countries. The exporting country send power to the importing
-country.
+A CounterTradeRangeAction is an exchange between two areas. The exporting area send power to the importing area.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
@@ -1393,8 +1392,8 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withExportingCountry(Country.FR)
-        .withImportingCountry(Country.ES)
+        .withImportingArea("ES")
+        .withExportingArea("FR")
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1422,8 +1421,8 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingCountry" : "FR",
-    "importingCountry" : "ES",
+    "exportingArea" : "FR",
+    "importingArea" : "ES",
     "ranges" : [ {
         "rangeType" : "absolute",
         "min" : 0.0,
@@ -1444,8 +1443,8 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exportingCountry**  
-🔴 **importingCountry**  
+🔴 **exportingArea**  
+🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 ⚪ **ranges**: list of 0 to N Range  
@@ -1519,7 +1518,8 @@ The maximum number of applicable remedial actions defined for the second curativ
 
 **v2.11**
 - Removed `networkElementsNamePerId`.
-- 
+- Renamed counter-trade actions' `importingCountry` to `importingArea`, and `exportingCountry` to `exportingArea`.
+
 **v2.10**
 - Renamed `danglingLineActions` to `boundaryLineActions`.
 - Removed `max-tso` from `ra-usage-limits-per-instant`.
