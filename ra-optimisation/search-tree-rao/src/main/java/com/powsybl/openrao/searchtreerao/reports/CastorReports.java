@@ -8,13 +8,11 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -41,9 +39,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
-import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -513,94 +509,6 @@ public final class CastorReports {
             .add();
 
         BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
-    }
-
-    public static ReportNode reportMergingRaoAndPstRegulationResults(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMergingRaoAndPstRegulationResults")
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("Merging RAO and PST regulation results:");
-
-        return addedNode;
-    }
-
-    public static ReportNode reportPstRegulation(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportPstRegulation")
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("----- PST regulation [start]");
-
-        return addedNode;
-    }
-
-    public static void reportPstRegulationEnd() {
-        BUSINESS_LOGS.info("----- PST regulation [end]");
-    }
-
-    public static void reportContingencyScenariosToRegulate(final ReportNode parentNode, final Set<Contingency> contingencies) {
-        final int nbContingencies = contingencies.size();
-        final String contingenciesList = String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList());
-
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportContingencyScenariosToRegulate")
-            .withUntypedValue("nbContingencies", nbContingencies)
-            .withUntypedValue("contingenciesList", contingenciesList)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", nbContingencies, contingenciesList);
-    }
-
-    public static void reportPstsToRegulate(final ReportNode parentNode, final Set<PstRangeAction> rangeActionsToRegulate) {
-        final int nbPsts = rangeActionsToRegulate.size();
-        final String pstsList = String.join(", ", rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList());
-
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportPstsToRegulate")
-            .withUntypedValue("nbPsts", nbPsts)
-            .withUntypedValue("pstsList", pstsList)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", nbPsts, pstsList);
-    }
-
-    public static void reportErrorDuringPstRegulation(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportErrorDuringPstRegulation")
-            .withSeverity(WARN_SEVERITY)
-            .add();
-
-        BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
-    }
-
-    public static void reportPstCannotBeRegulated(final ReportNode parentNode, final String pstId) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportPstCannotBeRegulated")
-            .withUntypedValue("pstId", pstId)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("PST {} cannot be regulated as no curative PST range action was defined for it.", pstId);
-    }
-
-    public static void reportPstRegulationTriggeredDueToOverloadedFlowCnec(final ReportNode parentNode,
-                                                                           final String flowCnec,
-                                                                           final String contingency,
-                                                                           final String allShiftedPstsDetails) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportPstRegulationTriggeredDueToOverloadedFlowCnec")
-            .withUntypedValue("flowCnec", flowCnec)
-            .withUntypedValue("contingency", contingency)
-            .withUntypedValue("allShiftedPstsDetails", allShiftedPstsDetails)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
-        BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", flowCnec, contingency, allShiftedPstsDetails);
     }
 
     public static void reportNoDefaultRegulationTerminalDefined(final ReportNode parentNode,

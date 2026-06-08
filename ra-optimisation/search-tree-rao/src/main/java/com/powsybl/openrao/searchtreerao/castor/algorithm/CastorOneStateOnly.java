@@ -17,7 +17,6 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
@@ -66,8 +65,6 @@ public class CastorOneStateOnly {
 
     public CompletableFuture<RaoResult> run() {
         final ReportNode optimizationReportNode = CastorReports.reportCastorOneStateOnly(reportNode);
-
-        RaoUtil.initData(raoInput, raoParameters, reportNode);
         StateTree stateTree = new StateTree(raoInput.getCrac(), optimizationReportNode);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 

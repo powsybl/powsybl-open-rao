@@ -92,13 +92,13 @@ public final class AutomatonSimulator {
     private final int numberLoggedElementsDuringRao;
     private final ReportNode reportNode;
 
-    public AutomatonSimulator(Crac crac,
-                              RaoParameters raoParameters,
-                              ToolProvider toolProvider,
-                              FlowResult initialFlowResult,
-                              PrePerimeterResult prePerimeterSensitivityOutput,
-                              Set<String> operatorsNotSharingCras,
-                              int numberLoggedElementsDuringRao,
+    public AutomatonSimulator(final Crac crac,
+                              final RaoParameters raoParameters,
+                              final ToolProvider toolProvider,
+                              final FlowResult initialFlowResult,
+                              final PrePerimeterResult prePerimeterSensitivityOutput,
+                              final Set<String> operatorsNotSharingCras,
+                              final int numberLoggedElementsDuringRao,
                               final ReportNode reportNode) {
         this.crac = crac;
         this.raoParameters = raoParameters;

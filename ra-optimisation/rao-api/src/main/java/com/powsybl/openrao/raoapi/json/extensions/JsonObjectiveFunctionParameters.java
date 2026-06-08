@@ -39,7 +39,7 @@ final class JsonObjectiveFunctionParameters {
                 jsonParser.nextToken();
                 searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble(), reportNode);
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.currentName()));
             }
         }
     }

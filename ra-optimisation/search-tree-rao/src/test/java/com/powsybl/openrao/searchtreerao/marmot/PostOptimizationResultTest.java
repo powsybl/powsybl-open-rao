@@ -21,11 +21,13 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,10 +72,11 @@ class PostOptimizationResultTest {
         Mockito.when(globalLinearOptimizationResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(345.25);
         Mockito.when(globalLinearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction, rangeActionCur));
         Mockito.when(globalLinearOptimizationResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
+        Mockito.when(globalLinearOptimizationResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(rangeAction, 6.2276423729910535));
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(6.2276423729910535);
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
 
-        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, raoResult, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP);
+        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, Set.of(networkAction), new AppliedRemedialActions(), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP);
 
         assertEquals(12.2, postOptimizationResult.getFlow(null, cnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(345.25, postOptimizationResult.getFlow(crac.getPreventiveInstant(), cnec, TwoSides.ONE, Unit.MEGAWATT));

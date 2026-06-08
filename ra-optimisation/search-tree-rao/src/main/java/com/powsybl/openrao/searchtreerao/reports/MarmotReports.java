@@ -138,21 +138,12 @@ public final class MarmotReports {
         CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
-    public static void reportMarmotResultBeforeTopologicalOptimization(final ReportNode parentNode,
-                                                                       final LinearOptimizationResult sensitivityAnalysisResult,
-                                                                       final RaoParameters parameters,
-                                                                       final int numberLoggedElementsDuringRao) {
-        final String messageTemplate = "openrao.searchtreerao.reportMarmotResultBeforeTopologicalOptimization";
-        final String prefix = "[MARMOT] Before topological optimizations: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
-    }
-
-    public static void reportMarmotResultBeforeGlobalLinearOptimization(final ReportNode parentNode,
-                                                                        final LinearOptimizationResult sensitivityAnalysisResult,
-                                                                        final RaoParameters parameters,
-                                                                        final int numberLoggedElementsDuringRao) {
-        final String messageTemplate = "openrao.searchtreerao.reportMarmotResultBeforeGlobalLinearOptimization";
-        final String prefix = "[MARMOT] Before global linear optimization: ";
+    public static void reportMarmotInitialResults(final ReportNode parentNode,
+                                                  final LinearOptimizationResult sensitivityAnalysisResult,
+                                                  final RaoParameters parameters,
+                                                  final int numberLoggedElementsDuringRao) {
+        final String messageTemplate = "openrao.searchtreerao.reportMarmotInitialResults";
+        final String prefix = "[MARMOT] Initial results: ";
         CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 

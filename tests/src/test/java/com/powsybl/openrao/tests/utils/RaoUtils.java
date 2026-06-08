@@ -130,7 +130,7 @@ public final class RaoUtils {
         return roundTripOnRaoResult(raoResult, crac);
     }
 
-    private static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
+    public static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

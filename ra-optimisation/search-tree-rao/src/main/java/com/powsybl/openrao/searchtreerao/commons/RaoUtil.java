@@ -268,7 +268,7 @@ public final class RaoUtil {
     }
 
     // TODO: find a better place for this function
-    public static Unit getFlowUnit(RaoParameters raoParameters) {
+    public static Unit getFlowUnit(final RaoParameters raoParameters) {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
