@@ -113,12 +113,12 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         String to = null;
         Boolean isAhc = false;
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case "from" -> from = jsonParser.nextTextValue();
                 case "to" -> to = jsonParser.nextTextValue();
                 case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
                 default ->
-                    throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for market area", jsonParser.getCurrentName()));
+                    throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for market area", jsonParser.currentName()));
             }
         }
         BorderDirection borderDirection = new BorderDirection(from, to, isAhc);
