@@ -87,6 +87,9 @@ public class Marmot implements TimeCoupledRaoProvider {
     // TODO the RAO implementation to use should be a parameter
     private static final String SINGLE_TS_RAO_IMPLEMENTATION = "FastRao";
 
+    private static final boolean EXPORT_DATA = Boolean.parseBoolean(System.getenv().getOrDefault("EXPORT_DATA", "true"));
+    private static final boolean SKIP_MIP = Boolean.parseBoolean(System.getenv().getOrDefault("SKIP_MIP", "false")); // set to true if you just need to export input data and intermediate RAO results
+
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
@@ -101,6 +104,10 @@ public class Marmot implements TimeCoupledRaoProvider {
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+
+        if (EXPORT_DATA) {
+            MarmotUtils.exportInputs(initialInputs, timeCoupledRaoInput.getTimeCoupledConstraints());
+        }
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -133,6 +140,16 @@ public class Marmot implements TimeCoupledRaoProvider {
             ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
+
+        if (EXPORT_DATA) {
+            MarmotUtils.exportIntermediateRaoResults(topologicalOptimizationResults, initialInputs);
+        }
+
+        if (SKIP_MIP) {
+            // WARNING: the returned results do not make sense since the objective function is not re-evaluated.
+            BUSINESS_WARNS.warn("[MARMOT] RAO interrupted before global MIP. Initial results will be returned.");
+            return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, initialObjectiveFunctionResult, topologicalOptimizationResults));
+        }
 
         // TODO : Add time-coupled constraint check if none violated then return
         // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -271,6 +288,10 @@ public class Marmot implements TimeCoupledRaoProvider {
             consideredCnecs,
             raoParameters
         );
+
+        if (EXPORT_DATA) {
+            MarmotUtils.exportRaoResults(timeCoupledRaoResult, initialInputs);
+        }
 
         // 8. Log initial and final results
         logCost("[MARMOT] Initial results: ", initialObjectiveFunctionResult, raoParameters, 10);
