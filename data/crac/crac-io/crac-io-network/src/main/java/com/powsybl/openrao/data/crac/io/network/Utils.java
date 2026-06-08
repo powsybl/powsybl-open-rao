@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
@@ -122,8 +123,12 @@ public final class Utils {
         InjectionRangeActionAdder injectionRangeActionAdder = creationContext.getCrac().newInjectionRangeAction()
             .withId(raIdPrefix + "_" + instant.getId())
             .newRange()
-            .withMin(minP)
-            .withMax(maxP)
+                .withMin(minP)
+                .withMax(maxP)
+            .add()
+            .newRange()
+                .withMin(50)
+                .withRangeType(RangeType.MINIMUM_ADJUSTMENT)
             .add()
             .withInitialSetpoint(totalP)
             .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
