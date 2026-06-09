@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.pstregulation.PstRegulation;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import io.cucumber.java.en.When;
