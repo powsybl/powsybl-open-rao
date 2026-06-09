@@ -26,6 +26,21 @@ public final class PstRegulationReports {
         // Utility class should not be instantiated
     }
 
+    public static ReportNode reportPstRegulation(final ReportNode parentNode) {
+        final ReportNode addedNode = parentNode.newReportNode()
+            .withMessageTemplate("openrao.pstregulation.reportPstRegulation")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("PST regulation [start]");
+
+        return addedNode;
+    }
+
+    public static void reportPstRegulationEnd() {
+        BUSINESS_LOGS.info("PST regulation [end]");
+    }
+
     public static void reportContingencyScenariosToRegulate(final ReportNode parentNode, final Set<Contingency> contingencies) {
         final int nbContingencies = contingencies.size();
         final String contingenciesList = String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList());

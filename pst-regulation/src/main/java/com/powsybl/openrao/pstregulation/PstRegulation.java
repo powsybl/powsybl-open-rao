@@ -72,6 +72,7 @@ public final class PstRegulation {
                                          final RaoResult raoResult,
                                          final RaoParameters raoParameters,
                                          final ReportNode reportNode) {
+        final ReportNode pstRegulationReportNode = PstRegulationReports.reportPstRegulation(reportNode);
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         Set<String> initialVariants = new HashSet<>(network.getVariantManager().getVariantIds());
 
@@ -83,7 +84,7 @@ public final class PstRegulation {
             return raoResult;
         }
 
-        Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate.keySet(), crac, reportNode);
+        Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate.keySet(), crac, pstRegulationReportNode);
         if (rangeActionsToRegulate.isEmpty()) {
             return raoResult;
         }
@@ -100,8 +101,8 @@ public final class PstRegulation {
             .map(Optional::get)
             .collect(Collectors.toSet());
 
-        PstRegulationReports.reportContingencyScenariosToRegulate(reportNode, contingencies);
-        PstRegulationReports.reportPstsToRegulate(reportNode, rangeActionsToRegulate);
+        PstRegulationReports.reportContingencyScenariosToRegulate(pstRegulationReportNode, contingencies);
+        PstRegulationReports.reportPstsToRegulate(pstRegulationReportNode, rangeActionsToRegulate);
 
         // update loadflow parameters
         LoadFlowParameters loadFlowParameters = getLoadFlowParameters(raoParameters);
@@ -115,7 +116,7 @@ public final class PstRegulation {
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true)) {
             List<ForkJoinTask<PstRegulationResult>> tasks = statesToRegulate.stream()
                 .map(pstRegulationInput -> networkPool.submit(
-                    () -> regulatePstsForContingencyScenario(pstRegulationInput, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool, reportNode)
+                    () -> regulatePstsForContingencyScenario(pstRegulationInput, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool, pstRegulationReportNode)
                 ))
                 .toList();
             Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
@@ -128,10 +129,10 @@ public final class PstRegulation {
             }
             networkPool.shutdownAndAwaitTermination(1000, TimeUnit.SECONDS);
             network.getVariantManager().setWorkingVariant(initialVariantId);
-            return mergePstRegulationResultsWithRaoResult(pstRegulationResults, raoResult, network, crac, raoParameters, reportNode);
+            return mergePstRegulationResultsWithRaoResult(pstRegulationResults, raoResult, network, crac, raoParameters, pstRegulationReportNode);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
-            PstRegulationReports.reportErrorDuringPstRegulation(reportNode, e.getMessage());
+            PstRegulationReports.reportErrorDuringPstRegulation(pstRegulationReportNode, e.getMessage());
             return raoResult;
         } finally {
             loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
@@ -141,6 +142,7 @@ public final class PstRegulation {
                 .filter(variantId -> !initialVariants.contains(variantId))
                 .collect(Collectors.toSet());
             variantsToRemove.forEach(network.getVariantManager()::removeVariant);
+            PstRegulationReports.reportPstRegulationEnd();
         }
     }
 
