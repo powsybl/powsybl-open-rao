@@ -5,17 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.pstregulation.reports;
+package com.powsybl.openrao.searchtreerao.reports;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportResourceBundle;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-@AutoService(com.powsybl.commons.report.ReportResourceBundle.class)
-public class ReportResourceBundle implements com.powsybl.commons.report.ReportResourceBundle {
+@AutoService(ReportResourceBundle.class)
+public class SearchTreeReportResourceBundle implements ReportResourceBundle {
 
-    public static final String BASE_NAME = "com.powsybl.openrao.pstregulation.reports";
+    public static final String BASE_NAME = "com.powsybl.openrao.searchtreerao.reports";
 
     @Override
     public String getBaseName() {

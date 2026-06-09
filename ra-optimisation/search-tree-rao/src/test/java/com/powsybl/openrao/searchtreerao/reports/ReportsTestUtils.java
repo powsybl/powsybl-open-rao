@@ -27,7 +27,7 @@ public final class ReportsTestUtils {
 
     public static ReportNode getTestRootNode() {
         return ReportNode.newRootReportNode()
-            .withResourceBundles(TestReportResourceBundle.BASE_NAME, ReportResourceBundle.BASE_NAME)
+            .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .build();
     }
