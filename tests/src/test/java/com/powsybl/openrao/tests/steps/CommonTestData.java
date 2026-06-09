@@ -25,9 +25,11 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -98,6 +100,7 @@ public final class CommonTestData {
     private static MonitoringResult monitoringResult;
 
     private static String timestamp;
+    private static TimeCoupledRaoInput timeCoupledRaoInput;
 
     private CommonTestData() {
         // should not be instantiated
@@ -169,6 +172,8 @@ public final class CommonTestData {
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
+        timeCoupledRaoInput = null;
+        timestamp = null;
     }
 
     @Given("crac file is {string}")
@@ -373,6 +378,10 @@ public final class CommonTestData {
             raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
+        }
+
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
@@ -432,5 +441,21 @@ public final class CommonTestData {
             throw new IllegalArgumentException("Unknown parameter in configuration file", e);
         }
         return config;
+    }
+
+    public static TimeCoupledRaoInput getTimeCoupledRaoInput() {
+        return timeCoupledRaoInput;
+    }
+
+    public static void setTimeCoupledRaoInput(TimeCoupledRaoInput timeCoupledRaoInput) {
+        CommonTestData.timeCoupledRaoInput = timeCoupledRaoInput;
+    }
+
+    public static String getRaoParametersPath() {
+        return raoParametersPath;
+    }
+
+    public static void setRaoParameters(RaoParameters raoParameters) {
+        CommonTestData.raoParameters = raoParameters;
     }
 }

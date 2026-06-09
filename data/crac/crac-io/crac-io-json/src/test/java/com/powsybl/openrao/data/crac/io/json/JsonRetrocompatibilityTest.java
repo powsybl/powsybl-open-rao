@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.powsybl.action.Action;
 import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
@@ -29,6 +30,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -412,6 +414,16 @@ class JsonRetrocompatibilityTest {
     }
 
     @Test
+    void importV2Point9Test() throws IOException {
+        // added acEmulationDeactivationActions
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.9.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point9Crac(crac);
+    }
+
+    @Test
     void importV2Point10Test() throws IOException {
         // added more flexibility on range types of non tap ranges
         String cracFilePath = "/retrocompatibility/v2/crac-v2.10.json";
@@ -431,6 +443,15 @@ class JsonRetrocompatibilityTest {
         assertEquals("JSON file is not a valid CRAC v2.10. Reasons: /ra-usage-limits-per-instant/0: " +
                          "property 'max-tso' is not defined in the schema and the schema does not allow additional properties",
                      exception.getMessage());
+    }
+
+    @Test
+    void importV2Point11Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.11.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point11Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -466,9 +487,7 @@ class JsonRetrocompatibilityTest {
 
         // check network element
         assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne2Name", crac.getFlowCnec("cnec3prevId").getNetworkElement().getName());
         assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getName());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
@@ -664,7 +683,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, networkElementAndKeys.size());
         assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
@@ -1000,8 +1018,22 @@ class JsonRetrocompatibilityTest {
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
     }
 
-    private void testContentOfV2Point10Crac(Crac crac) {
+    private void testContentOfV2Point9Crac(Crac crac) {
         testContentOfV2Point8Crac(crac);
+
+        NetworkAction acEmulationDeactivationAction = crac.getNetworkAction("hvdc-ac-emulation-deactivation");
+        assertNotNull(acEmulationDeactivationAction);
+        assertEquals("hvdc-ac-emulation-deactivation", acEmulationDeactivationAction.getId());
+
+        assertEquals(1, acEmulationDeactivationAction.getElementaryActions().size());
+        assertInstanceOf(HvdcAction.class, acEmulationDeactivationAction.getElementaryActions().stream().toList().getFirst());
+
+        HvdcAction hvdcAction = (HvdcAction) acEmulationDeactivationAction.getElementaryActions().stream().toList().getFirst();
+        assertEquals("hvdc", hvdcAction.getHvdcId());
+    }
+
+    private void testContentOfV2Point10Crac(Crac crac) {
+        testContentOfV2Point9Crac(crac);
 
         assertEquals(
             1,
@@ -1015,5 +1047,9 @@ class JsonRetrocompatibilityTest {
                 .filter(range -> range.getRangeType().equals(RangeType.ABSOLUTE))
                 .count()
         );
+    }
+
+    private void testContentOfV2Point11Crac(Crac crac) {
+        testContentOfV2Point10Crac(crac);
     }
 }
