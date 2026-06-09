@@ -101,7 +101,7 @@
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <cucumber.bom.version>7.34.3</cucumber.bom.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
-        <jackson.version>2.21.2</jackson.version>
+        <jackson.version>2.21.4</jackson.version>
         <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <junit.bom.version>5.14.4</junit.bom.version>
@@ -109,7 +109,7 @@
         <powsybl.core.version>7.3.0-SNAPSHOT</powsybl.core.version>
         <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
         <powsybl.openloadflow.version>2.3.0-SNAPSHOT</powsybl.openloadflow.version>
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <com.networknt.version>2.0.1</com.networknt.version><!-- TODO: update to v3 when powsybl-core updates Jackson dependency to v3 -->
     </properties>
 
