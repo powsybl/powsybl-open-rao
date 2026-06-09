@@ -103,6 +103,8 @@ public final class CommonTestData {
     private static String timestamp;
     private static TimeCoupledRaoInput timeCoupledRaoInput;
 
+    private static ReportNode reportNode = ReportNode.NO_OP;
+
     private CommonTestData() {
         // should not be instantiated
     }
@@ -175,6 +177,7 @@ public final class CommonTestData {
         monitoringResult = null;
         timeCoupledRaoInput = null;
         timestamp = null;
+        reportNode = ReportNode.NO_OP;
     }
 
     @Given("crac file is {string}")
@@ -426,7 +429,7 @@ public final class CommonTestData {
 
     private static RaoParameters buildDefaultConfig() {
         try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
-            return JsonRaoParameters.read(configStream, ReportNode.NO_OP);
+            return JsonRaoParameters.read(configStream, reportNode);
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
@@ -435,7 +438,7 @@ public final class CommonTestData {
     static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
-            JsonRaoParameters.update(config, configStream, ReportNode.NO_OP);
+            JsonRaoParameters.update(config, configStream, reportNode);
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Configuration file is not in expected JSON format", e);
         } catch (AssertionError e) {
@@ -458,5 +461,13 @@ public final class CommonTestData {
 
     public static void setRaoParameters(RaoParameters raoParameters) {
         CommonTestData.raoParameters = raoParameters;
+    }
+
+    public static ReportNode getReportNode() {
+        return reportNode;
+    }
+
+    public static void setReportNode(final ReportNode reportNode) {
+        CommonTestData.reportNode = reportNode;
     }
 }

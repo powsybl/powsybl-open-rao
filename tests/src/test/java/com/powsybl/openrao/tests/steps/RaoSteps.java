@@ -75,7 +75,6 @@ public class RaoSteps {
     private LoopFlowResult loopFlowResult;
     private Network network;
     private State preventiveState;
-    private ReportNode reportNode;
     private final String raoImplementation;
 
     {
@@ -167,7 +166,7 @@ public class RaoSteps {
 
     @When("I export rao reports to {string}")
     public void iExportRaoReports(String outputPath) throws IOException {
-        reportNode.print(Path.of(getResourcesPath().concat(outputPath)));
+        CommonTestData.getReportNode().print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @Then("the calculation succeeds")
@@ -772,11 +771,13 @@ public class RaoSteps {
             network = CommonTestData.getNetwork();
             crac = CommonTestData.getCrac();
             preventiveState = crac.getPreventiveState();
-            reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate("test.rootnode")
-                .build();
-            raoResult = RaoUtils.runRao(contingencyId, instantKind, raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, reportNode);
+            CommonTestData.setReportNode(
+                ReportNode.newRootReportNode()
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate("test.rootnode")
+                    .build()
+            );
+            raoResult = RaoUtils.runRao(contingencyId, instantKind, raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode());
             CommonTestData.setRaoResult(raoResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

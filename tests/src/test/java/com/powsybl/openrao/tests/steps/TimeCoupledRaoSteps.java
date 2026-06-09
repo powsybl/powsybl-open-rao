@@ -102,7 +102,6 @@ public final class TimeCoupledRaoSteps {
     private static String icsGskPath;
     private static String refProgPath;
     private static TimeCoupledRaoResult timeCoupledRaoResult;
-    private static ReportNode reportNode;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
@@ -271,11 +270,13 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        reportNode = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
-            .withMessageTemplate("test.rootnode")
-            .build();
-        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), reportNode);
+        CommonTestData.setReportNode(
+            ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test.rootnode")
+                .build()
+        );
+        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
     }
 
     @When("I export marmot results to {string}")
@@ -292,7 +293,7 @@ public final class TimeCoupledRaoSteps {
 
     @When("I export marmot reports to {string}")
     public static void iExportMarmotReports(String outputPath) throws IOException {
-        reportNode.print(Path.of(getResourcesPath().concat(outputPath)));
+        CommonTestData.getReportNode().print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
