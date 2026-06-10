@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
+import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCostDetailed;
 
 /**
  * A "leaf" is a node of the search tree.

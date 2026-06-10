@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
@@ -42,13 +41,13 @@ public final class OptimizationSummaryReports {
                                                  final ObjectiveFunctionResult finalObjective) {
         final String scenarioName = ReportUtils.getScenarioName(optimizedState);
         final String raResult = ReportUtils.getRaResult(networkActions, rangeActions);
-        final Map<String, Double> finalVirtualCostDetailed = RaoLogger.getVirtualCostDetailed(finalObjective);
+        final Map<String, Double> finalVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(finalObjective);
         ReportNodeAdder reportNodeAdder = parentNode.newReportNode();
 
         if (preOptimObjectiveFunctionResult == null) {
             reportNodeAdder = reportNodeAdder.withMessageTemplate("openrao.searchtreerao.reportOptimizationSummaryWithoutInitialCost");
         } else {
-            final Map<String, Double> initialVirtualCostDetailed = RaoLogger.getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            final Map<String, Double> initialVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(preOptimObjectiveFunctionResult);
             final double margin = -(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost());
             reportNodeAdder = reportNodeAdder.withMessageTemplate("openrao.searchtreerao.reportOptimizationSummaryWithInitialCost")
                 .withUntypedValue("initialCost", ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin))
@@ -92,12 +91,12 @@ public final class OptimizationSummaryReports {
                                               final ObjectiveFunctionResult finalObjective,
                                               final String scenarioName,
                                               final String raResult) {
-        final Map<String, Double> finalVirtualCostDetailed = RaoLogger.getVirtualCostDetailed(finalObjective);
+        final Map<String, Double> finalVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(finalObjective);
         final String initialCostString;
         if (preOptimObjectiveFunctionResult == null) {
             initialCostString = "";
         } else {
-            final Map<String, Double> initialVirtualCostDetailed = RaoLogger.getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            final Map<String, Double> initialVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(preOptimObjectiveFunctionResult);
             final double margin = -(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost());
             if (initialVirtualCostDetailed.isEmpty()) {
                 initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin));

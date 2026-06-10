@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
@@ -99,5 +100,17 @@ public final class ReportUtils {
         return state.getContingency()
             .map(contingency -> contingency.getName().orElse(contingency.getId()))
             .orElse("preventive");
+    }
+
+    /**
+     * For a given virtual-cost-name, if its associated virtual cost is positive, this method will return a map containing
+     * these information to be used in the Rao logs
+     */
+    public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
+        return objectiveFunctionResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(
+                Function.identity(),
+                name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
     }
 }

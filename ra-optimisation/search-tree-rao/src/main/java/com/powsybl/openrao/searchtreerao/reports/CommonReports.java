@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -65,7 +64,7 @@ public final class CommonReports {
                                                      final FlowResult sensitivityAnalysisFlowResult,
                                                      final RaoParameters raoParameters,
                                                      final int numberOfLoggedLimitingElements) {
-        final Map<String, Double> virtualCostDetailed = RaoLogger.getVirtualCostDetailed(objectiveFunctionResult);
+        final Map<String, Double> virtualCostDetailed = ReportUtils.getVirtualCostDetailed(objectiveFunctionResult);
 
         final String cost = ReportUtils.formatDoubleBasedOnMargin(objectiveFunctionResult.getCost(), -objectiveFunctionResult.getCost());
         final String functionalCost = ReportUtils.formatDoubleBasedOnMargin(objectiveFunctionResult.getFunctionalCost(), -objectiveFunctionResult.getCost());

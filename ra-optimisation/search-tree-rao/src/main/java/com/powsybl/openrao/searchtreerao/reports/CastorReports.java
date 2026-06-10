@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -18,7 +18,6 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
-import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -382,7 +381,7 @@ public final class CastorReports {
                                                     final double finalVirtualCost,
                                                     final RaoResult finalRaoResult,
                                                     final Instant instant) {
-        final Map<String, Double> initialVirtualCostDetailed = RaoLogger.getVirtualCostDetailed(initialResult);
+        final Map<String, Double> initialVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(initialResult);
         final Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalRaoResult, instant);
 
         final String initialCostFormatted = ReportUtils.formatDoubleBasedOnMargin(initialCost, -initialCost);
