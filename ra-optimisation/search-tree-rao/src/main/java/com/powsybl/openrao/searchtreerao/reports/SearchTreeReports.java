@@ -456,7 +456,7 @@ public final class SearchTreeReports {
             .withSeverity(TRACE_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.info("Best leaf: range action(s): {}", joinedRaSetpoints);
+        TECHNICAL_LOGS.info("Best leaf: Range action(s): {}", joinedRaSetpoints);
     }
 
     public static void reportSearchDepthBestLeafRangeActions(final ReportNode parentNode,

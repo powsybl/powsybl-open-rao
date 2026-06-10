@@ -82,13 +82,4 @@ public final class RaoApiReports {
 
         BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold);
     }
-
-    public static void reportRunsInDCWithHvdcAcEmulationParameterOn(final ReportNode parentNode) {
-        parentNode.newReportNode()
-                .withMessageTemplate("openrao.raoapi.reportRunsInDCWithHvdcAcEmulationParameterOn")
-                .withSeverity(WARN_SEVERITY)
-                .add();
-
-        BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false.");
-    }
 }
