@@ -51,6 +51,17 @@ public final class CastorReports {
         // Utility class should not be instantiated
     }
 
+    public static ReportNode reportCastorFullOptimization(final ReportNode parentNode) {
+        final ReportNode addedNode = parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportCastorFullOptimization")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("Starting Castor full optimization");
+
+        return addedNode;
+    }
+
     public static ReportNode reportCastorOneStateOnly(final ReportNode parentNode) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCastorOneStateOnly")
