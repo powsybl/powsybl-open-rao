@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.powsybl.openrao.commons.Version;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -38,7 +39,7 @@ class VoltageCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
+            assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 6)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
@@ -56,7 +57,7 @@ class VoltageCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
+                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 6)));
             assertEquals("Cannot deserialize RaoResult: each voltageCnecResults must start with an voltageCnecId field", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -72,7 +73,7 @@ class VoltageCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
+                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 6)));
             assertEquals("Cannot deserialize RaoResult: voltageCnec with id unknown does not exist in the Crac", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -91,7 +92,7 @@ class VoltageCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
+                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 6)));
             assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in voltageCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -108,7 +109,7 @@ class VoltageCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
+                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 6)));
             assertEquals("Since RaoResult version 1.6, voltage values are divided into min and max.", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -126,7 +127,7 @@ class VoltageCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.5"));
+            assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 5)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);

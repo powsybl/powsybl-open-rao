@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -20,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AFTER_PRA_SETPOINT;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AFTER_PRA_TAP;
@@ -47,8 +46,7 @@ final class RangeActionResultArrayDeserializer {
     private RangeActionResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        Pair<Integer, Integer> version = getVersion(jsonFileVersion);
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, Version jsonFileVersion) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
@@ -58,11 +56,11 @@ final class RangeActionResultArrayDeserializer {
                     break;
                 case DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_ID:
                     // in version <= 1.1, the id field was HVDCRANGEACION_ID, it is now RANGEACTION_ID
-                    checkDeprecatedField(DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS, RAO_RESULT_TYPE, jsonFileVersion, "1.1");
+                    checkDeprecatedField(DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS, RAO_RESULT_TYPE, jsonFileVersion, new Version(1, 1));
                     break;
                 case PSTRANGEACTION_ID:
                     // in version <= 1.2, the id field was PSTRANGEACTION_ID, it is now RANGEACTION_ID
-                    checkDeprecatedField(PSTRANGEACTION_ID, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
+                    checkDeprecatedField(PSTRANGEACTION_ID, RAO_RESULT_TYPE, jsonFileVersion, new Version(1, 2));
                     break;
                 default:
                     throw new OpenRaoException(String.format(
@@ -86,18 +84,17 @@ final class RangeActionResultArrayDeserializer {
                 switch (jsonParser.currentName()) {
 
                     case DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID:
-                        checkDeprecatedField(DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, "1.1");
+                        checkDeprecatedField(DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, new Version(1, 1));
                         jsonParser.nextTextValue();
                         break;
 
                     case DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID:
-                        checkDeprecatedField(DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, new Version(1, 2));
                         jsonParser.nextTextValue();
                         break;
 
                     case INITIAL_SETPOINT:
-                        if ((version.getLeft() == 1 && version.getRight() >= 8 || version.getLeft() >= 2)
-                            && rangeAction instanceof PstRangeAction) {
+                        if (jsonFileVersion.compareTo(new Version(1, 8)) >= 0 && rangeAction instanceof PstRangeAction) {
                             throw new OpenRaoException("Since version 1.8, only the initial taps are reported for PST range actions.");
                         }
                         jsonParser.nextToken();
@@ -106,21 +103,21 @@ final class RangeActionResultArrayDeserializer {
 
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
-                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, version, rangeAction);
+                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, jsonFileVersion, rangeAction);
                         break;
 
                     case AFTER_PRA_SETPOINT:
-                        checkDeprecatedField(AFTER_PRA_SETPOINT, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(AFTER_PRA_SETPOINT, RANGEACTION_RESULTS, jsonFileVersion, new Version(1, 2));
                         jsonParser.nextTextValue();
                         break;
 
                     case AFTER_PRA_TAP:
-                        checkDeprecatedField(AFTER_PRA_TAP, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(AFTER_PRA_TAP, RANGEACTION_RESULTS, jsonFileVersion, new Version(1, 2));
                         jsonParser.nextTextValue();
                         break;
 
                     case INITIAL_TAP:
-                        if (version.getLeft() <= 1 && version.getRight() <= 7) {
+                        if (jsonFileVersion.compareTo(new Version(1, 7)) <= 0) {
                             // skip this, we don't need to read tap because we have the set-point
                             LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
                             jsonParser.nextTextValue();
@@ -147,7 +144,7 @@ final class RangeActionResultArrayDeserializer {
     private static void deserializeResultsPerStates(JsonParser jsonParser,
                                                     RangeActionResult rangeActionResult,
                                                     Crac crac,
-                                                    Pair<Integer, Integer> version,
+                                                    Version jsonFileVersion,
                                                     RangeAction<?> rangeAction) throws IOException {
         String instantId = null;
         String contingencyId = null;
@@ -166,8 +163,7 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case SETPOINT:
-                        if ((version.getLeft() == 1 && version.getRight() >= 8 || version.getLeft() >= 2)
-                            && rangeAction instanceof PstRangeAction) {
+                        if (jsonFileVersion.compareTo(new Version(1, 8)) >= 0 && rangeAction instanceof PstRangeAction) {
                             throw new OpenRaoException("Since version 1.8, only the taps are reported for PST range actions.");
                         }
                         jsonParser.nextToken();
@@ -175,7 +171,7 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case TAP:
-                        if (version.getLeft() <= 1 && version.getRight() <= 7) {
+                        if (jsonFileVersion.compareTo(new Version(1, 7)) <= 0) {
                             // Skip, we already have setpoint
                             LOGGER.info("Field {} in {} is no longer used", TAP, RANGEACTION_RESULTS);
                             jsonParser.nextFieldName();
@@ -202,12 +198,5 @@ final class RangeActionResultArrayDeserializer {
             }
             rangeActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
         }
-    }
-
-    private static Pair<Integer, Integer> getVersion(String jsonFileVersion) {
-        Pattern pattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)");
-        Matcher matcher = pattern.matcher(jsonFileVersion);
-        matcher.find();
-        return Pair.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
     }
 }

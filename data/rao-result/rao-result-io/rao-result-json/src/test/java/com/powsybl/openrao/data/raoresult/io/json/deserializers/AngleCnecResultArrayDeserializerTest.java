@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.powsybl.openrao.commons.Version;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -37,7 +38,7 @@ class AngleCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
+            assertDoesNotThrow(() -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 3)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentAngleCnecResult(angleCnec);
@@ -54,7 +55,7 @@ class AngleCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
+                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 3)));
             assertEquals("Cannot deserialize RaoResult: each angleCnecResults must start with an angleCnecId field", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -70,7 +71,7 @@ class AngleCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
+                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 3)));
             assertEquals("Cannot deserialize RaoResult: angleCnec with id unknown does not exist in the Crac", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -89,7 +90,7 @@ class AngleCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
+                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 3)));
             assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in angleCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");

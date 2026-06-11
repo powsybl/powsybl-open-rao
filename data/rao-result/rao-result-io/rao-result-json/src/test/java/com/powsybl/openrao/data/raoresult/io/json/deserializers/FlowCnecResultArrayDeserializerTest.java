@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.powsybl.openrao.commons.Version;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -38,7 +39,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -57,7 +58,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
             assertEquals("Cannot deserialize RaoResult: each flowCnecResults must start with an flowCnecId field", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -73,7 +74,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
             assertEquals("Cannot deserialize RaoResult: flowCnec with id unknown does not exist in the Crac", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -93,7 +94,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
             assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in flowCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -111,7 +112,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 3)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -122,11 +123,11 @@ class FlowCnecResultArrayDeserializerTest {
 
     @ParameterizedTest
     @CsvSource({
-        "leftSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"leftSide\":{\"flow\":500.0}}}}]'",
-        "rightSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]'",
-        "flow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]'",
-        "commercialFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]'",
-        "loopFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]'"
+        "leftSide, '1.5', '1.4', '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"leftSide\":{\"flow\":500.0}}}}]'",
+        "rightSide, '1.5', '1.4', '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]'",
+        "flow, '1.2', '1.1', '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]'",
+        "commercialFlow, '1.2', '1.1', '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]'",
+        "loopFlow, '1.2', '1.1', '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]'"
     })
     void deserializeThrowsWithDeprecatedBehavior(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
@@ -135,7 +136,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, currentVersion));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, Version.parse(currentVersion)));
             assertEquals(String.format("Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)", fieldName, currentVersion, lastSupportedVersion), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -153,7 +154,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 0)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -172,7 +173,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 0)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -192,7 +193,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 0)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -212,7 +213,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 0)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -231,7 +232,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.2"));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 2)));
             assertEquals("Cannot deserialize RaoResult: field zonalPtdfSum in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -249,7 +250,7 @@ class FlowCnecResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+            assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
@@ -267,7 +268,7 @@ class FlowCnecResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 4)));
             assertEquals("zonalPtdfSum can only be defined in the MEGAWATT section", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");

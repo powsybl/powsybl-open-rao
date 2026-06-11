@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -42,8 +43,6 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeStatus;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
 
 /**
@@ -72,7 +71,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         List<Extension<RaoResult>> extensions = Collections.emptyList();
 
-        String jsonFileVersion = isValid(jsonParser, raoResult);
+        Version jsonFileVersion = isValid(jsonParser, raoResult);
         if (checkHeaderOnly) {
             return null;
         }
@@ -89,7 +88,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case OPTIMIZATION_STEPS_EXECUTED:
-                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, new Version(1, 6));
                     raoResult.setExecutionDetails(jsonParser.nextTextValue());
                     break;
 
@@ -128,12 +127,12 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS:
-                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.1");
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, new Version(1, 1));
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
                 case STANDARDRANGEACTION_RESULTS, PSTRANGEACTION_RESULTS:
-                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, new Version(1, 2));
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
@@ -152,16 +151,16 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         return raoResult;
     }
 
-    public static String isValid(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
+    public static Version isValid(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
         String firstFieldName = jsonParser.nextFieldName();
-        String jsonFileVersion;
+        Version jsonFileVersion;
 
         if (firstFieldName.equals(COMPUTATION_STATUS)) {
             /*
              it is assumed that the document version is 1.0
              at this time, there were not the headers with TYPE, VERSION and INFO of the document
              */
-            jsonFileVersion = "1.0";
+            jsonFileVersion = new Version(1, 0);
             raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
         } else {
             if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
@@ -170,27 +169,27 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
             if (!jsonParser.nextFieldName().equals(VERSION)) {
                 throw new OpenRaoException(String.format("%s must contain a version in its second field", RAO_RESULT_TYPE));
             }
-            jsonFileVersion = jsonParser.nextTextValue();
+            jsonFileVersion = Version.parse(jsonParser.nextTextValue());
         }
 
         checkVersion(jsonFileVersion);
         return jsonFileVersion;
     }
 
-    private void importRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
+    private void importRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, Version jsonFileVersion) throws IOException {
         jsonParser.nextToken();
         RangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
     }
 
-    private static void checkVersion(String raoResultVersion) {
+    private static void checkVersion(Version raoResultVersion) {
 
-        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
+        if (RAO_RESULT_IO_VERSION.major() > raoResultVersion.major()) {
             throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
         }
-        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) < getPrimaryVersionNumber(raoResultVersion)) {
+        if (RAO_RESULT_IO_VERSION.major() < raoResultVersion.major()) {
             throw new OpenRaoException(String.format("RAO-result importer %s cannot handle json RAO-result version %s, consider upgrading open-rao version", RAO_RESULT_IO_VERSION, raoResultVersion));
         }
-        if (getSubVersionNumber(RAO_RESULT_IO_VERSION) < getSubVersionNumber(raoResultVersion)) {
+        if (RAO_RESULT_IO_VERSION.compareTo(raoResultVersion) < 0) {
             LOGGER.warn("RAO-result importer {} might not be compatible with json RAO-result version {}, consider upgrading open-rao version", RAO_RESULT_IO_VERSION, raoResultVersion);
         }
 

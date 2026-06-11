@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.powsybl.openrao.commons.Version;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -37,7 +38,7 @@ class RangeActionResultArrayDeserializerTest {
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+            assertDoesNotThrow(() -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 7)));
         }
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentRangeActionResult(rangeAction);
@@ -52,7 +53,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 7)));
             assertEquals("Cannot deserialize RaoResult: each rangeActionResults must start with an rangeActionId field", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -68,7 +69,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 7)));
             assertEquals("Cannot deserialize RaoResult: cannot deserialize RaoResult: RangeAction with id unknown does not exist in the Crac", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -85,7 +86,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 7)));
             assertEquals("Cannot deserialize RaoResult: unexpected field in rangeActionResults (unexpected)", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -103,7 +104,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.8"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 8)));
             assertEquals("Since version 1.8, only the initial taps are reported for PST range actions.", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -112,8 +113,8 @@ class RangeActionResultArrayDeserializerTest {
 
     @ParameterizedTest
     @CsvSource({
-        "'[{\"rangeActionId\":\"ra1\",\"activatedStates\":[{\"instant\":\"preventive\",\"tap\":3}]}]', 'Taps can only be defined for PST range actions.', 1.8",
-        "'[{\"rangeActionId\":\"ra1\",\"initialTap\":3}]', 'Initial taps can only be defined for PST range actions.', 1.8"
+        "'[{\"rangeActionId\":\"ra1\",\"activatedStates\":[{\"instant\":\"preventive\",\"tap\":3}]}]', 'Taps can only be defined for PST range actions.', '1.8'",
+        "'[{\"rangeActionId\":\"ra1\",\"initialTap\":3}]', 'Initial taps can only be defined for PST range actions.', '1.8'"
     })
     void deserializeThrowsOnTapForNonPst(String json, String expectedMessage, String version) {
         Crac crac = mock(Crac.class);
@@ -123,7 +124,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, version));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, Version.parse(version)));
             assertEquals(expectedMessage, ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -141,7 +142,7 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, new Version(1, 7)));
             assertEquals("Cannot deserialize RaoResult: setpoint is required in rangeActionResults", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");

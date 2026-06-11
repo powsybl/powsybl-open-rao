@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -28,8 +29,6 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_ID;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -39,7 +38,7 @@ final class VoltageCnecResultArrayDeserializer {
     private VoltageCnecResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, Version jsonFileVersion) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(VOLTAGECNEC_ID)) {
@@ -57,7 +56,7 @@ final class VoltageCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, Version jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
@@ -67,7 +66,7 @@ final class VoltageCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, Version jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             if (!jsonParser.currentName().equals(KILOVOLT_UNIT)) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.currentName()));
@@ -78,13 +77,11 @@ final class VoltageCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, Unit unit, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, Unit unit, Version jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
                 case VOLTAGE:
-                    int primaryVersionNumber = getPrimaryVersionNumber(jsonFileVersion);
-                    int subVersionNumber = getSubVersionNumber(jsonFileVersion);
-                    if (primaryVersionNumber > 1 || subVersionNumber > 5) {
+                    if (jsonFileVersion.compareTo(new Version(1, 5)) > 0) {
                         throw new OpenRaoException("Since RaoResult version 1.6, voltage values are divided into min and max.");
                     }
                     jsonParser.nextToken();

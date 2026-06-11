@@ -8,12 +8,10 @@
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.io.IOException;
-
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -23,13 +21,12 @@ public final class Utils {
         // should not be instanciated
     }
 
-    static void checkDeprecatedField(JsonParser jsonParser, String parentName, String jsonFileVersion, String lastSupportedVersion) throws IOException {
+    static void checkDeprecatedField(JsonParser jsonParser, String parentName, Version jsonFileVersion, Version lastSupportedVersion) throws IOException {
         checkDeprecatedField(jsonParser.currentName(), parentName, jsonFileVersion, lastSupportedVersion);
     }
 
-    static void checkDeprecatedField(String fieldName, String parentName, String jsonFileVersion, String lastSupportedVersion) {
-        if (getPrimaryVersionNumber(jsonFileVersion) > getPrimaryVersionNumber(lastSupportedVersion)
-                || getPrimaryVersionNumber(jsonFileVersion) == getPrimaryVersionNumber(lastSupportedVersion) && getSubVersionNumber(jsonFileVersion) > getSubVersionNumber(lastSupportedVersion)) {
+    static void checkDeprecatedField(String fieldName, String parentName, Version jsonFileVersion, Version lastSupportedVersion) {
+        if (jsonFileVersion.compareTo(lastSupportedVersion) > 0) {
             throw new OpenRaoException(String.format(
                 "Cannot deserialize RaoResult: field %s in %s in not supported in file version %s (last supported in version %s)",
                 fieldName, parentName, jsonFileVersion, lastSupportedVersion

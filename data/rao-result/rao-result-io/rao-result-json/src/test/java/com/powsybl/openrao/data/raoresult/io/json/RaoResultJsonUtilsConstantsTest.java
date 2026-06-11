@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -87,11 +88,12 @@ class RaoResultJsonUtilsConstantsTest {
     @Test
     void testDeserializeOptimizedInstant() {
         Crac crac = mock(Crac.class);
-        assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, "1.4", crac));
-        assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, "1.4", crac));
-        assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, "1.4", crac));
-        assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, "1.4", crac));
-        assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, "1.4", crac));
+        Version v14 = new Version(1, 4);
+        assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, v14, crac));
+        assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, v14, crac));
+        assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, v14, crac));
+        assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, v14, crac));
+        assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, v14, crac));
         Instant preventiveInstant = mock(Instant.class);
         Instant outageInstant = mock(Instant.class);
         Instant autoInstant = mock(Instant.class);
@@ -100,11 +102,11 @@ class RaoResultJsonUtilsConstantsTest {
         when(crac.getInstant(OUTAGE_INSTANT_ID)).thenReturn(outageInstant);
         when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
         when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
-        assertNull(deserializeOptimizedInstant(INITIAL_INSTANT_ID, "1.4", crac));
-        assertEquals(preventiveInstant, deserializeOptimizedInstant(PREVENTIVE_INSTANT_ID, "1.4", crac));
-        assertEquals(outageInstant, deserializeOptimizedInstant(OUTAGE_INSTANT_ID, "1.4", crac));
-        assertEquals(autoInstant, deserializeOptimizedInstant(AUTO_INSTANT_ID, "1.4", crac));
-        assertEquals(curativeInstant, deserializeOptimizedInstant(CURATIVE_INSTANT_ID, "1.4", crac));
+        assertNull(deserializeOptimizedInstant(INITIAL_INSTANT_ID, v14, crac));
+        assertEquals(preventiveInstant, deserializeOptimizedInstant(PREVENTIVE_INSTANT_ID, v14, crac));
+        assertEquals(outageInstant, deserializeOptimizedInstant(OUTAGE_INSTANT_ID, v14, crac));
+        assertEquals(autoInstant, deserializeOptimizedInstant(AUTO_INSTANT_ID, v14, crac));
+        assertEquals(curativeInstant, deserializeOptimizedInstant(CURATIVE_INSTANT_ID, v14, crac));
     }
 
     @Test

@@ -48,7 +48,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
         // type and version
         jsonGenerator.writeStringField(TYPE, RAO_RESULT_TYPE);
-        jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
+        jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION.toString());
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
         // computation status

@@ -14,9 +14,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import org.apache.commons.lang3.StringUtils;
+import com.powsybl.openrao.commons.Version;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -28,7 +27,7 @@ public final class RaoResultJsonConstants {
     private RaoResultJsonConstants() {
     }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.8";
+    public static final Version RAO_RESULT_IO_VERSION = new Version(1, 8);
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
     // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
     // v1.8 : export tap instead of set-point for PST range actions
@@ -123,32 +122,6 @@ public final class RaoResultJsonConstants {
     // optimized steps executed by the RAO
     public static final String OPTIMIZATION_STEPS_EXECUTED = "optimizationStepsExecuted";
     public static final String EXECUTION_DETAILS = "executionDetails";
-    public static final String FIRST_PREVENTIVE_ONLY = "The RAO only went through first preventive";
-    public static final String FIRST_PREVENTIVE_FELLBACK = "First preventive fellback to initial situation";
-    public static final String SECOND_PREVENTIVE_IMPROVED_FIRST = "Second preventive improved first preventive results";
-    public static final String SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION = "Second preventive fellback to first preventive results";
-    public static final String SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "Second preventive fellback to initial situation";
-
-    // fast rao specific field
-    public static final String FAST_RAO = "fast-rao";
-    public static final String CRITICAL_CNECS_SET = "critical-cnecs";
-
-    // manipulate version
-    public static int getPrimaryVersionNumber(String fullVersion) {
-        return Integer.parseInt(divideVersionNumber(fullVersion)[0]);
-    }
-
-    public static int getSubVersionNumber(String fullVersion) {
-        return Integer.parseInt(divideVersionNumber(fullVersion)[1]);
-    }
-
-    private static String[] divideVersionNumber(String fullVersion) {
-        String[] dividedV = fullVersion.split("\\.");
-        if (dividedV.length != 2 || !Arrays.stream(dividedV).allMatch(StringUtils::isNumeric)) {
-            throw new OpenRaoException("json CRAC version number must be of the form vX.Y");
-        }
-        return dividedV;
-    }
 
     // serialization of enums
     public static String serializeUnit(Unit unit) {
@@ -204,7 +177,7 @@ public final class RaoResultJsonConstants {
         return instant.getId();
     }
 
-    public static Instant deserializeOptimizedInstant(String stringValue, String jsonFileVersion, Crac crac) {
+    public static Instant deserializeOptimizedInstant(String stringValue, Version jsonFileVersion, Crac crac) {
         String instantId = deserializeOptimizedInstantId(stringValue, jsonFileVersion, crac);
         if (Objects.equals(instantId, INITIAL_INSTANT_ID)) {
             return null;
@@ -212,17 +185,15 @@ public final class RaoResultJsonConstants {
         return crac.getInstant(instantId);
     }
 
-    public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion, Crac crac) {
-        int primaryVersionNumber = getPrimaryVersionNumber(jsonFileVersion);
-        int subVersionNumber = getSubVersionNumber(jsonFileVersion);
-        if (primaryVersionNumber <= 1 && subVersionNumber <= 3) {
+    public static String deserializeOptimizedInstantId(String stringValue, Version jsonFileVersion, Crac crac) {
+        if (jsonFileVersion.compareTo(new Version(1, 3)) <= 0) {
             switch (stringValue) {
                 case INITIAL_OPT_STATE:
                     return INITIAL_INSTANT_ID;
                 case AFTER_PRA_OPT_STATE:
                     return PREVENTIVE_INSTANT_ID;
                 case AFTER_ARA_OPT_STATE:
-                    return (primaryVersionNumber == 1 && subVersionNumber == 1 && !crac.hasAutoInstant()) ? PREVENTIVE_INSTANT_ID : AUTO_INSTANT_ID;
+                    return (jsonFileVersion.equals(new Version(1, 1)) && !crac.hasAutoInstant()) ? PREVENTIVE_INSTANT_ID : AUTO_INSTANT_ID;
                 case AFTER_CRA_OPT_STATE:
                     return CURATIVE_INSTANT_ID;
                 default:
@@ -238,8 +209,6 @@ public final class RaoResultJsonConstants {
             case DEFAULT -> DEFAULT_STATUS;
             case PARTIAL_FAILURE -> PARTIAL_FAILURE_STATUS;
             case FAILURE -> FAILURE_STATUS;
-            default ->
-                throw new OpenRaoException(String.format("Unsupported computation status %s", computationStatus));
         };
     }
 

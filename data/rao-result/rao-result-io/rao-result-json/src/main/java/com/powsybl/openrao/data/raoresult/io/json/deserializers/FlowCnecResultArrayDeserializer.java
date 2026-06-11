@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -47,7 +48,7 @@ final class FlowCnecResultArrayDeserializer {
     private FlowCnecResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, Version jsonFileVersion) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(FLOWCNEC_ID)) {
@@ -65,7 +66,7 @@ final class FlowCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, Version jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
@@ -75,7 +76,7 @@ final class FlowCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryFlowCnecResult(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryFlowCnecResult(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Version jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
                 case MEGAWATT_UNIT:
@@ -99,7 +100,7 @@ final class FlowCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryFlowCnecResultForUnit(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryFlowCnecResultForUnit(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, Version jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
                 case MARGIN:
@@ -119,12 +120,12 @@ final class FlowCnecResultArrayDeserializer {
                     deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.TWO);
                     break;
                 case LEFT_SIDE:
-                    Utils.checkDeprecatedField(LEFT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
+                    Utils.checkDeprecatedField(LEFT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, new Version(1, 4));
                     jsonParser.nextToken();
                     deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.ONE);
                     break;
                 case RIGHT_SIDE:
-                    Utils.checkDeprecatedField(RIGHT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
+                    Utils.checkDeprecatedField(RIGHT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, new Version(1, 4));
                     jsonParser.nextToken();
                     deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.TWO);
                     break;
@@ -155,8 +156,8 @@ final class FlowCnecResultArrayDeserializer {
         }
     }
 
-    private static void checkSideHandlingVersion(String jsonFileVersion, String fieldName) {
-        Utils.checkDeprecatedField(fieldName, FLOWCNEC_RESULTS, jsonFileVersion, "1.1");
+    private static void checkSideHandlingVersion(Version jsonFileVersion, String fieldName) {
+        Utils.checkDeprecatedField(fieldName, FLOWCNEC_RESULTS, jsonFileVersion, new Version(1, 1));
     }
 
     private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, TwoSides side) throws IOException {
