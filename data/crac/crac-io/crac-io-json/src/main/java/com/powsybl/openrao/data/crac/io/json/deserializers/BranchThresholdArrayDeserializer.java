@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
@@ -29,7 +30,7 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, CnecElementHelper cnecElementHelper, String version) throws IOException {
+    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, CnecElementHelper cnecElementHelper, Version version) throws IOException {
         //TODO: Refactor this method
         boolean iMaxFetched = false;
         Pair<Double, Double> nominalV = readAndAddNominalV(cnecElementHelper, ownerAdder);
@@ -55,7 +56,7 @@ public final class BranchThresholdArrayDeserializer {
                         branchThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     case JsonSerializationConstants.RULE:
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
+                        if (version.major() > 1 || version.minor() > 5) {
                             throw new OpenRaoException("Branch threshold rule is not handled since CRAC version 1.6");
                         } else {
                             branchThresholdAdder.withSide(JsonSerializationConstants.convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV));
@@ -63,8 +64,8 @@ public final class BranchThresholdArrayDeserializer {
                         break;
                     case JsonSerializationConstants.SIDE:
                         JsonToken side = jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
-                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 3) {
+                        if (version.major() > 2
+                            || version.major() == 2 && version.minor() > 3) {
                             if (side == JsonToken.VALUE_NUMBER_INT) {
                                 branchThresholdAdder.withSide(JsonSerializationConstants.deserializeSide(jsonParser.getIntValue()));
                             } else if (Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.LEFT_SIDE)

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
@@ -31,7 +32,7 @@ public final class AngleCnecArrayDeserializer {
     private AngleCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Version version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnecAdder angleCnecAdder = crac.newAngleCnec();
             List<Extension<AngleCnec>> extensions = new ArrayList<>();
@@ -92,18 +93,18 @@ public final class AngleCnecArrayDeserializer {
         }
     }
 
-    private static void readReliabilityMargin(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+    private static void readReliabilityMargin(JsonParser jsonParser, Version version, AngleCnecAdder angleCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) <= 3) {
+        if (version.major() <= 1 && version.minor() <= 3) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, JsonSerializationConstants.RELIABILITY_MARGIN));
         }
         jsonParser.nextToken();
         angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
     }
 
-    private static void readFrm(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+    private static void readFrm(JsonParser jsonParser, Version version, AngleCnecAdder angleCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 3) {
+        if (version.major() > 1 || version.minor() > 3) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, JsonSerializationConstants.FRM));
         }
         jsonParser.nextToken();

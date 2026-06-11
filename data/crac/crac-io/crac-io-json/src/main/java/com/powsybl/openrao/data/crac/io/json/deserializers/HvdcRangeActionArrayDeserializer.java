@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
@@ -25,7 +26,7 @@ public final class HvdcRangeActionArrayDeserializer {
     private HvdcRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser, Version version, Crac crac, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
             String networkElementId = null;

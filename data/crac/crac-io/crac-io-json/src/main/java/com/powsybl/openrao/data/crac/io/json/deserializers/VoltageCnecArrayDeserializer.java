@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
@@ -35,8 +36,6 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.O
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPTIMIZED;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.RELIABILITY_MARGIN;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.THRESHOLDS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -46,7 +45,7 @@ public final class VoltageCnecArrayDeserializer {
     private VoltageCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Version version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec();
             List<Extension<VoltageCnec>> extensions = new ArrayList<>();
@@ -104,18 +103,18 @@ public final class VoltageCnecArrayDeserializer {
         }
     }
 
-    private static void readReliabilityMargin(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
+    private static void readReliabilityMargin(JsonParser jsonParser, Version version, VoltageCnecAdder voltageCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
+        if (version.major() <= 1 && version.minor() <= 3) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
         }
         jsonParser.nextToken();
         voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
     }
 
-    private static void readFrm(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
+    private static void readFrm(JsonParser jsonParser, Version version, VoltageCnecAdder voltageCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
+        if (version.major() > 1 || version.minor() > 3) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, FRM));
         }
         jsonParser.nextToken();

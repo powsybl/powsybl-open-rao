@@ -13,6 +13,7 @@ import com.google.auto.service.AutoService;
 import com.networknt.schema.JsonSchema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
@@ -60,7 +61,7 @@ public class JsonImport implements Importer {
                 if (validationError.isEmpty()) {
                     return true;
                 }
-                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
+                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.major(), cracVersion.minor(), String.join("; ", validationError)));
             }
             return false;
         } catch (IOException e) {
@@ -94,9 +95,11 @@ public class JsonImport implements Importer {
     private static Version readVersion(ByteArrayInputStream cracByteArrayInputStream) {
         String cracContent = new String(cracByteArrayInputStream.readAllBytes(), StandardCharsets.UTF_8);
         cracByteArrayInputStream.reset();
-        Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
+        Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*\\.\\d+)\"");
         Matcher versionMatcher = versionPattern.matcher(cracContent);
-        versionMatcher.find();
-        return new Version(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
+        if (versionMatcher.find()) {
+            return Version.parse(versionMatcher.group(1));
+        }
+        throw new OpenRaoException("Could not find version in CRAC file");
     }
 }

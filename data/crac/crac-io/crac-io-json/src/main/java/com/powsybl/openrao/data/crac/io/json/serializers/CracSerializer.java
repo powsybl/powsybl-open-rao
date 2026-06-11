@@ -44,7 +44,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeStartObject();
 
         gen.writeStringField(JsonSerializationConstants.TYPE, JsonSerializationConstants.CRAC_TYPE);
-        gen.writeStringField(JsonSerializationConstants.VERSION, JsonSerializationConstants.CRAC_IO_VERSION);
+        gen.writeStringField(JsonSerializationConstants.VERSION, JsonSerializationConstants.CRAC_IO_VERSION.toString());
         gen.writeStringField(JsonSerializationConstants.INFO, JsonSerializationConstants.CRAC_INFO);
         gen.writeStringField(JsonSerializationConstants.ID, crac.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, crac.getName());

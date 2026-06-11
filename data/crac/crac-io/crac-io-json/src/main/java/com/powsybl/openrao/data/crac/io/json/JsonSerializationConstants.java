@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -44,7 +45,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.11";
+    public static final Version CRAC_IO_VERSION = new Version(2, 11);
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -223,21 +224,6 @@ public final class JsonSerializationConstants {
     public static final String CLOSE_ACTION = "close";
 
     // manipulate version
-    public static int getPrimaryVersionNumber(String fullVersion) {
-        return Integer.parseInt(divideVersionNumber(fullVersion)[0]);
-    }
-
-    public static int getSubVersionNumber(String fullVersion) {
-        return Integer.parseInt(divideVersionNumber(fullVersion)[1]);
-    }
-
-    private static String[] divideVersionNumber(String fullVersion) {
-        String[] dividedV = fullVersion.split("\\.");
-        if (dividedV.length != 2 || !Arrays.stream(dividedV).allMatch(StringUtils::isNumeric)) {
-            throw new OpenRaoException("json CRAC version number must be of the form vX.Y");
-        }
-        return dividedV;
-    }
 
     // serialization of enums
 
@@ -512,10 +498,10 @@ public final class JsonSerializationConstants {
      * @param version    The current version to compare against the removed field's version.
      * @throws OpenRaoException If the field is not expected based on the version constraints.
      */
-    public static void logDeprecatedField(int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, String version) throws IOException {
+    public static void logDeprecatedField(int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, Version version) throws IOException {
         jsonParser.nextToken();
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < major ||
-            JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) < minor) {
+        if (version.major() < major ||
+            version.major() == major && version.minor() < minor) {
             LOGGER.warn(message);
             jsonParser.readValueAs(parseClass);
         } else {

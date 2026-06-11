@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -30,7 +31,7 @@ public final class PstRangeActionArrayDeserializer {
     private PstRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser, Version version, Crac crac, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -142,8 +143,8 @@ public final class PstRangeActionArrayDeserializer {
         return phaseTapChangerFromNetwork;
     }
 
-    private static void deserializeOnStateUsageRules(JsonParser jsonParser, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
+    private static void deserializeOnStateUsageRules(JsonParser jsonParser, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
+        if (version.major() > 1 || version.minor() > 5) {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -151,8 +152,8 @@ public final class PstRangeActionArrayDeserializer {
         }
     }
 
-    private static void deserializeFreeToUseUsageRules(JsonParser jsonParser, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
+    private static void deserializeFreeToUseUsageRules(JsonParser jsonParser, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
+        if (version.major() > 1 || version.minor() > 5) {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -160,9 +161,9 @@ public final class PstRangeActionArrayDeserializer {
         }
     }
 
-    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2
-            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
+    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
+        if (version.major() < 2
+            || version.major() == 2 && version.minor() < 4) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));

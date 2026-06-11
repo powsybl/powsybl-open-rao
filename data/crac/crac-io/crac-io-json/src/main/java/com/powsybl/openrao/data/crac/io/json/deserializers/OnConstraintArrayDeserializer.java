@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -22,8 +23,6 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.F
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNEC_ID;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -32,7 +31,7 @@ public final class OnConstraintArrayDeserializer {
     private OnConstraintArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, Version version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnConstraintAdder<?, ?> adder = ownerAdder.newOnConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -68,8 +67,8 @@ public final class OnConstraintArrayDeserializer {
         }
     }
 
-    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, OnConstraintAdder<?, ?> adder) throws IOException {
-        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
+    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, OnConstraintAdder<?, ?> adder) throws IOException {
+        if (version.major() < 2 || version.major() == 2 && version.minor() < 4) {
             adder.withCnec(jsonParser.nextTextValue());
         } else {
             throw new OpenRaoException("Unsupported field %s for OnConstraint usage rule in CRAC version >= 2.4".formatted(keyword));

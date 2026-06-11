@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
@@ -37,7 +38,7 @@ public final class InjectionRangeActionArrayDeserializer {
 
     static Set<String> networkElementsUsedList;
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
+    public static void deserialize(JsonParser jsonParser, Version version, Crac crac, Network network) throws IOException {
         networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();

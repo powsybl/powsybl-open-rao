@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -29,7 +30,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
     private OnFlowConstraintInCountryArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, Version version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintInCountryAdder<?> adder = ownerAdder.newOnFlowConstraintInCountryUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {

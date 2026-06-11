@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -25,7 +26,7 @@ public final class OnInstantArrayDeserializer {
     private OnInstantArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, Version version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {

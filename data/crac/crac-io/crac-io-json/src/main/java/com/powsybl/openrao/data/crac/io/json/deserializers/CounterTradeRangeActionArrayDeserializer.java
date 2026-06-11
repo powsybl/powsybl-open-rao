@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -23,7 +24,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
     private CounterTradeRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac) throws IOException {
+    public static void deserialize(JsonParser jsonParser, Version version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
@@ -35,7 +36,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
     }
 
-    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
+    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, Version version) throws IOException {
         if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version)) {
             return;
         }

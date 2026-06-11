@@ -15,6 +15,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -56,7 +57,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         // check header
-        String version = isValid(jsonParser);
+        Version version = isValid(jsonParser);
         if (headerCheckOnly) {
             return null;
         }
@@ -78,7 +79,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             timestamp = null;
         }
         Crac crac = cracFactory.create(id, name, timestamp);
-        if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2) {
+        if (version.major() < 2) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)
                 .newInstant("auto", InstantKind.AUTO)
@@ -163,7 +164,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         return crac;
     }
 
-    public static String isValid(JsonParser jsonParser) throws IOException {
+    public static Version isValid(JsonParser jsonParser) throws IOException {
         if (!jsonParser.nextFieldName().equals(JsonSerializationConstants.TYPE)) {
             throw new OpenRaoException(String.format("json CRAC must start with field %s", JsonSerializationConstants.TYPE));
         }
@@ -173,8 +174,8 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         if (!jsonParser.nextFieldName().equals(JsonSerializationConstants.VERSION)) {
             throw new OpenRaoException(String.format("%s must contain a %s in its second field", JsonSerializationConstants.CRAC_TYPE, JsonSerializationConstants.VERSION));
         }
-        String version = jsonParser.nextTextValue();
-        checkVersion(version);
+        String versionString = jsonParser.nextTextValue();
+        Version version = checkVersion(versionString);
         jsonParser.nextToken();
         return version;
     }
@@ -188,21 +189,22 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
     }
 
-    private static void checkVersion(String cracVersion) {
+    private static Version checkVersion(String cracVersion) {
+        Version version = Version.parse(cracVersion);
 
-        if (JsonSerializationConstants.getPrimaryVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) > JsonSerializationConstants.getPrimaryVersionNumber(cracVersion)) {
+        if (JsonSerializationConstants.CRAC_IO_VERSION.major() > version.major()) {
             LOGGER.warn(
                 "CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file",
                 JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
             );
         }
-        if (JsonSerializationConstants.getPrimaryVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) < JsonSerializationConstants.getPrimaryVersionNumber(cracVersion)) {
+        if (version.compareTo(JsonSerializationConstants.CRAC_IO_VERSION) > 0) {
             throw new OpenRaoException(String.format(
                 "CRAC importer %s cannot handle json CRAC version %s, consider upgrading open-rao version",
                 JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
             ));
         }
-        if (JsonSerializationConstants.getSubVersionNumber(JsonSerializationConstants.CRAC_IO_VERSION) < JsonSerializationConstants.getSubVersionNumber(cracVersion)) {
+        if (JsonSerializationConstants.CRAC_IO_VERSION.minor() < version.minor()) {
             LOGGER.warn(
                 "CRAC importer {} might not be compatible with json CRAC version {}, consider upgrading open-rao version",
                 JsonSerializationConstants.CRAC_IO_VERSION, cracVersion
@@ -210,5 +212,6 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
 
         // otherwise, all is good !
+        return version;
     }
 }
