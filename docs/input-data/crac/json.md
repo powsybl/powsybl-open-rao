@@ -1378,7 +1378,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two areas. The exporting area send power to the importing area.
+A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
