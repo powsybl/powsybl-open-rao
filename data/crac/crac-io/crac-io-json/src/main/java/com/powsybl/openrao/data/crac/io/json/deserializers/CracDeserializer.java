@@ -79,7 +79,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             timestamp = null;
         }
         Crac crac = cracFactory.create(id, name, timestamp);
-        if (version.major() < 2) {
+        if (version.compareTo(new Version(2, 0)) < 0) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)
                 .newInstant("auto", InstantKind.AUTO)
@@ -91,7 +91,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             switch (jsonParser.currentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
                     JsonSerializationConstants.logDeprecatedField(
-                        2, 11,
+                        new Version(2, 11),
                         "The network elements names are now ignored and can be retrieved from the network",
                         jsonParser, HashMap.class, version
                     );

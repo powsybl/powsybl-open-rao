@@ -42,7 +42,7 @@ public final class OnConstraintArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 8,
+                            new Version(2, 8),
                             "Usage methods are no longer used.",
                             jsonParser, String.class, version
                         );
@@ -68,7 +68,7 @@ public final class OnConstraintArrayDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, OnConstraintAdder<?, ?> adder) throws IOException {
-        if (version.major() < 2 || version.major() == 2 && version.minor() < 4) {
+        if (version.compareTo(new Version(2, 4)) < 0) {
             adder.withCnec(jsonParser.nextTextValue());
         } else {
             throw new OpenRaoException("Unsupported field %s for OnConstraint usage rule in CRAC version >= 2.4".formatted(keyword));

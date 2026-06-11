@@ -38,12 +38,9 @@ public record Version(int major, int minor) implements Comparable<Version> {
         return false;
     }
 
-    public int majorVersion() {
-        return major;
-    }
-
-    public int minorVersion() {
-        return minor;
+    @Override
+    public int hashCode() {
+        return major * 100 + minor;
     }
 
     public static Version parse(String version) {

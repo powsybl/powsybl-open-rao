@@ -26,11 +26,9 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
@@ -491,21 +489,20 @@ public final class JsonSerializationConstants {
      * fields that are ignored even for older versions (e.g., values retrieved from the network,
      * fields removed from the API, redundant information, etc.).
      *
-     * @param major      The major version in which the field was removed.
-     * @param minor      The minor version in which the field was removed.
-     * @param message    A custom message describing the deprecation or removal of the field.
-     * @param parseClass The class type that the field is expected to parse into.
-     * @param version    The current version to compare against the removed field's version.
+     * @param deprecationVersion The version in which the field was removed.
+     * @param message            A custom message describing the deprecation or removal of the field.
+     * @param jsonParser         The JSON parser to read the field from.
+     * @param parseClass         The class type that the field is expected to parse into.
+     * @param version            The current version to compare against the removed field's version.
      * @throws OpenRaoException If the field is not expected based on the version constraints.
      */
-    public static void logDeprecatedField(int major, int minor, String message, JsonParser jsonParser, Class<?> parseClass, Version version) throws IOException {
+    public static void logDeprecatedField(Version deprecationVersion, String message, JsonParser jsonParser, Class<?> parseClass, Version version) throws IOException {
         jsonParser.nextToken();
-        if (version.major() < major ||
-            version.major() == major && version.minor() < minor) {
+        if (version.compareTo(deprecationVersion) < 0) {
             LOGGER.warn(message);
             jsonParser.readValueAs(parseClass);
         } else {
-            throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
+            throw new OpenRaoException("From version %s onward, %s is no longer read in the CRAC.".formatted(deprecationVersion, jsonParser.currentName()));
         }
     }
 }

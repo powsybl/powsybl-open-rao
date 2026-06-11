@@ -93,14 +93,14 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case JsonSerializationConstants.INITIAL_TAP:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 7,
+                            new Version(2, 7),
                             "The initial tap is now read from the network so the value in the CRAC will not be read.",
                             jsonParser, Integer.class, version
                         );
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 7,
+                            new Version(2, 7),
                             "The tap to angle conversion map is now read from the network so the value in the CRAC will not be read.",
                             jsonParser, HashMap.class, version
                         );
@@ -144,7 +144,7 @@ public final class PstRangeActionArrayDeserializer {
     }
 
     private static void deserializeOnStateUsageRules(JsonParser jsonParser, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (version.major() > 1 || version.minor() > 5) {
+        if (version.compareTo(new Version(1, 6)) >= 0) {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -153,7 +153,7 @@ public final class PstRangeActionArrayDeserializer {
     }
 
     private static void deserializeFreeToUseUsageRules(JsonParser jsonParser, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (version.major() > 1 || version.minor() > 5) {
+        if (version.compareTo(new Version(1, 6)) >= 0) {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -162,8 +162,7 @@ public final class PstRangeActionArrayDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (version.major() < 2
-            || version.major() == 2 && version.minor() < 4) {
+        if (version.compareTo(new Version(2, 4)) < 0) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));

@@ -49,7 +49,7 @@ public final class StandardRangeActionDeserializer {
                 OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
-                if (version.major() > 1 || version.minor() > 5) {
+                if (version.compareTo(new Version(1, 6)) >= 0) {
                     throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
@@ -61,7 +61,7 @@ public final class StandardRangeActionDeserializer {
                 OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.ON_STATE_USAGE_RULES:
-                if (version.major() > 1 || version.minor() > 5) {
+                if (version.compareTo(new Version(1, 6)) >= 0) {
                     throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
@@ -92,8 +92,7 @@ public final class StandardRangeActionDeserializer {
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.INITIAL_SETPOINT:
-                if (version.major() > 2
-                    || version.major() == 2 && version.minor() > 7) {
+                if (version.compareTo(new Version(2, 8)) >= 0) {
                     throw new OpenRaoException("initialSetpoint field is no longer used since CRAC version 2.8, the value is now directly determined from the network");
                 } else {
                     jsonParser.nextToken();
@@ -125,8 +124,7 @@ public final class StandardRangeActionDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, StandardRangeActionAdder<?> standardRangeActionAdder) throws IOException {
-        if (version.major() < 2
-            || version.major() == 2 && version.minor() < 4) {
+        if (version.compareTo(new Version(2, 4)) < 0) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));

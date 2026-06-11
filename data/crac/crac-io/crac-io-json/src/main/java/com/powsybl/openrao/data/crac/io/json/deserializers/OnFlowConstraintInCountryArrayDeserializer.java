@@ -44,7 +44,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 8,
+                            new Version(2, 8),
                             "Usage methods are no longer used.",
                             jsonParser, String.class, version
                         );

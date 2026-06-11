@@ -80,14 +80,14 @@ public final class FlowCnecArrayDeserializer {
                         break;
                     case JsonSerializationConstants.I_MAX:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 8,
+                            new Version(2, 8),
                             "The iMax is now fetched in the network so the value in the CRAC will not be read.",
                             jsonParser, Double[].class, version
                         );
                         break;
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
                         JsonSerializationConstants.logDeprecatedField(
-                            2, 8,
+                            new Version(2, 8),
                             "The nominalV is now fetched in the network so the value in the CRAC will not be read.",
                             jsonParser, Double[].class, version
                         );
@@ -122,7 +122,7 @@ public final class FlowCnecArrayDeserializer {
 
     private static void readReliabilityMargin(JsonParser jsonParser, Version version, FlowCnecAdder flowCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (version.major() <= 1 && version.minor() <= 3) {
+        if (version.compareTo(new Version(1, 4)) < 0) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, JsonSerializationConstants.RELIABILITY_MARGIN));
         }
         jsonParser.nextToken();
@@ -131,7 +131,7 @@ public final class FlowCnecArrayDeserializer {
 
     private static void readFrm(JsonParser jsonParser, Version version, FlowCnecAdder flowCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
-        if (version.major() > 1 || version.minor() > 3) {
+        if (version.compareTo(new Version(1, 4)) >= 0) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, JsonSerializationConstants.FRM));
         }
         jsonParser.nextToken();

@@ -56,7 +56,7 @@ public final class BranchThresholdArrayDeserializer {
                         branchThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     case JsonSerializationConstants.RULE:
-                        if (version.major() > 1 || version.minor() > 5) {
+                        if (version.compareTo(new Version(1, 6)) >= 0) {
                             throw new OpenRaoException("Branch threshold rule is not handled since CRAC version 1.6");
                         } else {
                             branchThresholdAdder.withSide(JsonSerializationConstants.convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV));
@@ -64,8 +64,7 @@ public final class BranchThresholdArrayDeserializer {
                         break;
                     case JsonSerializationConstants.SIDE:
                         JsonToken side = jsonParser.nextToken();
-                        if (version.major() > 2
-                            || version.major() == 2 && version.minor() > 3) {
+                        if (version.compareTo(new Version(2, 4)) >= 0) {
                             if (side == JsonToken.VALUE_NUMBER_INT) {
                                 branchThresholdAdder.withSide(JsonSerializationConstants.deserializeSide(jsonParser.getIntValue()));
                             } else if (Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.LEFT_SIDE)

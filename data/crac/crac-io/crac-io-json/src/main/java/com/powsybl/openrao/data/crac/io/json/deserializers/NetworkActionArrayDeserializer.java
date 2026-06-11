@@ -74,8 +74,7 @@ public final class NetworkActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.TOPOLOGICAL_ACTIONS:
-                        if (version.major() > 2
-                            || version.major() == 2 && version.minor() > 4) {
+                        if (version.compareTo(new Version(2, 5)) >= 0) {
                             throw new OpenRaoException(String.format(
                                 "%s is either %s or %s since CRAC version 2.5",
                                 JsonSerializationConstants.TOPOLOGICAL_ACTIONS, JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS, JsonSerializationConstants.SWITCH_ACTIONS
@@ -86,8 +85,7 @@ public final class NetworkActionArrayDeserializer {
                         }
                         break;
                     case JsonSerializationConstants.PST_SETPOINTS:
-                        if (version.major() > 2
-                            || version.major() == 2 && version.minor() > 4) {
+                        if (version.compareTo(new Version(2, 5)) >= 0) {
                             throw new OpenRaoException(String.format(
                                 "%s is now %s since CRAC version 2.5",
                                 JsonSerializationConstants.PST_SETPOINTS, JsonSerializationConstants.PHASETAPCHANGER_TAPPOSITION_ACTIONS
@@ -98,8 +96,7 @@ public final class NetworkActionArrayDeserializer {
                         }
                         break;
                     case JsonSerializationConstants.INJECTION_SETPOINTS:
-                        if (version.major() > 2
-                            || version.major() == 2 && version.minor() > 4) {
+                        if (version.compareTo(new Version(2, 5)) >= 0) {
                             throw new OpenRaoException(String.format(
                                 "%s is either %s, or %s, or %s, or %s since CRAC version 2.5",
                                 JsonSerializationConstants.INJECTION_SETPOINTS,
@@ -142,7 +139,7 @@ public final class NetworkActionArrayDeserializer {
                             throw new OpenRaoException("%s were renamed to %s from version 2.10.".formatted(JsonSerializationConstants.DANGLINGLINE_ACTIONS, JsonSerializationConstants.BOUNDARYLINE_ACTIONS));
                         }
                     case JsonSerializationConstants.BOUNDARYLINE_ACTIONS:
-                        if (version.major() == 1 || version.major() == 2 && version.minor() <= 9) {
+                        if (version.compareTo(new Version(2, 10)) < 0) {
                             throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
                         }
                         jsonParser.nextToken();
@@ -179,7 +176,7 @@ public final class NetworkActionArrayDeserializer {
     }
 
     private static void deserializeOnStateUsageRules(JsonParser jsonParser, Version version, NetworkActionAdder networkActionAdder) throws IOException {
-        if (version.major() > 1 || version.minor() > 5) {
+        if (version.compareTo(new Version(1, 6)) >= 0) {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -188,7 +185,7 @@ public final class NetworkActionArrayDeserializer {
     }
 
     private static void deserializeFreeToUseUsageRules(JsonParser jsonParser, Version version, NetworkActionAdder networkActionAdder) throws IOException {
-        if (version.major() > 1 || version.minor() > 5) {
+        if (version.compareTo(new Version(1, 6)) >= 0) {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
@@ -197,8 +194,7 @@ public final class NetworkActionArrayDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, Version version, NetworkActionAdder networkActionAdder) throws IOException {
-        if (version.major() < 2
-            || version.major() == 2 && version.minor() < 4) {
+        if (version.compareTo(new Version(2, 4)) < 0) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
