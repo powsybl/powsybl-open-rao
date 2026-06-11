@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -63,19 +64,20 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
     private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
 
-    public PostOptimizationResult(RaoInput raoInput,
-                                  PrePerimeterResult initialResult,
-                                  GlobalLinearOptimizationResult postMipResult,
-                                  Set<NetworkAction> preventiveTopologicalActions,
-                                  AppliedRemedialActions curativeRemedialActions,
-                                  RaoParameters raoParameters) {
+    public PostOptimizationResult(final RaoInput raoInput,
+                                  final PrePerimeterResult initialResult,
+                                  final GlobalLinearOptimizationResult postMipResult,
+                                  final Set<NetworkAction> preventiveTopologicalActions,
+                                  final AppliedRemedialActions curativeRemedialActions,
+                                  final RaoParameters raoParameters,
+                                  final ReportNode reportNode) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.postMipResult = postMipResult;
         this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
-        this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);
+        this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
     }
 
     @Override
