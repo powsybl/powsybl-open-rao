@@ -37,6 +37,7 @@ Feature: 6.1.1: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch rao
     When I launch PST regulation
+#    Then I export rao reports to "reports/reports_6.1.1.1.b.txt"
     Then the execution details should be "The RAO only went through first preventive and went through PST regulation"
     Then its security status should be "UNSECURED"
     Then the worst margin is -1382.77 A
