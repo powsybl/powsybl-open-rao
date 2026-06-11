@@ -9,14 +9,13 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
