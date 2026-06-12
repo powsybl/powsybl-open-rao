@@ -62,15 +62,15 @@ public class NcRemedialActionsCreator {
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
-            .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
+                .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
 
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
 
         Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction)
-            .aggregate(nativeCrac.getAssessedElementWithRemedialActions());
+                .aggregate(nativeCrac.getAssessedElementWithRemedialActions());
 
         Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
-            .aggregate(nativeCrac.getContingencyWithRemedialActions());
+                .aggregate(nativeCrac.getContingencyWithRemedialActions());
 
         this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
@@ -102,27 +102,37 @@ public class NcRemedialActionsCreator {
 
     private void addCountertradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction) {
         String remedialActionId = countertradeRemedialAction.mrid();
+        RemedialActionKind kind = RemedialActionKind.fromUrl(countertradeRemedialAction.kind());
 
         try {
             if (remedialActionId == null) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "its mRID is missing");
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                        String.format("Remedial action %s will not be imported because its mRID is missing",
+                                countertradeRemedialAction.name()
+                        ));
+            }
+            if (!RemedialActionKind.PREVENTIVE.equals(kind)) {
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                        String.format("Remedial action %s will not be imported because unsupported kind is provided",
+                                remedialActionId
+                        ));
             }
 
             List<String> alterations = new ArrayList<>();
-            CounterTradeRangeActionAdder remedialActionAdder = counterTradingRangeActionCreator.getCounterTradeRangeActionAdder(
+            CounterTradeRangeActionAdder counterTradeRangeActionAdder = counterTradingRangeActionCreator.getCounterTradeRangeActionAdder(
                     countertradeRemedialAction,
                     remedialActionId,
                     alterations);
 
             if (countertradeRemedialAction.name() != null) {
-                remedialActionAdder.withName(countertradeRemedialAction.name());
+                counterTradeRangeActionAdder.withName(countertradeRemedialAction.name());
             }
             if (countertradeRemedialAction.getTimeToImplementInSeconds() != null) {
-                remedialActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
+                counterTradeRangeActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
             }
             crac.getInstants(getInstantKind(countertradeRemedialAction))
-                    .forEach(instant -> addOnInstantUsageRules(remedialActionId, remedialActionAdder, instant));
-            remedialActionAdder.add();
+                    .forEach(instant -> addOnInstantUsageRules(remedialActionId, counterTradeRangeActionAdder, instant));
+            counterTradeRangeActionAdder.add();
 
             saveImportedContext(countertradeRemedialAction, alterations);
         } catch (OpenRaoImportException e) {
@@ -131,9 +141,9 @@ public class NcRemedialActionsCreator {
     }
 
     private void addGridStateRemedialAction(GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
-                                           Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                           Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                           Set<ElementaryCreationContext> cnecCreationContexts) {
+                                            Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
+                                            Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
+                                            Set<ElementaryCreationContext> cnecCreationContexts) {
 
         List<String> alterations = new ArrayList<>();
         try {
@@ -275,17 +285,17 @@ public class NcRemedialActionsCreator {
 
     private void saveImportedContext(NativeRemedialAction nativeRemedialAction, List<String> alterations) {
         contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(
-            nativeRemedialAction.mrid(),
-            nativeRemedialAction.name(),
-            nativeRemedialAction.mrid(),
-            !alterations.isEmpty(),
-            String.join(ALTERATIONS_SEPARATOR, alterations)
+                nativeRemedialAction.mrid(),
+                nativeRemedialAction.name(),
+                nativeRemedialAction.mrid(),
+                !alterations.isEmpty(),
+                String.join(ALTERATIONS_SEPARATOR, alterations)
         ));
     }
 
     private void saveNotImportedContext(String remedialActionId, OpenRaoImportException e) {
         contextByRaId.put(remedialActionId,
-            StandardElementaryCreationContext.notImported(remedialActionId, null, e.getImportStatus(), e.getMessage())
+                StandardElementaryCreationContext.notImported(remedialActionId, null, e.getImportStatus(), e.getMessage())
         );
 
     }
@@ -323,27 +333,27 @@ public class NcRemedialActionsCreator {
     }
 
     private void addOnConstraintUsageRules(String remedialActionId,
-                                              Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions,
-                                              Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions,
-                                              Set<ElementaryCreationContext> cnecCreationContexts,
-                                              RemedialActionAdder<?> remedialActionAdder,
-                                              List<String> alterations,
-                                              Instant instant) {
+                                           Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions,
+                                           Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions,
+                                           Set<ElementaryCreationContext> cnecCreationContexts,
+                                           RemedialActionAdder<?> remedialActionAdder,
+                                           List<String> alterations,
+                                           Instant instant) {
         Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(
-            crac,
-            remedialActionId,
-            linkedAssessedElementWithRemedialActions,
-            linkedContingencyWithRemedialActions,
-            cnecCreationContexts
+                crac,
+                remedialActionId,
+                linkedAssessedElementWithRemedialActions,
+                linkedContingencyWithRemedialActions,
+                cnecCreationContexts
         );
         cnecStatusMap.forEach((cnecId, cnecStatus) -> {
             if (cnecStatus.isValid()) {
                 Cnec<?> cnec = crac.getCnec(cnecId);
                 if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), instant)) {
                     remedialActionAdder.newOnConstraintUsageRule()
-                        .withInstant(instant.getId())
-                        .withCnec(cnecId)
-                        .add();
+                            .withInstant(instant.getId())
+                            .withCnec(cnecId)
+                            .add();
                 }
             } else {
                 alterations.add(cnecStatus.statusDetails());
@@ -352,24 +362,24 @@ public class NcRemedialActionsCreator {
     }
 
     private void addOnContingencyStateUsageRules(String remedialActionId,
-                                                    Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions,
-                                                    RemedialActionAdder<?> remedialActionAdder,
-                                                    List<String> alterations,
-                                                    Instant instant) {
+                                                 Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions,
+                                                 RemedialActionAdder<?> remedialActionAdder,
+                                                 List<String> alterations,
+                                                 Instant instant) {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper
-            .processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
+                .processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
         if (instant.isPreventive() && !linkedContingencyWithRemedialActions.isEmpty()) {
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                "Remedial action %s will not be imported because it is linked to a contingency but is not curative".formatted(remedialActionId)
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    "Remedial action %s will not be imported because it is linked to a contingency but is not curative".formatted(remedialActionId)
             );
         }
         contingencyStatusMap.forEach((contingencyId, contingencyStatus) -> {
             if (contingencyStatus.isValid()) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
-                    .withInstant(instant.getId())
-                    .withContingency(contingencyId)
-                    .add();
+                        .withInstant(instant.getId())
+                        .withContingency(contingencyId)
+                        .add();
             } else {
                 alterations.add(contingencyStatus.statusDetails());
             }
@@ -380,9 +390,9 @@ public class NcRemedialActionsCreator {
     private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?> remedialActionAdder, Instant instant) {
         if (instant.isAuto()) {
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                ("Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action " +
-                    "and this is nor supported for ARAs").formatted(remedialActionId)
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    ("Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action " +
+                            "and this is nor supported for ARAs").formatted(remedialActionId)
             );
         }
         remedialActionAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
@@ -405,14 +415,14 @@ public class NcRemedialActionsCreator {
     private static void checkKind(NativeRemedialAction nativeRemedialAction) {
         if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", nativeRemedialAction.mrid())
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", nativeRemedialAction.mrid())
             );
         }
         if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind()) && !nativeRemedialAction.isManual()) {
             throw new OpenRaoImportException(
-                ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
-                "OpenRAO does not support preventive automatons, remedial action %s will be ignored".formatted(nativeRemedialAction.mrid())
+                    ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                    "OpenRAO does not support preventive automatons, remedial action %s will be ignored".formatted(nativeRemedialAction.mrid())
             );
         }
     }
@@ -430,8 +440,8 @@ public class NcRemedialActionsCreator {
             remedialActionType = RemedialActionType.PST_RANGE_ACTION;
         } else {
             throw new OpenRaoImportException(
-                ImportStatus.NOT_FOR_RAO,
-                String.format("Remedial action %s will not be imported because it has no elementary action", remedialActionId)
+                    ImportStatus.NOT_FOR_RAO,
+                    String.format("Remedial action %s will not be imported because it has no elementary action", remedialActionId)
             );
         }
         return remedialActionType;
@@ -449,10 +459,10 @@ public class NcRemedialActionsCreator {
             String groupName = remedialActionGroup.name() == null ? remedialActionGroup.mrid() : remedialActionGroup.name();
             try {
                 Set<RemedialActionDependency> dependingEnabledRemedialActions = remedialActionDependenciesByGroup
-                    .getOrDefault(remedialActionGroup.mrid(), Set.of())
-                    .stream()
-                    .filter(RemedialActionDependency::normalEnabled)
-                    .collect(Collectors.toSet());
+                        .getOrDefault(remedialActionGroup.mrid(), Set.of())
+                        .stream()
+                        .filter(RemedialActionDependency::normalEnabled)
+                        .collect(Collectors.toSet());
                 if (!dependingEnabledRemedialActions.isEmpty()) {
                     RemedialActionDependency refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();
                     checkKindConsistency(remedialActionGroup, dependingEnabledRemedialActions, refRemedialActionDependency, standaloneRasImplicatedIntoAGroup);
@@ -481,12 +491,12 @@ public class NcRemedialActionsCreator {
                     addElementaryActionsToGroup(elementaryActions, networkActionAdder);
                     networkActionAdder.add();
                     contextByRaId.put(
-                        remedialActionGroup.mrid(),
-                        StandardElementaryCreationContext.imported(
-                             remedialActionGroup.mrid(), null, remedialActionGroup.mrid(), true,
-                             "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() +
-                                 " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions)
-                        )
+                            remedialActionGroup.mrid(),
+                            StandardElementaryCreationContext.imported(
+                                    remedialActionGroup.mrid(), null, remedialActionGroup.mrid(), true,
+                                    "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() +
+                                            " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions)
+                            )
                     );
                     standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                 }
@@ -504,11 +514,11 @@ public class NcRemedialActionsCreator {
         if (!dependingEnabledRemedialActions.stream().allMatch(raDependency -> refRemedialActionDependency.kind().equals(raDependency.kind()))) {
             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action group %s will not be imported because all related RemedialActionDependency must be of the same kind. " +
-                                  "All RA's depending in that group will be ignored: %s",
-                              remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions)
-                )
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Remedial action group %s will not be imported because all related RemedialActionDependency must be of the same kind. " +
+                                    "All RA's depending in that group will be ignored: %s",
+                            remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions)
+                    )
             );
         }
     }
@@ -521,11 +531,11 @@ public class NcRemedialActionsCreator {
         if (networkAction == null) {
             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action group %s will not be imported because the remedial action %s does not exist or not imported. " +
-                                  "All RA's depending in that group will be ignored: %s",
-                              remedialActionGroup.mrid(), remedialActionDependency.remedialAction(), printRaIds(dependingEnabledRemedialActions)
-                )
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Remedial action group %s will not be imported because the remedial action %s does not exist or not imported. " +
+                                    "All RA's depending in that group will be ignored: %s",
+                            remedialActionGroup.mrid(), remedialActionDependency.remedialAction(), printRaIds(dependingEnabledRemedialActions)
+                    )
             );
         }
     }
@@ -538,10 +548,10 @@ public class NcRemedialActionsCreator {
         if (!refNetworkAction.getUsageRules().equals(networkAction.getUsageRules())) {
             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
             throw new OpenRaoImportException(
-                ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action group %s will not be imported because all depending remedial actions " +
-                                  "must have the same usage rules. All RA's depending in that group will be ignored: %s",
-                              remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions))
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Remedial action group %s will not be imported because all depending remedial actions " +
+                                    "must have the same usage rules. All RA's depending in that group will be ignored: %s",
+                            remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions))
             );
         }
     }
@@ -550,24 +560,24 @@ public class NcRemedialActionsCreator {
         for (Action ea : elementaryActions) {
             if (ea instanceof GeneratorAction generatorAction) {
                 networkActionAdder.newGeneratorAction()
-                    .withNetworkElement(generatorAction.getGeneratorId())
-                    .withActivePowerValue(generatorAction.getActivePowerValue().getAsDouble())
-                    .add();
+                        .withNetworkElement(generatorAction.getGeneratorId())
+                        .withActivePowerValue(generatorAction.getActivePowerValue().getAsDouble())
+                        .add();
             } else if (ea instanceof LoadAction loadAction) {
                 networkActionAdder.newLoadAction()
-                    .withNetworkElement(loadAction.getLoadId())
-                    .withActivePowerValue(loadAction.getActivePowerValue().getAsDouble())
-                    .add();
+                        .withNetworkElement(loadAction.getLoadId())
+                        .withActivePowerValue(loadAction.getActivePowerValue().getAsDouble())
+                        .add();
             } else if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
                 networkActionAdder.newShuntCompensatorPositionAction()
-                    .withNetworkElement(shuntCompensatorPositionAction.getShuntCompensatorId())
-                    .withSectionCount(shuntCompensatorPositionAction.getSectionCount())
-                    .add();
+                        .withNetworkElement(shuntCompensatorPositionAction.getShuntCompensatorId())
+                        .withSectionCount(shuntCompensatorPositionAction.getSectionCount())
+                        .add();
             } else if (ea instanceof SwitchAction switchAction) {
                 networkActionAdder.newSwitchAction()
-                    .withNetworkElement(switchAction.getSwitchId())
-                    .withActionType(switchAction.isOpen() ? ActionType.OPEN : ActionType.CLOSE)
-                    .add();
+                        .withNetworkElement(switchAction.getSwitchId())
+                        .withActionType(switchAction.isOpen() ? ActionType.OPEN : ActionType.CLOSE)
+                        .add();
             }
         }
     }
@@ -579,30 +589,30 @@ public class NcRemedialActionsCreator {
         onConstraintUsageRules.forEach(ur -> {
             OnConstraint<?> onConstraintUsageRule = (OnConstraint<?>) ur;
             networkActionAdder.newOnConstraintUsageRule()
-                .withInstant(onConstraintUsageRule.getInstant().getId())
-                .withCnec(onConstraintUsageRule.getCnec().getId())
-                .add();
+                    .withInstant(onConstraintUsageRule.getInstant().getId())
+                    .withCnec(onConstraintUsageRule.getCnec().getId())
+                    .add();
         });
         onContingencyStateUsageRules.forEach(ur -> {
             OnContingencyState onContingencyStateUsageRule = (OnContingencyState) ur;
             networkActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(onContingencyStateUsageRule.getInstant().getId())
-                .withContingency(onContingencyStateUsageRule.getContingency().getId())
-                .add();
+                    .withInstant(onContingencyStateUsageRule.getInstant().getId())
+                    .withContingency(onContingencyStateUsageRule.getContingency().getId())
+                    .add();
         });
         onInstantUsageRules.forEach(ur -> {
             OnInstant onInstantUsageRule = (OnInstant) ur;
             networkActionAdder.newOnInstantUsageRule()
-                .withInstant(onInstantUsageRule.getInstant().getId())
-                .add();
+                    .withInstant(onInstantUsageRule.getInstant().getId())
+                    .add();
         });
 
     }
 
     private static String printRaIds(Set<RemedialActionDependency> dependingEnabledRemedialActions) {
         return dependingEnabledRemedialActions.stream()
-            .map(RemedialActionDependency::remedialAction)
-            .sorted(String::compareTo)
-            .collect(Collectors.joining(", "));
+                .map(RemedialActionDependency::remedialAction)
+                .sorted(String::compareTo)
+                .collect(Collectors.joining(", "));
     }
 }

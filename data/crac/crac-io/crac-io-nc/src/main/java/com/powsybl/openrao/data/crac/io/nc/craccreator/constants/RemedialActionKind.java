@@ -26,4 +26,13 @@ public enum RemedialActionKind {
     public String toString() {
         return URL + this.name;
     }
+
+    public static RemedialActionKind fromUrl(String kindUrl) {
+        for (RemedialActionKind remedialActionKind : values()) {
+            if (remedialActionKind.toString().equals(kindUrl)) {
+                return remedialActionKind;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant " + RemedialActionKind.class.getCanonicalName() + "." + kindUrl);
+    }
 }
