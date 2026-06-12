@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
@@ -25,7 +24,7 @@ import java.util.List;
 public class CounterTradingRangeActionCreator {
     private final Crac crac;
 
-    public record CounterTradingCountries(Country importingCountry, Country exportingCountry) { }
+    public record CounterTradingAreas(String importingArea, String exportingArea) { }
 
     public CounterTradingRangeActionCreator(Crac crac) {
         this.crac = crac;
@@ -60,38 +59,39 @@ public class CounterTradingRangeActionCreator {
             maxRange = countertradeRemedialAction.maxRegulatingUp();
         }
 
-        CounterTradingCountries counterTradingCountries = getImportingExportingCountries(countertradeRemedialAction, remedialActionId);
+        CounterTradingAreas counterTradingAreas = getImportingExportingAreas(countertradeRemedialAction, remedialActionId);
 
         return crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
-                .withImportingCountry(counterTradingCountries.importingCountry())
-                .withExportingCountry(counterTradingCountries.exportingCountry());
+                .withImportingArea(counterTradingAreas.importingArea())
+                .withExportingArea(counterTradingAreas.exportingArea());
     }
 
     /**
-     * Get the importing and exporting countries of a CountertradeRemedialAction
+     * Get the importing and exporting areas of a CountertradeRemedialAction
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction object
      * @param remedialActionId                  ID of the RemedialAction (RA id)
-     * @return CounterTradingCountries          record containing the importing and exporting countries of the counter trading remedial action
+     * @return CounterTradingAreas              record containing the importing and exporting areas of the counter trading remedial action
      */
-    private static CounterTradingCountries getImportingExportingCountries(CountertradeRemedialAction countertradeRemedialAction,
-                                                                          String remedialActionId) {
+    private static CounterTradingAreas getImportingExportingAreas(CountertradeRemedialAction countertradeRemedialAction,
+                                                                  String remedialActionId) {
+
         String operatorEic = NcCracUtils.getEicFromUrl(countertradeRemedialAction.operator());
         if (TsoEICode.FR.getEICode().equals(operatorEic)) { // if it is FR, we know imp/exp countries.
-            return new CounterTradingCountries(Country.ES, Country.FR);
+            return new CounterTradingAreas("ES", "FR");
         } else if (TsoEICode.PT.getEICode().equals(operatorEic)) { // if it is PT, we know imp/exp countries.
-            return new CounterTradingCountries(Country.ES, Country.PT);
+            return new CounterTradingAreas("ES", "PT");
         } else if (TsoEICode.ES.getEICode().equals(operatorEic)) { // If ES, determine with the regionCode
             String regionCode = NcCracUtils.getEicFromUrl(countertradeRemedialAction.region());
             if ("10YDOM--ES-FR--D".equals(regionCode)) {
-                return new CounterTradingCountries(Country.FR, Country.ES);
+                return new CounterTradingAreas("FR", "ES");
             }
             if ("10YDOM--ES-PT--T".equals(regionCode)) {
-                return new CounterTradingCountries(Country.PT, Country.ES);
+                return new CounterTradingAreas("PT", "ES");
             }
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
                 String.format("Remedial action %s will not be imported because border %s is not supported for ES counter-trading.", remedialActionId, regionCode));

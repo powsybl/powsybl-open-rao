@@ -373,14 +373,14 @@ public final class NcCracCreationTestUtil {
     public static void assertCounterTradeRangeActionsImported(CounterTradeRangeAction counterTradeRangeAction,
                                                               String expectedId,
                                                               String expectedName,
-                                                              double expectedMaxRegulatingUp,
-                                                              double expectedMaxRegulatingDown,
+                                                              double expectedMaxRange,
+                                                              double expectedMinRange,
                                                               String expectedOperator) {
         assertEquals(expectedId, counterTradeRangeAction.getId());
         assertEquals(expectedName, counterTradeRangeAction.getName());
         assertEquals(expectedOperator, counterTradeRangeAction.getOperator());
-        assertEquals(expectedMaxRegulatingUp, counterTradeRangeAction.getRanges().getFirst().getMax());
-        assertEquals(expectedMaxRegulatingDown, counterTradeRangeAction.getRanges().getFirst().getMin());
+        assertEquals(expectedMaxRange, counterTradeRangeAction.getRanges().getFirst().getMax());
+        assertEquals(expectedMinRange, counterTradeRangeAction.getRanges().getFirst().getMin());
     }
 
     public static NcCracCreationContext getNcCracCreationContext(String ncArchive, CracCreationParameters cracCreationParameters) {

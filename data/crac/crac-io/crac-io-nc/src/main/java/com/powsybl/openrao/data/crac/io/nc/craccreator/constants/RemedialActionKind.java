@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.constants;
 
+import java.util.Arrays;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -28,11 +30,9 @@ public enum RemedialActionKind {
     }
 
     public static RemedialActionKind fromUrl(String kindUrl) {
-        for (RemedialActionKind remedialActionKind : values()) {
-            if (remedialActionKind.toString().equals(kindUrl)) {
-                return remedialActionKind;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant " + RemedialActionKind.class.getCanonicalName() + "." + kindUrl);
+        return Arrays.stream(RemedialActionKind.values())
+                .filter(remedialActionKind -> remedialActionKind.toString().equals(kindUrl))
+                .findAny()
+                .orElseThrow();
     }
 }
