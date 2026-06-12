@@ -306,10 +306,10 @@ SELECT *
             ?countertradeRemedialAction nc:RemedialAction.isManual ?isManual .
         }
         OPTIONAL {
-            ?countertradeRemedialAction nc:PowerRemedialAction.maxEconomicPMargin ?maxEconomicPMargin .
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.maxEconomicP ?maxEconomicP .
         }
         OPTIONAL {
-            ?countertradeRemedialAction nc:PowerRemedialAction.minEconomicPMargin ?minEconomicPMargin .
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.minEconomicP ?minEconomicP .
         }
     }
 }

@@ -27,59 +27,57 @@ public class CounterTradingRangeActionCreator {
 
     public record CounterTradingCountries(Country importingCountry, Country exportingCountry) { }
 
-    /**
-     * Constructor of the PstRangeActionCreator class which is used to create PST range actions
-     * inside the CRAC object
-     *
-     * @param crac Open RAO Crac object
-     */
     public CounterTradingRangeActionCreator(Crac crac) {
         this.crac = crac;
     }
 
     /**
-     * Method to get the PST Range Action Adder object:
-     * - It is used to get the PstRangeActionAdder which adds tap position elementary RAs in the
-     * CRAC object
+     * Get the Counter Trading Range Action Adder object to create a CounterTradingRangeActions
      *
-     * @param counterTradingRemedialAction PowerRemedialAction object consisting ofs
-     *                                          the counter trading action
+     * @param countertradeRemedialAction        Native CountertradeRemedialAction object
      * @param remedialActionId                  ID of the RemedialAction (RA id)
      * @param alterations                       alteration messages
-     * @return CounterTradeRangeActionAdder object with the pst range action added (if valid)
+     * @return CounterTradeRangeActionAdder     object with the counter trading range action added (if valid)
      */
-    public CounterTradeRangeActionAdder getCounterTradeRangeActionAdder(CountertradeRemedialAction counterTradingRemedialAction,
+    public CounterTradeRangeActionAdder getCounterTradeRangeActionAdder(CountertradeRemedialAction countertradeRemedialAction,
                                                                         String remedialActionId, List<String> alterations) {
 
-        validateCountertradeRemedialAction(counterTradingRemedialAction, remedialActionId);
+        validateCountertradeRemedialAction(countertradeRemedialAction, remedialActionId);
 
         // checks for the min and max range
-        Double minRange;
-        if (Double.isNaN(counterTradingRemedialAction.maxRegulatingDown())) {
+        double minRange;
+        if (Double.isNaN(countertradeRemedialAction.minEconomicP())) {
             minRange = NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
             alterations.add("the minimum range was not set. It has been set to the minimal range value of " + minRange);
         } else {
-            minRange = counterTradingRemedialAction.maxRegulatingDown();
+            minRange = countertradeRemedialAction.maxEconomicP();
         }
-        Double maxRange;
-        if (Double.isNaN(counterTradingRemedialAction.maxRegulatingUp())) {
+        double maxRange;
+        if (Double.isNaN(countertradeRemedialAction.maxRegulatingUp())) {
             maxRange = NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
             alterations.add("the maximum range was not set. It has been set to the maximal range value of " + maxRange);
         } else {
-            maxRange = counterTradingRemedialAction.maxRegulatingUp();
+            maxRange = countertradeRemedialAction.maxRegulatingUp();
         }
 
-        CounterTradingCountries counterTradingCountries = getImportingExportingCountries(counterTradingRemedialAction, remedialActionId);
+        CounterTradingCountries counterTradingCountries = getImportingExportingCountries(countertradeRemedialAction, remedialActionId);
 
         return crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
-                .withOperator(NcCracUtils.getTsoNameFromUrl(counterTradingRemedialAction.operator()))
+                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withImportingCountry(counterTradingCountries.importingCountry())
                 .withExportingCountry(counterTradingCountries.exportingCountry());
     }
 
+    /**
+     * Get the importing and exporting countries of a CountertradeRemedialAction
+     *
+     * @param countertradeRemedialAction        Native CountertradeRemedialAction object
+     * @param remedialActionId                  ID of the RemedialAction (RA id)
+     * @return CounterTradingCountries          record containing the importing and exporting countries of the counter trading remedial action
+     */
     private static CounterTradingCountries getImportingExportingCountries(CountertradeRemedialAction countertradeRemedialAction,
                                                                           String remedialActionId) {
         String operatorEic = NcCracUtils.getEicFromUrl(countertradeRemedialAction.operator());
@@ -102,6 +100,12 @@ public class CounterTradingRangeActionCreator {
                 String.format("Remedial action %s will not be imported because system operator %s is not supported.", remedialActionId, operatorEic));
     }
 
+    /**
+     * Validate a CountertradeRemedialAction before creating the CounterTradeRangeActionAdder
+     *
+     * @param countertradeRemedialAction    Native CountertradeRemedialAction object to validate
+     * @param remedialActionId              ID of the RemedialAction (RA id)
+     */
     private void validateCountertradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction,
                                                     String remedialActionId) {
 

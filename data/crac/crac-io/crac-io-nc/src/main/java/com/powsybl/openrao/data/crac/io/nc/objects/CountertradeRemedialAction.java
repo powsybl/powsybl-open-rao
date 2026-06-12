@@ -16,6 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record CountertradeRemedialAction(String mrid, String name, String operator, String description, String kind, boolean normalAvailable,
                                          String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
                                          String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
+                                         double maxEconomicP, double minEconomicP,
                                          String timeToImplement, String region) implements NativeRemedialAction {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(
@@ -26,11 +27,13 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 propertyBag.get(NcConstants.KIND),
                 Boolean.parseBoolean(propertyBag.get(NcConstants.NORMAL_AVAILABLE)),
                 propertyBag.get(NcConstants.PENALTY_FACTOR),
-                Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_CROSS_BORDER_RELEVANT, "true")),
-                Boolean.parseBoolean(propertyBag.getOrDefault(NcConstants.IS_MANUAL, "true")),
+                propertyBag.asBoolean(propertyBag.get(NcConstants.IS_CROSS_BORDER_RELEVANT), true),
+                propertyBag.asBoolean(propertyBag.get(NcConstants.IS_MANUAL), true),
                 propertyBag.get(NcConstants.IMPACT_THRESHOLD_MARGIN),
                 propertyBag.asDouble(NcConstants.MAX_REGULATING_UP),
                 propertyBag.asDouble(NcConstants.MAX_REGULATING_DOWN),
+                propertyBag.asDouble(NcConstants.MIN_ECONOMIC_P),
+                propertyBag.asDouble(NcConstants.MAX_ECONOMIC_P),
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
                 propertyBag.get(NcConstants.APPOINTED_TO_REGION)
         );

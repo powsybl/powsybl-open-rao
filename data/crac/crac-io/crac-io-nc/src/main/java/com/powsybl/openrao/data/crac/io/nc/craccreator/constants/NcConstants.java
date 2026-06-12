@@ -123,6 +123,8 @@ public final class NcConstants {
     public static final String IS_MANUAL = "isManual";
     public static final String MAX_REGULATING_UP = "maxRegulatingUp";
     public static final String MAX_REGULATING_DOWN = "maxRegulatingDown";
+    public static final String MAX_ECONOMIC_P = "maxEconomicP";
+    public static final String MIN_ECONOMIC_P = "minEconomicP";
     public static final String APPOINTED_TO_REGION = "appointedToRegion";
     public static final String PENALTY_FACTOR = "penaltyFactor";
     public static final String IS_CROSS_BORDER_RELEVANT = "isCrossBorderRelevant";
