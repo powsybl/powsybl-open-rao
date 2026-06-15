@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.objects.CountertradeRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.List;
 
@@ -23,11 +24,13 @@ import java.util.List;
  */
 public class CounterTradingRangeActionCreator {
     private final Crac crac;
+    private final NcCracCreationParameters ncCracCreationParameters;
 
     public record CounterTradingAreas(String importingArea, String exportingArea) { }
 
-    public CounterTradingRangeActionCreator(Crac crac) {
+    public CounterTradingRangeActionCreator(Crac crac, NcCracCreationParameters ncCracCreationParameters) {
         this.crac = crac;
+        this.ncCracCreationParameters = ncCracCreationParameters;
     }
 
     /**
@@ -46,17 +49,21 @@ public class CounterTradingRangeActionCreator {
         // checks for the min and max range
         double minRange;
         if (Double.isNaN(countertradeRemedialAction.minEconomicP())) {
-            minRange = NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
+            minRange = ncCracCreationParameters.getCounterTradingMinRange() != null
+                    ? ncCracCreationParameters.getCounterTradingMinRange()
+                    : NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
             alterations.add("the minimum range was not set. It has been set to the minimal range value of " + minRange);
         } else {
-            minRange = countertradeRemedialAction.maxEconomicP();
+            minRange = countertradeRemedialAction.minEconomicP();
         }
         double maxRange;
-        if (Double.isNaN(countertradeRemedialAction.maxRegulatingUp())) {
-            maxRange = NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
+        if (Double.isNaN(countertradeRemedialAction.maxEconomicP())) {
+            maxRange = ncCracCreationParameters.getCounterTradingMaxRange() != null
+                    ? ncCracCreationParameters.getCounterTradingMaxRange()
+                    : NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
             alterations.add("the maximum range was not set. It has been set to the maximal range value of " + maxRange);
         } else {
-            maxRange = countertradeRemedialAction.maxRegulatingUp();
+            maxRange = countertradeRemedialAction.maxEconomicP();
         }
 
         CounterTradingAreas counterTradingAreas = getImportingExportingAreas(countertradeRemedialAction, remedialActionId);

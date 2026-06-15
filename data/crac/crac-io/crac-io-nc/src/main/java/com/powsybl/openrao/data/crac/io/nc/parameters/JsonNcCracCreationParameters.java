@@ -33,6 +33,8 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private static final String NAME = "name";
     private static final String APPLICATION_TIME = "application-time";
     private static final String TIMESTAMP = "timestamp";
+    private static final String COUNTER_TRADING_MIN_RANGE = "counter-trading-min-range";
+    private static final String COUNTER_TRADING_MAX_RANGE =  "counter-trading-max-range";
 
     @Override
     public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -40,6 +42,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         serializeTimestamp(ncParameters.getTimestamp(), jsonGenerator);
         serializeCapacityCalculationRegion(ncParameters.getCapacityCalculationRegion(), jsonGenerator);
         serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
+        serializeCounterTradingRange(ncParameters.getCounterTradingMinRange(), ncParameters.getCounterTradingMaxRange(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -58,6 +61,14 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 case CURATIVE_INSTANTS:
                     jsonParser.nextToken();
                     parameters.setCurativeInstants(deserializeCurativeInstants(jsonParser));
+                    break;
+                case COUNTER_TRADING_MIN_RANGE:
+                    jsonParser.nextToken();
+                    parameters.setCounterTradingMinRange(jsonParser.readValueAs(Double.class));
+                    break;
+                case COUNTER_TRADING_MAX_RANGE:
+                    jsonParser.nextToken();
+                    parameters.setCounterTradingMaxRange(jsonParser.readValueAs(Double.class));
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
@@ -107,6 +118,17 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
         if (timestamp != null) {
             jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
+        }
+    }
+
+    private void serializeCounterTradingRange(Double counterTradingMinRange, Double counterTradingMaxRange, JsonGenerator jsonGenerator) throws IOException {
+        if (counterTradingMinRange != null) {
+            jsonGenerator.writeFieldName(COUNTER_TRADING_MIN_RANGE);
+            jsonGenerator.writeNumber(counterTradingMinRange);
+        }
+        if (counterTradingMaxRange != null) {
+            jsonGenerator.writeFieldName(COUNTER_TRADING_MAX_RANGE);
+            jsonGenerator.writeNumber(counterTradingMaxRange);
         }
     }
 

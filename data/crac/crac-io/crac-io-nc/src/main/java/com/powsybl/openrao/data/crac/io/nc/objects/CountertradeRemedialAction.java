@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record CountertradeRemedialAction(String mrid, String name, String operator, String description, String kind, boolean normalAvailable,
                                          String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
                                          String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
-                                         double maxEconomicP, double minEconomicP,
+                                         double minEconomicP, double maxEconomicP,
                                          String timeToImplement, String region) implements NativeRemedialAction {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(

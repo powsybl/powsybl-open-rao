@@ -34,13 +34,14 @@ class NcCracCreator {
 
     private Crac crac;
     private Network network;
-    NcCracCreationContext creationContext;
+    private NcCracCreationContext creationContext;
     private NcCrac nativeCrac;
+    private NcCracCreationParameters ncParameters;
 
     NcCracCreationContext createCrac(NcCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
-        NcCracCreationParameters ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
+        ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
         OffsetDateTime offsetDateTime;
         if (ncParameters == null) {
             ncParameters = new NcCracCreationParameters();
@@ -93,7 +94,7 @@ class NcCracCreator {
     }
 
     private void createRemedialActions() {
-        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext);
+        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, ncParameters);
     }
 
     private void createContingencies() {

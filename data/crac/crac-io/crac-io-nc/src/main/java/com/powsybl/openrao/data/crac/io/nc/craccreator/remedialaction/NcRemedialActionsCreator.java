@@ -36,6 +36,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.RemedialActionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.*;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,14 +54,18 @@ public class NcRemedialActionsCreator {
     private final CounterTradingRangeActionCreator counterTradingRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> gridStateAlterationRemedialActions;
     private final Set<CountertradeRemedialAction> countertradeRemedialActions;
+    private final NcCracCreationParameters ncParameters;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
                                     NcCrac nativeCrac,
-                                    NcCracCreationContext cracCreationContext) {
+                                    NcCracCreationContext cracCreationContext,
+                                    NcCracCreationParameters ncParameters) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
+        this.ncParameters = ncParameters;
+
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
 
@@ -72,7 +77,7 @@ public class NcRemedialActionsCreator {
         Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
                 .aggregate(nativeCrac.getContingencyWithRemedialActions());
 
-        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac);
+        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, this.ncParameters);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
 
         this.gridStateAlterationRemedialActions = new HashSet<>(nativeCrac.getGridStateAlterationRemedialActions());
