@@ -15,7 +15,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -24,6 +23,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +40,6 @@ import java.util.stream.Stream;
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
-    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
     private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
@@ -51,7 +50,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
@@ -101,11 +99,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     @Override
-    public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getAngle(unit);
-    }
-
-    @Override
     public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMinVoltage(unit);
     }
@@ -118,11 +111,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
     }
 
     @Override
@@ -153,11 +141,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
-    }
-
-    public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
-        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
-        return angleCnecResults.get(angleCnec);
     }
 
     public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {
@@ -343,16 +326,20 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (crac.getAngleCnecs().stream()
-                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
-                        .anyMatch(Double::isNaN)) {
-                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
-                    }
-                    if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                    // TODO: do we want to keep the use of the extension here?
+                    AngleResult angleResult = getExtension(AngleResult.class);
+                    if (angleResult != null) {
+                        if (crac.getAngleCnecs().stream()
+                            .mapToDouble(cnec -> angleResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                            .anyMatch(Double::isNaN)) {
+                            throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                        }
+                        if (crac.getAngleCnecs().stream()
+                            .mapToDouble(cnec -> angleResult.getMargin(optimizedInstant, cnec, Unit.DEGREE))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
-                        return false;
+                            return false;
+                        }
                     }
                 }
                 case FLOW -> {
