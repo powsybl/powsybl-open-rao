@@ -128,10 +128,10 @@
       ]
     }
   ],
-  "counterTradeRangeActions": [
+  "injectionRangeActions": [
     {
-      "id": "counterTradingAction",
-      "name": "counterTradingAction",
+      "id": "redispatchingActionFR1",
+      "name": "redispatchingActionFR1",
       "operator": null,
       "activationCost": 10,
       "variationCosts": {
@@ -143,8 +143,10 @@
           "instant": "preventive"
         }
       ],
-      "exportingArea": "FR",
-      "importingArea": "BE",
+      "networkElementIdsAndKeys": {
+        "FFR1AA1 _generator": 1,
+        "BBE1AA1 _generator": -1
+      },
       "ranges": [
         {
           "rangeType": "absolute",
