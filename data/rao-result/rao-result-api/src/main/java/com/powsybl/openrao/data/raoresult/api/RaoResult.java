@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
@@ -69,7 +70,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult != null) {
+            return flowResult.getFlow(optimizedInstant, flowCnec, side, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -135,7 +143,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
-    double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult marginResult = getExtension(FlowResult.class);
+        if (marginResult != null) {
+            return marginResult.getMargin(optimizedInstant, flowCnec, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -188,7 +203,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
-    double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult marginResult = getExtension(FlowResult.class);
+        if (marginResult != null) {
+            return marginResult.getRelativeMargin(optimizedInstant, flowCnec, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -200,7 +222,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult != null) {
+            return flowResult.getCommercialFlow(optimizedInstant, flowCnec, side, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -212,7 +241,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult != null) {
+            return flowResult.getLoopFlow(optimizedInstant, flowCnec, side, unit);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -223,7 +259,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    default double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult != null) {
+            return flowResult.getPtdfZonalSum(optimizedInstant, flowCnec, side);
+        }
+        return Double.NaN;
+    }
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
