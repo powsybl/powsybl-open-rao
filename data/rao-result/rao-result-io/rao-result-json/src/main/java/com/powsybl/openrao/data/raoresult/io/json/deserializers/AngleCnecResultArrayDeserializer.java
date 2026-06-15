@@ -74,8 +74,8 @@ final class AngleCnecResultArrayDeserializer {
     }
 
     private static void deserializeElementaryAngleCnecResultForUnit(JsonParser jsonParser, AngleCnec angleCnec, AngleResult angleResult, Instant optimizedInstant) throws IOException {
+        double angle = Double.NaN;
         while (!jsonParser.nextToken().isStructEnd()) {
-            double angle = Double.NaN;
             switch (jsonParser.currentName()) {
                 case ANGLE:
                     jsonParser.nextToken();
@@ -87,9 +87,9 @@ final class AngleCnecResultArrayDeserializer {
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.currentName()));
             }
-            if (!Double.isNaN(angle)) {
-                angleResult.addMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
-            }
+        }
+        if (!Double.isNaN(angle)) {
+            angleResult.addMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
         }
     }
 }
