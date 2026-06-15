@@ -15,7 +15,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -42,7 +41,6 @@ import java.util.stream.Stream;
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
-    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
     private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
@@ -53,7 +51,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
@@ -140,11 +137,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
-    }
-
-    public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
-        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
-        return angleCnecResults.get(angleCnec);
     }
 
     public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {

@@ -74,7 +74,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                                         }
                                     }
                                     if (angle != null) {
-                                        angleResult.addAngle(angle, instant, angleCnec, Unit.DEGREE);
+                                        angleResult.addMeasurement(angle, instant, angleCnec, Unit.DEGREE);
                                     }
                                 }
                             } else {

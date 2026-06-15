@@ -50,21 +50,21 @@ public class AngleResultTest {
 
         // manually add results
 
-        angleResult.addAngle(25.0, null, angleCnec, Unit.DEGREE);
+        angleResult.addMeasurement(25.0, null, angleCnec, Unit.DEGREE);
         assertEquals(25.0, angleResult.getAngle(null, angleCnec, Unit.DEGREE));
         assertEquals(5.0, angleResult.getMargin(null, angleCnec, Unit.DEGREE));
 
-        angleResult.addAngle(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
+        angleResult.addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
         assertEquals(17.0, angleResult.getAngle(preventiveInstant, angleCnec, Unit.DEGREE));
         assertEquals(13.0, angleResult.getMargin(preventiveInstant, angleCnec, Unit.DEGREE));
 
-        angleResult.addAngle(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
+        angleResult.addMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
         assertEquals(-5.0, angleResult.getAngle(curativeInstant, angleCnec, Unit.DEGREE));
         assertEquals(-5.0, angleResult.getMargin(curativeInstant, angleCnec, Unit.DEGREE));
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleResult.addAngle(25.0, null, angleCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleResult.addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
         assertEquals("AngleCNEC results are only allowed for degrees.", exception.getMessage());
     }
 }
