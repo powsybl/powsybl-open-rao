@@ -7,15 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
@@ -37,15 +36,15 @@ public class StateTree {
     private final Perimeter preventivePerimeter;
     private final Set<ContingencyScenario> contingencyScenarios = new HashSet<>();
 
-    public StateTree(Crac crac) {
+    public StateTree(final Crac crac, final ReportNode reportNode) {
         preventivePerimeter = new Perimeter(crac.getPreventiveState(), null);
 
         for (Contingency contingency : crac.getContingencies()) {
             processOutageInstant(contingency, crac);
-            processAutoAndCurativeInstants(contingency, crac);
+            processAutoAndCurativeInstants(contingency, crac, reportNode);
         }
 
-        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac);
+        this.operatorsNotSharingCras = crac.findOperatorsNotSharingCras();
     }
 
     /**
@@ -73,13 +72,13 @@ public class StateTree {
      * <p>
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
-    private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
+    private void processAutoAndCurativeInstants(final Contingency contingency, final Crac crac, final ReportNode reportNode) {
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create().withContingency(contingency);
         Pair<Boolean, Boolean> autoInstantHasCnecsAndRemedialActions = processAutoInstant(contingency, crac, contingencyScenarioBuilder);
         Perimeter defaultPerimeter = getDefaultPerimeter(contingency, crac, autoInstantHasCnecsAndRemedialActions.getRight());
         boolean scenarioHasCurativeStates = false;
         if (defaultPerimeter != null) {
-            scenarioHasCurativeStates = processCurativeInstants(contingency, crac, contingencyScenarioBuilder, defaultPerimeter, autoInstantHasCnecsAndRemedialActions.getLeft());
+            scenarioHasCurativeStates = processCurativeInstants(contingency, crac, contingencyScenarioBuilder, defaultPerimeter, autoInstantHasCnecsAndRemedialActions.getLeft(), reportNode);
         }
         if (Boolean.TRUE.equals(autoInstantHasCnecsAndRemedialActions.getLeft()) && Boolean.TRUE.equals(autoInstantHasCnecsAndRemedialActions.getRight()) || scenarioHasCurativeStates) {
             contingencyScenarios.add(contingencyScenarioBuilder.build());
@@ -142,16 +141,17 @@ public class StateTree {
      * <p>
      * The method returns whether curative perimeters were added to the contingency scenario or not.
      **/
-    private boolean processCurativeInstants(Contingency contingency,
-                                            Crac crac,
-                                            ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder,
-                                            Perimeter defaultPerimeter,
-                                            boolean automatonCnecsExist) {
+    private boolean processCurativeInstants(final Contingency contingency,
+                                            final Crac crac,
+                                            final ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder,
+                                            final Perimeter defaultPerimeter,
+                                            final boolean automatonCnecsExist,
+                                            final ReportNode reportNode) {
         Set<Instant> instantsWithCnecs = crac.getInstants(InstantKind.CURATIVE).stream()
             .filter(instant -> anyCnec(crac, crac.getState(contingency, instant)))
             .collect(Collectors.toSet());
         if (!automatonCnecsExist && instantsWithCnecs.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingency.getId());
+            CommonReports.reportContingencyWithAutomatonOrCraButNoCnec(reportNode, contingency.getId());
             return false;
         }
 
@@ -216,20 +216,5 @@ public class StateTree {
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
         return !crac.getNetworkActions(state).isEmpty() ||
             !crac.getRangeActions(state).isEmpty();
-    }
-
-    private static Set<String> findOperatorsNotSharingCras(Crac crac) {
-        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
-        tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
-        // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso, crac)).collect(Collectors.toSet());
-    }
-
-    static boolean tsoHasCra(String tso, Crac crac) {
-        Set<State> optimizedCurativeStates = crac.getCurativeStates();
-        return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
-                crac.getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
-        );
     }
 }

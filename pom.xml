@@ -76,6 +76,7 @@
         <module>data</module>
         <module>distribution</module>
         <module>loopflow-computation</module>
+        <module>pst-regulation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
         <module>util</module>
@@ -118,9 +119,9 @@
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>7.2.0</powsybl.core.version>
+        <powsybl.core.version>7.2.1</powsybl.core.version>
         <powsybl.entsoe.version>3.2.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>2.2.0</powsybl.openloadflow.version>
+        <powsybl.openloadflow.version>2.2.1</powsybl.openloadflow.version>
         <rdf4j.version>5.1.3</rdf4j.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
@@ -365,6 +366,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-monitoring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-pst-regulation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

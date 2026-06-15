@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
@@ -24,8 +23,8 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
-    private Country exportingCountry;
-    private Country importingCountry;
+    private String exportingArea;
+    private String importingArea;
 
     @Override
     protected String getTypeDescription() {
@@ -37,14 +36,14 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
-    public CounterTradeRangeActionAdder withExportingCountry(Country exportingCountry) {
-        this.exportingCountry = exportingCountry;
+    public CounterTradeRangeActionAdder withExportingArea(String exportingArea) {
+        this.exportingArea = exportingArea;
         return this;
     }
 
     @Override
-    public CounterTradeRangeActionAdder withImportingCountry(Country importingCountry) {
-        this.importingCountry = importingCountry;
+    public CounterTradeRangeActionAdder withImportingArea(String importingArea) {
+        this.importingArea = importingArea;
         return this;
     }
 
@@ -57,8 +56,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         // check exporting and importing country
-        assertAttributeNotNull(exportingCountry, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingCountry()");
-        assertAttributeNotNull(importingCountry, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingCountry()");
+        assertAttributeNotNull(exportingArea, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingArea()");
+        assertAttributeNotNull(importingArea, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingArea()");
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -69,7 +68,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingCountry, this.importingCountry
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
