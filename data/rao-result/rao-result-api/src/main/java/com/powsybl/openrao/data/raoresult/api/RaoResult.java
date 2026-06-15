@@ -24,6 +24,8 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
@@ -81,7 +83,11 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        throw new OpenRaoException("Angle cnecs are not computed in the rao");
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult != null) {
+            return angleResult.getAngle(optimizedInstant, angleCnec, unit);
+        }
+        return Double.NaN;
     }
 
     /**
@@ -95,7 +101,11 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult != null) {
+            return voltageResult.getMinVoltage(optimizedInstant, voltageCnec, unit);
+        }
+        return Double.NaN;
     }
 
     /**
@@ -109,7 +119,11 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult != null) {
+            return voltageResult.getMaxVoltage(optimizedInstant, voltageCnec, unit);
+        }
+        return Double.NaN;
     }
 
     /**
@@ -137,7 +151,11 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        throw new OpenRaoException("Angle cnecs are not computed in the rao");
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult != null) {
+            return angleResult.getMargin(optimizedInstant, angleCnec, unit);
+        }
+        return Double.NaN;
     }
 
     /**
@@ -152,7 +170,11 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult != null) {
+            return voltageResult.getMargin(optimizedInstant, voltageCnec, unit);
+        }
+        return Double.NaN;
     }
 
     /**
