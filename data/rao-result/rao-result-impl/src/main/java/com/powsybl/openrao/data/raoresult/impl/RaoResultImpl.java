@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -41,7 +40,6 @@ import java.util.stream.Stream;
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
-    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
@@ -51,7 +49,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
@@ -100,16 +97,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     @Override
-    public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMinVoltage(unit);
-    }
-
-    @Override
-    public double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMaxVoltage(unit);
-    }
-
-    @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
     }
@@ -137,11 +124,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
-    }
-
-    public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {
-        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult());
-        return voltageCnecResults.get(voltageCnec);
     }
 
     public CostResult getAndCreateIfAbsentCostResult(String optimizedInstantId) {
