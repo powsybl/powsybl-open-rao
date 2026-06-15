@@ -282,7 +282,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         MarmotReports.reportMarmotInitialResults(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
         MarmotReports.reportMarmotResultAfterGlobalLinearOptimization(reportNode, fullResults, raoParameters, 10);
 
-        MarmotUtils.releaseAllWithoutOverwrite(initialNetworks);
+        MarmotUtils.closeAll(initialNetworks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 
