@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.impl.CostResult;
-import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
@@ -290,11 +289,6 @@ public final class ExhaustiveRaoResultCreation {
             elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 14, MEGAWATT);
             elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 24, AMPERE);
         }
-    }
-
-    private static void fillElementaryResult(ElementaryAngleCnecResult elementaryAngleCnecResult, double x, double y) {
-        elementaryAngleCnecResult.setAngle(x + y + 35, DEGREE);
-        elementaryAngleCnecResult.setMargin(x + y + 31, DEGREE);
     }
 
     private static void fillElementaryResult(ElementaryVoltageCnecResult elementaryVoltageCnecResult, double x, double y) {
