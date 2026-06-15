@@ -9,22 +9,19 @@ package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +43,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             throw new OpenRaoException("AngleMonitoringResult must not be null");
         }
         this.angleMonitoringResult = angleMonitoringResult;
+        AngleExtension angleExtension = AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult);
+        this.addExtension(AngleExtension.class, angleExtension);
     }
 
     @Override
