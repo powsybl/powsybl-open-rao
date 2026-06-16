@@ -13,7 +13,6 @@ import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
 import static io.cucumber.core.options.Constants.FILTER_TAGS_PROPERTY_NAME;
-import static io.cucumber.core.options.Constants.FILTER_NAME_PROPERTY_NAME;
 import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 
