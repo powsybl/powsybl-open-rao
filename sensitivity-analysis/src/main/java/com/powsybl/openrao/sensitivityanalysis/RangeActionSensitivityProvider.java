@@ -10,17 +10,21 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.sensitivityanalysis.rasensihandler.CounterTradeRangeActionSensiHandler;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.InjectionRangeActionSensiHandler;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
@@ -34,7 +38,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -109,6 +115,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
+                createCounterTradeGlsks(network, counterTradeRangeAction, sensitivityVariables, glskIds);
                 TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
@@ -121,7 +128,75 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         }
     }
 
-    private void createPositiveAndNegativeGlsks(InjectionRangeAction rangeAction, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
+    public Map<String, Map<String, Double>> getGlsk(Network network) {
+        Map<String, Map<String, Double>> allGlsks =
+                network.getAreaStream().collect(Collectors.toMap(Identifiable::getId, area -> new HashMap<>()));
+
+        network.getGeneratorStream()
+               .filter(g -> g.getTerminal().isConnected())
+               .forEach(generator -> generator.getTerminal()
+                                              .getVoltageLevel()
+                                              .getAreasStream()
+                                              .forEach(area -> allGlsks.get(area.getId())
+                                                                       .put(generator.getId(),
+                                                                            generator.getTargetP())));
+
+        allGlsks.forEach((area, glsk) -> {
+            double glskSum = glsk.values().stream().mapToDouble(factor -> factor).sum();
+            if (glskSum == 0.0) {
+                glsk.forEach((key, value) -> glsk.put(key, 1.0 / glsk.size()));
+            } else {
+                glsk.forEach((key, value) -> glsk.put(key, value / glskSum));
+            }
+        });
+        return allGlsks;
+    }
+
+    private Map<String, Float> getPositiveGlskMap(Map<String, Double> glsk) {
+        return glsk.entrySet()
+                .stream().filter(e -> e.getValue() > 0)
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().floatValue()));
+    }
+
+    private Map<String, Float> getNegativeGlskMap(Map<String, Double> glsk) {
+        return glsk.entrySet()
+                .stream().filter(e -> e.getValue() < 0)
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().floatValue()));
+    }
+
+    private void createCounterTradeGlsks(Network network, CounterTradeRangeAction counterTradeRangeAction,
+                                         Map<String, SensitivityVariableType> sensitivityVariables,
+                                         Set<String> glskIds) {
+        CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
+        var glsk = getGlsk(network);
+        var exporting = glsk.get(counterTradeRangeAction.getExportingArea());
+        var importing = glsk.get(counterTradeRangeAction.getImportingArea());
+
+        var positiveGlskMap = getPositiveGlskMap(importing);
+        positiveGlskMap.putAll(getNegativeGlskMap(exporting));
+
+        if (!positiveGlskMap.isEmpty()) {
+            List<WeightedSensitivityVariable> positiveGlsk = positiveGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
+            String positiveGlskMapId = handler.getPositiveGlskMapId();
+            sensitivityVariables.put(positiveGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            glsks.putIfAbsent(positiveGlskMapId, new SensitivityVariableSet(positiveGlskMapId, positiveGlsk));
+            glskIds.add(positiveGlskMapId);
+
+        }
+
+        var negativeGlskMap = getNegativeGlskMap(importing);
+        negativeGlskMap.putAll(getPositiveGlskMap(exporting));
+        if (!negativeGlskMap.isEmpty()) {
+            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
+            String negativeGlskMapId = handler.getNegativeGlskMapId();
+            sensitivityVariables.put(negativeGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            glsks.putIfAbsent(negativeGlskMapId, new SensitivityVariableSet(negativeGlskMapId, negativeGlsk));
+            glskIds.add(negativeGlskMapId);
+
+        }
+    }
+
+	private void createPositiveAndNegativeGlsks(InjectionRangeAction rangeAction, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
         InjectionRangeActionSensiHandler injectionRangeActionSensiHandler = new InjectionRangeActionSensiHandler(rangeAction);
         Map<String, Float> positiveGlskMap = injectionRangeActionSensiHandler.getPositiveGlskMap();
         Map<String, Float> negativeGlskMap = injectionRangeActionSensiHandler.getNegativeGlskMap();
