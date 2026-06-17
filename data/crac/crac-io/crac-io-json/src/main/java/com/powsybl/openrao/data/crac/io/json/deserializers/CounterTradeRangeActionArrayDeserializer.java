@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
@@ -41,11 +40,11 @@ public final class CounterTradeRangeActionArrayDeserializer {
             return;
         }
         switch (jsonParser.currentName()) {
-            case JsonSerializationConstants.EXPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withExportingCountry(Country.valueOf(jsonParser.nextTextValue()));
+            case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY:
+                counterTradeRangeActionAdder.withExportingArea(jsonParser.nextTextValue());
                 break;
-            case JsonSerializationConstants.IMPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withImportingCountry(Country.valueOf(jsonParser.nextTextValue()));
+            case JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
+                counterTradeRangeActionAdder.withImportingArea(jsonParser.nextTextValue());
                 break;
             default:
                 throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());

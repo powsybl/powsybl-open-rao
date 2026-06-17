@@ -368,8 +368,8 @@
       "instant" : "curative",
       "contingencyId" : "contingency1Id"
     } ],
-    "exportingCountry" : "FR",
-    "importingCountry" : "DE",
+    "exportingArea" : "FR",
+    "importingArea" : "DE",
     "ranges" : [ {
       "min" : -500.0,
       "max" : 500.0,
