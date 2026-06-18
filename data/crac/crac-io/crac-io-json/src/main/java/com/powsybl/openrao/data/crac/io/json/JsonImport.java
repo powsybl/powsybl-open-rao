@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -55,7 +55,7 @@ public class JsonImport implements Importer {
             if (isCracFile(byteArrayInputStream)) {
                 byteArrayInputStream.reset();
                 Version cracVersion = readVersion(byteArrayInputStream);
-                JsonSchema jsonSchema = getSchema(cracVersion);
+                Schema jsonSchema = getSchema(cracVersion);
                 List<String> validationError = getValidationErrors(jsonSchema, byteArrayInputStream);
                 if (validationError.isEmpty()) {
                     return true;

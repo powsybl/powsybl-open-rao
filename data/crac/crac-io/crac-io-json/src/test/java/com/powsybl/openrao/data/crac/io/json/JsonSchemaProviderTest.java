@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JsonSchemaProviderTest {
     @Test
     void testJsonValidationErrorMessages() throws IOException {
-        JsonSchema jsonSchema = JsonSchemaProvider.getSchema(new Version(2, 5));
+        Schema jsonSchema = JsonSchemaProvider.getSchema(new Version(2, 5));
         List<String> validationErrors = JsonSchemaProvider.getValidationErrors(jsonSchema, JsonSchemaProviderTest.class.getResourceAsStream("/cracWithErrors.json"));
         assertEquals(List.of(
             "/instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]",
