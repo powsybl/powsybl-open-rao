@@ -21,8 +21,8 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
 
-import javax.annotation.Nullable;
 import java.util.*;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
