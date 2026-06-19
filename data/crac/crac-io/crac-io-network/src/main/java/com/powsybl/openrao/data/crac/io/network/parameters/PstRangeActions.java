@@ -10,13 +10,16 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 /**
@@ -27,6 +30,7 @@ import java.util.function.BiFunction;
 public class PstRangeActions extends AbstractCountriesFilter {
     private Map<String, TapRange> availableTapRangesAtInstants = new HashMap<>();
     private TriFunction<TwoWindingsTransformer, State, NetworkCracCreationContext, Boolean> pstRaPredicate = (pst, state, c) -> true;
+    private BiFunction<TwoWindingsTransformer, NetworkCracCreationContext, Set<Cnec>> cnecsImpactedByPst = null;
     private BiFunction<TwoWindingsTransformer, Instant, RangeActionCosts> raCostsProvider = (twt, instant) -> new RangeActionCosts(0, 0, 0);
 
     public record TapRange(int min, int max, RangeType rangeType) {
@@ -58,6 +62,22 @@ public class PstRangeActions extends AbstractCountriesFilter {
 
     public boolean isAvailable(TwoWindingsTransformer pst, State state, NetworkCracCreationContext context) {
         return pstRaPredicate.apply(pst, state, context);
+    }
+
+    /**
+     * Set the function that says which cnecs are impacted by a given pst.
+     * Defaults to null.
+     */
+    public void setCnecsImpactedByPst(BiFunction<TwoWindingsTransformer, NetworkCracCreationContext, Set<Cnec>> cnecsImpactedByPst) {
+        this.cnecsImpactedByPst = cnecsImpactedByPst;
+    }
+
+    public Set<Cnec> getCnecsImpactedByPst(TwoWindingsTransformer pst, NetworkCracCreationContext context) {
+        return cnecsImpactedByPst.apply(pst, context);
+    }
+
+    public boolean pstsDefinedOnConstraint() {
+        return Objects.nonNull(cnecsImpactedByPst);
     }
 
     /**

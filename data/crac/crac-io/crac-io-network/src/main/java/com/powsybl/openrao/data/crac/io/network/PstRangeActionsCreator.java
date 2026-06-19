@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -63,16 +64,31 @@ class PstRangeActionsCreator {
         }
         // TODO fail if one PST listed in a group is not added as a RA? (to prevent having unrealistic cases)
 
-        boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(twt, state, creationContext));
-        if (availableForAllStates) {
-            pstAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
+        if (!parameters.pstsDefinedOnConstraint()) {
+            boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(
+                twt,
+                state,
+                creationContext
+            ));
+            if (availableForAllStates) {
+                pstAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
+            } else {
+                crac.getStates().stream().filter(state -> parameters.isAvailable(twt, state, creationContext))
+                    .forEach(
+                        state -> pstAdder.newOnContingencyStateUsageRule()
+                            .withInstant(instant.getId())
+                            .withContingency(state.getContingency().orElseThrow().getId())
+                            .add());
+            }
         } else {
-            crac.getStates().stream().filter(state -> parameters.isAvailable(twt, state, creationContext))
-                .forEach(
-                    state -> pstAdder.newOnContingencyStateUsageRule()
-                        .withInstant(instant.getId())
-                        .withContingency(state.getContingency().orElseThrow().getId())
-                        .add());
+            Set<Cnec> cnecsImpactedByPst = parameters.getCnecsImpactedByPst(twt, creationContext);
+            if (cnecsImpactedByPst.isEmpty()) {
+                return;
+            }
+            cnecsImpactedByPst.forEach(cnec -> pstAdder.newOnConstraintUsageRule()
+                .withCnec(cnec.getId())
+                .withInstant(cnec.getState().getInstant().getId())
+                .add());
         }
         parameters.getTapRange(instant).ifPresent(
             range -> pstAdder.newTapRange().withRangeType(range.rangeType())

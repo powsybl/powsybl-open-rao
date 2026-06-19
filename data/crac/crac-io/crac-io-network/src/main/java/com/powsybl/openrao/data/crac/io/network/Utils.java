@@ -138,22 +138,32 @@ public final class Utils {
 
         if (consideredInjections.size() > 1) {
             if (Math.abs(totalP) < 1.) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                /*throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format(
                         "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
                         raIdPrefix,
                         instant
                     )
-                );
+                );*/
+                double totalMaxP = generators.stream().mapToDouble(Generator::getMaxP).sum() - loads.stream().mapToDouble(Load::getP0).sum();
+                generators.forEach(generator -> {
+                    injectionRangeActionAdder.withNetworkElementAndKey(generator.getMaxP() / totalMaxP, generator.getId());
+                    creationContext.addInjectionUsedInAction(instant, generator.getId());
+                });
+                loads.forEach(load -> {
+                    injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / totalMaxP, load.getId());
+                    creationContext.addInjectionUsedInAction(instant, load.getId());
+                });
+            } else {
+                generators.forEach(generator -> {
+                    injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / totalP, generator.getId());
+                    creationContext.addInjectionUsedInAction(instant, generator.getId());
+                });
+                loads.forEach(load -> {
+                    injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / totalP, load.getId());
+                    creationContext.addInjectionUsedInAction(instant, load.getId());
+                });
             }
-            generators.forEach(generator -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / totalP, generator.getId());
-                creationContext.addInjectionUsedInAction(instant, generator.getId());
-            });
-            loads.forEach(load -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / totalP, load.getId());
-                creationContext.addInjectionUsedInAction(instant, load.getId());
-            });
         } else {
             injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId());
         }
