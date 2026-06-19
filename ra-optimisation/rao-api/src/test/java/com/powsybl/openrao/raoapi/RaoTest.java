@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -65,10 +66,10 @@ class RaoTest {
         assertEquals("RandomRAO", defaultRao.getName());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
         assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
         assertEquals(ComputationStatus.DEFAULT, resultAsync.getComputationStatus());
     }

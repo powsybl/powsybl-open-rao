@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -39,7 +40,9 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(final FlowResult flowResult,
+                                        final RemedialActionActivationResult remedialActionActivationResult,
+                                        final ReportNode reportNode) {
         return new AbsoluteCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult));
     }
 
@@ -51,7 +54,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
                 .sum();
     }
 
-    private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
+    private double getTotalRangeActionsCost(final RemedialActionActivationResult remedialActionActivationResult) {
         // TODO: shall we filter out states with contingencies in 'contingenciesToExclude' from evaluate?
         return optimizedStates.stream()
             .mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream()
@@ -60,7 +63,9 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
             .sum();
     }
 
-    private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
+    private double computeRangeActionCost(final RangeAction<?> rangeAction,
+                                          final State state,
+                                          final RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ?
             (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) :
             remedialActionActivationResult.getSetPointVariation(rangeAction, state);
@@ -70,19 +75,13 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         if (Math.abs(variation) < 1e-6) {
             return 0.0;
         }
-        if (!(rangeAction instanceof PstRangeAction)) {
-            TECHNICAL_LOGS.debug("{} variation of {} MW at state {} ({} -> {})", rangeAction.getId(),
-                BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP),
-                state,
-                BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP),
-                BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP));
-        } else {
-            TECHNICAL_LOGS.debug("{} variation of {} taps at state {} ({} -> {})", rangeAction.getId(),
-                BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP),
-                state,
-                BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP),
-                BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP));
-        }
+        TECHNICAL_LOGS.debug("{} variation of {} {} at state {} ({} -> {})",
+            rangeAction.getId(),
+            BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP).toString(),
+            (rangeAction instanceof PstRangeAction) ? "taps" : "MW",
+            state,
+            BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP).toString(),
+            BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP).toString());
         return rangeAction.getTotalCostForVariation(variation);
     }
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
@@ -656,9 +657,9 @@ class VoltageMonitoringTest {
         // If we have a curative voltage cnec we should show the margin in the raoResult after CRA.
         network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         crac = Crac.read("voltage_monitoring_with_preventive_crac.json", getClass().getResourceAsStream("/voltage_monitoring_with_preventive_crac.json"), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"), ReportNode.NO_OP);
 
-        raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters).join();
+        raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters, ReportNode.NO_OP).join();
         assertTrue(raoResult.isSecure(PhysicalParameter.FLOW)); // FIXME: crashes if no physical parameter provided
 
         MonitoringInput monitoringInput = MonitoringInput.buildWithVoltage(network, crac, raoResult).build();

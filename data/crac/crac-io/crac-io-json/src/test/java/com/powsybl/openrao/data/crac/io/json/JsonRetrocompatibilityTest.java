@@ -832,8 +832,8 @@ class JsonRetrocompatibilityTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
-        assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingArea());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingArea());
 
         // remedial actions defined with at least one OnConstraint usage rule involving a VoltageCnec
         assertEquals(1, crac.getRemedialActions().stream()
