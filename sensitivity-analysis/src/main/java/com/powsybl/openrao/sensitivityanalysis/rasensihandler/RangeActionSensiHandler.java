@@ -27,11 +27,11 @@ public interface RangeActionSensiHandler {
 
     static RangeActionSensiHandler get(RangeAction<?> rangeAction) {
         return switch (rangeAction) {
-          case PstRangeAction pstRangeAction -> new PstRangeActionSensiHandler(pstRangeAction);
-          case HvdcRangeAction hvdcRangeAction -> new HvdcRangeActionSensiHandler(hvdcRangeAction);
-          case InjectionRangeAction injectionRangeAction -> new InjectionRangeActionSensiHandler(injectionRangeAction);
-          case CounterTradeRangeAction counterTradeRangeAction -> new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
-          default -> throw new OpenRaoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
+            case PstRangeAction pstRangeAction -> new PstRangeActionSensiHandler(pstRangeAction);
+            case HvdcRangeAction hvdcRangeAction -> new HvdcRangeActionSensiHandler(hvdcRangeAction);
+            case InjectionRangeAction injectionRangeAction -> new InjectionRangeActionSensiHandler(injectionRangeAction);
+            case CounterTradeRangeAction counterTradeRangeAction -> new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
+            default -> throw new OpenRaoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
         };
     }
 }
