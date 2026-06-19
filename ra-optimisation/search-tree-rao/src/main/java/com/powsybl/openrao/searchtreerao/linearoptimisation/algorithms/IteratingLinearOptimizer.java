@@ -34,6 +34,10 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
@@ -69,6 +73,7 @@ public final class IteratingLinearOptimizer {
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
+            printLpLinearProblem(linearProblem, iteration);
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
@@ -174,6 +179,11 @@ public final class IteratingLinearOptimizer {
         LinearProblemStatus status = linearProblem.solve();
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
         return status;
+    }
+
+    private static void printLpLinearProblem(LinearProblem linearProblem, int iteration) {
+        String lpName = "lpModel"+ iteration + ".lp";
+        linearProblem.printLp(lpName);
     }
 
     private static boolean hasAnyRangeActionChanged(RangeActionActivationResult newRangeActionActivationResult,
