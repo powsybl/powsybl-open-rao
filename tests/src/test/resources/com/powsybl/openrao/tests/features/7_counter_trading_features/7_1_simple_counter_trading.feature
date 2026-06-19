@@ -18,7 +18,7 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.2: Preventive search tree RAO
-    Given network file is "counter-trading/2Nodes_CT.uct"
+    Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-2-nodes.json"
     When I launch rao at "2021-04-30 22:30"
