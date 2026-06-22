@@ -35,6 +35,8 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Set;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
@@ -249,11 +251,11 @@ public final class IteratingLinearOptimizer {
         }
     }
 
-    private static AppliedRemedialActionsPerState buildApplied(Set<NetworkAction> networkActions) {
+    private static AppliedRemedialActions.AppliedRemedialActionsPerState buildApplied(Set<NetworkAction> networkActions) {
         if (networkActions == null || networkActions.isEmpty()) {
             return null;
         }
-        AppliedRemedialActionsPerState applied = new AppliedRemedialActionsPerState();
+        AppliedRemedialActions.AppliedRemedialActionsPerState applied = new AppliedRemedialActions.AppliedRemedialActionsPerState();
         networkActions.forEach(applied::addAppliedNetworkAction);
         return applied;
     }
