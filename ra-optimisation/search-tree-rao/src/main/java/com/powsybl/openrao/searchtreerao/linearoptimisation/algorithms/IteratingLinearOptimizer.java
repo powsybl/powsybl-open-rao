@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -139,7 +140,7 @@ public final class IteratingLinearOptimizer {
                 tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), input.networkActions(), iteration, reportNode);
         return tmpSensitivityComputer;
     }
 
@@ -217,6 +218,10 @@ public final class IteratingLinearOptimizer {
                 .withToolProvider(input.toolProvider())
                 .withOutageInstant(input.outageInstant());
 
+        if (input.networkActions() != null) {
+            builder.withNetworkActions(input.networkActions());
+        }
+
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
@@ -235,12 +240,22 @@ public final class IteratingLinearOptimizer {
 
     private static void runSensitivityAnalysis(final SensitivityComputer sensitivityComputer,
                                                final Network network,
+                                               final Set<NetworkAction> networkActions,
                                                final int iteration,
                                                final ReportNode reportNode) {
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, buildApplied(networkActions));
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             LinearOptimizerReports.reportSystematicSensitivityComputationFailedAtIteration(reportNode, iteration);
         }
+    }
+
+    private static AppliedRemedialActionsPerState buildApplied(Set<NetworkAction> networkActions) {
+        if (networkActions == null || networkActions.isEmpty()) {
+            return null;
+        }
+        AppliedRemedialActionsPerState applied = new AppliedRemedialActionsPerState();
+        networkActions.forEach(applied::addAppliedNetworkAction);
+        return applied;
     }
 
     private static IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,

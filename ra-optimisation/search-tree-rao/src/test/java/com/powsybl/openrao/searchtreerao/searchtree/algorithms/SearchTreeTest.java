@@ -32,7 +32,7 @@ import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.network.NetworkVariantManager;
+import com.powsybl.openrao.searchtreerao.commons.VirtualVariantManager;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
@@ -89,7 +89,7 @@ class SearchTreeTest {
     private SearchTreeInput searchTreeInput;
 
     private Network network;
-    private NetworkVariantManager networkVariantManager;
+    private VirtualVariantManager virtualVariantManager;
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
@@ -173,7 +173,8 @@ class SearchTreeTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         when(network.getVariantManager()).thenReturn(variantManager);
         when(variantManager.getWorkingVariantId()).thenReturn("ID");
-        networkVariantManager = Mockito.mock(NetworkVariantManager.class);
+        when(variantManager.getVariantIds()).thenReturn(List.of("ID"));
+        virtualVariantManager = Mockito.mock(VirtualVariantManager.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         availableNetworkActions = new HashSet<>();
@@ -197,7 +198,7 @@ class SearchTreeTest {
         rootLeaf = Mockito.mock(Leaf.class);
         ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
         when(searchTreeInput.getToolProvider()).thenReturn(toolProvider);
-        when(toolProvider.getSystematicSensitivityInterface(any(), any(), any(boolean.class), any(boolean.class), any(), any())).thenReturn(Mockito.mock(SystematicSensitivityInterface.class));
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), any(boolean.class), any(boolean.class), any(), any(), any())).thenReturn(Mockito.mock(SystematicSensitivityInterface.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
         when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
@@ -208,7 +209,7 @@ class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
@@ -223,7 +224,7 @@ class SearchTreeTest {
         double leafCost = 2.;
         when(rootLeaf.getCost()).thenReturn(leafCost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
@@ -241,7 +242,7 @@ class SearchTreeTest {
         setStopCriterionAtMinObjective();
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -255,7 +256,7 @@ class SearchTreeTest {
         setStopCriterionAtMinObjective();
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         // add an hvdc range action on a HVDC lie in AC emulation
         HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
         when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
@@ -273,7 +274,7 @@ class SearchTreeTest {
         searchTreeWithOneChildLeaf();
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -287,7 +288,7 @@ class SearchTreeTest {
 
         when(rootLeaf.getCost()).thenReturn(4.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -322,11 +323,11 @@ class SearchTreeTest {
         when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
         when(rootLeaf.getRangeActionActivationResult()).thenReturn(rangeActionActivationResult);
         doReturn(rootLeaf).when(searchTree).makeLeaf(any(), any(), any(), any());
-        searchTree.initLeaves(searchTreeInput);
+        searchTree.initLeaves(searchTreeInput, virtualVariantManager);
 
         // 2) Create 2 Leaf with different shouldRangeActionBeRemoved value
-        Leaf filteredLeaf = searchTree.createChildLeaf(networkVariantManager, naCombination, true);
-        Leaf unfilteredLeaf = searchTree.createChildLeaf(networkVariantManager, naCombination, false);
+        Leaf filteredLeaf = searchTree.createChildLeaf(virtualVariantManager, naCombination, true);
+        Leaf unfilteredLeaf = searchTree.createChildLeaf(virtualVariantManager, naCombination, false);
 
         // 3) Mocks a sensitivity computer to set leaf.status to EVALUATED
         setLeafStatusToEvaluated(filteredLeaf);
@@ -471,7 +472,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(cost);
         when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
     }
 
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
@@ -497,6 +498,7 @@ class SearchTreeTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         String workingVariantId = "ID";
         when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
+        when(variantManager.getVariantIds()).thenReturn(List.of(workingVariantId));
         when(network.getVariantManager()).thenReturn(variantManager);
         AbstractNetworkPool openRaoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel, true);
         Mockito.doReturn(openRaoNetworkPool).when(searchTree).makeOpenRaoNetworkPool(network, leavesInParallel);
@@ -534,7 +536,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(leafCost);
         when(rootLeaf.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
         doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any());
 
@@ -551,7 +553,7 @@ class SearchTreeTest {
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);
@@ -584,7 +586,7 @@ class SearchTreeTest {
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(eq(optimizationPerimeter), any(VirtualVariantManager.class), eq(prePerimeterResult), eq(appliedRemedialActions));
         ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);

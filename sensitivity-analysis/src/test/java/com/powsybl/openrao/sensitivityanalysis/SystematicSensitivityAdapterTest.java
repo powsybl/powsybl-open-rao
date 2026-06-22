@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -129,7 +130,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            Collections.emptySet()
         );
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
@@ -214,7 +216,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            Collections.emptySet()
         );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
@@ -250,7 +253,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            Collections.emptySet()
         );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
     }

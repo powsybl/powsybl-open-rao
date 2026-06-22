@@ -50,19 +50,19 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                 }
             }
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
-            if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
+            boolean hasSpecificOperatorStrategies = sensitivityAnalysisRunParameters.getOperatorStrategies().stream()
+                .anyMatch(os -> os.getContingencyContext().getContextType() == ContingencyContextType.SPECIFIC);
+            if ((pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) && !hasSpecificOperatorStrategies) {
                 // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters, network);
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), network, sensitivityAnalysisRunParameters.getOperatorStrategies());
             } else {
-                // used for tests with already applied RangeActions in Curative states
-                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters);
+                // used for tests with already applied RangeActions in Curative states (via PST tap or operator strategies)
+                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), sensitivityAnalysisRunParameters.getOperatorStrategies());
             }
         }, sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
     }
 
-    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, SensitivityAnalysisRunParameters runParameters, Network network) {
-        List<Contingency> contingencies = runParameters.getContingencies();
-        List<OperatorStrategy> operatorStrategies = runParameters.getOperatorStrategies();
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network, List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -73,29 +73,35 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
-            int osIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(finalContingencyIndex).getId());
+            int operatorStrategyIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(contingencyIndex).getId());
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
-                    if (osIndex != -1) {
-                        // operator strategy is applied: write "alternative" values (as if PST was already moved)
-                        handleSpecificContingencyContextNotAtNeutralTap(sensitivityResultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex, osIndex);
-                    } else {
-                        handleSpecificConditionContextAtNeutralTap(
-                            sensitivityResultWriter,
-                            contingencies,
-                            network,
-                            functionType,
-                            variableType,
-                            factorIndexContingency,
-                            finalContingencyIndex,
-                            osIndex
-                        );
-                    }
+                    handleSpecificConditionContextAtNeutralTap(
+                        sensitivityResultWriter,
+                        contingencies,
+                        network,
+                        functionType,
+                        variableType,
+                        factorIndexContingency,
+                        finalContingencyIndex,
+                        operatorStrategyIndex
+                    );
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
         }
+    }
+
+    private static int findOperatorStrategyIndex(List<OperatorStrategy> operatorStrategies, String contingencyId) {
+        for (int i = 0; i < operatorStrategies.size(); i++) {
+            var ctx = operatorStrategies.get(i).getContingencyContext();
+            if (ctx.getContextType() == ContingencyContextType.ALL
+                    || ctx.getContextType() == ContingencyContextType.SPECIFIC && contingencyId.equals(ctx.getContingencyId())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static void handleSpecificConditionContextAtNeutralTap(SensitivityResultWriter sensitivityResultWriter,
@@ -227,9 +233,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         }
     }
 
-    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, SensitivityAnalysisRunParameters runParameters) {
-        List<Contingency> contingencies = runParameters.getContingencies();
-        List<OperatorStrategy> operatorStrategies = runParameters.getOperatorStrategies();
+    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -240,11 +244,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
-            int osIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(finalContingencyIndex).getId());
+            int operatorStrategyIndex = findOperatorStrategyIndex(operatorStrategies, contingencies.get(contingencyIndex).getId());
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
-                    handleSpecificContingencyContextNotAtNeutralTap(resultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex, osIndex);
+                    handleSpecificContingencyContextNotAtNeutralTap(resultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex, operatorStrategyIndex);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
@@ -336,16 +340,6 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         } else {
             throw new AssertionError();
         }
-    }
-
-    private static int findOperatorStrategyIndex(List<OperatorStrategy> operatorStrategies, String contingencyId) {
-        for (int i = 0; i < operatorStrategies.size(); i++) {
-            var ctx = operatorStrategies.get(i).getContingencyContext();
-            if (ctx.getContextType() == ContingencyContextType.SPECIFIC && contingencyId.equals(ctx.getContingencyId())) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override

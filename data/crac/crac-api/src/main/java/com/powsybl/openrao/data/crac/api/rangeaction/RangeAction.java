@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,8 +30,8 @@ import java.util.Optional;
  */
 public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T> {
 
-    default Action toAction(double setpoint) {
-        throw new UnsupportedOperationException("toAction method not implemented");
+    default List<Action> toActions(double setpoint, Network network) {
+        throw new UnsupportedOperationException("toActions method not implemented");
     }
 
     /**

@@ -16,3 +16,5 @@ venv/
 
 # ignore sensitive files used in business tests
 sensitive/
+
+/.junie

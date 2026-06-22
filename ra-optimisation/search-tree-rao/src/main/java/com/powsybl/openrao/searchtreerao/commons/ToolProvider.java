@@ -18,6 +18,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -94,7 +95,7 @@ public final class ToolProvider {
                                                                             final boolean computeLoopFlows,
                                                                             final Instant outageInstant,
                                                                             final ReportNode reportNode) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode);
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, Collections.emptySet(), reportNode);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
@@ -103,6 +104,7 @@ public final class ToolProvider {
                                                                             final boolean computeLoopFlows,
                                                                             final AppliedRemedialActions appliedRemedialActions,
                                                                             final Instant outageInstant,
+                                                                            final Set<NetworkAction> networkActions,
                                                                             final ReportNode reportNode) {
 
         Unit flowUnit = getFlowUnit(raoParameters);
@@ -119,6 +121,7 @@ public final class ToolProvider {
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(flowUnit))
             .withAppliedRemedialActions(appliedRemedialActions)
+            .withNetworkActions(networkActions)
             .withOutageInstant(outageInstant);
 
         builder.withLoadflow(cnecs, computationUnits);
