@@ -34,7 +34,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private static final String APPLICATION_TIME = "application-time";
     private static final String TIMESTAMP = "timestamp";
     private static final String COUNTER_TRADING_MIN_RANGE = "counter-trading-min-range";
-    private static final String COUNTER_TRADING_MAX_RANGE =  "counter-trading-max-range";
+    private static final String COUNTER_TRADING_MAX_RANGE = "counter-trading-max-range";
 
     @Override
     public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
