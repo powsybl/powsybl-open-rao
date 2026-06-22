@@ -198,7 +198,7 @@ class SearchTreeTest {
         rootLeaf = Mockito.mock(Leaf.class);
         ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
         when(searchTreeInput.getToolProvider()).thenReturn(toolProvider);
-        when(toolProvider.getSystematicSensitivityInterface(any(), any(), any(boolean.class), any(boolean.class), any(), any(), any())).thenReturn(Mockito.mock(SystematicSensitivityInterface.class));
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), any(boolean.class), any(boolean.class), any(), any(), any(), any())).thenReturn(Mockito.mock(SystematicSensitivityInterface.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
         when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);

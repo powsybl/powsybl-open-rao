@@ -213,7 +213,7 @@ public class SearchTree {
                     final int depthForLogs = depth + 1;
                     final ReportNode searchDepthReportNode = SearchTreeReports.reportSearchDepth(reportNode, depthForLogs);
                     previousDepthOptimalLeaf = optimalLeaf;
-                    updateOptimalLeafWithNextDepthBestLeaf(forkJoinPool, virtualVariantManager, searchDepthReportNode);
+                    updateOptimalLeafWithNextDepthBestLeaf(forkJoinPool, virtualVariantManager, leavesInParallel, leavesVariantIds, searchDepthReportNode);
                     hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                     if (hasImproved) {
                         SearchTreeReports.reportSearchDepthEnd(depthForLogs);
@@ -246,8 +246,10 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(final ForkJoinPool forkJoinPool,
+    private void updateOptimalLeafWithNextDepthBestLeaf(final ExecutorService executorService,
                                                         final VirtualVariantManager virtualVariantManager,
+                                                        final int leavesInParallel,
+                                                        final List<String> leavesVariantIds,
                                                         final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
@@ -261,12 +263,27 @@ public class SearchTree {
             SearchTreeReports.reportLeavesToEvaluate(reportNode, numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
-        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination -> {
-                final ReportNode leafOptimizationReportNode = SearchTreeReports.reportLeafOptimization(reportNode, verbose, naCombination.getConcatenatedId());
-                return forkJoinPool.submit(() -> optimizeOneLeaf(virtualVariantManager, naCombination, remainingLeaves, leafOptimizationReportNode));
-            }
-        ).toList();
-        for (ForkJoinTask<Object> task : tasks) {
+
+        List<NetworkActionCombination> naCombinationsList = new ArrayList<>(naCombinationsSorted);
+        int numberOfChunks = Math.min(numberOfCombinations, leavesInParallel);
+        int chunkSize = (numberOfCombinations + numberOfChunks - 1) / numberOfChunks;
+
+        List<Future<Object>> tasks = new ArrayList<>();
+        for (int i = 0; i < numberOfChunks; i++) {
+            int finalI = i;
+            int fromIndex = i * chunkSize;
+            int toIndex = Math.min(fromIndex + chunkSize, numberOfCombinations);
+            List<NetworkActionCombination> naCombinationsChunk = naCombinationsList.subList(fromIndex, toIndex);
+            tasks.add(executorService.submit(() -> {
+                input.getNetwork().getVariantManager().setWorkingVariant(leavesVariantIds.get(finalI));
+                for (NetworkActionCombination naCombination : naCombinationsChunk) {
+                    optimizeOneLeaf(virtualVariantManager, naCombination, remainingLeaves, reportNode);
+                }
+                return null;
+            }));
+        }
+
+        for (Future<Object> task : tasks) {
             try {
                 task.get();
             } catch (ExecutionException e) {

@@ -93,7 +93,7 @@ class PrePerimeterSensitivityAnalysisTest {
         when(sensitivityInterface.run(network, null)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(sensitivityResult.getStatus(any())).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any(), any())).thenReturn(sensitivityInterface);
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any(), any(), any())).thenReturn(sensitivityInterface);
     }
 
     @Test
