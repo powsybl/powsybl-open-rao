@@ -47,14 +47,15 @@ import java.util.stream.Collectors;
 public class NcRemedialActionsCreator {
     private static final String ALTERATIONS_SEPARATOR = ", ";
     private final Crac crac;
-    Map<String, ElementaryCreationContext> contextByRaId = new TreeMap<>();
+    private final Map<String, ElementaryCreationContext> contextByRaId = new TreeMap<>();
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final CounterTradingRangeActionCreator counterTradingRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> gridStateAlterationRemedialActions;
     private final Set<CountertradeRemedialAction> countertradeRemedialActions;
-    private final NcCracCreationParameters ncParameters;
+    private final Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa;
+    private final Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
@@ -64,38 +65,35 @@ public class NcRemedialActionsCreator {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        this.ncParameters = ncParameters;
 
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
 
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
 
-        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction)
+        this.linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction)
                 .aggregate(nativeCrac.getAssessedElementWithRemedialActions());
 
-        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
+        this.linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
                 .aggregate(nativeCrac.getContingencyWithRemedialActions());
 
-        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, this.ncParameters);
+        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, ncParameters);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
 
         this.gridStateAlterationRemedialActions = new HashSet<>(nativeCrac.getGridStateAlterationRemedialActions());
-        createRemedialActions(linkedAeWithRa, linkedCoWithRa, cracCreationContext);
+        createRemedialActions(cracCreationContext);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
-        standaloneRaIdsImplicatedIntoAGroup.forEach(importedRaId -> contextByRaId.remove(importedRaId));
+        standaloneRaIdsImplicatedIntoAGroup.forEach(contextByRaId::remove);
         cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
 
-    private void createRemedialActions(Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                       Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                       NcCracCreationContext cracCreationContext) {
+    private void createRemedialActions(NcCracCreationContext cracCreationContext) {
 
         if (gridStateAlterationRemedialActions != null) {
             gridStateAlterationRemedialActions
-                    .forEach(action -> addGridStateRemedialAction(action, linkedAeWithRa, linkedCoWithRa, cracCreationContext.getCnecCreationContexts()));
+                    .forEach(action -> addGridStateRemedialAction(action, cracCreationContext.getCnecCreationContexts()));
         }
 
         if (countertradeRemedialActions != null) {
@@ -146,8 +144,6 @@ public class NcRemedialActionsCreator {
     }
 
     private void addGridStateRemedialAction(GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
-                                            Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                            Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
                                             Set<ElementaryCreationContext> cnecCreationContexts) {
 
         List<String> alterations = new ArrayList<>();
@@ -173,8 +169,6 @@ public class NcRemedialActionsCreator {
                         alterations
                 );
                 fillAndSaveRemedialActionAdderAndContext(
-                        linkedAeWithRa,
-                        linkedCoWithRa,
                         cnecCreationContexts,
                         gridStateAlterationRemedialAction,
                         alterations,
@@ -186,34 +180,7 @@ public class NcRemedialActionsCreator {
                 if (elementaryActionsHelper.getTapPositionActions().get(gridStateAlterationRemedialAction.mrid()).size() > 1) {
                     // group TapPositionAction's
                     for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions().get(gridStateAlterationRemedialAction.mrid())) {
-                        try {
-                            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(
-                                    true,
-                                    gridStateAlterationRemedialAction.mrid(),
-                                    nativeTapPositionAction,
-                                    elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(),
-                                    nativeTapPositionAction.mrid()
-                            );
-                            fillAndSaveRemedialActionAdderAndContext(
-                                    linkedAeWithRa,
-                                    linkedCoWithRa,
-                                    cnecCreationContexts,
-                                    gridStateAlterationRemedialAction,
-                                    alterations,
-                                    remedialActionType,
-                                    remedialActionAdder,
-                                    createNameFromTapPositionAction(
-                                            nativeTapPositionAction.mrid(),
-                                            gridStateAlterationRemedialAction.operator()
-                                    )
-                            );
-                        } catch (OpenRaoImportException e) {
-                            if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
-                                saveNotImportedContext(nativeTapPositionAction.mrid(), e);
-                            } else {
-                                throw e;
-                            }
-                        }
+                        groupTapPositionAction(gridStateAlterationRemedialAction, cnecCreationContexts, nativeTapPositionAction, alterations, remedialActionType);
                     }
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(
@@ -224,8 +191,6 @@ public class NcRemedialActionsCreator {
                             gridStateAlterationRemedialAction.mrid()
                     );
                     fillAndSaveRemedialActionAdderAndContext(
-                            linkedAeWithRa,
-                            linkedCoWithRa,
                             cnecCreationContexts,
                             gridStateAlterationRemedialAction,
                             alterations,
@@ -242,6 +207,39 @@ public class NcRemedialActionsCreator {
 
     }
 
+    private void groupTapPositionAction(GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
+                                        Set<ElementaryCreationContext> cnecCreationContexts,
+                                        TapPositionAction nativeTapPositionAction,
+                                        List<String> alterations, RemedialActionType remedialActionType) {
+        RemedialActionAdder<?> remedialActionAdder;
+        try {
+            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(
+                    true,
+                    gridStateAlterationRemedialAction.mrid(),
+                    nativeTapPositionAction,
+                    elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(),
+                    nativeTapPositionAction.mrid()
+            );
+            fillAndSaveRemedialActionAdderAndContext(
+                    cnecCreationContexts,
+                    gridStateAlterationRemedialAction,
+                    alterations,
+                    remedialActionType,
+                    remedialActionAdder,
+                    createNameFromTapPositionAction(
+                            nativeTapPositionAction.mrid(),
+                            gridStateAlterationRemedialAction.operator()
+                    )
+            );
+        } catch (OpenRaoImportException e) {
+            if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
+                saveNotImportedContext(nativeTapPositionAction.mrid(), e);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     private String createNameFromTapPositionAction(String tapPositionId, String operator) {
         if (operator != null) {
             return NcCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
@@ -250,9 +248,7 @@ public class NcRemedialActionsCreator {
         }
     }
 
-    private void fillAndSaveRemedialActionAdderAndContext(Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa,
-                                                          Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                                          Set<ElementaryCreationContext> cnecCreationContexts,
+    private void fillAndSaveRemedialActionAdderAndContext(Set<ElementaryCreationContext> cnecCreationContexts,
                                                           GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
                                                           List<String> alterations,
                                                           RemedialActionType remedialActionType,
