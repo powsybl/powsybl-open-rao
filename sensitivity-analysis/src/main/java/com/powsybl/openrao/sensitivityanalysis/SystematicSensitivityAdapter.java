@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.action.Action;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
@@ -20,7 +21,12 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
@@ -179,9 +185,10 @@ final class SystematicSensitivityAdapter {
             operatorStrategies.add(new OperatorStrategy(operatorStrategyId, contingencyContext, new TrueCondition(), new ArrayList<>(simulatedActionIds)));
         }
 
-        sensitivityComputationParameters.setOperatorStrategiesCalculationMode(operatorStrategyId != null
-                ? SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES
-                : SensitivityOperatorStrategiesCalculationMode.NONE);
+        SensitivityAnalysisParameters runParameters = copy(sensitivityComputationParameters)
+                .setOperatorStrategiesCalculationMode(operatorStrategyId != null
+                        ? SensitivityOperatorStrategiesCalculationMode.CONTINGENCIES_AND_OPERATOR_STRATEGIES
+                        : SensitivityOperatorStrategiesCalculationMode.NONE);
 
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
         instantOrderByState.put(new SensitivityState(null, operatorStrategyId), outageInstant.getOrder());
@@ -191,7 +198,7 @@ final class SystematicSensitivityAdapter {
 
         return new RunConfig(
                 new SensitivityAnalysisRunParameters()
-                        .setParameters(sensitivityComputationParameters)
+                        .setParameters(runParameters)
                         .setContingencies(contingencies)
                         .setOperatorStrategies(operatorStrategies)
                         .setActions(new ArrayList<>(actions))
@@ -233,16 +240,37 @@ final class SystematicSensitivityAdapter {
             instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
         }
 
-        sensitivityComputationParameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES);
+        SensitivityAnalysisParameters runParameters = copy(sensitivityComputationParameters)
+                .setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES);
 
         return new RunConfig(
                 new SensitivityAnalysisRunParameters()
-                        .setParameters(sensitivityComputationParameters)
+                        .setParameters(runParameters)
                         .setContingencies(contingencies)
                         .setOperatorStrategies(operatorStrategies)
                         .setActions(new ArrayList<>(actions))
                         .setVariableSets(variableSets),
                 instantOrderByState);
+    }
+
+    /**
+     * Deep-copies the given {@link SensitivityAnalysisParameters} (including its extensions) through JSON serialization, in
+     * the same way as {@code LoadFlowParameters.copy()} in powsybl-core. The {@link SensitivityAnalysisParameters} instance
+     * is typically shared between sensitivity analyses (e.g. MARMOT timestamps) that may run concurrently. Each analysis sets
+     * its own operator strategies calculation mode, which OLF reads asynchronously during the run; mutating the shared
+     * instance would race on that field and make OLF read another analysis' mode, producing empty/incoherent results. Working
+     * on a copy keeps each analysis isolated.
+     */
+    private static SensitivityAnalysisParameters copy(SensitivityAnalysisParameters parameters) {
+        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            objectMapper.writeValue(outputStream, parameters);
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonSensitivityAnalysisParameters.read(inputStream);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static void addPreventiveActions(Set<Action> actions, Set<String> simulatedActionIds,
