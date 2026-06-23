@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class MonitoringTest {
+class MonitoringTest {
 
     @Test
     void testRunMonitoringOnMultiCurative() throws IOException {
@@ -40,9 +41,9 @@ public class MonitoringTest {
 
         Network network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters).join();
+        RaoResult raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters, ReportNode.NO_OP).join();
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)

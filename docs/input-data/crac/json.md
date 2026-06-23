@@ -49,7 +49,7 @@ The following paragraphs of this page explain, step by step, the content of thes
 > 🔴 marks a **mandatory** field  
 > ⚪ marks an **optional** field  
 > 🔵 marks a field that can be **mandatory in some cases**  
-> ⭐ marks a field that must be **unique** in the CRAC  
+> ⭐ marks a field that must be **unique** in the CRAC
 
 ## Header
 
@@ -67,7 +67,7 @@ representing the date and time of validity the CRAC. The format of the timestamp
 ```json
 {
   "type": "CRAC",
-  "version": "2.10",
+  "version": "2.11",
   "id": "my-crac",
   "name": "My CRAC",
   "info" : "Whatever information worth mentioning about the CRAC.",
@@ -1378,8 +1378,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two countries. The exporting country send power to the importing
-country.
+A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
@@ -1393,8 +1392,8 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withExportingCountry(Country.FR)
-        .withImportingCountry(Country.ES)
+        .withImportingArea("ES")
+        .withExportingArea("FR")
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1422,8 +1421,8 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingCountry" : "FR",
-    "importingCountry" : "ES",
+    "exportingArea" : "FR",
+    "importingArea" : "ES",
     "ranges" : [ {
         "rangeType" : "absolute",
         "min" : 0.0,
@@ -1444,8 +1443,8 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exportingCountry**  
-🔴 **importingCountry**  
+🔴 **exportingArea**  
+🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 ⚪ **ranges**: list of 0 to N Range  
@@ -1516,6 +1515,10 @@ For instance, let us consider a CRAC with 3 curative instants and the following 
 The maximum number of applicable remedial actions defined for the second curative instant (3) is a cumulated value that includes the maximum number of applicable remedial actions during the first curative instant (1). Thus, if 1 remedial action was applied during the first curative instant, only 2 remedial actions can actually be applied during the second curative instant. Likewise, the maximum number of remedial actions for the third curative instant includes the remedial actions applied at curative 1 and 2 instants. Depending on the number of previously applied remedial actions, the number of actually applicable remedial actions during the third curative instant can vary between 4 and 7.
 
 ## Changelog
+
+**v2.11**
+- Removed `networkElementsNamePerId`.
+- Renamed counter-trade actions' `importingCountry` to `importingArea`, and `exportingCountry` to `exportingArea`.
 
 **v2.10**
 - Renamed `danglingLineActions` to `boundaryLineActions`.

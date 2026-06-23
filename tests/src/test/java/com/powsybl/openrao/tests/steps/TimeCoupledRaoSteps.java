@@ -7,6 +7,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
@@ -266,12 +267,13 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.find("TimeCoupledRao").run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
-    }
-
-    @When("I launch roda")
-    public static void iLaunchRoda() {
-        timeCoupledRaoResult = TimeCoupledRao.find("Roda").run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
+        CommonTestData.setReportNode(
+            ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test.rootnode")
+                .build()
+        );
+        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
     }
 
     @When("I export marmot results to {string}")
@@ -284,6 +286,11 @@ public final class TimeCoupledRaoSteps {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             timeCoupledRaoResult.write(zipOutputStream, CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), properties);
         }
+    }
+
+    @When("I export marmot reports to {string}")
+    public static void iExportMarmotReports(String outputPath) throws IOException {
+        CommonTestData.getReportNode().print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")

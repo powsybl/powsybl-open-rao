@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -22,9 +23,10 @@ public interface RaoProvider {
     /**
      * @param raoInput Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
      * @param parameters RAO parameters.
+     * @param reportNode Parent reportNode.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
 
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode);
 }

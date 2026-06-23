@@ -23,8 +23,8 @@ public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<Co
     public void serialize(CounterTradeRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         StandardRangeActionSerializer.serializeCommon(value, gen);
-        gen.writeStringField(JsonSerializationConstants.EXPORTING_COUNTRY, value.getExportingCountry().toString());
-        gen.writeStringField(JsonSerializationConstants.IMPORTING_COUNTRY, value.getImportingCountry().toString());
+        gen.writeStringField(JsonSerializationConstants.EXPORTING_AREA, value.getExportingArea());
+        gen.writeStringField(JsonSerializationConstants.IMPORTING_AREA, value.getImportingArea());
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }
