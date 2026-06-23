@@ -14,8 +14,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
+import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 
 import java.util.Optional;
 import java.util.Set;
@@ -136,16 +136,13 @@ public final class Utils {
             .withActivationCost(costs.activationCost())
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
 
-        if (consideredInjections.size() > 1) {
-            if (Math.abs(totalP) < 1.) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format(
-                        "Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.",
-                        raIdPrefix,
-                        instant
-                    )
-                );
-            }
+        if (consideredInjections.size() == 1) {
+            injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId())
+                .add();
+            return;
+        }
+
+        if (Math.abs(totalP) > 1.) {
             generators.forEach(generator -> {
                 injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / totalP, generator.getId());
                 creationContext.addInjectionUsedInAction(instant, generator.getId());
@@ -154,10 +151,33 @@ public final class Utils {
                 injectionRangeActionAdder.withNetworkElementAndKey(-load.getP0() / totalP, load.getId());
                 creationContext.addInjectionUsedInAction(instant, load.getId());
             });
-        } else {
-            injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId());
+            injectionRangeActionAdder.add();
+            return;
         }
 
-        injectionRangeActionAdder.add();
+        if (loads.isEmpty()) {
+            creationContext.getCreationReport().warn(
+                String.format(
+                    "Injection range action (with multiple generators) %s at instant %s has an initial production of almost zero. Assuming a factor proportional to maxP.",
+                    raIdPrefix,
+                    instant
+                )
+            );
+            double finalMaxP = maxP;
+            generators.forEach(generator -> {
+                injectionRangeActionAdder.withNetworkElementAndKey(generator.getMaxP() / finalMaxP, generator.getId());
+                creationContext.addInjectionUsedInAction(instant, generator.getId());
+            });
+            injectionRangeActionAdder.add();
+            return;
+        }
+
+        throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+            String.format(
+                "Cannot create injection range action (with multiple generators and loads) %s at instant %s because initial net production is almost zero. Maybe all generators were filtered out.",
+                raIdPrefix,
+                instant
+            )
+        );
     }
 }
