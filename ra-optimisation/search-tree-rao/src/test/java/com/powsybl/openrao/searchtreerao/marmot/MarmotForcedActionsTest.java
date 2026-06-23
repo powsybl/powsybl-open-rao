@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao;
+package com.powsybl.openrao.searchtreerao.marmot;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class RodaTest {
+class MarmotForcedActionsTest {
     Network network;
     TemporalData<RaoInput> raoInput;
 
@@ -61,7 +61,7 @@ class RodaTest {
         Action action2 = new TerminalsConnectionAction("action2", "FFR1AA1  FFR2AA1  1", true);
         Action action3 = new TerminalsConnectionAction("wrong_action", "wrong_id", true);
         RodaParameters rodaParameters = new RodaParameters(List.of(action1, action2, action3));
-        //Roda.applyForcedActions(raoInput, rodaParameters);
+        Marmot.applyForcedActions(raoInput, rodaParameters);
         assertEquals(-8, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine("FFR1AA1  FFR2AA1  1").getTerminal1().isConnected());
         assertFalse(network.getLine("FFR1AA1  FFR2AA1  1").getTerminal2().isConnected());
@@ -70,7 +70,7 @@ class RodaTest {
 
     @Test
     void testApplyForcedActionsNullOrEmpty() {
-        //assertDoesNotThrow(() -> Roda.applyForcedActions(raoInput, null));
-        //assertDoesNotThrow(() -> Roda.applyForcedActions(raoInput, new RodaParameters(List.of())));
+        assertDoesNotThrow(() -> Marmot.applyForcedActions(raoInput, null));
+        assertDoesNotThrow(() -> Marmot.applyForcedActions(raoInput, new RodaParameters(List.of())));
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.roda.parameters;
 
 import com.powsybl.action.*;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
@@ -94,17 +95,21 @@ class JsonRodaParametersTest extends AbstractSerDeTest {
         actions.add(new AreaInterchangeTargetAction("id99", "AreaA", 101.0));
         actions.add(new AreaInterchangeTargetAction("idDisabledTarget", "AreaA", Double.NaN));
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         RodaParameters forcedActions = new RodaParameters(actions);
         raoParameters.addExtension(RodaParameters.class, forcedActions);
 
-        roundTripTest(raoParameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_with_ForcedActions.json");
+        roundTripTest(
+            raoParameters,
+            (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+            path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+            "/RaoParameters_with_ForcedActions.json");
     }
 
     @Test
     void testWrongForcedActions() {
         try (var stream = getClass().getResourceAsStream("/RaoParameters_with_wrong_ForcedActions.json")) {
-            OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(stream));
+            OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(stream, ReportNode.NO_OP));
             assertEquals("Unexpected token: wrong-key", exception.getMessage());
         } catch (IOException e) {
             fail(e);
@@ -113,7 +118,7 @@ class JsonRodaParametersTest extends AbstractSerDeTest {
 
     @Test
     void testEmptyForcedActions() {
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_empty_ForcedActions.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_empty_ForcedActions.json"), ReportNode.NO_OP);
         RodaParameters forcedActions = raoParameters.getExtension(RodaParameters.class);
         assertNotNull(forcedActions);
         assertTrue(forcedActions.getForcedPreventiveActions().isEmpty());

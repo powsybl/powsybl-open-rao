@@ -13,6 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -27,6 +28,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.roda.parameters.RodaParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -72,6 +74,8 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimi
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -86,10 +90,37 @@ public class Marmot implements TimeCoupledRaoProvider {
     // TODO the RAO implementation to use should be a parameter
     private static final String SINGLE_TS_RAO_IMPLEMENTATION = "FastRao";
 
+    static void applyForcedActions(TemporalData<RaoInput> raoInputs, RodaParameters rodaParameters) {
+        if (rodaParameters == null || rodaParameters.getForcedPreventiveActions().isEmpty()) {
+            return;
+        }
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info(String.format("Applying %d forced preventive actions before running RAO.", rodaParameters.getForcedPreventiveActions().size()));
+        raoInputs.getDataPerTimestamp().values().stream().map(RaoInput::getNetwork).forEach(network -> {
+            rodaParameters.getForcedPreventiveActions().stream().filter(action -> !action.toModification().apply(network, true))
+                .forEach(action -> BUSINESS_WARNS.warn(String.format("Action '%s' could not be applied.", action.getId())));
+            rodaParameters.getForcedPreventiveActions().forEach(action -> action.toModification().apply(network, false));
+        });
+    }
+
+    private CompletableFuture<TimeCoupledRaoResult> runSingleTsRao(TimeCoupledRaoInput raoInputs, RaoParameters raoParameters) {
+        OffsetDateTime ts = raoInputs.getRaoInputs().getTimestamps().getFirst();
+        RaoInput raoInput = raoInputs.getRaoInputs().getData(ts).orElseThrow();
+        RaoResult result = Rao.find(SINGLE_TS_RAO_IMPLEMENTATION).run(raoInput, raoParameters);
+        // TODO two first arguments may be replaced by automatic detection on result by ts
+        return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(null, null, new TemporalDataImpl<>(Map.of(ts, result))));
+    }
+
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
                                                        final RaoParameters raoParameters,
                                                        final ReportNode reportNode) {
+        applyForcedActions(timeCoupledRaoInput.getRaoInputs(), raoParameters.getExtension(RodaParameters.class));
+
+        if (timeCoupledRaoInput.getRaoInputs().getTimestamps().size() == 1) {
+            TECHNICAL_LOGS.info("[RODA] Only one time-step in inputs. Calling single time-step RAO directly: {}", SINGLE_TS_RAO_IMPLEMENTATION);
+            return runSingleTsRao(timeCoupledRaoInput, raoParameters);
+        }
+
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
