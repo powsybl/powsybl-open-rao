@@ -117,7 +117,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         applyForcedActions(timeCoupledRaoInput.getRaoInputs(), raoParameters.getExtension(RodaParameters.class));
 
         if (timeCoupledRaoInput.getRaoInputs().getTimestamps().size() == 1) {
-            TECHNICAL_LOGS.info("[RODA] Only one time-step in inputs. Calling single time-step RAO directly: {}", SINGLE_TS_RAO_IMPLEMENTATION);
+            TECHNICAL_LOGS.info("[MARMOT] Only one time-step in inputs. Calling single time-step RAO directly: {}", SINGLE_TS_RAO_IMPLEMENTATION);
             return runSingleTsRao(timeCoupledRaoInput, raoParameters);
         }
 
