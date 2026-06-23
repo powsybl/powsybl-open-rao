@@ -15,7 +15,7 @@ Feature: Forced actions in RODA
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch roda
+    When I launch marmot
     When I export marmot results to "raoresults/ForcedActions.zip"
     Then the initial margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 523.04 MW
     And the initial margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 252.8 MW
