@@ -71,18 +71,18 @@ public final class OptimizationSummaryReports {
     }
 
     public static void reportOptimizationSummary(final ReportNode parentNode,
-                                                 final Leaf optimalLeaf,
+                                                 final Leaf leaf,
                                                  final SearchTreeInput input,
                                                  final ObjectiveFunctionResult preOptimObjectiveFunctionResult) {
         final State state = input.getOptimizationPerimeter().getMainOptimizationState();
-        final Map<RangeAction<?>, Double> rangeActionsAndTheirTapsAppliedOnState = getRangeActionsAndTheirTapsAppliedOnState(optimalLeaf, state);
-        final Set<NetworkAction> networkActions = optimalLeaf.getActivatedNetworkActions();
+        final Map<RangeAction<?>, Double> rangeActionsAndTheirTapsAppliedOnState = getRangeActionsAndTheirTapsAppliedOnState(leaf, state);
+        final Set<NetworkAction> networkActions = leaf.getActivatedNetworkActions();
         reportOptimizationSummary(parentNode,
             state,
             networkActions,
             rangeActionsAndTheirTapsAppliedOnState,
             preOptimObjectiveFunctionResult,
-            optimalLeaf);
+            leaf);
     }
 
     public static void logOptimizationSummary(final OpenRaoLogger logger,
