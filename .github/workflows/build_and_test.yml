@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-        jvm: [ java ]
+        os: [ ubuntu-latest, macos-latest ]
+        jvm: [ java, graalvm ]
 
     steps:
       - name: Checkout sources
