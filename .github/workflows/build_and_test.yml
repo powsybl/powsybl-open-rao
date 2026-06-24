@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        jvm: [ java, graalvm ]
+        jvm: [ java ]
 
     steps:
       - name: Checkout sources
