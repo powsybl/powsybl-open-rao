@@ -1212,7 +1212,7 @@ These extensions allow the RAO implementation to provide extra information about
 
 #### FastRAO extensions
 ##### Critical CNECs result
-This extension lists the CNECs that are considered in the last step of [FastRAO](algorithms/castor/performance.md#fastrao).  
+This extension lists the CNECs that are considered in the last step of [FastRAO](../algorithms/castor/performance.md#fastrao).  
 
 ::::{tabs}
 :::{group-tab} JAVA API
