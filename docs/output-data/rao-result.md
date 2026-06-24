@@ -1204,3 +1204,102 @@ Example:
 
 :::
 ::::
+
+### Implementation-specific extensions
+
+Different RAO implementations can add extensions to the RAO result.  
+These extensions allow the RAO implementation to provide extra information about the computations, for example results of intermediary steps.  
+
+#### FastRAO extensions
+##### Critical CNECs result
+This extension lists the CNECs that are considered in the last step of [FastRAO](../algorithms/castor/performance#fastrao).  
+
+::::{tabs}
+:::{group-tab} JAVA API
+
+~~~java
+// Access the extension
+CriticalCnecsResult extension = raoResult.getExtension(CriticalCnecsResult.class);
+// Fetch the critical CNEC IDs
+Set<String> criticalCnecIds = extension.getCriticalCnecIds();
+~~~
+
+:::
+:::{group-tab} JSON File
+
+Example:
+
+~~~json
+
+{
+  "type" : "RAO_RESULT",
+  "version" : "1.8",
+  ...,
+  "extensions" : {
+    "critical-cnecs-result" : [ {
+      "flowCnecId" : "cnec1outageId"
+    }, {
+      "flowCnecId" : "cnec1prevId"
+    }, {
+      "flowCnecId" : "cnec2prevId"
+    }, {
+      "flowCnecId" : "cnec3autoId"
+    }, {
+      "flowCnecId" : "cnec3curId"
+    }, {
+      "flowCnecId" : "cnec3prevId"
+    }, {
+      "flowCnecId" : "cnec4prevId"
+    } ]
+  }
+}
+
+~~~
+
+:::
+::::
+
+#### MARMOT extensions
+##### Pre-time coupling overloaded CNECs
+This extension lists the CNECs that are overloaded (i.e. have a negative margin) after time-independent RAOs.  
+This means that these CNECs need to be secured by the time-coupled RAO.  
+For curative CNECs in particular, this means that extra preventive actions should be implemented to secure them. 
+
+::::{tabs}
+:::{group-tab} JAVA API
+
+~~~java
+// Access the extension
+PreTimeCouplingOverloadedCnecs extension = raoResult.getExtension(PreTimeCouplingOverloadedCnecs.class);
+// Fetch the overloaded CNEC IDs
+Set<String> overloadedCnecs = extension.getCriticalCnecIds();
+~~~
+
+:::
+:::{group-tab} JSON File
+
+Example:
+
+~~~json
+
+{
+  "type" : "RAO_RESULT",
+  "version" : "1.8",
+  ...,
+  "extensions" : {
+    "pre-time-coupling-overloaded-cnecs" : [ {
+      "flowCnecId" : "cnec1outageId"
+    }, {
+      "flowCnecId" : "cnec1prevId"
+    }, {
+      "flowCnecId" : "cnec2prevId"
+    }, {
+      "flowCnecId" : "cnec3autoId"
+    } ]
+  }
+}
+
+~~~
+
+:::
+::::
