@@ -7,17 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AbstractCnecIdsExtension;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PreTimeCouplingOverloadedCnecs extends AbstractExtension<RaoResult> {
-    Set<String> criticalCnecIds;
+public class PreTimeCouplingOverloadedCnecs extends AbstractCnecIdsExtension {
 
     @Override
     public String getName() {
@@ -25,18 +22,10 @@ public class PreTimeCouplingOverloadedCnecs extends AbstractExtension<RaoResult>
     }
 
     public PreTimeCouplingOverloadedCnecs(Set<String> criticalCnecIds) {
-        this.criticalCnecIds = criticalCnecIds;
+        super(criticalCnecIds);
     }
 
     public PreTimeCouplingOverloadedCnecs() {
-        this.criticalCnecIds = new HashSet<>();
-    }
-
-    public Set<String> getCriticalCnecIds() {
-        return criticalCnecIds;
-    }
-
-    public void setCriticalCnecIds(Set<String> criticalCnecIds) {
-        this.criticalCnecIds = criticalCnecIds;
+        super();
     }
 }
