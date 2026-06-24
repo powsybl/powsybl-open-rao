@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-2025, macos-latest ]
+        os: [ ubuntu-latest, windows-2022, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
