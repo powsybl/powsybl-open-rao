@@ -14,7 +14,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        config:
+          - { name: ubuntu, os: ubuntu-22.04 }
+          - { name: darwin, os: macos-15-intel, macosx_deployment_target: "10.16", bdist_wheel_args: "--plat-name macosx-11.0-x86_64" }
+          - { name: windows, os: windows-latest }
         jvm: [ java, graalvm ]
 
     steps:
