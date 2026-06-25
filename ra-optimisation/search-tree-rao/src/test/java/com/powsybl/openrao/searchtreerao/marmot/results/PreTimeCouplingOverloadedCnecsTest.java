@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonExporter;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.JsonPreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +101,10 @@ public class PreTimeCouplingOverloadedCnecsTest {
         PreTimeCouplingOverloadedCnecs extension = deserialized.getExtension(PreTimeCouplingOverloadedCnecs.class);
         assertNotNull(extension);
         assertTrue(extension.getCriticalCnecIds().isEmpty());
+    }
+
+    @Test
+    void testGetClass() {
+        assertEquals(PreTimeCouplingOverloadedCnecs.class, new JsonPreTimeCouplingOverloadedCnecs().getExtensionClass());
     }
 }
