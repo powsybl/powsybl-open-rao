@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonExporter;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -47,5 +50,55 @@ public class PreTimeCouplingOverloadedCnecsTest {
         String inputString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
         assertEquals(inputString, outputString);
+    }
+
+    @Test
+    void testDeserialize() throws IOException {
+        Crac crac = ExhaustiveCracCreation.create();
+        InputStream inputStream = getClass().getResourceAsStream("/raoResult/rao-result-marmot-extension.json");
+        RaoResult raoResult = RaoResult.read(inputStream, crac);
+
+        PreTimeCouplingOverloadedCnecs extension = raoResult.getExtension(PreTimeCouplingOverloadedCnecs.class);
+        assertNotNull(extension);
+        assertEquals(Set.of("cnec1", "cnec2"), extension.getCriticalCnecIds());
+    }
+
+    @Test
+    void testRoundTrip() throws IOException {
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+        Set<String> ids = Set.of("cnec1", "cnec2", "cnec3");
+        raoResult.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(ids));
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
+
+        InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult deserialized = RaoResult.read(inputStream, crac);
+
+        PreTimeCouplingOverloadedCnecs extension = deserialized.getExtension(PreTimeCouplingOverloadedCnecs.class);
+        assertNotNull(extension);
+        assertEquals(ids, extension.getCriticalCnecIds());
+    }
+
+    @Test
+    void testEmptyListRoundTrip() throws IOException {
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+        raoResult.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(Set.of()));
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
+
+        InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult deserialized = RaoResult.read(inputStream, crac);
+
+        PreTimeCouplingOverloadedCnecs extension = deserialized.getExtension(PreTimeCouplingOverloadedCnecs.class);
+        assertNotNull(extension);
+        assertTrue(extension.getCriticalCnecIds().isEmpty());
     }
 }
