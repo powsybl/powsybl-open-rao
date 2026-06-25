@@ -94,8 +94,8 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
         Map<String, Double> exporting = glsk.get(exportingArea);
         Map<String, Double> importing = glsk.get(importingArea);
-        exporting.forEach((key, value) -> applyCT(network, key, -setpoint * value/2));
-        importing.forEach((key, value) -> applyCT(network, key, setpoint * value/2));
+        exporting.forEach((key, value) -> applyCT(network, key, setpoint * value));
+        importing.forEach((key, value) -> applyCT(network, key, -setpoint * value));
     }
 
     public Map<String, Map<String, Double>> getGlsk(Network network) {
@@ -129,7 +129,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                     .withId("id")
                     .withGeneratorId(generatorId)
                     .withActivePowerRelativeValue(false)
-                    .withActivePowerValue(targetSetpoint)
+                    .withActivePowerValue(generator.getTargetP() + targetSetpoint)
                     .build()
                     .toModification()
                     .apply(network, true, ReportNode.NO_OP);
