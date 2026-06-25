@@ -79,6 +79,7 @@ class CriticalCnecsResultRoundTripTest {
     void testGetCategoryName() {
         assertEquals("rao-result", new JsonCriticalCnecsResult().getCategoryName());
     }
+
     @Test
     void testGetExtensionName() {
         assertEquals("critical-cnecs-result", new JsonCriticalCnecsResult().getExtensionName());

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class AbstractCnecIdsExtensionTest {
+class AbsCnecIdsExtensionTest {
 
     private static class TestExtension extends AbstractCnecIdsExtension {
         @Override
