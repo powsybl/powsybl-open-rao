@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PreTimeCouplingOverloadedCnecsTest {
+class PreTimeCouplingOverloadedCnecsTest {
     @Test
     void testSerialize() throws IOException {
         Crac crac = ExhaustiveCracCreation.create();
