@@ -8,23 +8,25 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.GeneratorActionBuilder;
-import com.powsybl.action.LoadActionBuilder;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.*;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
-public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
+public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction>
+        implements CounterTradeRangeAction {
 
     private final String exportingArea;
     private final String importingArea;
@@ -32,18 +34,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final Double initialSetpoint;
     private Map<String, Map<String, Double>> glsk;
 
-    CounterTradeRangeActionImpl(String id,
-                                String name,
-                                String operator,
-                                String groupId,
-                                Set<UsageRule> usageRules,
-                                List<StandardRange> ranges,
-                                Double initialSetpoint,
-                                Integer speed,
-                                Double activationCost,
-                                Map<VariationDirection, Double> variationCosts,
-                                String exportingArea,
-                                String importingArea) {
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
+                                Double activationCost, Map<VariationDirection, Double> variationCosts,
+                                String exportingArea, String importingArea) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
@@ -89,57 +83,31 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     @Override
     public void apply(Network network, double setpoint) {
-        if (glsk == null){
-            glsk = getGlsk(network);
-        }
         Map<String, Double> exporting = glsk.get(exportingArea);
         Map<String, Double> importing = glsk.get(importingArea);
         exporting.forEach((key, value) -> applyCT(network, key, setpoint * value));
         importing.forEach((key, value) -> applyCT(network, key, -setpoint * value));
     }
 
-    public Map<String, Map<String, Double>> getGlsk(Network network) {
-        Map<String, Map<String, Double>> allGlsks =
-                network.getAreaStream().collect(Collectors.toMap(Identifiable::getId, area -> new HashMap<>()));
-
-        network.getGeneratorStream()
-                .filter(g -> g.getTerminal().isConnected())
-                .forEach(generator -> generator.getTerminal()
-                        .getVoltageLevel()
-                        .getAreasStream()
-                        .forEach(area -> allGlsks.get(area.getId())
-                                .put(generator.getId(),
-                                        generator.getTargetP())));
-
-        allGlsks.forEach((area, glsk) -> {
-            double glskSum = glsk.values().stream().mapToDouble(factor -> factor).sum();
-            if (glskSum == 0.0) {
-                glsk.forEach((key, value) -> glsk.put(key, 1.0 / glsk.size()));
-            } else {
-                glsk.forEach((key, value) -> glsk.put(key, value / glskSum));
-            }
-        });
-        return allGlsks;
-    }
-
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
         Generator generator = network.getGenerator(generatorId);
         if (generator != null) {
-            new GeneratorActionBuilder()
-                    .withId("id")
-                    .withGeneratorId(generatorId)
-                    .withActivePowerRelativeValue(false)
-                    .withActivePowerValue(generator.getTargetP() + targetSetpoint)
-                    .build()
-                    .toModification()
-                    .apply(network, true, ReportNode.NO_OP);
+            new GeneratorActionBuilder().withId("id")
+                                        .withGeneratorId(generatorId)
+                                        .withActivePowerRelativeValue(false)
+                                        .withActivePowerValue(generator.getTargetP() + targetSetpoint)
+                                        .build()
+                                        .toModification()
+                                        .apply(network, true, ReportNode.NO_OP);
             return;
         }
 
         if (network.getIdentifiable(generatorId) == null) {
             throw new OpenRaoException(String.format("Injection %s not found in network", generatorId));
         } else {
-            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", generatorId));
+            throw new OpenRaoException(
+                    String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)",
+                                  generatorId));
         }
     }
 
@@ -173,5 +141,20 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
         hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
         return hashCode;
+    }
+
+    @Override
+    public void setGlsk(ZonalData<SensitivityVariableSet> zonalGlsk) {
+        this.glsk = new HashMap<>();
+        this.glsk.put(getImportingArea(), new HashMap<>());
+        this.glsk.put(getExportingArea(), new HashMap<>());
+
+        zonalGlsk.getData(getImportingArea())
+                 .getVariablesById()
+                 .forEach((id, variable) -> glsk.get(getImportingArea()).put(id, variable.getWeight()));
+        zonalGlsk.getData(getExportingArea())
+                 .getVariablesById()
+                 .forEach((id, variable) -> glsk.get(getExportingArea()).put(id, variable.getWeight()));
+
     }
 }

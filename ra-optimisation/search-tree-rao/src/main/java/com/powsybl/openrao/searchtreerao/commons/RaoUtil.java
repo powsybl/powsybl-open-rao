@@ -42,6 +42,7 @@ import java.util.stream.StreamSupport;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+import static com.powsybl.openrao.searchtreerao.commons.CounterTradingUtils.updateCounterTradeRangeActionGlsks;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static java.lang.String.format;
@@ -60,6 +61,9 @@ public final class RaoUtil {
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
         checkCurativeRaUsageLimit(raoInput.getCrac());
+
+        checkCounterTradingPreconditions(raoInput);
+        updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
     }
 
     /**
@@ -162,7 +166,6 @@ public final class RaoUtil {
                 }
             }
         }
-
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
@@ -236,6 +239,16 @@ public final class RaoUtil {
                 || raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
             throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters",
                                               raoParameters.getObjectiveFunctionParameters().getType()));
+        }
+    }
+
+    private static void checkCounterTradingPreconditions(RaoInput raoInput) {
+        var actions = raoInput.getCrac().getCounterTradeRangeActions();
+        if (actions.isEmpty()) {
+            return;
+        }
+        if (raoInput.getGlskProvider() == null) {
+            throw new OpenRaoException("Counter Trading actions require glsks");
         }
     }
 
