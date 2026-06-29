@@ -213,6 +213,11 @@ public final class CommonTestData {
 
     @Given("loopflow glsk file is {string}")
     public static void loopflowGlskFileIs(String path) {
+        ucteGlskFileIs(path);
+    }
+
+    @Given("ucte glsk file is {string}")
+    public static void ucteGlskFileIs(String path) {
         loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
