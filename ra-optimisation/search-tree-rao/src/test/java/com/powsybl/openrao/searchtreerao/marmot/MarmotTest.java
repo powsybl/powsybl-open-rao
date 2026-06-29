@@ -26,6 +26,7 @@ import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -162,6 +164,9 @@ class MarmotTest {
         assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
         assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
         assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
+
+        assertNotNull(results.getExtension(PreTimeCouplingOverloadedCnecs.class));
+        assertTrue(results.getExtension(PreTimeCouplingOverloadedCnecs.class).getCriticalCnecIds().isEmpty());
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));

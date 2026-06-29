@@ -35,6 +35,7 @@ import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -85,9 +86,7 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
 import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -539,6 +538,12 @@ public final class TimeCoupledRaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+    }
+
+    @Then("the CNEC {string} is overloaded before time-coupled optimization")
+    public void cnecIsOverloadedBeforeTimeCoupledOptimization(String cnecId) {
+        assertNotNull(timeCoupledRaoResult.getExtension(PreTimeCouplingOverloadedCnecs.class));
+        assertTrue(timeCoupledRaoResult.getExtension(PreTimeCouplingOverloadedCnecs.class).getCriticalCnecIds().contains(cnecId));
     }
 
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {
