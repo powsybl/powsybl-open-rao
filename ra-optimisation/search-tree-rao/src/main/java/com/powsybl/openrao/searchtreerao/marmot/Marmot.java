@@ -28,6 +28,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -146,11 +147,10 @@ public class Marmot implements TimeCoupledRaoProvider {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
         TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(cracs, parallelism);
         Set<String> postTopoOverloadedCnecs = new HashSet<>();
-        Unit flowUnit = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
-            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, flowUnit) < 0)
+            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
                 .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
         });
         topologicalOptimizationResults.clear(); // delete RAO results
