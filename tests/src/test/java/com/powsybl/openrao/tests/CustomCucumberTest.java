@@ -17,14 +17,13 @@ import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 
 /**
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@counter-trading") // For SearchTreeRao testing
-//@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @multi-curative and not @search-tree-rao") // For FastRao testing
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@counter-trading")
 public class CustomCucumberTest {
 }

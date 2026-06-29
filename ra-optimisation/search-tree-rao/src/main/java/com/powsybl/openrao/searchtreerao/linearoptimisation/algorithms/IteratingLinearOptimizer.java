@@ -225,7 +225,7 @@ public final class IteratingLinearOptimizer {
     }
 
     private static void printLpLinearProblem(LinearProblem linearProblem, int iteration) {
-        String lpName = "lpModel"+ iteration + ".lp";
+        String lpName = "lpModel" + iteration + ".lp";
         linearProblem.printLp(lpName);
     }
 
