@@ -146,10 +146,11 @@ public class Marmot implements TimeCoupledRaoProvider {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
         TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(cracs, parallelism);
         Set<String> postTopoOverloadedCnecs = new HashSet<>();
+        Unit flowUnit = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
-            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, Unit.MEGAWATT) < 0)
+            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, flowUnit) < 0)
                 .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
         });
         topologicalOptimizationResults.clear(); // delete RAO results
@@ -693,7 +694,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                          final Set<String> postTopoOverloadedCnecs,
                                                                                          final RaoParameters raoParameters,
                                                                                          final ReportNode reportNode) {
-        var result = new TimeCoupledRaoResultImpl(
+        TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
             initialLinearOptimizationResult,
             globalLinearOptimizationResult,
             getPostOptimizationResults(
