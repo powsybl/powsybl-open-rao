@@ -81,6 +81,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
+    Then the CNEC "DDE2AA1  NNL3AA1  1 - preventive" is overloaded before time-coupled optimization
      # Timestamp 00:30: 0
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
     Then the total cost for timestamp "2019-01-08 00:30" is 0
@@ -210,6 +211,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
+    Then the CNEC "NNL2AA1  BBE3AA1  1 - preventive" is overloaded before time-coupled optimization
+    And the CNEC "BBE1AA1  BBE3AA1  1 - preventive" is overloaded before time-coupled optimization
     # Timestamp 00:30: 0 (activation) + 10 * 94 MW * 2 (BBE1 and DDE1) (variation) = 1880
     Then the functional cost for timestamp "2019-01-08 00:30" is 1880
     Then the total cost for timestamp "2019-01-08 00:30" is 1880
