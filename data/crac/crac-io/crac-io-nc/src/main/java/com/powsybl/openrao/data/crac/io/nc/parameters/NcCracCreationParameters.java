@@ -21,6 +21,8 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
     private CapacityCalculationRegion capacityCalculationRegionCode = null;
     private OffsetDateTime timestamp = null;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
+    private Double counterTradingMinRange = null;
+    private Double counterTradingMaxRange = null;
 
     @Override
     public String getName() {
@@ -39,6 +41,14 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
         return curativeInstants;
     }
 
+    public Double getCounterTradingMinRange() {
+        return counterTradingMinRange;
+    }
+
+    public Double getCounterTradingMaxRange() {
+        return counterTradingMaxRange;
+    }
+
     public void setCapacityCalculationRegion(CapacityCalculationRegion capacityCalculationRegionCode) {
         this.capacityCalculationRegionCode = capacityCalculationRegionCode;
     }
@@ -49,5 +59,13 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
 
     public void setTimestamp(OffsetDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void setCounterTradingMinRange(Double counterTradingMinRange) {
+        this.counterTradingMinRange = counterTradingMinRange;
+    }
+
+    public void setCounterTradingMaxRange(Double counterTradingMaxRange) {
+        this.counterTradingMaxRange = counterTradingMaxRange;
     }
 }

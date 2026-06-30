@@ -89,6 +89,8 @@ class JsonNcCracCreationParametersTest {
         csaParameters.setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
         csaParameters.setTimestamp(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC));
         csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
+        csaParameters.setCounterTradingMinRange(-1000.0);
+        csaParameters.setCounterTradingMaxRange(1000.0);
         parameters.addExtension(NcCracCreationParameters.class, csaParameters);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -103,6 +105,8 @@ class JsonNcCracCreationParametersTest {
         assertEquals(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC), ncCracCreationParameters.getTimestamp());
         assertEquals(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE, ncCracCreationParameters.getCapacityCalculationRegion());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
+        assertEquals(-1000.0, ncCracCreationParameters.getCounterTradingMinRange());
+        assertEquals(1000.0, ncCracCreationParameters.getCounterTradingMaxRange());
     }
 
 }
