@@ -395,7 +395,7 @@ class NetworkCracCreatorTest {
         parameters.getCountertradingRangeActions().setCountryFilter(Set.of(Country.NL));
         parameters.getCountertradingRangeActions().setRaRangeProvider((country, instant) ->
             instant.isPreventive() ? new MinAndMax<>(-1000., 1000.) : new MinAndMax<>(0., 0.));
-        parameters.getCountertradingRangeActions().setRaCostsProvider((country, instant) -> new InjectionRangeActionCosts(10., 20., 30.));
+        parameters.getCountertradingRangeActions().setRaCostsProvider((country, instant) -> new RangeActionCosts(10., 20., 30.));
 
         // Mock network to have a generator with negative targetP
         String networkName = "TestCase12Nodes.uct";
