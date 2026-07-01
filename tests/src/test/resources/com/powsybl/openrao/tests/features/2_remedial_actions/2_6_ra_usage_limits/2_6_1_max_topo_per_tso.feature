@@ -67,7 +67,7 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao after "co2_be1_be3" at "curative"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used after "co2_be1_be3" at "curative"
     Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co2_be1_be3" at "curative"

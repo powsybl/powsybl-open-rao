@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -39,7 +40,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnec
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
+public class OneStateOnlyRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;

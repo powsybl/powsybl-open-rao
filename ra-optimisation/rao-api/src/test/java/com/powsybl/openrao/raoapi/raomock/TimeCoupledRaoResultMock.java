@@ -70,11 +70,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public boolean isSecure(OffsetDateTime timestamp, Crac crac, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return null;
     }

@@ -89,7 +89,10 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
 import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -515,9 +518,9 @@ public final class TimeCoupledRaoSteps {
         assertFalse(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
     }
 
-    @Then("its time coupled security status should be {string}")
+    @Then("the time-coupled security status should be {string}")
     public void statusShouldBe(String status) {
-        assertTrue(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac).getDataPerTimestamp().values().stream().allMatch(crac -> status.equalsIgnoreCase("secured") == timeCoupledRaoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)));
+        assertEquals("secured".equalsIgnoreCase(status), timeCoupledRaoResult.isSecure(CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")

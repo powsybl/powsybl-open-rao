@@ -445,40 +445,60 @@ public interface RaoResult extends Extendable<RaoResult> {
      * Indicates whether all the CNECs of a given type are secure at the last instant (i.e. after RAO).
      *
      * @param crac The CRAC for which to check security.
-     * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param u    The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
     default boolean isSecure(Crac crac, PhysicalParameter... u) {
+        // TODO: exclude CNECs that were manually exculded or that belong to states that were excluded
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
         }
         if (getComputationStatus() == ComputationStatus.FAILURE) {
-            return false;
+            return false; // TODO: should we throw an exception here?
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                Optional<Double> minAmpereMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.AMPERE));
-                if (minAmpereMargin.isPresent()) {
-                    if (minAmpereMargin.get() < 0) {
-                        return false;
+                if (flowCnec.isOptimized()) {
+                    Optional<Double> minAmpereMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.AMPERE));
+                    if (minAmpereMargin.isPresent()) {
+                        if (minAmpereMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        Optional<Double> minMegaWattMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.MEGAWATT));
+                        if (minMegaWattMargin.isPresent()) {
+                            if (minMegaWattMargin.get() < 0) {
+                                return false;
+                            }
+                        } else {
+                            // no flow value available: assume it is secure
+                        }
                     }
-                } else if (safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.MEGAWATT)).orElseThrow(() -> new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()))) < 0) {
-                    return false;
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.ANGLE)) {
             for (AngleCnec angleCnec : crac.getAngleCnecs()) {
-                if (safeGetDouble(getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE)).orElseThrow(() -> new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()))) < 0) {
-                    return false;
+                Optional<Double> minDegreeMargin = safeGetDouble(getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
+                if (minDegreeMargin.isPresent()) {
+                    if (minDegreeMargin.get() < 0) {
+                        return false;
+                    }
+                } else {
+                    throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.VOLTAGE)) {
             for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
-                if (safeGetDouble(getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT)).orElseThrow(() -> new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()))) < 0) {
-                    return false;
+                Optional<Double> minKiloVoltMargin = safeGetDouble(getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
+                if (minKiloVoltMargin.isPresent()) {
+                    if (minKiloVoltMargin.get() < 0) {
+                        return false;
+                    }
+                } else {
+                    throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
                 }
             }
         }

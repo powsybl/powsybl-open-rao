@@ -74,11 +74,12 @@ Feature: 2.6.2: Handle maximum CRA and maximum curative PSTs per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao on preventive state
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -15 in preventive
+    Then the worst margin is 300.37 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.2.6: One PST, limiting element changes

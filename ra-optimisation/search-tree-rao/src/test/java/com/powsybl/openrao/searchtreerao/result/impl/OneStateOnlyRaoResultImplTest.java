@@ -461,6 +461,12 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testIsSecureOnSecureCase() {
+        Contingency contingency = mock(Contingency.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getInstant()).thenReturn(curativeInstant);
+        when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
         assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
@@ -470,13 +476,25 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testIsSecureOnFailureCase() {
+        Contingency contingency = mock(Contingency.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getInstant()).thenReturn(curativeInstant);
+        when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
+        assertFalse(output.isSecure(crac, PhysicalParameter.FLOW));
     }
 
     @Test
     void testIsSecureOnUnsecureCase() {
+        Contingency contingency = mock(Contingency.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getInstant()).thenReturn(curativeInstant);
+        when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
         assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));

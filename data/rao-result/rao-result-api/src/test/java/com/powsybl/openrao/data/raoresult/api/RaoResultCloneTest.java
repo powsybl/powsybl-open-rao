@@ -142,6 +142,7 @@ class RaoResultCloneTest {
 
         // Mocking networkAction results
         State pState = mock(State.class);
+        State oState = mock(State.class);
         State cState1 = mock(State.class);
         State cState2 = mock(State.class);
         NetworkAction naP = mock(NetworkAction.class);
@@ -194,6 +195,7 @@ class RaoResultCloneTest {
 
         when(raoResult.getMinVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
         when(raoResult.getMaxVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(154.38);
+        when(raoResult.getMargin(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(-10.0);
         // Mock other methods for VoltageCnec as needed
 
         when(crac.getAngleCnecs()).thenReturn(Set.of());
@@ -207,9 +209,14 @@ class RaoResultCloneTest {
         when(raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant))).thenReturn(ComputationStatus.FAILURE);
         when(raoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant))).thenReturn(ComputationStatus.DEFAULT);
 
-        when(raoResult.isSecure(crac)).thenReturn(false);
-        when(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
-        when(raoResult.isSecure(crac, PhysicalParameter.VOLTAGE)).thenReturn(false);
+        // mock CNECs' states and instants
+        when(pState.getInstant()).thenReturn(preventiveInstant);
+        when(cnecP.getState()).thenReturn(pState);
+        when(oState.getInstant()).thenReturn(outageInstant);
+        when(cnecO.getState()).thenReturn(oState);
+        when(cState1.getInstant()).thenReturn(curativeInstant);
+        when(cState2.getInstant()).thenReturn(curativeInstant);
+        when(voltageCnec.getState()).thenReturn(cState2);
 
         testRaoResultClone(new RaoResultClone(raoResult), crac);
 
