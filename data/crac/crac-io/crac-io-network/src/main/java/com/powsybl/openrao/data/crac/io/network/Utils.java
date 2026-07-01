@@ -169,9 +169,9 @@ public final class Utils {
                     instant
                 )
             );
-            double finalMaxP = maxP;
+            double totalMaxP = Math.round(generators.stream().mapToDouble(Generator::getMaxP).sum());
             generators.forEach(generator -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(generator.getMaxP() / finalMaxP, generator.getId());
+                injectionRangeActionAdder.withNetworkElementAndKey(generator.getMaxP() / totalMaxP, generator.getId());
                 creationContext.addInjectionUsedInAction(instant, generator.getId());
             });
             injectionRangeActionAdder.add();
