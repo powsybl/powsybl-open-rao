@@ -114,8 +114,6 @@ class RedispatchingCreator {
             false,
             parameters.getCombinationCosts(combinationId, instant));
 
-        consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
-
         checkNumberOfActions();
     }
 
@@ -131,9 +129,6 @@ class RedispatchingCreator {
             parameters.getRaRange(generator, instant),
             false,
             parameters.getRaCosts(generator, instant));
-
-        // connect the generator
-        generator.connect(SwitchPredicates.IS_OPEN);
 
         checkNumberOfActions();
     }

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
@@ -139,6 +140,7 @@ public final class Utils {
         if (consideredInjections.size() == 1) {
             injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId())
                 .add();
+            consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
             return;
         }
 
@@ -152,6 +154,7 @@ public final class Utils {
                 creationContext.addInjectionUsedInAction(instant, load.getId());
             });
             injectionRangeActionAdder.add();
+            consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
             return;
         }
 
@@ -169,6 +172,7 @@ public final class Utils {
                 creationContext.addInjectionUsedInAction(instant, generator.getId());
             });
             injectionRangeActionAdder.add();
+            consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
             return;
         }
 
