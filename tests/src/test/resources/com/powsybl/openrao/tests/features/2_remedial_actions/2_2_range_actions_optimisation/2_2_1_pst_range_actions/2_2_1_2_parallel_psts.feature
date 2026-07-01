@@ -13,8 +13,9 @@ Feature: 2.2.1.2: Handle parallel PSTs
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be 13 in preventive
     Then the tap of PstRangeAction "pst_fr" should be 13 in preventive
+    Then the worst margin is 2563.71 A
     Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 2644 A

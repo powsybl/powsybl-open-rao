@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -174,16 +172,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
     }
 
     @Override

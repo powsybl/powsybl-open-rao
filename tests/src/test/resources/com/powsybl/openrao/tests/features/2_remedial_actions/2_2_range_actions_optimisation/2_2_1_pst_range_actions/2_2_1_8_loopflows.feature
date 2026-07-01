@@ -41,7 +41,7 @@ Feature: 2.2.1.8: MIP range action optimisation and loopflows
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then the worst margin is 1968 A
     Then the margin on cnec "fr4_de1_N_opp - preventive" after PRA should be 1968 A
     Then 2 remedial actions are used in preventive

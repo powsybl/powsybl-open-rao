@@ -14,7 +14,7 @@ Feature: 1.3.1: Solve a RAO for a single preventive or curative state
     When I launch rao at "2019-01-08 00:30" on preventive state
 #    Then I export rao reports to "reports/reports_1_3_1_1.txt"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then the worst margin is 1636 MW
     Then the margin on cnec "CnecPreventiveOppo - preventive" after PRA should be 1636 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive

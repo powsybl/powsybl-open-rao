@@ -91,7 +91,7 @@ class FastRaoResultImplTest {
         );
         status = result.getComputationStatus();
         assertSame(FAILURE, status);
-        assertFalse(result.isSecure(PhysicalParameter.FLOW));
+        assertFalse(result.isSecure(crac, PhysicalParameter.FLOW));
     }
 
     @Test
@@ -210,10 +210,23 @@ class FastRaoResultImplTest {
 
     @Test
     void testExecutionDetailsAndStatus() {
+        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+            Instant cnecInstant = flowCnec.getState().getInstant();
+            if (cnecInstant.isPreventive() || cnecInstant.isOutage()) {
+                when(afterPraResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
+                when(afterPraResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
+            } else if (cnecInstant.isAuto()) {
+                when(afterAraResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
+                when(afterAraResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
+            } else {
+                when(finalResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
+                when(finalResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
+            }
+        }
         result.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, result.getExecutionDetails());
         when(afterPraResult.getFunctionalCost()).thenReturn(185.3);
-        assertFalse(result.isSecure(PhysicalParameter.FLOW));
+        assertFalse(result.isSecure(crac, PhysicalParameter.FLOW));
         State state = Mockito.mock(State.class);
         when(state.getInstant()).thenReturn(crac.getInstant("preventive"));
         when(afterPraResult.getComputationStatus(state)).thenReturn(FAILURE);

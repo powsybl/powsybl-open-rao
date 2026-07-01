@@ -70,16 +70,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return null;
     }
@@ -212,15 +202,5 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public void setExecutionDetails(String executionDetails) {
 
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return false;
     }
 }
