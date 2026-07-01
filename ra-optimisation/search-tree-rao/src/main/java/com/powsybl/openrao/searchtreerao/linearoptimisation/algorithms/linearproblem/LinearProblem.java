@@ -87,6 +87,10 @@ public final class LinearProblem {
         ON, OFF
     }
 
+    public enum AdjustmentState {
+        UP, DOWN, FLAT, OFF
+    }
+
     public static LinearProblemBuilder create() {
         return new LinearProblemBuilder();
     }
@@ -220,12 +224,20 @@ public final class LinearProblem {
         return solver.getConstraint(tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
-        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint addUpOrDownVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(upOrDownVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
-        return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint getUpOrDownVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(upOrDownVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable addIsVariationInDirectionVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension direction) {
+        return solver.makeBoolVar(isVariationInDirectionVariableId(rangeAction, state, direction));
+    }
+
+    public OpenRaoMPConstraint addMinAdjustmentConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, minAdjustmentConstraintId(rangeAction, state));
     }
 
     public OpenRaoMPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
@@ -506,6 +518,50 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addMinMarginShiftedViolationConstraint(Optional<OffsetDateTime> timestamp, double minMarginUpperBound) {
         return solver.makeConstraint(minMarginUpperBound, infinity(), minMarginShiftedViolationConstraintId(timestamp));
+    }
+
+    public OpenRaoMPVariable addAdjustmentStateVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentState) {
+        return solver.makeBoolVar(adjustmentStateVariableId(adjustmentId, adjustmentState, timestamp));
+    }
+
+    public OpenRaoMPVariable getAdjustmentStateVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentState) {
+        return solver.getVariable(adjustmentStateVariableId(adjustmentId, adjustmentState, timestamp));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentStateConstraint(double lb, double ub, String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentState) {
+        return solver.makeConstraint(lb, ub, adjustmentStateConstraintId(adjustmentId, adjustmentState, timestamp));
+    }
+
+    public OpenRaoMPVariable addAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
+        return solver.makeBoolVar(adjustmentStateTransitionVariableId(adjustmentId, adjustmentStateFrom, adjustmentStateTo, timestamp));
+    }
+
+    public OpenRaoMPVariable getAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
+        return solver.getVariable(adjustmentStateTransitionVariableId(adjustmentId, adjustmentStateFrom, adjustmentStateTo, timestamp));
+    }
+
+    public OpenRaoMPConstraint addUniqueAdjustmentStateConstraint(String adjustmentId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, uniqueAdjustmentStateConstraintId(adjustmentId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentStateFromTransitionConstraint(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateFrom) {
+        return solver.makeConstraint(0, 0, adjustmentStateFromTransitionConstraintId(adjustmentId, adjustmentStateFrom, timestamp));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentStateToTransitionConstraint(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateTo) {
+        return solver.makeConstraint(0, 0, adjustmentStateToTransitionConstraintId(adjustmentId, adjustmentStateTo, timestamp));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentConstantRampConstraint(double lb, double ub, String adjustmentId, OffsetDateTime timestamp, LinearProblem.VariationDirectionExtension direction, LinearProblem.BoundExtension lbOrUb) {
+        return solver.makeConstraint(lb, ub, adjustmentConstantRampConstraintId(adjustmentId, direction, lbOrUb, timestamp));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentMinTimeConstraint(double lb, double ub, String adjustmentId, OffsetDateTime transitionTs, OffsetDateTime flatTs) {
+        return solver.makeConstraint(lb, ub, adjustmentMinTimeConstraintId(adjustmentId, transitionTs, flatTs));
+    }
+
+    public OpenRaoMPConstraint addAdjustmentMinOffTimeConstraint(double lb, double ub, String adjustmentId, OffsetDateTime transitionTs, OffsetDateTime flatTs) {
+        return solver.makeConstraint(lb, ub, adjustmentMinOffTimeConstraintId(adjustmentId, transitionTs, flatTs));
     }
 
     public OpenRaoMPVariable addGeneratorStateVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState) {

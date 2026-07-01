@@ -34,10 +34,7 @@ import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRao;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
@@ -403,13 +400,22 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
+    @Then("the initial margin on {string} for timestamp {string} is {double} MW")
+    public static void theInitialMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        checkMarginInMw(cnecId, timestamp, margin, null);
+    }
+
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
     public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(getOffsetDateTimeFromBrusselsTimestamp(timestamp)).orElseThrow().getCrac().getLastInstant();
+        checkMarginInMw(cnecId, timestamp, margin, afterCra);
+    }
+
+    private static void checkMarginInMw(String cnecId, String timestamp, double margin, Instant optimizedInstant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 

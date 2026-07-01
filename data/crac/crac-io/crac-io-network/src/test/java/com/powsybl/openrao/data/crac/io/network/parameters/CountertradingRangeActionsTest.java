@@ -49,7 +49,7 @@ class CountertradingRangeActionsTest extends AbstractTest {
 
     @Test
     void testCosts() {
-        InjectionRangeActionCosts zero = new InjectionRangeActionCosts(0, 0, 0);
+        RangeActionCosts zero = new RangeActionCosts(0, 0, 0);
 
         assertEquals(zero, parameters.getRaCosts(Country.FR, prevInstant));
         assertEquals(zero, parameters.getRaCosts(Country.FR, cur1Instant));
@@ -58,13 +58,13 @@ class CountertradingRangeActionsTest extends AbstractTest {
 
         parameters.setRaCostsProvider((country, instant) ->
             country == Country.BE ?
-                new InjectionRangeActionCosts(1000, 10, 0) :
-                new InjectionRangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
+                new RangeActionCosts(1000, 10, 0) :
+                new RangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
 
-        assertEquals(new InjectionRangeActionCosts(20, 1, 1), parameters.getRaCosts(Country.FR, prevInstant));
-        assertEquals(new InjectionRangeActionCosts(10, 1, 1), parameters.getRaCosts(Country.FR, cur1Instant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getRaCosts(Country.BE, prevInstant));
-        assertEquals(new InjectionRangeActionCosts(1000, 10, 0), parameters.getRaCosts(Country.BE, cur1Instant));
+        assertEquals(new RangeActionCosts(20, 1, 1), parameters.getRaCosts(Country.FR, prevInstant));
+        assertEquals(new RangeActionCosts(10, 1, 1), parameters.getRaCosts(Country.FR, cur1Instant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getRaCosts(Country.BE, prevInstant));
+        assertEquals(new RangeActionCosts(1000, 10, 0), parameters.getRaCosts(Country.BE, cur1Instant));
     }
 
     @Test
