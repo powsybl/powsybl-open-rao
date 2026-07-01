@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -20,6 +22,7 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,6 +113,33 @@ class HvdcRangeActionImplTest {
         hvdcRa.apply(network, 3);
         hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
+    }
+
+    @Test
+    void toActionsPositiveSetpoint() {
+        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+                .add();
+        List<Action> actions = hvdcRa.toActions(5, network);
+        assertEquals(1, actions.size());
+        HvdcAction action = (HvdcAction) actions.get(0);
+        assertEquals("BBE2AA11 FFR3AA11 1", action.getHvdcId());
+        assertEquals(5, action.getActivePowerSetpoint().orElseThrow(), 1e-6);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, action.getConverterMode().orElseThrow());
+
+        // Not allowed to change HVDC line's active setpoint if the line is in AC emulation mode.
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.toActions(6, networkWithAngleDroop));
+        assertEquals("Unable to set an active power setpoint for HVDC line BBE2AA11 FFR3AA11 1 because it is operating in AC Emulation mode.", exception.getMessage());
+    }
+
+    @Test
+    void toActionsNegativeSetpoint() {
+        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+                .add();
+        List<Action> actions = hvdcRa.toActions(-3, network);
+        assertEquals(1, actions.size());
+        HvdcAction action = (HvdcAction) actions.get(0);
+        assertEquals(3, action.getActivePowerSetpoint().orElseThrow(), 1e-6);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, action.getConverterMode().orElseThrow());
     }
 
     @Test

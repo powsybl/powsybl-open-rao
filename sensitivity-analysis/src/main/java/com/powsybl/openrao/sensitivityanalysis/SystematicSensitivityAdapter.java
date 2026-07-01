@@ -171,7 +171,7 @@ final class SystematicSensitivityAdapter {
                                                              Set<NetworkAction> networkActions,
                                                              AppliedRemedialActions.AppliedRemedialActionsPerState preventiveAppliedRemedialActions,
                                                              Network network) {
-        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).toList());
+        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).flatMap(WoodburyActions::toWoodburyActions).toList());
         Set<String> simulatedActionIds = new LinkedHashSet<>();
         String operatorStrategyId = null;
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
@@ -215,7 +215,7 @@ final class SystematicSensitivityAdapter {
                                                           Network network) {
         List<Contingency> contingencies = new ArrayList<>();
         // maximal action pool: all network actions + curative actions per state, used for fast-restart sensitivity
-        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).toList());
+        Set<Action> actions = new LinkedHashSet<>(networkActions.stream().flatMap(na -> na.getElementaryActions().stream()).flatMap(WoodburyActions::toWoodburyActions).toList());
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         Set<String> simulatedActionIds = new LinkedHashSet<>();
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
@@ -281,7 +281,7 @@ final class SystematicSensitivityAdapter {
                 .flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList();
         actions.addAll(preventiveRangeActions);
         simulatedActionIds.addAll(preventiveApplied.getNetworkActions().stream()
-                .flatMap(e -> e.getElementaryActions().stream().map(Action::getId)).toList());
+                .flatMap(e -> e.getElementaryActions().stream()).flatMap(WoodburyActions::toWoodburyActions).map(Action::getId).toList());
         simulatedActionIds.addAll(preventiveRangeActions.stream().map(Action::getId).toList());
     }
 

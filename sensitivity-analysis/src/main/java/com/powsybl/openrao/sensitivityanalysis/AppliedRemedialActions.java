@@ -57,7 +57,7 @@ public class AppliedRemedialActions {
 
         public List<Action> toActions(Network network) {
             List<Action> actions = new ArrayList<>(networkActions.size() + rangeActions.size());
-            actions.addAll(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).toList());
+            actions.addAll(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).flatMap(WoodburyActions::toWoodburyActions).toList());
             actions.addAll(rangeActions.entrySet().stream().flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList());
             return actions;
         }
