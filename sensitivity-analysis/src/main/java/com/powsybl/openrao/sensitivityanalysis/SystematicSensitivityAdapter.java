@@ -224,20 +224,37 @@ final class SystematicSensitivityAdapter {
             addPreventiveActions(actions, simulatedActionIds, preventiveAppliedRemedialActions, network);
         }
 
+        // Group states by contingency: a contingency with several curative perimeters (multi-curative) yields
+        // several states sharing the same contingency, which must be declared only ONCE to OLF (a duplicated
+        // contingency id makes the whole sensitivity analysis fail). Each curative perimeter still gets its own
+        // operator strategy, and its actions accumulate from one curative instant to the next within the contingency.
+        Map<Contingency, List<State>> statesByContingency = new LinkedHashMap<>();
         for (State state : statesWithRa) {
             Contingency contingency = state.getContingency().orElseThrow(() ->
                     new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.")
             );
+            statesByContingency.computeIfAbsent(contingency, c -> new ArrayList<>()).add(state);
+        }
+
+        for (Map.Entry<Contingency, List<State>> entry : statesByContingency.entrySet()) {
+            Contingency contingency = entry.getKey();
             contingencies.add(contingency);
-            List<Action> curativeActionsForState = appliedRemedialActions.toActions(state, network);
-            actions.addAll(curativeActionsForState);
-            String operatorStrategyId = "OS-" + contingency.getId();
-            simulatedActionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
-            operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
-                    ContingencyContext.specificContingency(contingency.getId()),
-                    new TrueCondition(),
-                    new ArrayList<>(simulatedActionIds)));
-            instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
+            // start from the preventive actions, then accumulate curative actions in instant order
+            Set<String> contingencyActionIds = new LinkedHashSet<>(simulatedActionIds);
+            List<State> orderedStates = entry.getValue().stream()
+                    .sorted(Comparator.comparingInt(state -> state.getInstant().getOrder()))
+                    .toList();
+            for (State state : orderedStates) {
+                List<Action> curativeActionsForState = appliedRemedialActions.toActions(state, network);
+                actions.addAll(curativeActionsForState);
+                contingencyActionIds.addAll(curativeActionsForState.stream().map(Action::getId).toList());
+                String operatorStrategyId = "OS-" + contingency.getId() + "-" + state.getInstant().getOrder();
+                operatorStrategies.add(new OperatorStrategy(operatorStrategyId,
+                        ContingencyContext.specificContingency(contingency.getId()),
+                        new TrueCondition(),
+                        new ArrayList<>(contingencyActionIds)));
+                instantOrderByState.put(new SensitivityState(contingency.getId(), operatorStrategyId), state.getInstant().getOrder());
+            }
         }
 
         SensitivityAnalysisParameters runParameters = copy(sensitivityComputationParameters)
