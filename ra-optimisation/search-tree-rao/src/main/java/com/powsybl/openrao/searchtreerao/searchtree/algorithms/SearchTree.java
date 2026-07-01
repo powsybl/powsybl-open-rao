@@ -61,7 +61,6 @@ public class SearchTree {
     private static final double EPSILON = 1e-6;
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
-    private static final String SEARCH_TREE_WORKING_VARIANT_ID = "SearchTreeWorkingVariantId";
 
     /**
      * attribute defined in constructor of the search tree class

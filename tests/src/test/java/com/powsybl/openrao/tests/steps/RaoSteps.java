@@ -51,6 +51,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
@@ -355,8 +356,36 @@ public class RaoSteps {
 
     @Then("the generator {string} should have a targetP of {double} MW after CRA")
     public void theGeneratorShouldHaveATargetPOfAfterCra(String generatorId, Double expectedTargetP) {
-        final double targetPAfterCRA = getTargetPFromVariant(generatorId, "SearchTreeWorkingVariantId");
-        assertEquals(expectedTargetP, targetPAfterCRA);
+        assertEquals(expectedTargetP, getTargetPAfterCra(generatorId));
+    }
+
+    /**
+     * The virtual-variant search tree no longer materializes a physical post-CRA network variant, so we rebuild
+     * the post-CRA network state by applying every optimized remedial action from the {@link RaoResult} (preventive
+     * first, then curative states in instant order) onto a temporary variant cloned from the clean initial one.
+     */
+    private double getTargetPAfterCra(final String generatorId) {
+        final RaoResult result = CommonTestData.getRaoResult();
+        final String previousWorkingVariantId = network.getVariantManager().getWorkingVariantId();
+        final String postCraVariantId = "PostCraVariant";
+        network.getVariantManager().cloneVariant("InitialState", postCraVariantId, true);
+        network.getVariantManager().setWorkingVariant(postCraVariantId);
+        try {
+            Stream.concat(
+                    Stream.of(preventiveState),
+                    crac.getStates().stream()
+                        .filter(state -> !state.getInstant().isPreventive())
+                        .sorted(Comparator.comparingInt(state -> state.getInstant().getOrder())))
+                .forEach(state -> {
+                    result.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(network));
+                    result.getActivatedRangeActionsDuringState(state)
+                        .forEach(rangeAction -> rangeAction.apply(network, result.getOptimizedSetPointOnState(state, rangeAction)));
+                });
+            return network.getGenerator(generatorId).getTargetP();
+        } finally {
+            network.getVariantManager().setWorkingVariant(previousWorkingVariantId);
+            network.getVariantManager().removeVariant(postCraVariantId);
+        }
     }
 
     private double getTargetPFromVariant(final String generatorId, final String searchTreeWorkingVariantId) {
