@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.action.TerminalsConnectionAction;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -61,7 +62,7 @@ class MaximumNumberOfElementaryActionsFilterTest {
         Mockito.when(leaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(pstRangeAction));
 
         MaximumNumberOfElementaryActionsFilter naFilter = new MaximumNumberOfElementaryActionsFilter(Map.of("BE", 3, "DE", 2, "FR", 1, "NL", 2));
-        Set<NetworkActionCombination> result = naFilter.filter(Set.of(networkActionCombinationFrNl, networkActionCombinationBe, networkActionCombinationDe), leaf);
+        Set<NetworkActionCombination> result = naFilter.filter(Set.of(networkActionCombinationFrNl, networkActionCombinationBe, networkActionCombinationDe), leaf, ReportNode.NO_OP);
 
         assertEquals(result, Set.of(networkActionCombinationBe, networkActionCombinationDe));
     }
@@ -89,6 +90,6 @@ class MaximumNumberOfElementaryActionsFilterTest {
         Mockito.when(leaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(pstRangeAction));
 
         MaximumNumberOfElementaryActionsFilter naFilter = new MaximumNumberOfElementaryActionsFilter(Map.of("FR", 3));
-        assertEquals(Set.of(networkActionCombinationFrNl), naFilter.filter(Set.of(networkActionCombinationFrNl), leaf));
+        assertEquals(Set.of(networkActionCombinationFrNl), naFilter.filter(Set.of(networkActionCombinationFrNl), leaf, ReportNode.NO_OP));
     }
 }

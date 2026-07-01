@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -25,6 +26,7 @@ import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -69,7 +73,7 @@ class MarmotTest {
 
         Crac crac1 = Crac.read("/crac/crac-20250213.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250213.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-20250214.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250214.json"), network2);
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 11, 35, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 35, 0, 0, ZoneOffset.UTC);
@@ -93,7 +97,7 @@ class MarmotTest {
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
-        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
         assertEquals(-5, results.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
         assertEquals(-5, results.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
 
@@ -118,7 +122,7 @@ class MarmotTest {
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
@@ -145,16 +149,24 @@ class MarmotTest {
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
+        // Check initial setpoint value
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
         assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
         assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
         assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
         assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
+
+        assertNotNull(results.getExtension(PreTimeCouplingOverloadedCnecs.class));
+        assertTrue(results.getExtension(PreTimeCouplingOverloadedCnecs.class).getCriticalCnecIds().isEmpty());
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -173,7 +185,7 @@ class MarmotTest {
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
@@ -190,7 +202,7 @@ class MarmotTest {
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
@@ -218,7 +230,7 @@ class MarmotTest {
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
@@ -246,7 +258,7 @@ class MarmotTest {
         // due to the max gradient of 200. Not activating 530 MW in timestamps 2 and 3 will create an overload and be very costly.
         // redispatching of 530 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
         assertEquals(330.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
@@ -271,7 +283,7 @@ class MarmotTest {
 
         Crac crac1 = Crac.read("/crac/crac-topo-202502181007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502181007.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-topo-202502191007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502191007.json"), network2);
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 18, 10, 7, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 19, 10, 7, 0, 0, ZoneOffset.UTC);
@@ -294,7 +306,7 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(raoInputs, timeCoupledConstraints);
 
-        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
         assertTrue(results.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getGlobalCost(crac1.getPreventiveInstant()));
@@ -323,7 +335,7 @@ class MarmotTest {
         Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network);
         Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network);
 
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 3, 25, 10, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 3, 25, 11, 30, 0, 0, ZoneOffset.UTC);
@@ -359,7 +371,7 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraints);
 
-        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -391,7 +403,7 @@ class MarmotTest {
         Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network);
         Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network);
 
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 3, 25, 10, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 3, 25, 11, 30, 0, 0, ZoneOffset.UTC);
@@ -418,7 +430,7 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(new TemporalDataImpl<>(inputPerTimestamp), new TimeCoupledConstraints());
 
-        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(375030.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -451,7 +463,7 @@ class MarmotTest {
         // injection keys are doubled for last timestamp
         Crac crac10 = Crac.read("/crac/crac-202503251930-key-2.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930-key-2.json"), network);
 
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 3, 25, 10, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 3, 25, 11, 30, 0, 0, ZoneOffset.UTC);
@@ -481,7 +493,7 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraints);
 
-        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -524,7 +536,7 @@ class MarmotTest {
         RaoResult raoResult9 = RaoResult.read(MarmotTest.class.getResourceAsStream("/raoResult/rao-result-202503251830.json"), crac9);
         RaoResult raoResult10 = RaoResult.read(MarmotTest.class.getResourceAsStream("/raoResult/rao-result-202503251930.json"), crac10);
 
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 3, 25, 10, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 3, 25, 11, 30, 0, 0, ZoneOffset.UTC);
@@ -572,7 +584,7 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(new TemporalDataImpl<>(inputPerTimestamp), timeCoupledConstraints, raoResults);
 
-        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
         assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -605,14 +617,14 @@ class MarmotTest {
         Crac crac01 = Crac.read("crac-pst-rd-0130.json", MarmotTest.class.getResourceAsStream("/crac/crac-pst-rd-0130.json"), network01);
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
         timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withDownwardPowerGradient(-250.0).build());
-        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
         inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
         inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
 
         TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
-        TimeCoupledRaoResult timeCoupledRaoResult = new Marmot().run(timeCoupledRaoInput, raoParameters).join();
+        TimeCoupledRaoResult timeCoupledRaoResult = new Marmot().run(timeCoupledRaoInput, raoParameters, ReportNode.NO_OP).join();
 
         listAppender.stop();
 
@@ -635,5 +647,45 @@ class MarmotTest {
         File file = new File(Path.of(path).toUri());
         assertTrue(file.exists());
         file.delete();
+    }
+
+    @Test
+    void testWithCurativePst() throws IOException {
+        Network network00 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Network network01 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Crac crac00 = Crac.read("crac-2-psts-0030.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-psts-0030.json"), network00);
+        Crac crac01 = Crac.read("crac-2-psts-0130.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-psts-0130.json"), network01);
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
+
+        TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
+
+        TimeCoupledRaoInput input = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
+
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
+
+        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac00.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
+        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac01.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
+
+        assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
+        assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
+
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
+
+        assertEquals(-5, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getPstRangeAction("pstFr2Fr3")));
+        assertEquals(-5, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getPstRangeAction("pstFr2Fr3")));
+
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getPstRangeAction("pstFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getPstRangeAction("pstFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivated(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant()), crac00.getNetworkAction("closeFr2Fr3")));
+        assertTrue(timeCoupledRaoResult.isActivated(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant()), crac01.getNetworkAction("closeFr2Fr3")));
+
+        assertEquals(Set.of(crac00.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
+        assertEquals(Set.of(crac01.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
+        assertEquals(Set.of(crac00.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
+        assertEquals(Set.of(crac01.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
     }
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
@@ -25,6 +26,7 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -99,6 +101,9 @@ public final class CommonTestData {
     private static MonitoringResult monitoringResult;
 
     private static String timestamp;
+    private static TimeCoupledRaoInput timeCoupledRaoInput;
+
+    private static ReportNode reportNode = ReportNode.NO_OP;
 
     private CommonTestData() {
         // should not be instantiated
@@ -170,6 +175,9 @@ public final class CommonTestData {
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
+        timeCoupledRaoInput = null;
+        timestamp = null;
+        reportNode = ReportNode.NO_OP;
     }
 
     @Given("crac file is {string}")
@@ -421,7 +429,7 @@ public final class CommonTestData {
 
     private static RaoParameters buildDefaultConfig() {
         try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
-            return JsonRaoParameters.read(configStream);
+            return JsonRaoParameters.read(configStream, reportNode);
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
@@ -430,12 +438,36 @@ public final class CommonTestData {
     static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
-            JsonRaoParameters.update(config, configStream);
+            JsonRaoParameters.update(config, configStream, reportNode);
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Configuration file is not in expected JSON format", e);
         } catch (AssertionError e) {
             throw new IllegalArgumentException("Unknown parameter in configuration file", e);
         }
         return config;
+    }
+
+    public static TimeCoupledRaoInput getTimeCoupledRaoInput() {
+        return timeCoupledRaoInput;
+    }
+
+    public static void setTimeCoupledRaoInput(TimeCoupledRaoInput timeCoupledRaoInput) {
+        CommonTestData.timeCoupledRaoInput = timeCoupledRaoInput;
+    }
+
+    public static String getRaoParametersPath() {
+        return raoParametersPath;
+    }
+
+    public static void setRaoParameters(RaoParameters raoParameters) {
+        CommonTestData.raoParameters = raoParameters;
+    }
+
+    public static ReportNode getReportNode() {
+        return reportNode;
+    }
+
+    public static void setReportNode(final ReportNode reportNode) {
+        CommonTestData.reportNode = reportNode;
     }
 }

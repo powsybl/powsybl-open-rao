@@ -84,7 +84,7 @@ public final class BranchThresholdArrayDeserializer {
                         }
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in BranchThreshold: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in BranchThreshold: " + jsonParser.currentName());
                 }
             }
             branchThresholdAdder.add();

@@ -84,6 +84,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-pst-regulation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
