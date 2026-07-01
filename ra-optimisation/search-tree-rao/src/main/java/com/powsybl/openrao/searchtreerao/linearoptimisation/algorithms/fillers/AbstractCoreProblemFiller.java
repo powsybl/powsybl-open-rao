@@ -36,14 +36,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getHvdcSensitivityThreshold;
@@ -208,7 +201,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                               RangeActionActivationResult rangeActionActivationResult) {
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
-        if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
+        if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))
+            || rangeAction.getId().contains("BALANCING")) {
+            // TODO we're skipping BALANCING RA in an ugly way in order to prevent the RAO from considering it to reduce overloads
+            // TODO consider setting a soft constraint on injectionbalance (with a virtual cost)
             // don't consider this RA's impact on this CNEC
             return;
         }

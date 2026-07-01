@@ -70,7 +70,8 @@ public final class Utils {
                                                Instant instant,
                                                MinAndMax<Double> range,
                                                boolean relativeRange,
-                                               RangeActionCosts costs) {
+                                               RangeActionCosts costs,
+                                               Optional<Double> minAdjustment) {
         if (consideredInjections.isEmpty()) {
             return;
         }
@@ -127,15 +128,17 @@ public final class Utils {
                 .withMin(minP)
                 .withMax(maxP)
             .add()
-            .newRange()
-                .withMin(50)
-                .withRangeType(RangeType.MINIMUM_ADJUSTMENT)
-            .add()
             .withInitialSetpoint(totalP)
             .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
             .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
             .withActivationCost(costs.activationCost())
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
+        if (minAdjustment.isPresent()) {
+            injectionRangeActionAdder.newRange()
+                .withMin(minAdjustment.orElseThrow())
+                .withRangeType(RangeType.MINIMUM_ADJUSTMENT)
+                .add();
+        }
 
         if (consideredInjections.size() == 1) {
             injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId())

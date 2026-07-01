@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 import com.powsybl.openrao.data.crac.io.network.parameters.RedispatchingRangeActions;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -112,7 +113,8 @@ class RedispatchingCreator {
             instant,
             parameters.getCombinationRange(combinationId, instant),
             false,
-            parameters.getCombinationCosts(combinationId, instant));
+            parameters.getCombinationCosts(combinationId, instant),
+            Optional.of(50.));
 
         checkNumberOfActions();
     }
@@ -128,7 +130,8 @@ class RedispatchingCreator {
             instant,
             parameters.getRaRange(generator, instant),
             false,
-            parameters.getRaCosts(generator, instant));
+            parameters.getRaCosts(generator, instant),
+            Optional.of(50.));
 
         checkNumberOfActions();
     }

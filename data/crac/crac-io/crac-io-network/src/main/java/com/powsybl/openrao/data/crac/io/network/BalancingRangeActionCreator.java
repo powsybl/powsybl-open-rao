@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeAction;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,7 @@ class BalancingRangeActionCreator {
 
         Set<Injection<?>> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant, creationContext))
+            .filter(generator -> generator.getTerminal().isConnected() && generator.getTargetP() >= 0)
             .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
             .collect(Collectors.toSet());
 
@@ -67,6 +69,7 @@ class BalancingRangeActionCreator {
             instant,
             parameters.getRaRange(instant),
             true,
-            parameters.getRaCosts(instant));
+            parameters.getRaCosts(instant),
+            Optional.empty());
     }
 }
