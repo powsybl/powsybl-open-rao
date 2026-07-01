@@ -38,7 +38,9 @@ Feature: 7.1: Simple CT Actions
     Then its security status should be "SECURED"
     Then the remedial action "counterTradingAction_FRBE" is used in preventive
     Then the remedial action "counterTradingAction_FRES" is used in preventive
-    Then the value of the objective function after PRA should be 20010.0
+    Then the generator "FFR1AA1 _generator" should have a targetP of 1050 MW after PRA
+    Then the generator "BBE1AA1 _generator" should have a targetP of -600 MW after PRA
+    Then the generator "EES1AA1 _generator" should have a targetP of -450 MW after PRA
 
   @rao @counter-trading
   Scenario: 7.1.3: Preventive search tree RAO with 2 areas and 2 generators in an area

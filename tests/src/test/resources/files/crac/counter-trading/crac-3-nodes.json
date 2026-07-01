@@ -16,17 +16,144 @@
   ],
   "contingencies": [
     {
-      "id": "line1",
-      "name": "line1",
+      "id": "outage-FRBE-1",
+      "name": "outage-FRBE-1",
       "networkElementsIds": [
         "FFR1AA1  BBE1AA1  1"
+      ]
+    },
+    {
+      "id": "outage-FRES-1",
+      "name": "outage-FRES-1",
+      "networkElementsIds": [
+        "FFR1AA1  EES1AA1  1"
       ]
     }
   ],
   "flowCnecs": [
     {
-      "id": "cnecLine1Preventive",
-      "name": "cnecLine1Preventive",
+      "id": "FRES-1-Preventive",
+      "name": "FRES-1-Preventive",
+      "networkElementId": "FFR1AA1  EES1AA1  1",
+      "operator": null,
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRES-1-outage-of-FRBE-1",
+      "name": "FRES-1-outage-of-FRBE-1",
+      "networkElementId": "FFR1AA1  EES1AA1  1",
+      "operator": null,
+      "instant": "outage",
+      "contingencyId": "outage-FRBE-1",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRES-2-Preventive",
+      "name": "FRES-2-Preventive",
+      "networkElementId": "FFR1AA1  EES1AA1  2",
+      "operator": null,
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRES-2-outage-of-FRBE-1",
+      "name": "FRES-2-outage-of-FRBE-1",
+      "networkElementId": "FFR1AA1  EES1AA1  2",
+      "operator": null,
+      "instant": "outage",
+      "contingencyId": "outage-FRBE-1",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRES-2-outage-of-FRES-1",
+      "name": "FRES-2-outage-of-FRES-1",
+      "networkElementId": "FFR1AA1  EES1AA1  2",
+      "operator": null,
+      "instant": "outage",
+      "contingencyId": "outage-FRES-1",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -450,
+          "max": 450,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRBE-1-Preventive",
+      "name": "FRBE-1-Preventive",
       "networkElementId": "FFR1AA1  BBE1AA1  1",
       "operator": null,
       "instant": "preventive",
@@ -49,8 +176,32 @@
       ]
     },
     {
-      "id": "cnecLine2Preventive",
-      "name": "cnecLine2Preventive",
+      "id": "FRBE-1-outage-of-FRES-1",
+      "name": "FRBE-1-outage-of-FRES-1",
+      "networkElementId": "FFR1AA1  BBE1AA1  1",
+      "operator": null,
+      "instant": "outage",
+      "contingencyId": "outage-FRES-1",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "FRBE-2-Preventive",
+      "name": "FRBE-2-Preventive",
       "networkElementId": "FFR1AA1  BBE1AA1  2",
       "operator": null,
       "instant": "preventive",
@@ -73,12 +224,12 @@
       ]
     },
     {
-      "id": "cnecLine2OutageLine1",
-      "name": "cnecLine2OutageLine1",
+      "id": "FRBE-2-outage-of-FRES-1",
+      "name": "FRBE-2-outage-of-FRES-1",
       "networkElementId": "FFR1AA1  BBE1AA1  2",
       "operator": null,
       "instant": "outage",
-      "contingencyId": "line1",
+      "contingencyId": "outage-FRES-1",
       "optimized": true,
       "monitored": false,
       "thresholds": [
@@ -97,49 +248,25 @@
       ]
     },
     {
-      "id": "cnecLine3Preventive",
-      "name": "cnecLine3Preventive",
-      "networkElementId": "FFR1AA1  EES1AA1  3",
-      "operator": null,
-      "instant": "preventive",
-      "contingencyId": null,
-      "optimized": true,
-      "monitored": false,
-      "thresholds": [
-        {
-          "unit": "megawatt",
-          "min": -600,
-          "max": 600,
-          "side": 1
-        },
-        {
-          "unit": "megawatt",
-          "min": -600,
-          "max": 600,
-          "side": 2
-        }
-      ]
-    },
-    {
-      "id": "cnecLine3OutageLine1",
-      "name": "cnecLine3OutageLine1",
-      "networkElementId": "FFR1AA1  EES1AA1  3",
+      "id": "FRBE-2-outage-of-FRBE-1",
+      "name": "FRBE-2-outage-of-FRBE-1",
+      "networkElementId": "FFR1AA1  BBE1AA1  2",
       "operator": null,
       "instant": "outage",
-      "contingencyId": "line1",
+      "contingencyId": "outage-FRBE-1",
       "optimized": true,
       "monitored": false,
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -100,
-          "max": 100,
+          "min": -600,
+          "max": 600,
           "side": 1
         },
         {
           "unit": "megawatt",
-          "min": -100,
-          "max": 100,
+          "min": -600,
+          "max": 600,
           "side": 2
         }
       ]
