@@ -3,16 +3,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 2.1.6: Island creation with network actions
-  This feature covers network actions that create electrical island
+Feature: 2.1.6: Island creation because of network actions
+  This feature covers the issue of network actions that create electrical islands
 
-  There are three way of creating an island:
+  There are three ways to create an island:
   - after applying one or several network actions
   - a network actions combined with a contingency:
       -> a network action is used in curative and combined with the contingency we create an island.
       -> a network action is applied in preventive, but combined with a contingency we get an island.
-
-  Another thing that will impact the creation of island, is the parameter componentNode
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.1: Simple case with two cnecs and 1 network actions that create an island
