@@ -390,6 +390,38 @@ class NetworkCracCreatorTest {
     }
 
     @Test
+    void testUcteCtWithNegativeTargetP() {
+        parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
+        parameters.getCountertradingRangeActions().setCountryFilter(Set.of(Country.NL));
+        parameters.getCountertradingRangeActions().setRaRangeProvider((country, instant) ->
+            instant.isPreventive() ? new MinAndMax<>(-1000., 1000.) : new MinAndMax<>(0., 0.));
+        parameters.getCountertradingRangeActions().setRaCostsProvider((country, instant) -> new InjectionRangeActionCosts(10., 20., 30.));
+
+        // Mock network to have a generator with negative targetP
+        String networkName = "TestCase12Nodes.uct";
+        network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
+        network.getGenerator("NNL1AA1 _generator").setTargetP(-100.0);
+
+        try {
+            creationContext = Crac.readWithContext(networkName, getClass().getResourceAsStream("/" + networkName), network, cracCreationParameters);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        crac = creationContext.getCrac();
+
+        assertTrue(creationContext.isCreationSuccessful());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        InjectionRangeAction ra = crac.getInjectionRangeAction("CT_NETHERLANDS_preventive");
+        assertNotNull(ra);
+
+        // NNL1AA1 _generator should be excluded because targetP < 0
+        Map<String, Double> keys = getKeys("CT_NETHERLANDS_preventive");
+        assertFalse(keys.containsKey("NNL1AA1 _generator"));
+        assertTrue(keys.containsKey("NNL3AA1 _generator"));
+        assertTrue(keys.containsKey("NNL2AA1 _generator"));
+    }
+
+    @Test
     void testUcteBalancing() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
         parameters.getBalancingRangeAction().setInjectionPredicate((injection, instant, c) -> instant.isPreventive() && injection.getId().contains("FFR"));
