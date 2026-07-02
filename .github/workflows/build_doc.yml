@@ -25,7 +25,7 @@ jobs:
           pip install --only-binary :all: sphinx-tabs==3.5.0
           pip install --only-binary :all: furo==2025.12.19
           pip install --only-binary :all: myst-parser==5.1.0
-          pip install --prefer-binary sphinxcontrib-plantuml==0.31
+          pip install --only-binary :all: sphinxcontrib-mermaid==2.02
           pip install --only-binary :all: sphinx_copybutton==0.5.2
 
       - name: Build doc
