@@ -6,9 +6,13 @@
 Feature: 2.1.6: Island creation with network actions
   This feature covers network actions that create electrical island
 
-  There are two way of creating an island:
+  There are three way of creating an island:
   - after applying one or several network actions
-  - a network actions combined with a contingency
+  - a network actions combined with a contingency:
+      -> a network action is used in curative and combined with the contingency we create an island.
+      -> a network action is applied in preventive, but combined with a contingency we get an island.
+
+  Another thing that will impact the creation of island, is the parameter componentNode
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.1: Simple case with two cnecs and 1 network actions that create an island
@@ -44,7 +48,7 @@ Feature: 2.1.6: Island creation with network actions
   Scenario: 2.1.6.3: An island is created after a contingency
     Same case as 2.1.6.1, but initially all the lines are closed.
     We lose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
-    that get overloaded after the contingency.
+    that get overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating and island.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
@@ -56,8 +60,34 @@ Feature: 2.1.6: Island creation with network actions
     Then the remedial action "open_DDE2AA1  NNL3AA1  1" is used after "CO_0001" at "curative"
     Then the margin on cnec "DDE1AA1  DDE2AA1  1 - curative" after CRA should be 1000 A
 
+  @fast @rao @ac @contingency-scenarios @max-min-margin
+  Scenario: 2.1.6.4: An island is created but all the production is in this island
+  Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
+    which make the sensi computation fail (failed to distribute slack) -> the action is not used.
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_4.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    When I launch rao
+    Then the initial margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" should be -1890.53 A
+    Then 0 remedial actions are used in preventive
+    Then the margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be -1890.53 A
 
-
-
+  @fast @rao @ac @contingency-scenarios @max-min-margin
+  Scenario: 2.1.6.5: An island is created in the curative perimeter because of a network action taken in preventive
+    Same network as 2.1.6.3, in preventive the network action "open_FFR2AA1  DDE3AA1  1" is used to solve the overload on "FFR2AA1  FFR3AA1  1 - preventive"
+    However applying this network action on top of the contingency on  DDE2AA1  NNL3AA1  1 create an island.
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_5.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    When I launch rao
+    Then the initial margin on cnec "FFR2AA1  FFR3AA1  1 - preventive" should be -1007.99 A
+    Then 1 remedial actions are used in preventive
+    Then the remedial action "open_FFR2AA1  DDE3AA1  1" is used in preventive
+    Then the margin on cnec "FFR2AA1  FFR3AA1  1 - preventive" after PRA should be 437.45 A
+    Then the margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 96.87 A
+    # After contingency N-1 on DDE2AA1  NNL3AA1  1, the DE area is isolated from the rest of the network
+    Then the margin on cnec "FFR2AA1  FFR3AA1  1 - curative - CO_0001" after CRA should be 36.3 A
+    Then the flow on cnec "DDE1AA1  DDE2AA1  1 - curative - CO_0001" after CRA should be 0 A on side 1 and 0 A on side 2
+    Then the margin on cnec "DDE1AA1  DDE2AA1  1 - curative - CO_0001" after CRA should be 1000.00 A
 
 
