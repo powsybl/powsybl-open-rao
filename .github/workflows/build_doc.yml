@@ -21,12 +21,12 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install sphinx==9.1.0
-          pip install sphinx-tabs==3.5.0
-          pip install furo==2025.12.19
-          pip install myst-parser==5.1.0
-          pip install sphinxcontrib-plantuml==0.31
-          pip install sphinx_copybutton==0.5.2
+          pip install --only-binary :all: sphinx==9.1.0
+          pip install --only-binary :all: sphinx-tabs==3.5.0
+          pip install --only-binary :all: furo==2025.12.19
+          pip install --only-binary :all: myst-parser==5.1.0
+          pip install --prefer-binary sphinxcontrib-plantuml==0.31
+          pip install --only-binary :all: sphinx_copybutton==0.5.2
 
       - name: Build doc
         run: sphinx-build -a docs ./build-docs
