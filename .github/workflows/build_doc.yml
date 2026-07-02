@@ -24,7 +24,7 @@ jobs:
           pip install sphinx==9.1.0
           pip install sphinx-tabs==3.5.0
           pip install furo==2025.12.19
-          pip install myst-parser==4.0.0
+          pip install myst-parser==5.1.0
           pip install sphinxcontrib-plantuml==0.31
           pip install sphinx_copybutton==0.5.2
 
