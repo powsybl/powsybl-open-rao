@@ -44,7 +44,7 @@ jobs:
       - name: Set up script path
         run: |
           SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
