@@ -21,6 +21,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          python3 -m pip install --upgrade pip==26.0.0
           pip3 install --only-binary :all: -r docs/requirements.txt
 
       - name: Build doc
