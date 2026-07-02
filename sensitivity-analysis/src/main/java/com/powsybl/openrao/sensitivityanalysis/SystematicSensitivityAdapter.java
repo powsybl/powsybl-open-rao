@@ -122,6 +122,12 @@ final class SystematicSensitivityAdapter {
                 .toList();
         List<SensitivityFactor> factors = cnecSensitivityProvider.getBasecaseFactors(network);
         factors.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
+        if (factors.isEmpty()) {
+            // Nothing to compute for the states without applied RA (e.g. when the provider only holds CNECs of a single
+            // contingency state that has applied RA, as in the PST-regulation results merging). Running an empty
+            // sensitivity would yield an (empty) FAILURE result and wrongly abort the whole run before the with-RA part.
+            return new SystematicSensitivityResult();
+        }
         try {
             RunConfig config = configureWithoutRemedialActions(contingenciesWithoutRa, cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters, outageInstant, networkActions, preventiveAppliedRemedialActions, network);
