@@ -131,6 +131,13 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
+            // A network action that cannot be applied on the network (e.g. a bus-bar / switch-pair action whose
+            // switches are not in the expected initial position) must not be simulated: the virtual-variant path
+            // does not physically apply actions, so canBeApplied is checked explicitly here (as NetworkAction.apply
+            // used to do on the real network) to discard the leaf instead of feeding an invalid action to the solver.
+            if (!na.canBeApplied(network)) {
+                throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
+            }
             virtualVariantManager.applyNetworkAction(na); // deactivate the ac emulation
         }
 

@@ -116,6 +116,8 @@ class LeafTest {
         na2 = Mockito.mock(NetworkAction.class);
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(true);
+        when(na1.canBeApplied(any())).thenReturn(true);
+        when(na2.canBeApplied(any())).thenReturn(true);
         when(na1.getOperator()).thenReturn("TSO1");
         when(na2.getOperator()).thenReturn("TSO2");
         final Action ea11 = Mockito.mock(Action.class);
@@ -331,6 +333,7 @@ class LeafTest {
                                           double expectedCost,
                                           List<FlowCnec> mostLimitingCnecs) {
         when(networkAction.apply(any())).thenReturn(true);
+        when(networkAction.canBeApplied(any())).thenReturn(true);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, virtualVariantManager, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Leaf leaf = new Leaf(
@@ -864,15 +867,13 @@ class LeafTest {
 
     @Test
     void testNonapplicableNa() {
-        // With virtual variants, network actions are stored without physical application, so any non-null action is accepted.
+        // A network action that cannot be applied on the network (canBeApplied == false) must lead to the leaf being rejected.
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         NetworkActionCombination naCombinationToApply = Mockito.mock(NetworkActionCombination.class);
-        when(na1.apply(any())).thenReturn(true);
-        when(na2.apply(any())).thenReturn(false);
+        when(na2.canBeApplied(any())).thenReturn(false);
         when(naCombinationToApply.getNetworkActionSet()).thenReturn(Set.of(na1, na2));
         Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
-        Leaf leaf = new Leaf(optimizationPerimeter, network, virtualVariantManager, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        assertEquals(2, leaf.getActivatedNetworkActions().size());
+        assertThrows(OpenRaoException.class, () -> new Leaf(optimizationPerimeter, network, virtualVariantManager, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions));
     }
 
     @Test

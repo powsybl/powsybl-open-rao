@@ -315,6 +315,7 @@ class SearchTreeTest {
     void testCreateChildLeafFiltersOutRangeActionWhenNeeded() {
         searchTreeWithOneChildLeaf();
         when(networkAction.apply(network)).thenReturn(true);
+        when(networkAction.canBeApplied(network)).thenReturn(true);
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
 
         // 1) Mock rootLeaf and previousDepthOptimalLeaf to return Set.of(rangeAction)
