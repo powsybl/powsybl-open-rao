@@ -20,7 +20,8 @@ jobs:
           python-version: 3.12
 
       - name: Install Python dependencies
-        run: pip install -r docs/requirements.txt
+        run: |
+          pip install --only-binary :all: --require-hashes -r docs/requirements.txt
 
       - name: Build doc
         run: sphinx-build -a docs ./build-docs
