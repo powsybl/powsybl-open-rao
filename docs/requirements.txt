@@ -1,6 +1,6 @@
 sphinx==9.1.0 --hash=sha256:c84fdd4e782504495fe4f2c0b3413d6c2bf388589bb352d439b2a3bb99991978
-sphinx-tabs
-furo==2025.12.19
-myst-parser>=4.0.0
-sphinxcontrib-plantuml==0.21
-sphinx_copybutton==0.5.2
+sphinx-tabs==3.5.0 --hash=sha256:4ee56c638af1f28b8cd20da253bfc34333ea232c
+furo==2025.12.19 --hash=sha256:dd9e9f920494f24b9b8dd954ec9d07e0b9d12817
+myst-parser==4.0.0 --hash=sha256:ce37be5e3ba22786e1cad190237bedc252e78f85
+sphinxcontrib-plantuml==0.31 --hash=sha256:d15308432fc659319417a3f57f2190860c854b20
+sphinx_copybutton==0.5.2 --hash=sha256:4a8050dea36536b005d3e757b1ac09886174f634
