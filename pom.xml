@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>25</version>
+        <version>26.1</version>
         <relativePath/>
     </parent>
 
@@ -106,9 +106,9 @@
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <junit.bom.version>5.14.4</junit.bom.version>
         <maven.jvnet.jaxb.version>4.0.12</maven.jvnet.jaxb.version>
-        <powsybl.core.version>7.3.0-SNAPSHOT</powsybl.core.version>
-        <powsybl.entsoe.version>3.3.0-SNAPSHOT</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>2.3.0-SNAPSHOT</powsybl.openloadflow.version>
+        <powsybl.core.version>7.3.0</powsybl.core.version>
+        <powsybl.entsoe.version>3.3.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>2.3.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.18</slf4j.version>
         <com.networknt.version>2.0.1</com.networknt.version><!-- TODO: update to v3 when powsybl-core updates Jackson dependency to v3 -->
     </properties>
@@ -376,6 +376,11 @@
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
                 <version>${com.networknt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-entsoe-utils</artifactId>
+                <version>${powsybl.entsoe.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
