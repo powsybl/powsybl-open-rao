@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Identifiable;
@@ -30,7 +31,6 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.parameters.SweNcCracCreationParameters;
 
