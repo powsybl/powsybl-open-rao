@@ -21,8 +21,8 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install --upgrade pip==26.0.0
-          pip3 install --only-binary :all: -r docs/requirements.txt
+          python -m pip install --upgrade pip
+          pip install --only-binary :all: -r docs/requirements.txt
 
       - name: Build doc
         run: sphinx-build -a docs ./build-docs
