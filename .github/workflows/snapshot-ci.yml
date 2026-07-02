@@ -35,7 +35,7 @@ jobs:
         run: echo $SNAPSHOT_VERSION
 
       - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1.5.2
         with:
           java-version: '21'
           distribution: 'graalvm'
@@ -44,7 +44,7 @@ jobs:
       - name: Set up script path
         run: |
           SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
