@@ -20,6 +20,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -42,7 +43,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
