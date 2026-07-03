@@ -17,8 +17,8 @@ Feature: 2.1.6: Island creation because of network actions
     We have here a simple case where
     - one CNEC "DDE1AA1  DDE2AA1  1 - preventive" is overloaded
     - one CNEC "NNL2AA1  NNL3AA1  1 - preventive" that is not overload and will not be in the electrical island.
-    - opening the line "DDE2AA1  NNL3AA1  1" resolve this overload by creating an island (DDE1AA1, DDE2AA1 & DDE3AA1)
-  -> the flow is considered equal to 0 A on the CNEC -> secure the network
+    - opening the line "DDE2AA1  NNL3AA1  1" resolve the overload by creating an island (DDE1AA1, DDE2AA1 & DDE3AA1)
+  -> the flow is considered equal to 0 A on the CNEC
     Note: we had to add at least one CNEC not in the island in the CRAC (NNL2AA1  NNL3AA1  1 - preventive) to not get a sensitivity computation error.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_1.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
@@ -45,8 +45,8 @@ Feature: 2.1.6: Island creation because of network actions
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.3: An island is created after a contingency
     Same case as 2.1.6.1, but initially all the lines are closed.
-    We lose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
-    that get overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating and island.
+    We loose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
+    that get overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating an island.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
