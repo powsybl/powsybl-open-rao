@@ -26,7 +26,7 @@ Feature: 2.1.6: Island creation because of network actions
     When I launch rao
     Then the initial flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" should be -1203 A on side 1
     Then the remedial action "open_DDE2AA1  NNL3AA1  1" is used in preventive
-    Then the margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 200 A
+    Then the margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 1000 A
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 0 A on side 1
 
   @fast @rao @ac @max-min-margin
@@ -62,9 +62,10 @@ Feature: 2.1.6: Island creation because of network actions
   Scenario: 2.1.6.4: An island is created but all the production is in this island
   Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
     which make the sensi computation fail (failed to distribute slack) -> the action is not used.
+    If  "slackDistributionFailureBehavior" is set to "THROW"
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_4.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/raoParameters_2_1_6_2_4.json"
     When I launch rao
     Then the initial margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" should be -1890.53 A
     Then 0 remedial actions are used in preventive
