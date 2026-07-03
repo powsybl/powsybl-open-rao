@@ -42,19 +42,16 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -87,7 +84,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
