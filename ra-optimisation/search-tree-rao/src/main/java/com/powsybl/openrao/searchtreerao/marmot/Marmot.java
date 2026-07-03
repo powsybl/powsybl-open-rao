@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -27,6 +28,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -37,6 +39,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
@@ -143,6 +146,13 @@ public class Marmot implements TimeCoupledRaoProvider {
         // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
         TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(cracs, parallelism);
+        Set<String> postTopoOverloadedCnecs = new HashSet<>();
+        cracs.getTimestamps().forEach(timestamp -> {
+            Crac crac = cracs.getData(timestamp).orElseThrow();
+            RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
+            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
+                .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+        });
         topologicalOptimizationResults.clear(); // delete RAO results
 
         // Update initialResults to add RangeActionSetpointResult -> make sure that the initial setpoint field appear
@@ -258,6 +268,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                 initialInputs.map(r -> Set.of()),
                 initialInputs.map(r -> new AppliedRemedialActions()),
                 initialInputs.map(r -> Set.of()),
+                postTopoOverloadedCnecs,
                 raoParameters,
                 reportNode
             );
@@ -274,6 +285,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             preventiveTopologicalActions.map(NetworkActionsResult::getActivatedNetworkActions),
             curativeRemedialActions,
             consideredCnecs,
+            postTopoOverloadedCnecs,
             raoParameters,
             mergingTopoAndLinearRaReportNode
         );
@@ -679,9 +691,10 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                          final TemporalData<Set<NetworkAction>> preventiveNetworkActions,
                                                                                          final TemporalData<AppliedRemedialActions> curativeRemedialActions,
                                                                                          final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                         final Set<String> postTopoOverloadedCnecs,
                                                                                          final RaoParameters raoParameters,
                                                                                          final ReportNode reportNode) {
-        return new TimeCoupledRaoResultImpl(
+        TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
             initialLinearOptimizationResult,
             globalLinearOptimizationResult,
             getPostOptimizationResults(
@@ -695,6 +708,8 @@ public class Marmot implements TimeCoupledRaoProvider {
                 reportNode
             )
         );
+        result.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
+        return result;
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
