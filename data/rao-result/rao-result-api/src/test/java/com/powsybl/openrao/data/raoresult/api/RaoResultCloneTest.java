@@ -28,13 +28,12 @@ import java.util.Set;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -193,9 +192,9 @@ class RaoResultCloneTest {
         when(crac.getVoltageCnec("voltageCnecId")).thenReturn(voltageCnec);
         when(crac.getVoltageCnecs()).thenReturn(Set.of(voltageCnec));
 
-        when(raoResult.getMinVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
-        when(raoResult.getMaxVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(154.38);
-        when(raoResult.getMargin(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(-10.0);
+        when(raoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT)).thenReturn(144.38);
+        when(raoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT)).thenReturn(154.38);
+        when(raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT)).thenReturn(-10.0);
         // Mock other methods for VoltageCnec as needed
 
         when(crac.getAngleCnecs()).thenReturn(Set.of());
@@ -437,6 +436,7 @@ class RaoResultCloneTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac));
         assertEquals("No physical parameter provided.", exception.getMessage());
         assertTrue(raoResultClone.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertFalse(raoResultClone.isSecure(crac, PhysicalParameter.VOLTAGE));
+        exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, PhysicalParameter.VOLTAGE));
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage()); // RAO result clone is meant for flow results only
     }
 }
