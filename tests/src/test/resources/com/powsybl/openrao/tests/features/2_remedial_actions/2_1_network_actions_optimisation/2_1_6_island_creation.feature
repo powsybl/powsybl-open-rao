@@ -12,7 +12,7 @@ Feature: 2.1.6: Island creation because of network actions
       -> a network action is used in curative and combined with the contingency we create an island.
       -> a network action is applied in preventive, but combined with a contingency we get an island.
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin
+  @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.1: Simple case with two cnecs and 1 network actions that create an island
     We have here a simple case where
     - one CNEC "DDE1AA1  DDE2AA1  1 - preventive" is overloaded
@@ -29,7 +29,7 @@ Feature: 2.1.6: Island creation because of network actions
     Then the margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 200 A
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 0 A on side 1
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin
+  @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.2: Simple case with one cnecs and 1 network actions that create an island
     Same case as 2.1.6.1, but only the CNEC "DDE1AA1  DDE2AA1  1 - preventive" is defined in the CRAC.
     The network action won't be applied, the sensitivity result status is set to FAILED because
@@ -58,7 +58,7 @@ Feature: 2.1.6: Island creation because of network actions
     Then the remedial action "open_DDE2AA1  NNL3AA1  1" is used after "CO_0001" at "curative"
     Then the margin on cnec "DDE1AA1  DDE2AA1  1 - curative" after CRA should be 1000 A
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin
+  @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.4: An island is created but all the production is in this island
   Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
     which make the sensi computation fail (failed to distribute slack) -> the action is not used.
