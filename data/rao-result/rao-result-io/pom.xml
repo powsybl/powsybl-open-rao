@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>open-rao-rao-result-io</artifactId>
-    <version>7.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>RAO Result import/export related modules</name>
     <description>Module that gathers all the RAO Result importers and exporters modules</description>
