@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -449,14 +450,17 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
     default boolean isSecure(Crac crac, PhysicalParameter... u) {
-        // TODO: exclude CNECs that were manually exculded or that belong to states that were excluded
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
         }
         if (getComputationStatus() == ComputationStatus.FAILURE) {
-            return false; // TODO: should we throw an exception here?
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
+            return false;
         }
+        // TODO: use the same flow unit as the one use for the LF
+        // TODO: in case of not optimized CNECs, these CNECs should not be taken in account here
+        // TODO: need for RAO parameters but they cannot be used here because of circular dependencies
         if (parameters.contains(PhysicalParameter.FLOW)) {
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
                 if (flowCnec.isOptimized()) {
@@ -473,6 +477,7 @@ public interface RaoResult extends Extendable<RaoResult> {
                             }
                         } else {
                             // no flow value available: assume it is secure
+                            // TODO: throw an exception: throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                         }
                     }
                 }
