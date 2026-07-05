@@ -78,7 +78,7 @@ class PostOptimizationResultTest {
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
 
         NetworkActionsResult networkActionsResult = MarmotUtils.getNetworkActionsResult(crac, Set.of(networkAction), new AppliedRemedialActions());
-        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, networkActionsResult, new RaoParameters());
+        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, networkActionsResult, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP);
 
         assertEquals(12.2, postOptimizationResult.getFlow(null, cnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(345.25, postOptimizationResult.getFlow(crac.getPreventiveInstant(), cnec, TwoSides.ONE, Unit.MEGAWATT));

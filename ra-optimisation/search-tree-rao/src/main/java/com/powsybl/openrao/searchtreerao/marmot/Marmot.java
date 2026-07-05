@@ -235,7 +235,6 @@ public class Marmot implements TimeCoupledRaoProvider {
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
             sensiResults = applyActionsAndRunFullSensitivityAnalysis(initialInputs, curativeTopologicalActions, linearOptimizationResults, initialResults, raoParametersDuplicates, parallelism, reportNode);
-          
             // Create a global result with the flows on ALL cnecs and the actions applied during MIP
             // TODO: does this contain curative setpoints?
             TemporalData<RangeActionActivationResult> rangeActionActivationResultTemporalData = linearOptimizationResults.getRangeActionActivationResultTemporalData();
@@ -248,7 +247,6 @@ public class Marmot implements TimeCoupledRaoProvider {
                 linearOptimizationResults.getStatus(),
                 globalRangeActionsOptimizationReportNode
             );
-
             MarmotReports.reportMarmotNextIterationOfMip(globalRangeActionsOptimizationReportNode, fullResults, raoParameters, 10);
             counter++;
         } while (
@@ -443,7 +441,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                               final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
                                                                                               final LinearOptimizationResult filteredResult,
                                                                                               final TemporalData<PrePerimeterResult> initialResults,
-                                                                                              final TemporalData<RaoParameters> raoParameters, 
+                                                                                              final TemporalData<RaoParameters> raoParameters,
                                                                                               final int parallelism,
                                                                                               final ReportNode reportNode) {
         return MarmotUtils.smartMap(
@@ -570,7 +568,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                                   final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
                                                                                                   final TemporalData<? extends FlowResult> initialFlowResults,
                                                                                                   final TemporalData<RaoParameters> raoParameters,
-                                                                                                  final TemporalData<Set<FlowCnec>> consideredCnecs, 
+                                                                                                  final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                                   final int parallelism,
                                                                                                   final ReportNode reportNode) {
         return MarmotUtils.smartMap(
