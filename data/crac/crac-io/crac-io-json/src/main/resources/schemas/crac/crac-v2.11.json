@@ -86,7 +86,7 @@
     "counterTradeRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "../counter-trade-range-action/counter-trade-range-action-v2.10.json"
+        "$ref": "../counter-trade-range-action/counter-trade-range-action-v2.11.json"
       }
     },
     "networkActions": {

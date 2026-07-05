@@ -15,20 +15,21 @@ Many implementations of CracCreationContext exist, depending on the original for
 specific API. CracCreationContext can be obtained with the `readWithContext` methods, but you have to 
 explicitly cast it to its implementation, if you desire to access its class' specific methods.
 
-~~~{plantuml}
-@startuml
-CracCreationContext <|-- UcteCracCreationContext
-JsonCracCreationContext --|> CracCreationContext
-CimCracCreationContext --|> CracCreationContext
-NcCreationContext --|> CracCreationContext
-interface UcteCracCreationContext {
-}
-interface CracCreationContext {
-}
-UcteCracCreationContext <|-- FbConstraintCreationContext
-UcteCracCreationContext <|-- CseCracCreationContext
-@enduml
-~~~
+```{mermaid}
+classDiagram
+    CracCreationContext <|-- UcteCracCreationContext
+    CracCreationContext <|-- JsonCracCreationContext
+    CracCreationContext <|-- CimCracCreationContext
+    CracCreationContext <|-- NcCreationContext
+    class UcteCracCreationContext {
+        <<interface>>
+    }
+    class CracCreationContext {
+        <<interface>>
+    }
+    UcteCracCreationContext <|-- FbConstraintCreationContext
+    UcteCracCreationContext <|-- CseCracCreationContext
+```
 
 ```java
 CracCreationContext cracCreationContext = readWithContext(filename, inputStream, network, offsetDateTime, cracCreationParameters);
@@ -39,10 +40,23 @@ Crac crac = cracCreationContext.getCrac();
 ## Non-specific information
 All `CracCreationContext` implementations present the following information.
 
-~~~{plantuml}
-!include_many uml/CracCreationContext.puml!CracCreationContext
-!include_many uml/CracCreationContext.puml!CracCreationReport
-~~~
+```{mermaid}
+classDiagram
+    class CracCreationContext {
+        <<interface>>
+        +boolean isCreationSuccessful()
+        +Crac getCrac()
+        +OffsetDateTime getTimeStamp()
+        +String getNetworkName()
+        +CracCreationReport getCreationReport()
+    }
+    class CracCreationReport {
+        +void printCreationReport()
+        +List~String~ getReport()
+        +String toString()
+    }
+    CracCreationContext "1" *--> "1" CracCreationReport
+```
 
 - **CRAC creation success**: a simple boolean set to true if a OpenRAO CRAC could be created from the native CRAC file.
 - **CRAC**: the created CRAC object, to be used in the RAO.
@@ -76,9 +90,65 @@ Currently, this interface is implemented by [FlowBasedConstraint](#flowbasedcons
 [CSE](#cse-implementation) CRAC importers.  
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
-~~~{plantuml}
-!include_many uml/UcteCracCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class CracCreationContext {
+        <<interface>>
+        +boolean isCreationSuccessful()
+        +Crac getCrac()
+        +OffsetDateTime getTimeStamp()
+        +String getNetworkName()
+        +CracCreationReport getCreationReport()
+    }
+    CracCreationContext <|-- UcteCracCreationContext
+
+    class UcteCracCreationContext {
+        <<interface>>
+        +List~? extends BranchCnecCreationContext~ getBranchCnecCreationContexts()
+        +BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId)
+        +List~? extends ElementaryCreationContext~ getRemedialActionCreationContexts()
+        +ElementaryCreationContext getRemedialActionCreationContext(String remedialActionId)
+    }
+
+    UcteCracCreationContext "1" *--> "*" BranchCnecCreationContext
+    UcteCracCreationContext "1" *--> "*" ElementaryCreationContext
+
+    class ElementaryCreationContext {
+        <<interface>>
+        +String getNativeObjectId()
+        +String getNativeObjectName()
+        +String getCreatedObjectId()
+        +Set~String~ getCreatedObjectsIds()
+        +boolean isImported()
+        +boolean isAltered()
+        +ImportStatus getImportStatus()
+        +String getImportStatusDetail()
+    }
+
+    class BranchCnecCreationContext {
+        <<interface>>
+        +NativeBranch getNativeBranch()
+        +boolean isBaseCase()
+        +Optional~String~ getContingencyId()
+        +Map~String, String~ getCreatedCnecsIds()
+        +boolean isDirectionInvertedInNetwork()
+    }
+
+    BranchCnecCreationContext --|> ElementaryCreationContext
+
+    class ImportStatus {
+        <<enumeration>>
+        +IMPORTED
+        +ELEMENT_NOT_FOUND_IN_NETWORK
+        +INCOMPLETE_DATA
+        +INCONSISTENCY_IN_DATA
+        +NOT_YET_HANDLED_BY_OPEN_RAO
+        +NOT_FOR_RAO
+        +NOT_FOR_REQUESTED_TIMESTAMP
+        +OTHER
+    }
+    ElementaryCreationContext "1" *--> "1" ImportStatus
+```
 
 ### Branch CNEC creation contexts
 The `BranchCnecCreationContext` contains information about the creation of CNECs in OpenRAO. One BranchCreationContext 
@@ -195,16 +265,34 @@ void printSomeResults(RemedialActionCreationContext context, CracCreationContext
 ## FlowBasedConstraint implementation
 The `FbConstraintCreationContext` is a [UcteCracCreationContext](#ucte-implementation) implementation with no extra features.
 
-~~~{plantuml}
-!include_many uml/FbConstraintCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class UcteCracCreationContext {
+        <<interface>>
+    }
+    UcteCracCreationContext <|-- FbConstraintCreationContext
+```
 
 ## CSE implementation
 The `CseCracCreationContext` is a [UcteCracCreationContext](#ucte-implementation) implementation with one extra feature for contingencies.
 
-~~~{plantuml}
-!include_many uml/CseCracCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class UcteCracCreationContext {
+        <<interface>>
+    }
+    UcteCracCreationContext <|-- CseCracCreationContext
+
+    class CseCracCreationContext {
+        +ElementaryCreationContext getOutageCreationContext(String outageName)
+        +List~ElementaryCreationContext~ getOutageCreationContexts()
+    }
+    CseCracCreationContext "1" *--> "*" ElementaryCreationContext
+
+    class ElementaryCreationContext {
+        <<interface>>
+    }
+```
 
 ### Outage creation contexts
 The `CseOutageCreationContext` contains information about the creation of contingencies in OpenRAO. One 
@@ -251,9 +339,77 @@ void printSomeInformation(CseOutageCreationContext context, CracCreationContext 
 The `CimCracCreationContext` is a custom `CracCreationParameters` implementation.    
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
-~~~{plantuml}
-!include_many uml/CimCracCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class CracCreationContext {
+        <<interface>>
+    }
+    CracCreationContext <|-- CimCracCreationContext
+
+    class CimCracCreationContext {
+        +Set~ElementaryCreationContext~ getContingencyCreationContexts()
+        +MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId)
+        +Map~String, MonitoredSeriesCreationContext~ getMonitoredSeriesCreationContexts()
+        +Set~RemedialActionSeriesCreationContext~ getRemedialActionSeriesCreationContexts()
+        +RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId)
+        +ElementaryCreationContext getContingencyCreationContextById(String contingencyId)
+        +ElementaryCreationContext getContingencyCreationContextByName(String contingencyName)
+        +Set~AngleCnecCreationContext~ getAngleCnecCreationContexts()
+        +AngleCnecCreationContext getAngleCnecCreationContext(String seriesId)
+        +Set~VoltageCnecCreationContext~ getVoltageCnecCreationContexts()
+        +VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName)
+        +Set~VoltageCnecCreationContext~ getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId)
+        +Set~VoltageCnecCreationContext~ getVoltageCnecCreationContextsForContingency(String nativeContingencyName)
+    }
+
+    CimCracCreationContext "1" *--> "*" ElementaryCreationContext
+    CimCracCreationContext "1" *--> "*" MonitoredSeriesCreationContext
+    CimCracCreationContext "1" *--> "*" RemedialActionSeriesCreationContext
+    CimCracCreationContext "1" *--> "*" AngleCnecCreationContext
+    CimCracCreationContext "1" *--> "*" VoltageCnecCreationContext
+
+    class ElementaryCreationContext {
+        <<interface>>
+    }
+
+    class RemedialActionSeriesCreationContext {
+        +boolean isInverted()
+        +Set~String~ getCreatedIds()
+    }
+
+    class AngleCnecCreationContext {
+        +String getCreatedCnecId()
+        +String getContingencyId()
+        +String getSerieId()
+    }
+
+    class VoltageCnecCreationContext {
+        +String getNativeNetworkElementId()
+        +String getInstantId()
+        +String getNativeContingencyName()
+        +ImportStatus getImportStatus()
+        +String getImportStatusDetail()
+        +String getCreatedCnecId()
+        +boolean isImported()
+    }
+
+    class MonitoredSeriesCreationContext {
+        +String getNativeId()
+        +String getNativeName()
+        +String getNativeResourceId()
+        +String getNativeResourceName()
+        +boolean isImported()
+        +ImportStatus getImportStatus()
+        +String getImportStatusDetail()
+        +Set~MeasurementCreationContext~ getMeasurementCreationContexts()
+        +boolean isAltered()
+        +Set~String~ getCreatedCnecIds()
+    }
+
+    RemedialActionSeriesCreationContext --|> ElementaryCreationContext
+    AngleCnecCreationContext --|> ElementaryCreationContext
+    VoltageCnecCreationContext --|> ElementaryCreationContext
+```
 
 ### Contingency series creation contexts
 The `CimContingencyCreationContext` 
@@ -512,9 +668,26 @@ void printSomeResults(RemedialActionSeriesCreationContext context, CracCreationC
 
 ## CSA-profiles implementation
 
-~~~{plantuml}
-!include_many uml/CsaProfileCracCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class CracCreationContext {
+        <<interface>>
+    }
+    CracCreationContext <|-- CsaProfileCracCreationContext
+
+    class CsaProfileCracCreationContext {
+        +Set~ElementaryCreationContext~ getContingencyCreationContexts()
+        +Set~ElementaryCreationContext~ getRemedialActionCreationContexts()
+        +ElementaryCreationContext getRemedialActionCreationContext(String nativeId)
+        +Set~ElementaryCreationContext~ getCnecCreationContexts()
+    }
+
+    CsaProfileCracCreationContext "1" *--> "*" ElementaryCreationContext
+
+    class ElementaryCreationContext {
+        <<interface>>
+    }
+```
 
 _**This section is under construction**_
 
@@ -527,19 +700,44 @@ However, the importer does not throw exceptions, so it is important to check its
 In the future, the object may evolve to contain information about transformations made in the rare cases where the user 
 imports an old version of the JSON file, where some transformations are needed.
 
-~~~{plantuml}
-!include_many uml/JsonCracCreationContext.puml
-~~~
+```{mermaid}
+classDiagram
+    class CracCreationContext {
+        <<interface>>
+    }
+    CracCreationContext <|-- JsonCracCreationContext
+```
 
 ## Appendix
 ### Elementary import status
 
-~~~{plantuml}
-@startuml
-!include_many uml/CracCreationContext.puml!ElementaryCreationContext
-!include_many uml/CracCreationContext.puml!ImportStatus
-@enduml
-~~~
+```{mermaid}
+classDiagram
+    class ElementaryCreationContext {
+        <<interface>>
+        +String getNativeObjectId()
+        +String getNativeObjectName()
+        +String getCreatedObjectId()
+        +Set~String~ getCreatedObjectsIds()
+        +boolean isImported()
+        +boolean isAltered()
+        +ImportStatus getImportStatus()
+        +String getImportStatusDetail()
+    }
+
+    class ImportStatus {
+        <<enumeration>>
+        +IMPORTED
+        +ELEMENT_NOT_FOUND_IN_NETWORK
+        +INCOMPLETE_DATA
+        +INCONSISTENCY_IN_DATA
+        +NOT_YET_HANDLED_BY_OPEN_RAO
+        +NOT_FOR_RAO
+        +NOT_FOR_REQUESTED_TIMESTAMP
+        +OTHER
+    }
+    ElementaryCreationContext "1" *--> "1" ImportStatus
+```
 
 `ImportStatus` is an enumeration that can be used in the API to filter elements that were not imported for different reasons.  
 For instance, the user may choose to write information about CNECs that were not imported because they are not useful in 

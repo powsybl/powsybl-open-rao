@@ -21,7 +21,7 @@ public class PstRegulationSteps {
     public void launchPSTRegulation() throws IOException {
         CommonTestData.setRaoResult(
             RaoUtils.roundTripOnRaoResult(
-                PstRegulation.regulatePsts(CommonTestData.getNetwork(), CommonTestData.getCrac(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters()),
+                PstRegulation.regulatePsts(CommonTestData.getNetwork(), CommonTestData.getCrac(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters(), CommonTestData.getReportNode()),
                 CommonTestData.getCrac()
             )
         );

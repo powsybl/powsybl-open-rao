@@ -10,6 +10,7 @@ package com.powsybl.openrao.pstregulation;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -47,7 +48,7 @@ class PstRegulationTest {
 
         Crac crac = Crac.read("crac-for-regulation.json", getClass().getResourceAsStream("/crac/crac-for-regulation.json"), network);
         RaoResult raoResult = RaoResult.read(getClass().getResourceAsStream("/raoResult/raoResultPreRegulation.json"), crac);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_ac_3pstsRegulation.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_ac_3pstsRegulation.json"), ReportNode.NO_OP);
 
         PstRangeAction pst12 = crac.getPstRangeAction("pstFr12");
         PstRangeAction pst34 = crac.getPstRangeAction("pstFr34");
@@ -55,7 +56,7 @@ class PstRegulationTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessLogs();
         List<ILoggingEvent> logsList = listAppender.list;
 
-        RaoResult raoResultWithPstRegulation = PstRegulation.regulatePsts(network, crac, raoResult, raoParameters);
+        RaoResult raoResultWithPstRegulation = PstRegulation.regulatePsts(network, crac, raoResult, raoParameters, ReportNode.NO_OP);
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
 
         assertEquals("2 PST(s) to regulate: pstFr12, pstFr34", logMessages.get(0));
@@ -105,7 +106,7 @@ class PstRegulationTest {
         final Network network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));
         final Crac crac = Crac.read("crac-regulation-1-PST.json", getClass().getResourceAsStream("/crac/crac-regulation-1-PST.json"), network);
         final RaoInput raoInput = RaoInput.build(network, crac).build();
-        final RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minMargin_ac.json"));
+        final RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minMargin_ac.json"), ReportNode.NO_OP);
 
         final Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         final State curativeState = crac.getState("Contingency BE1 FR1 3", curativeInstant);
@@ -116,7 +117,7 @@ class PstRegulationTest {
 
         // first run without regulation: min margin is maximized by setting PST on tap -2 even though PSt is overloaded
         // but not seen by the RAO because it has no associated FlowCNEC
-        final RaoResult raoResult = new Castor().run(raoInput, raoParameters, null).join();
+        final RaoResult raoResult = new Castor().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
         assertEquals(690.23, raoResult.getCost(crac.getLastInstant()), 1e-2);
         assertEquals(-2, raoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
         assertEquals(-676.38, raoResult.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);
@@ -127,7 +128,7 @@ class PstRegulationTest {
         pstRegulationParameters.setPstsToRegulate(Map.of("BBE1AA1  FFR1AA1  2", "BBE1AA1  FFR1AA1  2"));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPstRegulationParameters(pstRegulationParameters);
 
-        final RaoResult raoResultWithRegulation = PstRegulation.regulatePsts(network, crac, raoResult, raoParameters);
+        final RaoResult raoResultWithRegulation = PstRegulation.regulatePsts(network, crac, raoResult, raoParameters, ReportNode.NO_OP);
         assertEquals(1382.77, raoResultWithRegulation.getCost(crac.getLastInstant()), 1e-2);
         assertEquals(7, raoResultWithRegulation.getOptimizedTapOnState(curativeState, pstRangeAction));
         assertEquals(-1382.77, raoResultWithRegulation.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);

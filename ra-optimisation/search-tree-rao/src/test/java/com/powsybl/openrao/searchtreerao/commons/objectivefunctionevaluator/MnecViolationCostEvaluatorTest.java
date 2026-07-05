@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -97,7 +98,7 @@ class MnecViolationCostEvaluatorTest {
     void getElementsInViolation() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null, ReportNode.NO_OP).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.getFirst());
         assertSame(mnec1, costlyElements.get(1));
@@ -125,13 +126,13 @@ class MnecViolationCostEvaluatorTest {
 
         assertEquals(
             expectedCostWithEval1,
-            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of(), Set.of()),
+            evaluator1.evaluate(currentFlowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()),
             DOUBLE_TOLERANCE
         );
 
         assertEquals(
             expectedCostWithEval2,
-            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of(), Set.of()),
+            evaluator2.evaluate(currentFlowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()),
             DOUBLE_TOLERANCE
         );
     }
@@ -140,7 +141,7 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null, ReportNode.NO_OP).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.getFirst());
         assertSame(mnec1, costlyElements.get(1));

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
@@ -81,7 +82,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void computeCost() {
-        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -108,7 +109,7 @@ class MinMarginEvaluatorTest {
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         // no optimized cnec is present, the default value is returned
-        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -124,13 +125,13 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
         // no optimized cnec is present, the default value is returned
-        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     // same test as in MinMarginViolationEvaluatorTest but capAtZero is false
     @Test
     void testNoCnecs() {
         MinMarginEvaluator emptyEvaluator = new MinMarginEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class));
-        assertEquals(-1e9, emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-1e9, emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }

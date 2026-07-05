@@ -7,6 +7,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
@@ -37,6 +38,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -87,9 +89,7 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
 import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -269,7 +269,13 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
+        CommonTestData.setReportNode(
+            ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test.rootnode")
+                .build()
+        );
+        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
     }
 
     @When("I export marmot results to {string}")
@@ -282,6 +288,11 @@ public final class TimeCoupledRaoSteps {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             timeCoupledRaoResult.write(zipOutputStream, CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), properties);
         }
+    }
+
+    @When("I export marmot reports to {string}")
+    public static void iExportMarmotReports(String outputPath) throws IOException {
+        CommonTestData.getReportNode().print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
@@ -521,6 +532,12 @@ public final class TimeCoupledRaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+    }
+
+    @Then("the CNEC {string} is overloaded before time-coupled optimization")
+    public void cnecIsOverloadedBeforeTimeCoupledOptimization(String cnecId) {
+        assertNotNull(timeCoupledRaoResult.getExtension(PreTimeCouplingOverloadedCnecs.class));
+        assertTrue(timeCoupledRaoResult.getExtension(PreTimeCouplingOverloadedCnecs.class).getCriticalCnecIds().contains(cnecId));
     }
 
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {
