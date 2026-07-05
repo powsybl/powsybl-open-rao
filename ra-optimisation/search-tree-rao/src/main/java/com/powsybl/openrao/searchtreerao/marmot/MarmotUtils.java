@@ -149,7 +149,8 @@ public final class MarmotUtils {
                 initialResults.getData(timestamp).orElseThrow(),
                 globalLinearOptimizationResult,
                 networkActionsResult,
-                raoParameters
+                raoParameters,
+                reportNode
             );
 
             CriticalCnecsResult criticalCnecsResult = new CriticalCnecsResult();

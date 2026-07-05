@@ -710,6 +710,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                          final TemporalData<Set<NetworkAction>> preventiveNetworkActions,
                                                                                          final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
                                                                                          final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                         final Set<String> postTopoOverloadedCnecs,
                                                                                          final RaoParameters raoParameters,
                                                                                          final ReportNode reportNode) {
         TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
