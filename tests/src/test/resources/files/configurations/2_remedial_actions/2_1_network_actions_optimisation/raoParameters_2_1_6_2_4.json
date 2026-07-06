@@ -72,7 +72,7 @@
             "hvdcAcEmulation": true,
             "extensions": {
               "open-load-flow-parameters": {
-                "slackDistributionFailureBehavior": "THROW"
+                "slackDistributionFailureBehavior": "FAIL"
               }
             }
           }
