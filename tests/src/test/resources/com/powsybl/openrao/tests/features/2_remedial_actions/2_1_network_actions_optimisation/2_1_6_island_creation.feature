@@ -74,7 +74,7 @@ Feature: 2.1.6: Island creation because of network actions
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.5: An island is created in the curative perimeter because of a network action taken in preventive
     Same network as 2.1.6.3, in preventive the network action "open_FFR2AA1  DDE3AA1  1" is used to solve the overload on "FFR2AA1  FFR3AA1  1 - preventive"
-    However applying this network action on top of the contingency on  DDE2AA1  NNL3AA1  1 create an island.
+    However applying this network action on top of the contingency on  DDE2AA1  NNL3AA1  1 creates an island.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
