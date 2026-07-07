@@ -33,6 +33,7 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
+import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -186,7 +188,7 @@ public class RaoSteps {
 
     @Then("its security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals("secured".equalsIgnoreCase(status), CommonTestData.getRaoResult().isSecure(crac, PhysicalParameter.FLOW));
+        assertEquals("secured".equalsIgnoreCase(status), CommonTestData.getRaoResult().isSecure(crac, RaoUtil.getFlowUnit(raoParameters), raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(), PhysicalParameter.FLOW));
     }
 
     @Then("the value of the objective function initially should be {double}")

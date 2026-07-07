@@ -16,7 +16,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 9 in preventive
     Then 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -179,7 +179,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 9 in preventive
     Then 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -343,7 +343,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the remedial action "close_de3_de4" is used in preventive
@@ -527,7 +527,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the remedial action "close_de3_de4" is used in preventive

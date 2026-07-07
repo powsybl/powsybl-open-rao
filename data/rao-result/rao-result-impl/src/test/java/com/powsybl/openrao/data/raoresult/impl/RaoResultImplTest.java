@@ -35,6 +35,7 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -251,25 +252,26 @@ class RaoResultImplTest {
     @Test
     void testIsSecureFlowCnecs() {
         setUp();
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
     void testIsNotSecureIfComputationStatusIsFailure() {
         setUp();
         raoResult.setComputationStatus(ComputationStatus.FAILURE);
-        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW));
     }
 
     @Test
     void testIsSecureIfNoCnecOfGivenParameterType() {
         setUp();
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.ANGLE));
     }
 
     @Test
@@ -292,8 +294,8 @@ class RaoResultImplTest {
         ElementaryAngleCnecResult elementaryAngleCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
         elementaryAngleCnecResult.setAngle(35., DEGREE);
         elementaryAngleCnecResult.setMargin(-5., DEGREE);
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW));
-        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
     }
 
     @Test
@@ -324,8 +326,8 @@ class RaoResultImplTest {
         elementaryVoltageCnecResult.setMinVoltage(200., KILOVOLT);
         elementaryVoltageCnecResult.setMaxVoltage(220., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -379,8 +381,8 @@ class RaoResultImplTest {
         elementaryVoltageCnecResult4.setMaxVoltage(420., KILOVOLT);
         elementaryVoltageCnecResult4.setMargin(40., KILOVOLT);
 
-        assertFalse(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
 
         assertEquals(50.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
         assertEquals(10.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));

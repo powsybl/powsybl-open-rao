@@ -80,10 +80,6 @@ public class OneStateOnlyRaoResultImpl extends AbstractExtendable<RaoResult> imp
         return Optional.of(initialResult);
     }
 
-    public OptimizationResult getPostOptimizationResult() {
-        return postOptimizationResult;
-    }
-
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {

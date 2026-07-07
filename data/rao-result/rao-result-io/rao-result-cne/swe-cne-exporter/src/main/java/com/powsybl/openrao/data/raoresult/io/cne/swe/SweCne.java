@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -121,11 +122,12 @@ public class SweCne {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
+        // FIXME: not sure about the notOptimizedCnecs
         try {
-            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
+            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {
             // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
-            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), PhysicalParameter.FLOW);
+            isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), Unit.AMPERE, false, PhysicalParameter.FLOW);
         }
         if (isFailure) {
             reason.setCode(RAO_FAILURE_CODE);

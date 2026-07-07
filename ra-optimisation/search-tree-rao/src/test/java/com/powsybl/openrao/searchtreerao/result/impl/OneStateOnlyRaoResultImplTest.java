@@ -469,9 +469,12 @@ class OneStateOnlyRaoResultImplTest {
         when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
-        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
-        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(output.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertTrue(output.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(output.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(output.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW));
+        assertTrue(output.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(output.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -484,7 +487,8 @@ class OneStateOnlyRaoResultImplTest {
         when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertFalse(output.isSecure(crac, PhysicalParameter.FLOW));
+        assertFalse(output.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertFalse(output.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW));
     }
 
     @Test
@@ -497,6 +501,7 @@ class OneStateOnlyRaoResultImplTest {
         when(cnec2state.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
-        assertTrue(output.isSecure(crac, PhysicalParameter.FLOW));
+        assertTrue(output.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertTrue(output.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW));
     }
 }

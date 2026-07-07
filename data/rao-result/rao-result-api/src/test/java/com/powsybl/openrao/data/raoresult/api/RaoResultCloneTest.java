@@ -433,10 +433,11 @@ class RaoResultCloneTest {
         assertEquals(ComputationStatus.FAILURE, raoResultClone.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, MEGAWATT, false));
         assertEquals("No physical parameter provided.", exception.getMessage());
-        assertTrue(raoResultClone.isSecure(crac, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultClone.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.VOLTAGE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage()); // RAO result clone is meant for flow results only
     }
 }

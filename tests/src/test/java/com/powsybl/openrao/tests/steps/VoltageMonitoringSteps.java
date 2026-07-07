@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
@@ -53,7 +54,7 @@ public class VoltageMonitoringSteps {
     @Then("the voltage monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(CommonTestData.getCrac(), PhysicalParameter.VOLTAGE));
+        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(CommonTestData.getCrac(), RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()), CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(), PhysicalParameter.VOLTAGE));
     }
 
     @Then("the min voltage of CNEC {string} should be {double} kV at {string}")

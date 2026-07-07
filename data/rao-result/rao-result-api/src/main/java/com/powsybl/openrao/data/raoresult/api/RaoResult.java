@@ -37,9 +37,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This interface will provide complete results that a user could expect after a RAO. It enables to access physical
@@ -449,7 +451,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param u    The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    default boolean isSecure(Crac crac, PhysicalParameter... u) {
+    default boolean isSecure(Crac crac, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
@@ -461,24 +463,23 @@ public interface RaoResult extends Extendable<RaoResult> {
         // TODO: use the same flow unit as the one use for the LF
         // TODO: in case of not optimized CNECs, these CNECs should not be taken in account here
         // TODO: need for RAO parameters but they cannot be used here because of circular dependencies
+        Set<String> tsosWithoutCras = new HashSet<>();
+        if (excludeCnecsForTsosWithoutCras) {
+            Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<String> allTsosWithCras = crac.getRemedialActions().stream().filter(remedialAction -> remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isCurative())).map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+            tsosWithoutCras.addAll(allTsos.stream().filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet()));
+        }
         if (parameters.contains(PhysicalParameter.FLOW)) {
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                if (flowCnec.isOptimized()) {
-                    Optional<Double> minAmpereMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.AMPERE));
-                    if (minAmpereMargin.isPresent()) {
-                        if (minAmpereMargin.get() < 0) {
+                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator())) {
+                    Optional<Double> minMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
+                    if (minMargin.isPresent()) {
+                        if (minMargin.get() < 0) {
                             return false;
                         }
                     } else {
-                        Optional<Double> minMegaWattMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, Unit.MEGAWATT));
-                        if (minMegaWattMargin.isPresent()) {
-                            if (minMegaWattMargin.get() < 0) {
-                                return false;
-                            }
-                        } else {
-                            // no flow value available: assume it is secure
-                            // TODO: throw an exception: throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
-                        }
+                        // no flow value available: assume it is secure
+                        throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                     }
                 }
             }
