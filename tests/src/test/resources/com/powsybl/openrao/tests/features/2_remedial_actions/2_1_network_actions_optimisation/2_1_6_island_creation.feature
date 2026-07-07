@@ -34,7 +34,7 @@ Feature: 2.1.6: Island creation because of network actions
     Same case as 2.1.6.1, but only the CNEC "DDE1AA1  DDE2AA1  1 - preventive" is defined in the CRAC.
     The network action won't be applied, the sensitivity result status is set to FAILED because
     the status is set to SUCCESS only if at least one CNEC has a flow that is not NaN after the sensi computation.
-    (If the flow or sensi value is 0 after OLF sensi computation -> it is set to 0)
+    (If the flow or sensi value is a NaN after OLF sensi computation -> it is set to 0)
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_1.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
