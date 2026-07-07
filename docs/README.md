@@ -32,12 +32,16 @@ custom html & css code. Currently, two methods are used:
   or its theme (read more about this [here](https://www.sphinx-doc.org/en/master/development/theming.html#templating)).
   You can use this method when other, lighter methods (i.e. tweaking mkdocs.yml & CSS styles) are not enough.
 
-### Using PlantUML
-You can draw diagrams using the PlantUml plugin.  
-In markdown, use the '~~~{plantuml}' fields.  
-You can preview the diagrams in your markdown editor by removing the '{}'.
-> Note: in order to render the diagrams [locally](#building-the-website-locally), you have to install plantuml:
-> 'sudo apt install plantuml'
+### Using Mermaid
+You can draw diagrams using the Mermaid plugin.  
+In markdown, use the '```{mermaid}' fields.  
+~~~mermaid
+graph TD
+    A[Hard] -->|Text| B(Round)
+    B --> C{Decision}
+    C -->|One| D[Result 1]
+    C -->|Two| E[Result 2]
+~~~
 
 ### Building the website locally
 

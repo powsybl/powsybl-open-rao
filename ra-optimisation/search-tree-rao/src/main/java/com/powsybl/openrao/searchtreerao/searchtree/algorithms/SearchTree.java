@@ -135,14 +135,14 @@ public class SearchTree {
         rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
-            reportOptimizationSummary();
+            reportOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
 
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             SearchTreeReports.reportStopCriterionReachedOnLeaf(reportNode, verbose, rootLeaf);
             reportMostLimitingElementsWithVerbose(rootLeaf, NUMBER_LOGGED_ELEMENTS_END_TREE);
-            reportOptimizationSummary();
+            reportOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
@@ -159,7 +159,7 @@ public class SearchTree {
         reportVirtualCostInformation(reportNode, rootLeaf, false);
 
         if (stopCriterionReached(rootLeaf)) {
-            reportOptimizationSummary();
+            reportOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
@@ -172,7 +172,7 @@ public class SearchTree {
         SearchTreeReports.reportBestLeafRangeActions(reportNode, optimalLeaf, input.getOptimizationPerimeter());
         reportTechnicalMostLimitingElements(optimalLeaf, NUMBER_LOGGED_ELEMENTS_END_TREE);
 
-        reportOptimizationSummary();
+        reportOptimizationSummary(optimalLeaf);
         optimalLeaf.finalizeOptimization();
         return CompletableFuture.completedFuture(optimalLeaf);
     }
@@ -557,9 +557,9 @@ public class SearchTree {
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, rootLeaf, rootLeaf, parameters.getObjectiveFunction(), parameters.getFlowUnit(), numberLoggedElementsDuringTree);
     }
 
-    private void reportOptimizationSummary() {
-        OptimizationSummaryReports.reportOptimizationSummary(reportNode, rootLeaf, input, rootLeaf.getPreOptimObjectiveFunctionResult());
-        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, optimalLeaf, parameters.getFlowUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, false);
+    private void reportOptimizationSummary(final Leaf leaf) {
+        OptimizationSummaryReports.reportOptimizationSummary(reportNode, leaf, input, rootLeaf.getPreOptimObjectiveFunctionResult());
+        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, leaf, parameters.getFlowUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, false);
     }
 
     private void reportMostLimitingElementsWithVerbose(final Leaf leaf, final int numberLoggedElementsDuringTree) {

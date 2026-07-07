@@ -65,6 +65,7 @@ class CountertradingRangeActionsCreator {
             .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant, creationContext))
             .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
+            .filter(generator -> generator.getTargetP() >= 0)
             .collect(Collectors.toSet());
 
         Utils.addInjectionRangeAction(
