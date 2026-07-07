@@ -30,7 +30,7 @@ Feature: 2.1.6: Island creation because of network actions
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 0 A on side 1
 
   @fast @rao @ac @max-min-margin
-  Scenario: 2.1.6.2: Simple case with one cnecs and 1 network actions that create an island
+  Scenario: 2.1.6.2: Simple case with one CNEC and 1 network action that creates an island
     Same case as 2.1.6.1, but only the CNEC "DDE1AA1  DDE2AA1  1 - preventive" is defined in the CRAC.
     The network action won't be applied, the sensitivity result status is set to FAILED because
     the status is set to SUCCESS only if at least one CNEC has a flow that is not NaN after the sensi computation.
