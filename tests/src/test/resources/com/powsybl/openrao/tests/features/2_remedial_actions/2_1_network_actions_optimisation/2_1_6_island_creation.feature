@@ -61,7 +61,7 @@ Feature: 2.1.6: Island creation because of network actions
   @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.4: An island is created but all the production is in this island
   Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
-    which make the sensi computation fail (failed to distribute slack) -> the action is not used.
+    which makes the sensi computation fail (failed to distribute slack) -> the action is not used.
     If  "slackDistributionFailureBehavior" is set to "THROW"
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_4.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
