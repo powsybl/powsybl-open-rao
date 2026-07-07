@@ -13,7 +13,7 @@ Feature: 2.1.6: Island creation because of network actions
       -> a network action is applied in preventive, but combined with a contingency we get an island.
 
   @fast @rao @ac @max-min-margin
-  Scenario: 2.1.6.1: Simple case with two cnecs and 1 network actions that create an island
+  Scenario: 2.1.6.1: Simple case with two CNECs and 1 network action that create an island
     We have here a simple case where
     - one CNEC "DDE1AA1  DDE2AA1  1 - preventive" is overloaded
     - one CNEC "NNL2AA1  NNL3AA1  1 - preventive" that is not overload and will not be in the electrical island.
