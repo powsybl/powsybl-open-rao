@@ -18,7 +18,7 @@ Feature: 2.1.6: Island creation because of network actions
     - one CNEC "DDE1AA1  DDE2AA1  1 - preventive" is overloaded
     - one CNEC "NNL2AA1  NNL3AA1  1 - preventive" that is not overloaded and will not be in the electrical island.
     - opening the line "DDE2AA1  NNL3AA1  1" resolves the overload by creating an island (DDE1AA1, DDE2AA1 & DDE3AA1)
-  -> the flow is considered equal to 0 A on the CNEC
+  -> the flow is considered equal to 0 A on the CNEC "DDE1AA1  DDE2AA1  1 - preventive"
     Note: we had to add at least one CNEC not in the island in the CRAC (NNL2AA1  NNL3AA1  1 - preventive) to not get a sensitivity computation error.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_1.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
