@@ -8,7 +8,7 @@ Feature: 2.1.6: Island creation because of network actions
 
   There are three ways to create an island:
   - after applying one or several network actions
-  - a network actions combined with a contingency:
+  - a network action combined with a contingency:
       -> a network action is used in curative and combined with the contingency we create an island.
       -> a network action is applied in preventive, but combined with a contingency we get an island.
 
