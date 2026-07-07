@@ -46,7 +46,7 @@ Feature: 2.1.6: Island creation because of network actions
   Scenario: 2.1.6.3: An island is created after a contingency
     Same case as 2.1.6.1, but initially all the lines are closed.
     We lose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
-    that get overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating an island.
+    that becomes overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating an island.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
