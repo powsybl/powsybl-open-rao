@@ -116,42 +116,17 @@ public class RaoSteps {
 
     @When("I launch rao at {string}")
     public void iLaunchRao(String timestamp) {
-        launchRao(null, null, timestamp, raoImplementation);
-    }
-
-    @When("I launch rao at {string} on {string}")
-    public void iLaunchRaoAtTimestampOnContingency(String timestamp, String contingencyId) {
-        launchRao(contingencyId, null, timestamp, raoImplementation);
-    }
-
-    @When("I launch rao at {string} on preventive state")
-    public void iLaunchRaoOnPreventiveState(String timestamp) {
-        launchRao(null, InstantKind.PREVENTIVE, timestamp, raoImplementation);
-    }
-
-    @When("I launch rao at {string} after {string} at {string}")
-    public void iLaunchRao(String timestamp, String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), timestamp, raoImplementation);
-    }
-
-    @When("I launch rao on preventive state")
-    public void iLaunchRaoOnPreventiveState() {
-        launchRao(null, InstantKind.PREVENTIVE, null, raoImplementation);
-    }
-
-    @When("I launch rao after {string} at {string}")
-    public void iLaunchRao(String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), null, null, raoImplementation, null);
+        launchRao(timestamp, raoImplementation);
     }
 
     @When("I launch loopflow rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, null, null, percentage, raoImplementation, null);
+        launchRao(null, percentage, raoImplementation, null);
     }
 
     @When("I launch loopflow rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(null, null, timestamp, percentage, raoImplementation, null);
+        launchRao(timestamp, percentage, raoImplementation, null);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -758,14 +733,14 @@ public class RaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, null, null, raoImplementation, timeLimit);
+        launchRao(null, null, raoImplementation, timeLimit);
     }
 
-    private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, String raoType) {
-        launchRao(contingencyId, instantKind, timestamp, 0.0, raoType, null);
+    private void launchRao(String timestamp, String raoType) {
+        launchRao(timestamp, 0.0, raoType, null);
     }
 
-    private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit) {
+    private void launchRao(String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit) {
         try {
             CommonTestData.loadData(timestamp);
             network = CommonTestData.getNetwork();
@@ -777,7 +752,7 @@ public class RaoSteps {
                     .withMessageTemplate("test.rootnode")
                     .build()
             );
-            raoResult = RaoUtils.runRao(contingencyId, instantKind, raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode());
+            raoResult = RaoUtils.runRao(raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode());
             CommonTestData.setRaoResult(raoResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

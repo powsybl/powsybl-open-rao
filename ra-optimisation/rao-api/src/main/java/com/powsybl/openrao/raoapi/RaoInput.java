@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -31,7 +30,6 @@ public final class RaoInput {
         private Crac crac;
         private Network network;
         private String networkVariantId;
-        private State optimizedState;
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
         private ZonalData<SensitivityVariableSet> glsk;
@@ -51,11 +49,6 @@ public final class RaoInput {
 
         public RaoInputBuilder withNetworkVariantId(String variantId) {
             this.networkVariantId = variantId;
-            return this;
-        }
-
-        private RaoInputBuilder withOptimizedState(State state) {
-            this.optimizedState = state;
             return this;
         }
 
@@ -79,7 +72,6 @@ public final class RaoInput {
             raoInput.crac = Objects.requireNonNull(crac, format(REQUIRED_ARGUMENT_MESSAGE, "CRAC"));
             raoInput.network = Objects.requireNonNull(network, format(REQUIRED_ARGUMENT_MESSAGE, "Network"));
             raoInput.networkVariantId = networkVariantId != null ? networkVariantId : network.getVariantManager().getWorkingVariantId();
-            raoInput.optimizedState = optimizedState;
             raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
             raoInput.glsk = glsk;
@@ -88,7 +80,6 @@ public final class RaoInput {
     }
 
     private Crac crac;
-    private State optimizedState;
     private Set<State> perimeter;
     private Network network;
     private String networkVariantId;
@@ -102,20 +93,8 @@ public final class RaoInput {
         return new RaoInputBuilder().withNetwork(network).withCrac(crac);
     }
 
-    public static RaoInputBuilder buildWithState(Network network, Crac crac, State optimizedState) {
-        return build(network, crac).withOptimizedState(optimizedState).withPerimeter(Collections.singleton(optimizedState));
-    }
-
-    public static RaoInputBuilder buildWithPreventiveState(Network network, Crac crac) {
-        return buildWithState(network, crac, crac.getPreventiveState());
-    }
-
     public Crac getCrac() {
         return crac;
-    }
-
-    public State getOptimizedState() {
-        return optimizedState;
     }
 
     public Set<State> getPerimeter() {
