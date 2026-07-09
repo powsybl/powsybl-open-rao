@@ -10,6 +10,7 @@ package com.powsybl.openrao.virtualhubs.xml;
 import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.HvdcConverter;
 import com.powsybl.openrao.virtualhubs.HvdcLine;
+import com.powsybl.openrao.virtualhubs.HvdcPole;
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
@@ -31,7 +32,6 @@ import jakarta.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,15 +115,21 @@ class VirtualHubsConfigurationImporter {
     }
 
     private static void importInternalHvdcs(final List<HVDCType> internalHvdcs, final VirtualHubsConfiguration configuration) {
-        internalHvdcs.stream()
-            .map(HVDCType::getPole)
-            .flatMap(Collection::stream)
-            .forEach(pole -> importHvdcPoleConfiguration(pole, configuration));
+        internalHvdcs.forEach(hvdc -> importInternalHvdc(hvdc, configuration));
     }
 
-    private static void importHvdcPoleConfiguration(final PoleType pole, final VirtualHubsConfiguration configuration) {
+    private static void importInternalHvdc(final HVDCType internalHvdc, final VirtualHubsConfiguration configuration) {
+        final List<HvdcPole> hvdcPoles = internalHvdc.getPole()
+            .stream()
+            .map(VirtualHubsConfigurationImporter::poleTypeToHvdcPole)
+            .toList();
+
+        configuration.addInternalHvdc(new InternalHvdc(internalHvdc.getEic(), hvdcPoles));
+    }
+
+    private static HvdcPole poleTypeToHvdcPole(final PoleType pole) {
         if (pole == null) {
-            return;
+            return null;
         }
 
         final List<HvdcConverter> hvdcConverters = new ArrayList<>();
@@ -144,6 +150,6 @@ class VirtualHubsConfigurationImporter {
             }
         }
 
-        configuration.addInternalHvdc(new InternalHvdc(hvdcConverters, hvdcLines));
+        return new HvdcPole(pole.getId(), hvdcConverters, hvdcLines);
     }
 }
