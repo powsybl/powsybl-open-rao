@@ -40,8 +40,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -113,7 +111,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
                 createCounterTradeGlsks(network, counterTradeRangeAction, sensitivityVariables, glskIds);
-                //TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
