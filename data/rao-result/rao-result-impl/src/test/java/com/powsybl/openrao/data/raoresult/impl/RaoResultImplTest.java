@@ -35,7 +35,6 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -53,14 +52,12 @@ class RaoResultImplTest {
     private PstRangeAction pst;
     private NetworkAction na;
     private Instant preventiveInstant;
-    private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         cnec = crac.getFlowCnec("cnec1basecase");
@@ -75,6 +72,14 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
+        // add default secure margin for all FlowCNECs
+        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+            FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(flowCnec);
+            ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(flowCnec.getState().getInstant());
+            elementaryFlowResult.setMargin(10., MEGAWATT);
+        }
+
+        // override for FlowCNEC "cnec1basecase"
         FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
 
         flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
@@ -336,6 +341,11 @@ class RaoResultImplTest {
         addOutageFlowCnec();
         addAngleCnecs();
         addVoltageCnecs();
+
+        FlowCnec outageCnec = crac.getFlowCnec("cnec1stateOutageContingency1");
+        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(outageCnec);
+        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(PREVENTIVE_INSTANT_ID));
+        elementaryFlowResult.setMargin(10., MEGAWATT);
 
         AngleCnecResult angleResult1 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecPreventive"));
         ElementaryAngleCnecResult elementaryAngleCnecResult1 = angleResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
