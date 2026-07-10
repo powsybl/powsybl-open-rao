@@ -75,6 +75,7 @@
         <module>commons</module>
         <module>data</module>
         <module>distribution</module>
+        <module>helpers</module>
         <module>loopflow-computation</module>
         <module>pst-regulation</module>
         <module>ra-optimisation</module>

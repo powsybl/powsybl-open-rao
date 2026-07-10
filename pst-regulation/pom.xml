@@ -45,6 +45,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-search-tree-rao</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-helpers</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
