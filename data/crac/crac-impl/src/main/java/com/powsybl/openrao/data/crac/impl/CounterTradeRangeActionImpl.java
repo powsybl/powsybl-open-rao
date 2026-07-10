@@ -83,6 +83,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     @Override
     public void apply(Network network, double setpoint) {
+        if (glsk == null) {
+            throw new OpenRaoException("Glsk must be set to apply a counter trade range action");
+        }
         Map<String, Double> exporting = glsk.get(exportingArea);
         Map<String, Double> importing = glsk.get(importingArea);
         exporting.forEach((key, value) -> applyCT(network, key, setpoint * value));
