@@ -17,7 +17,6 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 
@@ -67,18 +66,6 @@ public class Castor implements RaoProvider {
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
         }
 
-        // optimization is made on one given state only
-        if (raoInput.getOptimizedState() != null) {
-            try {
-                return new CastorOneStateOnly(raoInput, parameters, reportNode).run();
-            } catch (OpenRaoException e) {
-                CastorReports.reportRaoFailure(reportNode, raoInput.getOptimizedState().getId(), e);
-                final String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
-                return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
-            }
-        } else {
-            // else, optimization is made on all the states
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
-        }
+        return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
     }
 }

@@ -11,10 +11,11 @@ Feature: 2.2.1.3: Handle parallel PSTs with different initial taps
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CBCORA_15_5_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
-    Then the worst margin is 1352 A
+    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 1352.4 A
+    Then the worst margin is 113.65 A

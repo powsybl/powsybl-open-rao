@@ -72,7 +72,7 @@ Feature: 2.6.2: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao on preventive state
+    When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive

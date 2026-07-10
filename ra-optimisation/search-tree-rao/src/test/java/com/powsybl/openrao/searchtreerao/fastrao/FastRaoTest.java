@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -111,13 +110,6 @@ class FastRaoTest {
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(true);
 
-        State state = Mockito.mock(State.class);
-        Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(state);
-        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-        assertEquals("Fast Rao does not support optimization on one given state only", raoResult.getExecutionDetails());
-
-        Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(null);
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(individualRaoInput.getCrac()).thenReturn(crac);
         Instant instant = Mockito.mock(Instant.class);
@@ -128,7 +120,7 @@ class FastRaoTest {
         curativeInstants.add(instant);
         curativeInstants.add(instant2);
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
-        raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
     }

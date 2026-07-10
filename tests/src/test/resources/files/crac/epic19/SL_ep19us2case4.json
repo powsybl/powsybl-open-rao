@@ -26,6 +26,9 @@
     },
     "max-pst-per-tso" : { },
     "max-ra-per-tso" : { }
+  }, {
+    "instant": "preventive",
+    "max-ra" : 0
   } ],
   "networkElementsNamePerId" : { },
   "contingencies" : [ {
