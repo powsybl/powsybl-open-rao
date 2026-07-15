@@ -816,3 +816,130 @@ GRAPH <%s> {
                     cim:PowerTransformerEnd.PowerTransformer ?powerTransformer .
 }
 }
+
+# query: redispatchRemedialAction
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?redispatchRemedialAction
+            rdf:type nc:RedispatchRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind ;
+
+        OPTIONAL {
+            ?redispatchRemedialAction cim:IdentifiedObject.name ?name ;
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement ;
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso ;
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+    }
+}
+
+# query: redispatchRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?redispatchRemedialAction
+        rdf:type nc:redispatchRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: powerBidSchedule
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerBidSchedule
+            rdf:type nc:PowerBidSchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:PowerBidSchedule.PowerRemedialAction ?powerRemedialAction ;
+
+            OPTIONAL {
+                ?powerBidSchedule nc:PowerBidSchedule.startupCost ?startupCost ;
+            }
+            OPTIONAL {
+                ?powerBidSchedule nc:PowerBidSchedule.totalMinimumEnergy ?totalMinimumEnergy ;
+            }
+            OPTIONAL {
+                ?powerBidSchedule nc:PowerBidSchedule.totalMaximumEnergy ?totalMaximumEnergy .
+            }
+    }
+}
+
+# query: glskBidActionDistribution
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?glskBidActionDistribution
+            rdf:type nc:GLSKBidActionDistribution ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GLSKBidActionDistribution.GLSKSchedule ?glskSchedule ;
+            nc:GLSKBidActionDistribution.PowerBidSchedule ?powerBidSchedule .
+    }
+}
+
+# query: glskSchedule
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?glskSchedule
+            rdf:type nc:GLSKSchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GLSKSchedule.GeneratingUnit ?generatingUnit .
+    }
+}
+
+# query: participationFactorTimePoint
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?participationFactorTimePoint
+            rdf:type nc:ParticipationFactorTimePoint ;
+            nc:ParticipationFactorTimePoint.participationFactor ?participationFactor ;
+            nc:ParticipationFactorTimePoint.GLSKSchedule ?glskSchedule ;
+    }
+
+    OPTIONAL {
+        ?participationFactorTimePoint nc:ParticipationFactorTimePoint.atTime ?atTime .
+    }
+}
+
+# query: synchronousMachine
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?synchronousMachine
+            rdf:type cim:SynchronousMachine ;
+            cim:RotatingMachine.GeneratingUnit ?generatingUnit .
+    }
+}
