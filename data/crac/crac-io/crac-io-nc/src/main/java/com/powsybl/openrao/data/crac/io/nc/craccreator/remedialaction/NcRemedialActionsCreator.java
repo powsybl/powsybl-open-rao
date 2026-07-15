@@ -41,8 +41,6 @@ import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,18 +59,15 @@ public class NcRemedialActionsCreator {
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> nativeRemedialActions;
-    private final NcCracCreationParameters ncCracCreationParameters;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
                                     NcCrac nativeCrac,
                                     NcCracCreationContext cracCreationContext,
-                                    Set<ElementaryCreationContext> cnecCreationContexts,
-                                    NcCracCreationParameters ncCracCreationParameters) {
+                                    Set<ElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        this.ncCracCreationParameters = ncCracCreationParameters;
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
             .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
@@ -191,7 +186,8 @@ public class NcRemedialActionsCreator {
 
     private String createNameFromTapPositionAction(String tapPositionId, String operator) {
         if (operator != null) {
-            return NcCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
+            String tsoName = NcCracUtils.getTsoNameFromUrl(operator);
+            return tsoName == null ? tapPositionId : tsoName + "-" + tapPositionId;
         } else {
             return tapPositionId;
         }
