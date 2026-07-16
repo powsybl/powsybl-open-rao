@@ -81,16 +81,19 @@ public final class PstRegulation {
 
         Map<String, String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
         if (pstsToRegulate.isEmpty()) {
+            resetNetworkVariantAndLogEnd(network, initialVariantId, initialVariants);
             return raoResult;
         }
 
         Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate.keySet(), crac, pstRegulationReportNode);
         if (rangeActionsToRegulate.isEmpty()) {
+            resetNetworkVariantAndLogEnd(network, initialVariantId, initialVariants);
             return raoResult;
         }
 
         Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, raoResult, getFlowUnit(raoParameters), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
         if (statesToRegulate.isEmpty()) {
+            resetNetworkVariantAndLogEnd(network, initialVariantId, initialVariants);
             return raoResult;
         }
 
@@ -136,14 +139,20 @@ public final class PstRegulation {
             return raoResult;
         } finally {
             loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
-            network.getVariantManager().setWorkingVariant(initialVariantId);
-            Set<String> variantsToRemove = network.getVariantManager().getVariantIds()
+            resetNetworkVariantAndLogEnd(network, initialVariantId, initialVariants);
+        }
+    }
+
+    private static void resetNetworkVariantAndLogEnd(final Network network,
+                                                     final String initialVariantId,
+                                                     final Set<String> initialVariants) {
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        Set<String> variantsToRemove = network.getVariantManager().getVariantIds()
                 .stream()
                 .filter(variantId -> !initialVariants.contains(variantId))
                 .collect(Collectors.toSet());
-            variantsToRemove.forEach(network.getVariantManager()::removeVariant);
-            PstRegulationReports.reportPstRegulationEnd();
-        }
+        variantsToRemove.forEach(network.getVariantManager()::removeVariant);
+        PstRegulationReports.reportPstRegulationEnd();
     }
 
     private static Unit getFlowUnit(RaoParameters raoParameters) {
