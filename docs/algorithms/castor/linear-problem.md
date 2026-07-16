@@ -10,7 +10,7 @@ linear-problem/continuous-range-action-group-filler.md
 linear-problem/discrete-pst-tap-filler.md
 linear-problem/discrete-pst-group-filler.md
 linear-problem/ra-usage-limits-filler.md
-
+linear-problem/range-actions-synchronization-filler.md
 ```
 
 ## Introduction

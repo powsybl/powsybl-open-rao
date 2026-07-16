@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
+package com.powsybl.openrao.timecoupledsearchtreerao.searchtree.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -21,30 +21,30 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
-import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
-import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.SensitivityComputer;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.parameters.RangeActionLimitationParameters;
+import com.powsybl.openrao.timecoupledsearchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
+import com.powsybl.openrao.timecoupledsearchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
+import com.powsybl.openrao.timecoupledsearchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.timecoupledsearchtreerao.reports.SearchTreeReports;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.timecoupledsearchtreerao.searchtree.inputs.SearchTreeInput;
+import com.powsybl.openrao.timecoupledsearchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Collections;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCostDetailed;
+import static com.powsybl.openrao.timecoupledsearchtreerao.reports.ReportUtils.getVirtualCostDetailed;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -304,6 +304,7 @@ public class Leaf implements OptimizationResult {
                         .sum();
                     entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
                 });
+
                 limitationParameters.setMaxRangeAction(state, maxRa);
                 limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
                 limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);

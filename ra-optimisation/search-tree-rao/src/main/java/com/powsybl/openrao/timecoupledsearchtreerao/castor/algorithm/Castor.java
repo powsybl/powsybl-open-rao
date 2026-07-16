@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.timecoupledsearchtreerao.castor.algorithm;
+
+import com.google.auto.service.AutoService;
+import com.google.ortools.Loader;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.timecoupledsearchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.timecoupledsearchtreerao.reports.CastorReports;
+import com.powsybl.openrao.timecoupledsearchtreerao.reports.CommonReports;
+import com.powsybl.openrao.timecoupledsearchtreerao.result.impl.FailedRaoResultImpl;
+
+import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+@AutoService(RaoProvider.class)
+public class Castor implements RaoProvider {
+
+    static {
+        try {
+            Loader.loadNativeLibraries();
+        } catch (UnsatisfiedLinkError e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
+    }
+
+    private static final String SEARCH_TREE_RAO = "SearchTreeRao";
+
+    // Do not store any big object in this class as it is a static RaoProvider
+    // Objects stored in memory will not be released at the end of the RAO run
+
+    @Override
+    public String getName() {
+        return SEARCH_TREE_RAO;
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+        return run(raoInput, parameters, null, reportNode);
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
+        try {
+            RaoUtil.initData(raoInput, parameters, reportNode);
+        } catch (OpenRaoException e) {
+            String failure = String.format("Data initialisation failed: %s", e);
+            CommonReports.reportExceptionMessage(reportNode, failure);
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        }
+
+        // optimization is made on one given state only
+        if (raoInput.getOptimizedState() != null) {
+            try {
+                return new CastorOneStateOnly(raoInput, parameters, reportNode).run();
+            } catch (OpenRaoException e) {
+                CastorReports.reportRaoFailure(reportNode, raoInput.getOptimizedState().getId(), e);
+                final String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
+                return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+            }
+        } else {
+            // else, optimization is made on all the states
+            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
+        }
+    }
+}

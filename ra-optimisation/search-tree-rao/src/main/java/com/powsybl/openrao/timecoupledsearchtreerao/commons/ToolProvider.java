@@ -1,0 +1,252 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.timecoupledsearchtreerao.commons;
+
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.EICode;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
+import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
+import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
+import com.powsybl.openrao.timecoupledsearchtreerao.reports.CommonReports;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.timecoupledsearchtreerao.commons.RaoUtil.getFlowUnit;
+
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
+public final class ToolProvider {
+    private Network network;
+    private RaoParameters raoParameters;
+    private ReferenceProgram referenceProgram;
+    private ZonalData<SensitivityVariableSet> glskProvider;
+    private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
+    private LoopFlowComputation loopFlowComputation;
+
+    private ToolProvider() {
+        // Should not be used
+    }
+
+    public AbsolutePtdfSumsComputation getAbsolutePtdfSumsComputation() {
+        return absolutePtdfSumsComputation;
+    }
+
+    public LoopFlowComputation getLoopFlowComputation() {
+        return loopFlowComputation;
+    }
+
+    private boolean hasLoopFlowExtension(FlowCnec cnec) {
+        return !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class));
+    }
+
+    public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
+        Optional<LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
+        if (loopFlowParametersOptional.isPresent() && !loopFlowParametersOptional.get().getCountries().isEmpty()) {
+            return allCnecs.stream()
+                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParametersOptional.get().getCountries()))
+                .collect(Collectors.toSet());
+        } else {
+            return allCnecs.stream()
+                .filter(this::hasLoopFlowExtension)
+                .collect(Collectors.toSet());
+        }
+    }
+
+    static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
+        return cnec.getLocation(network).stream().anyMatch(loopflowCountries::contains);
+    }
+
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
+                                                                            final Set<RangeAction<?>> rangeActions,
+                                                                            final boolean computePtdfs,
+                                                                            final boolean computeLoopFlows,
+                                                                            final Instant outageInstant,
+                                                                            final ReportNode reportNode) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode);
+    }
+
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
+                                                                            final Set<RangeAction<?>> rangeActions,
+                                                                            final boolean computePtdfs,
+                                                                            final boolean computeLoopFlows,
+                                                                            final AppliedRemedialActions appliedRemedialActions,
+                                                                            final Instant outageInstant,
+                                                                            final ReportNode reportNode) {
+
+        Unit flowUnit = getFlowUnit(raoParameters);
+
+        Set<Unit> computationUnits;
+        if (flowUnit == Unit.MEGAWATT) {
+            computationUnits = Collections.singleton(Unit.MEGAWATT);
+        } else {
+            computationUnits = Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
+        }
+
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName(getSensitivityProvider(raoParameters))
+            .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
+            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(flowUnit))
+            .withAppliedRemedialActions(appliedRemedialActions)
+            .withOutageInstant(outageInstant);
+
+        builder.withLoadflow(cnecs, computationUnits);
+
+        if (computePtdfs && computeLoopFlows) {
+            Set<String> eic = getEicForObjectiveFunction();
+            eic.addAll(getEicForLoopFlows());
+            builder.withPtdfSensitivities(getGlskForEic(eic, reportNode), cnecs, computationUnits);
+        } else if (computeLoopFlows) {
+            Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows(), reportNode), loopflowCnecs, computationUnits);
+        } else if (computePtdfs) {
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction(), reportNode), cnecs, computationUnits);
+        }
+
+        return builder.build();
+    }
+
+    Set<String> getEicForObjectiveFunction() {
+        Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
+        if (optionalRelativeMarginsParameters.isEmpty()) {
+            throw new OpenRaoException("No relative margins parameters were defined");
+        }
+        return optionalRelativeMarginsParameters.get().getPtdfBoundaries().stream().
+            flatMap(boundary -> boundary.getEiCodes().stream()).
+            map(EICode::getAreaCode).
+            collect(Collectors.toSet());
+    }
+
+    Set<String> getEicForLoopFlows() {
+        return referenceProgram.getListOfAreas().stream().
+            map(EICode::getAreaCode).
+            collect(Collectors.toSet());
+    }
+
+    ZonalData<SensitivityVariableSet> getGlskForEic(final Set<String> listEicCode, final ReportNode reportNode) {
+        Map<String, SensitivityVariableSet> glskBoundaries = new HashMap<>();
+
+        for (String eiCode : listEicCode) {
+            SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
+            if (Objects.isNull(linearGlsk)) {
+                CommonReports.reportNoGlskFoundForCountryEICode(reportNode, eiCode);
+            } else {
+                glskBoundaries.put(eiCode, linearGlsk);
+            }
+        }
+
+        return new ZonalDataImpl<>(glskBoundaries);
+    }
+
+    public static ToolProviderBuilder create() {
+        return new ToolProviderBuilder();
+    }
+
+    public static final class ToolProviderBuilder {
+        private Network network;
+        private RaoParameters raoParameters;
+        private ReferenceProgram referenceProgram;
+        private ZonalData<SensitivityVariableSet> glskProvider;
+        private LoopFlowComputation loopFlowComputation;
+        private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
+
+        public ToolProviderBuilder withNetwork(Network network) {
+            this.network = network;
+            return this;
+        }
+
+        public ToolProviderBuilder withRaoParameters(RaoParameters raoParameters) {
+            this.raoParameters = raoParameters;
+            return this;
+        }
+
+        public ToolProviderBuilder withLoopFlowComputation(ReferenceProgram referenceProgram, ZonalData<SensitivityVariableSet> glskProvider, LoopFlowComputation loopFlowComputation) {
+            this.referenceProgram = referenceProgram;
+            this.glskProvider = glskProvider;
+            this.loopFlowComputation = loopFlowComputation;
+            return this;
+        }
+
+        public ToolProviderBuilder withAbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, AbsolutePtdfSumsComputation absolutePtdfSumsComputation) {
+            this.glskProvider = glskProvider;
+            this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
+            return this;
+        }
+
+        public ToolProvider build() {
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(raoParameters);
+            ToolProvider toolProvider = new ToolProvider();
+            toolProvider.network = network;
+            toolProvider.raoParameters = raoParameters;
+            toolProvider.referenceProgram = referenceProgram;
+            toolProvider.glskProvider = glskProvider;
+            toolProvider.loopFlowComputation = loopFlowComputation;
+            toolProvider.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
+            return toolProvider;
+        }
+    }
+
+    public static ToolProvider buildFromRaoInputAndParameters(RaoInput raoInput, RaoParameters raoParameters) {
+
+        ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
+            .withNetwork(raoInput.getNetwork())
+            .withRaoParameters(raoParameters);
+        if (raoInput.getReferenceProgram() != null) {
+            toolProviderBuilder.withLoopFlowComputation(
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                new LoopFlowComputationImpl(
+                    raoInput.getGlskProvider(),
+                    raoInput.getReferenceProgram(),
+                    getFlowUnit(raoParameters)
+                )
+            );
+        }
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
+            if (optionalRelativeMarginsParameters.isEmpty()) {
+                throw new OpenRaoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
+            }
+            toolProviderBuilder.withAbsolutePtdfSumsComputation(
+                raoInput.getGlskProvider(),
+                new AbsolutePtdfSumsComputation(
+                    raoInput.getGlskProvider(),
+                    optionalRelativeMarginsParameters.get().getPtdfBoundaries()
+                )
+            );
+        }
+        return toolProviderBuilder.build();
+    }
+}
