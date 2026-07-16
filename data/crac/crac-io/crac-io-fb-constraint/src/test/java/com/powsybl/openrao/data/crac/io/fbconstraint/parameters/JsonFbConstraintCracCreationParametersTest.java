@@ -41,10 +41,10 @@ class JsonFbConstraintCracCreationParametersTest {
         exportedFbConstraintParameters.setIcsCostUp(30.0);
         exportedFbConstraintParameters.setIcsCostDown(15.0);
 
-        final HvdcPole pole1 = new HvdcPole(POLE_ID, List.of(new HvdcConverter("node 1A", "station A"),
+        final HvdcPole pole1 = new HvdcPole(POLE_ID + "1", List.of(new HvdcConverter("node 1A", "station A"),
                                                              new HvdcConverter("node 1B", "station B")),
                                             List.of(new HvdcLine("node 1A", "node 1B")));
-        final HvdcPole pole2 = new HvdcPole(POLE_ID, List.of(new HvdcConverter("node 2A", "station A"),
+        final HvdcPole pole2 = new HvdcPole(POLE_ID + "2", List.of(new HvdcConverter("node 2A", "station A"),
                                                              new HvdcConverter("node 2B", "station B")),
                                             List.of(new HvdcLine("node 2A", "node 2B")));
 
@@ -129,7 +129,7 @@ class JsonFbConstraintCracCreationParametersTest {
                                                                                           "internal-hvdcs" : [ {
                                                                                             "eic" : "EIC_OF_HVDC",
                                                                                             "poles" : [ {
-                                                                                              "id" : "EIC_OF_POLE",
+                                                                                              "id" : "EIC_OF_POLE1",
                                                                                               "converters" : [ {
                                                                                                 "node" : "node 1A",
                                                                                                 "station" : "station A"
@@ -142,7 +142,7 @@ class JsonFbConstraintCracCreationParametersTest {
                                                                                                 "to" : "node 1B"
                                                                                               } ]
                                                                                             }, {
-                                                                                              "id" : "EIC_OF_POLE",
+                                                                                              "id" : "EIC_OF_POLE2",
                                                                                               "converters" : [ {
                                                                                                 "node" : "node 2A",
                                                                                                 "station" : "station A"

@@ -122,6 +122,7 @@ class VirtualHubsConfigurationImporter {
         final List<HvdcPole> hvdcPoles = internalHvdc.getPole()
             .stream()
             .map(VirtualHubsConfigurationImporter::poleTypeToHvdcPole)
+            .filter(Objects::nonNull)
             .toList();
 
         configuration.addInternalHvdc(new InternalHvdc(internalHvdc.getEic(), hvdcPoles));
