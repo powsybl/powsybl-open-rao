@@ -40,6 +40,7 @@ import com.powsybl.triplestore.api.TripleStore;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -255,12 +256,13 @@ public class NcCrac {
             return new PropertyBags();
         }
 
+        Set<String> contextsToQuery = new HashSet<>(contexts);
         if (contexts.isEmpty()) {
-            return tripleStoreNcCrac.query(query);
+            contextsToQuery.addAll(tripleStoreNcCrac.contextNames());
         }
 
         PropertyBags multiContextsPropertyBags = new PropertyBags();
-        for (String context : contexts) {
+        for (String context : contextsToQuery) {
             String contextQuery = String.format(query, context);
             multiContextsPropertyBags.addAll(tripleStoreNcCrac.query(contextQuery));
         }
@@ -280,6 +282,10 @@ public class NcCrac {
                     clearContext(contextName);
                     clearKeywordMap(contextName);
                 }
+            } else if (!keywordMap.getOrDefault(NcKeyword.CGMES.toString(), Set.of()).contains(contextName)) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because no proper header could be retrieved.", contextName);
+                clearContext(contextName);
+                clearKeywordMap(contextName);
             }
         });
     }

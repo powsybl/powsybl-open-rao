@@ -38,33 +38,25 @@ public final class HeaderChecker {
 
         // 2. Retrieve version
         String version = propertyBag.get("conformsTo");
-        // TODO: remove conditional check when attribute is made mandatory in query
-        if (version != null) {
-            Matcher matcher = VERSION_PATTERN.matcher(version);
-            String conformityUrl = "http://entsoe.eu/ns/CIM/" + keyword.getFullName() + "-EU/" + SUPPORTED_NC_VERSION;
-            if (!matcher.matches()) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because it does not conform to the expected {} v{} profile standard (expected {}, got {}).", fileName, keyword.toString(), SUPPORTED_NC_VERSION, conformityUrl, version);
-                return false;
-            }
-            String profileName = matcher.group("name");
-            if (!keyword.getFullName().equals(profileName)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because its keyword {} is not consistent with the declared type (expected {}, got {}).", fileName, keyword.toString(), keyword.getFullName(), profileName);
-                return false;
-            }
-            String profileVersion = matcher.group("version");
-            if (!SUPPORTED_NC_VERSION.equals(profileVersion)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because its version {} is not supported by OpenRAO (only supported version is {}).", fileName, profileVersion, SUPPORTED_NC_VERSION);
-                return false;
-            }
+        Matcher matcher = VERSION_PATTERN.matcher(version);
+        String conformityUrl = "http://entsoe.eu/ns/CIM/" + keyword.getFullName() + "-EU/" + SUPPORTED_NC_VERSION;
+        if (!matcher.matches()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because it does not conform to the expected {} v{} profile standard (expected {}, got {}).", fileName, keyword.toString(), SUPPORTED_NC_VERSION, conformityUrl, version);
+            return false;
+        }
+        String profileName = matcher.group("name");
+        if (!keyword.getFullName().equals(profileName)) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because its keyword {} is not consistent with the declared type (expected {}, got {}).", fileName, keyword.toString(), keyword.getFullName(), profileName);
+            return false;
+        }
+        String profileVersion = matcher.group("version");
+        if (!SUPPORTED_NC_VERSION.equals(profileVersion)) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because its version {} is not supported by OpenRAO (only supported version is {}).", fileName, profileVersion, SUPPORTED_NC_VERSION);
+            return false;
         }
 
         // 3. Check timewise validity
         String startDate = propertyBag.get("startDate");
-        // TODO: remove conditional check when attribute is made mandatory in query
-        if (startDate == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because no validity start date was provided.", fileName);
-            return false;
-        }
         OffsetDateTime startTimestamp = OffsetDateTime.parse(startDate);
         if (startTimestamp.isAfter(timestamp)) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because its validity start date {} is posterior to the import timestamp.", fileName, startTimestamp);

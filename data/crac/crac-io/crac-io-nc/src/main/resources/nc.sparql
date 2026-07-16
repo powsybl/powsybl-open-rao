@@ -26,14 +26,12 @@ SELECT *
 GRAPH <%s> {
     ?fullModel
         dcat:keyword ?keyword ;
+        dcat:startDate ?startDate ;
+        dcterms:conformsTo ?conformsTo ;
     OPTIONAL {
         ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
+            dcat:endDate ?endDate .
         }
-    OPTIONAL {
-        ?fullModel dcterms:conformsTo ?conformsTo .
-    }
 }
 }
 
@@ -486,12 +484,14 @@ GRAPH <%s> {
 # query: contingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:Contingency ;
@@ -502,12 +502,14 @@ GRAPH <%s> {
 # query: assessedElementOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?assessedElement
         rdf:type nc:AssessedElement ;
@@ -518,12 +520,14 @@ GRAPH <%s> {
 # query: assessedElementWithContingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?assessedElementWithContingency
         rdf:type nc:AssessedElementWithContingency;
@@ -534,12 +538,14 @@ GRAPH <%s> {
 # query: assessedElementWithRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?assessedElementWithRemedialAction
         rdf:type nc:AssessedElementWithRemedialAction ;
@@ -550,12 +556,14 @@ GRAPH <%s> {
 # query: contingencyWithRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
@@ -566,12 +574,14 @@ GRAPH <%s> {
 # query: gridStateAlterationRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?gridStateAlterationRemedialAction
         rdf:type nc:GridStateAlterationRemedialAction ;
@@ -582,12 +592,14 @@ GRAPH <%s> {
 # query: schemeRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
@@ -598,12 +610,14 @@ GRAPH <%s> {
 # query: gridStateAlterationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?gridStateAlteration
         rdf:type nc:GridStateAlteration ;
@@ -614,12 +628,14 @@ GRAPH <%s> {
 # query: topologyActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?topologyAction
         rdf:type nc:GridStateAlteration ;
@@ -630,12 +646,14 @@ GRAPH <%s> {
 # query: rotatingMachineActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?rotatingMachineAction
         rdf:type nc:GridStateAlteration ;
@@ -646,12 +664,14 @@ GRAPH <%s> {
 # query: shuntCompensatorModificationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?shuntCompensatorModification
         rdf:type nc:GridStateAlteration ;
@@ -662,12 +682,14 @@ GRAPH <%s> {
 # query: tapPositionActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?tapPositionAction
         rdf:type nc:GridStateAlteration ;
@@ -678,12 +700,14 @@ GRAPH <%s> {
 # query: staticPropertyRangeOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?staticPropertyRange
         rdf:type nc:RangeConstraint ;
@@ -694,12 +718,14 @@ GRAPH <%s> {
 # query: remedialActionSchemeOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?remedialActionScheme
         rdf:type nc:RemedialActionScheme ;
@@ -710,12 +736,14 @@ GRAPH <%s> {
 # query: voltageAngleLimitOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?voltageAngleLimit
         rdf:type nc:VoltageAngleLimit ;
@@ -790,12 +818,14 @@ GRAPH <%s> {
 # query: remedialActionDependencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
     ?fullModel
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
+        dcterms:conformsTo ?conformsTo ;
         dcat:keyword ?keyword .
     ?remedialActionDependency
         rdf:type nc:RemedialActionDependency ;

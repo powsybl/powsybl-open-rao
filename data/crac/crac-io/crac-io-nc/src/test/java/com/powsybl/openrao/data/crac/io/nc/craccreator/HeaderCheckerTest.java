@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,115 +58,72 @@ public class HeaderCheckerTest {
 
     @Test
     public void testCheckHeaderValid() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2", "2026-07-16T14:00:00Z");
         assertTrue(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
     }
 
     @Test
     public void testCheckHeaderValidWithEndDate() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate", "endDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-        propertyBag.put("endDate", "2026-07-16T15:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2", "2026-07-16T14:00:00Z", "2026-07-16T15:00:00Z");
         assertTrue(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
     }
 
     @Test
     public void testCheckHeaderMissingKeyword() {
-        PropertyBag propertyBag = new PropertyBag(Collections.emptyList(), true);
-
+        PropertyBag propertyBag = createPropertyBag("UK", "http://entsoe.eu/ns/CIM/Unknown-EU/2.2", "2026-07-16T14:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because its keyword does not match any valid NC keyword.");
-    }
-
-    @Test
-    public void testCheckHeaderInvalidKeyword() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword"), true);
-        propertyBag.put("keyword", "INVALID");
-
-        assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
-        assertWarning("[NC Importer] File test.xml ignored because its keyword does not match any valid NC keyword.");
-    }
-
-    @Test
-    public void testCheckHeaderMissingConformsTo() {
-        // Code allows missing conformsTo currently (TODO in HeaderChecker.java)
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-
-        assertTrue(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
     }
 
     @Test
     public void testCheckHeaderInvalidConformsToPattern() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "invalid-pattern");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "invalid-pattern", "2026-07-16T14:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because it does not conform to the expected AE v2.2 profile standard (expected http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2, got invalid-pattern).");
     }
 
     @Test
     public void testCheckHeaderKeywordMismatchInConformsTo() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/Contingency-EU/2.2");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/Contingency-EU/2.2", "2026-07-16T14:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because its keyword AE is not consistent with the declared type (expected AssessedElement, got Contingency).");
     }
 
     @Test
     public void testCheckHeaderVersionMismatchInConformsTo() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.1");
-        propertyBag.put("startDate", "2026-07-16T14:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.1", "2026-07-16T14:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because its version 2.1 is not supported by OpenRAO (only supported version is 2.2).");
     }
 
     @Test
-    public void testCheckHeaderMissingStartDate() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2");
-
-        assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
-        assertWarning("[NC Importer] File test.xml ignored because no validity start date was provided.");
-    }
-
-    @Test
     public void testCheckHeaderFutureStartDate() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2");
-        propertyBag.put("startDate", "2026-07-16T15:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2", "2026-07-16T15:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because its validity start date 2026-07-16T15:00Z is posterior to the import timestamp.");
     }
 
     @Test
     public void testCheckHeaderPastEndDate() {
-        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate", "endDate"), true);
-        propertyBag.put("keyword", "AE");
-        propertyBag.put("conformsTo", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2");
-        propertyBag.put("startDate", "2026-07-16T13:00:00Z");
-        propertyBag.put("endDate", "2026-07-16T14:00:00Z");
-
+        PropertyBag propertyBag = createPropertyBag("AE", "http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2", "2026-07-16T13:00:00Z", "2026-07-16T14:00:00Z");
         assertFalse(HeaderChecker.checkHeader(propertyBag, FILE_NAME, IMPORT_TIMESTAMP));
         assertWarning("[NC Importer] File test.xml ignored because its validity end date 2026-07-16T14:00Z is anterior to the import timestamp.");
+    }
+
+    private static PropertyBag createPropertyBag(String keyword, String conformsTo, String startDate) {
+        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate"), true);
+        propertyBag.put("keyword", keyword);
+        propertyBag.put("conformsTo", conformsTo);
+        propertyBag.put("startDate", startDate);
+        return propertyBag;
+    }
+
+    private static PropertyBag createPropertyBag(String keyword, String conformsTo, String startDate, String endDate) {
+        PropertyBag propertyBag = new PropertyBag(List.of("keyword", "conformsTo", "startDate", "endDate"), true);
+        propertyBag.put("keyword", keyword);
+        propertyBag.put("conformsTo", conformsTo);
+        propertyBag.put("startDate", startDate);
+        propertyBag.put("endDate", endDate);
+        return propertyBag;
     }
 }
