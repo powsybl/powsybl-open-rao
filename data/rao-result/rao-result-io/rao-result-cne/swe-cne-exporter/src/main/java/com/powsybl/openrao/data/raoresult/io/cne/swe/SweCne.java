@@ -122,7 +122,7 @@ public class SweCne {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
-        // FIXME: not sure about the notOptimizedCnecs
+        // notOptimizedCnecs are only used for CORE so boolean can be set to false (TODO: remove this comment when RAO parameters are used in isSecure)
         try {
             isUnsecure = !raoResult.isSecure(cracCreationContext.getCrac(), Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {

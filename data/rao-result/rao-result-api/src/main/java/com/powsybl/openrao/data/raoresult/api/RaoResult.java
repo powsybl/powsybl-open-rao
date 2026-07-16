@@ -445,7 +445,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     void setExecutionDetails(String executionDetails);
 
     /**
-     * Indicates whether all the CNECs of a given type are secure at the last instant (i.e. after RAO).
+     * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
      * @param crac The CRAC for which to check security.
      * @param u    The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
@@ -462,7 +462,7 @@ public interface RaoResult extends Extendable<RaoResult> {
         }
         // TODO: use the same flow unit as the one use for the LF
         // TODO: in case of not optimized CNECs, these CNECs should not be taken in account here
-        // TODO: need for RAO parameters but they cannot be used here because of circular dependencies
+        // TODO: need for RAO parameters to retrieve the values of flowUnit and excludeCnecsForTsosWithoutCras but they cannot be used here because of circular dependencies
         Set<String> tsosWithoutCras = new HashSet<>();
         if (excludeCnecsForTsosWithoutCras) {
             Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());

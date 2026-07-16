@@ -437,6 +437,7 @@ class RaoResultCloneTest {
         assertEquals("No physical parameter provided.", exception.getMessage());
         assertTrue(raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
         assertTrue(raoResultClone.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        // note: more methods could be mocked to guarantee that getMargin called in isSecure is correctly mocked
         exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.VOLTAGE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage()); // RAO result clone is meant for flow results only
     }

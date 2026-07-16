@@ -258,8 +258,6 @@ class RaoResultImplTest {
     void testIsSecureFlowCnecs() {
         setUp();
         assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
         assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
         assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
         assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
