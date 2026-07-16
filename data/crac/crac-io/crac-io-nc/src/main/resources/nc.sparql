@@ -20,6 +20,7 @@ GRAPH <%s> {
 
 # query: header
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 SELECT *
 {
 GRAPH <%s> {
@@ -30,6 +31,9 @@ GRAPH <%s> {
             dcat:startDate ?startDate ;
             dcat:endDate ?endDate ;
         }
+    OPTIONAL {
+        ?fullModel dcterms:conformsTo ?conformsTo .
+    }
 }
 }
 
