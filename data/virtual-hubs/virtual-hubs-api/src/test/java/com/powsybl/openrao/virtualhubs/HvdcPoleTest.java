@@ -15,40 +15,42 @@ import java.util.List;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-class InternalHvdcTest {
+class HvdcPoleTest {
+    private static final String POLE_ID = "EIC_OF_POLE";
+
     @Test
-    void checkThatInternalHvdcCreationThrowsWhenConvertersIsNull() {
+    void checkThatPoleCreationThrowsWhenConvertersIsNull() {
         final List<HvdcLine> lines = List.of();
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new InternalHvdc(null, lines))
+            .isThrownBy(() -> new HvdcPole(POLE_ID, null, lines))
             .withMessage("Virtual hubs configuration does not allow adding null hvdc converters");
     }
 
     @Test
-    void checkThatInternalHvdcCreationThrowsWhenLinesIsNull() {
+    void checkThatPoleCreationThrowsWhenLinesIsNull() {
         final List<HvdcConverter> converters = List.of();
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new InternalHvdc(converters, null))
+            .isThrownBy(() -> new HvdcPole(POLE_ID, converters, null))
             .withMessage("Virtual hubs configuration does not allow adding null hvdc lines");
     }
 
     @Test
-    void createInternalHvdcWithEmptyLists() {
-        final InternalHvdc internalHvdc = new InternalHvdc(List.of(), List.of());
-        Assertions.assertThat(internalHvdc).isNotNull();
-        Assertions.assertThat(internalHvdc.converters()).isEmpty();
-        Assertions.assertThat(internalHvdc.lines()).isEmpty();
+    void createPoleWithEmptyLists() {
+        final HvdcPole pole = new HvdcPole(POLE_ID, List.of(), List.of());
+        Assertions.assertThat(pole).isNotNull();
+        Assertions.assertThat(pole.converters()).isEmpty();
+        Assertions.assertThat(pole.lines()).isEmpty();
     }
 
     @Test
-    void createInternalHvdc() {
+    void createPole() {
         final HvdcConverter hvdcConverter = new HvdcConverter("node value", "station value");
         final List<HvdcConverter> converters = List.of(hvdcConverter);
         final HvdcLine hvdcLine = new HvdcLine("from node", "to node");
         final List<HvdcLine> lines = List.of(hvdcLine);
-        final InternalHvdc internalHvdc = new InternalHvdc(converters, lines);
-        Assertions.assertThat(internalHvdc).isNotNull();
-        Assertions.assertThat(internalHvdc.converters()).containsExactly(hvdcConverter);
-        Assertions.assertThat(internalHvdc.lines()).containsExactly(hvdcLine);
+        final HvdcPole pole = new HvdcPole(POLE_ID, converters, lines);
+        Assertions.assertThat(pole).isNotNull();
+        Assertions.assertThat(pole.converters()).containsExactly(hvdcConverter);
+        Assertions.assertThat(pole.lines()).containsExactly(hvdcLine);
     }
 }

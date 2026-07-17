@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.virtualhubs.HvdcPole;
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     private static final String ICS_COST_UP = "ics-cost-up";
     private static final String ICS_COST_DOWN = "ics-cost-down";
     private static final String INTERNAL_HVDCS = "internal-hvdcs";
+    private static final String POLES = "poles";
 
     @Override
     public String getExtensionName() {
@@ -78,7 +80,16 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
                 }
                 case INTERNAL_HVDCS -> {
                     jsonParser.nextToken();
-                    parameters.setInternalHvdcs(jsonParser.readValueAs(new TypeReference<List<InternalHvdc>>() { }));
+                    parameters.setInternalHvdcs(jsonParser.readValueAs(new TypeReference<List<InternalHvdc>>() {
+                    }));
+                }
+                case POLES -> {
+                    jsonParser.nextToken();
+                    parameters.getInternalHvdcs()
+                        .getLast()
+                        .poles()
+                        .addAll(jsonParser.readValueAs(new TypeReference<List<HvdcPole>>() {
+                        }));
                 }
                 default -> throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
@@ -96,10 +107,23 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     private void serializeInternalHvdcs(final List<InternalHvdc> internalHvdcs, final JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeFieldName(INTERNAL_HVDCS);
         jsonGenerator.writeStartArray();
-        for (InternalHvdc internalHvdc : internalHvdcs) {
+        for (final InternalHvdc internalHvdc : internalHvdcs) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeObjectField("converters", internalHvdc.converters());
-            jsonGenerator.writeObjectField("lines", internalHvdc.lines());
+            jsonGenerator.writeStringField("eic", internalHvdc.eic());
+            serializePoles(internalHvdc.poles(), jsonGenerator);
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private void serializePoles(final List<HvdcPole> poles, final JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(POLES);
+        jsonGenerator.writeStartArray();
+        for (final HvdcPole pole : poles) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("id", pole.id());
+            jsonGenerator.writeObjectField("converters", pole.converters());
+            jsonGenerator.writeObjectField("lines", pole.lines());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
