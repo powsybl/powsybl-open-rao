@@ -452,6 +452,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
     default boolean isSecure(Crac crac, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
+        // TODO: need for RAO parameters to retrieve the values of flowUnit and excludeCnecsForTsosWithoutCras but they cannot be used here because of circular dependencies
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
@@ -460,9 +461,6 @@ public interface RaoResult extends Extendable<RaoResult> {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
             return false;
         }
-        // TODO: use the same flow unit as the one use for the LF
-        // TODO: in case of not optimized CNECs, these CNECs should not be taken in account here
-        // TODO: need for RAO parameters to retrieve the values of flowUnit and excludeCnecsForTsosWithoutCras but they cannot be used here because of circular dependencies
         Set<String> tsosWithoutCras = new HashSet<>();
         if (excludeCnecsForTsosWithoutCras) {
             Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -470,6 +468,8 @@ public interface RaoResult extends Extendable<RaoResult> {
             tsosWithoutCras.addAll(allTsos.stream().filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet()));
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
+            // use the same flow unit as the one use for the LF
+            // in case of not optimized CNECs, these CNECs should not be taken in account here
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
                 if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator())) {
                     Optional<Double> minMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
