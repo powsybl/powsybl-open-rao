@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
+import com.powsybl.openrao.commons.BorderAreaEICode;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
@@ -23,12 +24,26 @@ import java.util.List;
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public class CounterTradingRangeActionCreator {
+    /**
+     * The CRAC object being built.
+     */
     private final Crac crac;
+    /**
+     * NC CRAC creation parameters.
+     */
     private final NcCracCreationParameters ncCracCreationParameters;
 
-    public record CounterTradingAreas(String importingArea, String exportingArea) { }
+    /**
+     * Record representing the importing and exporting areas.
+     *
+     * @param importingArea the area importing energy
+     * @param exportingArea the area exporting energy
+     */
+    public record CounterTradingAreas(String importingArea, String exportingArea) {
+    }
 
-    public CounterTradingRangeActionCreator(Crac crac, NcCracCreationParameters ncCracCreationParameters) {
+    public CounterTradingRangeActionCreator(Crac crac,
+                                            NcCracCreationParameters ncCracCreationParameters) {
         this.crac = crac;
         this.ncCracCreationParameters = ncCracCreationParameters;
     }
@@ -78,33 +93,54 @@ public class CounterTradingRangeActionCreator {
     }
 
     /**
-     * Get the importing and exporting areas of a CountertradeRemedialAction
+     * Get the importing and exporting areas of a CountertradeRemedialAction.
+     * Uses the border area code (region) and the operator (TSO) to
+     * determine which area imports and which exports.
+     * The operator's area is the exporting area, and the other area
+     * of the border is the importing area.
      *
-     * @param countertradeRemedialAction        Native CountertradeRemedialAction object
+     * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
-     * @return CounterTradingAreas              record containing the importing and exporting areas of the counter trading remedial action
+     * @return CounterTradingAreas record containing the importing and
+     * exporting areas of the counter trading remedial action
      */
     private static CounterTradingAreas getImportingExportingAreas(CountertradeRemedialAction countertradeRemedialAction,
-                                                                  String remedialActionId) {
+            String remedialActionId) {
 
         String operatorEic = NcCracUtils.getEicFromUrl(countertradeRemedialAction.operator());
-        if (TsoEICode.FR.getEICode().equals(operatorEic)) { // if it is FR, we know imp/exp countries.
-            return new CounterTradingAreas("ES", "FR");
-        } else if (TsoEICode.PT.getEICode().equals(operatorEic)) { // if it is PT, we know imp/exp countries.
-            return new CounterTradingAreas("ES", "PT");
-        } else if (TsoEICode.ES.getEICode().equals(operatorEic)) { // If ES, determine with the regionCode
-            String regionCode = NcCracUtils.getEicFromUrl(countertradeRemedialAction.region());
-            if ("10YDOM--ES-FR--D".equals(regionCode)) {
-                return new CounterTradingAreas("FR", "ES");
-            }
-            if ("10YDOM--ES-PT--T".equals(regionCode)) {
-                return new CounterTradingAreas("PT", "ES");
-            }
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
-                String.format("Remedial action %s will not be imported because border %s is not supported for ES counter-trading.", remedialActionId, regionCode));
+        String regionCode = NcCracUtils.getEicFromUrl(countertradeRemedialAction.region());
+
+        if (regionCode == null) {
+            throw new OpenRaoImportException(
+                    ImportStatus.INCOMPLETE_DATA,
+                    String.format("Remedial action %s will not be imported because the region code is null.",
+                            remedialActionId));
         }
-        throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
-                String.format("Remedial action %s will not be imported because system operator %s is not supported.", remedialActionId, operatorEic));
+
+        BorderAreaEICode borderArea = BorderAreaEICode.fromEICode(regionCode)
+                    .orElseThrow(() -> new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA,
+                            String.format("Remedial action %s will not be imported because border %s is not supported.",
+                                    remedialActionId, regionCode)));
+
+        TsoEICode operator = TsoEICode.fromEICode(operatorEic)
+                .orElseThrow(() -> new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
+                        String.format("Remedial action %s will not be imported because system operator %s is not supported.",
+                                remedialActionId, operatorEic)));
+
+        List<TsoEICode> areas = borderArea.getAreas();
+        TsoEICode area1 = areas.get(0);
+        TsoEICode area2 = areas.get(1);
+
+        if (operator != area1 && operator != area2) {
+            throw new IllegalArgumentException(
+                    String.format("Operator %s (%s) does not belong to border %s (%s-%s)",
+                            operator.getDisplayName(), operator.getEICode(),
+                            borderArea.getDisplayName(), area1.getShortId(), area2.getShortId())
+            );
+        }
+
+        return operator == area1 ? new CounterTradingAreas(area2.getShortId(), area1.getShortId())
+                : new CounterTradingAreas(area1.getShortId(), area2.getShortId());
     }
 
     /**
@@ -131,7 +167,7 @@ public class CounterTradingRangeActionCreator {
         String operatorEic = NcCracUtils.getEicFromUrl(operatorUrl);
         if (operatorEic == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                String.format("Remedial action %s will not be imported because operator %s does not contain a valid EIC code.", remedialActionId, operatorUrl));
+                    String.format("Remedial action %s will not be imported because operator %s does not contain a valid EIC code.", remedialActionId, operatorUrl));
         }
 
         String regionUrl = countertradeRemedialAction.region();
@@ -140,4 +176,5 @@ public class CounterTradingRangeActionCreator {
                     String.format("Remedial action %s will not be imported the counter trading remedial action has null region code.", remedialActionId));
         }
     }
+
 }

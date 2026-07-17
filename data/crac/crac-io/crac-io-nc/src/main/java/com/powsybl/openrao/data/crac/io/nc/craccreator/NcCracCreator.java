@@ -37,8 +37,10 @@ class NcCracCreator {
     private NcCracCreationContext creationContext;
     private NcCrac nativeCrac;
     private NcCracCreationParameters ncParameters;
+    private CracCreationParameters cracCreationParameters;
 
     NcCracCreationContext createCrac(NcCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
+        this.cracCreationParameters = cracCreationParameters;
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
         ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
@@ -75,7 +77,7 @@ class NcCracCreator {
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
-        createCnecs(cracCreationParameters);
+        createCnecs();
         createRemedialActions();
 
         creationContext.buildCreationReport();
@@ -101,7 +103,7 @@ class NcCracCreator {
         new NcContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(CracCreationParameters cracCreationParameters) {
+    private void createCnecs() {
         new NcCnecCreator(crac, network, nativeCrac, creationContext, cracCreationParameters);
     }
 }

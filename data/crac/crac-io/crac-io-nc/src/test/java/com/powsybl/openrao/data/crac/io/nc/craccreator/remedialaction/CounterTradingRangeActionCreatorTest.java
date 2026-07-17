@@ -92,8 +92,8 @@ class CounterTradingRangeActionCreatorTest {
         NcCracCreationTestUtil.assertRaNotImported(
                 cracCreationContext,
                 "remedial-action-18",
-                ImportStatus.NOT_FOR_RAO,
-                "Remedial action remedial-action-18 will not be imported because border 10Y1001C--00095L is not supported for ES counter-trading."
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                "Remedial action remedial-action-18 will not be imported because border 10Y1001C--00095L is not supported."
         );
 
     }
