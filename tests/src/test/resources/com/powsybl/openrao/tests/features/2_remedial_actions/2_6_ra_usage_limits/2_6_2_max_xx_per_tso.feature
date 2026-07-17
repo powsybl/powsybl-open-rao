@@ -79,6 +79,7 @@ Feature: 2.6.2: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -15 in preventive
+    Then the worst margin is 300.37 A
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.2.6: One PST, limiting element changes
