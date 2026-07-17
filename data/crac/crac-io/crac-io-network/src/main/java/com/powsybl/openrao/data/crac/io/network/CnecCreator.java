@@ -43,12 +43,15 @@ class CnecCreator {
     }
 
     void addCnecs() {
+        Set<Contingency> contingencies = crac.getContingencies();
+        Instant outageInstant = crac.getOutageInstant();
+
         for (Branch<?> branch : network.getBranches()) {
             if (branchShouldBeConsidered(branch)) {
                 try {
                     CriticalElements.OptimizedMonitored optimizedMonitoredInPreventive = isOptimizedMonitored(branch, null);
                     addPreventiveCnec(branch, optimizedMonitoredInPreventive.optimized(), optimizedMonitoredInPreventive.monitored());
-                    for (Contingency contingency : crac.getContingencies()) {
+                    for (Contingency contingency : contingencies) {
                         if (contingency.getElements().stream().anyMatch(e -> e.getId().equals(branch.getId()))) {
                             continue;
                         }
@@ -58,7 +61,7 @@ class CnecCreator {
                             contingency,
                             optimizedMonitoredAfterContingency.optimized(),
                             optimizedMonitoredAfterContingency.monitored(),
-                            crac.getOutageInstant()
+                            outageInstant
                         );
                         for (String curativeInstantId : specificParameters.getInstants().get(InstantKind.CURATIVE)) {
                             addPostContingencyCnec(
