@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public record HvdcPole(String id, List<HvdcConverter> converters, List<HvdcLine> lines) {
     public HvdcPole(final String id, final List<HvdcConverter> converters, final List<HvdcLine> lines) {
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
         this.converters = Objects.requireNonNull(
             converters, "Virtual hubs configuration does not allow adding null hvdc converters"
         );

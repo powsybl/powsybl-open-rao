@@ -8,10 +8,14 @@
 package com.powsybl.openrao.virtualhubs;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public record InternalHvdc(String eic, List<HvdcPole> poles) {
-
+    public InternalHvdc(final String eic, final List<HvdcPole> poles) {
+        this.eic = Objects.requireNonNull(eic);
+        this.poles = Objects.requireNonNull(poles);
+    }
 }
