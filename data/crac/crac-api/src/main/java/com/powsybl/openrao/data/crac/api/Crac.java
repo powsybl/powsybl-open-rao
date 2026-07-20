@@ -576,6 +576,8 @@ public interface Crac extends Identifiable<Crac> {
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
 
+    Set<String> findOperatorsNotSharingCras();
+
     /**
      * Get the CRAC format
      *

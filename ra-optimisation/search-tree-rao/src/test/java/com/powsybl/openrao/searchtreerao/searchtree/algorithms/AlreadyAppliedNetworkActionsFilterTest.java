@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class AlreadyAppliedNetworkActionsFilterTest {
 
         // filter already activated NetworkAction
         AlreadyAppliedNetworkActionsFilter naFilter = new AlreadyAppliedNetworkActionsFilter();
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         Assertions.assertThat(filteredNaCombinations)
             .hasSize(5)

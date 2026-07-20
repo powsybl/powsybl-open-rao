@@ -55,6 +55,7 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
     public T add() {
         AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
+        AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
         if (max == Double.MAX_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
             throw new OpenRaoException("StandardRange max value was not defined for absolute range.");

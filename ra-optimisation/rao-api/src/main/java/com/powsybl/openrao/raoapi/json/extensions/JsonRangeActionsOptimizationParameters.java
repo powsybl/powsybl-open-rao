@@ -82,7 +82,7 @@ final class JsonRangeActionsOptimizationParameters {
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize range action optimization parameters: unexpected field in %s (%s)",
                     RANGE_ACTIONS_OPTIMIZATION,
-                    jsonParser.getCurrentName())
+                    jsonParser.currentName())
                 );
             }
         }
@@ -90,7 +90,7 @@ final class JsonRangeActionsOptimizationParameters {
 
     private static void deserializeLinearOptimizationSolver(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case SOLVER ->
                     searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(stringToSolver(jsonParser.nextTextValue()));
                 case RELATIVE_MIP_GAP -> {
@@ -104,7 +104,7 @@ final class JsonRangeActionsOptimizationParameters {
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize linear optimization solver in range action optimization parameters: unexpected field in %s (%s)",
                     LINEAR_OPTIMIZATION_SOLVER,
-                    jsonParser.getCurrentName())
+                    jsonParser.currentName())
                 );
             }
         }

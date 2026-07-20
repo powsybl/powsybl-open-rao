@@ -42,7 +42,7 @@ public class JsonFastRaoParameters implements JsonRaoParameters.ExtensionSeriali
     public FastRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case NUMBER_OF_CNECS_TO_ADD -> {
                     jsonParser.nextToken();
                     fastRaoParameters.setNumberOfCnecsToAdd(jsonParser.getIntValue());
@@ -55,7 +55,7 @@ public class JsonFastRaoParameters implements JsonRaoParameters.ExtensionSeriali
                     jsonParser.nextToken();
                     fastRaoParameters.setMarginLimit(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize fast rao parameters: unexpected field in %s (%s)", FAST_RAO_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize fast rao parameters: unexpected field in %s (%s)", FAST_RAO_PARAMETERS, jsonParser.currentName()));
             }
         }
         return fastRaoParameters;

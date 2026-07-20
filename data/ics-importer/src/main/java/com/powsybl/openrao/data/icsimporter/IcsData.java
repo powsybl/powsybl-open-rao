@@ -215,7 +215,7 @@ public final class IcsData {
                 .withVariationCost(costUp, VariationDirection.UP)
                 .withVariationCost(costDown, VariationDirection.DOWN)
                 .newRange()
-                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
+                .withMin(Math.max(0.0, p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET))))
                 .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
                 .add();
 

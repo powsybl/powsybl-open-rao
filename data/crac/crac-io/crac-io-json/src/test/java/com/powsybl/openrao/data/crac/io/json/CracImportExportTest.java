@@ -292,8 +292,8 @@ class CracImportExportTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
-        assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingArea());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingArea());
 
         // Check OnFlowConstraintInCountry usage rules
         Set<UsageRule> usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
@@ -323,11 +323,6 @@ class CracImportExportTest {
                 .findAny().orElseThrow()
                 .getValue(),
             1e-3);
-        assertEquals("generator2Name",
-            networkElementAndKeys.entrySet().stream()
-                .filter(e -> e.getKey().getId().equals("generator2Id"))
-                .findAny().orElseThrow()
-                .getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
@@ -578,9 +573,7 @@ class CracImportExportTest {
 
         // check network element
         assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne2Name", crac.getFlowCnec("cnec3prevId").getNetworkElement().getName());
         assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getName());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());

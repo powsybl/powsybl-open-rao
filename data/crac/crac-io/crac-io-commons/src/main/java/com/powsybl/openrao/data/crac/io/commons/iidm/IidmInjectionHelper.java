@@ -31,13 +31,13 @@ public final class IidmInjectionHelper {
             .collect(Collectors.toList());
 
         if (currentSetpoints.size() == 1) {
-            return currentSetpoints.get(0);
+            return currentSetpoints.getFirst();
         } else {
             Collections.sort(currentSetpoints);
-            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
-                return currentSetpoints.get(0);
+            if (Math.abs(currentSetpoints.getFirst() - currentSetpoints.getLast()) < 1) {
+                return currentSetpoints.getFirst();
             } else {
-                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction, as the injections are not distributed according to their key"));
+                throw new OpenRaoException("Cannot evaluate reference setpoint of InjectionRangeAction, as the injections are not distributed according to their key");
             }
         }
     }

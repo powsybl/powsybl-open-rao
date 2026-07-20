@@ -18,7 +18,9 @@
         "null"
       ]
     },
-    "activationCost": "number",
+    "activationCost": {
+      "type": "number"
+    },
     "variationCosts": {
       "$ref": "../variation-costs/variation-costs-v2.6.json"
     },

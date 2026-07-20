@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -29,7 +30,7 @@ class SensitivityComputerTest {
         Set<FlowCnec> flowCnecs = Set.of(Mockito.mock(FlowCnec.class));
         Set<RangeAction<?>> rangeActions = Set.of(Mockito.mock(RangeAction.class));
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(ReportNode.NO_OP)
             .withToolProvider(toolProvider)
             .withCnecs(flowCnecs)
             .withRangeActions(rangeActions);
@@ -41,7 +42,7 @@ class SensitivityComputerTest {
     void testInstantMustBeAnOutageInTheBuilder() {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.when(instant.isOutage()).thenReturn(false);
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(ReportNode.NO_OP);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> sensitivityComputerBuilder.withOutageInstant(instant));
         assertEquals("The provided instant must be an outage", exception.getMessage());
     }

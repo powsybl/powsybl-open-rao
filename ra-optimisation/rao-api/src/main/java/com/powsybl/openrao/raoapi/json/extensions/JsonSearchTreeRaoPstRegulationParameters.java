@@ -45,13 +45,13 @@ public final class JsonSearchTreeRaoPstRegulationParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case PSTS_TO_REGULATE:
                     jsonParser.nextToken();
                     pstRegulationParameters.setPstsToRegulate(jsonParser.readValueAs(HashMap.class));
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize PST regulation parameters: unexpected field in %s (%s)", PST_REGULATION_PARAMETERS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize PST regulation parameters: unexpected field in %s (%s)", PST_REGULATION_PARAMETERS, jsonParser.currentName()));
             }
             searchTreeParameters.setPstRegulationParameters(pstRegulationParameters);
         }

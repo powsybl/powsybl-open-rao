@@ -28,7 +28,7 @@ public final class VoltageThresholdArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageThresholdAdder voltageThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.UNIT:
                         voltageThresholdAdder.withUnit(JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue()));
                         break;
@@ -41,7 +41,7 @@ public final class VoltageThresholdArrayDeserializer {
                         voltageThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.currentName());
                 }
             }
             voltageThresholdAdder.add();

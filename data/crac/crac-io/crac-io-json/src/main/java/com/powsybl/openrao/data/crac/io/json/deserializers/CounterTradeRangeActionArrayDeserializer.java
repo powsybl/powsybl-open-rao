@@ -9,14 +9,12 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -25,13 +23,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
     private CounterTradeRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format(
-                "Cannot deserialize %s before %s",
-                JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID
-            ));
-        }
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
@@ -47,15 +39,15 @@ public final class CounterTradeRangeActionArrayDeserializer {
         if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version)) {
             return;
         }
-        switch (jsonParser.getCurrentName()) {
-            case JsonSerializationConstants.EXPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withExportingCountry(Country.valueOf(jsonParser.nextTextValue()));
+        switch (jsonParser.currentName()) {
+            case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY:
+                counterTradeRangeActionAdder.withExportingArea(jsonParser.nextTextValue());
                 break;
-            case JsonSerializationConstants.IMPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withImportingCountry(Country.valueOf(jsonParser.nextTextValue()));
+            case JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
+                counterTradeRangeActionAdder.withImportingArea(jsonParser.nextTextValue());
                 break;
             default:
-                throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
+                throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
         }
     }
 }

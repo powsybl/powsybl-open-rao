@@ -29,7 +29,7 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> rdRaPredicate = (injection, instant, c) -> injection.getType() == IdentifiableType.GENERATOR;
     private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
-    private Map<String, Set<String>> generatorCombinations = new HashMap<>();
+    private Map<String, Set<String>> injectionCombinations = new HashMap<>();
     private BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider = (cominationId, instant) -> new MinAndMax<>(null, null);
     private BiFunction<String, Instant, InjectionRangeActionCosts> combinationCostsProvider = (combinationId, instant) -> new InjectionRangeActionCosts(0, 0, 0);
 
@@ -84,20 +84,20 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
         return raRangeProvider.apply(injection, instant);
     }
 
-    public Map<String, Set<String>> getGeneratorCombinations() {
-        return generatorCombinations;
+    public Map<String, Set<String>> getInjectionCombinations() {
+        return injectionCombinations;
     }
 
     /**
-     * Extra generator combinations to include. Every element of this set (combination of generators) will create one injection range action,
-     * with a set of keys that is proportional to the initial distribution of active power production.
+     * Extra injection combinations to include. Every element of this set (combination of injections) will create one injection range action,
+     * with a set of keys that is proportional to the initial distribution of active power production / load.
      */
-    public void setGeneratorCombinations(Map<String, Set<String>> generatorCombinations) {
-        if (generatorCombinations.values().stream().flatMap(Set::stream).distinct().count() !=
-            generatorCombinations.values().stream().map(Set::size).mapToDouble(Integer::doubleValue).sum()) {
-            throw new OpenRaoException("A generator can only be used once in generator combinations.");
+    public void setInjectionCombinations(Map<String, Set<String>> injectionCombinations) {
+        if (injectionCombinations.values().stream().flatMap(Set::stream).distinct().count() !=
+            injectionCombinations.values().stream().map(Set::size).mapToDouble(Integer::doubleValue).sum()) {
+            throw new OpenRaoException("An injection can only be used once in injection combinations.");
         }
-        this.generatorCombinations = generatorCombinations;
+        this.injectionCombinations = injectionCombinations;
     }
 
     public MinAndMax<Double> getCombinationRange(String combinationId, Instant instant) {
@@ -105,8 +105,8 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     }
 
     /**
-     * Set the function that provides the MW range for redispatching on a generator combination at a given instant.
-     * Not setting this (or using null min/max) will use the physical minP - maxP in the network are used.
+     * Set the function that provides the MW range for redispatching on an injection combination at a given instant.
+     * Not setting this (or using null min/max) will use the physical (minP - maxP / 0 - P0) in the network are used.
      */
     public void setCombinationRangeProvider(BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider) {
         this.combinationRangeProvider = combinationRangeProvider;
