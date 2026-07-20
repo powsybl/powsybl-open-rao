@@ -89,9 +89,9 @@ Examples of rao parameters with business and implementation specific parameters
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-over-cost" : 0.0,
         "sensitivity-parameters" : {
-          "version" : "1.0",
+          "version" : "1.3",
           "load-flow-parameters" : {
-            "version" : "1.10",
+            "version" : "1.11",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,

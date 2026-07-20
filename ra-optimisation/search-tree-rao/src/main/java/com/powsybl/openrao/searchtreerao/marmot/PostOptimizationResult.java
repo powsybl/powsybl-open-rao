@@ -25,10 +25,10 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
 import java.util.Set;
@@ -67,15 +67,13 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     public PostOptimizationResult(final RaoInput raoInput,
                                   final PrePerimeterResult initialResult,
                                   final GlobalLinearOptimizationResult postMipResult,
-                                  final Set<NetworkAction> preventiveTopologicalActions,
-                                  final AppliedRemedialActions curativeRemedialActions,
+                                  final NetworkActionsResult networkActionsResult,
                                   final RaoParameters raoParameters,
                                   final ReportNode reportNode) {
         this.initialResult = initialResult;
         this.crac = raoInput.getCrac();
         this.postMipResult = postMipResult;
-        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, preventiveTopologicalActions, curativeRemedialActions, crac);
-
+        this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
     }
@@ -196,7 +194,9 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        return remedialActionActivationResult.getActivatedRangeActions(state).contains(rangeAction);
+        // since both preventive and curative range actions are optimized by the mip, all the activated range actions
+        // are extracted from postMipResult
+        return postMipResult.getActivatedRangeActions(state).contains(rangeAction);
     }
 
     @Override
@@ -206,7 +206,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return remedialActionActivationResult.getOptimizedTap(pstRangeAction, state);
+        return postMipResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
@@ -216,22 +216,22 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+        return postMipResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        return remedialActionActivationResult.getActivatedRangeActions(state);
+        return postMipResult.getActivatedRangeActions(state);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return remedialActionActivationResult.getOptimizedTapsOnState(state);
+        return postMipResult.getOptimizedTapsOnState(state);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return remedialActionActivationResult.getOptimizedSetpointsOnState(state);
+        return postMipResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override

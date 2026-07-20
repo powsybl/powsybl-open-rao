@@ -13,9 +13,9 @@ import java.util.Objects;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-public record InternalHvdc(List<HvdcConverter> converters, List<HvdcLine> lines) {
-    public InternalHvdc(List<HvdcConverter> converters, List<HvdcLine> lines) {
-        this.converters = Objects.requireNonNull(converters, "Virtual hubs configuration does not allow adding null hvdc converters");
-        this.lines = Objects.requireNonNull(lines, "Virtual hubs configuration does not allow adding null hvdc lines");
+public record InternalHvdc(String eic, List<HvdcPole> poles) {
+    public InternalHvdc(final String eic, final List<HvdcPole> poles) {
+        this.eic = Objects.requireNonNull(eic);
+        this.poles = Objects.requireNonNull(poles);
     }
 }
