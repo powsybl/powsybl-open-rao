@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -182,14 +181,6 @@ class RaoResultCloneTest {
 
         when(raoResult.isActivatedDuringState(pState, injectionC)).thenReturn(false);
         // Mock other methods for InjectionRangeAction as needed
-
-        // Mocking voltageCnec results
-        VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        when(crac.getVoltageCnec("voltageCnecId")).thenReturn(voltageCnec);
-
-        when(raoResult.getMinVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
-        when(raoResult.getMaxVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(154.38);
-        // Mock other methods for VoltageCnec as needed
 
         // Mocking computation status map
         when(raoResult.getComputationStatus(pState)).thenReturn(ComputationStatus.DEFAULT);

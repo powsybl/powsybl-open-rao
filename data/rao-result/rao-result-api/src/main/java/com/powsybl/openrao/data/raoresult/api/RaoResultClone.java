@@ -29,7 +29,7 @@ import java.util.Set;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class RaoResultClone extends AbstractExtendable<RaoResult> implements RaoResult {
-
+    // FIXME: this doesn't handle extensions well since they are not inherited from the original RaoResult
     private final RaoResult raoResult;
 
     protected RaoResultClone(RaoResult raoResult) {
