@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.impl.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
@@ -110,10 +110,11 @@ public final class ExhaustiveRaoResultCreation {
             fillFlowCnecResult(flowCnecResult, cnec, crac);
         }
 
+        AngleExtension angleExtension = new AngleExtension();
         for (AngleCnec cnec : crac.getAngleCnecs()) {
-            AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(cnec);
-            fillAngleCnecResult(angleCnecResult, cnec, crac);
+            fillAngleCnecResult(angleExtension, cnec, crac);
         }
+        raoResult.addExtension(AngleExtension.class, angleExtension);
 
         for (VoltageCnec cnec : crac.getVoltageCnecs()) {
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(cnec);
@@ -231,22 +232,18 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillAngleCnecResult(AngleCnecResult angleCnecResult, AngleCnec cnec, Crac crac) {
+    private static void fillAngleCnecResult(AngleExtension angleExtension, AngleCnec cnec, Crac crac) {
 
         double x = 3000;
 
-        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
-        fillElementaryResult(initialEacr, x, 100);
-        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("preventive"));
-        fillElementaryResult(afterPraEacr, x, 200);
+        angleExtension.addAngle(x + 100 + 35, null, cnec, DEGREE);
+        angleExtension.addAngle(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("auto"));
-            fillElementaryResult(afterAraEacr, x, 300);
+            angleExtension.addAngle(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant("curative"));
-            fillElementaryResult(afterCraEacr, x, 400);
+            angleExtension.addAngle(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
         }
     }
 

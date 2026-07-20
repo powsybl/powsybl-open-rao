@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
@@ -36,6 +37,7 @@ final class AngleCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
+        AngleExtension angleExtension = new AngleExtension();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(ANGLECNEC_ID)) {
@@ -49,17 +51,21 @@ final class AngleCnecResultArrayDeserializer {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
-            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion, crac);
+            deserializeAngleCnecResult(jsonParser, angleCnec, angleCnecResult, angleExtension, jsonFileVersion, crac);
         }
+
+        raoResult.addExtension(AngleExtension.class, angleExtension);
+        angleExtension.setExtendable(raoResult);
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleCnecResult angleCnecResult, AngleExtension angleExtension, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
+            angleExtension.addAngle(eAngleCnecResult.getAngle(Unit.DEGREE), optimizedInstant, angleCnec, Unit.DEGREE);
         }
     }
 
