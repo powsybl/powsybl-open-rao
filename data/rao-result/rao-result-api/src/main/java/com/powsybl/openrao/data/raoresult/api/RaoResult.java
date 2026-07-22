@@ -471,7 +471,7 @@ public interface RaoResult extends Extendable<RaoResult> {
             // use the same flow unit as the one use for the LF
             // in case of not optimized CNECs, these CNECs should not be taken in account here
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator())) {
+                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
                     Optional<Double> minMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
                     if (minMargin.isPresent()) {
                         if (minMargin.get() < 0) {
