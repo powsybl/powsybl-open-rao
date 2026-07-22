@@ -242,7 +242,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the value of the objective function after PRA should be 75.0
 
   @fast @rao @ac @preventive-only @hvdc @costly
-  Scenario: 2.2.2.3.14: acEmulationDeactivation action is used but the MIP doesn't not change the HVDC setpoint but final setpoint != initial one.
+  Scenario: 2.2.2.3.14: acEmulationDeactivation action is used but the MIP does not change the HVDC setpoint but final setpoint != initial one.
   Same situation as 2.2.2.3.13 but in curative.
   Introduce a contingency that open the line 'FFR1AA11 FFR3AA11 1' -> the HVDC is still in AC Emulation -> the power transiting on the HVDC line changes
   and is != from the initial setpoint (823MW initially vs 796MW after contingency). So when the AC emulation is disabled, the active power setpoint
