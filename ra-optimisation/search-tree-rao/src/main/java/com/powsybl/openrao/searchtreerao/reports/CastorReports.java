@@ -62,17 +62,6 @@ public final class CastorReports {
         return addedNode;
     }
 
-    public static ReportNode reportCastorOneStateOnly(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportCastorOneStateOnly")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("Starting Castor one state only");
-
-        return addedNode;
-    }
-
     public static void reportCastorInitialSensitivityAnalysisResults(final ReportNode parentNode,
                                                                      final ObjectiveFunction objectiveFunction,
                                                                      final RemedialActionActivationResult remedialActionActivationResult,
