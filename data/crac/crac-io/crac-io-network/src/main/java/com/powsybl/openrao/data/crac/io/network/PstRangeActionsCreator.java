@@ -54,7 +54,7 @@ class PstRangeActionsCreator {
         PstHelper pstHelper = new IidmPstHelper(twt.getId(), network);
         PstRangeActionAdder pstAdder = crac.newPstRangeAction()
             .withId("PST_RA_" + twt.getId() + "_" + instant.getId())
-            .withNetworkElement(twt.getId())
+            .withNetworkElement(twt.getId(), twt.getNameOrId())
             .withInitialTap(pstHelper.getInitialTap())
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(pstHelper.getLowTapPosition()).withMaxTap(pstHelper.getHighTapPosition()).add()
             .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());

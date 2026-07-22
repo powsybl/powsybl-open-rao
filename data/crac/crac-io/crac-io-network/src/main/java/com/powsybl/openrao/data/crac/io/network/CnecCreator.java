@@ -105,7 +105,7 @@ class CnecCreator {
             return;
         }
         FlowCnecAdder adder = crac.newFlowCnec()
-            .withNetworkElement(branch.getId())
+            .withNetworkElement(branch.getId(), branch.getNameOrId())
             .withId(branch.getNameOrId() + "_" + crac.getPreventiveInstant().getId())
             .withInstant(crac.getPreventiveInstant().getId())
             .withOptimized(optimized)
@@ -127,7 +127,7 @@ class CnecCreator {
             return;
         }
         FlowCnecAdder adder = crac.newFlowCnec()
-            .withNetworkElement(branch.getId())
+            .withNetworkElement(branch.getId(), branch.getNameOrId())
             .withContingency(contingency.getId())
             .withId(branch.getNameOrId() + "_" + contingency.getName().orElse(contingency.getId()) + "_" + instant.getId())
             .withInstant(instant.getId())
