@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 

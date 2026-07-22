@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-monitoring</artifactId>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -41,15 +45,12 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-cim</artifactId>
         </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

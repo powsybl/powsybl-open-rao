@@ -501,9 +501,9 @@ These parameters are meant to be used in costly optimization only.
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-overcost" : 0.0,
         "sensitivity-parameters" : {
-          "version" : "1.0",
+          "version" : "1.3",
           "load-flow-parameters" : {
-            "version" : "1.10",
+            "version" : "1.11",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
