@@ -17,6 +17,7 @@
 
     <modules>
         <module>rao-api</module>
+        <module>roda</module>
         <module>search-tree-rao</module>
     </modules>
 
