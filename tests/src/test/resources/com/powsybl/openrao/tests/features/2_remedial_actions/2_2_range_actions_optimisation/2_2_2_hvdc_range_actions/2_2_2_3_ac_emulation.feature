@@ -244,11 +244,11 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @ac @preventive-only @hvdc @costly
   Scenario: 2.2.2.3.14: acEmulationDeactivation action is used but the MIP doesn't not change the HVDC setpoint but final setpoint != initial one.
   Same situation as 2.2.2.3.13 but in curative.
-  Introduce a contingency that open the line 'FFR1AA11 FFR3AA11 1' -> the HVDC is still in AC Emulation -> the power transiting in the HVDC line change
+  Introduce a contingency that open the line 'FFR1AA11 FFR3AA11 1' -> the HVDC is still in AC Emulation -> the power transiting on the HVDC line changes
   and is != from the initial setpoint (823MW initially vs 796MW after contingency). So when the AC emulation is disabled, the active power setpoint
   of the HVDC line is set to 796MW before entering the MIP.
 
-    Search tree evaluation now:
+    Search tree evaluation in curative:
   In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
   In the leaf evaluating the AC Emulation deactivation action, the sensi of the PST on the CNEC is higher (173A/tap vs 142A/tap in root)
   ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
@@ -265,7 +265,6 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then 2 remedial actions are used after "CO_0001" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 after "CO_0001" at "curative"
-    # Even if the MIP doesn't move the HVDC setpoint we should report the setpoint set by the AC Emulation before
     Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW after "CO_0001" at "curative"
 
 
