@@ -143,6 +143,7 @@ public final class Utils {
         if (consideredInjections.size() == 1) {
             injectionRangeActionAdder.withNetworkElementAndKey(1., consideredInjections.iterator().next().getId())
                 .add();
+            creationContext.addInjectionUsedInAction(instant, consideredInjections.iterator().next().getId());
             consideredInjections.forEach(injection -> injection.connect(SwitchPredicates.IS_OPEN));
             return;
         }
