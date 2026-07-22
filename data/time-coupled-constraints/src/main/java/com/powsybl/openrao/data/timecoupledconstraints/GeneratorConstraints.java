@@ -39,7 +39,7 @@ public final class GeneratorConstraints {
     /**
      * Get the id of the generator on which the constraints apply.
      *
-     * @return if of the generator
+     * @return id of the generator
      */
     public String getGeneratorId() {
         return generatorId;

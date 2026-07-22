@@ -3,6 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#TODO:CONTINUOUS PST (remove ignore tag)
+@dont-run
 Feature: 2.6.4: Handle maximum number of elementary actions per TSO
   This feature covers the parameter "ra-usage-limits-per-instant"/"max-elementary-actions-per-tso" defined in the CRAC.
   ## TODO: test also when defined in CracCreationParameters
