@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -288,35 +287,6 @@ public interface Crac extends Identifiable<Crac> {
      * Find a Cnec by its id, returns null if the Cnec does not exists
      */
     Cnec getCnec(String cnecId);
-
-    /**
-     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    Set<BranchCnec> getBranchCnecs();
-
-    /**
-     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    Set<BranchCnec> getBranchCnecs(State state);
-
-    /**
-     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
-     *
-     * @deprecated consider using getCnec() or getFlowCnec() instead
-     */
-    // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    BranchCnec getBranchCnec(String branchCnecId);
 
     /**
      * Gather all the FlowCnecs present in the Crac. It returns a set because Cnecs must not
