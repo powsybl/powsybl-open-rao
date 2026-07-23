@@ -10,7 +10,6 @@ package com.powsybl.openrao.loopflowcomputation;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,46 +26,46 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class LoopFlowResultTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
-    private BranchCnec<?> cnec;
+    private FlowCnec flowCnec;
 
     @BeforeEach
     public void setUp() {
-        cnec = Mockito.mock(BranchCnec.class);
+        flowCnec = Mockito.mock(FlowCnec.class);
     }
 
     @Test
     void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
-        assertEquals(1., loopFlowResult.getLoopFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        loopFlowResult.addCnecResult(flowCnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
+        assertEquals(1., loopFlowResult.getLoopFlow(flowCnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(2., loopFlowResult.getCommercialFlow(flowCnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3., loopFlowResult.getReferenceFlow(flowCnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         // side not found
-        OpenRaoException exSideLoop = assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(String.format("No loop-flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideLoop.getMessage());
+        OpenRaoException exSideLoop = assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(String.format("No loop-flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideLoop.getMessage());
 
-        OpenRaoException exSideComm = assertThrows(OpenRaoException.class, () -> loopFlowResult.getCommercialFlow(cnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(String.format("No commercial flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideComm.getMessage());
+        OpenRaoException exSideComm = assertThrows(OpenRaoException.class, () -> loopFlowResult.getCommercialFlow(flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(String.format("No commercial flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideComm.getMessage());
 
-        OpenRaoException exSideRef = assertThrows(OpenRaoException.class, () -> loopFlowResult.getReferenceFlow(cnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(String.format("No reference flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideRef.getMessage());
+        OpenRaoException exSideRef = assertThrows(OpenRaoException.class, () -> loopFlowResult.getReferenceFlow(flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(String.format("No reference flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.ONE, Unit.MEGAWATT), exSideRef.getMessage());
 
         // unit not found
-        OpenRaoException exUnitLoop = assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.TWO, Unit.AMPERE));
-        assertEquals(String.format("No loop-flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitLoop.getMessage());
+        OpenRaoException exUnitLoop = assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(flowCnec, TwoSides.TWO, Unit.AMPERE));
+        assertEquals(String.format("No loop-flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitLoop.getMessage());
 
-        OpenRaoException exUnitComm = assertThrows(OpenRaoException.class, () -> loopFlowResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.AMPERE));
-        assertEquals(String.format("No commercial flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitComm.getMessage());
+        OpenRaoException exUnitComm = assertThrows(OpenRaoException.class, () -> loopFlowResult.getCommercialFlow(flowCnec, TwoSides.TWO, Unit.AMPERE));
+        assertEquals(String.format("No commercial flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitComm.getMessage());
 
-        OpenRaoException exUnitRef = assertThrows(OpenRaoException.class, () -> loopFlowResult.getReferenceFlow(cnec, TwoSides.TWO, Unit.AMPERE));
-        assertEquals(String.format("No reference flow value found for cnec %s on side %s in %s", cnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitRef.getMessage());
+        OpenRaoException exUnitRef = assertThrows(OpenRaoException.class, () -> loopFlowResult.getReferenceFlow(flowCnec, TwoSides.TWO, Unit.AMPERE));
+        assertEquals(String.format("No reference flow value found for cnec %s on side %s in %s", flowCnec.getId(), TwoSides.TWO, Unit.AMPERE), exUnitRef.getMessage());
     }
 
     @Test
     void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.TWO, Unit.MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -75,7 +74,7 @@ class LoopFlowResultTest {
         FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
 
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
+        loopFlowResult.addCnecResult(flowCnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
         loopFlowResult.addCnecResult(cnec1, TwoSides.TWO, 1., 20., 3., Unit.MEGAWATT);
         loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 22., 3., Unit.MEGAWATT);
         loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 21., 3., Unit.AMPERE);
@@ -84,7 +83,7 @@ class LoopFlowResultTest {
 
         // get CommercialFlows only consider FlowCnecs ! BranchCnecs that are not FlowCnecs ares filtered out (ie cnec here)
         Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
-        assertEquals(2, commercialFlowsMap.size());
+        assertEquals(3, commercialFlowsMap.size());
 
         assertEquals(2, commercialFlowsMap.get(cnec1).size());
         assertEquals(1, commercialFlowsMap.get(cnec1).get(TwoSides.TWO).size());
