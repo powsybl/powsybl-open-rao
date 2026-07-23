@@ -3,6 +3,7 @@
 ```{toctree}
 :hidden:
 time-coupled-constraints/generator-constraints-filler.md
+time-coupled-constraints/range-actions-synchronization-filler.md
 ```
 
 Remedial actions can be integrated in costly computations by configuring their activation cost
