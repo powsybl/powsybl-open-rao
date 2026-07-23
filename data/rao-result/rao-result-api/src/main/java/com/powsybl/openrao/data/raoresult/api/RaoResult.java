@@ -471,7 +471,7 @@ public interface RaoResult extends Extendable<RaoResult> {
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
             // use the same flow unit as the one use for the LF
-            // some FlowCNECs shall be taken in account for the security assessment:
+            // some FlowCNECs shall not be taken into account for the security assessment:
             // - MNECs
             // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
             // - outage CNECs that were duplicated from auto CNECs
