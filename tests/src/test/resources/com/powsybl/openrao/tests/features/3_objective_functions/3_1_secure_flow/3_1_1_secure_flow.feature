@@ -11,7 +11,7 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree.json"
-    When I launch rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 60.49 A
@@ -23,7 +23,7 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree_2_threads.json"
-    When I launch rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 60.49 A
