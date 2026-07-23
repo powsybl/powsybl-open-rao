@@ -38,6 +38,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
@@ -520,7 +521,7 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the time-coupled security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals("secured".equalsIgnoreCase(status), timeCoupledRaoResult.isSecure(CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertEquals("secured".equalsIgnoreCase(status), timeCoupledRaoResult.isSecure(CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()), CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")

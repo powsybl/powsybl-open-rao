@@ -86,9 +86,9 @@ public interface TimeCoupledRaoResult extends RaoResult {
         throw new OpenRaoException("Time-coupled RAO results do not support this method.");
     }
 
-    default boolean isSecure(TemporalData<Crac> cracs, PhysicalParameter... u) {
+    default boolean isSecure(TemporalData<Crac> cracs, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!getIndividualRaoResult(timestamp).isSecure(cracs.getData(timestamp).orElseThrow(), Unit.MEGAWATT, false, u)) {
+            if (!getIndividualRaoResult(timestamp).isSecure(cracs.getData(timestamp).orElseThrow(), flowUnit, excludeCnecsForTsosWithoutCras, u)) {
                 return false;
             }
         }

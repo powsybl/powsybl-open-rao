@@ -447,8 +447,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
-     * @param crac The CRAC for which to check security.
-     * @param u    The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param crac                           The CRAC for which to check security.
+     * @param flowUnit                       The unit of the flow values.
+     * @param excludeCnecsForTsosWithoutCras Whether to exclude CNECs for TSOS without CRAs.
+     * @param u                              The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
     default boolean isSecure(Crac crac, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
@@ -469,7 +471,10 @@ public interface RaoResult extends Extendable<RaoResult> {
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
             // use the same flow unit as the one use for the LF
-            // in case of not optimized CNECs, these CNECs should not be taken in account here
+            // some FlowCNECs shall be taken in account for the security assessment:
+            // - MNECs
+            // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
+            // - outage CNECs that were duplicated from auto CNECs
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
                 if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
                     Optional<Double> minMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
