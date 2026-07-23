@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -32,10 +33,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This interface will provide complete results that a user could expect after a RAO. It enables to access physical
@@ -439,29 +445,79 @@ public interface RaoResult extends Extendable<RaoResult> {
     void setExecutionDetails(String executionDetails);
 
     /**
-     * Indicates whether the all the CNECs of a given type at a given instant are secure.
+     * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
-     * @param optimizedInstant The instant to assess
-     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
+     * @param crac                           The CRAC for which to check security.
+     * @param flowUnit                       The unit of the flow values.
+     * @param excludeCnecsForTsosWithoutCras Whether to exclude CNECs for TSOS without CRAs.
+     * @param u                              The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
+    default boolean isSecure(Crac crac, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
+        // TODO: need for RAO parameters to retrieve the values of flowUnit and excludeCnecsForTsosWithoutCras but they cannot be used here because of circular dependencies
+        Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("No physical parameter provided.");
+        }
+        if (getComputationStatus() == ComputationStatus.FAILURE) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
+            return false;
+        }
+        Set<String> tsosWithoutCras = new HashSet<>();
+        if (excludeCnecsForTsosWithoutCras) {
+            Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<String> allTsosWithCras = crac.getRemedialActions().stream().filter(remedialAction -> remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isCurative())).map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+            tsosWithoutCras.addAll(allTsos.stream().filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet()));
+        }
+        if (parameters.contains(PhysicalParameter.FLOW)) {
+            // use the same flow unit as the one use for the LF
+            // some FlowCNECs shall not be taken into account for the security assessment:
+            // - MNECs
+            // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
+            // - outage CNECs that were duplicated from auto CNECs
+            for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
+                    Optional<Double> minMargin = safeGetDouble(getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
+                    if (minMargin.isPresent()) {
+                        if (minMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        // no flow value available: assume it is secure
+                        throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
+                    }
+                }
+            }
+        }
+        if (parameters.contains(PhysicalParameter.ANGLE)) {
+            for (AngleCnec angleCnec : crac.getAngleCnecs()) {
+                Optional<Double> minDegreeMargin = safeGetDouble(getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
+                if (minDegreeMargin.isPresent()) {
+                    if (minDegreeMargin.get() < 0) {
+                        return false;
+                    }
+                } else {
+                    throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
+                }
+            }
+        }
+        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
+            for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
+                Optional<Double> minKiloVoltMargin = safeGetDouble(getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
+                if (minKiloVoltMargin.isPresent()) {
+                    if (minKiloVoltMargin.get() < 0) {
+                        return false;
+                    }
+                } else {
+                    throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
+                }
+            }
+        }
+        return true;
+    }
 
-    /**
-     * Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO)..
-     *
-     * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
-     */
-    boolean isSecure(PhysicalParameter... u);
-
-    /**
-     * Indicates whether all the CNECs are secure at last instant (i.e. after RAO)..
-     *
-     * @return whether all the CNECs are secure at last instant (i.e. after RAO)..
-     */
-    default boolean isSecure() {
-        return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    private static Optional<Double> safeGetDouble(double value) {
+        return Double.isNaN(value) ? Optional.empty() : Optional.of(value);
     }
 
     /**

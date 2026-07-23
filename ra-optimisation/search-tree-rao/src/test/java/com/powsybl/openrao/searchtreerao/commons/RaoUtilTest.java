@@ -90,7 +90,7 @@ class RaoUtilTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
         variantId = network.getVariantManager().getWorkingVariantId();
-        raoInput = RaoInput.buildWithPreventiveState(network, crac)
+        raoInput = RaoInput.build(network, crac)
             .withNetworkVariantId(variantId)
             .build();
         raoParameters = new RaoParameters(ReportNode.NO_OP);
@@ -99,7 +99,7 @@ class RaoUtilTest {
     private void addGlskProvider() {
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/GlskCountry.xml"))
             .getZonalGlsks(network);
-        raoInput = RaoInput.buildWithPreventiveState(network, crac)
+        raoInput = RaoInput.build(network, crac)
             .withNetworkVariantId(variantId)
             .withGlskProvider(glskProvider)
             .build();

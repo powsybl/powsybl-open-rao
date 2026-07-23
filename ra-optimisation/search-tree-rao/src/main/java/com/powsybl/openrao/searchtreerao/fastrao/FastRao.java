@@ -45,7 +45,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResu
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -123,11 +122,6 @@ public class FastRao implements RaoProvider {
         if (!parameters.hasExtension(FastRaoParameters.class)) {
             FastRaoReports.reportMissingFastRaoParametersExtension(reportNode);
             parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
-        }
-
-        if (raoInput.getOptimizedState() != null) {
-            FastRaoReports.reportFastRaoDoesNotSupportOptimizationOnOneGivenStateOnly(reportNode);
-            return new FailedRaoResultImpl("Fast Rao does not support optimization on one given state only");
         }
 
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
@@ -450,13 +444,6 @@ public class FastRao implements RaoProvider {
         // Get all the remedial action activated during all instant <= instandKind
         Map<State, Set<NetworkAction>> networkActionsActivated = new HashMap<>();
         RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialRangeActionSetpointResult);
-        if (raoResult instanceof OneStateOnlyRaoResultImpl) {
-            State preventiveState = crac.getPreventiveState();
-            networkActionsActivated.put(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState));
-            raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> rangeActionActivationResult
-                .putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
-            return new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(networkActionsActivated));
-        }
 
         // Get all the network actions
         crac.getStates().stream()
@@ -503,9 +490,6 @@ public class FastRao implements RaoProvider {
 
     private static AppliedRemedialActions createAppliedRemedialActions(Crac crac, RaoResult raoResult, InstantKind instantKind) {
         // Get all the remedial action activated during all instant such as : Preventive < instant <= current instandKind
-        if (raoResult instanceof OneStateOnlyRaoResultImpl) {
-            return new AppliedRemedialActions();
-        }
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() > 1 && state.getInstant().getKind().ordinal() <= instantKind.ordinal()).forEach(state -> {
                 appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
