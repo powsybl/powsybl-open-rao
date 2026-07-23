@@ -586,6 +586,14 @@ public final class LinearProblem {
         return solver.makeConstraint(-infinity(), 0.0, generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
     }
 
+    public OpenRaoMPConstraint getRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
+        return solver.getConstraint(rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
+    }
+
+    public OpenRaoMPConstraint addRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
+    }
+
     public double infinity() {
         return solver.infinity();
     }
