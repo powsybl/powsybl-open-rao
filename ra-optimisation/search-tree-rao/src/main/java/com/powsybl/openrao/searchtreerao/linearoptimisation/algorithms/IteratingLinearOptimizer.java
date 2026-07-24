@@ -155,7 +155,7 @@ public final class IteratingLinearOptimizer {
     }
 
     // If an AcEmulationDeactivation action was used in the leaf, add the associated HVDC range action to the list of activated range actions automatically
-    // even if the range action was not activated by MIP
+    // even if MIP did not activate the range action
     private static RangeActionActivationResult updateWithHvdcRangeActionIfNecessary( RangeActionActivationResultImpl currentRangeActionActivationResult,
                                                                                      IteratingLinearOptimizerInput input) {
 
