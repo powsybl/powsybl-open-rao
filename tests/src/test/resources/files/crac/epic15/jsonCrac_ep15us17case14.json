@@ -84,10 +84,10 @@
     "id" : "PRA_HVDC",
     "name" : "PRA_HVDC",
     "operator" : "FR",
-    "activationCost": 5.0,
+    "activationCost": 0.0,
     "variationCosts": {
-      "up": 10.0,
-      "down": 10.0
+      "up": 0.0,
+      "down": 0.0
     },
     "onInstantUsageRules" : [ {
       "instant" : "preventive"
@@ -101,18 +101,18 @@
     "id" : "CRA_HVDC",
     "name" : "CRA_HVDC",
     "operator" : "FR",
-    "activationCost": 5.0,
+    "activationCost": 0.0,
     "variationCosts": {
-      "up": 10.0,
-      "down": 10.0
+      "up": 0.0,
+      "down": 0.0
     },
     "onInstantUsageRules" : [ {
       "instant" : "curative"
     } ],
     "networkElementId" : "BBE2AA11 FFR3AA11 1",
     "ranges" : [ {
-      "min" : -2000.0,
-      "max" : 2100.0
+      "min" : 795.0,
+      "max" : 824.0
     } ]
   }   ],
   "networkActions" : [ ]
