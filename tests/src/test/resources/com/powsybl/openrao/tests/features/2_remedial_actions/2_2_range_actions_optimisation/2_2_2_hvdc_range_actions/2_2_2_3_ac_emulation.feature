@@ -256,12 +256,34 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Given crac file is "epic15/jsonCrac_ep15us17case14.json"
     Given configuration file is "common/RaoParameters_min_cost_ac.json"
     When I launch rao
-    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    Then the initial setpoint of RangeAction "CRA_HVDC" should be 823
     Then 0 remedial actions are used in preventive
-    Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
     Then 3 remedial actions are used after "CO_0001" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 8 after "CO_0001" at "curative"
-    Then the setpoint of RangeAction "PRA_HVDC" should be 796 MW after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 796 MW after "CO_0001" at "curative"
 
-  # ajoutert un test 2nd preventive, ac emulation pas désactivé en curative vérifier que la range action est bien retiré du MIP ?
+
+  @fast @rao @ac @preventive-only @hvdc @second-preventive
+  Scenario: 2.2.2.3.15: acEmulationDeactivation action used in 2nd preventive
+    In this test, we check that if we are in 2nd preventive, deactivating the AC Emulation in preventive -> make the HVDC available in curative too
+    1st preventive: nothing happens, because there is no preventive CNEC defined in the CRAC
+    "1st curative": No range action activated either
+    2nd preventive:
+      - close line FFR1AA11 FFR2AA11 1 (has the biggest impact on final cost)
+      - use "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
+      - move HVDC setpoint to 100 MW in preventive (the lowest it can go because of the range defined in the CRAC)
+      - then move HVDC setpoint to 0 MW in curative to get the max min margin (+ can only move between 0 and 100 MW from previous instant instant)
+      - move PST "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" tap to 16
+    Given network file is "epic15/network_2_2_2_3_15.xiidm"
+    Given crac file is "epic15/jsonCrac_ep15us17case15.json"
+    Given configuration file is "epic15/RaoParameters_2_2_2_3_15.json"
+    When I launch rao
+    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    Then 4 remedial actions are used in preventive
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
+    Then the remedial action "close_FFR1AA11 FFR2AA11 1" is used in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 100 MW in preventive
+    Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 16 in preventive
+    Then 1 remedial actions are used after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 0 MW after "CO_0001" at "curative"
