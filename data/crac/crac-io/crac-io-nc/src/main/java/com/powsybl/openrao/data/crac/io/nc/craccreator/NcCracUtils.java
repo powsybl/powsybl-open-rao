@@ -129,6 +129,6 @@ public final class NcCracUtils {
     }
 
     public static String getTsoNameFromUrl(String url) {
-        return TsoEICode.fromEICode(getEicFromUrl(url)).getDisplayName();
+        return TsoEICode.fromEICode(getEicFromUrl(url)).orElseThrow().getDisplayName();
     }
 }
