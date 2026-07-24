@@ -69,6 +69,7 @@ public final class IteratingLinearOptimizer {
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
+            printLpLinearProblem(linearProblem, iteration);
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
@@ -174,6 +175,11 @@ public final class IteratingLinearOptimizer {
         LinearProblemStatus status = linearProblem.solve();
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
         return status;
+    }
+
+    private static void printLpLinearProblem(LinearProblem linearProblem, int iteration) {
+        String lpName = "lpModel" + iteration + ".lp";
+        linearProblem.printLp(lpName);
     }
 
     private static boolean hasAnyRangeActionChanged(RangeActionActivationResult newRangeActionActivationResult,

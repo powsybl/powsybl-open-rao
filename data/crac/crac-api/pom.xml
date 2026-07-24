@@ -36,6 +36,10 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-sensitivity-analysis-api</artifactId>
+        </dependency>
 
         <!-- Test scope -->
         <dependency>
