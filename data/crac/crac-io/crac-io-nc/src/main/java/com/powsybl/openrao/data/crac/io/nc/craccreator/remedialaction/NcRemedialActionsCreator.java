@@ -21,6 +21,8 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
@@ -36,12 +38,18 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.RemedialActionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.GlskBidActionDistribution;
+import com.powsybl.openrao.data.crac.io.nc.objects.GlskSchedule;
 import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.ParticipationFactorTimePoint;
+import com.powsybl.openrao.data.crac.io.nc.objects.PowerBidSchedule;
+import com.powsybl.openrao.data.crac.io.nc.objects.RedispatchRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
+import com.powsybl.openrao.data.crac.io.nc.objects.SynchronousMachine;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,23 +64,24 @@ import java.util.stream.Collectors;
  */
 public class NcRemedialActionsCreator {
     private final Crac crac;
+    private final NcCrac nativeCrac;
+    private final Network network;
     Map<String, ElementaryCreationContext> contextByRaId = new TreeMap<>();
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> nativeRemedialActions;
-    private final NcCracCreationParameters ncCracCreationParameters;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
                                     NcCrac nativeCrac,
                                     NcCracCreationContext cracCreationContext,
-                                    Set<ElementaryCreationContext> cnecCreationContexts,
-                                    NcCracCreationParameters ncCracCreationParameters) {
+                                    Set<ElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
+        this.nativeCrac = nativeCrac;
+        this.network = network;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        this.ncCracCreationParameters = ncCracCreationParameters;
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
             .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
@@ -187,11 +196,68 @@ public class NcRemedialActionsCreator {
                 ));
             }
         }
+
+        // creation of redispatching actions
+        Set<RedispatchRemedialAction> redispatchingActions = nativeCrac.getRedispatchRemedialActions();
+        if (!redispatchingActions.isEmpty()) {
+            RedispatchingActionCreator redispatchingActionCreator = new RedispatchingActionCreator(crac, network);
+            Set<GlskSchedule> glskSchedules = nativeCrac.getGlskSchedules();
+            Map<String, Set<PowerBidSchedule>> powerBidSchedulesPerRedispatchRemedialAction = new NcAggregator<>(PowerBidSchedule::powerRemedialAction).aggregate(nativeCrac.getPowerBidSchedules());
+            Map<String, Set<GlskBidActionDistribution>> glskBidActionDistributionsPerPowerBidSchedule = new NcAggregator<>(GlskBidActionDistribution::powerBidSchedule).aggregate(nativeCrac.getGlskBidActionDistributions());
+            Map<String, Set<ParticipationFactorTimePoint>> participationFactorTimePointsPerGlskSchedule = new NcAggregator<>(ParticipationFactorTimePoint::glskSchedule).aggregate(nativeCrac.getParticipationFactorTimePoints());
+            Map<String, Set<SynchronousMachine>> synchronousMachinesPerGeneratingUnit = new NcAggregator<>(SynchronousMachine::generatingUnit).aggregate(nativeCrac.getSynchronousMachines());
+            for (RedispatchRemedialAction redispatchRemedialAction : redispatchingActions) {
+                try {
+                    InjectionRangeActionAdder injectionRangeActionAdder = redispatchingActionCreator.getInjectionRangeActionAdder(
+                        redispatchRemedialAction,
+                        powerBidSchedulesPerRedispatchRemedialAction.getOrDefault(redispatchRemedialAction.mrid(), Set.of()),
+                        glskBidActionDistributionsPerPowerBidSchedule,
+                        glskSchedules,
+                        participationFactorTimePointsPerGlskSchedule,
+                        synchronousMachinesPerGeneratingUnit
+                    );
+
+                    List<String> alterations = new ArrayList<>();
+                    InstantKind instantKind = getInstantKind(redispatchRemedialAction);
+                    Set<Instant> instants = crac.getInstants(instantKind);
+                    instants.forEach(instant -> addUsageRules(
+                        redispatchRemedialAction.mrid(),
+                        linkedAeWithRa.getOrDefault(redispatchRemedialAction.mrid(), Set.of()),
+                        linkedCoWithRa.getOrDefault(redispatchRemedialAction.mrid(), Set.of()),
+                        cnecCreationContexts,
+                        injectionRangeActionAdder,
+                        alterations,
+                        instant
+                    ));
+
+                    InjectionRangeAction injectionRangeAction = injectionRangeActionAdder.add();
+                    boolean isAltered = !alterations.isEmpty();
+                    contextByRaId.put(redispatchRemedialAction.mrid(), StandardElementaryCreationContext.imported(
+                        redispatchRemedialAction.mrid(), redispatchRemedialAction.name(), injectionRangeAction.getId(), isAltered, isAltered ? String.join(". ", alterations) : ""
+                    ));
+                } catch (OpenRaoImportException importException) {
+                    contextByRaId.put(redispatchRemedialAction.mrid(), StandardElementaryCreationContext.notImported(
+                        redispatchRemedialAction.mrid(), null, importException.getImportStatus(), importException.getMessage()
+                    ));
+                }
+            }
+        }
+    }
+
+    private static @NonNull InstantKind getInstantKind(RedispatchRemedialAction redispatchRemedialAction) {
+        if (RemedialActionKind.PREVENTIVE.toString().equals(redispatchRemedialAction.kind())) {
+            return InstantKind.PREVENTIVE;
+        } else if (RemedialActionKind.CURATIVE.toString().equals(redispatchRemedialAction.kind())) {
+            return InstantKind.CURATIVE;
+        } else {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Redispatching action %s ignored because kind %s is illegal.".formatted(redispatchRemedialAction.mrid(), redispatchRemedialAction.kind()));
+        }
     }
 
     private String createNameFromTapPositionAction(String tapPositionId, String operator) {
         if (operator != null) {
-            return NcCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
+            String tsoName = NcCracUtils.getTsoNameFromUrl(operator);
+            return tsoName == null ? tapPositionId : tsoName + "-" + tapPositionId;
         } else {
             return tapPositionId;
         }
