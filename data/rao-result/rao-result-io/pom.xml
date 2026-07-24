@@ -17,5 +17,6 @@
     <modules>
         <module>rao-result-cne</module>
         <module>rao-result-json</module>
+        <module>rao-result-nc</module>
     </modules>
 </project>
