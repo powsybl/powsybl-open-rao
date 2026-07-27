@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.State;
@@ -229,10 +230,13 @@ public final class TimeCoupledIteratingLinearOptimizer {
         TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         boolean isPreventiveMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isPreventive());
         boolean isCurativeMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isCurative());
-        // second preventive
         boolean isSecondPreventiveCurativeMip = input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream().allMatch(
                 iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter() instanceof GlobalOptimizationPerimeter
         );
+        if (!isPreventiveMip && !isCurativeMip) {
+            throw new OpenRaoException("Main optimization state must be either preventive or curative.");
+        }
+
         if (isPreventiveMip && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
                     .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
@@ -244,42 +248,17 @@ public final class TimeCoupledIteratingLinearOptimizer {
             ));
         }
         if (isCurativeMip) {
-            TemporalData<Set<RangeAction<?>>> curativeRangeActions = input.iteratingLinearOptimizerInputs().map(optimizerInput -> optimizerInput.optimizationPerimeter().getRangeActions());
-            problemFillers.add(new RangeActionsSynchronizationFiller(mainOptimizationStates, curativeRangeActions));
+            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                    iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
+            )));
         }
         // In second preventive, only curative range actions must be synchronized.
         if (isSecondPreventiveCurativeMip) {
-            problemFillers.addAll(getCurativeRangeActionsSynchronizationFillers(input));
+            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                    iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
+            )));
         }
         return problemFillers;
-    }
-
-    private static List<ProblemFiller> getCurativeRangeActionsSynchronizationFillers(TimeCoupledIteratingLinearOptimizerInput input) {
-        // for every timestamp, keep only the curative parts of the global perimeter so the preventive setpoints are not handed to the filler
-        TemporalData<Map<State, Set<RangeAction<?>>>> curativeRangeActionsPerState = input.iteratingLinearOptimizerInputs().map(
-                iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
-        );
-        // gather all the contingencues carrying at least one curative state with range actions in any timestamp
-        List<String> contingencyIds = curativeRangeActionsPerState.getDataPerTimestamp().values().stream()
-                .flatMap(curativeRangeActionPerState -> curativeRangeActionPerState.keySet().stream())
-                .map(state -> state.getContingency().orElseThrow().getId()).distinct().sorted().toList();
-        return contingencyIds.stream().map(contingencyId -> buildSynchronizationFillerForContingency(contingencyId, curativeRangeActionsPerState)).collect(Collectors.toList());
-    }
-
-    private static ProblemFiller buildSynchronizationFillerForContingency(String contingencyId, TemporalData<Map<State, Set<RangeAction<?>>>> curativeRangeActionsPerState) {
-        Map<OffsetDateTime, State> curativeStatesPerTimestamp = new HashMap<>();
-        Map<OffsetDateTime, Set<RangeAction<?>>> rangeActionsPerTimestamp = new HashMap<>();
-        curativeRangeActionsPerState.getDataPerTimestamp().forEach((timestamp, rangeActionPerState) -> {
-            List<State> contingencyStates = rangeActionPerState.keySet().stream()
-                    .filter(state -> state.getContingency().orElseThrow().getId().equals(contingencyId))
-                    .toList();
-            if (!contingencyStates.isEmpty()) {
-                State curativeState = contingencyStates.getFirst();
-                curativeStatesPerTimestamp.put(timestamp, curativeState);
-                rangeActionsPerTimestamp.put(timestamp, rangeActionPerState.get(curativeState));
-            }
-        });
-        return new RangeActionsSynchronizationFiller(new TemporalDataImpl<>(curativeStatesPerTimestamp), new TemporalDataImpl<>(rangeActionsPerTimestamp));
     }
 
     private static Map<State, Set<RangeAction<?>>> getCurativeRangeActionsPerState(OptimizationPerimeter optimizationPerimeter) {

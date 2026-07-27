@@ -109,18 +109,16 @@ class RangeActionsSynchronizationFillerTest {
     }
 
     private void createRangeActionsSynchronizationFiller() {
-        Map<OffsetDateTime, State> curativeStates = new HashMap<>();
-        raoInputs.getTimestamps().forEach(timestamp -> curativeStates.put(timestamp, getCurativeState(timestamp)));
-        TemporalData<State> optimizationStates = new TemporalDataImpl<>(curativeStates);
-        Map<OffsetDateTime, Set<RangeAction<?>>> rangeActionsPerTimestamp = new HashMap<>();
-        raoInputs.getTimestamps().forEach(timestamp ->
-                rangeActionsPerTimestamp.put(timestamp, raoInputs.getData(timestamp).orElseThrow().getCrac().getRangeActions(getCurativeState(timestamp)))
-        );
-        TemporalData<Set<RangeAction<?>>> availableRangeActions = new TemporalDataImpl<>(rangeActionsPerTimestamp);
-        RangeActionsSynchronizationFiller rangeActionsSynchronizer = new RangeActionsSynchronizationFiller(
-                optimizationStates,
-                availableRangeActions
-        );
+        Map<OffsetDateTime, Map<State, Set<RangeAction<?>>>> rangeActionsPerStatePerTimestamp = new HashMap<>();
+        raoInputs.getTimestamps().forEach(timestamp -> {
+            Crac crac = raoInputs.getData(timestamp).orElseThrow().getCrac();
+            Map<State, Set<RangeAction<?>>> rangeActionsPerState = new HashMap<>();
+            crac.getStates().stream().filter(state -> state.getInstant().isCurative()).forEach(
+                    curativeState -> rangeActionsPerState.put(curativeState, crac.getRangeActions(curativeState))
+            );
+            rangeActionsPerStatePerTimestamp.put(timestamp, rangeActionsPerState);
+        });
+        RangeActionsSynchronizationFiller rangeActionsSynchronizer = new RangeActionsSynchronizationFiller(new TemporalDataImpl<>(rangeActionsPerStatePerTimestamp));
         linearProblemBuilder.withProblemFiller(rangeActionsSynchronizer);
     }
 
