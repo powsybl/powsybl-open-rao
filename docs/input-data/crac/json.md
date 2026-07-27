@@ -321,11 +321,6 @@ one/left to terminal two/right, while a flow in direction "opposite" is a flow f
 one/left. The convention of OpenRAO is that a positive flow is a flow in the "direct" direction, while a negative flow is
 a flow in the "opposite" direction.
 
-> 💡  **NOTE**  
-> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/BranchCnec.java).
-> If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
-> physical parameter other than power flow.
-
 #### Flow limits on a FlowCnec
 A FlowCnec has flow limits, called "thresholds" in OpenRAO. These thresholds define the limits between which the power
 flow of the FlowCnec should ideally remain.
@@ -523,7 +518,7 @@ insecurities in the network when it's back up. That's why we monitor angle CNECs
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
 In terms of OpenRAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
-BranchCnec, because we cannot define on which side it is monitored: it is monitored on both sides (more specifically,
+FlowCnec, because we cannot define on which side it is monitored: it is monitored on both sides (more specifically,
 we monitor the phase shift between the two sides).
 
 An AngleCnec has the following specificities:

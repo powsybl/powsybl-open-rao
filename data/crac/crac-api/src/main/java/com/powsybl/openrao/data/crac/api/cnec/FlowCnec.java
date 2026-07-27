@@ -34,13 +34,13 @@ public interface FlowCnec extends Cnec<FlowCnec> {
     NetworkElement getNetworkElement();
 
     /**
-     * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code BranchCnec}
+     * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code FlowCnec}
      * should ideally meet.
      */
     Set<BranchThreshold> getThresholds();
 
     /**
-     * Getter of the nominal voltage on each {@link TwoSides} of the {@code BranchCnec}.
+     * Getter of the nominal voltage on each {@link TwoSides} of the {@code FlowCnec}.
      *
      * @param side The {@link TwoSides} on which the nominal voltage is queried.
      * @return The value of nominal voltage.
@@ -49,34 +49,34 @@ public interface FlowCnec extends Cnec<FlowCnec> {
 
     /**
      * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
-     * The {@code unit} must match the {@link PhysicalParameter} of the {@code BranchCnec}. It returns an optional
-     * because the {@code BranchCnec} is not necessarily bounded by a lower value. This value would take
+     * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
+     * because the {@code FlowCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account.
      *
      * @param side The side on which the lower bound is queried. It could require conversions if the thresholds are
      *            defined on a different side that the one requested.
      * @param unit The unit in which the bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
-     * @return The lower bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
+     * @return The lower bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
     Optional<Double> getLowerBound(TwoSides side, Unit unit);
 
     /**
      * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
-     * The {@code unit} must match the {@link PhysicalParameter} of the {@code BranchCnec}. It returns an optional
-     * because the {@code BranchCnec} is not necessarily bounded by an upper value. This value would take
+     * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
+     * because the {@code FlowCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account.
      *
      * @param side The side on which the upper bound is queried. It could require conversions if the thresholds are
      *            defined on a different side that the one requested.
      * @param unit The unit in which the upper bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
-     * @return The upper bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
+     * @return The upper bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
     Optional<Double> getUpperBound(TwoSides side, Unit unit);
 
     /**
-     * A margin can be computed on a {@code BranchCnec}. It is the worst (minimal including negative) difference
+     * A margin can be computed on a {@code FlowCnec}. It is the worst (minimal including negative) difference
      * between the {@code actualValue} and the {@code thresholds}. The {@link Unit} is the one of the
      * {@code actualValue} and will be the one of the returned margin. This margin will take the
      * {@code reliabilityMargin} into account.
