@@ -322,7 +322,7 @@ one/left. The convention of OpenRAO is that a positive flow is a flow in the "di
 a flow in the "opposite" direction.
 
 > 💡  **NOTE**  
-> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/BranchCnec.java).
+> A OpenRAO FlowCnec is one implementation of the generic ["Cnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/Cnec.java).
 > If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
 > physical parameter other than power flow.
 
