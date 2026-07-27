@@ -146,6 +146,8 @@ public final class RaoParametersCommons {
     public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
     public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
     public static final String NUMBER_OF_THREADS = "number-of-threads";
+    public static final String CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION = "curative-range-actions-synchronization";
+    public static final String CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION = "curative-topological-actions-synchronization";
 
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
