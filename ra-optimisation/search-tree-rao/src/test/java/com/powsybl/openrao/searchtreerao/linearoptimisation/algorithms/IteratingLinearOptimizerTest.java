@@ -30,13 +30,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -107,6 +101,10 @@ class IteratingLinearOptimizerTest {
         ));
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
+
+        NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
+        when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(input.appliedNetworkActionsInPrimaryState()).thenReturn(networkActionsResult);
 
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
         SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
