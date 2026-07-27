@@ -81,7 +81,6 @@ class LoopFlowResultTest {
         loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 30., 3., Unit.MEGAWATT);
         loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 35., 3., Unit.AMPERE);
 
-        // get CommercialFlows only consider FlowCnecs ! BranchCnecs that are not FlowCnecs ares filtered out (ie cnec here)
         Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
         assertEquals(3, commercialFlowsMap.size());
 
