@@ -97,7 +97,7 @@ public final class IteratingLinearOptimizer {
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
-            currentRangeActionActivationResult = updateWithHvdcRangeActionIfNecessary( (RangeActionActivationResultImpl) currentRangeActionActivationResult, input);
+            currentRangeActionActivationResult = updateWithHvdcRangeActionIfNecessary((RangeActionActivationResultImpl) currentRangeActionActivationResult, input);
 
             if (!hasAnyRangeActionChanged(currentRangeActionActivationResult, previousResult, input.optimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -156,8 +156,8 @@ public final class IteratingLinearOptimizer {
 
     // If an AcEmulationDeactivation action was used in the leaf, add the associated HVDC range action to the list of activated range actions automatically
     // even if MIP did not activate the range action
-    private static RangeActionActivationResult updateWithHvdcRangeActionIfNecessary( RangeActionActivationResultImpl currentRangeActionActivationResult,
-                                                                                     IteratingLinearOptimizerInput input) {
+    private static RangeActionActivationResult updateWithHvdcRangeActionIfNecessary(RangeActionActivationResultImpl currentRangeActionActivationResult,
+                                                                                    IteratingLinearOptimizerInput input) {
 
         Set<NetworkAction> acEmulationDeactivationActions = input.appliedNetworkActionsInPrimaryState()
             .getActivatedNetworkActions()
