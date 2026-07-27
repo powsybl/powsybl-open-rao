@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.action.HvdcAction;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
@@ -15,6 +16,8 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -44,12 +47,14 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -353,5 +358,41 @@ class IteratingLinearOptimizerTest {
 
         IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
+    void updateWithHvdcRangeActionIfNecessaryAddsHvdcRangeActionWhenAcEmulationDeactivationWasApplied() throws Exception {
+        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
+        NetworkElement hvdcLine = Mockito.mock(NetworkElement.class);
+        when(hvdcLine.getId()).thenReturn("hvdc-line");
+        when(hvdcRangeAction.getNetworkElement()).thenReturn(hvdcLine);
+        when(hvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdcLine));
+        when(hvdcRangeAction.getInitialSetpoint()).thenReturn(823.0);
+        when(hvdcRangeAction.getCurrentSetpoint(network)).thenReturn(796.0);
+
+        RangeActionSetpointResultImpl setpointResult = new RangeActionSetpointResultImpl(Map.of(hvdcRangeAction, 823.0));
+        RangeActionActivationResultImpl activationResult = new RangeActionActivationResultImpl(setpointResult);
+
+        HvdcAction elementaryHvdcAction = Mockito.mock(HvdcAction.class);
+        NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
+        when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(elementaryHvdcAction));
+        when(acEmulationDeactivationAction.getNetworkElements()).thenReturn(Set.of(hvdcLine));
+
+        NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
+        when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of(acEmulationDeactivationAction));
+        when(input.appliedNetworkActionsInPrimaryState()).thenReturn(networkActionsResult);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(hvdcRangeAction)));
+
+        Method method = IteratingLinearOptimizer.class.getDeclaredMethod(
+            "updateWithHvdcRangeActionIfNecessary",
+            RangeActionActivationResultImpl.class,
+            IteratingLinearOptimizerInput.class
+        );
+        method.setAccessible(true);
+
+        RangeActionActivationResult result = (RangeActionActivationResult) method.invoke(null, activationResult, input);
+
+        assertTrue(result.getActivatedRangeActions(optimizedState).contains(hvdcRangeAction));
+        assertEquals(796.0, result.getOptimizedSetpoint(hvdcRangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 }
