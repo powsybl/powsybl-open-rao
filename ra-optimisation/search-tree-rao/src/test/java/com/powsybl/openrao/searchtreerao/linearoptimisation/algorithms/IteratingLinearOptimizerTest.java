@@ -48,10 +48,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -377,6 +374,7 @@ class IteratingLinearOptimizerTest {
         NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
         when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(elementaryHvdcAction));
         when(acEmulationDeactivationAction.getNetworkElements()).thenReturn(Set.of(hvdcLine));
+        when(elementaryHvdcAction.isAcEmulationEnabled()).thenReturn(Optional.of(false));
 
         NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
         when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of(acEmulationDeactivationAction));
