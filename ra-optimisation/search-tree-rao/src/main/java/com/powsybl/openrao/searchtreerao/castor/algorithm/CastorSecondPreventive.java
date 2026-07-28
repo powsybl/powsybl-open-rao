@@ -176,7 +176,11 @@ public class CastorSecondPreventive {
 
         // Run 2nd automaton simulation and update results
         final ReportNode secondAutomatonSimulationReportNode = CastorReports.reportSecondAutomatonSimulation(secondPreventiveReportNode);
-        Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, true, secondAutomatonSimulationReportNode);
+        Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(
+            network,
+            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
+            true,
+            secondAutomatonSimulationReportNode);
         CastorReports.reportSecondAutomatonSimulationEnd();
 
         CastorReports.reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(secondPreventiveReportNode);
@@ -206,7 +210,14 @@ public class CastorSecondPreventive {
             });
         // Run curative sensitivity analysis with appliedArasAndCras
         // TODO: this is too slow, we can replace it with load-flow computations or security analysis since we don't need sensitivity values
-        PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, Collections.emptySet(), appliedArasAndCras, secondPreventiveReportNode);
+        PrePerimeterResult postCraSensitivityAnalysisOutput =
+            prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+                network,
+                initialOutput,
+                Collections.emptySet(),
+                appliedArasAndCras,
+                secondPreventiveReportNode
+            );
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             CastorReports.reportSystematicSensitivityAnalysisAfterCraAfterSecondPreventiveFailed(secondPreventiveReportNode);
             return SecondPreventiveRaoResultsHolder.failed("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
@@ -307,7 +318,13 @@ public class CastorSecondPreventive {
         network.getVariantManager().setWorkingVariant(newVariant);
         OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, appliedArasAndCras).join();
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
-        PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), null, secondPreventiveReportNode);
+        PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+            network,
+            initialOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            null,
+            secondPreventiveReportNode
+        );
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             CastorReports.reportSystematicSensitivityAnalysisAfterPraAfterSecondPreventiveFailed(secondPreventiveReportNode);
         }

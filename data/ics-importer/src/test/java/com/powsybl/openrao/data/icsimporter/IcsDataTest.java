@@ -106,7 +106,9 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         // Check generator constraint creation
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
 
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
@@ -134,7 +136,9 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(24));
 
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
 
         assertEquals(2, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraintsBE = generatorConstraintsSet.stream()
@@ -174,7 +178,9 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/ics/series.csv"),
             null,
             generateOffsetDateTimeList(24));
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
@@ -326,7 +332,12 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
 
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(
+            cracTemporalData,
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"),
+            5.,
+            5.);
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -348,8 +359,15 @@ public class IcsDataTest {
              new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
              getClass().getResourceAsStream("/ics/series.csv"),
              getClass().getResourceAsStream("/glsk/gsk.csv"),
-             generateOffsetDateTimeList(2));
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+             generateOffsetDateTimeList(2)
+        );
+        icsData.createInjectionRangeActionsAndUpdateCracs(
+            cracTemporalData,
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"),
+            5.,
+            5.
+        );
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
         assertEquals(1, ra1.getUsageRules().size());
