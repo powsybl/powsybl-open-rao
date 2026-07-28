@@ -63,7 +63,7 @@ public final class HvdcUtils {
 
             // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
-                .filter(ra -> ra.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance))
+                .filter(ra -> isAcEmulationDeactivationAction(ra))
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).getHvdcId().equals(hvdcLineId)))
                 .collect(Collectors.toSet());
 
@@ -299,5 +299,11 @@ public final class HvdcUtils {
                     .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElement().getId().equals(hvdcLineId))
                     .collect(Collectors.toSet())
             ));
+    }
+
+    public static boolean isAcEmulationDeactivationAction(NetworkAction networkAction) {
+        return networkAction.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance)
+            && networkAction.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).isAcEmulationEnabled().isPresent())
+            && networkAction.getElementaryActions().stream().allMatch(action -> !((HvdcAction) action).isAcEmulationEnabled().get());
     }
 }

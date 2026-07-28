@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.isAcEmulationDeactivationAction;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -162,7 +163,7 @@ public final class IteratingLinearOptimizer {
         Set<NetworkAction> acEmulationDeactivationActions = input.appliedNetworkActionsInPrimaryState()
             .getActivatedNetworkActions()
             .stream()
-            .filter(action -> action.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance))
+            .filter(action -> isAcEmulationDeactivationAction(action))
             .collect(Collectors.toSet());
 
         for (NetworkAction action : acEmulationDeactivationActions) {
