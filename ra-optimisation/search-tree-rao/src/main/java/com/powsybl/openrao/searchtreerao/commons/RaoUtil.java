@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -258,6 +260,16 @@ public final class RaoUtil {
     public static void applyRemedialActions(Network network, OptimizationResult optResult, State state) {
         optResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
+    }
+
+    public static void applyContingency(Network network, State state) {
+        if (state.getContingency().isPresent()) {
+            Contingency contingency = state.getContingency().orElseThrow();
+            if (!contingency.isValid(network)) {
+                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+            }
+            contingency.toModification().apply(network, (ComputationManager) null);
+        }
     }
 
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {

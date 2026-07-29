@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.action.HvdcAction;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -265,13 +263,7 @@ public final class HvdcUtils {
         network.getVariantManager().setWorkingVariant(tmpVariant);
 
         // Apply contingency and compute load-flow
-        if (state.getContingency().isPresent()) {
-            Contingency contingency = state.getContingency().orElseThrow();
-            if (!contingency.isValid(network)) {
-                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
-            }
-            contingency.toModification().apply(network, (ComputationManager) null);
-        }
+        applyContingency(network, state);
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
