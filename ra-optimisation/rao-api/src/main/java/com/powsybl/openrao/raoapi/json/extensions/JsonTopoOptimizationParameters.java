@@ -16,12 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_CURATIVE_SEARCH_TREE_DEPTH;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_PREVENTIVE_SEARCH_TREE_DEPTH;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PREDEFINED_COMBINATIONS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -48,6 +43,7 @@ final class JsonTopoOptimizationParameters {
         jsonGenerator.writeEndArray();
         jsonGenerator.writeBooleanField(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
+        jsonGenerator.writeBooleanField(ISLAND_CREATION_ALLOWED, parameters.getTopoOptimizationParameters().getIslandCreationAllowed());
         jsonGenerator.writeEndObject();
     }
 
@@ -71,6 +67,10 @@ final class JsonTopoOptimizationParameters {
                 case MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(jsonParser.getIntValue());
+                }
+                case ISLAND_CREATION_ALLOWED -> {
+                    jsonParser.nextToken();
+                    searchTreeParameters.getTopoOptimizationParameters().setIslandCreationAllowed(jsonParser.getBooleanValue());
                 }
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",

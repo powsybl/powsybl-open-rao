@@ -74,6 +74,7 @@ public final class RaoParametersCommons {
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
     public static final String SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = "skip-actions-far-from-most-limiting-element";
     public static final String MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = "max-number-of-boundaries-for-skipping-actions";
+    public static final String ISLAND_CREATION_ALLOWED = "island-creation-allowed";
 
     // Multi-threading parameters
     public static final String MULTI_THREADING = "multi-threading";
