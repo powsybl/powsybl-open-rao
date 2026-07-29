@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoConfigLoader;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -28,7 +28,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
@@ -39,7 +38,6 @@ import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -263,18 +261,6 @@ class RaoParametersConfigTest {
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoRelativeMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
         assertEquals(32, parameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void checkPstRegulationConfigExtension() {
-        ModuleConfig pstRegulationModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList()))
-            .thenReturn(List.of("{pst-1}:{network-element-1}", "{pst-2}:{network-element-2}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters"))
-            .thenReturn(Optional.of(pstRegulationModuleConfig));
-        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
-        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), pstRegulationParameters.getPstsToRegulate());
     }
 
     @Test

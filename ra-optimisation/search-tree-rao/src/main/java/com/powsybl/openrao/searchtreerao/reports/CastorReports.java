@@ -510,29 +510,6 @@ public final class CastorReports {
         BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
     }
 
-    public static void reportNoDefaultRegulationTerminalDefined(final ReportNode parentNode,
-                                                                final String twtId,
-                                                                final TwoSides limitingSide) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultRegulationTerminalDefined")
-            .withUntypedValue("twtId", twtId)
-            .withUntypedValue("limitingSide", limitingSide.toString())
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer {}, terminal on side {} will be used.", twtId, limitingSide);
-    }
-
-    public static void reportNoDefaultTargetDeadbandDefined(final ReportNode parentNode, final String twtId) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultTargetDeadbandDefined")
-            .withUntypedValue("twtId", twtId)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer {}, a value of 0.0 will be used.", twtId);
-    }
-
     public static ReportNode reportOptimizingScenarioForContingency(final ReportNode parentNode, final String contingencyId) {
         return parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportOptimizingScenarioForContingency")
