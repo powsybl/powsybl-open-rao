@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -57,6 +57,8 @@ public class SensitivityResultImpl implements SensitivityResult {
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side);
+        } else if (unit == Unit.AMPERE) {
+            return systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, flowCnec, side);
         } else {
             throw new OpenRaoException(format("Unhandled unit for sensitivity value on range action : %s.", unit));
         }
@@ -66,6 +68,8 @@ public class SensitivityResultImpl implements SensitivityResult {
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side);
+        } else if (unit == Unit.AMPERE) {
+            return systematicSensitivityResult.getSensitivityOnIntensity(linearGlsk, flowCnec, side);
         } else {
             throw new OpenRaoException(format("Unknown unit for sensitivity value on linear GLSK : %s.", unit));
         }

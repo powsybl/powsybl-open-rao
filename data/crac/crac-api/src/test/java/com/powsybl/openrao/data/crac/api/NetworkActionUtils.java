@@ -7,18 +7,25 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -142,6 +149,11 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public void addUsageRule(UsageRule usageRule) {
+            // not used
+        }
+
+        @Override
         public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
             //not used
         }
@@ -165,6 +177,7 @@ public final class NetworkActionUtils {
         public <E extends Extension<NetworkAction>> Collection<E> getExtensions() {
             return null;
         }
+
     }
 
     public static class NetworkElementImplTest implements NetworkElement {

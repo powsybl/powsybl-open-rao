@@ -8,18 +8,18 @@
 package com.powsybl.openrao.data.crac.impl.utils;
 
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -319,197 +319,20 @@ public final class CommonCracCreation {
 
         // Simple remedial actions (only one elementary action)
 
-        //// Topological actions
-        crac.newNetworkAction()
-            .withId("open-switch-1")
-            .newSwitchAction()
-            .withNetworkElement("switch-1")
-            .withActionType(ActionType.OPEN)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        createToptologicalActions(crac);
 
-        crac.newNetworkAction()
-            .withId("close-switch-1")
-            .newSwitchAction()
-            .withNetworkElement("switch-1")
-            .withActionType(ActionType.CLOSE)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        createInjectionSetpointActions(crac);
 
-        crac.newNetworkAction()
-            .withId("open-switch-2")
-            .newSwitchAction()
-            .withNetworkElement("switch-2")
-            .withActionType(ActionType.OPEN)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        createPstSetpointActions(crac);
 
-        crac.newNetworkAction()
-            .withId("close-switch-2")
-            .newSwitchAction()
-            .withNetworkElement("switch-2")
-            .withActionType(ActionType.CLOSE)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        createSwitchPairActions(crac);
 
-        //// Injection setpoint actions
-        crac.newNetworkAction()
-            .withId("generator-1-75-mw")
-            .newGeneratorAction()
-            .withNetworkElement("generator-1")
-            .withActivePowerValue(75d)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        createComplexActions(crac);
 
-        crac.newNetworkAction()
-            .withId("generator-1-100-mw")
-            .newGeneratorAction()
-            .withNetworkElement("generator-1")
-            .withActivePowerValue(100d)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
+        return crac;
+    }
 
-        crac.newNetworkAction()
-            .withId("generator-2-75-mw")
-            .newGeneratorAction()
-            .withNetworkElement("generator-2")
-            .withActivePowerValue(75d)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("generator-2-100-mw")
-            .newGeneratorAction()
-            .withNetworkElement("generator-2")
-            .withActivePowerValue(100d)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        //// PST setpoint actions
-        crac.newNetworkAction()
-            .withId("pst-1-tap-3")
-            .newPhaseTapChangerTapPositionAction()
-            .withNetworkElement("pst-1")
-            .withTapPosition(3)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("pst-1-tap-8")
-            .newPhaseTapChangerTapPositionAction()
-            .withNetworkElement("pst-1")
-            .withTapPosition(8)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("pst-2-tap-3")
-            .newPhaseTapChangerTapPositionAction()
-            .withNetworkElement("pst-2")
-            .withTapPosition(3)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("pst-2-tap-8")
-            .newPhaseTapChangerTapPositionAction()
-            .withNetworkElement("pst-2")
-            .withTapPosition(8)
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        //// Switch pairs
-        crac.newNetworkAction()
-            .withId("open-switch-1-close-switch-2")
-            .newSwitchPair()
-            .withSwitchToOpen("switch-1")
-            .withSwitchToClose("switch-2")
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("open-switch-2-close-switch-1")
-            .newSwitchPair()
-            .withSwitchToOpen("switch-2")
-            .withSwitchToClose("switch-1")
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("open-switch-3-close-switch-4")
-            .newSwitchPair()
-            .withSwitchToOpen("switch-3")
-            .withSwitchToClose("switch-4")
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("open-switch-1-close-switch-3")
-            .newSwitchPair()
-            .withSwitchToOpen("switch-1")
-            .withSwitchToClose("switch-3")
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
-        crac.newNetworkAction()
-            .withId("open-switch-3-close-switch-2")
-            .newSwitchPair()
-            .withSwitchToOpen("switch-3")
-            .withSwitchToClose("switch-2")
-            .add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .add()
-            .add();
-
+    private static void createComplexActions(Crac crac) {
         // Complex remedial actions (several elementary actions)
         crac.newNetworkAction()
             .withId("hvdc-fr-es-200-mw")
@@ -606,7 +429,204 @@ public final class CommonCracCreation {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .add()
             .add();
+    }
 
-        return crac;
+    private static void createSwitchPairActions(Crac crac) {
+        //// Switch pairs
+        crac.newNetworkAction()
+            .withId("open-switch-1-close-switch-2")
+            .newSwitchPair()
+            .withSwitchToOpen("switch-1")
+            .withSwitchToClose("switch-2")
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("open-switch-2-close-switch-1")
+            .newSwitchPair()
+            .withSwitchToOpen("switch-2")
+            .withSwitchToClose("switch-1")
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("open-switch-3-close-switch-4")
+            .newSwitchPair()
+            .withSwitchToOpen("switch-3")
+            .withSwitchToClose("switch-4")
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("open-switch-1-close-switch-3")
+            .newSwitchPair()
+            .withSwitchToOpen("switch-1")
+            .withSwitchToClose("switch-3")
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("open-switch-3-close-switch-2")
+            .newSwitchPair()
+            .withSwitchToOpen("switch-3")
+            .withSwitchToClose("switch-2")
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+    }
+
+    private static void createPstSetpointActions(Crac crac) {
+        //// PST setpoint actions
+        crac.newNetworkAction()
+            .withId("pst-1-tap-3")
+            .newPhaseTapChangerTapPositionAction()
+            .withNetworkElement("pst-1")
+            .withTapPosition(3)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("pst-1-tap-8")
+            .newPhaseTapChangerTapPositionAction()
+            .withNetworkElement("pst-1")
+            .withTapPosition(8)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("pst-2-tap-3")
+            .newPhaseTapChangerTapPositionAction()
+            .withNetworkElement("pst-2")
+            .withTapPosition(3)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("pst-2-tap-8")
+            .newPhaseTapChangerTapPositionAction()
+            .withNetworkElement("pst-2")
+            .withTapPosition(8)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+    }
+
+    private static void createInjectionSetpointActions(Crac crac) {
+        //// Injection setpoint actions
+        crac.newNetworkAction()
+            .withId("generator-1-75-mw")
+            .newGeneratorAction()
+            .withNetworkElement("generator-1")
+            .withActivePowerValue(75d)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("generator-1-100-mw")
+            .newGeneratorAction()
+            .withNetworkElement("generator-1")
+            .withActivePowerValue(100d)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("generator-2-75-mw")
+            .newGeneratorAction()
+            .withNetworkElement("generator-2")
+            .withActivePowerValue(75d)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("generator-2-100-mw")
+            .newGeneratorAction()
+            .withNetworkElement("generator-2")
+            .withActivePowerValue(100d)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+    }
+
+    private static void createToptologicalActions(Crac crac) {
+        //// Topological actions
+        crac.newNetworkAction()
+            .withId("open-switch-1")
+            .newSwitchAction()
+            .withNetworkElement("switch-1")
+            .withActionType(ActionType.OPEN)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("close-switch-1")
+            .newSwitchAction()
+            .withNetworkElement("switch-1")
+            .withActionType(ActionType.CLOSE)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("open-switch-2")
+            .newSwitchAction()
+            .withNetworkElement("switch-2")
+            .withActionType(ActionType.OPEN)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("close-switch-2")
+            .newSwitchAction()
+            .withNetworkElement("switch-2")
+            .withActionType(ActionType.CLOSE)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
     }
 }

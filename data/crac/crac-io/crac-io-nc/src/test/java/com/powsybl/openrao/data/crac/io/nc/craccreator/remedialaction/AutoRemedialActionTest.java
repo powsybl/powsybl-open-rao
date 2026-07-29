@@ -10,14 +10,14 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 import com.powsybl.action.Action;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.SwitchAction;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -33,9 +33,14 @@ class AutoRemedialActionTest {
 
     @Test
     void importAutoRemedialActions() {
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/remedialactions/AutoRemedialActions.zip", NcCracCreationTestUtil.NETWORK);
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(
+            "/profiles/remedialactions/AutoRemedialActions.zip",
+            NcCracCreationTestUtil.NETWORK
+        );
 
-        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto()).toList();
+        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream()
+            .filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto())
+            .toList();
         assertEquals(2, importedSps.size());
 
         PstRangeAction pstSps = cracCreationContext.getCrac().getPstRangeAction("pst-sps");
@@ -61,10 +66,29 @@ class AutoRemedialActionTest {
         assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
 
-        assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
+        assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream()
+            .filter(ra -> !ra.isImported())
+            .toList().size());
 
-        NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "pst-sps-without-speed", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-sps-without-speed will not be imported because an auto PST range action must have a speed defined");
-        NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "preventive-sps", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "OpenRAO does not support preventive automatons, remedial action preventive-sps will be ignored");
-        NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "sps-without-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-contingency will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs");
+        NcCracCreationTestUtil.assertRaNotImported(
+            cracCreationContext,
+            "pst-sps-without-speed",
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            "Remedial action pst-sps-without-speed will not be imported because " +
+                "an auto PST range action must have a speed defined"
+        );
+        NcCracCreationTestUtil.assertRaNotImported(
+            cracCreationContext,
+            "preventive-sps",
+            ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+            "OpenRAO does not support preventive automatons, remedial action preventive-sps will be ignored"
+        );
+        NcCracCreationTestUtil.assertRaNotImported(
+            cracCreationContext,
+            "sps-without-contingency",
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            "Remedial action sps-without-contingency will not be imported because " +
+                "no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs"
+        );
     }
 }

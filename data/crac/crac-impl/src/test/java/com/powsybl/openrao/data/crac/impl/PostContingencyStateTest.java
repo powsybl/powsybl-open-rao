@@ -20,7 +20,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -59,6 +62,43 @@ class PostContingencyStateTest {
         PostContingencyState state2 = new PostContingencyState(contingency1, outageInstant, null);
 
         assertEquals(state1, state2);
+    }
+
+    @Test
+    void testEqualsDifferentContingencyImplementations() {
+        // using different Crac instances, different contingency implementations (BRANCH instead of LINE)
+        // but with the same content, states must be equal
+        Crac crac2 = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Contingency contingency1Clone = crac2.newContingency()
+            .withId("contingency1")
+            .withContingencyElement("anyNetworkElement", ContingencyElementType.BRANCH)
+            .add();
+
+        PostContingencyState state1 = new PostContingencyState(contingency1, outageInstant, null);
+        PostContingencyState state2 = new PostContingencyState(contingency1Clone, outageInstant, null);
+
+        assertEquals(state1, state2);
+    }
+
+    @Test
+    void testNotEqualsDifferentContingencyImplementations() {
+        // the same as the previous test but with different contingency elements
+        Crac crac2 = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Contingency contingency1Clone = crac2.newContingency()
+            .withId("contingency1")
+            .withContingencyElement("anotherNetworkElement", ContingencyElementType.BRANCH)
+            .add();
+
+        PostContingencyState state1 = new PostContingencyState(contingency1, outageInstant, null);
+        PostContingencyState state2 = new PostContingencyState(contingency1Clone, outageInstant, null);
+
+        assertNotEquals(state1, state2);
     }
 
     @Test

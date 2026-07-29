@@ -12,7 +12,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RaUsageLimitsAdder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -35,12 +37,6 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
     @Override
     public RaUsageLimitsAdder withMaxRa(int maxRa) {
         raUsageLimits.setMaxRa(maxRa);
-        return this;
-    }
-
-    @Override
-    public RaUsageLimitsAdder withMaxTso(int maxTso) {
-        raUsageLimits.setMaxTso(maxTso);
         return this;
     }
 

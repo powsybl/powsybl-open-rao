@@ -7,14 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -49,7 +51,7 @@ class AutoOptimizationPerimeterTest {
     void buildAutoOptimizationPerimeter() {
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
-        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(ReportNode.NO_OP), null);
 
         // Only available topological actions are considered in the perimeter
         assertEquals(automatonState, autoOptimizationPerimeter.getMainOptimizationState());
@@ -184,5 +186,14 @@ class AutoOptimizationPerimeterTest {
             .add();
 
         return crac;
+    }
+
+    @Test
+    void testCopyWithFilteredRangeAction() {
+        Crac crac = initCrac();
+        State automatonState = crac.getState("contingency", crac.getInstant("auto"));
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(ReportNode.NO_OP), null);
+        Network network = Mockito.mock(Network.class);
+        assertEquals(autoOptimizationPerimeter, autoOptimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network));
     }
 }

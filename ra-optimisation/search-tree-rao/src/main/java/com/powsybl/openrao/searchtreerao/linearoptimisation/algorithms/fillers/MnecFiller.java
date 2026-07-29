@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -23,8 +23,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -74,37 +72,80 @@ public class MnecFiller implements ProblemFiller {
         ));
     }
 
+    /**
+     * Builds MNEC margin constraints to keep the margin non-negative or not below its initial value.
+     * <p>
+     * For each monitored side:
+     * </p>
+     * <pre>
+     *   Upper bound (if defined):   F(c) ≤ 𝑓̄(c) + Sᵐ(c)
+     *   Lower bound (if defined):   F(c) ≥ 𝑓̲(c) − Sᵐ(c)
+     * </pre>
+     * where
+     * <ul>
+     *   <li>𝑓̄(c) = max(threshold⁺ - adjCoeff, initialFlow + accAugm - adjCoeff)</li>
+     *   <li>𝑓̲(c) = min(threshold⁻ + adjCoeff, initialFlow - accAugm + adjCoeff)</li>
+     * </ul>
+     * <p>
+     * Only the relevant constraint is applied if a threshold is missing.
+     * </p>
+     */
     private void buildMnecMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
-        validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
-                double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
+        for (FlowCnec mnec : validMonitoredCnecs) {
+            for (TwoSides side : mnec.getMonitoredSides()) {
+                double mnecInitialFlow = initialFlowResult.getFlow(mnec, side, unit);
 
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side, Optional.ofNullable(timestamp));
-                OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(
+                    mnec,
+                    side,
+                    Optional.ofNullable(timestamp)
+                );
 
-                Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
+                Optional<Double> maxFlow = mnec.getUpperBound(side, unit);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(), mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                    double ub = Math.max(
+                        maxFlow.get(),
+                        mnecInitialFlow + mnecAcceptableMarginDecrease
+                    ) - mnecConstraintAdjustmentCoefficient;
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(
+                        -linearProblem.infinity(),
+                        ub,
+                        mnec,
+                        side,
+                        LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
 
-                Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
+                Optional<Double> minFlow = mnec.getLowerBound(side, unit);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDecrease) + mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                    double lb = Math.min(
+                        minFlow.get(),
+                        mnecInitialFlow - mnecAcceptableMarginDecrease
+                    ) + mnecConstraintAdjustmentCoefficient;
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(
+                        lb,
+                        linearProblem.infinity(),
+                        mnec,
+                        side,
+                        LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }
             }
-        ));
+        }
     }
 
     public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
         validMonitoredCnecs.stream().filter(FlowCnec::isMonitored).forEach(mnec ->
             mnec.getMonitoredSides().forEach(side ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec, side, Optional.ofNullable(timestamp)),
-                    RaoUtil.getFlowUnitMultiplier(mnec, side, MEGAWATT, unit) * mnecViolationCost / mnec.getMonitoredSides().size())
+                    mnecViolationCost / mnec.getMonitoredSides().size())
             ));
     }
 }

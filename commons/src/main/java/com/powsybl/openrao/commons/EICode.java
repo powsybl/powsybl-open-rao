@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.commons;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.network.Country;
 
 import java.util.Optional;
 

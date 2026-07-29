@@ -12,10 +12,16 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -29,7 +35,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     boolean shouldRecomputeSetpointsPerState;
 
-    private Map<String, Map<State, Double> > setpointPerStatePerPstId;
+    private Map<String, Map<State, Double>> setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
     private static final class ElementaryResult {
@@ -81,8 +87,18 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
-        elementaryResultMap.get(rangeAction).put(state, setpoint);
+        // missing key should only occur in PST regulation
+        elementaryResultMap.computeIfAbsent(rangeAction, k -> new ElementaryResult(getInitialSetPoint(rangeAction))).put(state, setpoint);
         memoizedPreviousState = new HashMap<>();
+    }
+
+    private static double getInitialSetPoint(RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+        } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+            return standardRangeAction.getInitialSetpoint();
+        }
+        throw new OpenRaoException("Unsupported range action type for range action %s.".formatted(rangeAction.getId()));
     }
 
     private synchronized void computeSetpointsPerStatePerPst() {

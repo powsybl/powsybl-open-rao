@@ -7,14 +7,15 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.Versionable;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
 
 import java.time.Instant;
@@ -22,8 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -44,7 +43,7 @@ public final class Rao {
      * A RA optimisation runner is responsible for providing convenient methods on top of {@link RaoProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
      */
-    public static class Runner implements Versionable {
+    public static class Runner {
 
         private final RaoProvider provider;
 
@@ -52,7 +51,10 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput,
+                                                     final RaoParameters parameters,
+                                                     final Instant targetEndInstant,
+                                                     final ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -60,52 +62,77 @@ public final class Rao {
                 .map(ServiceLoader.Provider::get)
                 .filter(version -> version.getRepositoryName().equals("open-rao"))
                 .findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, targetEndInstant);
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, targetEndInstant, reportNode);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
-            return runAsync(raoInput, parameters, null);
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant) {
+            return runAsync(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
-            return runAsync(raoInput, (Instant) null);
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+            return runAsync(raoInput, parameters, null, reportNode);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
-            return runAsync(raoInput, RaoParameters.load(), targetEndInstant);
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final RaoParameters parameters) {
+            return runAsync(raoInput, parameters, null, ReportNode.NO_OP);
         }
 
-        public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final ReportNode reportNode) {
+            return runAsync(raoInput, (Instant) null, reportNode);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput) {
+            return runAsync(raoInput, (Instant) null, ReportNode.NO_OP);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final Instant targetEndInstant, final ReportNode reportNode) {
+            return runAsync(raoInput, RaoParameters.load(reportNode), targetEndInstant, reportNode);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final Instant targetEndInstant) {
+            return runAsync(raoInput, RaoParameters.load(ReportNode.NO_OP), targetEndInstant, ReportNode.NO_OP);
+        }
+
+        public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
 
             Version openRaoVersion = ServiceLoader.load(Version.class).stream()
                 .map(ServiceLoader.Provider::get)
                 .filter(version -> version.getRepositoryName().equals("open-rao"))
                 .findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, targetEndInstant).join();
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, targetEndInstant, reportNode).join();
         }
 
-        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
-            return run(raoInput, parameters, null);
+        public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant) {
+            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
 
-        public RaoResult run(RaoInput raoInput) {
-            return run(raoInput, RaoParameters.load(), null);
+        public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+            return run(raoInput, parameters, null, reportNode);
         }
 
-        @Override
+        public RaoResult run(final RaoInput raoInput, final RaoParameters parameters) {
+            return run(raoInput, parameters, ReportNode.NO_OP);
+        }
+
+        public RaoResult run(final RaoInput raoInput, final ReportNode reportNode) {
+            return run(raoInput, RaoParameters.load(reportNode), null, reportNode);
+        }
+
+        public RaoResult run(final RaoInput raoInput) {
+            return run(raoInput, ReportNode.NO_OP);
+        }
+
         public String getName() {
             return provider.getName();
-        }
-
-        @Override
-        public String getVersion() {
-            return provider.getVersion();
         }
     }
 
@@ -157,7 +184,7 @@ public final class Rao {
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
             // (that is the most common use case)
-            provider = providers.get(0);
+            provider = providers.getFirst();
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw

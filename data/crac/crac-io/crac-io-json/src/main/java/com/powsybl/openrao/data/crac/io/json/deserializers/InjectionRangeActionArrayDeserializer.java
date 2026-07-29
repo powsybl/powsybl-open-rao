@@ -7,22 +7,23 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
@@ -36,28 +37,25 @@ public final class InjectionRangeActionArrayDeserializer {
 
     static Set<String> networkElementsUsedList;
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.INJECTION_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
         networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
             String injectionRangeActionId = null;
-            Map<String, Double> injectionDistributionKeys = null;
+            Map<String, Double> injectionDistributionKeys = new HashMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (jsonParser.getCurrentName().equals(JsonSerializationConstants.ID)) {
+                if (jsonParser.currentName().equals(JsonSerializationConstants.ID)) {
                     injectionRangeActionId = jsonParser.nextTextValue();
                     injectionRangeActionAdder.withId(injectionRangeActionId);
                     continue;
                 } else if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
-                if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
+                if (jsonParser.currentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
                     jsonParser.nextToken();
-                    injectionDistributionKeys = deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
+                    injectionDistributionKeys.putAll(deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder));
                 } else {
-                    throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
                 }
             }
             // Check while getting current setpoint if all the network elements used in injection distribution keys definition exist else throw error
@@ -91,11 +89,11 @@ public final class InjectionRangeActionArrayDeserializer {
         }
     }
 
-    private static Map<String, Double> deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    private static Map<String, Double> deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder) throws IOException {
         Map<String, Double> injectionDistributionKeys = new HashMap<>();
         while (!jsonParser.nextToken().isStructEnd()) {
-            String networkElementId = jsonParser.getCurrentName();
-            // check if an another injection action was already defined on the same network element.
+            String networkElementId = jsonParser.currentName();
+            // check if another injection action was already defined on the same network element.
             if (networkElementsUsedList.contains(networkElementId)) {
                 LOGGER.warn("If the injection range action is used to represent a redispatching remedial action : " +
                     "two different injection actions in the crac can not be defined on the same network element : " + networkElementId);
@@ -103,11 +101,7 @@ public final class InjectionRangeActionArrayDeserializer {
             networkElementsUsedList.add(networkElementId);
             jsonParser.nextToken();
             double key = jsonParser.getDoubleValue();
-            if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                adder.withNetworkElementAndKey(key, networkElementId, networkElementsNamesPerId.get(networkElementId));
-            } else {
-                adder.withNetworkElementAndKey(key, networkElementId);
-            }
+            adder.withNetworkElementAndKey(key, networkElementId);
             injectionDistributionKeys.put(networkElementId, key);
         }
         return injectionDistributionKeys;

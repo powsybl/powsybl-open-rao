@@ -7,7 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -23,8 +25,6 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -43,10 +43,10 @@ class AlreadyAppliedNetworkActionsFilterTest {
 
         // filter already activated NetworkAction
         AlreadyAppliedNetworkActionsFilter naFilter = new AlreadyAppliedNetworkActionsFilter();
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
-        assertEquals(5, filteredNaCombinations.size());
-        assertFalse(filteredNaCombinations.contains(IND_FR_1));
-        assertFalse(filteredNaCombinations.contains(COMB_3_FR));
+        Assertions.assertThat(filteredNaCombinations)
+            .hasSize(5)
+            .doesNotContain(IND_FR_1, COMB_3_FR);
     }
 }

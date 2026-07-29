@@ -7,22 +7,35 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.SensitivityVariableType;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -130,6 +143,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     List<Pair<String, SensitivityFunctionType>> getSensitivityFunctions(Network network, String contingencyId) {
         Set<FlowCnec> flowCnecs;
+        //function reference is NaN in OLF for disconnected lines, so we remove them
         if (Objects.isNull(contingencyId)) {
             flowCnecs = cnecsPerContingencyId.getOrDefault(null, new ArrayList<>()).stream()
                 .filter(cnec -> cnec.isConnected(network))
@@ -152,28 +166,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<TwoSides> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
-        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
+        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof BoundaryLine) {
             return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).toList();
         } else {
             throw new OpenRaoException("Unable to create sensitivity function for " + networkElementId);
         }
-    }
-
-    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
-        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
-        }
-        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
-        }
-        return sensitivityFunctionTypes;
     }
 
 }

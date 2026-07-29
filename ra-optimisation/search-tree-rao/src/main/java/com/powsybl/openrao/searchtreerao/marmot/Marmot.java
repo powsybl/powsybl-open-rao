@@ -8,213 +8,349 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
+import com.google.common.annotations.Beta;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.searchtreerao.fastrao.FastRao;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.marmot.results.InterTemporalRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
+import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-@AutoService(InterTemporalRaoProvider.class)
-public class Marmot implements InterTemporalRaoProvider {
+@Beta
+@AutoService(TimeCoupledRaoProvider.class)
+public class Marmot implements TimeCoupledRaoProvider {
 
-    private static final String INTER_TEMPORAL_RAO = "InterTemporalRao";
-    private static final String VERSION = "1.0.0";
-
-    private static final String INITIAL_SCENARIO = "InitialScenario";
-    private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
-    private static final String MIP_SCENARIO = "MipScenario";
+    private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
+    // TODO the RAO implementation to use should be a parameter
+    private static final String SINGLE_TS_RAO_IMPLEMENTATION = "FastRao";
 
     @Override
-    public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
-        // 1. Run independent RAOs to compute optimal preventive topological remedial actions
-        TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
-        TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
-        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(interTemporalRaoInputWithNetworkPaths.getRaoInputs(), consideredCnecs, raoParameters);
-        TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
+    public CompletableFuture<TimeCoupledRaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
+                                                       final RaoParameters raoParameters,
+                                                       final ReportNode reportNode) {
+        if (!raoParameters.hasExtension(MarmotParameters.class)) {
+            MarmotReports.reportMissingMarmotParametersExtension(reportNode);
+            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
+        }
+        final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
-        // 2. Get the initial results from the various independent results to avoid recomputing them
-        TemporalData<PrePerimeterResult> initialResults = buildInitialResults(topologicalOptimizationResults);
+        // Initiate lazy networks
+        TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
+        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
+        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
-        // TODO : Add intertemporal constraint check if none violated then return
-        boolean noInterTemporalConstraint = interTemporalRaoInputWithNetworkPaths.getGeneratorConstraints().isEmpty();
+        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
 
-        // 3. Apply independent topological remedial actions (and preventive range actions if there are no inter-temporal constraints)
-        InterTemporalRaoInput interTemporalRaoInput = importNetworksFromInterTemporalRaoInputWithNetworkPaths(interTemporalRaoInputWithNetworkPaths);
-        TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
-        ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), raoParameters);
-        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction);
+        // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
+        TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
+        timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters, reportNode)));
 
-        // 4. Evaluate objective function after independent optimizations
-        TECHNICAL_LOGS.info("[MARMOT] Evaluating global result after independent optimizations");
-        TemporalData<PrePerimeterResult> postTopologicalActionsResults = topologicalOptimizationResults.map(
-            raoResult -> ((FastRaoResultImpl) raoResult).getFinalResult()
-        );
-        TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(topologicalOptimizationResults, interTemporalRaoInput.getRaoInputs());
-        LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(
-            initialSetpointResults,
-            postTopologicalActionsResults,
-            fullObjectiveFunction,
-            topologicalOptimizationResults,
-            interTemporalRaoInput.getRaoInputs().map(individualRaoInput -> individualRaoInput.getCrac().getPreventiveState()));
-
-        // if no inter-temporal constraints are defined, the results can be returned
-        if (noInterTemporalConstraint) {
-            TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
-            return CompletableFuture.completedFuture(new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
+        // Configure parallelism for multi-threading computation
+        int parallelism = Math.min(marmotParameters.getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
+        if (parallelism > 1) {
+            MarmotReports.reportMarmotOptimizerSetToWorkOnNThreads(reportNode, parallelism);
         }
 
-        // 5. Get and apply topological actions applied in independent optimizations
-        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(interTemporalRaoInputWithNetworkPaths.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), topologicalOptimizationResults);
-        applyPreventiveTopologicalActionsOnNetworks(interTemporalRaoInput.getRaoInputs(), preventiveTopologicalActions);
+        // 1. Compute the initial results for each timestamp as a baseline
+        final ReportNode initialSensiReportNode = MarmotReports.reportMarmotRunningInitialSensiAnalyses(reportNode);
+        // WARNING: initial results do not contain range actions set-points nor sensitivity results
+        //  -> faster sensitivity computations
+        //  -> initial set-points of MIP are computed after the independent RAOs of step 3
+        TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
+        MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd();
 
-        // 6. Create and iteratively solve MIP to find optimal range actions' set-points
-        // Get the curative ations applied in the individual results to be able to apply them during sensitivity computations
-        TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(interTemporalRaoInput.getRaoInputs(), topologicalOptimizationResults);
+        // 2. Evaluate the initial value of the global objective function
+        final ReportNode globalObjFuncInitialValueEvalReportNode = MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunction(reportNode);
+        ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
+        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
+        MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
 
-        TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
-        // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
-        replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
+        // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
+        final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
+        TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>(); // used for FastRAO
+        final TemporalData<RaoResult> topologicalOptimizationResults = timeCoupledRaoInput.getPreComputedRaoResults() == null
+            ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode)
+            : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
+        MarmotReports.reportMarmotTopologicalOptimizationEnd();
 
-        //TODO: loop
-        TemporalData<PrePerimeterResult> loadFlowResults;
+        // TODO : Add time-coupled constraint check if none violated then return
+        // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
+
+        // 4. Retrieve post-topological optimization results
+        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(cracs, topologicalOptimizationResults, parallelism);
+        // Get the curative actions applied in the individual results to be able to apply them during sensitivity computations
+        TemporalData<AppliedRemedialActions> curativeTopologicalActions = MarmotUtils.getAppliedRemedialActionsInCurative(cracs, topologicalOptimizationResults);
+        TemporalData<RangeActionSetpointResult> initialSetpointResults = getInitialSetpointResults(cracs, parallelism);
+        Set<String> postTopoOverloadedCnecs = new HashSet<>();
+        cracs.getTimestamps().forEach(timestamp -> {
+            Crac crac = cracs.getData(timestamp).orElseThrow();
+            RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
+            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
+                .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+        });
+        topologicalOptimizationResults.clear(); // delete RAO results
+
+        // Update initialResults to add RangeActionSetpointResult -> make sure that the initial setpoint field appear
+        // for all range actions in the final raoResult
+        initialResults = new TemporalDataImpl<>(
+            initialResults.getDataPerTimestamp().entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> new PrePerimeterSensitivityResultImpl(
+                        entry.getValue().getFlowResult(),
+                        entry.getValue().getSensitivityResult(),
+                        initialSetpointResults.getData(entry.getKey()).orElseThrow(),
+                        entry.getValue().getObjectiveFunctionResult()
+                    )
+                ))
+        );
+
+        // TODO: check time-coupled constraints. If one of the following requirements is met, exit:
+        //  - no time-coupled constraints provided
+        //  - all time-coupled constraints respected by the individual RAO results (this covers the case when the post-topological optimization cost is 0)
+        //  if (noTimeCoupledConstraints) {
+        //       MarmotReports.reportMarmotNoTimeCoupledConstraintProvided(reportNode);
+        //       <!-- Log limiting elements and costs -->
+        //       return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
+        //  } else if (areTimeCoupledConstraintsRespected(timeCoupledRaoInput, topologicalOptimizationResults)) {
+        //       TECHNICAL_LOGS.info("[MARMOT] All time-coupled constraint are respected; no need to re-optimize range actions");
+        //       <!-- Log limiting elements and costs -->
+        //       return CompletableFuture.completedFuture(new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
+        //  }
+        //  TECHNICAL_LOGS.info("[MARMOT] Some time-coupled constraint are not respected; range actions will be re-optimized");
+
+        // 5. Create and iteratively solve MIP to find optimal range actions' set-points
+
+        final ReportNode globalRangeActionsOptimizationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimization(reportNode);
+
+        TemporalData<PrePerimeterResult> sensiResults;
         GlobalLinearOptimizationResult linearOptimizationResults;
         GlobalLinearOptimizationResult fullResults;
+        FlowResult initialFlowResult = new GlobalFlowResult(initialResults);
         int counter = 1;
         do {
-            // Clone the PostTopoScenario variant to make sure we work on a clean variant every time
-            interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().values().forEach(raoInput -> {
-                raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, MIP_SCENARIO, true);
-                raoInput.getNetwork().getVariantManager().setWorkingVariant(MIP_SCENARIO);
-            });
-
             // Run post topo sensitivity analysis on all timestamps ON CONSIDERED CNECS ONLY (which is why we do it every loop)
-            TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
-            TemporalData<PrePerimeterResult> postTopoResults = runAllSensitivityAnalysesBasedOnInitialResult(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, initialResults, raoParameters, consideredCnecs);
-            TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
+            final ReportNode systematicTimeCoupledSensiAnalysisReportNode = MarmotReports.reportMarmotSystematicTimeCoupledSensitivityAnalysis(globalRangeActionsOptimizationReportNode);
+            TemporalData<PrePerimeterResult> postTopoResults = runAllSensitivityAnalysesBasedOnInitialResult(
+                initialInputs,
+                curativeTopologicalActions,
+                initialResults,
+                raoParametersDuplicates,
+                consideredCnecs,
+                parallelism,
+                systematicTimeCoupledSensiAnalysisReportNode
+            );
+            MarmotReports.reportMarmotSystematicTimeCoupledSensitivityAnalysisEnd();
 
             // Build objective function with ONLY THE CONSIDERED CNECS
-            ObjectiveFunction filteredObjectiveFunction = buildFilteredObjectiveFunction(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), raoParameters, consideredCnecs);
+            ObjectiveFunction filteredObjectiveFunction = buildFilteredObjectiveFunction(
+                cracs,
+                initialFlowResult,
+                raoParameters,
+                consideredCnecs
+            );
 
             // Create and iteratively solve MIP to find optimal range actions' set-points FOR THE CONSIDERED CNECS
-            TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start] for iteration {}", counter);
-            linearOptimizationResults = optimizeLinearRemedialActions(interTemporalRaoInput, initialResults, initialSetpointResults, postTopoResults, raoParameters, preventiveTopologicalActions, curativeRemedialActions, consideredCnecs, filteredObjectiveFunction);
-            TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", counter);
+            final ReportNode globalRaOptimForIterationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIteration(globalRangeActionsOptimizationReportNode, counter);
+            linearOptimizationResults = optimizeLinearRemedialActions(
+                new TimeCoupledRaoInput(initialInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints()),
+                initialResults,
+                initialSetpointResults,
+                postTopoResults,
+                raoParameters,
+                preventiveTopologicalActions,
+                curativeTopologicalActions,
+                consideredCnecs,
+                filteredObjectiveFunction,
+                parallelism,
+                globalRaOptimForIterationReportNode
+            );
+            MarmotUtils.releaseAllWithoutOverwrite(initialInputs.map(RaoInput::getNetwork));
+            MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationEnd(counter);
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
-            loadFlowResults = applyActionsAndRunFullLoadflow(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, linearOptimizationResults, initialResults, raoParameters);
-
+            sensiResults = applyActionsAndRunFullSensitivityAnalysis(initialInputs, curativeTopologicalActions, linearOptimizationResults, initialResults, raoParametersDuplicates, parallelism, reportNode);
             // Create a global result with the flows on ALL cnecs and the actions applied during MIP
+            // TODO: does this contain curative setpoints?
             TemporalData<RangeActionActivationResult> rangeActionActivationResultTemporalData = linearOptimizationResults.getRangeActionActivationResultTemporalData();
-            fullResults = new GlobalLinearOptimizationResult(loadFlowResults, loadFlowResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResultTemporalData, preventiveTopologicalActions, fullObjectiveFunction, LinearProblemStatus.OPTIMAL);
-
-            logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
+            fullResults = new GlobalLinearOptimizationResult(
+                sensiResults,
+                sensiResults.map(PrePerimeterResult::getSensitivityResult),
+                rangeActionActivationResultTemporalData,
+                preventiveTopologicalActions,
+                fullObjectiveFunction,
+                linearOptimizationResults.getStatus(),
+                globalRangeActionsOptimizationReportNode
+            );
+            MarmotReports.reportMarmotNextIterationOfMip(globalRangeActionsOptimizationReportNode, fullResults, raoParameters, 10);
             counter++;
-        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
-        TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
+        } while (
+            shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters), marmotParameters, globalRangeActionsOptimizationReportNode)
+                && counter < marmotParameters.getMaxMipIterations()); // Stop if the worst element of each TS has been considered during MIP
+        MarmotReports.reportMarmotGlobalRangeActionsOptimizationEnd();
 
         // 7. Merge topological and linear result
-        TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
-        InterTemporalRaoResultImpl interTemporalRaoResult = mergeTopologicalAndLinearOptimizationResults(interTemporalRaoInput.getRaoInputs(), initialResults, initialObjectiveFunctionResult, fullResults, topologicalOptimizationResults, raoParameters);
+        if (fullResults.getStatus() == LinearProblemStatus.INFEASIBLE) {
+            MarmotReports.reportMarmotInfeasibleGlobalMip(reportNode);
+            MarmotReports.reportMarmotUnoptimizedRaoResult(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
+            TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
+                initialInputs,
+                initialResults,
+                initialObjectiveFunctionResult,
+                fullResults,
+                initialInputs.map(r -> Set.of()),
+                initialInputs.map(r -> new AppliedRemedialActions()),
+                initialInputs.map(r -> Set.of()),
+                postTopoOverloadedCnecs,
+                raoParameters,
+                reportNode
+            );
+            MarmotUtils.closeAll(initialNetworks);
+            return CompletableFuture.completedFuture(timeCoupledRaoResult);
+        }
+
+        final ReportNode mergingTopoAndLinearRaReportNode = MarmotReports.reportMarmotMergingTopoAndLinearRemedialActionResults(reportNode);
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = mergeTopologicalAndLinearOptimizationResults(
+            initialInputs,
+            initialResults,
+            initialObjectiveFunctionResult,
+            fullResults,
+            preventiveTopologicalActions.map(NetworkActionsResult::getActivatedNetworkActions),
+            curativeTopologicalActions,
+            consideredCnecs,
+            postTopoOverloadedCnecs,
+            raoParameters,
+            mergingTopoAndLinearRaReportNode
+        );
 
         // 8. Log initial and final results
-        logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
-        logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
-        logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
+        MarmotReports.reportMarmotInitialResults(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
+        MarmotReports.reportMarmotResultAfterGlobalLinearOptimization(reportNode, fullResults, raoParameters, 10);
 
-        return CompletableFuture.completedFuture(interTemporalRaoResult);
+        MarmotUtils.closeAll(initialNetworks);
+        return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 
-    private TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<RaoResult> postTopologicalActionsResults, TemporalData<RaoInput> raoInputs) {
-        TemporalData<RangeActionSetpointResult> initialSetpointResults = new TemporalDataImpl<>();
-        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
-            Map<RangeAction<?>, Double> setPointMap = new HashMap<>();
-            raoInput.getCrac().getRangeActions().forEach(rangeAction ->
-                setPointMap.put(rangeAction, postTopologicalActionsResults.getData(timestamp).orElseThrow()
-                    .getPreOptimizationSetPointOnState(raoInput.getCrac().getPreventiveState(), rangeAction))
-            );
-            RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(
-                setPointMap
-            );
-            initialSetpointResults.put(timestamp, rangeActionSetpointResult);
-        });
-        return initialSetpointResults;
+    private TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<Crac> cracs, int parallelism) {
+        return MarmotUtils.smartMap(
+            cracs,
+            crac -> {
+                Map<RangeAction<?>, Double> setPointMap = new HashMap<>();
+                crac.getRangeActions().forEach(rangeAction ->
+                    setPointMap.put(rangeAction, MarmotUtils.getInitialSetPoint(rangeAction))
+                );
+                return new RangeActionSetpointResultImpl(setPointMap);
+            },
+            parallelism
+        );
     }
 
-    private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<FlowCnec>> consideredCnecs) {
-        int cnecsToAddPerVirtualCostName = 20;
-        double minRelativeImprovementOnMargin = 0.1;
-        double marginWindowToConsider = 5.0;
+    private boolean shouldContinueAndAddCnecs(final TemporalData<PrePerimeterResult> loadFlowResults,
+                                              final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                              final Unit flowUnit,
+                                              final MarmotParameters marmotParameters,
+                                              final ReportNode reportNode) {
+        final int cnecsToAddPerVirtualCostName = marmotParameters.getNumberOfCnecsToAddPerVirtualCostName();
+        final double minRelativeImprovementOnMargin = marmotParameters.getMinRelativeImprovementOnMargin();
+        final double marginWindowToConsider = marmotParameters.getMarginWindowToConsider();
 
-        AtomicBoolean shouldContinue = new AtomicBoolean(false);
-        updateShouldContinue(loadFlowResults, consideredCnecs, minRelativeImprovementOnMargin, shouldContinue);
+        final AtomicBoolean shouldContinue = new AtomicBoolean(false);
+        updateShouldContinue(loadFlowResults, consideredCnecs, minRelativeImprovementOnMargin, shouldContinue, flowUnit);
 
         if (shouldContinue.get()) {
-            updateConsideredCnecs(loadFlowResults, consideredCnecs, marginWindowToConsider, cnecsToAddPerVirtualCostName);
+            updateConsideredCnecs(loadFlowResults, consideredCnecs, marginWindowToConsider, cnecsToAddPerVirtualCostName, flowUnit, reportNode);
         }
         return shouldContinue.get();
     }
 
-    private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<FlowCnec>> consideredCnecs, double minRelativeImprovementOnMargin, AtomicBoolean shouldContinue) {
-        loadFlowResults.getTimestamps().forEach(timestamp -> {
+    private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults,
+                                             TemporalData<Set<FlowCnec>> consideredCnecs,
+                                             double minRelativeImprovementOnMargin,
+                                             AtomicBoolean shouldContinue,
+                                             Unit flowUnit) {
+        for (OffsetDateTime timestamp : loadFlowResults.getTimestamps()) {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<FlowCnec> previousCnecs = consideredCnecs.getData(timestamp).orElseThrow();
 
             // for margin violation - need to compare to min improvement on margin
             // ordered list of cnecs with an overload
-            List<FlowCnec> worstCnecsForMarginViolation = loadFlowResult.getCostlyElements(MIN_MARGIN_VIOLATION_EVALUATOR, Integer.MAX_VALUE);
+            List<FlowCnec> worstCnecsForMarginViolation = loadFlowResult.getCostlyElements(
+                MIN_MARGIN_VIOLATION_EVALUATOR,
+                Integer.MAX_VALUE
+            );
             double worstConsideredMargin = worstCnecsForMarginViolation.stream()
                 .filter(previousCnecs::contains)
                 .findFirst()
-                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .map(cnec -> loadFlowResult.getMargin(cnec, flowUnit))
                 .orElse(0.);
             double worstMarginOfAll = worstCnecsForMarginViolation.stream()
                 .findFirst()
-                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .map(cnec -> loadFlowResult.getMargin(cnec, flowUnit))
                 .orElse(0.);
             // if worst overload > worst considered overload *( 1 + minImprovementOnLoad)
             if (worstMarginOfAll < worstConsideredMargin * (1 + minRelativeImprovementOnMargin) - 1e-6) {
@@ -230,12 +366,17 @@ public class Marmot implements InterTemporalRaoProvider {
                         shouldContinue.set(true);
                     }
                 });
-        });
+        }
     }
 
-    private static void updateConsideredCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<FlowCnec>> consideredCnecs, double marginWindowToConsider, int cnecsToAddPerVirtualCostName) {
+    private static void updateConsideredCnecs(final TemporalData<PrePerimeterResult> loadFlowResults,
+                                              final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                              final double marginWindowToConsider,
+                                              final int cnecsToAddPerVirtualCostName,
+                                              final Unit flowUnit,
+                                              final ReportNode reportNode) {
         List<LoggingAddedCnecs> addedCnecsForLogging = new ArrayList<>();
-        loadFlowResults.getTimestamps().forEach(timestamp -> {
+        for (OffsetDateTime timestamp : loadFlowResults.getTimestamps()) {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<FlowCnec> previousIterationCnecs = consideredCnecs.getData(timestamp).orElseThrow();
             Set<FlowCnec> nextIterationCnecs = new HashSet<>(previousIterationCnecs);
@@ -244,24 +385,27 @@ public class Marmot implements InterTemporalRaoProvider {
                 .stream()
                 .filter(previousIterationCnecs::contains)
                 .findFirst()
-                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .map(cnec -> loadFlowResult.getMargin(cnec, flowUnit))
                 .orElse(0.);
 
-            loadFlowResult.getVirtualCostNames().forEach(vcName -> {
+            for (String vcName : loadFlowResult.getVirtualCostNames()) {
                 LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>(), new HashMap<>());
                 int addedCnecsForVcName = 0;
 
                 // for min margin violation take all cnecs
                 if (vcName.equals(MIN_MARGIN_VIOLATION_EVALUATOR)) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider && addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
+                        if (loadFlowResult.getMargin(
+                            cnec,
+                            flowUnit
+                        ) > worstConsideredMargin + marginWindowToConsider && addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
                             // stop if out of window and already added enough
                             break;
                         } else if (!previousIterationCnecs.contains(cnec)) {
                             // if in window or not added enough yet, add
                             nextIterationCnecs.add(cnec);
                             addedCnecsForVcName++;
-                            currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, Unit.MEGAWATT));
+                            currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, flowUnit));
                         }
                     }
                 } else if (loadFlowResult.getVirtualCost(vcName) > 1e-6) {
@@ -273,29 +417,16 @@ public class Marmot implements InterTemporalRaoProvider {
                     }
                 }
                 addedCnecsForLogging.add(currentLoggingAddedCnecs);
-            });
-            consideredCnecs.put(timestamp, nextIterationCnecs);
-        });
-        logCnecs(addedCnecsForLogging);
-    }
-
-    private static void logCnecs(List<LoggingAddedCnecs> addedCnecsForLogging) {
-        StringBuilder logMessage = new StringBuilder("[MARMOT] Proceeding to next iteration by adding:");
-        for (LoggingAddedCnecs loggingAddedCnecs : addedCnecsForLogging) {
-            if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
-                logMessage.append(" for timestamp ").append(loggingAddedCnecs.offsetDateTime().toString()).append(" and virtual cost ").append(loggingAddedCnecs.vcName()).append(" ");
-                for (String cnec : loggingAddedCnecs.addedCnecs()) {
-                    String cnecString = loggingAddedCnecs.vcName().equals(MIN_MARGIN_VIOLATION_EVALUATOR) ?
-                        cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")" + "," :
-                        cnec + ",";
-                    logMessage.append(cnecString);
-                }
             }
+            consideredCnecs.put(timestamp, nextIterationCnecs);
         }
-        TECHNICAL_LOGS.info(logMessage.toString());
+        MarmotReports.reportMarmotCnecs(reportNode, addedCnecsForLogging);
     }
 
-    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs, Map<String, Double> margins) {
+    public record LoggingAddedCnecs(OffsetDateTime offsetDateTime,
+                                    String vcName,
+                                    List<String> addedCnecs,
+                                    Map<String, Double> margins) {
         private void addCnec(String cnec) {
             addedCnecs.add(cnec);
         }
@@ -306,131 +437,234 @@ public class Marmot implements InterTemporalRaoProvider {
         }
     }
 
-    private static TemporalData<PrePerimeterResult> applyActionsAndRunFullLoadflow(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, LinearOptimizationResult filteredResult, TemporalData<PrePerimeterResult> initialResults, RaoParameters raoParameters) {
-        TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
-        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
-            // duplicate the postTopoScenario variant and switch to the new clone
-            raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, "PostPreventiveScenario", true);
-            raoInput.getNetwork().getVariantManager().setWorkingVariant("PostPreventiveScenario");
-            State preventiveState = raoInput.getCrac().getPreventiveState();
-            raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->
-                rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
-            );
-            prePerimeterResults.put(timestamp, runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
-                raoInputs.getData(timestamp).orElseThrow(),
-                curativeRemedialActions.getData(timestamp).orElseThrow(),
-                initialResults.getData(timestamp).orElseThrow(),
-                raoParameters));
-            // switch back to the postTopoScenario to avoid keeping applied range actions when entering the MIP
-            raoInput.getNetwork().getVariantManager().setWorkingVariant(POST_TOPO_SCENARIO);
-        });
-        return prePerimeterResults;
-    }
+    private static TemporalData<PrePerimeterResult> applyActionsAndRunFullSensitivityAnalysis(final TemporalData<RaoInput> postTopoInputs,
+                                                                                              final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                              final LinearOptimizationResult filteredResult,
+                                                                                              final TemporalData<PrePerimeterResult> initialResults,
+                                                                                              final TemporalData<RaoParameters> raoParameters,
+                                                                                              final int parallelism,
+                                                                                              final ReportNode reportNode) {
+        return MarmotUtils.smartMap(
+            postTopoInputs,
+            raoInput -> {
+                OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+                State preventiveState = raoInput.getCrac().getPreventiveState();
+                raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->
+                    rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
+                );
 
-    private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
-        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
-    }
+                AppliedRemedialActions allCurativeActions = new AppliedRemedialActions();
+                AppliedRemedialActions topoCurativeActions = curativeTopologicalActions.getData(timestamp).orElseThrow();
+                raoInput.getCrac().getStates().stream()
+                        .filter(state -> state.getInstant().isCurative())
+                        .forEach(state -> {
+                            topoCurativeActions.getAppliedNetworkActions(state)
+                                    .forEach(networkAction ->
+                                            allCurativeActions.addAppliedNetworkAction(state, networkAction));
+                            filteredResult.getActivatedRangeActions(state).forEach(rangeAction ->
+                                    allCurativeActions.addAppliedRangeAction(state, rangeAction, filteredResult.getOptimizedSetpoint(rangeAction, state)));
+                        });
 
-    private InterTemporalRaoInput importNetworksFromInterTemporalRaoInputWithNetworkPaths(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths) {
-        return new InterTemporalRaoInput(
-            interTemporalRaoInputWithNetworkPaths.getRaoInputs().map(raoInputWithNetworksPath -> {
-                RaoInput raoInput = raoInputWithNetworksPath.toRaoInputWithPostIcsImportNetworkPath();
-                raoInput.getNetwork().getVariantManager().cloneVariant(raoInput.getNetworkVariantId(), INITIAL_SCENARIO);
-                return raoInput;
-            }),
-            interTemporalRaoInputWithNetworkPaths.getTimestampsToRun(),
-            interTemporalRaoInputWithNetworkPaths.getGeneratorConstraints()
+                PrePerimeterResult sensitivityAnalysisResults = runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
+                        postTopoInputs.getData(timestamp).orElseThrow(),
+                        allCurativeActions,
+                        initialResults.getData(timestamp).orElseThrow(),
+                        raoParameters.getData(timestamp).orElseThrow(),
+                        reportNode);
+                MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
+                return sensitivityAnalysisResults;
+            },
+            parallelism
         );
     }
 
-    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
-
-        TemporalData<RaoResult> individualResults = new TemporalDataImpl<>();
-        raoInputs.getDataPerTimestamp().forEach((datetime, individualRaoInputWithNetworkPath) -> {
-            RaoInput individualRaoInput = RaoInput
-                .build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac())
-                .build();
-            Set<FlowCnec> cnecs = new HashSet<>();
-            String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
-            TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs);
-            TECHNICAL_LOGS.info(logMessage, "end");
-            consideredCnecs.put(datetime, cnecs);
-            individualResults.put(datetime, raoResult);
-        });
-        return individualResults;
+    private static TemporalData<RaoResult> runTopologicalOptimization(final TemporalData<RaoInput> raoInputs,
+                                                                      final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                      final TemporalData<RaoParameters> raoParameters,
+                                                                      final int parallelism,
+                                                                      final ReportNode reportNode) {
+        return MarmotUtils.smartMap(raoInputs, raoInput -> runSingleTopologicalOptimization(raoInput, consideredCnecs, raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), reportNode), parallelism);
     }
 
-    private static void applyPreventiveTopologicalActionsOnNetworks(TemporalData<RaoInput> raoInputs, TemporalData<NetworkActionsResult> preventiveTopologicalActionsResults) {
-        raoInputs.getTimestamps().forEach(timestamp -> {
-            RaoInput raoInput = raoInputs.getData(timestamp).orElseThrow();
-            NetworkActionsResult networkActionsResult = preventiveTopologicalActionsResults.getData(timestamp).orElseThrow();
-            MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
-        });
+    /**
+     * Runs a CASTOR optimization for a given RAO input and applies the optimal preventive network actions on the input network.
+     *
+     * @param raoInput        The RAO input for the optimization.
+     * @param consideredCnecs The temporal data of flow CNECs to be considered by FastRAO.
+     * @param raoParameters   The RAO parameters for the optimization.
+     * @return The resulting RaoResult after the optimization.
+     */
+    private static RaoResult runSingleTopologicalOptimization(final RaoInput raoInput,
+                                                              final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                              final RaoParameters raoParameters,
+                                                              final ReportNode reportNode) {
+        OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+        final ReportNode raoRunReportNode = MarmotReports.reportMarmotRunningRaoForTimestamp(reportNode, timestamp);
+        RaoResult raoResult = Rao.find(SINGLE_TS_RAO_IMPLEMENTATION).run(raoInput, raoParameters, null, raoRunReportNode);
+        CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
+        Set<FlowCnec> critcalCnecs = (criticalCnecsResult != null) ?
+            criticalCnecsResult.getCriticalCnecIds().stream().map(id -> raoInput.getCrac().getFlowCnec(id)).collect(Collectors.toSet()) :
+            raoInput.getCrac().getFlowCnecs();
+        MarmotReports.reportMarmotRunningRaoForTimestampEnd(timestamp);
+        consideredCnecs.put(timestamp, critcalCnecs);
+        State preventiveState = raoInput.getCrac().getPreventiveState();
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)));
+        MarmotReports.reportMarmotApplyingPraAfterOptimForTimestamp(reportNode, timestamp);
+        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, reportNode);
+        return raoResult;
     }
 
-    private TemporalData<PrePerimeterResult> buildInitialResults(TemporalData<RaoResult> topologicalOptimizationResults) {
-        TemporalData<PrePerimeterResult> initialResults = new TemporalDataImpl<>();
-        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) ->
-            initialResults.put(timestamp, ((FastRaoResultImpl) raoResult).getInitialResult()));
-        return initialResults;
+    private static TemporalData<RaoResult> applyPreventiveToposFromRaoResults(final TemporalData<RaoInput> raoInputs,
+                                                                              final TemporalData<RaoResult> raoResults,
+                                                                              final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                              final int parallelism,
+                                                                              final ReportNode reportNode) {
+        return MarmotUtils.smartMap(raoInputs, raoInput -> applyPreventiveTopologicalActions(raoInput, raoResults.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), consideredCnecs, reportNode), parallelism);
     }
 
-    private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, TemporalData<? extends FlowResult> initialFlowResults, RaoParameters raoParameters, TemporalData<Set<FlowCnec>> consideredCnecs) {
-        TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
-        raoInputs.getTimestamps().forEach(timestamp -> {
-            prePerimeterResults.put(timestamp, runSensitivityAnalysisBasedOnInitialResult(
-                raoInputs.getData(timestamp).orElseThrow(),
-                curativeRemedialActions.getData(timestamp).orElseThrow(),
-                initialFlowResults.getData(timestamp).orElseThrow(),
-                raoParameters,
-                consideredCnecs.getData(timestamp).orElseThrow()
-            ));
-        });
-        return prePerimeterResults;
+    private static RaoResult applyPreventiveTopologicalActions(final RaoInput raoInput,
+                                                               final RaoResult raoResult,
+                                                               final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                               final ReportNode reportNode) {
+        OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+        State preventiveState = raoInput.getCrac().getPreventiveState();
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)));
+        MarmotReports.reportMarmotApplyingPraAfterOptimForTimestamp(reportNode, timestamp);
+        MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, reportNode);
+        Set<FlowCnec> cnecs = new HashSet<>();
+        CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
+        if (criticalCnecsResult != null) {
+            criticalCnecsResult.getCriticalCnecIds().forEach(
+                id -> cnecs.add(raoInput.getCrac().getFlowCnec(id))
+            );
+        } else {
+            cnecs.addAll(raoInput.getCrac().getFlowCnecs());
+        }
+        consideredCnecs.put(timestamp, cnecs);
+        return raoResult;
     }
 
-    private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActions(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
-        Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
-        cracs.getTimestamps().forEach(timestamp -> {
-            State preventiveState = cracs.getData(timestamp).orElseThrow().getPreventiveState();
-            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(Map.of(preventiveState, raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(preventiveState))));
-        });
-        return new TemporalDataImpl<>(preventiveTopologicalActions);
+    private static TemporalData<PrePerimeterResult> runAllInitialSensitivityAnalyses(final TemporalData<RaoInput> raoInputs,
+                                                                                     final TemporalData<RaoParameters> raoParameters,
+                                                                                     final int parallelism,
+                                                                                     final ReportNode reportNode) {
+        return MarmotUtils.smartMap(
+            raoInputs,
+            raoInput -> {
+                OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+                PrePerimeterResult sensitivityAnalysisResult = MarmotUtils.runInitialSensitivityAnalysis(
+                    raoInput,
+                    raoParameters.getData(timestamp).orElseThrow(),
+                    reportNode
+                );
+                MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
+                return sensitivityAnalysisResult;
+            },
+            parallelism
+        );
     }
 
-    private static GlobalLinearOptimizationResult optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, TemporalData<PrePerimeterResult> initialResults, TemporalData<RangeActionSetpointResult> initialSetpoints, TemporalData<PrePerimeterResult> postTopologicalActionsResults, RaoParameters parameters, TemporalData<NetworkActionsResult> preventiveTopologicalActions, TemporalData<AppliedRemedialActions> curativeRemedialActions, TemporalData<Set<FlowCnec>> consideredCnecs, ObjectiveFunction objectiveFunction) {
+    private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(final TemporalData<RaoInput> raoInputs,
+                                                                                                  final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                                  final TemporalData<? extends FlowResult> initialFlowResults,
+                                                                                                  final TemporalData<RaoParameters> raoParameters,
+                                                                                                  final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                                  final int parallelism,
+                                                                                                  final ReportNode reportNode) {
+        return MarmotUtils.smartMap(
+            raoInputs,
+            raoInput -> {
+                OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
+                PrePerimeterResult sensitivityAnalysisResult = runSensitivityAnalysisBasedOnInitialResult(
+                    raoInput,
+                    curativeTopologicalActions.getData(timestamp).orElseThrow(),
+                    initialFlowResults.getData(timestamp).orElseThrow(),
+                    raoParameters.getData(timestamp).orElseThrow(),
+                    consideredCnecs.getData(timestamp).orElseThrow(),
+                    reportNode
+                );
+                MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
+                return sensitivityAnalysisResult;
+            },
+            parallelism
+        );
+    }
 
-        // -- Build IteratingLinearOptimizerInterTemporalInput
-        TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs);
+    private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActions(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults, int parallelism) {
+        return MarmotUtils.smartMap(
+            cracs,
+            crac -> {
+                OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
+                return new NetworkActionsResultImpl(
+                    Map.of(
+                        crac.getPreventiveState(),
+                        raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(crac.getPreventiveState())
+                    ));
+            },
+            parallelism
+        );
+    }
+
+    private static GlobalLinearOptimizationResult optimizeLinearRemedialActions(final TimeCoupledRaoInput raoInput,
+                                                                                final TemporalData<PrePerimeterResult> initialResults,
+                                                                                final TemporalData<RangeActionSetpointResult> initialSetpoints,
+                                                                                final TemporalData<PrePerimeterResult> postTopologicalActionsResults,
+                                                                                final RaoParameters parameters,
+                                                                                final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                                                                final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                final ObjectiveFunction objectiveFunction,
+                                                                                final int parallelism,
+                                                                                final ReportNode reportNode) {
+
+        // -- Build IteratingLinearOptimizertimeCoupledInput
+        TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs, parallelism);
         // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
-        Map<OffsetDateTime, IteratingLinearOptimizerInput> linearOptimizerInputPerTimestamp = new HashMap<>();
-        raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp, IteratingLinearOptimizerInput.create()
-            .withNetwork(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork())
-            .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow())
-            .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
-            .withPrePerimeterFlowResult(initialResults.getData(timestamp).orElseThrow())
-            .withPreOptimizationFlowResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
-            .withPrePerimeterSetpoints(initialSetpoints.getData(timestamp).orElseThrow())
-            .withPreOptimizationSensitivityResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
-            .withPreOptimizationAppliedRemedialActions(curativeRemedialActions.getData(timestamp).orElseThrow())
-            .withToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput.getRaoInputs().getData(timestamp).orElseThrow(), parameters))
-            .withOutageInstant(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getOutageInstant())
-            .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
-            .build()));
-        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getGeneratorConstraints());
+
+        TemporalData<IteratingLinearOptimizerInput> linearOptimizerInputs = MarmotUtils.smartMap(
+            raoInput.getRaoInputs(),
+            individualRaoInput -> {
+                OffsetDateTime timestamp = MarmotUtils.getTimestamp(individualRaoInput);
+                IteratingLinearOptimizerInput iteratingLinearOptimizerInput = IteratingLinearOptimizerInput.create()
+                    .withNetwork(new LazyNetwork(individualRaoInput.getNetwork()))
+                    .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow()
+                        .copyWithFilteredAvailableHvdcRangeAction(individualRaoInput.getNetwork()))
+                    .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
+                    .withPrePerimeterFlowResult(initialResults.getData(timestamp).orElseThrow())
+                    .withPreOptimizationFlowResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
+                    .withPrePerimeterSetpoints(initialSetpoints.getData(timestamp).orElseThrow())
+                    .withPreOptimizationSensitivityResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
+                    .withPreOptimizationAppliedRemedialActions(curativeTopologicalActions.getData(timestamp).orElseThrow())
+                    .withToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput.getRaoInputs().getData(timestamp).orElseThrow(), parameters))
+                    .withOutageInstant(individualRaoInput.getCrac().getOutageInstant())
+                    .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
+                    .build();
+                MarmotUtils.releaseNetworkWithoutOverwrite(individualRaoInput.getNetwork());
+                MarmotUtils.releaseNetworkWithoutOverwrite(iteratingLinearOptimizerInput.network());
+                return iteratingLinearOptimizerInput;
+            },
+            parallelism
+        );
+
+        TimeCoupledIteratingLinearOptimizerInput timeCoupledLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
+            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints());
+
+        // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
+        // à investiguer
+        MarmotUtils.releaseAllWithoutOverwrite(raoInput.getRaoInputs().map(RaoInput::getNetwork));
+        MarmotUtils.releaseAllWithoutOverwrite(timeCoupledLinearOptimizerInput.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
 
         // Build parameters
         // Unoptimized cnec parameters ignored because only PRAs
         // TODO: define static method to define Ra Limitation Parameters from crac and topos (mutualize with search tree) : SearchTreeParameters::decreaseRemedialActionsUsageLimits
         IteratingLinearOptimizerParameters.LinearOptimizerParametersBuilder linearOptimizerParametersBuilder = IteratingLinearOptimizerParameters.create()
             .withObjectiveFunction(parameters.getObjectiveFunctionParameters().getType())
-            .withObjectiveFunctionUnit(parameters.getObjectiveFunctionParameters().getUnit())
+            .withFlowUnit(getFlowUnit(parameters))
             .withRangeActionParameters(parameters.getRangeActionsOptimizationParameters())
             .withRangeActionParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters())
             .withMaxNumberOfIterations(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations())
-            .withRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()) || SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
+            .withRaRangeShrinking(ENABLED.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking())
+                                  || ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
             .withRaLimitationParameters(new RangeActionLimitationParameters())
@@ -441,40 +675,65 @@ public class Marmot implements InterTemporalRaoProvider {
         parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParametersExtension);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
-        return InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters);
+        return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode);
     }
 
-    private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<Set<FlowCnec>> consideredCnecs) {
-        TemporalData<OptimizationPerimeter> optimizationPerimeters = new TemporalDataImpl<>();
-        cracs.getTimestamps().forEach(timestamp -> {
-            Crac crac = cracs.getData(timestamp).orElseThrow();
-            optimizationPerimeters.put(timestamp, new PreventiveOptimizationPerimeter(
-                crac.getPreventiveState(),
-                consideredCnecs.getData(timestamp).orElseThrow(),
-                new HashSet<>(), // no loopflows for now
-                new HashSet<>(), // don't re-optimize topological actions in Marmot
-                crac.getRangeActions(crac.getPreventiveState())
-            ));
-        });
-        return optimizationPerimeters;
+    private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<Set<FlowCnec>> consideredCnecs, int parallelism) {
+        return MarmotUtils.smartMap(
+            cracs,
+            crac -> {
+                OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
+                Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
+                State preventiveState = crac.getPreventiveState();
+                // set of range actions optimized by the mip
+                crac.getStates().stream()
+                        .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+                        .forEach(state -> MarmotUtils.addRangeActionsPerState(availableRangeActions, crac, state));
+                return new GlobalOptimizationPerimeter(
+                        preventiveState,
+                        consideredCnecs.getData(timestamp).orElseThrow(),
+                        new HashSet<>(), // no loopflows for now
+                        new HashSet<>(), // don't re-optimize topological actions in Marmot
+                        availableRangeActions
+                );
+            },
+            parallelism
+        );
     }
 
-    private static InterTemporalRaoResultImpl mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, ObjectiveFunctionResult initialLinearOptimizationResult, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
-        return new InterTemporalRaoResultImpl(
+    private static TimeCoupledRaoResultImpl mergeTopologicalAndLinearOptimizationResults(final TemporalData<RaoInput> raoInputs,
+                                                                                         final TemporalData<PrePerimeterResult> initialResults,
+                                                                                         final ObjectiveFunctionResult initialLinearOptimizationResult,
+                                                                                         final GlobalLinearOptimizationResult globalLinearOptimizationResult,
+                                                                                         final TemporalData<Set<NetworkAction>> preventiveNetworkActions,
+                                                                                         final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                         final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                         final Set<String> postTopoOverloadedCnecs,
+                                                                                         final RaoParameters raoParameters,
+                                                                                         final ReportNode reportNode) {
+        TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
             initialLinearOptimizationResult,
             globalLinearOptimizationResult,
             getPostOptimizationResults(
                 raoInputs,
                 initialResults,
                 globalLinearOptimizationResult,
-                topologicalOptimizationResults,
-                raoParameters));
+                preventiveNetworkActions,
+                curativeTopologicalActions,
+                consideredCnecs,
+                raoParameters,
+                reportNode
+            )
+        );
+        result.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
+        return result;
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
-        cracs.map(MarmotUtils::getPreventivePerimeterCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
-        Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
+        cracs.map(Crac::getFlowCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
+        Set<State> allOptimizedStates = new HashSet<>();
+        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
         return ObjectiveFunction.build(allFlowCnecs,
             new HashSet<>(), // no loop flows for now
             globalInitialFlowResult,
@@ -484,11 +743,16 @@ public class Marmot implements InterTemporalRaoProvider {
             allOptimizedStates);
     }
 
-    private static ObjectiveFunction buildFilteredObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters, TemporalData<Set<FlowCnec>> consideredCnecs) {
+    private static ObjectiveFunction buildFilteredObjectiveFunction(TemporalData<Crac> cracs,
+                                                                    FlowResult globalInitialFlowResult,
+                                                                    RaoParameters raoParameters,
+                                                                    TemporalData<Set<FlowCnec>> consideredCnecs) {
         Set<FlowCnec> flatConsideredCnecs = new HashSet<>();
         consideredCnecs.getDataPerTimestamp().values().forEach(flatConsideredCnecs::addAll);
 
-        Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
+        Set<State> allOptimizedStates = new HashSet<>();
+        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
+
         return ObjectiveFunction.build(
             flatConsideredCnecs,
             new HashSet<>(), // no loop flows for now
@@ -496,55 +760,28 @@ public class Marmot implements InterTemporalRaoProvider {
             globalInitialFlowResult, // always building from preventive so prePerimeter = initial
             Collections.emptySet(),
             raoParameters,
-            allOptimizedStates);
+            allOptimizedStates
+        );
     }
 
-    private LinearOptimizationResult getInitialObjectiveFunctionResult(TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction) {
+    private LinearOptimizationResult getInitialObjectiveFunctionResult(final TemporalData<PrePerimeterResult> prePerimeterResults,
+                                                                       final ObjectiveFunction objectiveFunction,
+                                                                       final ReportNode reportNode) {
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
         TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
-        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResults, networkActionsResults, objectiveFunction, LinearProblemStatus.OPTIMAL);
-    }
-
-    private LinearOptimizationResult getPostTopologicalOptimizationResult(TemporalData<RangeActionSetpointResult> allInitialSetPoints, TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction, TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
-        TemporalData<RangeActionActivationResult> rangeActionActivationResults = getRangeActionActivationResults(allInitialSetPoints, topologicalOptimizationResults, preventiveStates);
-        TemporalData<NetworkActionsResult> networkActionsResults = getNetworkActionActivationResults(topologicalOptimizationResults, preventiveStates);
-        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResults, networkActionsResults, objectiveFunction, LinearProblemStatus.OPTIMAL);
-    }
-
-    private static TemporalData<RangeActionActivationResult> getRangeActionActivationResults(TemporalData<RangeActionSetpointResult> allInitialSetPoints, TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
-        Map<OffsetDateTime, RangeActionActivationResult> rangeActionsResults = new HashMap<>();
-        topologicalOptimizationResults.getTimestamps().forEach(
-            timestamp -> {
-                State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
-                RangeActionSetpointResult initialSetPoints = allInitialSetPoints.getData(timestamp).orElseThrow();
-                RangeActionSetpointResult optimizedSetPoints = new RangeActionSetpointResultImpl(topologicalOptimizationResults.getData(timestamp).orElseThrow().getOptimizedSetPointsOnState(preventiveState));
-                RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialSetPoints);
-                optimizedSetPoints.getRangeActions().forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, preventiveState, optimizedSetPoints.getSetpoint(rangeAction)));
-                rangeActionsResults.put(timestamp, rangeActionActivationResult);
-            }
+        return new GlobalLinearOptimizationResult(
+            prePerimeterResults.map(PrePerimeterResult::getFlowResult),
+            prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
+            rangeActionActivationResults,
+            networkActionsResults,
+            objectiveFunction,
+            LinearProblemStatus.OPTIMAL,
+            reportNode
         );
-        return new TemporalDataImpl<>(rangeActionsResults);
-    }
-
-    private static TemporalData<NetworkActionsResult> getNetworkActionActivationResults(TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
-        Map<OffsetDateTime, NetworkActionsResult> networkActionsResults = new HashMap<>();
-        topologicalOptimizationResults.getTimestamps().forEach(
-            timestamp -> {
-                State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
-                Set<NetworkAction> activatedNetworkActions = topologicalOptimizationResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(preventiveState);
-                networkActionsResults.put(timestamp, new NetworkActionsResultImpl(Map.of(preventiveState, activatedNetworkActions)));
-            }
-        );
-        return new TemporalDataImpl<>(networkActionsResults);
     }
 
     @Override
     public String getName() {
-        return INTER_TEMPORAL_RAO;
-    }
-
-    @Override
-    public String getVersion() {
-        return VERSION;
+        return TIME_COUPLED_RAO;
     }
 }

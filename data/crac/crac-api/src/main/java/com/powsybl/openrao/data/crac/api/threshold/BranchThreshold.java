@@ -7,11 +7,10 @@
 
 package com.powsybl.openrao.data.crac.api.threshold;
 
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.iidm.network.TwoSides;
 
 /**
- * Specific {@link Threshold} for {@link BranchCnec}
+ * Specific {@link Threshold} for {@link com.powsybl.openrao.data.crac.api.cnec.FlowCnec}
  *
  * a BranchThreshold has a BranchThresholdRule, which defines on each side of the
  * branch the threshold applies.

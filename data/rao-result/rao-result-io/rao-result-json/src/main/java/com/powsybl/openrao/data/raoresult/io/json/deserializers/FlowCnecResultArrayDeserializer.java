@@ -7,21 +7,35 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AMPERE_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMMERCIAL_FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.LEFT_SIDE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.LOOP_FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MEGAWATT_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RELATIVE_MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RIGHT_SIDE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SIDE_ONE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SIDE_TWO;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ZONAL_PTDF_SUM;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -54,7 +68,7 @@ final class FlowCnecResultArrayDeserializer {
     private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
@@ -63,7 +77,7 @@ final class FlowCnecResultArrayDeserializer {
 
     private static void deserializeElementaryFlowCnecResult(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case MEGAWATT_UNIT:
                     jsonParser.nextToken();
                     deserializeElementaryFlowCnecResultForUnit(jsonParser, eFlowCnecResult, Unit.MEGAWATT, jsonFileVersion);
@@ -80,14 +94,14 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult.setPtdfZonalSum(TwoSides.TWO, jsonParser.getDoubleValue());
                     break;
                 default:
-                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
             }
         }
     }
 
     private static void deserializeElementaryFlowCnecResultForUnit(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case MARGIN:
                     jsonParser.nextToken();
                     eFlowCnecResult.setMargin(jsonParser.getDoubleValue(), unit);
@@ -136,7 +150,7 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult.setLoopFlow(TwoSides.TWO, jsonParser.getDoubleValue(), unit);
                     break;
                 default:
-                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
             }
         }
     }
@@ -147,7 +161,7 @@ final class FlowCnecResultArrayDeserializer {
 
     private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, TwoSides side) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case FLOW:
                     jsonParser.nextToken();
                     eFlowCnecResult.setFlow(side, jsonParser.getDoubleValue(), unit);
@@ -168,7 +182,7 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult.setPtdfZonalSum(side, jsonParser.getDoubleValue());
                     break;
                 default:
-                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
             }
         }
     }

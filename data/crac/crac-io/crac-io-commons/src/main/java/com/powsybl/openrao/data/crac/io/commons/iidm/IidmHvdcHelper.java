@@ -28,10 +28,20 @@ public final class IidmHvdcHelper {
     }
 
     public static double getCurrentSetpoint(Network network, String networkElementId) {
+        // getActivePowerSetpoint should always return something positive
         if (getHvdcLine(network, networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             return getHvdcLine(network, networkElementId).getActivePowerSetpoint();
         } else {
             return -getHvdcLine(network, networkElementId).getActivePowerSetpoint();
         }
+    }
+
+    public static double computeHvdcAngleDroopActivePowerControlSetPoint(HvdcLine hvdcLine) {
+        return hvdcLine.getConverterStation1().getTerminal().getP();
+    }
+
+    public static void setActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine, double setpoint) {
+        hvdcLine.setConvertersMode(setpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(Math.abs(setpoint));
     }
 }

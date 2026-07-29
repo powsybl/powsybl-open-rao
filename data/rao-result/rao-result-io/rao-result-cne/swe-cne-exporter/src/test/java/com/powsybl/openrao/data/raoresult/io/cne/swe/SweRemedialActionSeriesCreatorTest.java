@@ -27,7 +27,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -127,7 +131,13 @@ class SweRemedialActionSeriesCreatorTest {
 
     }
 
-    private RemedialActionSeriesCreationContext createRascc(String nativeId, boolean isImported, Set<String> createdIds, boolean isPst, String pstElementMrid, String pstElementName, boolean isInverted) {
+    private RemedialActionSeriesCreationContext createRascc(String nativeId,
+                                                            boolean isImported,
+                                                            Set<String> createdIds,
+                                                            boolean isPst,
+                                                            String pstElementMrid,
+                                                            String pstElementName,
+                                                            boolean isInverted) {
         RemedialActionSeriesCreationContext rascc;
         if (isPst) {
             rascc = Mockito.mock(PstRangeActionSeriesCreationContext.class);

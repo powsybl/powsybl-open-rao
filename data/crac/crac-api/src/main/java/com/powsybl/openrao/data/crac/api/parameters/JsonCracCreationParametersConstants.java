@@ -15,9 +15,10 @@ import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.powsybl.openrao.data.crac.api.RaUsageLimits.deserializeRaUsageLimits;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -79,7 +80,6 @@ public final class JsonCracCreationParametersConstants {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(INSTANT, entry.getKey());
         jsonGenerator.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
-        jsonGenerator.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
         jsonGenerator.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
         jsonGenerator.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
         jsonGenerator.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
@@ -94,57 +94,4 @@ public final class JsonCracCreationParametersConstants {
         }
     }
 
-    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
-        HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
-        // Check types
-        map.forEach((Object o, Object o2) -> {
-            if (!(o instanceof String) || !(o2 instanceof Integer)) {
-                throw new OpenRaoException("Unexpected key or value type in a Map<String, Integer> parameter!");
-            }
-            if ((int) o2 < 0) {
-                throw new OpenRaoException("Unexpected negative integer!");
-            }
-        });
-        return map;
-    }
-
-    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
-        RaUsageLimits raUsageLimits = new RaUsageLimits();
-        String instant = null;
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case INSTANT:
-                    jsonParser.nextToken();
-                    instant = jsonParser.getValueAsString();
-                    break;
-                case MAX_RA:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxRa(jsonParser.getIntValue());
-                    break;
-                case MAX_TSO:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxTso(jsonParser.getIntValue());
-                    break;
-                case MAX_TOPO_PER_TSO:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
-                    break;
-                case MAX_PST_PER_TSO:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
-                    break;
-                case MAX_RA_PER_TSO:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
-                    break;
-                case MAX_ELEMENTARY_ACTIONS_PER_TSO:
-                    jsonParser.nextToken();
-                    raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));
-            }
-        }
-        return Pair.of(instant, raUsageLimits);
-    }
 }

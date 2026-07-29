@@ -2,7 +2,7 @@
 title: Internal JSON CRAC format
 ---
 
-# JSON CRAC format
+# OpenRAO JSON CRAC format
 
 ## Introduction
 
@@ -17,18 +17,19 @@ In other words, it gathers the following information:
 It is typically used in European coordinated processes. It enables, for a given geographical region, to define the 
 network elements that might be critical after specific outages, and the remedial actions that might help to manage them.  
 
-**A CRAC object model has been designed in OpenRAO** in order to store all the aforementioned information. This page aims to present:
+**A CRAC object model has been designed in OpenRAO** to store all the aforementioned information. This page aims to present:
 - the content and the organization of the data present in the OpenRAO CRAC object model,
-- how a OpenRAO CRAC object can be built,
+- how an OpenRAO CRAC object can be built,
   - using the java API,
-  - or using the OpenRAO internal Json CRAC format.
+  - or using the OpenRAO internal JSON CRAC format.
 
 Note that other pages of this documentation describe how the OpenRAO CRAC object model can be built with other standard 
 CRAC formats, such as the [FlowBasedConstraint](fbconstraint.md) format, the [CSE](cse.md) Format, the [CIM](cim.md)
 format and the [NC](nc.md) format.
 
 ## Full CRAC examples
-Example of complete CRACs are given below
+
+Examples of complete CRACs are given below
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -37,7 +38,8 @@ The creation of a small CRAC is for instance made in this test class of powsybl-
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the json internal format of OpenRAO is given below:  
-[example on GitHub](https://github.com/powsybl/open-rao/blob/db4de51df5029841d4860bc7bfe38c55c2c7b176/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.7.json)
+[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json)
+<!-- TODO: point to the latest JSON CRAC version above -->
 :::
 ::::
   
@@ -47,7 +49,35 @@ The following paragraphs of this page explain, step by step, the content of thes
 > 🔴 marks a **mandatory** field  
 > ⚪ marks an **optional** field  
 > 🔵 marks a field that can be **mandatory in some cases**  
-> ⭐ marks a field that must be **unique** in the CRAC  
+> ⭐ marks a field that must be **unique** in the CRAC
+
+## Header
+
+An OpenRAO JSON CRAC file must contain a header, which is made of four fields, all mandatory:
+
+- `type`: the type of JSON document being processed, must be "CRAC"
+- `version`: the version of the CRAC format, the latest version is 2.10
+- `id`: the identifier of the CRAC
+- `name`: the name of the CRAC
+
+An optional `info` field can be added to the header. It is a free-form text field that can be used to add any
+information about the CRAC. Additionally, a `timestamp` field can be added to the header, which is a string
+representing the date and time of validity the CRAC. The format of the timestamp is ISO 8601.
+
+```json
+{
+  "type": "CRAC",
+  "version": "2.11",
+  "id": "my-crac",
+  "name": "My CRAC",
+  "info" : "Whatever information worth mentioning about the CRAC.",
+  "timestamp" : "2026-01-01T00:00:00Z"
+}
+```
+
+The JSON CRAC importer supports backwards compatibility with previous versions of the CRAC format. It is therefore
+possible to import a CRAC with a version anterior to the latest version. However, this documentation page only refers to
+the latest version of the CRAC format. For previous versions, please refer to the [changelog](#changelog) section.
 
 ## Network elements 
 OpenRAO relies on the [PowSyBl framework](https://www.powsybl.org/), and OpenRAO's CRAC relies on some elements of
@@ -131,6 +161,8 @@ crac.newContingency()
     .withContingencyElement("powsybl_electrical_line_2_id", ContingencyElementType.LINE)
     .add();
 ~~~
+The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using:
+`ContingencyElementFactory.create(network.getIdentifiable(id)).getType()`.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -146,18 +178,14 @@ crac.newContingency()
 ~~~
 :::
 :::{group-tab} Object fields
-🔴⭐ **identifier**  
+🔴⭐ **id**  
 ⚪ **name**  
-⚪ **contingency elements**: list of 0 to N contingency elements  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element type**: type of element in the network. Currently, PowSyBl handles: 
-GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, DANGLING_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
-THREE_WINDINGS_TRANSFORMER, LOAD, SWITCH, BATTERY, BUS, TIE_LINE. The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using: 
-`ContingencyElementFactory.create(network.getIdentifiable(id)).getType()`.  
+⚪ **networkElementsIds**: list of 0 to N contingency elements   
 :::
 ::::
 
 ## Instants and States
+
 The instant is a moment in the chronology of a contingency event. Four instants kinds currently exist in OpenRAO:
 - the **preventive** instant kind occurs before any contingency, and describes the "base-case" situation. A CRAC may
   contain only one instant of kind preventive.
@@ -196,10 +224,16 @@ The scheme below illustrates these notions of instant and state. It highlights t
 
 States are not directly added to a OpenRAO CRAC object model; they are implicitly created by business objects
 that are described in the following paragraphs ([CNECs](#cnecs) and [remedial actions](#remedial-actions-and-usages-rules)).
-
+️
 Instants are added one after the other in the CRAC object.
-The first instant must be of kind preventive.
-The second instant must be of kind outage.
+
+> ⚠️ **Warning**
+> 
+> In the current OpenRAO implementation, a CRAC must contain **at least two instants**:
+> - the first instant must be of kind **preventive**
+> - the second instant must be of kind **outage**.
+>
+> Other instants (auto and curatives) are optional.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -230,6 +264,10 @@ crac.newInstant("preventive", InstantKind.PREVENTIVE)
     "kind": "CURATIVE"
   } ],
 ~~~
+:::
+:::{group-tab} Object fields
+🔴⭐ **id**  
+🔴 **kind**: must be one of PREVENTIVE, OUTAGE, AUTO or CURATIVE.
 :::
 ::::
 
@@ -282,11 +320,6 @@ The notion of **direction** is also inherent to the FlowCnec: a flow in directio
 one/left to terminal two/right, while a flow in direction "opposite" is a flow from terminal two/right to terminal
 one/left. The convention of OpenRAO is that a positive flow is a flow in the "direct" direction, while a negative flow is
 a flow in the "opposite" direction.
-
-> 💡  **NOTE**  
-> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/BranchCnec.java).
-> If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
-> physical parameter other than power flow.
 
 #### Flow limits on a FlowCnec
 A FlowCnec has flow limits, called "thresholds" in OpenRAO. These thresholds define the limits between which the power
@@ -379,7 +412,7 @@ crac.newFlowCnec()
   "instant" : "preventive",
   "optimized" : true,
   "monitored" : false,
-  "frm" : 50.0,
+  "reliabilityMargin" : 50.0,
   "thresholds" : [ {
     "unit" : "megawatt",
     "min" : -1500.0,
@@ -396,9 +429,7 @@ crac.newFlowCnec()
   "contingencyId" : "contingency-id",
   "optimized" : true,
   "monitored" : false,
-  "frm" : 50.0,
-  "iMax" : [ 500.0 ],
-  "nominalV" : [ 380.0, 220.0 ],
+  "reliabilityMargin" : 50.0,
   "thresholds" : [ {
     "unit" : "ampere",
     "min" : -450.0,
@@ -414,23 +445,19 @@ crac.newFlowCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **network element**: one network element  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element name**  
+🔴 **networkElementId**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**    
 ⚪ **border**: default value = ""  
-⚪ **reliability margin**: default value = 0 MW  
+⚪ **reliabilityMargin**: default value = 0 MW  
 ⚪ **optimized**: default value = false  
 ⚪ **monitored**: default value = false  
 🔴 **thresholds**: list of 1 to N thresholds, a FlowCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **side**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of minValue/maxValue should be defined  
-🔵 **nominal voltages**: mandatory if the FlowCnec has at least one threshold in %Imax or A  
-🔵 **iMax**:  mandatory if the FlowCnec has at least one threshold in %Imax  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 :::
 ::::
 
@@ -491,7 +518,7 @@ insecurities in the network when it's back up. That's why we monitor angle CNECs
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
 In terms of OpenRAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
-BranchCnec, because we cannot define on which side it is monitored: it is monitored on both sides (more specifically,
+FlowCnec, because we cannot define on which side it is monitored: it is monitored on both sides (more specifically,
 we monitor the phase shift between the two sides).
 
 An AngleCnec has the following specificities:
@@ -583,23 +610,19 @@ cnec2 = crac.newAngleCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **importing network element**: one network element  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element name**  
-🔴 **exporting network element**: one network element  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element name**  
+🔴 **importingNetworkElement**: one network element, must be the id of a PowSyBl network identifiable  
+🔴 **exportingNetworkElement**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**  
 ⚪ **border**: default value = ""  
-⚪ **reliability margin**: default value = 0 °  
+⚪ **reliabilityMargin**: default value = 0 °  
 ⚪ **optimized**: default value = false  
 ⚪ **monitored**: default value = false  
 🔴 **thresholds**: list of 1 to N thresholds, an AngleCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  : must be in degrees  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of these two values (min/max) is required   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined    
 :::
 ::::
 
@@ -686,20 +709,18 @@ crac.newVoltageCnec()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-🔴 **network element**: one network element  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element name**  
+🔴 **networkElementId**: one network element, must be the id of a PowSyBl network identifiable  
 🔴 **instant**  
-🔵 **contingency**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
+🔵 **contingencyId**: mandatory, except if the instant is preventive. Must be the id of a contingency which exists in the CRAC  
 ⚪ **operator**  
 ⚪ **border**: default value = ""   
-⚪ **reliability margin**: default value = 0 kV  
+⚪ **reliabilityMargin**: default value = 0 kV  
 ⚪ **optimized**: default value = false  
 ⚪ **monitored**: default value = false  
 🔴 **thresholds**: list of 1 to N thresholds, a VoltageCnec must contain at least one threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  : must be in kilovolts  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of these two values (min/max) is required   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 :::
 ::::
 
@@ -801,10 +822,10 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **instant**  
 <ins>**For OnContingencyState usage rules**</ins>  
 🔴 **instant**  
-🔴 **contingency**: must be the id of a contingency that exists in the CRAC  
+🔴 **contingencyId**: must be the id of a contingency that exists in the CRAC  
 <ins>**For OnFlowConstraintInCountry usage rules**</ins>  
 🔴 **instant**  
-🔵 **contingency**: must be the id of a contingency that exists in the CRAC  
+🔵 **contingencyId**: must be the id of a contingency that exists in the CRAC  
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
 <ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
@@ -822,9 +843,10 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Phase tap changer tap position action: setting the tap of a PST in the network to a specific position.
 - Generator action: setting the active power of a generator in the network to a specific value.
 - Load action: setting the active power of a load in the network to a specific value.
-- Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
+- Boundary line action: setting the active power of a [boundary line](inv:powsyblcore:*:*#boundary-line) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
+- AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a HVDC line in AC emulation is imported)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -893,13 +915,13 @@ crac.newNetworkAction()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 	
-// dangling line action
+// boundary line action
 crac.newNetworkAction()
-	.withId("dangling-line-na-id")
+	.withId("boundary-line-na-id")
 	.withOperator("operator")
-	.newDanglingLineAction()
+	.newBoundaryLineAction()
 		.withActivePowerValue(260.0)
-		.withNetworkElement("dangling-line-id")
+		.withNetworkElement("boundary-line-id")
 		.add()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
@@ -925,6 +947,16 @@ crac.newNetworkAction()
 		.add()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
+
+// Ac emulation deactivation action
+crac.newNetworkAction()
+  .withId("ac-emulation-deactivation-id")
+  .withOperator("operator")
+  .newAcEmulationDeactivationAction()
+    .withNetworkElement("hvdcLineElementId")
+    .add()
+  .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
+  .add();
 ~~~
 :::
 :::{group-tab} JSON file
@@ -984,7 +1016,7 @@ crac.newNetworkAction()
     "id" : "load-action-na-id",
     "name" : "load-action-na-id",
     "operator" : "operator",
-    "activation-cost": 200.0,
+    "activationCost": 200.0,
     "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
@@ -993,14 +1025,14 @@ crac.newNetworkAction()
       "activePowerValue" : 260.0
     } ]
   }, {
-    "id" : "dangling-line-action-na-id",
-    "name" : "dangling-line-action-na-id",
+    "id" : "boundary-line-action-na-id",
+    "name" : "boundary-line-action-na-id",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
-    "danglingLineActions" : [ {
-      "networkElementId" : "dangling-line-id",
+    "boundaryLineActions" : [ {
+      "networkElementId" : "boundary-line-id",
       "activePowerValue" : 260.0
     } ]
   }, {
@@ -1024,8 +1056,12 @@ crac.newNetworkAction()
     "switchPairs" : [ {
       "open" : "switch-to-open-id",
       "close" : "switch-to-close-id"
+    } ],
+    "acEmulationDeactivationAction" : [ {
+        "networkElementId": "hvdcLine"
     } ]
-  } ]
+  }
+]
 ~~~
 :::
 :::{group-tab} Object fields
@@ -1037,37 +1073,39 @@ crac.newNetworkAction()
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
-🔵 **switch actions**: list of 0 to N SwitchAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
-🔵 **phase tap changer tap position**: list of 0 to N PhaseTapChangerTapPositionAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **tap position**: integer, new tap of the PST  
-🔵 **generator actions**: list of 0 to N GeneratorAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
-🔵 **load actions**: list of 0 to N LoadAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
-🔵 **dangling line action**: list of 0 to N DanglingLineAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
-🔵 **shunt compensator position action**: list of 0 to N ShuntCompensatorPositionAction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **section count**: integer, new value of the section count  
-🔵 **switch pairs**: list of 0 to N SwitchPair  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to open (network element)**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to close (network element)**: id is mandatory, name is optional, must be different from switch to open  
+🔵 **terminalsConnectionActions**: list of 0 to N TerminalsConnectionAction          
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **actionType**  
+🔵 **switchActions**: list of 0 to N SwitchAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **actionType**  
+🔵 **phaseTapChangerTapPosition**: list of 0 to N PhaseTapChangerTapPositionAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **tapPosition**: integer, new tap of the PST  
+🔵 **generatorActions**: list of 0 to N GeneratorAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **activePowerValue**: double, new value of the active power  
+🔵 **loadActions**: list of 0 to N LoadAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **activePowerValue**: double, new value of the active power  
+🔵 **boundaryLineActions**: list of 0 to N BoundaryLineAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **activePowerValue**: double, new value of the active power  
+🔵 **shuntCompensatorPositionActions**: list of 0 to N ShuntCompensatorPositionAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **sectionCount**: integer, new value of the section count  
+🔵 **switchPairs**: list of 0 to N SwitchPair  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **open (network element)**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **close (network element)**: must be the id of a PowSyBl network identifiable, must be different from switch to open  
+🔵 **acEmulationDeactivationActions**: list of 0 to N AcEmulationDeactivationAction                                     
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
 <br>
 *NB*: A Network Action must contain at least on elementary action.
 :::
 ::::
 
 ## Range Actions
-A OpenRAO "Range Action" is a remedial action with a continuous or discrete set-point. If the range action is inactive, its
+An OpenRAO "Range Action" is a remedial action with a continuous or discrete set-point. If the range action is inactive, its
 set-point is equal to its value in the initial network. If it is activated, its set-point is optimized by the RAO to
 improve the objective function.  
 OpenRAO has four types of range actions : PST range actions, HVDC range actions, "injection" range actions and counter-
@@ -1160,15 +1198,13 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each tap moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each tap moved in the downward direction  
-🔴 **network element**: id is mandatory, name is optional  
+🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any group ID you like, as long as you use the same for all the range actions you want to align.  
 🔵 **speed**: mandatory if it is an automaton  
-🔴 **initial tap**  
-🔴 **tap to angle conversion map**  
-🔴 **tap ranges**: list of 0 to N TapRange  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **range type**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min tap**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max tap**: at least one value must be defined  
+🔵 **ranges**: list of 0 to N TapRange (if none provided, the whole PST's range will be used)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
@@ -1177,8 +1213,9 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 ::::
 
 ### HVDC Range Action
+
 An HvdcRangeAction contains a network element that must point towards an [HvdcLine of the iidm PowSyBl network model](inv:powsyblcore:*:*#hvdc-line).  
-The HvdcRangeAction will be able to modify its active power set-point.
+The HvdcRangeAction will be able to modify its active power set-point. 
 
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
 An HvdcRangeAction contains a list of HvdcRanges. A range must be defined with a min and a max.
@@ -1190,6 +1227,8 @@ If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
 
+> For more information on how HVDC range actions are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
@@ -1198,7 +1237,11 @@ No two range-action automatons can have the same speed value, unless they are al
 		.withName("hvdc-range-action-name")
    		.withOperator("operator")
         .withNetworkElement("hvec-id")
-        .newHvdcRange().withMin(-5).withMax(10).add()
+        .newHvdcRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMin(-5)
+            .withMax(10)
+            .add()
         .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).add()
         .add();  
 ~~~
@@ -1215,6 +1258,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
     } ],
     "networkElementId" : "hvdc-id",
     "ranges" : [ {
+      "rangeType" : "absolute",
       "min" : -5.0,
       "max" : 10.0
     } ]
@@ -1229,15 +1273,17 @@ In that case, the validity domain of the HVDC is [-5; 10].
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **network element**: id is mandatory, name is optional  
+🔴 **networkElementId**: must be the id of a PowSyBl network identifiable  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
-⚪ **hvdc ranges**: list of 0 to N HvdcRange  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+🔴 **ranges**: list of 0 to N HvdcRange  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))
+⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))
 :::
 ::::
 
@@ -1247,11 +1293,10 @@ An InjectionRangeAction modifies given generators' & loads' injection set-points
 Each impacted generator or load has an associated "key", which is a coefficient of impact that is applied on its set-point.
 
 This range action has two main applications:
-* to represent redispatching remedial actions for [inter-temporal computations](../../algorithms/castor/linear-problem/inter-temporal-constraints.md)
+* to represent redispatching remedial actions for [time-coupled computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md)
 * to represent an HVDC line in an AC equivalent model (where the line is disconnected and
-replaced by two injections, one on each side of the line, with opposite keys of 1 and -1), as illustrated in the following diagram.
+replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-nord-process-cse-crac)
 
-![HVDC AC model](../../_static/img/HVDC_AC_model.png){.forced-white-background}
 
 Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
@@ -1271,7 +1316,11 @@ If the InjectionRangeAction uses a disconnected generator, the action will be fi
    		.withOperator("operator")
         .withNetworkElementAndKey(1, "network-element-1")
         .withNetworkElementAndKey(-0.5, "network-element-2")
-        .newRange().withMin(-1200).withMax(500).add()
+        .newRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMin(-1200)
+            .withMax(500)
+            .add()
         .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).add()
         .add();     
 ~~~
@@ -1292,6 +1341,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 		"network-element-2" : -0.5
 	},
     "ranges" : [ {
+      "rangeType" : "absolute",
       "min" : -1200.0,
       "max" : 500.0
     } ]
@@ -1306,84 +1356,24 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **network element and key** (list of 1 to N): id and key are mandatory, name is optional  
+🔴 **networkElementIdsAndKeys** (list of 1 to N): id and key are mandatory 
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **ranges**: list of 1 to N Range  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))
 :::
 ::::
-
-#### Creating redispatching actions 
-
-The definition of redispatching actions in the CRAC must follow certain guidelines:
-
-- Make sure that the active load and the generator active power are defined correctly in the network.
-  When using a UCTE network, for a given node in the network, two network elements are automatically created: a generator with ID `nodeCode + " _generator"` and a load with ID `nodeCode + " _load"`.
-  For example, if you use the network element "FFR2AA1 _generator" make sure that the power associated with the node FFR2AA1 is defined in the 8th column in the ucte file (in the 6th column for loads). See the example below and [UCTE format definition](../../_static/pdf/UCTE-format.pdf).
-
-- Two different redispatching actions cannot be defined on the same network element.
-  For example, if redispatchingAction1 uses "FFR2AA1 _generator", redispatchingAction2 can't use "FFR2AA1 _generator".
-> A warning will be thrown but not an error, so be careful!
-
-
-- When an injection range action has several generators/loads, each generator/load's value defined in the initial network divided by its key
-  must be equal because an injection range action has a unique setpoint.
-
-You can find below a complete illustration:
-
-UCTE Network
-```
-##ZFR
-FFR1AA1  FR1          0 2 400.00 0.00000 0.00000 -1000.0 0.00000 9000.00 -9000.0 9000.00 -9000.0
-FFR2AA1  FR2          0 2 400.00 0.00000 0.00000 700.000 0.00000 9000.00 -9000.0 9000.00 -9000.0
-```
-
-CRAC Json
-
-```json
-"injectionRangeActions": [
-    {
-      "id": "redispatchingActionFR1FR2",
-      "name": "redispatchingActionFR1FR2",
-      "operator": "FR",
-      "activationCost": 10.0,
-      "variationCosts": {
-        "up": 50.0,
-        "down": 50.0
-      },
-      "onInstantUsageRules": [
-        {
-          "instant": "preventive",
-          "usageMethod": "available"
-        }
-      ],
-      "networkElementIdsAndKeys": {
-        "FFR1AA1 _generator": 1.0,
-        "FFR2AA1 _generator": -0.7
-      },
-      "ranges": [
-        {
-          "min": -1000.0,
-          "max": 1000.0
-        }
-      ]
-    }
-]
-```
-In this case the initial active power of `FFR1AA1 _generator` is 1000 MW and  `FFR2AA1 _generator` -700 MW so
-the initial setpoint of `redispatchingActionFR1FR2` is equal to $\frac{1000}{1}=\frac{-700}{-0.7}=1000$.
-
 
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two countries. The exporting country send power to the importing
-country.
+A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
@@ -1397,10 +1387,14 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withExportingCountry(Country.FR)
-        .withImportingCountry(Country.ES)
+        .withImportingArea("ES")
+        .withExportingArea("FR")
         .withInitialSetpoint(50)
-        .newRange().withMin(0).withMax(1000).add()
+        .newRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMin(0)
+            .withMax(1000)
+            .add()
         .newOnInstantUsageRule().withInstant("preventive").add()
         .add();     
 ~~~
@@ -1413,8 +1407,8 @@ exported from France to Spain.
     "id" : "counter-trade-range-action-id",
     "name" : "counterTradeRange1Name",
     "operator" : "operator",
-    "activation-cost" : 100.0,
-    "variation-costs" : {
+    "activationCost" : 100.0,
+    "variationCosts" : {
         "up": 1000.0,
         "down": 2000.0
     }
@@ -1422,13 +1416,14 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingCountry" : "FR",
-    "importingCountry" : "ES",
-    "initialSetpoint" : 50,
+    "exportingArea" : "FR",
+    "importingArea" : "ES",
     "ranges" : [ {
+        "rangeType" : "absolute",
         "min" : 0.0,
         "max" : 1000.0
     }, {
+        "rangeType" : "absolute",
         "min" : -1000.0,
         "max" : 1000.0
     } ]
@@ -1443,16 +1438,18 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exporting country**  
-🔴 **importing country**  
+🔴 **exportingArea**  
+🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 ⚪ **ranges**: list of 0 to N Range  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))
 :::
 ::::
 
@@ -1466,7 +1463,6 @@ See [here](creation-parameters.md#ra-usage-limits-per-instant) for further expla
 ~~~java
 crac.newRaUsageLimits("preventive")
     .withMaxRa(44)
-    .withMaxTso(12)
     .withMaxRaPerTso(new HashMap<>(Map.of("FR", 41, "BE", 12)))
     .withMaxPstPerTso(new HashMap<>(Map.of("BE", 7)))
     .withMaxTopoPerTso(new HashMap<>(Map.of("DE", 5)))
@@ -1482,7 +1478,6 @@ crac.newRaUsageLimits("curative")
 "ra-usage-limits-per-instant" : [ {
   "instant": "preventive",
   "max-ra" : 44,
-  "max-tso" : 12,
   "max-ra-per-tso" : {"FR": 41, "BE": 12},
   "max-topo-per-tso" : {"DE": 5},
   "max-pst-per-tso" : {"BE": 7}
@@ -1513,3 +1508,81 @@ For instance, let us consider a CRAC with 3 curative instants and the following 
 ```
 
 The maximum number of applicable remedial actions defined for the second curative instant (3) is a cumulated value that includes the maximum number of applicable remedial actions during the first curative instant (1). Thus, if 1 remedial action was applied during the first curative instant, only 2 remedial actions can actually be applied during the second curative instant. Likewise, the maximum number of remedial actions for the third curative instant includes the remedial actions applied at curative 1 and 2 instants. Depending on the number of previously applied remedial actions, the number of actually applicable remedial actions during the third curative instant can vary between 4 and 7.
+
+## Changelog
+
+**v2.11**
+- Removed `networkElementsNamePerId`.
+- Renamed counter-trade actions' `importingCountry` to `importingArea`, and `exportingCountry` to `exportingArea`.
+
+**v2.10**
+- Renamed `danglingLineActions` to `boundaryLineActions`.
+- Removed `max-tso` from `ra-usage-limits-per-instant`.
+- Added `rangeType` for all range actions.
+
+**v2.9**
+- Added `acEmulationDeactivationAction`.
+
+**v2.8**
+- Removed initial set-points from range actions (now read in network).
+- Removed `iMax` and `nominalV` from FlowCNECs (now read in network).
+- Removed usage methods.
+- Made ranges optional for PST range actions.
+
+**v2.7**
+- Added `timestamp`.
+
+**v2.6**
+- Added `activationCost` and `variationCosts` for remedial actions.
+
+**v2.5**
+- Updated elementary actions to use the new type coming from PowSyBl core remedial actions.
+
+**v2.4**
+- Introduced new names for `onConstraint` and `cnecId`.
+- Replaced side names `left` and `right` with `one` and `two`.
+
+**v2.3**
+- Added the `RELATIVE_TO_PREVIOUS_TIME_STEP` range type.
+- Added the `border` attribute for CNECs.
+
+**v2.2**
+- Added the contingency ID in `on-flow-constraint-in-country`.
+
+**v2.1**
+- Added `ra-usage-limits`.
+
+**v2.0**
+- Added instants.
+- Changed the usage method logic; usage methods are now mandatory.
+
+**v1.9**
+- Added `counterTradeRangeAction`.
+
+**v1.8**
+- Added shunt compensator set-point action.
+
+**v1.7**
+- Added voltage constraint usage rules.
+
+**v1.6**
+- Replaced FlowCNEC's `rule` by `side`.
+- Renamed `freeToUse` to `onInstant`.
+- Renamed `onState` to `onContingencyState`.
+
+**v1.5**
+- Added VoltageCNECs.
+
+**v1.4**
+- Added AngleCNECs.
+- Renamed `frm` to `reliabilityMargin`.
+
+**v1.3**
+- Added initial set-points for HVDC range actions and injection range actions.
+- Added `onFlowConstraintInCountry`.
+
+**v1.2**
+- Added `injectionRangeAction`.
+
+**v1.1**
+- Added `switchPairs`.

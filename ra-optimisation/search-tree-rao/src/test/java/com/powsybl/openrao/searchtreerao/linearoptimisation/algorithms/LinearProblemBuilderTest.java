@@ -9,15 +9,30 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MarginCoreProblemFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxLoopFlowFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinRelativeMarginFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MnecFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.RaUsageLimitsFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.UnoptimizedCnecFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -30,7 +45,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -40,8 +57,6 @@ class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
-    private SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
-    private com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters rangeActionParameters;
     private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private OptimizationPerimeter optimizationPerimeter;
 
@@ -51,10 +66,10 @@ class LinearProblemBuilderTest {
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
 
-        solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        final SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         when(solverParameters.getSolver()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
-        rangeActionParameters = Mockito.mock(com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters.class);
+        final RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParametersExtension);
@@ -82,13 +97,13 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuous() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -97,13 +112,13 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginDiscrete() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(DiscretePstTapFiller.class, fillers.get(2));
         assertInstanceOf(DiscretePstGroupFiller.class, fillers.get(3));
@@ -114,13 +129,13 @@ class LinearProblemBuilderTest {
     void testBuildMaxRelativeMarginContinuous() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinRelativeMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -129,8 +144,8 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         when(parameters.isRaoWithMnecLimitation()).thenReturn(true);
         when(parameters.isRaoWithLoopFlowLimitation()).thenReturn(true);
@@ -140,7 +155,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(MnecFiller.class, fillers.get(2));
         assertInstanceOf(MaxLoopFlowFiller.class, fillers.get(3));
@@ -152,7 +167,7 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuousRaLimitation() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         RangeActionLimitationParameters raLimitationParameters = Mockito.mock(RangeActionLimitationParameters.class);
         when(parameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(Mockito.mock(State.class)));
@@ -162,7 +177,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
         assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));

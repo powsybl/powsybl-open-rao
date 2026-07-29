@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/crac/crac-v2.9.json",
+  "title": "CRAC",
+  "description": "Contingency list, Remedial Actions and additional Constraints",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "CRAC"
+    },
+    "version": {
+      "const": "2.9"
+    },
+    "info": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "instants": {
+      "type": "array",
+      "items": {
+        "$ref": "../instant/instant-v2.0.json"
+      }
+    },
+    "ra-usage-limits-per-instant": {
+      "type": "array",
+      "items": {
+        "$ref": "../ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.1.json"
+      }
+    },
+    "networkElementsNamePerId": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "contingencies": {
+      "type": "array",
+      "items": {
+        "$ref": "../contingency/contingency-v1.0.json"
+      }
+    },
+    "flowCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "../flow-cnec/flow-cnec-v2.8.json"
+        }
+      }
+    },
+    "angleCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "../angle-cnec/angle-cnec-v1.4.json"
+        }
+      }
+    },
+    "voltageCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "../voltage-cnec/voltage-cnec-v1.5.json"
+        }
+      }
+    },
+    "pstRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "../pst-range-action/pst-range-action-v2.8.json"
+      }
+    },
+    "hvdcRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "../hvdc-range-action/hvdc-range-action-v2.8.json"
+      }
+    },
+    "injectionRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "../injection-range-action/injection-range-action-v2.8.json"
+      }
+    },
+    "counterTradeRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "../counter-trade-range-action/counter-trade-range-action-v2.8.json"
+      }
+    },
+    "networkActions": {
+      "type": "array",
+      "items": {
+        "$ref": "../network-action/network-action-v2.9.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "version",
+    "id",
+    "name"
+  ]
+}

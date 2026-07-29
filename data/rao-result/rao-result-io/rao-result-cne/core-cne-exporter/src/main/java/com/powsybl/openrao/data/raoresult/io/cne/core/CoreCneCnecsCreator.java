@@ -7,27 +7,53 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.core;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ContingencySeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_PATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B57_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B88_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.FLOW_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.FRM_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.LOOPFLOW_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.MAX_LOOPFLOW_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.MONITORED_MARKET_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OBJ_FUNC_PATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OBJ_FUNC_TATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OPTIMIZED_MARKET_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SUM_PTDF_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.TATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newConstraintSeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newContingencySeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newFlowMeasurement;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredRegisteredResource;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredSeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newPtdfMeasurement;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series

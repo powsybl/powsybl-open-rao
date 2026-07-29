@@ -1,16 +1,13 @@
-# NC CRAC format
+# Network Codes (NC) profiles
 
 ## Presentation
 
-For the NC process, the CRAC data is split over multiple XML files called **NC profiles**, each one with its own
-specific purpose, and which were inspired by the CGM format. This format
-was [introduced by ENTSO-E](https://www.entsoe.eu/data/cim/cim-for-grid-models-exchange/). The objects in the different
-NC profiles reference one another using **mRID** links (UUID format) which makes it possible to separate the
-information among several distinct files.
+The [ENTSO-E Network Codes profiles](https://www.entsoe.eu/data/cim/cim-for-grid-models-exchange/#_Network_Code__NC__profiles)
+is an extension of the CIM standard. The CRAC data is split over different profiles that reference one another.
 
 ## Header overview
 
-The OpenRAO importer only supports NC version `2.3` (see
+The OpenRAO importer only supports NC version `2.4` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
 ```xml
@@ -49,10 +46,9 @@ profiles, the keyword and purpose of which are gathered in the following table:
 | SSI     | Steady State Instruction | Overriding data for specific instants. |
 
 Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
-required) in the header. If the time at which the import occurs is outside of this time interval, the profile is
-ignored.
+required) in the header. If the time at which the import occurs is outside this time interval, the profile is ignored.
 
-> Several other fields can be added to the header but these will be ignored by OpenRAO.
+> Several other fields can be added to the header, but these will be ignored by OpenRAO.
 
 ## Profiles overview
 

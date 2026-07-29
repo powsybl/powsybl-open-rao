@@ -13,3 +13,6 @@ open-rao-*.zip
 # ignore python venv and docs' "build-docs" directory for doc generation with sphinx
 build-docs/
 venv/
+
+# ignore sensitive files used in business tests
+sensitive/

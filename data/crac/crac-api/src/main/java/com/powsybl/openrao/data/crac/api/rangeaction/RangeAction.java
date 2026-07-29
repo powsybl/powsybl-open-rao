@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 

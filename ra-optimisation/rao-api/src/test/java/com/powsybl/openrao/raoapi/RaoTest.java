@@ -7,6 +7,12 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -14,11 +20,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherRaoProviderMock;
 import com.powsybl.openrao.raoapi.raomock.RaoProviderMock;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,9 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -61,13 +64,12 @@ class RaoTest {
         // find rao
         Rao.Runner defaultRao = Rao.find(null, List.of(new RaoProviderMock()), platformConfig);
         assertEquals("RandomRAO", defaultRao.getName());
-        assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
         assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
         assertEquals(ComputationStatus.DEFAULT, resultAsync.getComputationStatus());
     }
@@ -84,7 +86,6 @@ class RaoTest {
         // case with two providers where one the two RAOs is specifically selected
         Rao.Runner definedRao = Rao.find("GlobalRAOptimizer", List.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
-        assertEquals("2.3", definedRao.getVersion());
     }
 
     @Test
@@ -100,7 +101,6 @@ class RaoTest {
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         Rao.Runner globalRaOptimizer = Rao.find(null, List.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
-        assertEquals("2.3", globalRaOptimizer.getVersion());
     }
 
     @Test

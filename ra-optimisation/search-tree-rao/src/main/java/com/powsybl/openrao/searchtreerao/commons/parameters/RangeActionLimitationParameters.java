@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.parameters;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -23,8 +21,6 @@ public class RangeActionLimitationParameters {
 
     private static final class RangeActionLimitation {
         private Integer maxRangeActions = null;
-        private Integer maxTso = null;
-        private Set<String> maxTsoExclusion = new HashSet<>();
         private Map<String, Integer> maxPstPerTso = new HashMap<>();
         private Map<String, Integer> maxRangeActionPerTso = new HashMap<>();
         private Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>();
@@ -37,7 +33,6 @@ public class RangeActionLimitationParameters {
     public boolean areRangeActionLimitedForState(State state) {
         return rangeActionLimitationPerState.containsKey(state) && (
             rangeActionLimitationPerState.get(state).maxRangeActions != null
-            || rangeActionLimitationPerState.get(state).maxTso != null
             || !rangeActionLimitationPerState.get(state).maxPstPerTso.isEmpty()
             || !rangeActionLimitationPerState.get(state).maxRangeActionPerTso.isEmpty()
             || !rangeActionLimitationPerState.get(state).maxElementaryActionsPerTso.isEmpty());
@@ -48,22 +43,6 @@ public class RangeActionLimitationParameters {
             return rangeActionLimitationPerState.get(state).maxRangeActions;
         } else {
             return null;
-        }
-    }
-
-    public Integer getMaxTso(State state) {
-        if (rangeActionLimitationPerState.containsKey(state)) {
-            return rangeActionLimitationPerState.get(state).maxTso;
-        } else {
-            return null;
-        }
-    }
-
-    public Set<String> getMaxTsoExclusion(State state) {
-        if (rangeActionLimitationPerState.containsKey(state)) {
-            return rangeActionLimitationPerState.get(state).maxTsoExclusion;
-        } else {
-            return new HashSet<>();
         }
     }
 
@@ -94,16 +73,6 @@ public class RangeActionLimitationParameters {
     public void setMaxRangeAction(State state, int maxRangeActions) {
         createIfAbsent(state);
         rangeActionLimitationPerState.get(state).maxRangeActions = maxRangeActions;
-    }
-
-    public void setMaxTso(State state, int maxTso) {
-        createIfAbsent(state);
-        rangeActionLimitationPerState.get(state).maxTso = maxTso;
-    }
-
-    public void setMaxTsoExclusion(State state, Set<String> maxTsoExclusion) {
-        createIfAbsent(state);
-        rangeActionLimitationPerState.get(state).maxTsoExclusion = maxTsoExclusion;
     }
 
     public void setMaxPstPerTso(State state, Map<String, Integer> maxPstPerTso) {

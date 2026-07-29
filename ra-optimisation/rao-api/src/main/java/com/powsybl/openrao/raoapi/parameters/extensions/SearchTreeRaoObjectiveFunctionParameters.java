@@ -8,10 +8,12 @@
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_MIN_OBJ_IMPROVEMENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCTION_SECTION;
 
 /**
  * Objective function parameters for RAO
@@ -27,16 +29,16 @@ public class SearchTreeRaoObjectiveFunctionParameters {
         return curativeMinObjImprovement;
     }
 
-    public static SearchTreeRaoObjectiveFunctionParameters load(PlatformConfig platformConfig) {
+    public static SearchTreeRaoObjectiveFunctionParameters load(final PlatformConfig platformConfig, final ReportNode reportNode) {
         SearchTreeRaoObjectiveFunctionParameters parameters = new SearchTreeRaoObjectiveFunctionParameters();
         platformConfig.getOptionalModuleConfig(ST_OBJECTIVE_FUNCTION_SECTION)
-            .ifPresent(config -> parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT)));
+            .ifPresent(config -> parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT), reportNode));
         return parameters;
     }
 
-    public void setCurativeMinObjImprovement(double curativeRaoMinObjImprovement) {
+    public void setCurativeMinObjImprovement(final double curativeRaoMinObjImprovement, final ReportNode reportNode) {
         if (curativeRaoMinObjImprovement < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+            RaoApiReports.reportNegativeMinimumObjectiveImprovement(reportNode, curativeRaoMinObjImprovement);
         }
         this.curativeMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }

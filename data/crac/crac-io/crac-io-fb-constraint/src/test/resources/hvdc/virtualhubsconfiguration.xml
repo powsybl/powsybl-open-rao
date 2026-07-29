@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Created="2026-01-27T11:33:43Z" xsi:noNamespaceSchemaLocation="configuration-25.xsd">
+  <InternalHVDCs>
+    <HVDC Eic="11T-ULTRANETD4D7" Code="D4D7_test" RelatedMA="DE" MTHVDC="false" Bipolar="true">
+      <pole id="1">
+        <converterList>
+          <converter node="D7AAA11A" station="Esgaroth" />
+          <converter node="D4AAA11B" station="Numenor" />
+        </converterList>
+        <lineList>
+          <line id="Ultranet1" from="D7AAA11A" to="D4AAA11B" />
+        </lineList>
+      </pole>
+      <pole id="2">
+        <converterList>
+          <converter node="D7AAA21A" station="Esgaroth" />
+          <converter node="D4AAA21B" station="Numenor" />
+        </converterList>
+        <lineList>
+          <line id="Ultranet2" from="D7AAA21A" to="D4AAA21B" />
+        </lineList>
+      </pole>
+    </HVDC>
+  </InternalHVDCs>
+</Configuration>

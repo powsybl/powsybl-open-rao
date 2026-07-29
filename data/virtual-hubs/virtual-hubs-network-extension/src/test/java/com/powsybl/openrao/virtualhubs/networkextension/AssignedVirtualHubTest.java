@@ -7,12 +7,16 @@
 
 package com.powsybl.openrao.virtualhubs.networkextension;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -55,11 +59,11 @@ class AssignedVirtualHubTest {
     }
 
     @Test
-    void testExtensionAdderOnDanglingLine() {
+    void testExtensionAdderOnBoundaryLine() {
         Network network = Network.read(SMALL_NETWORK_FILE_NAME, getClass().getResourceAsStream("/" + SMALL_NETWORK_FILE_NAME));
-        DanglingLine anyDanglingLine = network.getDanglingLines().iterator().next();
+        BoundaryLine anyBoundaryLine = network.getBoundaryLines().iterator().next();
 
-        anyDanglingLine.newExtension(AssignedVirtualHubAdder.class)
+        anyBoundaryLine.newExtension(AssignedVirtualHubAdder.class)
             .withCode("__CODE")
             .withEic("19VDUEGOLKAAAAS")
             .withMcParticipant(true)
@@ -67,7 +71,7 @@ class AssignedVirtualHubTest {
             .withRelatedMa(null)
             .add();
 
-        AssignedVirtualHub<DanglingLine> virtualHub = anyDanglingLine.getExtension(AssignedVirtualHub.class);
+        AssignedVirtualHub<BoundaryLine> virtualHub = anyBoundaryLine.getExtension(AssignedVirtualHub.class);
 
         assertNotNull(virtualHub);
         assertEquals("__CODE", virtualHub.getCode());

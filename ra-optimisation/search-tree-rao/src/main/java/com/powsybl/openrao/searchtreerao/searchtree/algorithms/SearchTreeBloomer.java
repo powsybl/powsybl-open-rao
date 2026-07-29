@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -18,7 +18,12 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +43,6 @@ public final class SearchTreeBloomer {
             new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
-            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
             new ElementaryActionsCompatibilityFilter(),
             new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()),
             new HasImpactOnNetworkFilter(input.getNetwork()))
@@ -66,7 +70,7 @@ public final class SearchTreeBloomer {
      * <li>they are not too far away from the most limiting CNEC</li>
      * </ul>
      */
-    Set<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
+    Set<NetworkActionCombination> bloom(final Leaf fromLeaf, final Set<NetworkAction> networkActions, final ReportNode reportNode) {
 
         // preDefined combinations
         Set<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
@@ -86,7 +90,7 @@ public final class SearchTreeBloomer {
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf, reportNode);
         }
 
         return networkActionCombinations;
@@ -113,16 +117,8 @@ public final class SearchTreeBloomer {
             return true;
         }
 
-        // maxTso
-        Set<String> operators = naCombination.getOperators();
-        Set<String> activatedTsos = alreadyActivatedNetworkActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-        alreadyActivatedRangeActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).forEach(activatedTsos::add);
-        activatedTsos.addAll(operators);
-        if (activatedTsos.size() > raUsageLimits.getMaxTso()) {
-            return true;
-        }
-
         // maxRaPerTso
+        Set<String> operators = naCombination.getOperators();
         for (String tso : operators) {
             int numberOfAlreadyActivatedRangeActionsForTso = (int) alreadyActivatedRangeActions.stream().filter(ra -> tso.equals(ra.getOperator())).count();
             int numberOfAlreadyAppliedNetworkActionsForTso = (int) alreadyActivatedNetworkActions.stream().filter(na -> tso.equals(na.getOperator())).count();
@@ -154,10 +150,18 @@ public final class SearchTreeBloomer {
 
     Map<String, Integer> getNumberOfPstTapsMovedByTso(OptimizationResult optimizationResult) {
         Map<String, Integer> pstTapsMovedByTso = new HashMap<>();
-        Set<PstRangeAction> activatedRangeActions = optimizationResult.getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState()).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
+        Set<PstRangeAction> activatedRangeActions = optimizationResult
+            .getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState())
+            .stream()
+            .filter(PstRangeAction.class::isInstance)
+            .map(ra -> (PstRangeAction) ra)
+            .collect(Collectors.toSet());
         for (PstRangeAction pstRangeAction : activatedRangeActions) {
             String operator = pstRangeAction.getOperator();
-            int tapsMoved = Math.abs(optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState()) - input.getPrePerimeterResult().getTap(pstRangeAction));
+            int tapsMoved = Math.abs(
+                optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState())
+                    - input.getPrePerimeterResult().getTap(pstRangeAction)
+            );
             pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
         }
         return pstTapsMovedByTso;

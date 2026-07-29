@@ -11,7 +11,10 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION_SECTION;
 
 /**
  * Range actions optimization parameters for RAO

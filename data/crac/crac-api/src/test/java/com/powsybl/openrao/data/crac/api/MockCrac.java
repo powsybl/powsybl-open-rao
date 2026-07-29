@@ -10,6 +10,15 @@ package com.powsybl.openrao.data.crac.api;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -19,19 +28,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -199,21 +199,6 @@ public final class MockCrac implements Crac {
 
     @Override
     public Cnec getCnec(String cnecId) {
-        return null;
-    }
-
-    @Override
-    public Set<BranchCnec> getBranchCnecs() {
-        return null;
-    }
-
-    @Override
-    public Set<BranchCnec> getBranchCnecs(State state) {
-        return null;
-    }
-
-    @Override
-    public BranchCnec getBranchCnec(String branchCnecId) {
         return null;
     }
 
@@ -440,6 +425,11 @@ public final class MockCrac implements Crac {
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
         return null;
+    }
+
+    @Override
+    public Set<String> findOperatorsNotSharingCras() {
+        return Collections.emptySet();
     }
 
     @Override

@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.data.crac.api.parameters;
 
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.iidm.network.TwoSides;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,21 +55,6 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
 
         Set<TwoSides> getMonitoredSides() {
             return monitoredSides;
-        }
-    }
-
-    public enum DurationThresholdsLimits {
-        DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT(60),
-        DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT(900);
-
-        private final int limit;
-
-        DurationThresholdsLimits(int limit) {
-            this.limit = limit;
-        }
-
-        public int getLimit() {
-            return limit;
         }
     }
 

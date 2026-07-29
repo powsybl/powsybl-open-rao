@@ -19,7 +19,11 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -34,7 +38,12 @@ class CgmesBranchHelperTest {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
-        network = Network.read(Paths.get(new File(CgmesBranchHelperTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(
+            Paths.get(new File(CgmesBranchHelperTest.class.getResource("/MicroGrid.zip").getFile()).toString()),
+            LocalComputationManager.getDefault(),
+            Suppliers.memoize(ImportConfig::load).get(),
+            importParams
+        );
     }
 
     @Test

@@ -7,15 +7,20 @@
 
 package com.powsybl.openrao.virtualhubs.networkextension;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,10 +35,10 @@ class AssignedVirtualHubXmlSerializerTest {
         Network originalNetwork = Network.read(SMALL_NETWORK_FILE_NAME, getClass().getResourceAsStream("/" + SMALL_NETWORK_FILE_NAME));
 
         // add extensions
-        DanglingLine dl = originalNetwork.getDanglingLine("FFR1AA1  X_GBFR1  1");
+        BoundaryLine bl = originalNetwork.getBoundaryLine("FFR1AA1  X_GBFR1  1");
         Generator g = originalNetwork.getGenerator("NNL1AA1 _generator");
 
-        dl.newExtension(AssignedVirtualHubAdder.class).
+        bl.newExtension(AssignedVirtualHubAdder.class).
             withCode("code1").
             withEic("17YXTYUDHGKAAAAS").
             withMcParticipant(true).
@@ -56,7 +61,7 @@ class AssignedVirtualHubXmlSerializerTest {
         Network roundTripedNetwork = NetworkSerDe.read(is);
 
         // check results
-        AssignedVirtualHub<DanglingLine> avh1 = roundTripedNetwork.getDanglingLine("FFR1AA1  X_GBFR1  1").getExtension(AssignedVirtualHub.class);
+        AssignedVirtualHub<BoundaryLine> avh1 = roundTripedNetwork.getBoundaryLine("FFR1AA1  X_GBFR1  1").getExtension(AssignedVirtualHub.class);
         AssignedVirtualHub<Generator> avh2 = originalNetwork.getGenerator("NNL1AA1 _generator").getExtension(AssignedVirtualHub.class);
 
         assertNotNull(avh1);

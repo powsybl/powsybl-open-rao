@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -22,6 +21,8 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.crac.api.io.Exporter;
 import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
@@ -32,12 +33,20 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.lang.String.format;
 
@@ -278,35 +287,6 @@ public interface Crac extends Identifiable<Crac> {
      * Find a Cnec by its id, returns null if the Cnec does not exists
      */
     Cnec getCnec(String cnecId);
-
-    /**
-     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    Set<BranchCnec> getBranchCnecs();
-
-    /**
-     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    Set<BranchCnec> getBranchCnecs(State state);
-
-    /**
-     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
-     *
-     * @deprecated consider using getCnec() or getFlowCnec() instead
-     */
-    // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
-    BranchCnec getBranchCnec(String branchCnecId);
 
     /**
      * Gather all the FlowCnecs present in the Crac. It returns a set because Cnecs must not
@@ -565,6 +545,8 @@ public interface Crac extends Identifiable<Crac> {
      * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
+
+    Set<String> findOperatorsNotSharingCras();
 
     /**
      * Get the CRAC format

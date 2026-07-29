@@ -7,17 +7,17 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -25,8 +25,6 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -51,7 +49,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
-        this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs, MEGAWATT);
+        this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs, unit);
         this.maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;
         this.maxNegativeRelativeRam = 5 * maxPositiveRelativeRam;
     }
@@ -96,7 +94,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     }
 
     /**
-     * Build the  miminum relative margin sign binary variable, P.
+     * Build the minimum relative margin sign binary variable, P.
      * P represents the sign of the minimum margin.
      */
     private void buildMinimumRelativeMarginSignBinaryVariable(LinearProblem linearProblem) {
@@ -127,36 +125,38 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         OpenRaoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable(Optional.ofNullable(timestamp));
         OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
-        double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
         // If PTDF computation failed for some reason, instead of ignoring the CNEC completely, set its PTDF to the lowest value
         double relMarginCoef = Double.isNaN(flowResult.getPtdfZonalSum(cnec, side)) ?
             ptdfSumLowerBound : Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
 
-        Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
-        Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
+        Optional<Double> minFlow = cnec.getLowerBound(side, unit);
+        Optional<Double> maxFlow = cnec.getUpperBound(side, unit);
 
         if (minFlow.isPresent()) {
             OpenRaoMPConstraint minimumMarginNegative;
             try {
                 minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             } catch (OpenRaoException ignored) {
-                minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(
+                    -linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             }
-            minimumMarginNegative.setUb(-minFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-            minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-            minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setUb(-minFlow.get() + relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setCoefficient(minRelMarginVariable, relMarginCoef);
+            minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
             minimumMarginNegative.setCoefficient(flowVariable, -1);
         }
         if (maxFlow.isPresent()) {
             OpenRaoMPConstraint minimumMarginPositive;
             try {
-                minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(
+                    cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
             } catch (OpenRaoException ignored) {
-                minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(
+                    -linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
             }
-            minimumMarginPositive.setUb(maxFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-            minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-            minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginPositive.setUb(maxFlow.get() + relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginPositive.setCoefficient(minRelMarginVariable, relMarginCoef);
+            minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
             minimumMarginPositive.setCoefficient(flowVariable, 1);
         }
     }

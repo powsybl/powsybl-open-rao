@@ -1,0 +1,29 @@
+{
+  "type" : "OpenRAO Time-Coupled Constraints",
+  "version" : "1.0",
+  "generatorConstraints" : [ {
+    "generatorId" : "Redispatching_RA_1_BBE1AA1_GENERATOR",
+    "leadTime" : 1.0,
+    "lagTime" : 1.0,
+    "upwardPowerGradient" : 12.0,
+    "downwardPowerGradient" : -12.0,
+    "shutDownAllowed" : true,
+    "startUpAllowed" : true
+  }, {
+    "generatorId" : "Redispatching_RA_1_FFR1AA1_GENERATOR",
+    "leadTime" : 1.0,
+    "lagTime" : 1.0,
+    "upwardPowerGradient" : 8.0,
+    "downwardPowerGradient" : -8.0,
+    "shutDownAllowed" : true,
+    "startUpAllowed" : true
+  }, {
+    "generatorId" : "Redispatching_RA_2_BBE1AA1_GENERATOR",
+    "leadTime" : 1.0,
+    "lagTime" : 1.0,
+    "upwardPowerGradient" : 30.0,
+    "downwardPowerGradient" : -40.0,
+    "shutDownAllowed" : true,
+    "startUpAllowed" : true
+  } ]
+}

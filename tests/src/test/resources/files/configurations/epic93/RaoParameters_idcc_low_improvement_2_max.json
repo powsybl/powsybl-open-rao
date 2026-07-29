@@ -1,8 +1,7 @@
 {
   "version" : "3.1",
   "objective-function" : {
-    "type" : "MIN_COST",
-    "unit" : "MW"
+    "type" : "MIN_COST"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.1,
@@ -52,7 +51,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -66,8 +65,8 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "GR", "BE", "SK", "TR", "CH", "RS", "PL", "UA", "BG", "ES", "ME", "CZ", "HR", "AL", "RO", "HU", "AT", "FR", "PT", "DE", "MK", "BA", "SI", "IT", "NL" ],
-            "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true,
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {

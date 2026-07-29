@@ -18,7 +18,10 @@ import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ADD_UNSECURE_CNECS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.FAST_RAO_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARGIN_LIMIT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -39,21 +42,20 @@ public class JsonFastRaoParameters implements JsonRaoParameters.ExtensionSeriali
     public FastRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case NUMBER_OF_CNECS_TO_ADD:
+            switch (jsonParser.currentName()) {
+                case NUMBER_OF_CNECS_TO_ADD -> {
                     jsonParser.nextToken();
                     fastRaoParameters.setNumberOfCnecsToAdd(jsonParser.getIntValue());
-                    break;
-                case ADD_UNSECURE_CNECS:
+                }
+                case ADD_UNSECURE_CNECS -> {
                     jsonParser.nextToken();
                     fastRaoParameters.setAddUnsecureCnecs(jsonParser.getBooleanValue());
-                    break;
-                case MARGIN_LIMIT:
+                }
+                case MARGIN_LIMIT -> {
                     jsonParser.nextToken();
                     fastRaoParameters.setMarginLimit(jsonParser.getDoubleValue());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize fast rao parameters: unexpected field in %s (%s)", FAST_RAO_PARAMETERS, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize fast rao parameters: unexpected field in %s (%s)", FAST_RAO_PARAMETERS, jsonParser.currentName()));
             }
         }
         return fastRaoParameters;

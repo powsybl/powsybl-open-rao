@@ -12,7 +12,11 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
@@ -72,7 +76,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     public InjectionRangeAction add() {
         runCheckBeforeAdding();
         Map<NetworkElement, Double> neAndDk = getDistributionKeyMap();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts
+        );
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }

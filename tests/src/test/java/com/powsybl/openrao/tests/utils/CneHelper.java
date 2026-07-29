@@ -8,11 +8,11 @@
 package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneExporter;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneExporter;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneExporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.w3c.dom.Element;
@@ -20,7 +20,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.*;
+import org.xmlunit.diff.ByNameAndTextRecSelector;
+import org.xmlunit.diff.Comparison;
+import org.xmlunit.diff.ComparisonResult;
+import org.xmlunit.diff.ComparisonType;
+import org.xmlunit.diff.DefaultComparisonFormatter;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -261,7 +271,7 @@ public final class CneHelper {
         private double defaultTolerance;
         private Map<String, Double> specificMeasurementTypeTolerance;
 
-        public DoubleElementDifferenceEvaluator(String elementName, double defaultTolerance, Map<String, Double> specificMeasurementTypeTolerance) {
+        DoubleElementDifferenceEvaluator(String elementName, double defaultTolerance, Map<String, Double> specificMeasurementTypeTolerance) {
             this.elementName = elementName;
             this.defaultTolerance = defaultTolerance;
             this.specificMeasurementTypeTolerance = specificMeasurementTypeTolerance;

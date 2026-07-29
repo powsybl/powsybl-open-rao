@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -33,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class stores an inter-temporal linear problem's outputs and implements getters for easy access.
+ * This class stores a time-coupled linear problem's outputs and implements getters for easy access.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -45,11 +46,17 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(final TemporalData<? extends FlowResult> flowResults,
+                                          final TemporalData<SensitivityResult> sensitivityResults,
+                                          final TemporalData<RangeActionActivationResult> rangeActionActivationResults,
+                                          final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                          final ObjectiveFunction objectiveFunction,
+                                          final LinearProblemStatus status,
+                                          final ReportNode reportNode) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
-        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
+        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions), reportNode);
         this.status = status;
     }
 

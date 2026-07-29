@@ -10,8 +10,8 @@ package com.powsybl.openrao.data.crac.io.json.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.action.TerminalsConnectionAction;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 

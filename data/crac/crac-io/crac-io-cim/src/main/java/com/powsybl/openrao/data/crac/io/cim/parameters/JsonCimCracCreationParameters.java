@@ -7,19 +7,22 @@
 
 package com.powsybl.openrao.data.crac.io.cim.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -54,7 +57,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     @Override
     public CimCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CimCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case TIMESERIES_MRIDS:
                     jsonParser.nextToken();
                     parameters.setTimeseriesMrids(jsonParser.readValueAs(Set.class));
@@ -76,7 +79,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                     parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
 
@@ -152,7 +155,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
             String rangeActionId = null;
             Integer speed = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case RANGE_ACTION_ID:
                         rangeActionId = jsonParser.nextTextValue();
                         break;
@@ -160,7 +163,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                         speed = jsonParser.nextIntValue(Integer.MAX_VALUE);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
                 }
             }
             if (rangeActionId == null) {

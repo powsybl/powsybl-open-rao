@@ -7,14 +7,13 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,18 +25,28 @@ import java.util.Set;
  */
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
-    private final Country exportingCountry;
-    private final Country importingCountry;
+    private final String exportingArea;
+    private final String importingArea;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
 
-    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                                List<StandardRange> ranges, Double initialSetpoint, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts, Country exportingCountry, Country importingCountry) {
+    CounterTradeRangeActionImpl(String id,
+                                String name,
+                                String operator,
+                                String groupId,
+                                Set<UsageRule> usageRules,
+                                List<StandardRange> ranges,
+                                Double initialSetpoint,
+                                Integer speed,
+                                Double activationCost,
+                                Map<VariationDirection, Double> variationCosts,
+                                String exportingArea,
+                                String importingArea) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
-        this.exportingCountry = exportingCountry;
-        this.importingCountry = importingCountry;
+        this.exportingArea = exportingArea;
+        this.importingArea = importingArea;
     }
 
     @Override
@@ -66,13 +75,13 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public Country getExportingCountry() {
-        return exportingCountry;
+    public String getExportingArea() {
+        return exportingArea;
     }
 
     @Override
-    public Country getImportingCountry() {
-        return importingCountry;
+    public String getImportingArea() {
+        return importingArea;
     }
 
     @Override
@@ -97,8 +106,8 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        return this.exportingCountry.equals(((CounterTradeRangeAction) o).getExportingCountry())
-                && this.importingCountry.equals(((CounterTradeRangeAction) o).getImportingCountry())
+        return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
+                && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
                 && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
     }
 
@@ -108,7 +117,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
         }
-        hashCode += 31 * exportingCountry.hashCode() + 63 * importingCountry.hashCode();
+        hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
         return hashCode;
     }
 }

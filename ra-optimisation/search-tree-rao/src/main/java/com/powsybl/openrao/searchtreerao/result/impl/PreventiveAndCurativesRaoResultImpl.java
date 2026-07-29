@@ -7,40 +7,57 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.PostContingencyState;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
+public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
     private final State preventiveState;
     // contains the result before any optimization (PrePerimeterResult because no ActionResult)
     private final PrePerimeterResult initialResult;
@@ -61,36 +78,39 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
      * same as the post-preventive RAO results.
      */
-    public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
-                                               PrePerimeterResult initialResult,
-                                               PostPerimeterResult preventivePerimeterResult,
-                                               Crac crac,
-                                               RaoParameters raoParameters) {
-        this(stateTree, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashMap<>(), crac, raoParameters);
+    public PreventiveAndCurativesRaoResultImpl(final StateTree stateTree,
+                                               final PrePerimeterResult initialResult,
+                                               final PostPerimeterResult preventivePerimeterResult,
+                                               final Crac crac,
+                                               final RaoParameters raoParameters,
+                                               final ReportNode reportNode) {
+        this(stateTree, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashMap<>(), crac, raoParameters, reportNode);
     }
 
     /**
      * Constructor used when preventive and post-contingency RAOs have been run
      */
-    public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
-                                               PrePerimeterResult initialResult,
-                                               PostPerimeterResult preventiveResult,
-                                               Map<State, PostPerimeterResult> postContingencyResults,
-                                               Crac crac,
-                                               RaoParameters raoParameters) {
-        this(stateTree, initialResult, preventiveResult, preventiveResult, postContingencyResults, crac, raoParameters);
+    public PreventiveAndCurativesRaoResultImpl(final StateTree stateTree,
+                                               final PrePerimeterResult initialResult,
+                                               final PostPerimeterResult preventiveResult,
+                                               final Map<State, PostPerimeterResult> postContingencyResults,
+                                               final Crac crac,
+                                               final RaoParameters raoParameters,
+                                               final ReportNode reportNode) {
+        this(stateTree, initialResult, preventiveResult, preventiveResult, postContingencyResults, crac, raoParameters, reportNode);
     }
 
     /**
      * Constructor used when preventive and post-contingency RAOs have been run, if 2 preventive RAOs were run, and 2 AUTO RAOs were run
      */
-    public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
-                                               PrePerimeterResult initialResult,
-                                               PostPerimeterResult firstPreventivePerimeterResult,
-                                               PostPerimeterResult secondPreventivePerimeterResult,
-                                               Map<State, PostPerimeterResult> postContingencyPerimeterResults,
-                                               Crac crac,
-                                               RaoParameters raoParameters) {
+    public PreventiveAndCurativesRaoResultImpl(final StateTree stateTree,
+                                               final PrePerimeterResult initialResult,
+                                               final PostPerimeterResult firstPreventivePerimeterResult,
+                                               final PostPerimeterResult secondPreventivePerimeterResult,
+                                               final Map<State, PostPerimeterResult> postContingencyPerimeterResults,
+                                               final Crac crac,
+                                               final RaoParameters raoParameters,
+                                               final ReportNode reportNode) {
         this.preventiveState = crac.getPreventiveState();
         this.initialResult = initialResult;
         this.firstPreventivePerimeterResult = firstPreventivePerimeterResult;
@@ -98,13 +118,13 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         this.postContingencyResults = postContingencyPerimeterResults;
         this.crac = crac;
         this.raoParameters = raoParameters;
-        this.preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult();
-        completePostContingencyResultsMap(stateTree);
+        this.preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(reportNode);
+        completePostContingencyResultsMap(stateTree, reportNode);
         excludeContingencies(getContingenciesToExclude(stateTree));
         excludeDuplicateCnecs();
     }
 
-    private OptimizationResult generatePreventiveAndOutageOnlyResult() {
+    private OptimizationResult generatePreventiveAndOutageOnlyResult(final ReportNode reportNode) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream()
             .filter(flowCnec -> flowCnec.getState().isPreventive() || flowCnec.getState().getInstant().getKind().equals(InstantKind.OUTAGE))
             .collect(Collectors.toSet());
@@ -112,16 +132,33 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         Set<FlowCnec> loopFlowCnecs = flowCnecs.stream()
             .filter(this::initialResultContainsLoopFlowResult)
             .collect(Collectors.toSet());
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialResult, initialResult, Collections.emptySet(), raoParameters, Set.of(crac.getPreventiveState()));
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(finalPreventivePerimeterResult.getOptimizationResult(), finalPreventivePerimeterResult.getOptimizationResult());
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(finalPreventivePerimeterResult.getOptimizationResult(), remedialActionActivationResult);
-        return new OptimizationResultImpl(objectiveFunctionResult, finalPreventivePerimeterResult.getOptimizationResult(), finalPreventivePerimeterResult.getOptimizationResult(), finalPreventivePerimeterResult.getOptimizationResult(), finalPreventivePerimeterResult.getOptimizationResult());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            loopFlowCnecs,
+            initialResult,
+            initialResult,
+            Collections.emptySet(),
+            raoParameters,
+            Set.of(crac.getPreventiveState())
+        );
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult()
+        );
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(finalPreventivePerimeterResult.optimizationResult(), remedialActionActivationResult, reportNode);
+        return new OptimizationResultImpl(
+            objectiveFunctionResult,
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult()
+        );
     }
 
     private boolean initialResultContainsLoopFlowResult(FlowCnec flowCnec) {
         boolean loopflowPresent;
         try {
-            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT));
+            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), getFlowUnit(raoParameters)));
         } catch (OpenRaoException e) {
             if (e.getMessage().contains("No commercial flow")) {
                 loopflowPresent = false;
@@ -136,8 +173,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      * Fill in results for states which were not optimized separately (either in preventive, or for states with no elements at all)
      * We go through only 2nd if statement for cases with CNECs without actions : state is defined, but no optimization was performed
      */
-    private void completePostContingencyResultsMap(StateTree stateTree) {
-        crac.getContingencies().forEach(contingency -> {
+    private void completePostContingencyResultsMap(final StateTree stateTree, final ReportNode reportNode) {
+        crac.getContingencies().forEach(contingency ->
             crac.getSortedInstants().stream().filter(instant -> !instant.isPreventive() && !instant.isOutage()).forEach(instant -> {
                 State state = crac.getState(contingency, instant);
                 // States are defined in crac when there are associated cnecs or actions.
@@ -146,20 +183,19 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                     state = new PostContingencyState(contingency, instant, crac.getTimestamp().orElse(null));
                 }
                 if (!postContingencyResults.containsKey(state)) {
-                    postContingencyResults.put(state, generateResultForUnoptimizedState(state, stateTree));
+                    postContingencyResults.put(state, generateResultForUnoptimizedState(state, stateTree, reportNode));
                 }
-            });
-        });
+            }));
     }
 
-    private PostPerimeterResult generateResultForUnoptimizedState(State state, StateTree stateTree) {
+    private PostPerimeterResult generateResultForUnoptimizedState(final State state, final StateTree stateTree, final ReportNode reportNode) {
         //Get previous result (either preventive if no preceding state, an optimized contingency state result, or a newly generated state result)
         PrePerimeterResult previousResult = postContingencyResults.keySet().stream()
             .filter(s -> s.getInstant().comesBefore(state.getInstant()))
             .filter(s -> s.getContingency().equals(state.getContingency()))
             .sorted(Comparator.comparing(s -> -s.getInstant().getOrder()))
-            .map(s -> postContingencyResults.get(s).getPrePerimeterResultForAllFollowingStates())
-            .findFirst().orElse(finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates());
+            .map(s -> postContingencyResults.get(s).prePerimeterResultForAllFollowingStates())
+            .findFirst().orElse(finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates());
 
         //compute objective function only considering that state cnecs
         Set<FlowCnec> stateCnecs = crac.getFlowCnecs(state);
@@ -175,7 +211,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             stateTree.getOperatorsNotSharingCras(),
             raoParameters,
             Set.of(state)
-        ).evaluate(previousResult, raActivationResult);
+        ).evaluate(previousResult, raActivationResult, reportNode);
         OptimizationResult optimizationResult = new OptimizationResultImpl(stateOfResult, previousResult, previousResult, raActivationResult, raActivationResult);
 
         //compute objective function considering all the cnecs from the state and following states
@@ -197,7 +233,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             stateTree.getOperatorsNotSharingCras(),
             raoParameters,
             Set.of(state)
-        ).evaluate(previousResult, raActivationResult);
+        ).evaluate(previousResult, raActivationResult, reportNode);
         PrePerimeterResult prePerimeterResult = new PrePerimeterSensitivityResultImpl(previousResult, previousResult, previousResult, followingStatesOfResult);
 
         return new PostPerimeterResult(optimizationResult, prePerimeterResult);
@@ -208,14 +244,14 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             if (automatonState.isPresent()) {
-                OptimizationResult automatonResult = postContingencyResults.get(automatonState.get()).getOptimizationResult();
+                OptimizationResult automatonResult = postContingencyResults.get(automatonState.get()).optimizationResult();
                 if (!automatonResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                     return;
                 }
             }
             for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
-                OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getRaOptimisationState()).getOptimizationResult();
+                OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult();
                 if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                 }
@@ -230,39 +266,43 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         // exclude fictional cnec from the results
         initialResult.excludeCnecs(cnecsToExclude);
         preventiveAndOutageOnlyResult.excludeCnecs(cnecsToExclude);
-        firstPreventivePerimeterResult.getOptimizationResult().excludeCnecs(cnecsToExclude);
-        finalPreventivePerimeterResult.getOptimizationResult().excludeCnecs(cnecsToExclude);
-        firstPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
+        firstPreventivePerimeterResult.optimizationResult().excludeCnecs(cnecsToExclude);
+        finalPreventivePerimeterResult.optimizationResult().excludeCnecs(cnecsToExclude);
+        firstPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
+        finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
         postContingencyResults.values().forEach(result -> {
-            result.getOptimizationResult().excludeCnecs(cnecsToExclude);
-            result.getPrePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
+            result.optimizationResult().excludeCnecs(cnecsToExclude);
+            result.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
         });
     }
 
     private void excludeContingencies(Set<String> contingenciesToExclude) {
         initialResult.excludeContingencies(contingenciesToExclude);
         preventiveAndOutageOnlyResult.excludeContingencies(contingenciesToExclude);
-        firstPreventivePerimeterResult.getOptimizationResult().excludeContingencies(contingenciesToExclude);
-        finalPreventivePerimeterResult.getOptimizationResult().excludeContingencies(contingenciesToExclude);
-        firstPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
-        finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
+        firstPreventivePerimeterResult.optimizationResult().excludeContingencies(contingenciesToExclude);
+        finalPreventivePerimeterResult.optimizationResult().excludeContingencies(contingenciesToExclude);
+        firstPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
+        finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
         postContingencyResults.values().forEach(result -> {
-            result.getOptimizationResult().excludeContingencies(contingenciesToExclude);
-            result.getPrePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
+            result.optimizationResult().excludeContingencies(contingenciesToExclude);
+            result.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
         });
     }
 
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getComputationStatus() == FAILURE
-            || finalPreventivePerimeterResult.getOptimizationResult().getComputationStatus() == FAILURE) {
+            || finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == FAILURE) {
             return FAILURE;
         }
+        Set<State> autoAndCurativeStatesWithFlowCnecs = crac.getFlowCnecs().stream()
+            .map(Cnec::getState)
+            .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
+            .collect(Collectors.toSet());
         if (initialResult.getComputationStatus() == PARTIAL_FAILURE ||
-            finalPreventivePerimeterResult.getOptimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
-            postContingencyResults.entrySet().stream().anyMatch(entry ->
-                entry.getValue() == null || entry.getValue().getOptimizationResult().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
+            finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
+            autoAndCurativeStatesWithFlowCnecs.stream().anyMatch(state ->
+                postContingencyResults.get(state) == null || postContingencyResults.get(state).optimizationResult().getSensitivityStatus(state) != DEFAULT)) {
             return PARTIAL_FAILURE;
         }
         return DEFAULT;
@@ -289,15 +329,15 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", state.getInstant(), optimizedInstant));
         }
         if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            return finalPreventivePerimeterResult.getOptimizationResult();
+            return finalPreventivePerimeterResult.optimizationResult();
         }
         if (optimizedInstant.isAuto()) {
             return postContingencyResults.keySet().stream()
                 .filter(optimizedState -> optimizedState.getInstant().isAuto() && optimizedState.getContingency().equals(state.getContingency()))
-                .findAny().map(s -> postContingencyResults.get(s).getOptimizationResult()).orElse(null);
+                .findAny().map(s -> postContingencyResults.get(s).optimizationResult()).orElse(null);
         }
         if (optimizedInstant.isCurative()) {
-            return postContingencyResults.get(state).getOptimizationResult();
+            return postContingencyResults.get(state).optimizationResult();
         }
         throw new OpenRaoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
     }
@@ -316,7 +356,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                 return preventiveAndOutageOnlyResult.getFunctionalCost();
             } else {
                 //for min margin, we care about the cost of all cnecs
-                return finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().getFunctionalCost();
+                return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().getFunctionalCost();
             }
         } else {
             BinaryOperator<Double> operator;
@@ -330,15 +370,15 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             //for states which come strictly before optimizedInstant, consider optimizationResult
             postContingencyResults.entrySet().stream()
                 .filter(stateAndResult -> stateAndResult.getKey().getInstant().comesBefore(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().getOptimizationResult().getFunctionalCost())));
+                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().optimizationResult().getFunctionalCost())));
             //for states which have same instant as optimizedInstant, consider prePerimeterResultForAllFollowingStates
             postContingencyResults.entrySet().stream()
                 .filter(stateAndResult -> stateAndResult.getKey().getInstant().equals(optimizedInstant))
                 .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(),
-                    //for costly use optim result; for max min margin usel prePerim result
+                    //for costly use optim result; for max min margin use prePerim result
                     raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
-                        stateAndResult.getValue().getOptimizationResult().getFunctionalCost() :
-                        stateAndResult.getValue().getPrePerimeterResultForAllFollowingStates().getFunctionalCost()))
+                        stateAndResult.getValue().optimizationResult().getFunctionalCost() :
+                        stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getFunctionalCost()))
             );
 
             return totalCost.get();
@@ -411,9 +451,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            return finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates();
+            return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates();
         } else {
-            return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec)).getPrePerimeterResultForAllFollowingStates();
+            return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec)).prePerimeterResultForAllFollowingStates();
         }
     }
 
@@ -438,9 +478,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         AtomicReference<Double> s = new AtomicReference<>(0.);
-        getVirtualCostNames().forEach(name -> {
-            s.getAndUpdate(v -> v + this.getVirtualCost(optimizedInstant, name));
-        });
+        getVirtualCostNames().forEach(name -> s.getAndUpdate(v -> v + this.getVirtualCost(optimizedInstant, name)));
         return s.get();
     }
 
@@ -448,10 +486,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     public Set<String> getVirtualCostNames() {
         Set<String> virtualCostNames = new HashSet<>();
         virtualCostNames.addAll(initialResult.getVirtualCostNames());
-        virtualCostNames.addAll(firstPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
-        virtualCostNames.addAll(finalPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
+        virtualCostNames.addAll(firstPreventivePerimeterResult.optimizationResult().getVirtualCostNames());
+        virtualCostNames.addAll(finalPreventivePerimeterResult.optimizationResult().getVirtualCostNames());
         postContingencyResults.values()
-            .forEach(optimizationResult -> virtualCostNames.addAll(optimizationResult.getOptimizationResult().getVirtualCostNames()));
+            .forEach(optimizationResult -> virtualCostNames.addAll(optimizationResult.optimizationResult().getVirtualCostNames()));
 
         return virtualCostNames;
     }
@@ -468,10 +506,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             //The cost will be NaN for mnecs and loopflows for the initial result because we do not bother computing them because they are always 0 by definition.
             return Double.isNaN(virtualCost) ? 0 : virtualCost;
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            return finalPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName);
+            return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName);
         } else {
             BinaryOperator<Double> operator;
-            if (virtualCostName.equals("min-margin-violation-evaluator") || virtualCostName.equals("sensitivity-failure-cost")) {
+            if ("min-margin-violation-evaluator".equals(virtualCostName) || "sensitivity-failure-cost".equals(virtualCostName)) {
                 operator = Math::max;
             } else {
                 operator = Double::sum;
@@ -481,11 +519,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             //for states which come strictly before optimizedInstant, consider optimizationResult
             postContingencyResults.entrySet().stream()
                 .filter(stateAndResult -> stateAndResult.getKey().getInstant().comesBefore(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().getOptimizationResult().getVirtualCost(virtualCostName))));
+                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().optimizationResult().getVirtualCost(virtualCostName))));
             //for states which have same instant as optimizedInstant, consider prePerimeterResultForAllFollowingStates
             postContingencyResults.entrySet().stream()
                 .filter(stateAndResult -> stateAndResult.getKey().getInstant().equals(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().getPrePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName))));
+                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName))));
 
             return totalCost.get();
         }
@@ -503,9 +541,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         if (state.getInstant().isPreventive()) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getActivatedNetworkActions().contains(networkAction);
+            return finalPreventivePerimeterResult.optimizationResult().getActivatedNetworkActions().contains(networkAction);
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getOptimizationResult().getActivatedNetworkActions().contains(networkAction);
+            return postContingencyResults.get(state).optimizationResult().getActivatedNetworkActions().contains(networkAction);
         } else {
             return false;
         }
@@ -514,9 +552,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (state.getInstant().isPreventive()) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getActivatedNetworkActions();
+            return finalPreventivePerimeterResult.optimizationResult().getActivatedNetworkActions();
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getOptimizationResult().getActivatedNetworkActions();
+            return postContingencyResults.get(state).optimizationResult().getActivatedNetworkActions();
         } else {
             return new HashSet<>();
         }
@@ -525,9 +563,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant().isPreventive()) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getActivatedRangeActions(state).contains(rangeAction);
+            return finalPreventivePerimeterResult.optimizationResult().getActivatedRangeActions(state).contains(rangeAction);
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getOptimizationResult().getActivatedRangeActions(state).contains(rangeAction);
+            return postContingencyResults.get(state).optimizationResult().getActivatedRangeActions(state).contains(rangeAction);
         } else {
             return false;
         }
@@ -540,18 +578,18 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTap(pstRangeAction, preventiveState);
+            return finalPreventivePerimeterResult.optimizationResult().getOptimizedTap(pstRangeAction, preventiveState);
         } else {
-            return postContingencyResults.get(previousState).getOptimizationResult().getOptimizedTap(pstRangeAction, previousState);
+            return postContingencyResults.get(previousState).optimizationResult().getOptimizedTap(pstRangeAction, previousState);
         }
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTap(pstRangeAction, state);
+            return finalPreventivePerimeterResult.optimizationResult().getOptimizedTap(pstRangeAction, state);
         } else {
-            return postContingencyResults.get(state).getOptimizationResult().getOptimizedTap(pstRangeAction, state);
+            return postContingencyResults.get(state).optimizationResult().getOptimizedTap(pstRangeAction, state);
         }
     }
 
@@ -562,27 +600,27 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpoint(rangeAction, preventiveState);
+            return finalPreventivePerimeterResult.optimizationResult().getOptimizedSetpoint(rangeAction, preventiveState);
         } else {
-            return postContingencyResults.get(previousState).getOptimizationResult().getOptimizedSetpoint(rangeAction, previousState);
+            return postContingencyResults.get(previousState).optimizationResult().getOptimizedSetpoint(rangeAction, previousState);
         }
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpoint(rangeAction, state);
+            return finalPreventivePerimeterResult.optimizationResult().getOptimizedSetpoint(rangeAction, state);
         } else {
-            return postContingencyResults.get(state).getOptimizationResult().getOptimizedSetpoint(rangeAction, state);
+            return postContingencyResults.get(state).optimizationResult().getOptimizedSetpoint(rangeAction, state);
         }
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant().isPreventive()) {
-            return finalPreventivePerimeterResult.getOptimizationResult().getActivatedRangeActions(state);
+            return finalPreventivePerimeterResult.optimizationResult().getActivatedRangeActions(state);
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getOptimizationResult().getActivatedRangeActions(state);
+            return postContingencyResults.get(state).optimizationResult().getActivatedRangeActions(state);
         } else {
             return new HashSet<>();
         }
@@ -591,18 +629,18 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
-            return new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTapsOnState(state));
+            return new HashMap<>(finalPreventivePerimeterResult.optimizationResult().getOptimizedTapsOnState(state));
         } else {
-            return postContingencyResults.get(state).getOptimizationResult().getOptimizedTapsOnState(state);
+            return postContingencyResults.get(state).optimizationResult().getOptimizedTapsOnState(state);
         }
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
-            return new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpointsOnState(state));
+            return new HashMap<>(finalPreventivePerimeterResult.optimizationResult().getOptimizedSetpointsOnState(state));
         } else {
-            return postContingencyResults.get(state).getOptimizationResult().getOptimizedSetpointsOnState(state);
+            return postContingencyResults.get(state).optimizationResult().getOptimizedSetpointsOnState(state);
         }
     }
 
@@ -626,11 +664,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override

@@ -3,56 +3,15 @@
 In this tutorial, we will see how to run a simple RAO from a network file and a CRAC. The CRAC will be created from
 scratch using the Java API so there is no need to import a CRAC file.
 
+## Link to github tutorial repo
+
+See [the GitHub tutorial repo](https://github.com/farao-community/rao-example). 
+The code in the Main class is explained in this page.
+
 ## Set-up
 
-For this tutorial, we'll need Java 17, and we'll create a new project called `org.example` and work on its `Main` class.
-For everything to work properly, you also need to install the latest versions
-of [PowSyBl core](https://github.com/powsybl/powsybl-core),
-[PowSyBl Open Rao](https://github.com/powsybl/powsybl-open-rao) and
-[PowSyBl Open Load Flow (OLF)](https://github.com/powsybl/powsybl-open-loadflow).
-
-Start by creating a Maven `pom.xml` file and add the following dependencies:
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-starter</artifactId>
-    <version>2025.0.2</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-open-rao</artifactId>
-    <version>6.5.1</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.5.6</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-ucte-converter</artifactId>
-    <version>6.7.2</version>
-    <scope>runtime</scope>
-</dependency>
-```
-
-```xml
-<dependency>
-   <groupId>com.google.re2j</groupId>
-   <artifactId>re2j</artifactId>
-   <version>1.8</version>
-</dependency>
-```
+For this tutorial, we'll need Java 21, and we created a new project called `rao-example` and work on its `Main` class.
+The dependencies are defined in the [pom.xml file](https://github.com/farao-community/rao-example/blob/main/pom.xml).
 
 ## Import network file
 
@@ -62,8 +21,8 @@ Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _F
 
 ![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
-We will create a UCTE file to model this network, so it can be processed and imported for the RAO. Copy and paste the
-network data in a file named `12Nodes.uct` that you shall store in the resources directory of the project.
+We will create a UCTE file to model this network, so it can be processed and imported for the RAO. The
+network data in a file named `12Nodes.uct` that is stored in the [resources directory of the project](https://github.com/farao-community/rao-example/tree/main/src/main/resources).
 
 ```
 ##C 2007.05.01
@@ -117,19 +76,19 @@ Network network = Network.read(networkFilename, Main.class.getResourceAsStream("
 ```
 
 For this tutorial, we will simulate the loss of line _NNL3AA1 DDE2AA1 1_. This loss will divert the power and increase
-the flow in line _NNL3AA1 DDE2AA1 1_ over its admissible power limit. We will study how the RAO can help us solve the
+the flow in line _NNL2AA1 BBE3AA1 1_ over its admissible power limit. We will study how the RAO can help us solve the
 resulting problems on the network thanks to remedial actions.
 
 ## Create CRAC
 
 The [CRAC](../input-data/crac.md) is the data object that contains all the key information for the RAO, i.e. the
-contingencies to simulate, the CNECs to optimise and the remedial actions to apply. The RAO's Java API allows users to
+contingencies to simulate, the CNECs to optimize and the remedial actions to apply. The RAO's Java API allows users to
 manually fill the CRAC with all the required and desired data.
 
 The first step is to instantiate an empty CRAC using the CracFactory:
 
 ```java
-Crac crac = CracFactory.findDefault().create();
+Crac crac = CracFactory.findDefault().create("crac");
 ```
 
 Once created, the CRAC can be filled sequentially (some data must be provided before others for logical reasons) with
@@ -143,14 +102,14 @@ _NNL3AA1 DDE2AA1 1_, with the following code:
 ```java
 crac.newContingency()
     .withId("contingency")
-    .withContingencyElement("NNL3AA1  DDE2AA1  1", ContingencyElementType.LINE)
+    .withContingencyElement("DDE2AA1  NNL3AA1  1", ContingencyElementType.LINE)
     .add();
 ```
 
 ### Add instants
 
 Once the contingencies are added, we can now create the different [instants](../input-data/crac/json.md#instants-and-states)
-of the optimisation process. An instant is added thanks to the `newInstant` method. Both an identifier and
+of the optimization process. An instant is added thanks to the `newInstant` method. Both an identifier and
 an `InstantKind` (`PREVENTIVE`, `OUTAGE`, `AUTO` or `CURATIVE`) must be provided. The instants must also be declared in
 **chronological order**.
 
@@ -174,7 +133,7 @@ Now that contingencies and instants are all set, we can start adding CNECs and r
 
 The next step is to create the [CNECs](../input-data/crac/json.md#cnecs). For our example and given the simple network
 we are using, we will only consider [FlowCNECs](../input-data/crac/json.md#flow-cnecs) that correspond to lines in the
-network that will have to be optimised flow-wise after contingencies (and in basecase). The FlowCNECs also have
+network that will have to be optimized flow-wise after contingencies (and in basecase). The FlowCNECs also have
 thresholds that indicate the maximum admissible flow on the line for a given instant.
 
 Let us make sure that the flow on line _NNL2AA1 BBE3AA1 1_ stays under 410 MW in basecase:
@@ -194,7 +153,7 @@ crac.newFlowCnec()
     .add();
 ```
 
-Similarly, we need to verify that the flow on the line does not excedd the 1000 MW TATL after the loss of line _NNL3AA1
+Similarly, we need to verify that the flow on the line does not exceed the 1000 MW TATL after the loss of line _NNL3AA1
 DDE2AA1 1_:
 
 ```java
@@ -253,7 +212,6 @@ crac.newPstRangeAction()
       .add()
    .newOnInstantUsageRule()
       .withInstant("preventive")
-      
       .add()
    .add();
 ```
@@ -277,7 +235,6 @@ crac.newNetworkAction()
       .newOnContingencyStateUsageRule()
          .withInstant("curative")
          .withContingency("contingency")
-         
          .add()
       .add();
 ```
@@ -287,7 +244,7 @@ crac.newNetworkAction()
 Next, define the parameters to run the RAO using the [RaoParameters](../parameters.md) object
 
 ```java
-RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters();
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
 
         // Enable DC mode for load-flow & sensitivity computations
@@ -305,7 +262,7 @@ RaoParameters raoParameters = new RaoParameters();
         // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
         ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
         objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
-        objectiveFunctionParameters.setUnit(Unit.MEGAWATT);
+        raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);
 
         // Enable "APPROXIMATED_INTEGERS" in PST optimization, for better accuracy
         SearchTreeRaoRangeActionsOptimizationParameters rangeActionsParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
@@ -317,11 +274,11 @@ RaoParameters raoParameters = new RaoParameters();
 
 ## Run the RAO
 
- Run the RAO using the following code to produce a [`RaoResult`](../output-data/rao-result.md) object:
+Run the RAO using the following code to produce a [`RaoResult`](../output-data/rao-result.md) object:
 
  ```java
- RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
- RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
+RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
  
  
  // To use FastRAO instead of the regular CASTOR 
@@ -335,15 +292,15 @@ RaoInput raoInput = RaoInput.build(network, crac).build();
 RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 ```
 
-All the important information regarding the optimisation process (activated remedial actions and CNEC flow at each
+All the important information regarding the optimization process (activated remedial actions and CNEC flow at each
 instant) can be found in this RAO Result.
 
 ## Step-by-step results
 
-We will go through the results of the RAO, instant by instant, to analyse the different optimisation steps and study the
-RAO's behaviour.
+We will go through the results of the RAO, instant by instant, to analyze the different optimization steps and study the
+RAO's behavior.
 
-### Base case and preventive optimisation
+### Base case and preventive optimization
 
 As presented earlier, the whole electricity production (1000 MW) in the network is located at node _NNL1AA1_. The flow
 is divided evenly among lines _NNL2AA1 BBE3AA1 1_ and _DDE2AA1 NNL3AA1 1_. The consumption (1000 MW as well) is entirely
@@ -483,135 +440,137 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
-   public class Main {
-      public static void main(String[] args) {
-         // Import network from UCTE file
-         String networkFilename = "12NodesProdNL.uct";
-         Network network = Network.read(networkFilename, Main.class.getResourceAsStream("/%s".formatted(networkFilename)));
+public class Main {
+   public static void main(String[] args) {
+      // Import network from UCTE file
+      String networkFilename = "12Nodes.uct";
+      Network network = Network.read(networkFilename, Main.class.getResourceAsStream("/%s".formatted(networkFilename)));
 
-         // Initialise CRAC
-         Crac crac = CracFactory.findDefault().create("crac");
+      // Initialise CRAC
+      Crac crac = CracFactory.findDefault().create("crac");
 
-         // Create instants
-         crac.newInstant("preventive", InstantKind.PREVENTIVE)
-                 .newInstant("outage", InstantKind.OUTAGE)
-                 .newInstant("curative", InstantKind.CURATIVE);
+      // Create instants
+      crac.newInstant("preventive", InstantKind.PREVENTIVE)
+              .newInstant("outage", InstantKind.OUTAGE)
+              .newInstant("curative", InstantKind.CURATIVE);
 
-         // Add contingency
-         crac.newContingency()
-                 .withId("contingency")
-                 .withContingencyElement("DDE2AA1  NNL3AA1  1", ContingencyElementType.LINE)
-                 .add();
+      // Add contingency
+      crac.newContingency()
+              .withId("contingency")
+              .withContingencyElement("DDE2AA1  NNL3AA1  1", ContingencyElementType.LINE)
+              .add();
 
-         // Add FlowCNECs
-         crac.newFlowCnec()
-                 .withId("NNL2AA1  BBE3AA1  1 - preventive")
-                 .withInstant("preventive")
-                 .withOptimized()
-                 .withNetworkElement("NNL2AA1  BBE3AA1  1")
-                 .newThreshold()
-                 .withMin(-410d)
-                 .withMax(+410d)
-                 .withUnit(Unit.MEGAWATT)
-                 .withSide(TwoSides.ONE)
-                 .add()
-                 .add();
+      // Add FlowCNECs
+      crac.newFlowCnec()
+              .withId("NNL2AA1  BBE3AA1  1 - preventive")
+              .withInstant("preventive")
+              .withOptimized()
+              .withNetworkElement("NNL2AA1  BBE3AA1  1")
+              .newThreshold()
+              .withMin(-410d)
+              .withMax(+410d)
+              .withUnit(Unit.MEGAWATT)
+              .withSide(TwoSides.ONE)
+              .add()
+              .add();
 
-         crac.newFlowCnec()
-                 .withId("NNL2AA1  BBE3AA1  1 - outage")
-                 .withInstant("outage")
-                 .withOptimized()
-                 .withContingency("contingency")
-                 .withNetworkElement("NNL2AA1  BBE3AA1  1")
-                 .newThreshold()
-                 .withMin(-1000d)
-                 .withMax(+1000d)
-                 .withUnit(Unit.MEGAWATT)
-                 .withSide(TwoSides.ONE)
-                 .add()
-                 .add();
+      crac.newFlowCnec()
+              .withId("NNL2AA1  BBE3AA1  1 - outage")
+              .withInstant("outage")
+              .withOptimized()
+              .withContingency("contingency")
+              .withNetworkElement("NNL2AA1  BBE3AA1  1")
+              .newThreshold()
+              .withMin(-1000d)
+              .withMax(+1000d)
+              .withUnit(Unit.MEGAWATT)
+              .withSide(TwoSides.ONE)
+              .add()
+              .add();
 
-         crac.newFlowCnec()
-                 .withId("NNL2AA1  BBE3AA1  1 - curative")
-                 .withInstant("curative")
-                 .withOptimized()
-                 .withContingency("contingency")
-                 .withNetworkElement("NNL2AA1  BBE3AA1  1")
-                 .newThreshold()
-                 .withMin(-410d)
-                 .withMax(+410d)
-                 .withUnit(Unit.MEGAWATT)
-                 .withSide(TwoSides.ONE)
-                 .add()
-                 .add();
+      crac.newFlowCnec()
+              .withId("NNL2AA1  BBE3AA1  1 - curative")
+              .withInstant("curative")
+              .withOptimized()
+              .withContingency("contingency")
+              .withNetworkElement("NNL2AA1  BBE3AA1  1")
+              .newThreshold()
+              .withMin(-410d)
+              .withMax(+410d)
+              .withUnit(Unit.MEGAWATT)
+              .withSide(TwoSides.ONE)
+              .add()
+              .add();
 
-         // Add PST range action (PRA + CRA)
-         IidmPstHelper iidmPstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
+      // Add PST range action (PRA + CRA)
+      IidmPstHelper iidmPstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
-         crac.newPstRangeAction()
-                 .withId("pst-range-action")
-                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
-                 .withInitialTap(iidmPstHelper.getInitialTap())
-                 .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
-                 .newTapRange()
-                 .withMinTap(-16)
-                 .withMaxTap(16)
-                 .withRangeType(RangeType.ABSOLUTE)
-                 .add()
-                 .newOnInstantUsageRule()
-                 .withInstant("preventive")
-                 .add()
-                 .add();
+      crac.newPstRangeAction()
+              .withId("pst-range-action")
+              .withNetworkElement("BBE2AA1  BBE3AA1  1")
+              .withInitialTap(iidmPstHelper.getInitialTap())
+              .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
+              .newTapRange()
+              .withMinTap(-16)
+              .withMaxTap(16)
+              .withRangeType(RangeType.ABSOLUTE)
+              .add()
+              .newOnInstantUsageRule()
+              .withInstant("preventive")
+              .add()
+              .add();
 
-         // Add auto terminals connection action
-         crac.newNetworkAction()
-                 .withId("terminals-connection-action")
-                 .newTerminalsConnectionAction()
-                 .withNetworkElement("NNL2AA1  BBE3AA1  2")
-                 .withActionType(ActionType.CLOSE)
-                 .add()
-                 .newTerminalsConnectionAction()
-                 .withNetworkElement("NNL2AA1  BBE3AA1  3")
-                 .withActionType(ActionType.CLOSE)
-                 .add()
-                 .newOnContingencyStateUsageRule()
-                 .withInstant("curative")
-                 .withContingency("contingency")
-                 .add()
-                 .add();
+      // Add auto terminals connection action
+      crac.newNetworkAction()
+              .withId("terminals-connection-action")
+              .newTerminalsConnectionAction()
+              .withNetworkElement("NNL2AA1  BBE3AA1  2")
+              .withActionType(ActionType.CLOSE)
+              .add()
+              .newTerminalsConnectionAction()
+              .withNetworkElement("NNL2AA1  BBE3AA1  3")
+              .withActionType(ActionType.CLOSE)
+              .add()
+              .newOnContingencyStateUsageRule()
+              .withInstant("curative")
+              .withContingency("contingency")
+              .add()
+              .add();
 
-         // RAO Parameters setting
-         RaoParameters raoParameters = new RaoParameters();
-         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
+      // RAO Parameters setting
+      RaoParameters raoParameters = new RaoParameters();
+      OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
 
-         // Enable DC mode for load-flow & sensitivity computations
-         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-         loadFlowParameters.setDc(true);
-         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
-         sensitivityAnalysisParameters.setLoadFlowParameters(loadFlowParameters);
+      // Enable DC mode for load-flow & sensitivity computations
+      LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+      loadFlowParameters.setDc(true);
+      SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
+      sensitivityAnalysisParameters.setLoadFlowParameters(loadFlowParameters);
 
-         // Set "OpenLoadFlow" as load-flow provider
-         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-         loadFlowAndSensitivityParameters.setLoadFlowProvider("OpenLoadFlow");
-         loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);
-         searchTreeParameters.setLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
+      // Set "OpenLoadFlow" as load-flow provider
+      LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+      loadFlowAndSensitivityParameters.setLoadFlowProvider("OpenLoadFlow");
+      loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);
+      searchTreeParameters.setLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
 
-         // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
-         ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-         objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
-         objectiveFunctionParameters.setUnit(Unit.MEGAWATT);
+      // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
+      ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
+      objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
+      raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);
 
-         // Enable "APPROXIMATED_INTEGERS" in PST optimization, for better accuracy
-         SearchTreeRaoRangeActionsOptimizationParameters rangeActionsParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
-         rangeActionsParameters.setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
-         searchTreeParameters.setRangeActionsOptimizationParameters(rangeActionsParameters);
+      // Enable "APPROXIMATED_INTEGERS" in PST optimization, for better accuracy
+      SearchTreeRaoRangeActionsOptimizationParameters rangeActionsParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
+      rangeActionsParameters.setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+      searchTreeParameters.setRangeActionsOptimizationParameters(rangeActionsParameters);
 
-         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+      raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
 
-         // Run RAO
-         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
-         RaoResult raoResult = Rao.find().run(raoInputBuilder.build(), raoParameters);
-      }
-   }
+        // Run RAO
+        RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
+        RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+
+        System.exit(0);
+    }
+}
 
 ```

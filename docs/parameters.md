@@ -36,10 +36,9 @@ Examples of rao parameters with business and implementation specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "SECURE_FLOW",
-    "unit" : "A",
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
@@ -90,9 +89,9 @@ Examples of rao parameters with business and implementation specific parameters
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-over-cost" : 0.0,
         "sensitivity-parameters" : {
-          "version" : "1.0",
+          "version" : "1.3",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.11",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
@@ -106,7 +105,7 @@ Examples of rao parameters with business and implementation specific parameters
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ "TR", "BE", "SI", "CH", "AL", "ES", "SK", "BA", "RO", "PT", "DE", "AT", "FR", "CZ", "ME", "NL", "PL", "GR", "IT", "UA", "HU", "BG", "MK", "HR", "RS" ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0,
             "extensions" : {

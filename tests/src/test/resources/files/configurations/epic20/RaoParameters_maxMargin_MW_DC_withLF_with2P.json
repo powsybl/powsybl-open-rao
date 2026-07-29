@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
@@ -59,7 +58,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -73,8 +72,8 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : false
           }
         }
       },

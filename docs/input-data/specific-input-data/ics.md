@@ -1,9 +1,10 @@
 # ICS
 
 ICS data contains necessary data to define redispatching actions' specific constraints. ICS data are only used for 
-[costly computations](../../algorithms/castor/linear-problem/inter-temporal-constraints.md).
+[costly computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md).
 
 ### Static
+
 Static ICS data defines a remedial action's generator's static constraints:
 
 | Name                                       | Details                                                                                                        |
@@ -23,16 +24,15 @@ Static ICS data defines a remedial action's generator's static constraints:
 | Minimum down-time [h]                      | Minimum downtime for RA RD in hours.                                                                           |
 | **Maximum positive power gradient [MW/h]** | Maximum positive power gradient for RA RD in MW/h.                                                             |
 | **Maximum negative power gradient [MW/h]** | Maximum negative power gradient for RA RD in MW/h.                                                             |
-| Lead time [h]                              | Lead time for activation of RA RD in h.                                                                        |
-| Lag time [h]                               | Lag time for deactivation of RA RD in h.                                                                       |
-| Startup allowed                            | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
-| Shutdown allowed                           | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
-
+| **Lead time [h]**                          | Lead time for activation of RA RD in h.                                                                        |
+| **Lag time [h]**                           | Lag time for deactivation of RA RD in h.                                                                       |
+| **Shutdown allowed**                       | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
+| **Startup allowed**                        | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
 
 ### Series
 
-This CSV defines a remedial action's generator's operating program P0, and allowed undershoot/overshoot
-from P0 (RDP- and RDP+, positive values). These values are defined as time series over 24 hours.
+This CSV defines a remedial action's generator's operating program P0, allowed undershoot/overshoot from P0 (RDP- and
+RDP+, positive values), and the Pmin of redispatching (Pmin_RD). These values are defined as time series over 24 hours.
 
 ### GSK
 
@@ -42,4 +42,53 @@ from P0 (RDP- and RDP+, positive values). These values are defined as time serie
 | Node   | UCT code of the node described with 8 characters.                                        |
 | Weight | Weight for GSK at respective node.  Sum of weights for all nodes in one GSK should be 1. |
 
-![ICS Importer](../../_static/img/ics-importer.png)
+
+## Read ICS data
+
+```java
+InputStream staticIcs = new FileInputStream("path/to/ics/static.csv");
+InputStream seriesIcs = new FileInputStream("path/to/ics/series.csv");
+InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
+IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
+```
+
+## ICS data to create TimeCoupledRaoInput
+
+When the redispatching actions are imported using ICS data, for each action and each timestamp, the network is modified to add the missing generators
+on the right bus and the crac is modified to add the redispatching actions. 
+
+![ICS Importer](../../_static/img/icsdata.png)_
+
+```java
+        Network network1 = LazyNetwork.of("networkPath");
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                // other timestamps
+            ));
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static.csv"),
+            getClass().getResourceAsStream("/ics/series.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            timestampsToRun);
+
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, costUp, costDown, exportDirectory);
+        
+        // Export Time-Coupled Constraints JSON
+        OutputStream outputStream = Files.newOutputStream(Path.of(exportPath.concat("time-coupled-constraints.json")));
+        JsonTimeCoupledConstraints.write(postIcsRaoInputs.getTimeCoupledConstraints(), outputStream);
+        
+        postIcsRaoInputs.getRaoInputs().getDataPerTimestamp().forEach( (timestamp, raoInput) -> {
+            
+            // Export network in JIIDM format with the added generators
+            String networkPath = exportPath.concat("networks/").concat(timestamp.toString()).concat(".jiidm");
+            raoInput.getNetwork().write("JIIDM", new Properties(), Path.of(networkPath));
+            
+            // Export CRAC in JSON format with the added redispatching actions
+            OutputStream fileOutputStream = Files.newOutputStream(Path.of(exportPath.concat("cracs/").concat(timestamp.toString()).concat(".json")));
+            raoInput.getCrac().write("JSON", fileOutputStream);
+        });
+        
+```

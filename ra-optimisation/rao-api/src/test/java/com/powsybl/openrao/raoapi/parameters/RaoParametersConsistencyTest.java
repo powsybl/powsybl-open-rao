@@ -7,27 +7,36 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConsistencyTest {
-    private final RaoParameters parameters = new RaoParameters();
+    private final RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
     private OpenRaoSearchTreeParameters stParameters;
 
     @BeforeEach
     public void generalSetUp() {
-        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         stParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
     }
 
@@ -64,11 +73,13 @@ class RaoParametersConsistencyTest {
         com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
         relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
         parameters.setRelativeMarginsParameters(relativeMarginsParameters);
-        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().size());
-        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.BE)), 1e-6);
-        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.DE)), 1e-6);
-        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903145---4")), 1e-6);
-        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903144---9")), 1e-6);
+        final List<ZoneToZonePtdfDefinition> ptdfBoundaries = parameters.getRelativeMarginsParameters().get().getPtdfBoundaries();
+        assertEquals(1, ptdfBoundaries.size());
+        final ZoneToZonePtdfDefinition firstPtdfBoundary = ptdfBoundaries.getFirst();
+        assertEquals(1, firstPtdfBoundary.getWeight(new EICode(Country.BE)), 1e-6);
+        assertEquals(-1, firstPtdfBoundary.getWeight(new EICode(Country.DE)), 1e-6);
+        assertEquals(1, firstPtdfBoundary.getWeight(new EICode("22Y201903145---4")), 1e-6);
+        assertEquals(-1, firstPtdfBoundary.getWeight(new EICode("22Y201903144---9")), 1e-6);
     }
 
     @Test
@@ -95,9 +106,9 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testNegativeCurativeRaoMinObjImprovement() {
-        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100, ReportNode.NO_OP);
         assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
-        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(-100);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(-100, ReportNode.NO_OP);
         assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
     }
 
@@ -111,13 +122,15 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testFailsOnLowSensitivityThreshold() {
-        Exception e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.));
+        final SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters = stParameters.getRangeActionsOptimizationParameters();
+
+        Exception e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setPstSensitivityThreshold(0.));
         assertEquals("pstSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(1e-7));
+        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setHvdcSensitivityThreshold(1e-7));
         assertEquals("hvdcSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.));
+        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setInjectionRaSensitivityThreshold(0.));
         assertEquals("injectionRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
     }
 }

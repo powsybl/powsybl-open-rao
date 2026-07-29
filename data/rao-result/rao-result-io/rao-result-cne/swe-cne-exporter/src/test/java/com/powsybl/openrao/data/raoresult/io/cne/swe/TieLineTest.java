@@ -31,10 +31,10 @@ public class TieLineTest {
     @BeforeEach
     void setUp() {
         network = Network.read("SweTestCaseWith12NodesAndXnodes.uct", getClass().getResourceAsStream("/SweTestCaseWith12NodesAndXnodes.uct"));
-        network.getDanglingLine("FFR2AA1  XES_FR11 1").setProperty("CGMES.TopologicalNode_Boundary", "XES_FR11_mRID");
-        network.getDanglingLine("XES_FR11 EES3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_FR11_mRID");
-        network.getDanglingLine("EES2AA1  XES_PT11 1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
-        network.getDanglingLine("XES_PT11 PPT3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
+        network.getBoundaryLine("FFR2AA1  XES_FR11 1").setProperty("CGMES.TopologicalNode_Boundary", "XES_FR11_mRID");
+        network.getBoundaryLine("XES_FR11 EES3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_FR11_mRID");
+        network.getBoundaryLine("EES2AA1  XES_PT11 1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
+        network.getBoundaryLine("XES_PT11 PPT3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
 
         SweCneHelper helper = Mockito.mock(SweCneHelper.class);
 
@@ -75,7 +75,7 @@ public class TieLineTest {
     @Test
     void testSetInOutAggregateNodesNoProperty() {
         MonitoredRegisteredResource rr = new MonitoredRegisteredResource();
-        network.getDanglingLine("EES2AA1  XES_PT11 1").removeProperty("CGMES.TopologicalNode_Boundary");
+        network.getBoundaryLine("EES2AA1  XES_PT11 1").removeProperty("CGMES.TopologicalNode_Boundary");
 
         monitoredSeriesCreator.setInOutAggregateNodes("EES2AA1  XES_PT11 1 + XES_PT11 PPT3AA1  1", "REN_blabla", rr);
         assertEquals("EES2AA1", rr.getInAggregateNodeMRID().getValue());

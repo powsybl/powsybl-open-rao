@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -52,7 +51,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -66,8 +65,8 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "PL", "NL", "IT", "ES", "BA", "MK", "AT", "ME", "FR", "UA", "AL", "TR", "SK", "CH", "GR", "PT", "BE", "CZ", "HR", "SI", "RO", "RS", "DE", "BG", "HU" ],
-            "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true,
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {
@@ -107,9 +106,9 @@
       "multi-threading" : {
         "available-cpus" : 1
       },
-      "costly-min-margin-parameters": {
+      "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
-        "shifted-violation-threshold": 0.0
+        "shifted-violation-threshold" : 0.0
       }
     }
   }

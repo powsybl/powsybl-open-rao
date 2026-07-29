@@ -7,17 +7,17 @@
 
 package com.powsybl.openrao.data.crac.io.cse.outage;
 
-import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TOutages;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteContingencyElementHelper;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteContingencyElementHelper;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TOutages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,14 +59,22 @@ public class TOutageAdder {
             addNotAddedOutageCreationContext(tOutage, contingencyElementHelpers);
         } else {
             contingencyAdder.add();
-            cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.imported(tOutage.getName().getV(), tOutage.getName().getV(), tOutage.getName().getV(), false, null));
+            cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.imported(
+                tOutage.getName().getV(), tOutage.getName().getV(), tOutage.getName().getV(), false, null));
         }
     }
 
     private void addNotAddedOutageCreationContext(TOutage tOutage, List<UcteContingencyElementHelper> branchHelpers) {
-        branchHelpers.stream().filter(branchHelper -> !branchHelper.isValid()).forEach(ucteContingencyElementHelper ->
-            cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.notImported(tOutage.getName().getV(), tOutage.getName().getV(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, ucteContingencyElementHelper.getInvalidReason()))
-        );
+        branchHelpers.stream()
+            .filter(branchHelper -> !branchHelper.isValid())
+            .forEach(ucteContingencyElementHelper ->
+                cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.notImported(
+                    tOutage.getName().getV(),
+                    tOutage.getName().getV(),
+                    ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                    ucteContingencyElementHelper.getInvalidReason()
+                ))
+            );
     }
 
     private boolean atLeastOneBranchIsMissing(List<UcteContingencyElementHelper> branchHelpers) {
@@ -74,7 +82,13 @@ public class TOutageAdder {
     }
 
     private void handleTBranch(TBranch tBranch, ContingencyAdder contingencyAdder, List<UcteContingencyElementHelper> branchHelpers, String outageId) {
-        UcteContingencyElementHelper branchHelper = new UcteContingencyElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), outageId, ucteNetworkAnalyzer);
+        UcteContingencyElementHelper branchHelper = new UcteContingencyElementHelper(
+            tBranch.getFromNode().getV(),
+            tBranch.getToNode().getV(),
+            String.valueOf(tBranch.getOrder().getV()),
+            outageId,
+            ucteNetworkAnalyzer
+        );
         if (!branchHelper.isValid()) {
             branchHelpers.add(branchHelper);
         } else {

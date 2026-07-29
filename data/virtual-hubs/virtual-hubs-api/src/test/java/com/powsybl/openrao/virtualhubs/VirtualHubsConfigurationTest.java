@@ -7,9 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -17,51 +16,42 @@ import static org.junit.jupiter.api.Assertions.*;
 class VirtualHubsConfigurationTest {
     @Test
     void checkThatConfigurationManipulationWorksAsExpected() {
-        VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
+        final VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
+        final MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
         configuration.addMarketArea(marketArea);
         configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false, false));
         configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, false, "HibNodeName", marketArea, null));
-        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", false);
+        final BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", false);
         configuration.addBorderDirection(borderDirection);
 
-        assertEquals(2, configuration.getMarketAreas().size());
-        assertEquals(1, configuration.getVirtualHubs().size());
-        assertEquals(1, configuration.getBorderDirections().size());
-        assertTrue(configuration.getMarketAreas().contains(marketArea));
-        assertTrue(configuration.getBorderDirections().contains(borderDirection));
+        Assertions.assertThat(configuration.getMarketAreas()).hasSize(2);
+        Assertions.assertThat(configuration.getVirtualHubs()).hasSize(1);
+        Assertions.assertThat(configuration.getBorderDirections()).hasSize(1);
+        Assertions.assertThat(configuration.getMarketAreas()).contains(marketArea);
+        Assertions.assertThat(configuration.getBorderDirections()).contains(borderDirection);
     }
 
     @Test
     void checkThatAddingNullMarketAreaInConfigurationThrows() {
-        VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> configuration.addMarketArea(null),
-            "Null market area addition in configuration should throw but does not"
-        );
-        assertEquals("Virtual hubs configuration does not allow adding null market area", thrown.getMessage());
+        final VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> configuration.addMarketArea(null))
+            .withMessage("Virtual hubs configuration does not allow adding null market area");
     }
 
     @Test
     void checkThatAddingNullVirtualHubInConfigurationThrows() {
-        VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> configuration.addVirtualHub(null),
-            "Null virtual hub addition in configuration should throw but does not"
-        );
-        assertEquals("Virtual hubs configuration does not allow adding null virtual hub", thrown.getMessage());
+        final VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> configuration.addVirtualHub(null))
+            .withMessage("Virtual hubs configuration does not allow adding null virtual hub");
     }
 
     @Test
     void checkThatAddingNullBorderDirectionInConfigurationThrows() {
-        VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> configuration.addBorderDirection(null),
-            "Null border direction addition in configuration should throw but does not"
-        );
-        assertEquals("Virtual hubs configuration does not allow adding null border direction", thrown.getMessage());
+        final VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> configuration.addBorderDirection(null))
+            .withMessage("Virtual hubs configuration does not allow adding null border direction");
     }
 }

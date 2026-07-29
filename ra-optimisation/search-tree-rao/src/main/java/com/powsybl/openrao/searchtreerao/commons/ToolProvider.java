@@ -7,8 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.openrao.commons.*;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.EICode;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -18,22 +24,25 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -79,40 +88,50 @@ public final class ToolProvider {
         return cnec.getLocation(network).stream().anyMatch(loopflowCountries::contains);
     }
 
-    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction<?>> rangeActions,
-                                                                            boolean computePtdfs,
-                                                                            boolean computeLoopFlows, Instant outageInstant) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant);
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
+                                                                            final Set<RangeAction<?>> rangeActions,
+                                                                            final boolean computePtdfs,
+                                                                            final boolean computeLoopFlows,
+                                                                            final Instant outageInstant,
+                                                                            final ReportNode reportNode) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode);
     }
 
-    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction<?>> rangeActions,
-                                                                            boolean computePtdfs,
-                                                                            boolean computeLoopFlows,
-                                                                            AppliedRemedialActions appliedRemedialActions,
-                                                                            Instant outageInstant) {
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
+                                                                            final Set<RangeAction<?>> rangeActions,
+                                                                            final boolean computePtdfs,
+                                                                            final boolean computeLoopFlows,
+                                                                            final AppliedRemedialActions appliedRemedialActions,
+                                                                            final Instant outageInstant,
+                                                                            final ReportNode reportNode) {
+
+        Unit flowUnit = getFlowUnit(raoParameters);
+
+        Set<Unit> computationUnits;
+        if (flowUnit == Unit.MEGAWATT) {
+            computationUnits = Collections.singleton(Unit.MEGAWATT);
+        } else {
+            computationUnits = Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
+        }
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
-            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
+            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(flowUnit))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 
-        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
-        }
+        builder.withLoadflow(cnecs, computationUnits);
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
             eic.addAll(getEicForLoopFlows());
-            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(eic, reportNode), cnecs, computationUnits);
         } else if (computeLoopFlows) {
             Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
-            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows(), reportNode), loopflowCnecs, computationUnits);
         } else if (computePtdfs) {
-            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction(), reportNode), cnecs, computationUnits);
         }
 
         return builder.build();
@@ -135,13 +154,13 @@ public final class ToolProvider {
             collect(Collectors.toSet());
     }
 
-    ZonalData<SensitivityVariableSet> getGlskForEic(Set<String> listEicCode) {
+    ZonalData<SensitivityVariableSet> getGlskForEic(final Set<String> listEicCode, final ReportNode reportNode) {
         Map<String, SensitivityVariableSet> glskBoundaries = new HashMap<>();
 
         for (String eiCode : listEicCode) {
             SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
+                CommonReports.reportNoGlskFoundForCountryEICode(reportNode, eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }
@@ -210,7 +229,8 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram()
+                    raoInput.getReferenceProgram(),
+                    getFlowUnit(raoParameters)
                 )
             );
         }

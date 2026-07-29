@@ -7,11 +7,15 @@
 
 package com.powsybl.openrao.tests.utils;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -19,16 +23,14 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.steps.CommonTestData;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
-
-import static java.lang.String.format;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -62,8 +64,8 @@ public final class RaoUtils {
         }
     }
 
-    public static RaoResult runRao(String contingencyId, InstantKind instantKind, String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds) throws IOException {
+    public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
+                                   Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -72,37 +74,31 @@ public final class RaoUtils {
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }
 
-        return runRaoInMemory(Rao.find(raoType), CommonTestData.getNetwork(), CommonTestData.getCrac(), contingencyId, instantKind, glsks, CommonTestData.getReferenceProgram(), raoParameters, timeLimitInSeconds);
+        return runRaoInMemory(
+            Rao.find(raoType),
+            CommonTestData.getNetwork(),
+            CommonTestData.getCrac(),
+            glsks,
+            CommonTestData.getReferenceProgram(),
+            raoParameters,
+            timeLimitInSeconds,
+            reportNode
+        );
     }
 
-    private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac, String contingencyId, InstantKind instantKind,
+    private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
                                             ZonalData<SensitivityVariableSet> glsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds) throws IOException {
+                                            Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
 
-        RaoInput.RaoInputBuilder raoInputBuilder;
-        if (contingencyId == null) {
-            if (instantKind == null) {
-                // Will optimize all the perimeters
-                raoInputBuilder = RaoInput.build(network, crac);
-            } else if (crac.getInstant(instantKind).isPreventive()) {
-                // Will optimize preventive state only
-                raoInputBuilder = RaoInput.buildWithPreventiveState(network, crac);
-            } else {
-                throw new IllegalArgumentException(format("Contingency ID should not be null with instant being %s - only \"Preventive\" is accepted", instantKind));
-            }
-        } else {
-            // Perform a curative optimization only on the specified state
-            raoInputBuilder = RaoInput.buildWithState(network, crac, crac.getState(crac.getContingency(contingencyId), crac.getInstant(instantKind)));
-        }
-
+        RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
         RaoResult raoResult;
         if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()));
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode);
         } else {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config);
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode);
         }
 
         /*
@@ -114,7 +110,7 @@ public final class RaoUtils {
         return roundTripOnRaoResult(raoResult, crac);
     }
 
-    private static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
+    public static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -17,8 +17,6 @@
       <branch name="FR2-DE3" from="FFR2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2165</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -31,8 +29,6 @@
       <branch name="FR2-DE3" from="FFR2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2165</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -79,8 +75,6 @@
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2265</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -93,8 +87,6 @@
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2265</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -107,8 +99,6 @@
       <branch name="DE1-DE2" from="DDE1AA1" to="DDE2AA1" order="1" eic="1234567890123451"/>
       <imaxA>2165</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -121,8 +111,6 @@
       <branch name="DE1-DE2" from="DDE1AA1" to="DDE2AA1" order="1" eic="1234567890123451"/>
       <imaxA>2165</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -135,8 +123,6 @@
       <branch name="NL2-NL3" from="NNL2AA1" to="NNL3AA1" order="1" eic="1234567890123451"/>
       <imaxA>7217</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -149,8 +135,6 @@
       <branch name="NL2-NL3" from="NNL2AA1" to="NNL3AA1" order="1" eic="1234567890123451"/>
       <imaxA>7217</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -197,8 +181,6 @@
       <branch name="DE2-DE3" from="DDE2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>7217</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -211,8 +193,6 @@
       <branch name="DE2-DE3" from="DDE2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>7217</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -225,8 +205,6 @@
       <branch name="FR2-DE3" from="FFR2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -242,8 +220,6 @@
       <branch name="FR2-DE3" from="FFR2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -259,8 +235,6 @@
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -276,8 +250,6 @@
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -293,8 +265,6 @@
       <branch name="DE1-DE2" from="DDE1AA1" to="DDE2AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>
@@ -310,8 +280,6 @@
       <branch name="DE1-DE2" from="DDE1AA1" to="DDE2AA1" order="1" eic="1234567890123451"/>
       <imaxA>2887</imaxA>
       <imaxType>FIXED</imaxType>
-      <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>100</minRAMfactor>
       <CNEC>true</CNEC>

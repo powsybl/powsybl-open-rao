@@ -7,24 +7,35 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
-import com.powsybl.commons.config.*;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -36,7 +47,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         Path path = Paths.get(new File(getClass().getResource("/" + configFile + ".yml").getFile()).getAbsolutePath());
         Path subPath = path.getParent();
         PlatformConfig platformConfig = new PlatformConfig(PlatformConfig.loadModuleRepository(subPath, configFile), subPath);
-        return RaoParameters.load(platformConfig);
+        return RaoParameters.load(platformConfig, ReportNode.NO_OP);
     }
 
     @Test
@@ -46,7 +57,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertEquals(3, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
@@ -115,8 +125,16 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         assertEquals(1000.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationPenalty());
         assertEquals(0.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationThreshold());
+
+        assertTrue(searchTreeParameters.getPstRegulationParameters().isPresent());
+        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), searchTreeParameters.getPstRegulationParameters().get().getPstsToRegulate());
+
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withExtensions.json");
     }
 
     @Test
@@ -125,7 +143,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
@@ -147,7 +164,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertNull(searchTreeParameters);
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withoutExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withoutExtensions.json");
     }
 
     @Test
@@ -157,7 +178,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.MEGAWATT, objectiveFunctionParameters.getUnit());
         assertEquals(3, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
@@ -224,7 +244,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(parameters.getRelativeMarginsParameters().isPresent());
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withPartialExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withPartialExtensions.json");
     }
 
     @Test
@@ -241,6 +265,10 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(111, olfParams.getMaxNewtonRaphsonIterations(), DOUBLE_TOLERANCE);
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withOLFParams.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withOLFParams.json");
     }
 }

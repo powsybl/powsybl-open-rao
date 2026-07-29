@@ -7,19 +7,20 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +33,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
@@ -58,7 +61,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         rangeActions.put(cnec1.getState(), Set.of(pstRangeAction));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
@@ -153,14 +156,15 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        // MIN_FLOW_1 given in MW !
+        assertEquals(-MIN_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-linearProblem.infinity(), cnec1AboveThreshold.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(MAX_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
 
-        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
-        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(upwardVariation), DOUBLE_TOLERANCE); // penalty cost
@@ -190,21 +194,20 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     void fillWithMissingRangeActionVariables() {
-        try {
-            createMaxMinMarginFiller(Unit.MEGAWATT);
-            linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(maxMinMarginFiller)
-                .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-                .build();
+        createMaxMinMarginFiller(Unit.MEGAWATT);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(maxMinMarginFiller)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
 
-            // FlowVariables present , but not the absoluteRangeActionVariables present,
-            // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
-            // exceeds the max-pst-per-tso parameter
-            linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
-            linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
-            linearProblem.fill(flowResult, sensitivityResult);
-        } catch (Exception e) {
-            fail();
-        }
+        // FlowVariables present , but not the absoluteRangeActionVariables present,
+        // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
+        // exceeds the max-pst-per-tso parameter
+        linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
+        linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(2, linearProblem.numConstraints());
     }
 }

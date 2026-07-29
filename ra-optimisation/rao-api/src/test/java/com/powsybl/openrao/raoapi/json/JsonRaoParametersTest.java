@@ -7,11 +7,10 @@
 
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -19,9 +18,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -31,9 +41,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -43,19 +57,22 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTripDefault() throws IOException {
-        RaoParameters parameters = new RaoParameters();
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_v2.json");
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_v2.json");
     }
 
     @Test
     void roundTrip() throws IOException {
-        RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        parameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
+        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983, ReportNode.NO_OP);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
         searchTreeParameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
@@ -127,15 +144,32 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         fastRaoParameters.setMarginLimit(5);
         fastRaoParameters.setAddUnsecureCnecs(false);
         fastRaoParameters.setNumberOfCnecsToAdd(20);
+        // -- Marmot Parameters
+        parameters.addExtension(MarmotParameters.class, new MarmotParameters());
+        MarmotParameters marmotParameters = parameters.getExtension(MarmotParameters.class);
+        marmotParameters.setMarginWindowToConsider(7);
+        marmotParameters.setMinRelativeImprovementOnMargin(12);
+        marmotParameters.setNumberOfCnecsToAddPerVirtualCostName(25);
+        marmotParameters.setMaxMipIterations(13);
+        marmotParameters.setNumberOfThreads(1515);
 
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
+        // -- PST regulation parameters
+        SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
+        pstRegulationParameters.setPstsToRegulate(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"));
+        searchTreeParameters.setPstRegulationParameters(pstRegulationParameters);
+
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParametersSet_v2.json");
     }
 
     @Test
     void update() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
-        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
@@ -160,14 +194,18 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
     @Test
     void writeExtension() throws IOException {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::assertTxtEquals, "/RaoParametersWithExtension_v2.json");
+        writeTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                ComparisonUtils::assertTxtEquals,
+                "/RaoParametersWithExtension_v2.json");
     }
 
     @Test
     void readExtension() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
@@ -176,14 +214,14 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @Test
     void readErrorUnexpectedExtension() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersError_v2.json");
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals("Unexpected field in rao parameters: unknownField", e.getMessage());
     }
 
     @Test
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals(String.format("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '%s'.", RAO_PARAMETERS_VERSION), e.getMessage());
     }
 
@@ -191,7 +229,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @ValueSource(strings = {"LoopFlowError", "ObjFuncTypeError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
-        assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

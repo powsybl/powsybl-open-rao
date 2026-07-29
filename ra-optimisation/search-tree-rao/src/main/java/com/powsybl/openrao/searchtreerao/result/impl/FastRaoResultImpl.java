@@ -8,23 +8,30 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
-import com.powsybl.iidm.network.TwoSides;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import java.util.*;
-
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
@@ -68,18 +75,20 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
         Set<String> failingContingencies = new HashSet<>();
-        crac.getStates().stream().filter(state -> initialResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> afterPraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> afterAraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> finalResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        extractFailingContingenciesFromResult(initialResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(afterPraResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(afterAraResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(finalResult, crac, failingContingencies);
         initialResult.excludeContingencies(failingContingencies);
         afterPraResult.excludeContingencies(failingContingencies);
         afterAraResult.excludeContingencies(failingContingencies);
         finalResult.excludeContingencies(failingContingencies);
+    }
+
+    private static void extractFailingContingenciesFromResult(final PrePerimeterResult prePerimeterResult, final Crac crac, final Set<String> failingContingencies) {
+        crac.getStates().stream()
+            .filter(state -> prePerimeterResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
     }
 
     public PrePerimeterResult getInitialResult() {
@@ -280,18 +289,5 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        return getFunctionalCost(optimizedInstant) < 0;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
     }
 }

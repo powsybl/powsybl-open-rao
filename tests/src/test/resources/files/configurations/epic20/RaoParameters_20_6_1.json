@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -52,7 +51,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -66,8 +65,8 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "UA", "CZ", "ES", "CH", "RS", "ME", "TR", "BA", "RO", "GR", "IT", "DE", "HU", "SI", "MK", "NL", "BE", "HR", "AL", "FR", "AT", "BG", "SK", "PT", "PL" ],
-            "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true,
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {

@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.threeten.extra.Interval;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -35,9 +36,9 @@ public class DailyF711GeneratorInputs implements DailyF711GeneratorInputsProvide
     @Override
     public FlowBasedConstraintDocument referenceConstraintDocument() {
         FlowBasedConstraintDocument flowBasedConstraintDocument;
-        try (final InputStream cracXmlInputStream = new FileInputStream(input.cracPath())) {
+        try (InputStream cracXmlInputStream = new FileInputStream(input.cracPath())) {
             flowBasedConstraintDocument = importNativeCrac(cracXmlInputStream);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new OpenRaoException("Exception occurred during F303 file creation", e);
         }
         return flowBasedConstraintDocument;

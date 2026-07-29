@@ -507,7 +507,7 @@
       "setpoint" : 260.0,
       "unit" : "megawatt"
     },{
-      "networkElementId" : "DL1",
+      "networkElementId" : "BL1",
       "setpoint" : -120.0,
       "unit" : "megawatt"
     }, {

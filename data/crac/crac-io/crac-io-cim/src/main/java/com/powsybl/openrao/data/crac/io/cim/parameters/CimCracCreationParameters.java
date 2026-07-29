@@ -11,7 +11,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -59,10 +60,20 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
                 // Aligned RAs :
                 if (areRasAligned(raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId())) {
                     if (!raSpeed1.getSpeed().equals(raSpeed2.getSpeed())) {
-                        throw new OpenRaoException(String.format("Range actions %s and %s are aligned but have different speeds (%s and %s)", raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId(), raSpeed1.getSpeed().toString(), raSpeed2.getSpeed().toString()));
+                        throw new OpenRaoException(String.format(
+                            "Range actions %s and %s are aligned but have different speeds (%s and %s)",
+                            raSpeed1.getRangeActionId(),
+                            raSpeed2.getRangeActionId(),
+                            raSpeed1.getSpeed().toString(),
+                            raSpeed2.getSpeed().toString()
+                        ));
                     }
                 } else if (raSpeed1.getSpeed().equals(raSpeed2.getSpeed()) && !raSpeed1.getRangeActionId().equals(raSpeed2.getRangeActionId())) {
-                    throw new OpenRaoException(String.format("Range action %s has a speed %s already defined", raSpeed1.getRangeActionId(), raSpeed1.getSpeed().toString()));
+                    throw new OpenRaoException(String.format(
+                        "Range action %s has a speed %s already defined",
+                        raSpeed1.getRangeActionId(),
+                        raSpeed1.getSpeed().toString()
+                    ));
                 }
             }
         }

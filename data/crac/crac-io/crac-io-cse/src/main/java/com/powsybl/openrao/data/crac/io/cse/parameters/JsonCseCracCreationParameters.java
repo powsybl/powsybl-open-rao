@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.crac.io.cse.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     @Override
     public CseCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CseCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case RANGE_ACTION_GROUPS:
                     jsonParser.nextToken();
                     parameters.setRangeActionGroupsAsString(jsonParser.readValueAs(ArrayList.class));
@@ -63,7 +63,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                     parameters.setBusBarChangeSwitchesSet(deserializeBusBarChangeSwitchesSet(jsonParser));
                     break;
                 default:
-                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.currentName()));
             }
         }
 
@@ -129,7 +129,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
             String remedialActionId = null;
             Set<SwitchPairId> switchPairs = new HashSet<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case REMEDIAL_ACTION_ID:
                         remedialActionId = jsonParser.nextTextValue();
                         break;
@@ -138,7 +138,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                         switchPairs = deserializeSwitchPairIds(jsonParser);
                         break;
                     default:
-                        throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.currentName()));
                 }
             }
             if (remedialActionId == null) {
@@ -159,7 +159,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
             String switchToOpen = null;
             String switchToClose = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case OPEN:
                         switchToOpen = jsonParser.nextTextValue();
                         break;
@@ -167,7 +167,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                         switchToClose = jsonParser.nextTextValue();
                         break;
                     default:
-                        throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(UNEXPECTED_FIELD, jsonParser.currentName()));
                 }
             }
             if (switchToOpen == null || switchToClose == null) {

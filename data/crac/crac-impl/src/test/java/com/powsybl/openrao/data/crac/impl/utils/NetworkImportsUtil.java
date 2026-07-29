@@ -7,7 +7,18 @@
 
 package com.powsybl.openrao.data.crac.impl.utils;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VscConverterStation;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -107,12 +118,12 @@ public final class NetworkImportsUtil {
             .add();
     }
 
-    public static void addDanglingLine(Network network) {
+    public static void addBoundaryLine(Network network) {
         VoltageLevel vl1 = network.getVoltageLevel("FFR1AA1");
         vl1.getBusBreakerView().newBus().setId("B1").add();
-        DanglingLine danglingLine = vl1.newDanglingLine()
-                .setId("DL1")
-                .setName("DL1")
+        BoundaryLine boundaryLine = vl1.newBoundaryLine()
+                .setId("BL1")
+                .setName("BL1")
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setR(0.5)
@@ -122,7 +133,7 @@ public final class NetworkImportsUtil {
                 .setP0(0.)
                 .setQ0(0.)
                 .add();
-        danglingLine.getTerminal()
+        boundaryLine.getTerminal()
                 .setP(0.)
                 .setQ(0.);
     }
@@ -249,9 +260,9 @@ public final class NetworkImportsUtil {
             .newLinearModel().setBPerSection(1E-2).setGPerSection(0.0).setMaximumSectionCount(2).add()
             .add();
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
-        DanglingLine danglingLine = vl1.newDanglingLine()
-            .setId("DL1")
-            .setName("DL1")
+        BoundaryLine boundaryLine = vl1.newBoundaryLine()
+            .setId("BL1")
+            .setName("BL1")
             .setConnectableBus("B1")
             .setBus("B1")
             .setR(0.5)
@@ -261,7 +272,7 @@ public final class NetworkImportsUtil {
             .setP0(0.)
             .setQ0(0.)
             .add();
-        danglingLine.getTerminal()
+        boundaryLine.getTerminal()
             .setP(0.)
             .setQ(0.);
 

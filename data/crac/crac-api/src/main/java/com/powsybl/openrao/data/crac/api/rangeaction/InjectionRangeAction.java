@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * A range action interface specifying an action on one or several Injections
  *
- * Injections can be Generator and/or Loads (DanglingLine are not yet taken into
+ * Injections can be Generator and/or Loads (BoundaryLines are not yet taken into
  * account in that object).
  *
  * The InjectionRangeAction can affect several Injections, the conversion between

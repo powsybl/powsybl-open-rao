@@ -44,7 +44,7 @@ implementation.
 ### Quick tutorial
 
 If you prefer to get familiar with OpenRAO using a real example, take a look at
-this [tutorial](https://powsybl.readthedocs.io/projects/openrao/en/stable/tutorial.html).
+this [tutorial](https://powsybl.readthedocs.io/projects/openrao/en/stable/getting-started/tutorial.html).
 
 ## License
 
@@ -58,8 +58,11 @@ PowSyBl-OpenRAO falls under the [PowSyBl governance](https://www.powsybl.org/pag
 ## Contributing
 
 Please read the instructions on contributing to the code [here](CONTRIBUTING.md).  
+See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
 If you want to discuss technical aspects of the code with other developers, are welcome to join the PowSyBl TSC
 discussions during one of our [monthly meetings](https://lists.lfenergy.org/g/powsybl-tsc).
+You can also participate in OpenRAO dedicated public meetings, as a contributor, user or potential user. You can subscribe to these meetings and to the dedicated mailing list [here](https://lists.lfenergy.org/g/powsybl-open-rao).
+Join the community on [Slack](https://powsybl.slack.com/) (channel #rao), ask for help, report bugs, help other users, provide feedback, present your use cases, etc.
 
 ## Roadmap
 

@@ -21,6 +21,7 @@ import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -32,7 +33,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -58,13 +61,13 @@ public class AngleMonitoringSteps {
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
         MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
-        CommonTestData.setMonitoringResult(angleMonitoringResult);
+        CommonTestData.setAngleMonitoringResult(angleMonitoringResult);
     }
 
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
+        assertEquals("secure".equalsIgnoreCase(expectedStatus), CommonTestData.getRaoResult().isSecure(CommonTestData.getCrac(), RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()), CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(), PhysicalParameter.ANGLE));
     }
 
     @Then("the applied remedial actions should be:")

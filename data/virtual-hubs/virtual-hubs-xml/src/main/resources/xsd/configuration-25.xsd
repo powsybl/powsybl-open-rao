@@ -1,0 +1,954 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- version 2025-07-30 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Configuration">
+		<xs:annotation>
+			<xs:documentation>The History Configuration holds all stored database configuration data entered by GUI of FBCS</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="1" name="DocumentIdentification" type="IdentificationType" />
+                <xs:element minOccurs="0" maxOccurs="1" name="Sender" type="Party"/>
+				<xs:element minOccurs="0" maxOccurs="1" name="Receiver" type="Party"/>
+                <xs:element minOccurs="0" maxOccurs="1" name="SynchronousAreas" type="SynchronousAreas" /> <!-- added for Eirgrid FCC-26920 -->
+				<xs:element name="MarketAreas" type="MarketAreas" />
+				<xs:element name="ControlAreas" type="ControlAreas" />
+				<xs:element minOccurs="0" name="VirtualHubs" type="VirtualHubs" /> <!-- added for Alegro/CEP -->
+				<xs:element minOccurs="0" name="InternalHVDCs" type="InternalHVDCs" /><!-- added for German HVDC -->
+				<xs:element minOccurs="0" name="BorderDirections" type="BorderDirections" />
+				<xs:element minOccurs="0" name="Parties" type="Parties" />
+				<xs:element minOccurs="0" name="PartyCommunications" type="PartyCommunications" />
+				<xs:element minOccurs="0" name="BordersToBeSent" type="BordersToBeSent" />
+				<xs:element minOccurs="0" name="CornerConfiguration" type="CornerConfiguration" />
+				<xs:element minOccurs="0" name="NPVTolerances" type="NPVTolerances" />
+				<xs:element minOccurs="0" name="PartitionKeys" type="PartitionKeys" />
+				<xs:element minOccurs="0" name="PreMergeIndicators" type="PreMergeIndicators" />
+				<xs:element minOccurs="0" name="GSKFactors" type="GSKFactors" />
+				<xs:element minOccurs="0" name="LOT3Parameters" type="LOT3Parameters" />
+				<xs:element minOccurs="0" name="IDATCTolerances" type="ATCTolerances" />
+				<xs:element minOccurs="0" name="TsoConfigurationParameters" type="TsoConfigurationParameters" />
+				<xs:element minOccurs="0" name="SAATCTolerances" type="ATCTolerances" />
+				<xs:element minOccurs="0" name="BankHolidayCalendar" type="BankHolidayCalendar" />
+				<xs:element minOccurs="0" name="BecAlgorithms" type="BecAlgorithms" />
+				<xs:element minOccurs="0" name="MinImpExpCapabilityChecks" type="MinImpExpCapabilityChecks" />
+				<xs:element minOccurs="0" name="ProcessTimeSettings" type="ProcessTimeSettingsList" />
+				<xs:element minOccurs="0" name="ProcessSettings" type="ProcessSettings" />
+				<xs:element minOccurs="0" name="DefaultFBPParameters" type="DefaultFBPParameters" />
+				<xs:element minOccurs="0" name="InclusionCoverageOverloadThresholds" type="InclusionCoverageOverloadThresholds" />
+				<xs:element minOccurs="0" name="SpanningConfiguration" type="SpanningConfiguration"></xs:element>
+				<xs:element minOccurs="0" name="AllocationConstraints" type="AllocationConstraints"></xs:element>
+				<xs:element minOccurs="0" name="RealGSKInformationStatuses" type="RealGSKInformationStatuses"></xs:element>
+				<xs:element minOccurs="0" name="QavtConfigurations" type="QavtConfigurationsType"></xs:element>
+				<xs:element minOccurs="0" name="MinBilateralCapacities" type="MinBilateralCapacities"></xs:element>
+				<xs:element minOccurs="0" name="GenericParameters" type="GenericParametersType" />
+				<xs:element minOccurs="0" name="CnecSelection" type="CnecSelectionType" />
+			</xs:sequence>
+			<xs:attribute name="Created" type="xs:dateTime" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="IdentificationType">
+		<xs:attribute name="v" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="35"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="CnecSelectionType">
+		<xs:sequence>
+			<xs:element name="Tso" type="CnecSelectionTsoType" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CnecSelectionTsoType">
+		<xs:attribute name="Code" type="xs:string"  use="required" />
+		<xs:attribute name="MaxCnecMnecNumber" type="xs:int"  use="required" />
+	</xs:complexType>
+	<xs:complexType name="SynchronousAreas"> <!-- added for Eirgrid FCC-26920 -->
+		<xs:sequence>
+			<xs:element name="SynchronousArea" type="SynchronousArea" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MarketAreas">
+		<xs:sequence>
+			<xs:element name="MarketArea" type="MarketArea" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ControlAreas">
+		<xs:sequence>
+			<xs:element name="ControlArea" type="ControlArea" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="VirtualHubs"> <!-- added for Alegro/CEP -->
+		<xs:sequence>
+			<xs:element name="VirtualHub" type="VirtualHub" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="InternalHVDCs"> <!-- added for German HVDC -->
+		<xs:sequence>
+			<xs:element name="HVDC" type="HVDCType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BorderDirections">
+		<xs:sequence>
+			<xs:element name="BorderDirection" type="BorderDirection" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Parties">
+		<xs:sequence>
+			<xs:element name="Party" type="Party" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PartyCommunications">
+		<xs:sequence>
+			<xs:element name="PartyCommunication" type="PartyCommunication" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BordersToBeSent">
+		<xs:sequence>
+			<xs:element name="BorderToBeSent" type="BorderToBeSent" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CornerConfiguration">
+		<xs:sequence>
+			<xs:element name="Corner" type="Corner" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="NPVTolerances">
+		<xs:sequence>
+			<xs:element name="NPVTolerance" type="NPVTolerance" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PartitionKeys">
+		<xs:sequence>
+			<xs:element name="PartitionKey" type="PartitionKey" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PreMergeIndicators">
+		<xs:sequence>
+			<xs:element name="PreMergeIndicator" type="PreMergeIndicator" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="enabled" type="xs:boolean"></xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="GSKFactors">
+		<xs:sequence>
+			<xs:element name="GSKFactor" type="GSKFactor" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LOT3Parameters">
+		<xs:sequence>
+			<xs:element name="LOT3Parameter" type="LOT3Parameter" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ATCTolerances">
+		<xs:sequence>
+			<xs:element name="ATCTolerance" type="ATCTolerance" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TsoConfigurationParameters">
+		<xs:sequence>
+			<xs:element name="TsoConfigurationParameter" type="TsoConfigurationParameter" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankHolidayCalendar">
+		<xs:sequence>
+			<xs:element name="BankHoliday" type="BankHoliday" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BecAlgorithms">
+		<xs:sequence>
+			<xs:element name="BecAlgorithm" type="BecAlgorithm" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MinImpExpCapabilityChecks">
+		<xs:sequence>
+			<xs:element name="PairOverloadTso" type="PairOverloadTso" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ControlEntity">
+		<xs:attribute name="Eic" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>EIC code of given Control Entity (e.g. 10YBE----------2).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Code" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of given Control Entity (e.g. BE).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MCParticipant" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>True if entity participates in market coupling, otherwise false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FixedShortName" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>FixedShortName of given Control Entity. Used as an identifier of given Control Entity in D2cf profiles filenames. (e.g. BE)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AHC" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area should be considered for Advanced Hybrid Coupling.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NPThreshold" type="xs:decimal" use="optional">
+			<xs:annotation>
+				<xs:documentation>Netposition shreshold for REFPROG check. Default = 0.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="frmRate" type="xs:decimal" use="optional">
+			<xs:annotation>
+				<xs:documentation>FRM rate provision for CNECs of this TSO, percentage of Fmax.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="techCounterparty" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area should be considered as technical counterparty.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SDAC" type="xs:boolean" use="optional"> <!-- Added in 4.2 (FCC-26459) -->
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area/border is part of SDAC behavior. Default = false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+        <xs:attribute name="SynchronousArea" type="xs:string" use="optional"> <!-- added for Eirgrid FCC-26920 -->
+			<xs:annotation>
+				<xs:documentation>Code of given synchronous area (e.g. SEM). If not filled, it is expected that only one synchronous area is used.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="SynchronousArea"> <!-- added for Eirgrid FCC-26920 -->
+		<xs:sequence>
+			<xs:element name="LocalLOT3Parameters" type="LocalLOT3Parameters" />
+			<xs:element name="InitialVoltages" type="InitialVoltages" />
+		</xs:sequence>
+		<xs:attribute name="Eic" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>EIC code of given Synchronous Area (e.g. 10YSEM---------X).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Code" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of given Synchronous Area (e.g. SEM).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+        <xs:attribute name="Live" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Determines if the SynchronousArea is to be considered for running the LF and calculating PTDFs.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+    <xs:complexType name="LocalLOT3Parameters"> <!-- added for Eirgrid FCC-26920 -->
+		<xs:sequence>
+			<xs:element name="LocalLOT3Parameter" type="LOT3Parameter" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="InitialVoltages"> <!-- added for Eirgrid FCC-26920 -->
+		<xs:sequence>
+			<xs:element name="Voltage" type="Voltage" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Voltage">
+
+		<xs:attribute name="Nominal" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Nominal voltage.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Initial" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Initial voltage.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SlackSearchPriority" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>Slack search priority.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+
+	</xs:complexType>
+	<xs:complexType name="MarketArea">
+		<xs:complexContent>
+			<xs:extension base="ControlEntity" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ControlArea">
+		<xs:complexContent>
+			<xs:extension base="ControlEntity">
+				<xs:attribute name="MarketArea" type="xs:string" use="optional"> <!-- extension to the parent MarketArea -->
+					<xs:annotation>
+						<xs:documentation>Parent Market Area (e.g. DE in case of D7)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                <xs:attribute name="GenerationThreshold" type="xs:decimal" use="optional"> <!-- extension to the Generation Threshold for CGM Check -->
+					<xs:annotation>
+						<xs:documentation>Maximum of Generation for CTA's nodes - to be checked in CGM.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+               	<xs:attribute name="LoadThreshold" type="xs:decimal" use="optional"> <!-- extension to the Load Threshold for CGM Check -->
+					<xs:annotation>
+						<xs:documentation>Maximum of Load for CTA's nodes - to be checked in CGM</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VirtualHub"> <!-- added for Alegro/CEP -->
+		<xs:attribute name="Eic" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>EIC code of virtual hub. Shall be consistent in REFPROG and GSK.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Code" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of given virtual hub (e.g. ALBE).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RelatedMA" type="xs:string" use="required"> 
+			<xs:annotation>
+				<xs:documentation>Physical market area where the virtual hub is connected. The market hub needs to exist with a defined hub in the MarketAreas section of the document.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AliasFor" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Market area used to compute PTDF of this virtual hub. It shall contain a code defined in the MarketAreas section. The referenced area should be defined in the CGM and should be neither CORE nor AHC. When this attribute is defined the NodeName attribute is ignored</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OppositeHub" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Opposite virtual hub. Maps to the definition of the virtual hub on the other side of the HVDC cable. It shall contain a code defined in the VirtualHubs section. Necessary to define VH equality constraint of type Np^(VH_1 )=-Np^(VH_2 ).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MCParticipant" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>True if entity participates in market coupling, otherwise false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NodeName" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Name of node connecting the virtual hub with the CGM.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="allNodeNames" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Names of nodes for multiple cables DC border (Big Hub). Information only.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AHC" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area should be considered for Advanced Hybrid Coupling.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NPThreshold" type="xs:decimal" use="optional">
+			<xs:annotation>
+				<xs:documentation>Netposition shreshold for REFPROG check. Default = 0.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SDAC" type="xs:boolean" use="optional"> <!-- Added in 4.2 (FCC-26459) -->
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area/border is part of SDAC behavior. Default = false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="HVDCType"> <!-- added for German HVDC -->
+		<xs:sequence>
+			<xs:element name="pole" type="poleType" minOccurs="1" maxOccurs="2"/>
+		</xs:sequence>
+		<xs:attribute name="Eic" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>EIC code of HVDC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Code" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of given HVDC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RelatedMA" type="xs:string" use="required"> 
+			<xs:annotation>
+				<xs:documentation>Physical market area where the internal HVDC is connected. The market hub needs to exist with a defined hub in the MarketAreas section of the document.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MTHVDC" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>True if this is multiterminal HVDC, otherwise false for Point-to-Point HVDC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Bipolar" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>True if this is Bipolar HVDC, otherwise false for Monopolar HVDC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="poleType"> <!-- added for German HVDC -->
+		<xs:sequence>
+			<xs:element minOccurs="1" name="converterList" type="converterListType"/>
+			<xs:element minOccurs="1" name="lineList" type="lineListType"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType mixed="true" name="converterListType"> <!-- added for German HVDC -->
+		<xs:sequence>	
+			<xs:element minOccurs="2" maxOccurs="unbounded" name="converter">
+				<xs:complexType>
+					<xs:attribute name="node" type="xs:string" use="required"/>
+					<xs:attribute name="station" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>			
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType mixed="true" name="lineListType"> <!-- added for German HVDC -->
+		<xs:sequence>	
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="line">
+				<xs:complexType>
+					<xs:attribute name="id" type="xs:string" use="required"/>
+					<xs:attribute name="from" type="xs:string" use="required"/>
+					<xs:attribute name="to" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BorderDirection">
+		<xs:attribute name="From" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of CA/MA entity on the From side (e.g. BE).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="To" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of CA/MA entity on the To side (e.g. NL).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="rLTAIncl" type="xs:decimal" use="optional"> <!-- added for ELI -->
+			<xs:annotation>
+				<xs:documentation>Parameter to ensure LTA inclusion fully or partially (value between 0 and 1)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AHC" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given border should be considered for Advanced Hybrid Coupling.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TurnOffATC" type="xs:boolean" use="optional"> <!-- added for HU-SI border -->
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given border should be excluded from Intra-Day ATC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TurnOffSAATC" type="xs:boolean" use="optional"> <!-- added for HU-SI border -->
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given border should be excluded from Shadow Auction ATC.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CappedATC" type="xs:decimal" use="optional"> <!-- added for neglected computation -->
+			<xs:annotation>
+				<xs:documentation>ATC value in MW needed to compute neglected flows. Default  is 5000 MW</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="InterconnectorEic" type="xs:string" use="optional"> <!-- added for Coreso and merging of CGM (based on it the MD752 Xnodes for Refprog is generated) -->
+			<xs:annotation>
+				<xs:documentation>EIC Code of the Interconnector (e.g 22T201903146---W)</xs:documentation>
+			</xs:annotation>	
+		</xs:attribute>
+		<xs:attribute name="SDAC" type="xs:boolean" use="optional"> <!-- Added in 4.2 (FCC-26459) -->
+			<xs:annotation>
+				<xs:documentation>Flag specifying whether a given area/border is part of SDAC behavior. Default = false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Party">
+		<xs:attribute name="Code" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of the party (e.g. FBCS, CASC).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Eic" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>EIC code of the party (e.g. 17XTSO-CS------W).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Type" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Type of the party (e.g. TSO).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="PartyCommunication">
+		<xs:attribute name="Party" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of the party (e.g. ELIA).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FileName" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>
+					e.g. CB, GSK, Merged D-2CF, LTA, Net Positions, Matched NTC, Final ATC, LTNom
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Mandatory" type="xs:boolean" use="required" />
+		<xs:attribute name="MessageFlow" type="xs:decimal" use="required" />
+		<xs:attribute name="Enabled" type="xs:boolean" use="required" />
+	</xs:complexType>
+	<xs:complexType name="BorderToBeSent">
+		<xs:annotation>
+			<xs:documentation>A list of borders and TSOs to be sent.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Party" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Code of the sending party</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Border" type="BorderDirection">
+				<xs:annotation>
+					<xs:documentation>Border to be sent</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Corner">
+		<xs:annotation>
+			<xs:documentation>A list of corners (Emax_corners) used for input configuration of LOT3 computation.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="Border" type="BorderDirection">
+				<xs:annotation>
+					<xs:documentation>Border</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="CornerId" type="CornerId" use="required">
+			<xs:annotation>
+				<xs:documentation>Identification of the corner. e.g. 01,02 etc.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="CornerId">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{2}"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="NPVTolerance">
+		<xs:annotation>
+			<xs:documentation>List of NPV tolerances.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="T1" type="ToleranceValue" use="required">
+			<xs:annotation>
+				<xs:documentation>e.g. Tolerance#1</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="T2" type="ToleranceValue" use="required">
+			<xs:annotation>
+				<xs:documentation>e.g. Tolerance#2</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="T3" type="ToleranceValue" use="required">
+			<xs:annotation>
+				<xs:documentation>e.g. Tolerance#3</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="ToleranceValue">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="4" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="PartitionKey">
+		<xs:sequence>
+			<xs:element name="Border" type="BorderDirection">
+				<xs:annotation>
+					<xs:documentation>Border</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="xs:decimal" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProcessSettingsParameter">
+		<xs:annotation>
+			<xs:documentation />
+		</xs:annotation>
+		<xs:attribute name="Key" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Name of the configuration line. e.g. Stop criterion IDATC</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Value" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Value of the configuration line. e.g. 15, D-1 8:00h</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="PreMergeIndicator">
+		<xs:sequence>
+			<xs:element name="Sender" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Code of the Sender (e.g. DE_AMPRION)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MarketArea" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Code of the Market Area (e.g. DE)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ControlArea" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Code of the Control Area (e.g. DE_AMPRION)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GSKFactor">
+		<xs:annotation>
+			<xs:documentation>GSK factors are used during activated pre-merge.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ControlArea" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Code of the Control Area (e.g. DE_AMPRION).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WeekDayPeak" type="GSKFactorValue">
+				<xs:annotation>
+					<xs:documentation>Week day peak</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WeekDayOffPeak" type="GSKFactorValue">
+				<xs:annotation>
+					<xs:documentation>Weekend day peak</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WeekendPeak" type="GSKFactorValue">
+				<xs:annotation>
+					<xs:documentation>Week day off-peak</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WeekendOffPeak" type="GSKFactorValue">
+				<xs:annotation>
+					<xs:documentation>Weekend day off-peak</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="GSKFactorValue">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="3" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="LOT3Parameter">
+		<xs:annotation>
+			<xs:documentation>LOT3 configuration parameter.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="GenericParameter"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GenericParameter">
+		<xs:annotation>
+			<xs:documentation>Generic configuration key-value parameter.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="Key" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Name of the parameter</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Value" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Parameter value</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ATCTolerance">
+		<xs:annotation>
+			<xs:documentation>List of ATC tolerances.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ControlArea" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Code of the Control Area for which the value is valid</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Border" type="BorderDirection">
+				<xs:annotation>
+					<xs:documentation>Border</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="xs:decimal">
+				<xs:annotation>
+					<xs:documentation>Value of the Tolerance Margin for Intraday ATC for given country</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TsoConfigurationParameter">
+		<xs:annotation>
+			<xs:documentation>List of parameters for proper RAM calculation</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="TSO" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Corresponding TSO code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="rVCL" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Parameter (either 0 or 1) to enable/disable reductions beyond the virtual capacity</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="rLTAIncl" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Parameter to ensure LTA inclusion fully or partially (value between 0 and 1)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="rAmrId" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Parameter to set lower limit for ID MinRAM factor (value between 0 and 1)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="minRAMfactor" type="xs:decimal" use="optional">
+			<xs:annotation>
+				<xs:documentation>Parameter to set default value for the minRAMfactor (percentage) on TSO-level, used in case minRAMfactor is not defined in CB.xml</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="BankHoliday">
+		<xs:attribute name="MarketArea" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of the Market Area (e.g. DE)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Date" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Date of the holiday</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="HourCode">
+		<xs:restriction base="xs:string">
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="BecAlgorithm">
+		<xs:sequence>
+			<xs:element name="Border" type="BorderDirection"></xs:element>
+			<xs:element name="Algorithm" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PairOverloadTso">
+		<xs:attribute name="OverloadingHub" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of overloading Hub</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OverloadedTso" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Code of overloaded TSO</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ProcessTimeSettingsList">
+		<xs:sequence>
+			<xs:element name="ProcessDeadline" type="ProcessTimeSettings" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProcessTimeSettings">
+		<xs:sequence>
+			<xs:element name="target" type="ProcessDeadline" minOccurs="0" />
+			<xs:element name="checkpoint" type="ProcessDeadline" minOccurs="0" />
+			<xs:element name="critical" type="ProcessDeadline" minOccurs="0" />
+			<xs:element name="decoupling" type="ProcessDeadline" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="processId" type="xs:string" use="required" />
+	</xs:complexType>
+	<xs:complexType name="ProcessDeadline">
+		<xs:attribute name="day" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Number of days relative to business day when the deadline occurs. Negative value is used to set deadline before business day.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="time" type="xs:time" use="required">
+			<xs:annotation>
+				<xs:documentation>Time in day when the deadline occurs.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ProcessSettings">
+		<xs:sequence>
+			<xs:element name="parameter" type="LOT3Parameter" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+  <xs:complexType name="DefaultFBPParameters">
+    <xs:sequence>
+      <xs:element name="MarketAreaBorderAdditionalMargin" type="MarketAreaBorderAdditionalMargin" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="HubPairConstraint" type="HubPairConstraint" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="HubMatching" type="HubMatching" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MarketAreaBorderAdditionalMargin">
+    <xs:attribute name="MarketArea" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Market Area Name</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="BorderWithMarketArea" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Market Area on opposite side of Border</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="additionalImportMargin" type="xs:decimal" use="required">
+      <xs:annotation>
+        <xs:documentation>Default additional border import margin</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="additionalExportMargin" type="xs:decimal" use="required">
+      <xs:annotation>
+        <xs:documentation>Default additional border export margin</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="HubPairConstraint">
+    <xs:attribute name="MarketArea1" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Market Area 1 Name</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="MarketArea2" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Market Area 2 Name</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="HubMatching">
+    <xs:attribute name="MarketArea" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Market Area Name</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="matching" type="xs:boolean" use="required">
+      <xs:annotation>
+        <xs:documentation>Decidion to match or not the additional border import/export margins for the considered Hub</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+	<xs:complexType name="InclusionCoverageOverloadThresholds">
+		<xs:sequence>
+			<xs:element name="InclusionCoverageOverloadThreshold" type="InclusionCoverageOverloadThreshold" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="InclusionCoverageOverloadThreshold">
+		<xs:attribute name="TSO" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Corresponding TSO code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Threshold" type="xs:decimal" use="required">
+			<xs:annotation>
+				<xs:documentation>Threshold for creating virtual CB</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="SpanningConfiguration">
+		<xs:sequence>
+			<xs:element name="MaxConsecutiveHoursToBeSpanned" type="xs:byte"></xs:element>
+			<xs:element name="NumberOfSpanningMarginsStored">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="0"></xs:minInclusive>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AllocationConstraint">
+		<xs:sequence>
+			<xs:element name="Border" type="BorderType"></xs:element>
+			<xs:element name="LastHourFlow" type="xs:double"></xs:element>
+			<xs:element name="LHFActivated" type="xs:boolean"></xs:element>
+
+			<xs:element name="Ramping" type="xs:double"></xs:element>
+			<xs:element name="MinStableFlow" type="xs:double"></xs:element>
+			<xs:element name="LossPercentage" type="xs:double"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AllocationConstraints">
+		<xs:sequence>
+			<xs:element name="AllocationConstraint" type="AllocationConstraint" minOccurs="0" maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="RealGSKInformationStatuses">
+		<xs:sequence>
+			<xs:element name="RealGSKInformationStatus" type="RealGSKInformationStatus" maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="RealGSKInformationStatus">
+		<xs:sequence>
+			<xs:element name="TSO" type="xs:string"></xs:element>
+			<xs:element name="ReceiveGSKNOKInformation" type="xs:boolean"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TSOMandatoryDataEveryDay">
+		<xs:sequence>
+
+		</xs:sequence>
+		<xs:attribute name="tso" type="xs:string"></xs:attribute>
+		<xs:attribute name="GSK" type="xs:boolean"></xs:attribute>
+		<xs:attribute name="CB" type="xs:boolean"></xs:attribute>
+		<xs:attribute name="EC" type="xs:boolean"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="BorderType">
+		<xs:attribute name="from" type="xs:string"></xs:attribute>
+		<xs:attribute name="to" type="xs:string"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="MinBilateralCapacityType">
+		<xs:sequence>
+			<xs:element name="Border" type="xs:string"></xs:element>
+			<xs:element name="Hour" type="xs:string"></xs:element>
+			<xs:element name="Value" type="xs:double"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="MinBilateralCapacities">
+		<xs:sequence>
+			<xs:element name="MinBilateralCapacity" type="MinBilateralCapacityType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="GenericParametersType">
+		<xs:sequence>
+			<xs:element name="ParameterGroup" type="ParameterGroupType" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ParameterGroupType">
+		<xs:sequence>
+			<xs:element name="Parameter" type="GenericParameter" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Name of the configuration group</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="QavtConfigurationsType">
+		<xs:sequence>
+			<xs:element name="QavtConfiguration" type="QavtConfigurationType" maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="QavtConfigurationType">
+		<xs:sequence>
+			<xs:element name="type" type="xs:string"></xs:element>
+			<xs:element name="identification" type="xs:decimal"></xs:element>
+			<xs:element name="selected" type="xs:boolean"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

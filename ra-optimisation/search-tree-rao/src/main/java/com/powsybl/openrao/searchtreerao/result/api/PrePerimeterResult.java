@@ -21,6 +21,8 @@ public interface PrePerimeterResult extends FlowResult, SensitivityResult, Range
 
     SensitivityResult getSensitivityResult();
 
+    ObjectiveFunctionResult getObjectiveFunctionResult();
+
     @Override
     default ComputationStatus getComputationStatus() {
         return getSensitivityStatus();

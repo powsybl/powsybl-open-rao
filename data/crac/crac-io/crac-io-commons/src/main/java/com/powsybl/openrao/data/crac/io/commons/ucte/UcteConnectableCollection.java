@@ -7,13 +7,22 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +45,7 @@ class UcteConnectableCollection {
     UcteConnectableCollection(Network network) {
         connectables = TreeMultimap.create(Ordering.<String>natural().nullsFirst(), Ordering.<UcteConnectable>natural().nullsFirst());
         addBranches(network);
-        addDanglingLines(network);
+        addBoundaryLines(network);
         addSwitches(network);
         addHvdcs(network);
     }
@@ -177,52 +186,54 @@ class UcteConnectableCollection {
     }
 
     private void addBranches(Network network) {
-        network.getBranchStream().forEach(branch -> {
-            String from = getNodeName(branch.getTerminal1().getBusBreakerView().getConnectableBus().getId());
-            String to = getNodeName(branch.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            if (branch instanceof TieLine tieLine) {
-                /*
-                 in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
-                 For instance, the TieLine "UCTNODE1 X___NODE 1 + UCTNODE2 X___NODE 1" is imported by PowSybl,
-                 with :
-                  - half1 = "UCTNODE1 X___NODE 1"
-                  - half2 = "UCTNODE2 X___NODE 1"
-                 In that case :
-                  - if a criticial branch is defined with from = "UCTNODE1" and to = "X___NODE", the threshold
-                    is ok as "UCTNODE1" is in the first half of the TieLine
-                  - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
-                    should be inverted as "UCTNODE2" is in the second half of the TieLine
-                */
-                String xnode = tieLine.getPairingKey();
-                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, TwoSides.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, TwoSides.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
-            } else if (branch instanceof TwoWindingsTransformer) {
-                /*
-                    The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
-                    is defined in the UCTE network.
-
-                    The UCTE order is kept here, to avoid potential duplicates with other connectables.
-                 */
-                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch, true));
-            } else {
-                connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch, false));
-            }
-        });
+        network.getBranchStream().forEach(this::addSingleBranch);
     }
 
-    private void addDanglingLines(Network network) {
-        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
-            // A dangling line is an Injection with a generator convention.
-            // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String xNode = danglingLine.getPairingKey();
-            String rNode = getNodeName(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
+    private void addSingleBranch(Branch<?> branch) {
+        String from = getNodeName(branch.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+        String to = getNodeName(branch.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+        if (branch instanceof TieLine tieLine) {
+            /*
+             in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
+             For instance, the TieLine "UCTNODE1 X___NODE 1 + UCTNODE2 X___NODE 1" is imported by PowSybl,
+             with :
+              - half1 = "UCTNODE1 X___NODE 1"
+              - half2 = "UCTNODE2 X___NODE 1"
+             In that case :
+              - if a criticial branch is defined with from = "UCTNODE1" and to = "X___NODE", the threshold
+                is ok as "UCTNODE1" is in the first half of the TieLine
+              - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
+                should be inverted as "UCTNODE2" is in the second half of the TieLine
+            */
+            String xnode = tieLine.getPairingKey();
+            connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, TwoSides.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
+            connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, TwoSides.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
+        } else if (branch instanceof TwoWindingsTransformer) {
+            /*
+                The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
+                is defined in the UCTE network.
 
-            if (danglingLine.getId().startsWith("X")) {
+                The UCTE order is kept here, to avoid potential duplicates with other connectables.
+             */
+            connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch, true));
+        } else {
+            connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch, false));
+        }
+    }
+
+    private void addBoundaryLines(Network network) {
+        network.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired()).forEach(boundaryLine -> {
+            // A boundary line is an Injection with a generator convention.
+            // After an UCTE import, the flow on the boundary line is therefore always from the X_NODE to the other node.
+            String xNode = boundaryLine.getPairingKey();
+            String rNode = getNodeName(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
+
+            if (boundaryLine.getId().startsWith("X")) {
                 // UCTE definition is in the same direction as iidm definition
-                connectables.put(xNode, new UcteConnectable(xNode, rNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, false));
+                connectables.put(xNode, new UcteConnectable(xNode, rNode, getOrderCode(boundaryLine), getElementNames(boundaryLine), boundaryLine, false));
             } else {
                 // UCTE definition is opposite as the iidm definition
-                connectables.put(rNode, new UcteConnectable(rNode, xNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, true));
+                connectables.put(rNode, new UcteConnectable(rNode, xNode, getOrderCode(boundaryLine), getElementNames(boundaryLine), boundaryLine, true));
             }
         });
     }

@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -36,10 +35,20 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getHvdcSensitivityThreshold;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstSensitivityThreshold;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -59,7 +68,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final boolean raRangeShrinking;
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
-    private Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
+    private final Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -106,7 +115,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     /**
      * Build one flow variable F[c] for each Cnec c
-     * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
+     * This variable describes the estimated flow on the given Cnec c, in the unit of the objective function
      */
     private void buildFlowVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         validFlowCnecs.forEach(cnec ->
@@ -119,8 +128,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * This variable describes the setpoint of the given RangeAction r, given :
      * <ul>
      *     <li>in DEGREE for PST range actions</li>
-     *     <li>in MEGAWATT for HVDC range actions</li>
-     *     <li>in MEGAWATT for Injection range actions</li>
+     *     <li>in the unit of the objective function for HVDC range actions</li>
+     *     <li>in the unit of the objective function for Injection range actions</li>
      * </ul>
      * <p>
      * Build one absolute variation variable AV[r] for each RangeAction r
@@ -149,10 +158,14 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    private void buildFlowConstraints(LinearProblem linearProblem,
+                                      Set<FlowCnec> validFlowCnecs,
+                                      FlowResult flowResult,
+                                      SensitivityResult sensitivityResult,
+                                      RangeActionActivationResult rangeActionActivationResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, side, unit); // get flow in the unit of the objective function
             OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side, Optional.ofNullable(timestamp));
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
@@ -185,8 +198,15 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, TwoSides side, OpenRaoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
-        double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem,
+                                              SensitivityResult sensitivityResult,
+                                              RangeAction<?> rangeAction,
+                                              State state,
+                                              FlowCnec cnec,
+                                              TwoSides side,
+                                              OpenRaoMPConstraint flowConstraint,
+                                              RangeActionActivationResult rangeActionActivationResult) {
+        double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
         if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             // don't consider this RA's impact on this CNEC
@@ -235,12 +255,14 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
+            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) ->
+                rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration))
+            );
         }
         iteration++;
     }
 
-    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration, OffsetDateTime timestamp) {
+    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
         double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -311,7 +333,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
             // relative range
             if (PstModel.CONTINUOUS.equals(pstModel) || !(rangeAction instanceof PstRangeAction)) {
-                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(
+                    minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
             }
@@ -349,20 +372,19 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             for (TapRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
-                    case ABSOLUTE:
+                    case ABSOLUTE -> {
                         minAbsoluteTap = Math.max(minAbsoluteTap, range.getMinTap());
                         maxAbsoluteTap = Math.min(maxAbsoluteTap, range.getMaxTap());
-                        break;
-                    case RELATIVE_TO_INITIAL_NETWORK:
+                    }
+                    case RELATIVE_TO_INITIAL_NETWORK -> {
                         minAbsoluteTap = Math.max(minAbsoluteTap, pstRangeAction.getInitialTap() + range.getMinTap());
                         maxAbsoluteTap = Math.min(maxAbsoluteTap, pstRangeAction.getInitialTap() + range.getMaxTap());
-                        break;
-                    case RELATIVE_TO_PREVIOUS_INSTANT:
+                    }
+                    case RELATIVE_TO_PREVIOUS_INSTANT -> {
                         minRelativeTap = Math.max(minRelativeTap, range.getMinTap());
                         maxRelativeTap = Math.min(maxRelativeTap, range.getMaxTap());
-                        break;
-                    default:
-                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
+                    }
+                    default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
             // The taps are not necessarily in order of increasing angle.
@@ -379,20 +401,19 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             for (StandardRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
-                    case ABSOLUTE:
+                    case ABSOLUTE -> {
                         minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, range.getMin());
                         maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, range.getMax());
-                        break;
-                    case RELATIVE_TO_INITIAL_NETWORK:
+                    }
+                    case RELATIVE_TO_INITIAL_NETWORK -> {
                         minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMin());
                         maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMax());
-                        break;
-                    case RELATIVE_TO_PREVIOUS_INSTANT:
+                    }
+                    case RELATIVE_TO_PREVIOUS_INSTANT -> {
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
                         maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
-                        break;
-                    default:
-                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
+                    }
+                    default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
         } else {

@@ -7,13 +7,16 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Business object for a state (instant and contingency) in the CRAC file.
@@ -56,8 +59,8 @@ public class PostContingencyState implements State {
     }
 
     /**
-     * Check if states are equals. States are considered equals when instant and contingency are equals if
-     * contingency is present. Otherwise they are considered equals when instant are equals.
+     * Check if states are equal. States are considered equal when instant and contingency are equal if
+     * contingency is present. Otherwise, they are considered equal when instants are equal.
      *
      * @param o If it's null or another object than State it will return false.
      * @return A boolean true if objects are equals, otherwise false.
@@ -72,8 +75,21 @@ public class PostContingencyState implements State {
         }
         State state = (State) o;
         Optional<Contingency> oContingency = state.getContingency();
+        if (oContingency.isEmpty()) {
+            return false;
+        }
+        // Check for contingency ID & elements IDs equality, because two same contingencies can have
+        // different implementations (e.g. LineContingency & BranchContingency)
+        Set<String> oContingencyElementIds = oContingency.get().getElements().stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.toSet());
+        Set<String> contingencyElementIds = contingency.getElements().stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.toSet());
+
         return state.getInstant().equals(instant)
-            && oContingency.map(value -> value.equals(contingency)).orElseGet(() -> contingency == null)
+            && oContingency.get().getId().equals(contingency.getId())
+            && oContingencyElementIds.equals(contingencyElementIds)
             && state.getTimestamp().equals(Optional.ofNullable(timestamp));
     }
 

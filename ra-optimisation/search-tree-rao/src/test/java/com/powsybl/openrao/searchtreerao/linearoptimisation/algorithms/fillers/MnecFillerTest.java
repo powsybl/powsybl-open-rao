@@ -7,22 +7,27 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -31,9 +36,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -100,7 +111,7 @@ class MnecFillerTest extends AbstractFillerTest {
         rangeActions.put(cnec1.getState(), Collections.emptySet());
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
@@ -154,7 +165,10 @@ class MnecFillerTest extends AbstractFillerTest {
                 assertEquals(linearProblem.infinity(), variable.ub(), linearProblem.infinity() * 1e-3);
             } else {
                 Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecViolationVariable(cnec, side, Optional.empty()));
-                assertEquals(String.format("Variable %s has not been created yet", LinearProblemIdGenerator.mnecViolationVariableId(cnec, side, Optional.empty())), e.getMessage());
+                assertEquals(
+                    String.format("Variable %s has not been created yet", LinearProblemIdGenerator.mnecViolationVariableId(cnec, side, Optional.empty())),
+                    e.getMessage()
+                );
             }
         }));
     }
@@ -165,7 +179,10 @@ class MnecFillerTest extends AbstractFillerTest {
 
         crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty()));
-            assertEquals(String.format("Constraint %s has not been created yet", LinearProblemIdGenerator.mnecFlowConstraintId(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty())), e.getMessage());
+            assertEquals(
+                String.format("Constraint %s has not been created yet", LinearProblemIdGenerator.mnecFlowConstraintId(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty())),
+                e.getMessage()
+            );
         }));
 
         OpenRaoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, TwoSides.TWO, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
@@ -215,7 +232,8 @@ class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side, Optional.empty());
-            assertEquals(10.0 / 0.658179 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
+            // The expected value is mnecViolationCost / mnec.getMonitoredSides().size()
+            assertEquals(10.0 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         }));
     }
 

@@ -23,7 +23,6 @@ public final class RaUsageLimitsAdder {
         parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
             -> crac.newRaUsageLimits(instantName)
             .withMaxRa(raUsageLimits.getMaxRa())
-            .withMaxTso(raUsageLimits.getMaxTso())
             .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
             .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
             .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())

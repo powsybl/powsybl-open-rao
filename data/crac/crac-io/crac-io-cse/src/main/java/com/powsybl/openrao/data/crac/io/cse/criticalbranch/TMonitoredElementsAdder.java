@@ -7,16 +7,17 @@
 
 package com.powsybl.openrao.data.crac.io.cse.criticalbranch;
 
-import com.powsybl.openrao.data.crac.io.cse.xsd.TMonitoredElements;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
-import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TMonitoredElements;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}

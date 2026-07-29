@@ -7,18 +7,22 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.core;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
@@ -26,6 +30,7 @@ import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.PartyMarketParticipant;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,8 +41,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.CORE_CNE_EXPORT_PROPERTIES_PREFIX;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -64,7 +74,7 @@ class CoreCneCnecsCreatorTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         properties = new Properties();
         properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
@@ -133,7 +143,7 @@ class CoreCneCnecsCreatorTest {
             assertEquals(expectedType, measurement.getMeasurementType());
             assertEquals(expectedUnit, measurement.getUnitSymbol());
             assertEquals(Math.abs(expectedValue), measurement.getAnalogValuesValue(), 1e-6);
-            if (expectedUnit.equals("C62")) {
+            if ("C62".equals(expectedUnit)) {
                 assertNull(measurement.getPositiveFlowIn());
             } else {
                 assertEquals(expectedValue < 0 ? "A02" : "A01", measurement.getPositiveFlowIn());
@@ -233,9 +243,10 @@ class CoreCneCnecsCreatorTest {
             .add();
 
         mockCnecResult(cnec1, 80, 20, 200, .1);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
@@ -274,7 +285,8 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 

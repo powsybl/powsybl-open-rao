@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,11 +117,19 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     @Test
     void testEvaluator() {
-        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative2T1, -120.0, flowCnecPreventiveT2, -34.0, flowCnecCurative1T2, -546.0, flowCnecPreventiveNoTimestamp, 43.0, flowCnecCurative1NoTimestamp, -76.0);
+        Map<FlowCnec, Double> marginPerCnec = Map.of(
+            flowCnecPreventiveT1, -10.0,
+            flowCnecCurative1T1, -50.0,
+            flowCnecCurative2T1, -120.0,
+            flowCnecPreventiveT2, -34.0,
+            flowCnecCurative1T2, -546.0,
+            flowCnecPreventiveNoTimestamp, 43.0,
+            flowCnecCurative1NoTimestamp, -76.0
+        );
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
-            Unit.MEGAWATT
+            false
         );
 
         // timestamp 1: -120, -10, -50 -> minMargin = -120 -> cost = 120
@@ -145,10 +152,11 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
             flowCnecPreventiveNoTimestamp, 43.0,
             flowCnecCurative2NoTimestamp, -76.0
         );
+
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
-            Unit.MEGAWATT
+            false
         );
 
         // contingencies 2 and 3 are excluded so results associated to flowCnecCurativeT2 and flowCnecCurativeT3 are ignored
@@ -168,7 +176,7 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
             flowCnecCurative2NoTimestamp, -40.0,
             flowCnecCurative3NoTimestamp, -17.0
         );
-        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
+        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), false);
         assertEquals(50.0, evaluatorResult.getCost(new HashSet<>(), new HashSet<>()));
         assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), new HashSet<>()));
         assertEquals(40.0, evaluatorResult.getCost(new HashSet<>(), Set.of("cnec-curative-1")));
@@ -177,8 +185,8 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     @Test
     void testEmptyResult() {
-        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(Map.of(), List.of(), Unit.MEGAWATT);
-        assertEquals(-Double.MAX_VALUE, evaluatorResult.getCost(Set.of(), Set.of()));
+        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(Map.of(), List.of(), false);
+        assertEquals(-1e9, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 
 }

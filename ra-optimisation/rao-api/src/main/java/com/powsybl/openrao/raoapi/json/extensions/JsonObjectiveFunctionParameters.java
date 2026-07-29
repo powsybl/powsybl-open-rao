@@ -9,12 +9,14 @@ package com.powsybl.openrao.raoapi.json.extensions;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_MIN_OBJ_IMPROVEMENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -31,13 +33,13 @@ final class JsonObjectiveFunctionParameters {
         jsonGenerator.writeEndObject();
     }
 
-    static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
+    static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters, ReportNode reportNode) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(CURATIVE_MIN_OBJ_IMPROVEMENT)) {
+            if (jsonParser.currentName().equals(CURATIVE_MIN_OBJ_IMPROVEMENT)) {
                 jsonParser.nextToken();
-                searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
+                searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble(), reportNode);
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.currentName()));
             }
         }
     }

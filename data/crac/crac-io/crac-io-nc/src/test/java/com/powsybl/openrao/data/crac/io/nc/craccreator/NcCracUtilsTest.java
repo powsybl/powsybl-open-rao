@@ -10,7 +10,9 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

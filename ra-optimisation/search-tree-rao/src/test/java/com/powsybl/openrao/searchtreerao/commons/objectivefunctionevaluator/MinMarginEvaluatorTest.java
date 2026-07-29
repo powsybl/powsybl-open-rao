@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
@@ -15,10 +16,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -79,7 +82,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void computeCost() {
-        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -105,7 +108,8 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
-        assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        // no optimized cnec is present, the default value is returned
+        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -120,6 +124,14 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
-        assertEquals(-4000., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        // no optimized cnec is present, the default value is returned
+        assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+    }
+
+    // same test as in MinMarginViolationEvaluatorTest but capAtZero is false
+    @Test
+    void testNoCnecs() {
+        MinMarginEvaluator emptyEvaluator = new MinMarginEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class));
+        assertEquals(-1e9, emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }

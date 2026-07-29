@@ -13,8 +13,13 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
-import static com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ADD_UNSECURE_CNECS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.FAST_RAO_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARGIN_LIMIT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD;
+import static com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters.DEFAULT_ADD_UNSECURE_CNECS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters.DEFAULT_MARGIN_LIMIT;
+import static com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters.DEFAULT_NUMBER_OF_CNECS_TO_ADD;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

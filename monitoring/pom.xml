@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-monitoring</artifactId>
@@ -20,17 +20,18 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-api</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -44,6 +45,7 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-cim</artifactId>
         </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -51,20 +53,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-rao-result-json</artifactId>
-            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-cgmes-conversion</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-cim</artifactId>
-            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -100,6 +100,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

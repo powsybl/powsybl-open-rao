@@ -31,7 +31,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A02_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABSOLUTE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AUTO_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CURATIVE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PREVENTIVE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PST_RANGE_PSR_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.WITHOUT_UNIT_SYMBOL;
 
 /**
  * Generates RemedialActionSeries for SWE CNE format

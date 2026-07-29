@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
@@ -16,16 +17,18 @@ import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    protected Set<FlowCnec> flowCnecs;
-    protected Unit unit;
-    protected MarginEvaluator marginEvaluator;
+    protected final Set<FlowCnec> flowCnecs;
+    protected final Unit unit;
+    protected final MarginEvaluator marginEvaluator;
 
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
@@ -39,9 +42,11 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(final FlowResult flowResult,
+                                        final RemedialActionActivationResult remedialActionActivationResult,
+                                        final ReportNode reportNode) {
         Map<FlowCnec, Double> marginPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
-        return new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
+        return new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), false);
     }
 
     protected Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {

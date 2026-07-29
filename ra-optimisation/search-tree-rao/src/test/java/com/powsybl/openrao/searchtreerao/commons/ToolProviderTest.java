@@ -7,22 +7,23 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,11 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -45,7 +50,7 @@ class ToolProviderTest {
     @BeforeEach
     void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         State preventiveState = Mockito.mock(State.class);
@@ -69,7 +74,7 @@ class ToolProviderTest {
         Instant outageInstant = Mockito.mock(Instant.class);
         Mockito.when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant);
+                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant, ReportNode.NO_OP);
         assertNotNull(sensitivityInterface);
     }
 
@@ -129,7 +134,7 @@ class ToolProviderTest {
                 .withLoopFlowComputation(Mockito.mock(ReferenceProgram.class), glskProvider, Mockito.mock(LoopFlowComputation.class))
                 .build();
 
-        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"));
+        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"), ReportNode.NO_OP);
         assertEquals(linearGlsk1, result.getData("10YFR-RTE------C"));
         assertEquals(linearGlsk2, result.getData("10YES-REE------0"));
         assertNull(result.getData("absent"));

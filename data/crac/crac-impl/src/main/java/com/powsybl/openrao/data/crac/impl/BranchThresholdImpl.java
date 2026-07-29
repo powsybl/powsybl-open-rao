@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 /**

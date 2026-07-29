@@ -11,7 +11,9 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.AVAILABLE_CPUS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING_SECTION;
 
 /**
  * Multi-threading optimization parameters for RAO

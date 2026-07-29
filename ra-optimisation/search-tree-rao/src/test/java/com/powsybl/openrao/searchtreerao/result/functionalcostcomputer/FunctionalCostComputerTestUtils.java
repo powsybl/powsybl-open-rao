@@ -85,6 +85,11 @@ public class FunctionalCostComputerTestUtils {
 
         // mock post-contingency results
 
-        postContingencyResults = Map.of(autoStateCo1, autoPerimeterResultCo1, autoStateCo2, autoPerimeterResultCo2, curativeStateCo1, curativePerimeterResultCo1, curativeStateCo2, curativePerimeterResultCo2);
+        postContingencyResults = Map.of(
+            autoStateCo1, autoPerimeterResultCo1,
+            autoStateCo2, autoPerimeterResultCo2,
+            curativeStateCo1, curativePerimeterResultCo1,
+            curativeStateCo2, curativePerimeterResultCo2
+        );
     }
 }

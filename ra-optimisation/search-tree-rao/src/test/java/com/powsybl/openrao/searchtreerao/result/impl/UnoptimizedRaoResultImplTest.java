@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -24,11 +22,14 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -276,11 +277,5 @@ class UnoptimizedRaoResultImplTest {
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, output.getExecutionDetails());
         output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, output.getExecutionDetails());
-    }
-
-    @Test
-    void testIsSecureNotAvailableForUnoptimizedRaoResultImpls() {
-        assertThrows(OpenRaoException.class, () -> output.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertThrows(OpenRaoException.class, () -> output.isSecure());
     }
 }

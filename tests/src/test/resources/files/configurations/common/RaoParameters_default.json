@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
-    "type" : "SECURE_FLOW",
-    "unit" : "MW"
+    "type" : "SECURE_FLOW"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -52,7 +51,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -61,13 +60,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : false,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "GR", "BE", "SK", "TR", "CH", "RS", "PL", "UA", "BG", "ES", "ME", "CZ", "HR", "AL", "RO", "HU", "AT", "FR", "PT", "DE", "MK", "BA", "SI", "IT", "NL" ],
-            "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true,
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {

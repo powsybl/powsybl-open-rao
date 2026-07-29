@@ -9,8 +9,11 @@ package com.powsybl.openrao.data.crac.io.fbconstraint.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -22,6 +25,7 @@ public class FbConstraintCracCreationParameters extends AbstractExtension<CracCr
     private OffsetDateTime timestamp;
     private double icsCostUp = DEFAULT_ICS_COST_UP;
     private double icsCostDown = DEFAULT_ICS_COST_DOWN;
+    private List<InternalHvdc> internalHvdcs = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -50,5 +54,13 @@ public class FbConstraintCracCreationParameters extends AbstractExtension<CracCr
 
     public double getIcsCostDown() {
         return icsCostDown;
+    }
+
+    public void setInternalHvdcs(final List<InternalHvdc> internalHvdcs) {
+        this.internalHvdcs = new ArrayList<>(internalHvdcs);
+    }
+
+    public List<InternalHvdc> getInternalHvdcs() {
+        return new ArrayList<>(internalHvdcs);
     }
 }

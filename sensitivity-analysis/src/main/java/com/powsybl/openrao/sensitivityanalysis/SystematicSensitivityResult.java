@@ -8,19 +8,29 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHandler;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityValue;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -84,24 +94,34 @@ public class SystematicSensitivityResult {
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
         // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
+        // This boolean will be reused to set the global status to PARITAL_FAILURE if required
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
-        // status set to failure initially, and set to success if we find at least one non NaN value
+        // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
         if (results == null) {
             return this;
         }
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
-        for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
+        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
+            sensitivityValue,
+            nStateResult,
+            results.getFactors(),
+            SensitivityAnalysisResult.Status.SUCCESS
+        ));
+        for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
             if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
                 anyContingencyFailure = true;
             }
             StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
-            results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
+            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ?
+                SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+            if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
+                this.status = SensitivityComputationStatus.SUCCESS;
+            }
+            results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
-            postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
+            postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
         if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;
@@ -210,6 +230,10 @@ public class SystematicSensitivityResult {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
+            stateResult.getIntensitySensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
+                .putIfAbsent(side, sensitivity);
         }
     }
 
@@ -293,6 +317,25 @@ public class SystematicSensitivityResult {
 
     public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnIntensity(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(String variableId, FlowCnec cnec, TwoSides side) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null ||
+            !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
+    }
+
+    public double getSensitivityOnIntensity(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
+        return getSensitivityOnIntensity(glsk.getId(), cnec, side);
     }
 
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {

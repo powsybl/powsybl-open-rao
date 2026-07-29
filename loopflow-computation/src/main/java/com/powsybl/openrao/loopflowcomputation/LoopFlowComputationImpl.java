@@ -7,21 +7,26 @@
 
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -34,19 +39,26 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<SensitivityVariableSet> glsk;
     protected ReferenceProgram referenceProgram;
     protected Map<EICode, SensitivityVariableSet> glskMap;
+    protected Unit flowUnit;
 
-    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
+    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, Unit flowUnit) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.glskMap = buildRefProgGlskMap();
+        this.flowUnit = flowUnit;
     }
 
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant outageInstant) {
+        Set<Unit> units =
+            (flowUnit == Unit.MEGAWATT) ?
+                Set.of(Unit.MEGAWATT) :
+                Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi on MW flow for post processing sensi
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, flowCnecs, units)
                 .withOutageInstant(outageInstant)
                 .build();
 
@@ -61,11 +73,21 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap(network);
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
-                double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
-                double commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
-                    .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
-                    .sum();
-                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
+                double refFlow = 0;
+                double commercialFLow = 0;
+                if (flowUnit == Unit.MEGAWATT) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                } else if (flowUnit == Unit.AMPERE) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceIntensity(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnIntensity(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                }
+
+                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow, flowUnit);
             });
         }
         return results;
@@ -82,7 +104,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (String glsk : linearGlsk.getVariablesById().keySet()) {
             Injection<?> injection = getInjection(glsk, network);
             if (injection == null) {
-                throw new OpenRaoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
+                throw new OpenRaoException(String.format("%s is neither a generator nor a load nor a boundary line in the network. It is not a valid GLSK.", glsk));
             }
             // If bus is disconnected, then powsybl returns a null bus
             if (injection.getTerminal().getBusView().getBus() != null && injection.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
@@ -101,7 +123,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         if (load != null) {
             return load;
         }
-        return network.getDanglingLine(injectionId);
+        return network.getBoundaryLine(injectionId);
     }
 
     protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream() {

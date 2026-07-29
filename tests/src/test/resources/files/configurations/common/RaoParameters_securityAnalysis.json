@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
-    "type" : "SECURE_FLOW",
-    "unit" : "A"
+    "type" : "SECURE_FLOW"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -54,7 +53,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -68,7 +67,7 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0,
             "extensions" : {

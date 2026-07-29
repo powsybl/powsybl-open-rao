@@ -8,11 +8,11 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.iidm.network.Country;
 
 import java.util.Optional;
 

@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -29,10 +30,12 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +44,8 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static java.lang.String.format;
 
 /**
@@ -50,50 +55,70 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
-        checkParameters(raoParameters, raoInput);
-        checkCnecsThresholdsUnit(raoParameters, raoInput);
+    public static void initData(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
+        checkParameters(raoParameters, raoInput, reportNode);
+        checkCnecsThresholdsUnit(raoParameters, raoInput, reportNode);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
+        addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 
-    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkParameters(final RaoParameters raoParameters,
+                                       final RaoInput raoInput,
+                                       final ReportNode reportNode) {
         checkObjectiveFunctionParameters(raoParameters, raoInput);
-        checkLoopFlowParameters(raoParameters, raoInput);
+        checkLoopFlowParameters(raoParameters, raoInput, reportNode);
+        checkHvdcAcEmulationParameters(raoParameters, raoInput, reportNode);
 
         if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
             && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
-            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+            CommonReports.reportPstsMustBeApproximatedAsIntegers(reportNode);
+            throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
         }
     }
 
-    private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkHvdcAcEmulationParameters(final RaoParameters raoParameters,
+                                                      final RaoInput raoInput,
+                                                      final ReportNode reportNode) {
+        boolean isAnyHvdcInAcEmulation = raoInput.getNetwork().getHvdcLineStream()
+            .anyMatch(hvdcLine -> {
+                HvdcAngleDroopActivePowerControl extension = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+                return extension != null && extension.isEnabled();
+            });
+
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isHvdcAcEmulation() && isAnyHvdcInAcEmulation) {
+            CommonReports.reportHvdcAcEmulationDisabledButNetworkContainsAcHvdcLines(reportNode);
+            throw new OpenRaoException("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.");
+        }
+    }
+
+    private static void checkLoopFlowParameters(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), getLoadFlowProvider(raoParameters), getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()));
+            CommonReports.reportNoReferenceProgramProvided(reportNode);
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(
+                raoInput.getNetwork(),
+                getLoadFlowProvider(raoParameters),
+                getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters())
+            );
         }
 
         if (raoParameters.getLoopFlowParameters().isPresent() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            String msg = format(
+            CommonReports.reportLoopflowComputationLacksReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            throw new OpenRaoException(format(
                 "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                raoInput.getCrac().getId());
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+                raoInput.getCrac().getId()));
         }
     }
 
     private static void checkObjectiveFunctionParameters(RaoParameters raoParameters, RaoInput raoInput) {
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
-        }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             if (raoInput.getGlskProvider() == null) {
@@ -105,19 +130,21 @@ public final class RaoUtil {
         }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization() &&
-            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ||
-                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
-            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters", raoParameters.getObjectiveFunctionParameters().getType()));
+            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                || raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
+            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters",
+                                              raoParameters.getObjectiveFunctionParameters().getType()));
         }
     }
 
-    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkCnecsThresholdsUnit(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
                 if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnec.getId());
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
+                    CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
         }
@@ -153,7 +180,7 @@ public final class RaoUtil {
      * If there are remaining usage rules, the remedial action is available.
      */
     public static boolean canRemedialActionBeUsed(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, raoParameters.getObjectiveFunctionParameters().getUnit()));
+        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, getFlowUnit(raoParameters)));
     }
 
     private static boolean isUsageRuleActivated(UsageRule usageRule, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
@@ -165,12 +192,14 @@ public final class RaoUtil {
             if (onFlowConstraintInCountry.getContingency().isPresent() && !onFlowConstraintInCountry.getContingency().equals(state.getContingency())) {
                 return false;
             }
-            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit) && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit)
+                && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
         } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
             if (!onConstraint.getInstant().isPreventive() && !flowCnec.getState().getContingency().equals(state.getContingency())) {
                 return false;
             }
-            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit) && onConstraint.getInstant().equals(state.getInstant());
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit)
+                && onConstraint.getInstant().equals(state.getInstant());
         } else {
             return false;
         }
@@ -179,6 +208,7 @@ public final class RaoUtil {
     /**
      * Returns the range action from optimizationContext that is available on the latest state
      * strictly before the given state, and that acts on the same network element as rangeAction.
+     * ex. in 2P multi-curative, if a PST is available in curative2 and curative3, for state-curative3, the function will return Pair.of(state-curative2, PST)
      */
     public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameNetworkElement(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
 
@@ -187,18 +217,29 @@ public final class RaoUtil {
             return null;
         } else if (state.getInstant().isCurative()) {
 
-            // look if a preventive range action acts on the same network elements
-            State previousUsageState = optimizationContext.getMainOptimizationState();
+            // look if a previous instant (preventive or previous curative instant) range action acts on the same network elements
+            Optional<State> previousUsageStateOptional = optimizationContext.getRangeActionsPerState()
+                .keySet().stream()
+                .filter(state1 -> state1.getInstant().comesBefore(state.getInstant()))
+                .filter(state1 -> state1.getContingency().equals(state.getContingency()) || state1.getContingency().isEmpty())
+                .sorted(
+                    Comparator.comparing(
+                        (State e) ->
+                            e.getInstant().getOrder()
+                    ).reversed()
+                )
+                .findFirst();
 
-            if (previousUsageState.getInstant().comesBefore(state.getInstant())) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageState).stream()
+            if (previousUsageStateOptional.isPresent()) {
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
                     .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
                     .findAny();
 
                 if (correspondingRa.isPresent()) {
-                    return Pair.of(correspondingRa.get(), previousUsageState);
+                    return Pair.of(correspondingRa.get(), previousUsageStateOptional.get());
                 }
             }
+
             return null;
         } else {
             throw new OpenRaoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");
@@ -221,8 +262,14 @@ public final class RaoUtil {
 
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .map(FlowCnec::getId)
+            .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
     }
+
+    // TODO: find a better place for this function
+    public static Unit getFlowUnit(final RaoParameters raoParameters) {
+        return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
+    }
+
 }

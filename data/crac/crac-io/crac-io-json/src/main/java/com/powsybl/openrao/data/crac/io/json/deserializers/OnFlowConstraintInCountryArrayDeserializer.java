@@ -7,16 +7,20 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.COUNTRY;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -29,7 +33,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintInCountryAdder<?> adder = ownerAdder.newOnFlowConstraintInCountryUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
@@ -38,17 +42,17 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         adder.withContingency(jsonParser.nextTextValue());
                         break;
                     case USAGE_METHOD:
-                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
-                            break;
-                        } else {
-                            throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            2, 8,
+                            "Usage methods are no longer used.",
+                            jsonParser, String.class, version
+                        );
+                        break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.currentName());
                 }
             }
             adder.add();

@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.commons.adapter;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

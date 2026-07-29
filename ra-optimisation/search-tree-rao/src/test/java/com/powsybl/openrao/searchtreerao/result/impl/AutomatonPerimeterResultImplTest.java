@@ -21,16 +21,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.*;
-import static com.powsybl.openrao.commons.Unit.*;
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -68,7 +75,14 @@ class AutomatonPerimeterResultImplTest {
         rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
         rangeActionsWithSetpoint.put(hvdcRangeActionShifted, 2.0);
         rangeActionsWithSetpoint.put(unshiftedRangeAction, 3.0);
-        result = new AutomatonPerimeterResultImpl(preAutoSensitivity, postAutoSensitivity, Set.of(networkAction1), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
+        result = new AutomatonPerimeterResultImpl(
+            preAutoSensitivity,
+            postAutoSensitivity,
+            Set.of(networkAction1),
+            Set.of(pstRangeActionShifted, hvdcRangeActionShifted),
+            rangeActionsWithSetpoint,
+            state1
+        );
     }
 
     @Test

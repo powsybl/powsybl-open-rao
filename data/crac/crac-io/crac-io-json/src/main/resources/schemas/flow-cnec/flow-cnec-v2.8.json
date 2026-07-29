@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=flow-cnec-v2.8.json",
+  "$id": "resource:/schemas/flow-cnec/flow-cnec-v2.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -48,7 +48,7 @@
     "thresholds": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/flow-threshold/flow-threshold-v2.4.json"
+        "$ref": "../flow-threshold/flow-threshold-v2.4.json"
       },
       "minItems": 1
     }

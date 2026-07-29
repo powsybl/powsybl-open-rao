@@ -7,17 +7,23 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
-import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -36,7 +42,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState), optPerimeter.getRangeActionOptimizationStates());
@@ -61,7 +67,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(Set.of(oCnec1, cCnec2), optPerimeter.getLoopFlowCnecs());
         assertTrue(optPerimeter.getRangeActions().isEmpty());
@@ -75,7 +81,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         raoParameters.setLoopFlowParameters(loopFlowParameters);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(Set.of(cCnec2), optPerimeter.getLoopFlowCnecs()); // the other loop-flow CNEC is not considered as outside of the loopFlow countries scope
     }
@@ -84,7 +90,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
     void fullWithPreventiveCnecOnlyTest() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState), optPerimeter.getRangeActionOptimizationStates());
@@ -101,5 +107,28 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(pState));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(pState).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
+    }
+
+    @Test
+    void testCopyWithoutHvdcRangeActionAcEmulation() {
+        // set up a network with HVDC  line in ac emulation
+        addHvdcLine(network);
+        // add ac emulation
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10, true));
+        // add hvdc range action to crac
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-range-action-id")
+            .withName("hvdc-range-action-name")
+            .withNetworkElement("hvdc")
+            .withOperator("operator")
+            .newOnInstantUsageRule().withInstant("preventive").add()
+            .newRange().withMin(-5).withMax(10).add()
+            .add();
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
+        assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
+        // test copy the hvdc range action is filtered from the perimeter
+        PreventiveOptimizationPerimeter copyPerimeter = (PreventiveOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);
+        assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }

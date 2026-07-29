@@ -8,7 +8,7 @@
     <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">17XTSO-CS------W</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
-    <createdDateTime>2021-12-30T14:44:41Z</createdDateTime>
+    <createdDateTime>2025-03-20T14:28:22Z</createdDateTime>
     <time_Period.timeInterval>
         <start>2021-10-30T22:00Z</start>
         <end>2021-10-31T23:00Z</end>
@@ -617,13 +617,13 @@
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A03</measurementType>
@@ -635,37 +635,37 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z12</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3797</analogValues.value>
+                                <analogValues.value>5333</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z13</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3797</analogValues.value>
+                                <analogValues.value>5333</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3797</analogValues.value>
+                                <analogValues.value>5333</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3797</analogValues.value>
+                                <analogValues.value>5333</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -699,25 +699,25 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3737</analogValues.value>
+                                <analogValues.value>5273</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3737</analogValues.value>
+                                <analogValues.value>5273</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -755,13 +755,13 @@
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A03</measurementType>
@@ -773,37 +773,37 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z12</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3131</analogValues.value>
+                                <analogValues.value>4667</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z13</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3131</analogValues.value>
+                                <analogValues.value>4667</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3131</analogValues.value>
+                                <analogValues.value>4667</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3131</analogValues.value>
+                                <analogValues.value>4667</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -837,25 +837,25 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3191</analogValues.value>
+                                <analogValues.value>4727</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3191</analogValues.value>
+                                <analogValues.value>4727</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -2581,13 +2581,13 @@
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A03</measurementType>
@@ -2599,37 +2599,37 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z12</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2631</analogValues.value>
+                                <analogValues.value>4167</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z13</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2631</analogValues.value>
+                                <analogValues.value>4167</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2631</analogValues.value>
+                                <analogValues.value>4167</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2631</analogValues.value>
+                                <analogValues.value>4167</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -2663,25 +2663,25 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2374</analogValues.value>
+                                <analogValues.value>3910</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2374</analogValues.value>
+                                <analogValues.value>3910</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -2719,13 +2719,13 @@
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A03</measurementType>
@@ -2737,37 +2737,37 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z12</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4298</analogValues.value>
+                                <analogValues.value>5834</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z13</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4298</analogValues.value>
+                                <analogValues.value>5834</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4298</analogValues.value>
+                                <analogValues.value>5834</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4298</analogValues.value>
+                                <analogValues.value>5834</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -2801,25 +2801,25 @@
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>5000</analogValues.value>
+                                <analogValues.value>7217</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>3464</analogValues.value>
+                                <analogValues.value>5000</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z14</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4554</analogValues.value>
+                                <analogValues.value>6090</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>Z15</measurementType>
                                 <unitSymbol>MAW</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4554</analogValues.value>
+                                <analogValues.value>6090</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -2835,7 +2835,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>RAseries_a6415</mRID>
+                    <mRID>RAseries_401cd</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>PRA_PST_BE</mRID>
@@ -2854,7 +2854,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>RAseries_3073b</mRID>
+                    <mRID>RAseries_1ef05</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>PRA_PST_BE</mRID>

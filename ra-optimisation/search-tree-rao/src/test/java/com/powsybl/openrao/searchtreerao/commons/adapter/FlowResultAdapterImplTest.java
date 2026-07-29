@@ -7,17 +7,17 @@
 
 package com.powsybl.openrao.searchtreerao.commons.adapter;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FlowResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,11 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -89,7 +91,7 @@ class FlowResultAdapterImplTest {
     @Test
     void testWithFixedPtdfsAndCommercialFlows() {
         FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)));
-        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, 300.)), new HashMap<>());
+        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, Map.of(Unit.MEGAWATT, 300.))), new HashMap<>());
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(commercialFlowFlowResult)
@@ -99,6 +101,8 @@ class FlowResultAdapterImplTest {
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test
@@ -112,12 +116,14 @@ class FlowResultAdapterImplTest {
         LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
         when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2), network))
                 .thenReturn(loopFlowResult);
-        when(loopFlowResult.getCommercialFlow(cnec2, TWO)).thenReturn(300.);
-        when(loopFlowResult.getCommercialFlowsMap()).thenReturn(Map.of(cnec2, Map.of(TWO, 300.)));
+        when(loopFlowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT)).thenReturn(300.);
+        when(loopFlowResult.getCommercialFlowsMap()).thenReturn(Map.of(cnec2, Map.of(TWO, Map.of(Unit.MEGAWATT, 300.))));
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test

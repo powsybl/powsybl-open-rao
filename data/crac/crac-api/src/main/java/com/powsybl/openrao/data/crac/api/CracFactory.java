@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.time.OffsetDateTime;
 import java.util.List;

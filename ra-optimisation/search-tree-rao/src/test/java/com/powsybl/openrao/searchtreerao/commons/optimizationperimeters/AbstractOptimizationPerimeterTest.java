@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -17,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
@@ -64,7 +65,7 @@ abstract class AbstractOptimizationPerimeterTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         crac = CracFactory.findDefault().create("cracId")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
@@ -167,12 +168,12 @@ abstract class AbstractOptimizationPerimeterTest {
         when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 0.5 * 1e-6);
         when(rangeAction.getMinAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(0.0);
         when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(100.0);
-        assertTrue(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
+        assertTrue(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints, ReportNode.NO_OP));
 
         // not in range slightly outside of bound +- EPSILON
         when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 2 * 1e-6);
         when(rangeAction.getMinAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(0.0);
         when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(100.0);
-        assertFalse(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
+        assertFalse(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints, ReportNode.NO_OP));
     }
 }

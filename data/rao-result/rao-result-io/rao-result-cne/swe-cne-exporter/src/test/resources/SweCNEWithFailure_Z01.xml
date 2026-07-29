@@ -55,8 +55,8 @@
                         <name>Contingency 1 name</name>
                     </Contingency_Series>
                     <Reason>
-                        <code>B40</code>
-                        <text>Load flow divergence</text>
+                        <code>B18</code>
+                        <text>Rao failure</text>
                     </Reason>
                 </Constraint_Series>
                 <Constraint_Series>
@@ -187,8 +187,8 @@
                         </RegisteredResource>
                     </Monitored_Series>
                     <Reason>
-                        <code>B40</code>
-                        <text>Load flow divergence</text>
+                        <code>B18</code>
+                        <text>Rao failure</text>
                     </Reason>
                 </Constraint_Series>
                 <Constraint_Series>
@@ -292,8 +292,8 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Reason>
-                    <code>B40</code>
-                    <text>Load flow divergence</text>
+                    <code>B18</code>
+                    <text>Rao failure</text>
                 </Reason>
             </Point>
         </Period>

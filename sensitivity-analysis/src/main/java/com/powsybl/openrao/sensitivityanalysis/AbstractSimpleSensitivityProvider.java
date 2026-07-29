@@ -7,22 +7,29 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
     protected Set<FlowCnec> cnecs;
-    protected Map<String, ArrayList<FlowCnec> > cnecsPerContingencyId = new HashMap<>();
+    protected Map<String, ArrayList<FlowCnec>> cnecsPerContingencyId = new HashMap<>();
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;
@@ -94,5 +101,26 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     @Override
     public void enableFactorsForBaseCaseSituation() {
         this.afterContingencyOnly = false;
+    }
+
+    protected Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
+        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
+        if (factorsInMegawatt) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+            }
+        }
+        if (factorsInAmpere) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
+            }
+        }
+        return sensitivityFunctionTypes;
     }
 }

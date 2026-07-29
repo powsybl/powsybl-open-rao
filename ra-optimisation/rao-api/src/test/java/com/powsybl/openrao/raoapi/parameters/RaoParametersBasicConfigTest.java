@@ -8,9 +8,15 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -18,19 +24,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class RaoParametersBasicConfigTest {
     @Test
     void testExtensions() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
     void testNoExtensions() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);

@@ -7,13 +7,17 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -93,8 +97,9 @@ public class AppliedRemedialActions {
                 && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
-                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
+                // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
                 appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
+                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             });
     }
 

@@ -10,7 +10,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.FAST_RAO_PARAMETERS;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

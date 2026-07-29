@@ -7,17 +7,20 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCnecWiseCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,14 +35,19 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final FlowResult initialLoopFlowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
+    private final Unit unit;
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
-                                          double loopFlowAcceptableAugmentation, double loopFlowViolationCost) {
+                                          double loopFlowAcceptableAugmentation,
+                                          double loopFlowViolationCost,
+                                          Unit unit
+                                          ) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowViolationCost;
         this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
+        this.unit = unit;
     }
 
     @Override
@@ -48,7 +56,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(final FlowResult flowResult,
+                                        final RemedialActionActivationResult remedialActionActivationResult,
+                                        final ReportNode reportNode) {
         Map<FlowCnec, Double> costPerLoopFlowCnec = loopflowCnecs.stream()
             .collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)))
             .entrySet()
@@ -58,7 +68,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
         if (costPerLoopFlowCnec.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
+            CommonReports.reportLoopflowConstraintsNotRespected(reportNode);
         }
 
         List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(costPerLoopFlowCnec);
@@ -67,13 +77,13 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
         return cnec.getMonitoredSides()
-            .stream().map(side -> Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec, side)))
+            .stream().map(side -> Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, side, unit)) - getLoopFlowUpperBound(cnec, side)))
             .max(Double::compareTo).orElse(0.0);
     }
 
     private double getLoopFlowUpperBound(FlowCnec cnec, TwoSides side) {
-        double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialLoopFlowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
+        double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(unit);
+        double initialLoopFlow = initialLoopFlowResult.getLoopFlow(cnec, side, unit);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

@@ -7,23 +7,24 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -32,10 +33,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,7 +84,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         rangeActions.put(cnec1.getState(), Collections.emptySet());
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
@@ -112,7 +119,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             Set.of(cnecNl, cnecFr),
             initialFlowResult,
             unoptimizedCnecParameters,
-            null);
+            null,
+            MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
@@ -146,7 +154,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             Set.of(cnecNl, cnecFr),
             initialFlowResult,
             unoptimizedCnecParameters,
-            null);
+            null,
+            MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
@@ -250,8 +259,16 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty()).ub(), DOUBLE_TOLERANCE);
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()).ub(), DOUBLE_TOLERANCE);
         // All cnecs now have fmax + maxNegativeRelativeRam * unitConversionCoefficient * relMarginCoef OR - fmin + maxNegativeRelativeRam * unitConversionCoefficient * relMarginCoef as mMRM ub
-        assertEquals(750.0 + constraintCoeff, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty()).ub(), DOUBLE_TOLERANCE);
-        assertEquals(750.0 + constraintCoeff, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()).ub(), DOUBLE_TOLERANCE);
+        assertEquals(
+            750.0 + constraintCoeff,
+            linearProblem.getMinimumRelativeMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty()).ub(),
+            DOUBLE_TOLERANCE
+        );
+        assertEquals(
+            750.0 + constraintCoeff,
+            linearProblem.getMinimumRelativeMarginConstraint(cnecFr, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()).ub(),
+            DOUBLE_TOLERANCE
+        );
 
         // Test that cnecNl's constraint does have a bigM
         OpenRaoMPVariable marginDecreaseVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecNl, TwoSides.TWO, Optional.empty());

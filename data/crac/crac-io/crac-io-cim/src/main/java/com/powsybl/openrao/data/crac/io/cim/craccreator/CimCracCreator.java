@@ -8,13 +8,13 @@
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.io.cim.xsd.CRACMarketDocument;
-import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.xsd.CRACMarketDocument;
+import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.util.CracValidator;
 

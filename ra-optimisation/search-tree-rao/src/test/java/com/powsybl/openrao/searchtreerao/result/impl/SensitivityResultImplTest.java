@@ -16,9 +16,15 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.DEGREE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.commons.Unit.PERCENT_IMAX;
+import static com.powsybl.openrao.commons.Unit.TAP;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,9 +62,10 @@ class SensitivityResultImplTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, ONE)).thenReturn(8.);
+        when(systematicSensitivityResult.getSensitivityOnIntensity(linearGlsk, cnec, ONE)).thenReturn(10.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(OpenRaoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, AMPERE));
+        assertEquals(10, sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test

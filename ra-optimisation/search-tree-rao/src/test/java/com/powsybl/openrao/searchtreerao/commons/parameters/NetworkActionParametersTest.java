@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -24,7 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -37,8 +40,8 @@ class NetworkActionParametersTest {
     @Test
     void buildFromRaoParametersTestOk() {
         crac = ExhaustiveCracCreation.create();
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
 
         searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
@@ -47,12 +50,12 @@ class NetworkActionParametersTest {
         searchTreeParameters.getTopoOptimizationParameters().setSkipActionsFarFromMostLimitingElement(true);
         searchTreeParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(4);
 
-        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
+        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac, ReportNode.NO_OP);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
-        assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
+        assertEquals(2, nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().size());
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
 
         assertEquals(20., nap.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(0.01, nap.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
@@ -101,8 +104,8 @@ class NetworkActionParametersTest {
                 .add();
 
         // test list
-        RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
 
         searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
@@ -112,11 +115,11 @@ class NetworkActionParametersTest {
                 List.of("topological-action-1"), // should be filtered (one action only)
                 new ArrayList<>())); // should be filtered
 
-        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters);
+        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters, ReportNode.NO_OP);
 
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());
-        assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        assertEquals(2, naCombinations.getFirst().getNetworkActionSet().size());
         assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }

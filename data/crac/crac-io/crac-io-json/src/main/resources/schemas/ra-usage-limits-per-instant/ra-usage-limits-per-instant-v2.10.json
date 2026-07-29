@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.10.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    },
+    "max-ra": {
+      "type": "number"
+    },
+    "max-topo-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-pst-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-ra-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-elementary-actions-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant"
+  ]
+}

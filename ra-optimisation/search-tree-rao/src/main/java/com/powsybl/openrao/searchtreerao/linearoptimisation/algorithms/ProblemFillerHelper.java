@@ -59,7 +59,7 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
-                parameters.getObjectiveFunctionUnit(),
+                parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
                 timestamp
@@ -71,7 +71,7 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
-                parameters.getObjectiveFunctionUnit(),
+                parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
                 timestamp
@@ -84,7 +84,7 @@ public final class ProblemFillerHelper {
             MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
                 input.optimizationPerimeter().getOptimizedFlowCnecs(),
                 input.preOptimizationFlowResult(),
-                parameters.getObjectiveFunctionUnit(),
+                parameters.getFlowUnit(),
                 parameters.getMinMarginParameters(),
                 parameters.getMaxMinRelativeMarginParameters(),
                 timestamp
@@ -93,7 +93,7 @@ public final class ProblemFillerHelper {
         } else {
             MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 input.optimizationPerimeter().getOptimizedFlowCnecs(),
-                parameters.getObjectiveFunctionUnit(),
+                parameters.getFlowUnit(),
                 parameters.getObjectiveFunction().costOptimization(),
                 parameters.getMinMarginParameters(),
                 timestamp
@@ -106,7 +106,7 @@ public final class ProblemFillerHelper {
             MnecFiller mnecFiller = new MnecFiller(
                 input.initialFlowResult(),
                 input.optimizationPerimeter().getMonitoredFlowCnecs(),
-                parameters.getObjectiveFunctionUnit(),
+                parameters.getFlowUnit(),
                 parameters.getMnecParametersExtension().getViolationCost(),
                 parameters.getMnecParameters().getAcceptableMarginDecrease(),
                 parameters.getMnecParametersExtension().getConstraintAdjustmentCoefficient(),
@@ -122,7 +122,8 @@ public final class ProblemFillerHelper {
                 input.initialFlowResult(),
                 parameters.getLoopFlowParameters(),
                 parameters.getLoopFlowParametersExtension(),
-                timestamp
+                timestamp,
+                parameters.getFlowUnit()
             );
             problemFillers.add(maxLoopFlowFiller);
         }
@@ -135,7 +136,8 @@ public final class ProblemFillerHelper {
                 input.optimizationPerimeter().getFlowCnecs(),
                 input.prePerimeterFlowResult(),
                 parameters.getUnoptimizedCnecParameters(),
-                timestamp
+                timestamp,
+                parameters.getFlowUnit()
             );
             problemFillers.add(unoptimizedCnecFiller);
         }
@@ -151,19 +153,20 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getRaLimitationParameters() != null
+                    && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
+                    .anyMatch(state -> !parameters.getRaLimitationParameters().getMaxElementaryActionsPerTso(state).isEmpty())
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
-                pstRangeActions,
-                timestamp
+                pstRangeActions
             );
             problemFillers.add(discretePstGroupFiller);
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState());
             problemFillers.add(continuousRangeActionGroupFiller);
         }
 
@@ -176,9 +179,7 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                input.network(),
-                parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);
         }

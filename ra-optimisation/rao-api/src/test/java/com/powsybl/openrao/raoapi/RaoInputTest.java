@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,7 +21,10 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

@@ -7,16 +7,16 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,7 +33,7 @@ final class ContingencyArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             ContingencyAdder adder = crac.newContingency();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         adder.withId(jsonParser.nextTextValue());
                         break;
@@ -55,7 +55,7 @@ final class ContingencyArrayDeserializer {
                         }
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in Contingency: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in Contingency: " + jsonParser.currentName());
                 }
             }
             adder.add();

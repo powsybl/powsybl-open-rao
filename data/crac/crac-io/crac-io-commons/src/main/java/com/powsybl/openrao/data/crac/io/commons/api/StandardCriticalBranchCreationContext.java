@@ -61,7 +61,14 @@ public class StandardCriticalBranchCreationContext extends StandardElementaryCre
         return createdCnecIds;
     }
 
-    public StandardCriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, Map<String, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
+    public StandardCriticalBranchCreationContext(String criticalBranchId,
+                                                 NativeBranch nativeBranch,
+                                                 boolean isBaseCase,
+                                                 String contingencyId,
+                                                 Map<String, String> createdCnecIds,
+                                                 boolean isDirectionInverted,
+                                                 ImportStatus importStatus,
+                                                 String importStatusDetail) {
         super(criticalBranchId, null, null, importStatus, importStatusDetail, false);
         this.nativeBranch = nativeBranch;
         this.isBaseCase = isBaseCase;

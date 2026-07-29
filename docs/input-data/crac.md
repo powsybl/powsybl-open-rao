@@ -9,6 +9,7 @@ crac/fbconstraint.md
 crac/cse.md
 crac/cim.md
 crac/nc.md
+crac/crac-generator.md
 crac/creation-context.md
 ```
 
@@ -75,9 +76,9 @@ It consists in the modification of a generator active power to a pre-defined val
 
 It consists in the modification of a load active power to a pre-defined value.
 
-#### Dangling line actions
+#### Boundary line actions
 
-It consists in the modification of a dangling line active power to a pre-defined value.
+It consists in the modification of a boundary line active power to a pre-defined value.
 
 #### Shunt compensator position actions
 

@@ -9,15 +9,19 @@ package com.powsybl.openrao.data.crac.io.fbconstraint.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.virtualhubs.HvdcPole;
+import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -28,6 +32,8 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     private static final String TIMESTAMP = "timestamp";
     private static final String ICS_COST_UP = "ics-cost-up";
     private static final String ICS_COST_DOWN = "ics-cost-down";
+    private static final String INTERNAL_HVDCS = "internal-hvdcs";
+    private static final String POLES = "poles";
 
     @Override
     public String getExtensionName() {
@@ -50,13 +56,16 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
         serializeTimestamp(fbConstraintParameters.getTimestamp(), jsonGenerator);
         jsonGenerator.writeNumberField(ICS_COST_UP, fbConstraintParameters.getIcsCostUp());
         jsonGenerator.writeNumberField(ICS_COST_DOWN, fbConstraintParameters.getIcsCostDown());
+        serializeInternalHvdcs(fbConstraintParameters.getInternalHvdcs(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
+    public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser,
+                                                                   DeserializationContext deserializationContext,
+                                                                   FbConstraintCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case TIMESTAMP -> {
                     jsonParser.nextToken();
                     parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
@@ -69,7 +78,20 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
                     jsonParser.nextToken();
                     parameters.setIcsCostDown(jsonParser.readValueAs(Double.class));
                 }
-                default -> throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                case INTERNAL_HVDCS -> {
+                    jsonParser.nextToken();
+                    parameters.setInternalHvdcs(jsonParser.readValueAs(new TypeReference<List<InternalHvdc>>() {
+                    }));
+                }
+                case POLES -> {
+                    jsonParser.nextToken();
+                    parameters.getInternalHvdcs()
+                        .getLast()
+                        .poles()
+                        .addAll(jsonParser.readValueAs(new TypeReference<List<HvdcPole>>() {
+                        }));
+                }
+                default -> throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
 
@@ -80,6 +102,31 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
         if (timestamp != null) {
             jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
         }
+    }
+
+    private void serializeInternalHvdcs(final List<InternalHvdc> internalHvdcs, final JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(INTERNAL_HVDCS);
+        jsonGenerator.writeStartArray();
+        for (final InternalHvdc internalHvdc : internalHvdcs) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("eic", internalHvdc.eic());
+            serializePoles(internalHvdc.poles(), jsonGenerator);
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private void serializePoles(final List<HvdcPole> poles, final JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(POLES);
+        jsonGenerator.writeStartArray();
+        for (final HvdcPole pole : poles) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("id", pole.id());
+            jsonGenerator.writeObjectField("converters", pole.converters());
+            jsonGenerator.writeObjectField("lines", pole.lines());
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
     }
 
     @Override

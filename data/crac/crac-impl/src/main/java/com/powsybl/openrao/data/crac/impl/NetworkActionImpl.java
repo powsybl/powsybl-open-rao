@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
@@ -31,8 +31,8 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     private final Set<Action> elementaryActions;
     private final Set<NetworkElement> networkElements;
 
-    NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
-                      Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<NetworkElement> networkElements) {
+    public NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
+                             Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<NetworkElement> networkElements) {
         super(id, name, operator, usageRules, speed, activationCost);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
         this.networkElements = new HashSet<>(networkElements);
@@ -74,6 +74,11 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
                 return elementaryAction.toModification().hasImpactOnNetwork(network) != NetworkModificationImpact.CANNOT_BE_APPLIED;
             }
         });
+    }
+
+    @Override
+    public void addUsageRule(UsageRule usageRule) {
+        this.usageRules.add(usageRule);
     }
 
     @Override

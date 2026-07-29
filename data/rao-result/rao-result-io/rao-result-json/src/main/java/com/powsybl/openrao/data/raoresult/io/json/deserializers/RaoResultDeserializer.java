@@ -7,16 +7,16 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,26 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS_MAP;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COST_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.EXECUTION_DETAILS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INFO;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.OPTIMIZATION_STEPS_EXECUTED;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.PSTRANGEACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeStatus;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -60,7 +78,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         }
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case INFO:
                     //no need to import this
                     jsonParser.nextToken();
@@ -127,7 +145,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.currentName()));
             }
         }
         extensions.forEach(extension -> raoResult.addExtension((Class) extension.getClass(), extension));

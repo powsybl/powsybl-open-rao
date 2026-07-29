@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.LoadActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ShuntCompensatorPositionA
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,16 +36,13 @@ public final class InjectionSetpointArrayDeserializer {
         }
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.INJECTION_SETPOINTS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String networkElementId = null;
             Double setpoint = null;
             Unit unit = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
                         networkElementId = jsonParser.nextTextValue();
                         break;
@@ -58,7 +54,7 @@ public final class InjectionSetpointArrayDeserializer {
                         unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in InjectionSetpoint: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in InjectionSetpoint: " + jsonParser.currentName());
                 }
             }
             Identifiable<?> identifiable = network.getIdentifiable(networkElementId);
@@ -69,7 +65,7 @@ public final class InjectionSetpointArrayDeserializer {
                 case GENERATOR:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
                     GeneratorActionAdder generatorActionAdder = ownerAdder.newGeneratorAction();
-                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, generatorActionAdder);
+                    generatorActionAdder.withNetworkElement(networkElementId);
                     if (setpoint != null) {
                         generatorActionAdder.withActivePowerValue(setpoint);
                     }
@@ -78,32 +74,34 @@ public final class InjectionSetpointArrayDeserializer {
                 case LOAD:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
                     LoadActionAdder loadActionAdder = ownerAdder.newLoadAction();
-                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, loadActionAdder);
+                    loadActionAdder.withNetworkElement(networkElementId);
                     if (setpoint != null) {
                         loadActionAdder.withActivePowerValue(setpoint);
                     }
                     loadActionAdder.add();
                     break;
-                case DANGLING_LINE:
+                case BOUNDARY_LINE:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
-                    DanglingLineActionAdder danglingLineActionAdder = ownerAdder.newDanglingLineAction();
-                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, danglingLineActionAdder);
+                    BoundaryLineActionAdder boundaryLineActionAdder = ownerAdder.newBoundaryLineAction();
+                    boundaryLineActionAdder.withNetworkElement(networkElementId);
                     if (setpoint != null) {
-                        danglingLineActionAdder.withActivePowerValue(setpoint);
+                        boundaryLineActionAdder.withActivePowerValue(setpoint);
                     }
-                    danglingLineActionAdder.add();
+                    boundaryLineActionAdder.add();
                     break;
                 case SHUNT_COMPENSATOR:
                     checkExpectedUnit(Unit.SECTION_COUNT, unit, identifiable);
                     ShuntCompensatorPositionActionAdder shuntCompensatorPositionActionAdder = ownerAdder.newShuntCompensatorPositionAction();
-                    JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, shuntCompensatorPositionActionAdder);
+                    shuntCompensatorPositionActionAdder.withNetworkElement(networkElementId);
                     if (setpoint != null) {
                         shuntCompensatorPositionActionAdder.withSectionCount(setpoint.intValue());
                     }
                     shuntCompensatorPositionActionAdder.add();
                     break;
                 default:
-                    throw new OpenRaoException("InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, and here it is " + identifiable.getType());
+                    throw new OpenRaoException(
+                        "InjectionSetpoint actions must be on network element of type generator, load, boundary line or shunt compensator, but here it is " + identifiable.getType()
+                    );
             }
         }
     }

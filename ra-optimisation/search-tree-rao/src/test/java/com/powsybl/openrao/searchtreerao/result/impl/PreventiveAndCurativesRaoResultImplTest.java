@@ -7,9 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -17,24 +22,34 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -52,21 +67,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private PrePerimeterResult initialResult;
     private OptimizationResult prevResult;
-    private PrePerimeterResult postPrevPrePerimResult;
     private PostPerimeterResult postPrevResult;
-    private OptimizationResult autoResult3;
-    private PrePerimeterResult postAutoPrePerimResult3;
-    private PostPerimeterResult postAutoResult3;
     private OptimizationResult autoResult4;
-    private PrePerimeterResult postAutoPrePerimResult4;
-    private PostPerimeterResult postAutoResult4;
-    private OptimizationResult curativeResult2;
-    private PrePerimeterResult postCurativePrePerimResult2;
-    private PostPerimeterResult postCurativeResult2;
-    private OptimizationResult curativeResult3;
-    private PrePerimeterResult postCurativePrePerimResult3;
-    private PostPerimeterResult postCurativeResult3;
-    private Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
+    private final Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
 
     private PreventiveAndCurativesRaoResultImpl output;
 
@@ -123,6 +126,11 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .add()
                 .add();
         }
+        crac.newContingency()
+            .withId("cneclessContingency")
+            .withName("cneclessContingency")
+            .withContingencyElement("element-" + 5, ContingencyElementType.LINE)
+            .add();
         crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("pst-elt")
@@ -140,7 +148,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         initCrac();
         preventiveInstant = crac.getInstant("preventive");
         autoInstant = crac.getInstant("auto");
@@ -173,8 +181,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         prepareCurativeResult3();
 
         StateTree stateTree = generateStateTree();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
-        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, new RaoParameters());
+        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, raoParameters, ReportNode.NO_OP);
     }
 
     private void prepareInitialResult() {
@@ -191,39 +202,39 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private void preparePreventiveResult() {
         prevResult = Mockito.mock(OptimizationResult.class);
-        postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
+        PrePerimeterResult postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
         postPrevResult = new PostPerimeterResult(prevResult, postPrevPrePerimResult);
         prepareResultsForState(prevResult, postPrevPrePerimResult, crac.getPreventiveState());
     }
 
     private void prepareAutoResult3() {
-        autoResult3 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
+        OptimizationResult autoResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
         prepareResultsForState(autoResult3, postAutoPrePerimResult3, crac.getState("contingency-3", autoInstant));
         postContingencyResults.put(crac.getState("contingency-3", autoInstant), postAutoResult3);
     }
 
     private void prepareAutoResult4() {
         autoResult4 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
+        PrePerimeterResult postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
         prepareResultsForState(autoResult4, postAutoPrePerimResult4, crac.getState("contingency-4", autoInstant));
         postContingencyResults.put(crac.getState("contingency-4", autoInstant), postAutoResult4);
     }
 
     private void prepareCurativeResult2() {
-        curativeResult2 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
+        OptimizationResult curativeResult2 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
         prepareResultsForState(curativeResult2, postCurativePrePerimResult2, crac.getState("contingency-2", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-2", curativeInstant), postCurativeResult2);
     }
 
     private void prepareCurativeResult3() {
-        curativeResult3 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
+        OptimizationResult curativeResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
         prepareResultsForState(curativeResult3, postCurativePrePerimResult3, crac.getState("contingency-3", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-3", curativeInstant), postCurativeResult3);
     }
@@ -324,7 +335,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testResult() {
+    void testResult() {
         checkFunctionalCosts();
         checkVirtualCosts();
         checkFlows();
@@ -407,20 +418,46 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventiveFails() {
+    void testGlobalComputationStatusWhenFinalPreventiveFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
+    void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenAContingencyFails() {
+    void testGlobalComputationStatusWhenAContingencyFails() {
         when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+    }
+
+    @Test
+    void testGlobalComputationStatusIgnoresCneclessStates() {
+        // set status to DEFAULT for states with cnecs
+        OptimizationResult defaultOptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(defaultOptimizationResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        PostPerimeterResult defaultPostPerimeterResult = Mockito.mock(PostPerimeterResult.class);
+        when(defaultPostPerimeterResult.optimizationResult()).thenReturn(defaultOptimizationResult);
+        crac.getStates().stream()
+            .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
+            .filter(state -> !crac.getCnecs(state).isEmpty())
+            .forEach(state -> postContingencyResults.put(state, defaultPostPerimeterResult));
+
+        // set status to FAILURE for states without cnecs
+        OptimizationResult failureOptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(failureOptimizationResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
+        PostPerimeterResult failurePostPerimeterResult = Mockito.mock(PostPerimeterResult.class);
+        when(failurePostPerimeterResult.optimizationResult()).thenReturn(failureOptimizationResult);
+        crac.getStates().stream()
+            .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
+            .filter(state -> crac.getCnecs(state).isEmpty())
+            .forEach(state -> postContingencyResults.put(state, failurePostPerimeterResult));
+
+        // status should ignore cnecless states and return DEFAULT
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 }

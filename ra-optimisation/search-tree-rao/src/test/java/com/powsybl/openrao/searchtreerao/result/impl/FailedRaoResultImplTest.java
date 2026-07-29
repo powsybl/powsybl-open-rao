@@ -7,24 +7,24 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -61,9 +61,6 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertThrows(OpenRaoException.class, failedRaoResultImpl::isSecure);
-        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(optInstant, PhysicalParameter.FLOW));
-        assertEquals("This method should not be used, because the RAO failed: mocked error message 1", e.getMessage());
         assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }
 

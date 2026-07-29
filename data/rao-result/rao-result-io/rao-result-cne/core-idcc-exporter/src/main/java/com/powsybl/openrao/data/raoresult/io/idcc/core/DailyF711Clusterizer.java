@@ -275,14 +275,17 @@ class DailyF711Clusterizer {
     }
 
     private static boolean areMinRamFactorEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getMinRAMfactor() == null && cb2.getMinRAMfactor() == null || cb1.getMinRAMfactor() != null && cb2.getMinRAMfactor() != null && Math.abs(cb1.getMinRAMfactor().doubleValue() - cb2.getMinRAMfactor().doubleValue()) < 1e-6;
+        return cb1.getMinRAMfactor() == null && cb2.getMinRAMfactor() == null
+            || cb1.getMinRAMfactor() != null && cb2.getMinRAMfactor() != null && Math.abs(cb1.getMinRAMfactor().doubleValue() - cb2.getMinRAMfactor().doubleValue()) < 1e-6;
     }
 
     private static boolean areImaxEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getImaxA() == null && cb2.getImaxA() == null || cb1.getImaxA() != null && cb2.getImaxA() != null && Math.abs(cb1.getImaxA().doubleValue() - cb2.getImaxA().doubleValue()) < 1e-6;
+        return cb1.getImaxA() == null && cb2.getImaxA() == null
+            || cb1.getImaxA() != null && cb2.getImaxA() != null && Math.abs(cb1.getImaxA().doubleValue() - cb2.getImaxA().doubleValue()) < 1e-6;
     }
 
     private static boolean areImaxFactorsEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getImaxFactor() == null && cb2.getImaxFactor() == null || cb1.getImaxFactor() != null && cb2.getImaxFactor() != null && Math.abs(cb1.getImaxFactor().doubleValue() - cb2.getImaxFactor().doubleValue()) < 1e-6;
+        return cb1.getImaxFactor() == null && cb2.getImaxFactor() == null
+            || cb1.getImaxFactor() != null && cb2.getImaxFactor() != null && Math.abs(cb1.getImaxFactor().doubleValue() - cb2.getImaxFactor().doubleValue()) < 1e-6;
     }
 }

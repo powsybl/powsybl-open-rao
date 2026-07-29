@@ -22,9 +22,12 @@ public final class RaoParametersCommons {
         ---------------------------
         3.1: remove max-auto-search-tree-depth
         3.2: remove re-optimize-curative-range-actions
+        3.2.1: add pst-regulation-parameters
+        3.3: remove objective function unit field
+        3.4: add marmot-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.2";
+    public static final String RAO_PARAMETERS_VERSION = "3.4";
 
     // header
     public static final String VERSION = "version";
@@ -35,7 +38,6 @@ public final class RaoParametersCommons {
     public static final String ST_OBJECTIVE_FUNCTION_SECTION = "search-tree-objective-function";
 
     public static final String TYPE = "type";
-    public static final String UNIT = "unit";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String ENFORCE_CURATIVE_SECURITY = "enforce-curative-security";
 
@@ -138,9 +140,21 @@ public final class RaoParametersCommons {
         }
     }
 
+    // -- Marmot Parameters
+    public static final String MARMOT_PARAMETERS = "marmot-parameters";
+    public static final String NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME = "number-of-cnecs-to-add-per-virtual-cost-name";
+    public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
+    public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
+    public static final String NUMBER_OF_THREADS = "number-of-threads";
+
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
+
+    // -- PST regulation parameters
+    public static final String PST_REGULATION_PARAMETERS = "pst-regulation-parameters";
+    public static final String ST_PST_REGULATION_SECTION = "search-tree-pst-regulation-parameters";
+    public static final String PSTS_TO_REGULATE = "psts-to-regulate";
 }

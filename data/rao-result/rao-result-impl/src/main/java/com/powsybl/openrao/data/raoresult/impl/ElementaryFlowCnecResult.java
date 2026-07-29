@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.iidm.network.TwoSides;
 
 import java.util.EnumMap;
 import java.util.Map;

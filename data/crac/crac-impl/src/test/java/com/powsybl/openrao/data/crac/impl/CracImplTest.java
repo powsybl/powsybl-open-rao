@@ -11,38 +11,51 @@ import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 /**
@@ -1142,8 +1155,8 @@ class CracImplTest {
         // ra10 : preventive only, counter trade
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
-            .withExportingCountry(Country.FR)
-            .withImportingCountry(Country.DE)
+            .withExportingArea("FR")
+            .withImportingArea("DE")
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()
@@ -1309,5 +1322,14 @@ class CracImplTest {
         badCrac.newInstant("curative", InstantKind.CURATIVE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> badCrac.newInstant("auto", InstantKind.AUTO));
         assertEquals("Only one auto instant is allowed and it must occur between outage and curative instants", exception.getMessage());
+    }
+
+    @Test
+    void testFindOperatorsNotSharingCras() {
+        Crac crac2 = CommonCracCreation.create(new CracImplFactory(), Set.of(TwoSides.ONE));
+        assertEquals(Set.of("operator1", "operator2"), crac2.findOperatorsNotSharingCras());
+
+        crac2 = CommonCracCreation.createWithCurativePstRange();
+        assertEquals(Set.of("operator2"), crac2.findOperatorsNotSharingCras());
     }
 }

@@ -23,14 +23,14 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -51,6 +51,7 @@ class FlowResultImplTest {
 
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, ONE, Unit.MEGAWATT)).thenReturn(200.);
+        when(fixedCommercialFlows.getCommercialFlow(eq(loopFlowCnec), eq(ONE), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ampere value"));
         when(fixedCommercialFlows.getCommercialFlow(eq(optimizedCnec), eq(TWO), any())).thenThrow(new OpenRaoException("a mock of what would happen if trying to access LF"));
 
         FlowResult fixedPtdfs = Mockito.mock(FlowResult.class);
@@ -141,7 +142,7 @@ class FlowResultImplTest {
 
     @Test
     void testConstructorWrongCases() {
-        Map<FlowCnec, Map<TwoSides, Double>> commercialFlows = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlows = new HashMap<>();
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
         FlowResult fixedPtdfZonalSums = Mockito.mock(FlowResult.class);

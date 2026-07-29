@@ -1,8 +1,7 @@
 {
-  "version" : "3.2",
+  "version" : "3.4",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "A",
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
@@ -32,6 +31,13 @@
       "number-of-cnecs-to-add" : 20,
       "add-unsecure-cnecs" : false,
       "margin-limit" : 5.0
+    },
+    "marmot-parameters" : {
+      "number-of-cnecs-to-add-per-virtual-cost-name" : 25,
+      "min-relative-improvement-on-margin" : 12.0,
+      "margin-window-to-consider" : 7.0,
+      "max-mip-iterations" : 13,
+      "number-of-threads" : 1515
     },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
@@ -66,9 +72,9 @@
         "sensitivity-provider" : "OpenSensitivityAnalysis",
         "sensitivity-failure-overcost" : 10000.0,
         "sensitivity-parameters" : {
-          "version" : "1.1",
+          "version" : "1.3",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.11",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -82,14 +88,15 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0
           },
           "flow-flow-sensitivity-value-threshold" : 0.0,
           "voltage-voltage-sensitivity-value-threshold" : 0.0,
           "flow-voltage-sensitivity-value-threshold" : 0.0,
-          "angle-flow-sensitivity-value-threshold" : 0.0
+          "angle-flow-sensitivity-value-threshold" : 0.0,
+          "operator-strategies-calculation-mode" : "NONE"
         }
       },
       "multi-threading" : {
@@ -111,6 +118,12 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 800.0,
         "shifted-violation-threshold" : 3.0
+      },
+      "pst-regulation-parameters" : {
+        "psts-to-regulate" : {
+          "pst-1" : "network-element-1",
+          "pst-2" : "network-element-2"
+        }
       }
     }
   }
