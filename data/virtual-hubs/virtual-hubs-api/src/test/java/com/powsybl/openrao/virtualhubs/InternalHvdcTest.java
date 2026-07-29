@@ -20,11 +20,10 @@ class InternalHvdcTest {
     private static final String HVDC_CODE = "CODE_OF_HVDC";
     private static final String POLE_ID = "EIC_OF_POLE";
 
-
     final static List<ThrowableAssert.ThrowingCallable> FAILING_CONSTRUCTORS = List.of(() -> new InternalHvdc(HVDC_EIC, HVDC_CODE, null),
                                                                                        () -> new InternalHvdc(HVDC_EIC, null, createPoles()),
                                                                                        () -> new InternalHvdc(null, HVDC_CODE, createPoles()));
-
+    
     @ParameterizedTest
     @FieldSource("FAILING_CONSTRUCTORS")
     void checkThatCreationThrowsWhenNullArg(final ThrowableAssert.ThrowingCallable callable) {
