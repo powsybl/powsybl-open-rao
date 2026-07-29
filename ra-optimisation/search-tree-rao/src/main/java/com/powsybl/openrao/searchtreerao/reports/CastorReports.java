@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
