@@ -9,10 +9,10 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.Branch;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Indicates what elements to simulate as contingencies (N-1).

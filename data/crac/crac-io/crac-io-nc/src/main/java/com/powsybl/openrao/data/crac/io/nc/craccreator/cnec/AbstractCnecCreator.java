@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -25,7 +26,6 @@ import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationCo
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.Optional;

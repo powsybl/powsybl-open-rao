@@ -42,13 +42,13 @@ final class JsonMinMarginsParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case SHIFTED_VIOLATION_PENALTY -> minMarginsParameters.setShiftedViolationPenalty(jsonParser.getValueAsDouble());
                 case SHIFTED_VIOLATION_THRESHOLD -> minMarginsParameters.setShiftedViolationThreshold(jsonParser.getValueAsDouble());
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize min margins parameters: unexpected field in %s (%s)",
                     COSTLY_MIN_MARGIN_PARAMETERS,
-                    jsonParser.getCurrentName())
+                    jsonParser.currentName())
                 );
             }
             searchTreeParameters.setMinMarginsParameters(minMarginsParameters);

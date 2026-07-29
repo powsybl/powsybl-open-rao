@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -80,7 +81,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(preventiveState);
 
-        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters(ReportNode.NO_OP)).getRangeActionsOptimizationParameters();
 
         MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,

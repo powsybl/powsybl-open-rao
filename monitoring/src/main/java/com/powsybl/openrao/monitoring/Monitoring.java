@@ -49,7 +49,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;

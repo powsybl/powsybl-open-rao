@@ -16,7 +16,7 @@
                 MCParticipant="false" NodeName="XMA_ES11"/>
   </VirtualHubs>
   <InternalHVDCs>
-    <HVDC>
+    <HVDC Eic="00T-ABCDEFGHIJK" Code="A1B1_TESTFILE" RelatedMA="FR" MTHVDC="false" Bipolar="true">
       <pole id="1">
         <converterList>
           <converter node="AAAAA11A" station="Station 1" />

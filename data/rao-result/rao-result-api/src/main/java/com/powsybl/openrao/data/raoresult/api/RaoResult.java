@@ -69,6 +69,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -135,6 +136,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -188,6 +190,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -200,6 +203,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -212,6 +216,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -223,6 +228,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 
     /**
@@ -472,6 +478,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
 
     /**
@@ -480,6 +487,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     boolean isSecure(PhysicalParameter... u);
 
     /**
@@ -487,6 +495,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      *
      * @return whether all the CNECs are secure at last instant (i.e. after RAO)..
      */
+    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
     default boolean isSecure() {
         return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }

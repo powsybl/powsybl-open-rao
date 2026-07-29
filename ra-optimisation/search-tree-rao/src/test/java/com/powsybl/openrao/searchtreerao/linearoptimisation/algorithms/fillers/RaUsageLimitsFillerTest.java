@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -131,7 +132,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         rangeActionsPerState.put(state, rangeActions);
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters(ReportNode.NO_OP)).getRangeActionsOptimizationParameters();
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
@@ -189,7 +190,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, pst2, hvdc, injection), co1Curative2, Set.of(pst1, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
-        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters(ReportNode.NO_OP)).getRangeActionsOptimizationParameters();
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,

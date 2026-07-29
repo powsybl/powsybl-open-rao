@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
@@ -17,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
 import java.util.Collection;
@@ -29,8 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -158,14 +158,15 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         }
     }
 
-    static boolean doesPrePerimeterSetpointRespectRange(RangeAction<?> rangeAction, RangeActionSetpointResult prePerimeterSetpoints) {
+    static boolean doesPrePerimeterSetpointRespectRange(final RangeAction<?> rangeAction,
+                                                        final RangeActionSetpointResult prePerimeterSetpoints,
+                                                        final ReportNode reportNode) {
         double preperimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
         if (preperimeterSetPoint < minSetPoint - EPSILON || preperimeterSetPoint > maxSetPoint + EPSILON) {
-            BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
-                rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+            CommonReports.reportRangeActionInitialSetpointDoesNotRespectAllowedRange(reportNode, rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
             return false;
         } else {
             return true;
@@ -175,7 +176,9 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     /**
      * If aligned range actions' initial setpoint are different, this function filters them out
      */
-    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction<?>> rangeActions, RangeActionSetpointResult prePerimeterSetPoints) {
+    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(final Set<RangeAction<?>> rangeActions,
+                                                                       final RangeActionSetpointResult prePerimeterSetPoints,
+                                                                       final ReportNode reportNode) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
             .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String group : groups) {
@@ -184,7 +187,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
                 .collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getSetpoint(groupRangeActions.iterator().next());
             if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > EPSILON)) {
-                BUSINESS_WARNS.warn("Range actions of group {} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.", group);
+                CommonReports.reportRangeActionsOfGroupDoNotHaveSamePrePerimeterSetpoint(reportNode, group);
                 rangeActions.removeAll(groupRangeActions);
             }
         }

@@ -31,12 +31,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -440,6 +435,11 @@ public final class MockCrac implements Crac {
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
         return null;
+    }
+
+    @Override
+    public Set<String> findOperatorsNotSharingCras() {
+        return Collections.emptySet();
     }
 
     @Override

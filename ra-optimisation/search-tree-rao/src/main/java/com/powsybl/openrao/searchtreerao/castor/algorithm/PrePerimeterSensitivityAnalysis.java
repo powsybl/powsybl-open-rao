@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -50,12 +51,12 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
         super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
-        return runInitialSensitivityAnalysis(network, Set.of());
+    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final ReportNode reportNode) {
+        return runInitialSensitivityAnalysis(network, Set.of(), reportNode);
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Set<State> optimizedStates) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final Set<State> optimizedStates, final ReportNode reportNode) {
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.getLoopFlowParameters().isPresent()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -67,15 +68,16 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(flowCnecs, raoParameters, optimizedStates);
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
-    public PrePerimeterResult runBasedOnInitialResults(Network network,
-                                                       FlowResult initialFlowResult,
-                                                       Set<String> operatorsNotSharingCras,
-                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
+    public PrePerimeterResult runBasedOnInitialResults(final Network network,
+                                                       final FlowResult initialFlowResult,
+                                                       final Set<String> operatorsNotSharingCras,
+                                                       final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                       final ReportNode reportNode) {
 
-        sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
+        sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
         objectiveFunction = ObjectiveFunction.build(
             flowCnecs,
             toolProvider.getLoopFlowCnecs(flowCnecs),
@@ -86,28 +88,28 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
             Set.of(crac.getPreventiveState())
         );
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
     }
 
-    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
-        return SensitivityComputer.create()
+    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder(final ReportNode reportNode) {
+        return SensitivityComputer.create(reportNode)
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)
                 .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
+    private PrePerimeterResult runAndGetResult(final Network network, final ObjectiveFunction objectiveFunction, final ReportNode reportNode) {
         int oldThreadCount = setNewThreadCountAndGetOldValue();
         sensitivityComputer.compute(network);
         resetThreadCount(oldThreadCount);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(rangeActionSetpointResult));
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(rangeActionSetpointResult), reportNode);
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,

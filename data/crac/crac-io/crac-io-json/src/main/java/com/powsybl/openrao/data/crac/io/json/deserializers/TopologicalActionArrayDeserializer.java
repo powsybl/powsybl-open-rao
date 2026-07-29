@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.TerminalsConnectionAction
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -30,15 +29,12 @@ public final class TopologicalActionArrayDeserializer {
     private TopologicalActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.TOPOLOGICAL_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String networkElementId = null;
             ActionType actionType = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
                         networkElementId = jsonParser.nextTextValue();
                         break;
@@ -46,7 +42,7 @@ public final class TopologicalActionArrayDeserializer {
                         actionType = JsonSerializationConstants.deserializeActionType(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in TopologicalAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in TopologicalAction: " + jsonParser.currentName());
                 }
             }
             Identifiable<?> identifiable = network.getIdentifiable(networkElementId);
@@ -55,12 +51,12 @@ public final class TopologicalActionArrayDeserializer {
             }
             if (identifiable.getType() == IdentifiableType.SWITCH) {
                 SwitchActionAdder switchActionAdder = ownerAdder.newSwitchAction();
-                JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, switchActionAdder);
+                switchActionAdder.withNetworkElement(networkElementId);
                 switchActionAdder.withActionType(actionType);
                 switchActionAdder.add();
             } else {
                 TerminalsConnectionActionAdder terminalsConnectionActionAdder = ownerAdder.newTerminalsConnectionAction();
-                JsonSerializationConstants.deserializeNetworkElement(networkElementId, networkElementsNamesPerId, terminalsConnectionActionAdder);
+                terminalsConnectionActionAdder.withNetworkElement(networkElementId);
                 terminalsConnectionActionAdder.withActionType(actionType);
                 terminalsConnectionActionAdder.add();
             }

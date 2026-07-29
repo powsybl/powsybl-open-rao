@@ -256,10 +256,11 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteRdWithCombis() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getRedispatchingRangeActions().setGeneratorCombinations(
+        parameters.getRedispatchingRangeActions().setInjectionCombinations(
             Map.of(
                 "combi1", Set.of("DDE1AA1 _generator", "FFR1AA1 _generator"),
-                "combi2", Set.of("NNL2AA1 _generator")
+                "combi2", Set.of("NNL2AA1 _generator"),
+                "combi3", Set.of("DDE2AA1 _generator", "FFR3AA1 _load")
             )
         );
         parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
@@ -267,7 +268,7 @@ class NetworkCracCreatorTest {
         parameters.getRedispatchingRangeActions().setCombinationCostsProvider((combi, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
-        assertEquals(2, crac.getInjectionRangeActions().size());
+        assertEquals(3, crac.getInjectionRangeActions().size());
         assertTrue(crac.getInjectionRangeActions().stream().allMatch(ra -> ra.getId().contains("_preventive")));
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_COMBI_combi1_preventive");
@@ -280,6 +281,14 @@ class NetworkCracCreatorTest {
         assertEquals(Optional.of(1.), ra.getActivationCost());
         assertEquals(Optional.of(2.), ra.getVariationCost(VariationDirection.UP));
         assertEquals(Optional.of(3.), ra.getVariationCost(VariationDirection.DOWN));
+
+        ra = crac.getInjectionRangeAction("RD_COMBI_combi3_preventive");
+        assertNotNull(ra);
+        assertEquals(2, ra.getInjectionDistributionKeys().size());
+        assertEquals(Map.of("FFR3AA1 _load", -3., "DDE2AA1 _generator", 4.), getKeys("RD_COMBI_combi3_preventive"));
+        assertEquals(500., ra.getRanges().getFirst().getMin());
+        assertEquals(1500., ra.getRanges().getFirst().getMax());
+        assertEquals(500., ra.getInitialSetpoint());
     }
 
     @Test
@@ -309,7 +318,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUcteRdWithWrongCombis() {
         parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
-        parameters.getRedispatchingRangeActions().setGeneratorCombinations(
+        parameters.getRedispatchingRangeActions().setInjectionCombinations(
             Map.of(
                 "combi1", Set.of("DDE1AA1 _generator", "wrong")
             )
@@ -321,7 +330,7 @@ class NetworkCracCreatorTest {
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(1, creationContext.getCreationReport().getReport().size());
         assertEquals(
-            "[REMOVED] Combination 'combi1' could not be considered because at least one generator could not be found in the network.",
+            "[REMOVED] Combination 'combi1' could not be considered because at least one injection could not be found in the network.",
             creationContext.getCreationReport().getReport().get(0)
         );
         assertTrue(crac.getInjectionRangeActions().isEmpty());
@@ -378,6 +387,38 @@ class NetworkCracCreatorTest {
         assertTrue(creationContext.getCreationReport().getReport().contains("[REMOVED] Cannot create a counter-trading action for NL at instant preventive without a defined min/max range."));
         assertTrue(creationContext.getCreationReport().getReport().contains("[REMOVED] Cannot create a counter-trading action for NL at instant curative without a defined min/max range."));
         assertTrue(crac.getInjectionRangeActions().isEmpty());
+    }
+
+    @Test
+    void testUcteCtWithNegativeTargetP() {
+        parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
+        parameters.getCountertradingRangeActions().setCountryFilter(Set.of(Country.NL));
+        parameters.getCountertradingRangeActions().setRaRangeProvider((country, instant) ->
+            instant.isPreventive() ? new MinAndMax<>(-1000., 1000.) : new MinAndMax<>(0., 0.));
+        parameters.getCountertradingRangeActions().setRaCostsProvider((country, instant) -> new InjectionRangeActionCosts(10., 20., 30.));
+
+        // Mock network to have a generator with negative targetP
+        String networkName = "TestCase12Nodes.uct";
+        network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
+        network.getGenerator("NNL1AA1 _generator").setTargetP(-100.0);
+
+        try {
+            creationContext = Crac.readWithContext(networkName, getClass().getResourceAsStream("/" + networkName), network, cracCreationParameters);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        crac = creationContext.getCrac();
+
+        assertTrue(creationContext.isCreationSuccessful());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        InjectionRangeAction ra = crac.getInjectionRangeAction("CT_NETHERLANDS_preventive");
+        assertNotNull(ra);
+
+        // NNL1AA1 _generator should be excluded because targetP < 0
+        Map<String, Double> keys = getKeys("CT_NETHERLANDS_preventive");
+        assertFalse(keys.containsKey("NNL1AA1 _generator"));
+        assertTrue(keys.containsKey("NNL3AA1 _generator"));
+        assertTrue(keys.containsKey("NNL2AA1 _generator"));
     }
 
     @Test

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -48,7 +49,7 @@ class AlreadyTestedCombinationsFilterTest {
 
         // filter already tested combinations
         AlreadyTestedCombinationsFilter naFilter = new AlreadyTestedCombinationsFilter(preDefinedNaCombinations);
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(IND_NL_1)); // already tested within preDefined comb2BeNl

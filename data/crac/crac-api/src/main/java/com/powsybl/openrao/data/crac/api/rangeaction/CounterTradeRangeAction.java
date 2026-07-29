@@ -7,20 +7,18 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.iidm.network.Country;
-
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the exporting country
+     * Get the exporting area
      */
-    Country getExportingCountry();
+    String getExportingArea();
 
     /**
-     * Get the importing country
+     * Get the importing area
      */
-    Country getImportingCountry();
+    String getImportingArea();
 }

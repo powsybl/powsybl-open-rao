@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -23,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
-import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -32,14 +30,11 @@ public final class PstRangeActionArrayDeserializer {
     private PstRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.PST_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
-        }
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         pstRangeActionAdder.withId(jsonParser.nextTextValue());
                         break;
@@ -84,25 +79,30 @@ public final class PstRangeActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        deserializeNetworkElementId(jsonParser, networkElementsNamesPerId, pstRangeActionAdder, network);
+                        String networkElementId = jsonParser.nextTextValue();
+                        pstRangeActionAdder.withNetworkElement(networkElementId);
+                        PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network, networkElementId);
+                        pstRangeActionAdder.withInitialTap(phaseTapChanger.getTapPosition());
+                        Map<Integer, Double> tapToAngleConversionMap = new HashMap<>();
+                        phaseTapChanger.getAllSteps().forEach((tap, ptcStep) -> tapToAngleConversionMap.put(tap, ptcStep.getAlpha()));
+                        pstRangeActionAdder.withTapToAngleConversionMap(tapToAngleConversionMap);
                         break;
                     case JsonSerializationConstants.GROUP_ID:
                         pstRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.INITIAL_TAP:
-                        jsonParser.nextToken();
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            LOGGER.warn("The initial tap is now read from the network so the value in the crac will not be read");
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            2, 7,
+                            "The initial tap is now read from the network so the value in the CRAC will not be read.",
+                            jsonParser, Integer.class, version
+                        );
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
-                        jsonParser.nextToken();
-                        readIntToDoubleMap(jsonParser);
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            LOGGER.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
-                        }
+                        JsonSerializationConstants.logDeprecatedField(
+                            2, 7,
+                            "The tap to angle conversion map is now read from the network so the value in the CRAC will not be read.",
+                            jsonParser, HashMap.class, version
+                        );
                         break;
                     case JsonSerializationConstants.RANGES:
                         jsonParser.nextToken();
@@ -123,25 +123,11 @@ public final class PstRangeActionArrayDeserializer {
                         deserializeVariationCosts(pstRangeActionAdder, jsonParser);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in PstRangeAction: " + jsonParser.currentName());
                 }
             }
             pstRangeActionAdder.add();
         }
-    }
-
-    private static void deserializeNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, PstRangeActionAdder pstRangeActionAdder, Network network) throws IOException {
-        String networkElementId = jsonParser.nextTextValue();
-        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-            pstRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-        } else {
-            pstRangeActionAdder.withNetworkElement(networkElementId);
-        }
-        PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network, networkElementId);
-        pstRangeActionAdder.withInitialTap(phaseTapChanger.getTapPosition());
-        Map<Integer, Double> tapToAngleConversionMap = new HashMap<>();
-        phaseTapChanger.getAllSteps().forEach((tap, ptcStep) -> tapToAngleConversionMap.put(tap, ptcStep.getAlpha()));
-        pstRangeActionAdder.withTapToAngleConversionMap(tapToAngleConversionMap);
     }
 
     private static PhaseTapChanger getPhaseTapChanger(Network network, String networkElementId) {
@@ -174,18 +160,6 @@ public final class PstRangeActionArrayDeserializer {
         }
     }
 
-    private static Map<Integer, Double> readIntToDoubleMap(JsonParser jsonParser) throws IOException {
-        HashMap<Integer, Double> map = jsonParser.readValueAs(new TypeReference<Map<Integer, Double>>() {
-        });
-        // Check types
-        map.forEach((Object o, Object o2) -> {
-            if (!(o instanceof Integer) || !(o2 instanceof Double)) {
-                throw new OpenRaoException("Unexpected key or value type in a Map<Integer, Double> parameter!");
-            }
-        });
-        return map;
-    }
-
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2
             || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) < 4) {
@@ -198,7 +172,7 @@ public final class PstRangeActionArrayDeserializer {
     private static void deserializeVariationCosts(PstRangeActionAdder pstRangeActionAdder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
+            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.currentName()));
         }
     }
 }

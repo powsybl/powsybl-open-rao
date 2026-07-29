@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-virtual-hubs</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-virtual-hubs-json</artifactId>
@@ -19,7 +19,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-virtual-hubs-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

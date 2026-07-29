@@ -5,7 +5,7 @@
     <parent>
         <artifactId>open-rao-crac</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,10 +17,6 @@
     <dependencies>
         <!-- Compile scope -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-api</artifactId>
         </dependency>
@@ -31,6 +27,10 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-time-coupled-constraints</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
         </dependency>
 
         <!-- Runtime scope -->
@@ -71,7 +71,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-ics-importer</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

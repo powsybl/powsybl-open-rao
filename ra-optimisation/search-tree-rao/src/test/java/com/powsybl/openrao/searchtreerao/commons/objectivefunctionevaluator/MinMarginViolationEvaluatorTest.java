@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -43,7 +44,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowCnec.getId()).thenReturn("cnec1");
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 1000.0);
-        CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
+        CostEvaluatorResult result = evaluator.evaluate(flowResult, null, ReportNode.NO_OP);
         assertEquals(1000.0, result.getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
         assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of(), Set.of()));
     }
@@ -60,7 +61,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(500d);
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 10000);
-        CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
+        CostEvaluatorResult result = evaluator.evaluate(flowResult, null, ReportNode.NO_OP);
         assertEquals(0.0, result.getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
         assertTrue(result.getCostlyElements(Set.of(), Set.of()).isEmpty());
     }
@@ -69,6 +70,6 @@ class MinMarginViolationEvaluatorTest {
     @Test
     void testNoCnecs() {
         MinMarginViolationEvaluator emptyEvaluator = new MinMarginViolationEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class), 10000.);
-        assertEquals(0., emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(0., emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }

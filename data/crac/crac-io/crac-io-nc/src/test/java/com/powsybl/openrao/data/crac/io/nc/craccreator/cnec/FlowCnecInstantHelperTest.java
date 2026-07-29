@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
@@ -15,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.parameters.SweNcCracCreationParameters;
 import org.junit.jupiter.api.BeforeEach;

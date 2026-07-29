@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -103,7 +104,7 @@ class GlobalLinearOptimizationResultTest {
         Mockito.when(objectiveFunctionResult.getVirtualCost()).thenReturn(100.);
 
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        Mockito.when(objectiveFunction.evaluate(Mockito.any(FlowResult.class), Mockito.any(RemedialActionActivationResult.class))).thenReturn(objectiveFunctionResult);
+        Mockito.when(objectiveFunction.evaluate(Mockito.any(FlowResult.class), Mockito.any(RemedialActionActivationResult.class), Mockito.any(ReportNode.class))).thenReturn(objectiveFunctionResult);
 
         // create global linear optimization result
 
@@ -125,7 +126,8 @@ class GlobalLinearOptimizationResultTest {
             )),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            ReportNode.NO_OP
         );
     }
 
@@ -137,7 +139,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            ReportNode.NO_OP
         );
         assertEquals(LinearProblemStatus.OPTIMAL, linearOptimizationResult.getStatus());
         linearOptimizationResult.setStatus(LinearProblemStatus.FEASIBLE);
@@ -152,7 +155,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            ReportNode.NO_OP
         );
         assertEquals(1000., linearOptimizationResult.getCost());
         assertEquals(900., linearOptimizationResult.getFunctionalCost());
@@ -187,7 +191,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1, TestsUtils.TIMESTAMP_2, rangeActionActivationResultTimestamp2)),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            ReportNode.NO_OP
         );
         assertEquals(ComputationStatus.PARTIAL_FAILURE, partialLinearOptimizationResult.getComputationStatus());
         assertEquals(ComputationStatus.PARTIAL_FAILURE, partialLinearOptimizationResult.getSensitivityStatus());
@@ -201,7 +206,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1)),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            ReportNode.NO_OP
         );
         assertEquals(ComputationStatus.DEFAULT, partialLinearOptimizationResult.getComputationStatus());
         assertEquals(ComputationStatus.DEFAULT, partialLinearOptimizationResult.getSensitivityStatus());

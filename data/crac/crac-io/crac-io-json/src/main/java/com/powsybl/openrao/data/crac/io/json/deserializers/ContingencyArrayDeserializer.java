@@ -33,7 +33,7 @@ final class ContingencyArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             ContingencyAdder adder = crac.newContingency();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         adder.withId(jsonParser.nextTextValue());
                         break;
@@ -55,7 +55,7 @@ final class ContingencyArrayDeserializer {
                         }
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in Contingency: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in Contingency: " + jsonParser.currentName());
                 }
             }
             adder.add();

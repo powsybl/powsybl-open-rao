@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.nc.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.time.OffsetDateTime;

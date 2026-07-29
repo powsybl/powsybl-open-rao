@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Optional;
@@ -18,17 +19,31 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAME
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters> {
-    private SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters = new SearchTreeRaoObjectiveFunctionParameters();
-    private SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
-    private SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = new SearchTreeRaoTopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-    private Optional<SearchTreeRaoCostlyMinMarginParameters> minMarginsParameters = Optional.empty();
-    private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
-    private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
-    private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
-    private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = Optional.empty();
+    private SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters;
+    private SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+    private SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters;
+    private MultithreadingParameters multithreadingParameters;
+    private SecondPreventiveRaoParameters secondPreventiveRaoParameters;
+    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
+    private Optional<SearchTreeRaoCostlyMinMarginParameters> minMarginsParameters;
+    private Optional<SearchTreeRaoMnecParameters> mnecParameters;
+    private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters;
+    private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters;
+    private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters;
+
+    public OpenRaoSearchTreeParameters(final ReportNode reportNode) {
+        this.objectiveFunctionParameters = new SearchTreeRaoObjectiveFunctionParameters();
+        this.rangeActionsOptimizationParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
+        this.topoOptimizationParameters = new SearchTreeRaoTopoOptimizationParameters(reportNode);
+        this.multithreadingParameters = new MultithreadingParameters();
+        this.secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
+        this.loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
+        this.minMarginsParameters = Optional.empty();
+        this.mnecParameters = Optional.empty();
+        this.relativeMarginsParameters = Optional.empty();
+        this.loopFlowParameters = Optional.empty();
+        this.pstRegulationParameters = Optional.empty();
+    }
 
     // Getters and setters
     public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {

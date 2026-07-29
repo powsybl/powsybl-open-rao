@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -60,7 +61,7 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            (new RaoParameters()).getRangeActionsOptimizationParameters(),
+            (new RaoParameters(ReportNode.NO_OP)).getRangeActionsOptimizationParameters(),
             null,
             Unit.MEGAWATT,
             false,

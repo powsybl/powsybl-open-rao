@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, windows-2022, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Setup GraalVM
         if: matrix.jvm == 'graalvm'
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1.5.2
         with:
           java-version: '21.0.8'
           distribution: 'graalvm'

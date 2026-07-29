@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -49,11 +50,12 @@ public final class SensitivityComputer {
         return new SensitivityResultImpl(result);
     }
 
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
+    public static SensitivityComputerBuilder create(final ReportNode reportNode) {
+        return new SensitivityComputerBuilder(reportNode);
     }
 
     public static final class SensitivityComputerBuilder {
+        private final ReportNode reportNode;
         private ToolProvider toolProvider;
         private Set<FlowCnec> flowCnecs;
         private Set<RangeAction<?>> rangeActions;
@@ -64,6 +66,10 @@ public final class SensitivityComputer {
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
         private Instant outageInstant;
+
+        public SensitivityComputerBuilder(final ReportNode reportNode) {
+            this.reportNode = reportNode;
+        }
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -129,7 +135,8 @@ public final class SensitivityComputer {
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,
-                    outageInstant);
+                    outageInstant,
+                    reportNode);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);
