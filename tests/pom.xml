@@ -279,7 +279,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-pst-regulation</artifactId>
-            <version>${project.version}</version>
+            <version>7.3.0</version>
             <scope>test</scope>
         </dependency>
 
