@@ -49,13 +49,7 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -115,7 +109,8 @@ public class Leaf implements OptimizationResult {
          RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
-         boolean islandCreationAllowed) {
+         boolean islandCreationAllowed,
+         Optional<Integer> initialNumberOfConnectedComponent) {
 
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
@@ -131,11 +126,6 @@ public class Leaf implements OptimizationResult {
         }
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
 
-        double initialNbOfComponent = StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
-            .map(Bus::getConnectedComponent)
-            .distinct()
-            .count();
-
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
             boolean applicationSuccess = na.apply(network);
@@ -144,7 +134,7 @@ public class Leaf implements OptimizationResult {
             }
 
             if (!islandCreationAllowed) {
-                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNbOfComponent);
+                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent.orElseThrow());
             }
         }
 
@@ -185,9 +175,8 @@ public class Leaf implements OptimizationResult {
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
          PrePerimeterResult prePerimeterOutput,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
-         boolean islandCreationAllowed) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, islandCreationAllowed);
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, Optional.empty());
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;

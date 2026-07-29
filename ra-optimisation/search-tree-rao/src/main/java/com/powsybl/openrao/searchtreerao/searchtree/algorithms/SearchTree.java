@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -89,6 +90,7 @@ public class SearchTree {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
+    private Optional<Integer> initialNumberOfConnectedComponent;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
@@ -105,6 +107,9 @@ public class SearchTree {
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
         this.bloomer = new SearchTreeBloomer(input, parameters);
+        if (!parameters.getNetworkActionParameters().isIslandCreationAllowed()) {
+            this.initialNumberOfConnectedComponent = Optional.of(getNumberOfConnectedComponent(input.getNetwork()));
+        }
     }
 
     public CompletableFuture<OptimizationResult> run() {
@@ -193,13 +198,13 @@ public class SearchTree {
     }
 
     void initLeaves(SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions(), parameters.getNetworkActionParameters().isIslandCreationAllowed());
+        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates, boolean isIslandCreationAllowed) {
-        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates, isIslandCreationAllowed);
+    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void iterateOnTree() {
@@ -386,7 +391,7 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) throws OpenRaoException {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
@@ -395,7 +400,8 @@ public class SearchTree {
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
             shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
-            parameters.getNetworkActionParameters().isIslandCreationAllowed());
+            parameters.getNetworkActionParameters().isIslandCreationAllowed(),
+            initialNumberOfConnectedComponent);
     }
 
     private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode) {
