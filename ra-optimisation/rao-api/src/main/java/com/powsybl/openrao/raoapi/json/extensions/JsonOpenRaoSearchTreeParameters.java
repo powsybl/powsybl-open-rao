@@ -119,7 +119,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                     JsonSearchTreeRaoPstRegulationParameters.deserialize(parser, parameters);
                 }
                 default ->
-                    throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.currentName());
+                    throw new OpenRaoException("Unexpected field in OpenRAO search tree parameters: " + parser.currentName());
             }
         }
         return parameters;

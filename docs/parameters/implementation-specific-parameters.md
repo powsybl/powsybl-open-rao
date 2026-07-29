@@ -4,9 +4,9 @@
 
 Used to configure RAO implementation specific parameters
 
-### Open Rao Search Tree Parameters extension
+### OpenRAO Search Tree Parameters extension
 
-This extension is used to configure Open RAO specific parameters for search tree algorithms
+This extension is used to configure OpenRAO specific parameters for search tree algorithms
 
 #### Objective function parameters
 
