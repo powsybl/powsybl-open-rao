@@ -468,12 +468,12 @@ public class Marmot implements TimeCoupledRaoProvider {
     }
 
     private static PrePerimeterResult applyActionsAndRunFullSensitivityAnalysisForTimestamp(final RaoInput raoInput,
-                                                                             final TemporalData<RaoInput> postTopoInputs,
-                                                                             final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
-                                                                             final LinearOptimizationResult filteredResult,
-                                                                             final TemporalData<PrePerimeterResult> initialResults,
-                                                                             final TemporalData<RaoParameters> raoParameters,
-                                                                             final ReportNode reportNode) {
+                                                                                            final TemporalData<RaoInput> postTopoInputs,
+                                                                                            final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                            final LinearOptimizationResult filteredResult,
+                                                                                            final TemporalData<PrePerimeterResult> initialResults,
+                                                                                            final TemporalData<RaoParameters> raoParameters,
+                                                                                            final ReportNode reportNode) {
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
         State preventiveState = raoInput.getCrac().getPreventiveState();
         raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->

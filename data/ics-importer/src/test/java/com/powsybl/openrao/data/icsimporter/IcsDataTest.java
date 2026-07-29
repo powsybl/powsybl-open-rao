@@ -337,7 +337,8 @@ public class IcsDataTest {
             "Redispatching_RA",
             Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"),
             5.,
-            5.);
+            5.
+        );
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();

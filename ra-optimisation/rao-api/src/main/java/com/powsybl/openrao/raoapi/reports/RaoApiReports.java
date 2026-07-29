@@ -58,7 +58,8 @@ public final class RaoApiReports {
             "The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer " +
                 "to make the loadflow diverge. Thus, it will be set to + {}",
             sensitivityFailureOvercost,
-            -sensitivityFailureOvercost);
+            -sensitivityFailureOvercost
+        );
     }
 
     public static void reportNegativeMaxNumberOfBoundariesForSkippingActions(final ReportNode parentNode, final int maxNumberOfBoundariesForSkippingActions) {

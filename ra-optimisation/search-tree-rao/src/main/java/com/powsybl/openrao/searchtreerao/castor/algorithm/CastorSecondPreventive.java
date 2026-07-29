@@ -180,7 +180,8 @@ public class CastorSecondPreventive {
             network,
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
             true,
-            secondAutomatonSimulationReportNode);
+            secondAutomatonSimulationReportNode
+        );
         CastorReports.reportSecondAutomatonSimulationEnd();
 
         CastorReports.reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(secondPreventiveReportNode);

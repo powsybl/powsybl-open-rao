@@ -55,8 +55,7 @@ public class VoltageMonitoringSteps {
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(
-            CommonTestData
-                .getRaoResult()
+            CommonTestData.getRaoResult()
                 .isSecure(
                     CommonTestData.getCrac(),
                     RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()),
