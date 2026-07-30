@@ -31,7 +31,7 @@ Feature: 2.1.6: Island creation because of network actions
 
   @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.1.bis: Simple case with two CNECs and 1 network action that create an island - island creation not allowed
-  Same test as 2.1.6.1, but island creation is not allowed
+    Same test as 2.1.6.1, but island creation is not allowed
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_1.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
     Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/RaoParameters_maxMargin_ampere_ac_island_creation_not_allowed.json"
@@ -54,7 +54,7 @@ Feature: 2.1.6: Island creation because of network actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.3: An island is created after a contingency - island creation allowed
-  Same case as 2.1.6.1, but initially all the lines are closed.
+    Same case as 2.1.6.1, but initially all the lines are closed.
     We lose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
     that becomes overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating an island.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
@@ -70,7 +70,7 @@ Feature: 2.1.6: Island creation because of network actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.6.3.bis: An island is created after a contingency - island creation not allowed
-  Same test as 2.1.6.3, but island creation is not allowed
+    Same test as 2.1.6.3, but island creation is not allowed
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_3.json"
     Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/RaoParameters_maxMargin_ampere_ac_island_creation_not_allowed.json"
@@ -82,7 +82,7 @@ Feature: 2.1.6: Island creation because of network actions
 
   @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.4: An island is created but all the production is in this island - island creation allowed
-  Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
+    Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
     which makes the sensi computation fail (failed to distribute slack) -> the action is not used.
     If  "slackDistributionFailureBehavior" is set to "THROW"
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_4.uct"
