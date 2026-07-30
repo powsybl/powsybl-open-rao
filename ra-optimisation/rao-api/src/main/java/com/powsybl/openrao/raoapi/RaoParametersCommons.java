@@ -25,7 +25,7 @@ public final class RaoParametersCommons {
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
         3.4: add marmot-parameters
-        3.5: add curative remedial actions synchronization parameters in marmot parameters
+        3.5: add curative remedial actions synchronization parameters in marmot parameters && add island-creation-allowed parameter
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.5";
