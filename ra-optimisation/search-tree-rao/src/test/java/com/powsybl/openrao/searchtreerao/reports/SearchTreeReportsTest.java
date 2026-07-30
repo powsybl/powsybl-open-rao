@@ -20,8 +20,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -118,5 +120,38 @@ class SearchTreeReportsTest {
                 "RA2: 22 (var: 21, cost 200), RA1: 12 (var: 11, cost 100)",
                 "RA1: 12 (var: 11, cost 100), RA2: 22 (var: 21, cost 200)"
             );
+    }
+
+    @Test
+    void testReportNodeInFrench() {
+
+        ReportNode reportNode =  ReportNode.newRootReportNode()
+            .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test.rootnode")
+            .withLocale(Locale.FRANCE)
+            .build();
+
+        ReportNode childReport = reportNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportRootLeaf")
+            .withUntypedValue("rootLeaf", "Feuille racine test")
+            .add();
+
+        String formattedMessage = childReport.getMessage();
+        assertTrue(formattedMessage.equals("Feuille racine test"));
+
+        ReportNode anotherReport = reportNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportCostsBeforeAndAfterRao")
+            .withUntypedValue("initialCost", 100.0)
+            .withUntypedValue("initialFunctionalCost", 80.0)
+            .withUntypedValue("initialVirtualCost", 20.0)
+            .withUntypedValue("initialVirtualCostDetail", "")
+            .withUntypedValue("finalCost", 50.0)
+            .withUntypedValue("finalFunctionalCost", 40.0)
+            .withUntypedValue("finalVirtualCost", 10.0)
+            .withUntypedValue("finalVirtualCostDetail", "")
+            .add();
+
+        String complexMessage = anotherReport.getMessage();
+        assertTrue(complexMessage.equals("Coût avant RAO = 100.0 (fonctionnel : 80.0, virtuel : 20.0), coût après RAO = 50.0 (fonctionnel : 40.0, virtuel : 10.0)"));
     }
 }
