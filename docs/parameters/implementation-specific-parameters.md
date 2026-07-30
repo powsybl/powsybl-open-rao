@@ -175,6 +175,14 @@ when searching for the best network actions.
   considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
 
+##### island-creation-allowed
+- **Expected value**: boolean
+- **Default value**: true
+- **Usage**: configures whether islands can be created during the search-tree.  
+  If set to false, islands will not be created during the search-tree.  
+  If set to true, islands can be created during the search-tree.
+- **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
+
 #### Second preventive RAO parameters
 These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
 
@@ -500,7 +508,8 @@ These parameters are meant to be used in costly optimization only.
           [ "na4", "na5", "na6" ]
         ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "island-creation-allowed": true
       },
       "multi-threading" : {
         "available-cpus" : 4
