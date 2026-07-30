@@ -521,21 +521,41 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the time-coupled security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals("secured".equalsIgnoreCase(status), timeCoupledRaoResult.isSecure(CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()), CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertEquals(
+            "secured".equalsIgnoreCase(status),
+            timeCoupledRaoResult
+                .isSecure(
+                    CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac),
+                    RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()),
+                    CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(),
+                    PhysicalParameter.FLOW,
+                    PhysicalParameter.ANGLE,
+                    PhysicalParameter.VOLTAGE
+                )
+        );
     }
 
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")
     public void theTapOfPstRangeActionPostContingencyShouldBe(String pstRangeActionId, String timestamp, String contingencyId, String instant, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+        assertEquals(
+            chosenPstTap,
+            timeCoupledRaoResult
+                .getIndividualRaoResult(offsetDateTime)
+                .getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId))
+        );
     }
 
     @Then("the preventive tap of PstRangeAction {string} at timestamp {string} should be {int}")
     public void theTapOfPreventivePstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+        assertEquals(
+            chosenPstTap,
+            timeCoupledRaoResult
+                .getIndividualRaoResult(offsetDateTime)
+                .getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
     @Then("the CNEC {string} is overloaded before time-coupled optimization")
@@ -571,7 +591,7 @@ public final class TimeCoupledRaoSteps {
     }
 
     private static State getState(Crac crac, String contingencyId, String instantId) {
-        if (instantId.equalsIgnoreCase("preventive")) {
+        if ("preventive".equalsIgnoreCase(instantId)) {
             return crac.getPreventiveState();
         } else {
             return crac.getState(contingencyId, crac.getInstant(instantId));
