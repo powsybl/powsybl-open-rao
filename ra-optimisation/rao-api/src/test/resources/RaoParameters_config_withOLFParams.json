@@ -39,7 +39,8 @@
         "max-curative-search-tree-depth" : 2147483647,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "island-creation-allowed" : true
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",
