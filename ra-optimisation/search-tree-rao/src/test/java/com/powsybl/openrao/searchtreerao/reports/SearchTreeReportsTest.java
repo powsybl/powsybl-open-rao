@@ -137,7 +137,7 @@ class SearchTreeReportsTest {
             .add();
 
         String formattedMessage = childReport.getMessage();
-        assertTrue(formattedMessage.equals("Feuille racine test"));
+        assertEquals("Feuille racine test", formattedMessage);
 
         ReportNode anotherReport = reportNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCostsBeforeAndAfterRao")
@@ -152,6 +152,6 @@ class SearchTreeReportsTest {
             .add();
 
         String complexMessage = anotherReport.getMessage();
-        assertTrue(complexMessage.equals("Coût avant RAO = 100.0 (fonctionnel : 80.0, virtuel : 20.0), coût après RAO = 50.0 (fonctionnel : 40.0, virtuel : 10.0)"));
+        assertEquals("Coût avant RAO = 100.0 (fonctionnel : 80.0, virtuel : 20.0), coût après RAO = 50.0 (fonctionnel : 40.0, virtuel : 10.0)", complexMessage);
     }
 }
