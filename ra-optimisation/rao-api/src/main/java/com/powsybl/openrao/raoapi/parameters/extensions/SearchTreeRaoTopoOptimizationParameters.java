@@ -156,10 +156,4 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return DEFAULT_PREDEFINED_COMBINATIONS;
     }
 
-    public static boolean isIslandCreationAllowed(RaoParameters raoParameters) {
-        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getIslandCreationAllowed();
-        }
-        return DEFAULT_ISLAND_CREATION_ALLOWED;
-    }
 }
