@@ -125,7 +125,7 @@ class SearchTreeReportsTest {
     @Test
     void testReportNodeInFrench() {
 
-        ReportNode reportNodeFr =  ReportNode.newRootReportNode()
+        ReportNode reportNodeFr = ReportNode.newRootReportNode()
             .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .withLocale(Locale.FRANCE)
