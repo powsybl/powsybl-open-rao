@@ -228,14 +228,14 @@ public final class SearchTreeReports {
         TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", nbOfCombinations);
     }
 
-    public static void reportNetworkActionCombinationsHasNoImpactOnFilter(final ReportNode parentNode, final int nbOfCombinations) {
+    public static void reportNetworkActionCombinationsHasNoImpactOnNetwork(final ReportNode parentNode, final int nbOfCombinations) {
         parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsHasNoImpactOnFilter")
+            .withMessageTemplate("openrao.searchtreerao.reportNetworkActionCombinationsNoImpactOrRedundant")
             .withUntypedValue(NB_OF_COMBINATIONS, nbOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they have no impact on the network", nbOfCombinations);
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they have no impact on the network or because they are redundant with other combinations", nbOfCombinations);
     }
 
     public static void reportNoNetworkActionAvailable(final ReportNode parentNode, final boolean verbose) {
