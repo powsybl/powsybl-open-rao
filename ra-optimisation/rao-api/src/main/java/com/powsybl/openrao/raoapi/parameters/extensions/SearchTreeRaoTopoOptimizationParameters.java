@@ -96,7 +96,9 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return maxNumberOfBoundariesForSkippingActions;
     }
 
-    public boolean getIslandCreationAllowed() { return islandCreationAllowed; }
+    public boolean getIslandCreationAllowed() {
+        return islandCreationAllowed;
+    }
 
     public List<List<String>> getPredefinedCombinations() {
         return predefinedCombinations;
