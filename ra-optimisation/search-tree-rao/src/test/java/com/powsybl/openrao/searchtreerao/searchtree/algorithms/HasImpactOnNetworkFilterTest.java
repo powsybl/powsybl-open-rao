@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class HasImpactOnNetworkFilterTest {
         NetworkActionCombination networkActionCombination2 = new NetworkActionCombination(Set.of(networkAction3, networkAction4));
 
         HasImpactOnNetworkFilter hasImpactOnNetworkFilter = new HasImpactOnNetworkFilter(NETWORK);
-        assertEquals(Set.of(networkActionCombination1), hasImpactOnNetworkFilter.filter(Set.of(networkActionCombination1, networkActionCombination2), null));
+        assertEquals(Set.of(networkActionCombination1), hasImpactOnNetworkFilter.filter(Set.of(networkActionCombination1, networkActionCombination2), null, ReportNode.NO_OP));
     }
 
     private static NetworkAction mockNetworkAction(boolean hasImpactOnNetwork) {

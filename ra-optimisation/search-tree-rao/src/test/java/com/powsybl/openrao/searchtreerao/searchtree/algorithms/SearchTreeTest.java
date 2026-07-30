@@ -375,7 +375,9 @@ class SearchTreeTest {
         when(networkAction1.getOperator()).thenReturn("operator1");
         when(networkAction2.getOperator()).thenReturn("operator2");
         when(networkAction1.getId()).thenReturn("na1");
-        when(networkAction1.getId()).thenReturn("na2");
+        when(networkAction2.getId()).thenReturn("na2");
+        when(networkAction1.hasImpactOnNetwork(network)).thenReturn(true);
+        when(networkAction2.hasImpactOnNetwork(network)).thenReturn(true);
         availableNetworkActions.add(networkAction1);
         availableNetworkActions.add(networkAction2);
         availableNaCombinations.add(new NetworkActionCombination(networkAction1));
@@ -497,6 +499,7 @@ class SearchTreeTest {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getOperator()).thenReturn("operator");
         when(networkAction.getId()).thenReturn("na1");
+        when(networkAction.hasImpactOnNetwork(network)).thenReturn(true);
         availableNetworkActions.add(networkAction);
         availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }

@@ -57,6 +57,8 @@ class SearchTreeBloomerTest {
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
+        Mockito.when(na2.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
@@ -73,6 +75,8 @@ class SearchTreeBloomerTest {
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
+        Mockito.when(na2.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
 
         SearchTreeBloomer bloomer = initBloomer(
             List.of(

@@ -88,6 +88,7 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
 
     protected void cleanVariants(Network networkClone) {
         cleanVariants(networkClone, true);
+        networkClone.getVariantManager().setWorkingVariant(stateSaveVariant);
     }
 
     protected void cleanVariants(Network networkClone, boolean deleteWorkingVariant) {
