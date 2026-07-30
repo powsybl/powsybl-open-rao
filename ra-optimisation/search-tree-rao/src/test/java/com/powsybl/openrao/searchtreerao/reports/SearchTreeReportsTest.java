@@ -125,13 +125,13 @@ class SearchTreeReportsTest {
     @Test
     void testReportNodeInFrench() {
 
-        ReportNode reportNode =  ReportNode.newRootReportNode()
+        ReportNode reportNodeFr =  ReportNode.newRootReportNode()
             .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .withLocale(Locale.FRANCE)
             .build();
 
-        ReportNode childReport = reportNode.newReportNode()
+        ReportNode childReport = reportNodeFr.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportRootLeaf")
             .withUntypedValue("rootLeaf", "Feuille racine test")
             .add();
@@ -139,7 +139,7 @@ class SearchTreeReportsTest {
         String formattedMessage = childReport.getMessage();
         assertEquals("Feuille racine test", formattedMessage);
 
-        ReportNode anotherReport = reportNode.newReportNode()
+        ReportNode anotherReport = reportNodeFr.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCostsBeforeAndAfterRao")
             .withUntypedValue("initialCost", 100.0)
             .withUntypedValue("initialFunctionalCost", 80.0)
