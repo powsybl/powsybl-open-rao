@@ -158,7 +158,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setVersion(String version) {
         if (!RAO_PARAMETERS_VERSION.equals(version)) {
-            throw new com.powsybl.openrao.commons.OpenRaoException(String.format("RaoParameters version '%s' cannot be deserialized. The only supported version currently is '%s'.", version, RAO_PARAMETERS_VERSION));
+            throw new com.powsybl.openrao.commons.OpenRaoException(
+                String.format("RaoParameters version '%s' cannot be deserialized. The only supported version currently is '%s'.",
+                    version, RAO_PARAMETERS_VERSION));
         }
         this.version = version;
     }

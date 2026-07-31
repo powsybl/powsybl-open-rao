@@ -12,9 +12,10 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -26,7 +27,7 @@ public final class ParametersUtil {
     }
 
     public static Set<Country> convertToCountrySet(List<String> countryStringList) {
-        Set<Country> countryList = new HashSet<>();
+        Set<Country> countryList = new TreeSet<>(Comparator.comparing(Country::getName));
         for (String countryString : countryStringList) {
             try {
                 countryList.add(Country.valueOf(countryString));

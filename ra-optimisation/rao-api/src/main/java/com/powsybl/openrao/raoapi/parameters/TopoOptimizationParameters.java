@@ -48,7 +48,9 @@ public class TopoOptimizationParameters {
 
     @com.fasterxml.jackson.annotation.JsonAnySetter
     public void handleUnknownProperty(String name, Object value) {
-        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)", TOPOLOGICAL_ACTIONS_OPTIMIZATION, name));
+        throw new com.powsybl.openrao.commons.OpenRaoException(
+            String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
+                TOPOLOGICAL_ACTIONS_OPTIMIZATION, name));
     }
 
     public void setRelativeMinImpactThreshold(double relativeMinImpactThreshold) {

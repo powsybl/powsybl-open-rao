@@ -16,10 +16,20 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.COSTLY_MIN_MARGIN_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
@@ -90,47 +100,47 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
             switch (parser.currentName()) {
                 case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
-                    parameters.setObjectiveFunctionParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.class));
+                    parameters.setObjectiveFunctionParameters(deserializationContext.readValue(parser, SearchTreeRaoObjectiveFunctionParameters.class));
                 }
                 case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
-                    parameters.setRangeActionsOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.class));
+                    parameters.setRangeActionsOptimizationParameters(deserializationContext.readValue(parser, SearchTreeRaoRangeActionsOptimizationParameters.class));
                 }
                 case TOPOLOGICAL_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
-                    parameters.setTopoOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.class));
+                    parameters.setTopoOptimizationParameters(deserializationContext.readValue(parser, SearchTreeRaoTopoOptimizationParameters.class));
                 }
                 case MULTI_THREADING -> {
                     parser.nextToken();
-                    parameters.setMultithreadingParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.class));
+                    parameters.setMultithreadingParameters(deserializationContext.readValue(parser, MultithreadingParameters.class));
                 }
                 case SECOND_PREVENTIVE_RAO -> {
                     parser.nextToken();
-                    parameters.setSecondPreventiveRaoParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.class));
+                    parameters.setSecondPreventiveRaoParameters(deserializationContext.readValue(parser, SecondPreventiveRaoParameters.class));
                 }
                 case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION -> {
                     parser.nextToken();
-                    parameters.setLoadFlowAndSensitivityParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.class));
+                    parameters.setLoadFlowAndSensitivityParameters(deserializationContext.readValue(parser, LoadFlowAndSensitivityParameters.class));
                 }
                 case MNEC_PARAMETERS -> {
                     parser.nextToken();
-                    parameters.setMnecParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters.class));
+                    parameters.setMnecParameters(deserializationContext.readValue(parser, SearchTreeRaoMnecParameters.class));
                 }
                 case RELATIVE_MARGINS -> {
                     parser.nextToken();
-                    parameters.setRelativeMarginsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters.class));
+                    parameters.setRelativeMarginsParameters(deserializationContext.readValue(parser, SearchTreeRaoRelativeMarginsParameters.class));
                 }
                 case LOOP_FLOW_PARAMETERS -> {
                     parser.nextToken();
-                    parameters.setLoopFlowParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters.class));
+                    parameters.setLoopFlowParameters(deserializationContext.readValue(parser, SearchTreeRaoLoopFlowParameters.class));
                 }
                 case COSTLY_MIN_MARGIN_PARAMETERS -> {
                     parser.nextToken();
-                    parameters.setMinMarginsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters.class));
+                    parameters.setMinMarginsParameters(deserializationContext.readValue(parser, SearchTreeRaoCostlyMinMarginParameters.class));
                 }
                 case PST_REGULATION_PARAMETERS -> {
                     parser.nextToken();
-                    parameters.setPstRegulationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters.class));
+                    parameters.setPstRegulationParameters(deserializationContext.readValue(parser, SearchTreeRaoPstRegulationParameters.class));
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.currentName());

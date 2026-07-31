@@ -12,11 +12,12 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_INCREASE;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.COUNTRIES;
@@ -30,11 +31,12 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETE
  */
 public class LoopFlowParameters {
     static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
-    static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
+    static final Set<Country> DEFAULT_COUNTRIES = new TreeSet<>(Comparator.comparing(Country::getName)); //Empty by default
+    @JsonProperty(ACCEPTABLE_INCREASE)
     private double acceptableIncrease = DEFAULT_ACCEPTABLE_INCREASE;
 
     @JsonProperty(COUNTRIES)
-    private Set<Country> countries = DEFAULT_COUNTRIES;
+    private Set<Country> countries = new TreeSet<>(Comparator.comparing(Country::getName));
 
     @com.fasterxml.jackson.annotation.JsonAnySetter
     public void handleUnknownProperty(String name, Object value) {
@@ -55,7 +57,8 @@ public class LoopFlowParameters {
     }
 
     public void setCountries(Set<Country> countries) {
-        this.countries = countries;
+        this.countries = new TreeSet<>(Comparator.comparing(Country::getName));
+        this.countries.addAll(countries);
     }
 
     public void setCountries(List<String> countryStrings) {
