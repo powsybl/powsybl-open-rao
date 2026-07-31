@@ -19,6 +19,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.COSTLY_MIN_MARGIN_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
@@ -41,17 +42,27 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
     @Override
     public void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        JsonObjectiveFunctionParameters.serialize(parameters, jsonGenerator);
-        JsonRangeActionsOptimizationParameters.serialize(parameters, jsonGenerator);
-        JsonTopoOptimizationParameters.serialize(parameters, jsonGenerator);
-        JsonSecondPreventiveRaoParameters.serialize(parameters, jsonGenerator);
-        JsonLoadFlowAndSensitivityComputationParameters.serialize(parameters, jsonGenerator, serializerProvider);
-        JsonMultiThreadingParameters.serialize(parameters, jsonGenerator);
-        JsonMnecParameters.serialize(parameters, jsonGenerator);
-        JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
-        JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
-        JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
-        JsonSearchTreeRaoPstRegulationParameters.serialize(parameters, jsonGenerator);
+        jsonGenerator.writeObjectField(OBJECTIVE_FUNCTION, parameters.getObjectiveFunctionParameters());
+        jsonGenerator.writeObjectField(RANGE_ACTIONS_OPTIMIZATION, parameters.getRangeActionsOptimizationParameters());
+        jsonGenerator.writeObjectField(TOPOLOGICAL_ACTIONS_OPTIMIZATION, parameters.getTopoOptimizationParameters());
+        jsonGenerator.writeObjectField(SECOND_PREVENTIVE_RAO, parameters.getSecondPreventiveRaoParameters());
+        jsonGenerator.writeObjectField(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, parameters.getLoadFlowAndSensitivityParameters());
+        jsonGenerator.writeObjectField(MULTI_THREADING, parameters.getMultithreadingParameters());
+        if (parameters.getMnecParameters().isPresent()) {
+            jsonGenerator.writeObjectField(MNEC_PARAMETERS, parameters.getMnecParameters().get());
+        }
+        if (parameters.getRelativeMarginsParameters().isPresent()) {
+            jsonGenerator.writeObjectField(RELATIVE_MARGINS, parameters.getRelativeMarginsParameters().get());
+        }
+        if (parameters.getLoopFlowParameters().isPresent()) {
+            jsonGenerator.writeObjectField(LOOP_FLOW_PARAMETERS, parameters.getLoopFlowParameters().get());
+        }
+        if (parameters.getMinMarginsParameters().isPresent()) {
+            jsonGenerator.writeObjectField(COSTLY_MIN_MARGIN_PARAMETERS, parameters.getMinMarginsParameters().get());
+        }
+        if (parameters.getPstRegulationParameters().isPresent()) {
+            jsonGenerator.writeObjectField(PST_REGULATION_PARAMETERS, parameters.getPstRegulationParameters().get());
+        }
         jsonGenerator.writeEndObject();
     }
 
@@ -79,47 +90,47 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
             switch (parser.currentName()) {
                 case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
-                    JsonObjectiveFunctionParameters.deserialize(parser, parameters, reportNode);
+                    parameters.setObjectiveFunctionParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.class));
                 }
                 case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
-                    JsonRangeActionsOptimizationParameters.deserialize(parser, parameters);
+                    parameters.setRangeActionsOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.class));
                 }
                 case TOPOLOGICAL_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
-                    JsonTopoOptimizationParameters.deserialize(parser, parameters);
+                    parameters.setTopoOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.class));
                 }
                 case MULTI_THREADING -> {
                     parser.nextToken();
-                    JsonMultiThreadingParameters.deserialize(parser, parameters);
+                    parameters.setMultithreadingParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.class));
                 }
                 case SECOND_PREVENTIVE_RAO -> {
                     parser.nextToken();
-                    JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
+                    parameters.setSecondPreventiveRaoParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.class));
                 }
                 case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION -> {
                     parser.nextToken();
-                    JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
+                    parameters.setLoadFlowAndSensitivityParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.class));
                 }
                 case MNEC_PARAMETERS -> {
                     parser.nextToken();
-                    JsonMnecParameters.deserialize(parser, parameters);
+                    parameters.setMnecParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters.class));
                 }
                 case RELATIVE_MARGINS -> {
                     parser.nextToken();
-                    JsonRelativeMarginsParameters.deserialize(parser, parameters);
+                    parameters.setRelativeMarginsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters.class));
                 }
                 case LOOP_FLOW_PARAMETERS -> {
                     parser.nextToken();
-                    JsonLoopFlowParameters.deserialize(parser, parameters);
+                    parameters.setLoopFlowParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters.class));
                 }
                 case COSTLY_MIN_MARGIN_PARAMETERS -> {
                     parser.nextToken();
-                    JsonMinMarginsParameters.deserialize(parser, parameters);
+                    parameters.setMinMarginsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters.class));
                 }
                 case PST_REGULATION_PARAMETERS -> {
                     parser.nextToken();
-                    JsonSearchTreeRaoPstRegulationParameters.deserialize(parser, parameters);
+                    parameters.setPstRegulationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters.class));
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.currentName());

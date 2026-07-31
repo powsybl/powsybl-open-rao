@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -22,6 +23,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.NOT_OPTIMIZED_CNEC
 public class NotOptimizedCnecsParameters {
 
     private static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = false;
+    @JsonProperty(DO_NOT_OPTIMIZE_CURATIVE_CNECS)
     private boolean doNotOptimizeCurativeCnecsForTsosWithoutCras = DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS;
 
     public boolean getDoNotOptimizeCurativeCnecsForTsosWithoutCras() {

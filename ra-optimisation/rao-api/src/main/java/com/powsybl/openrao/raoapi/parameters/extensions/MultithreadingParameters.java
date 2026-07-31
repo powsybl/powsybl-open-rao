@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -23,6 +24,8 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING_SE
  */
 public class MultithreadingParameters {
     private static final int DEFAULT_AVAILABLE_CPUS = 1;
+
+    @JsonProperty(AVAILABLE_CPUS)
     private int availableCPUs = DEFAULT_AVAILABLE_CPUS;
 
     public int getAvailableCPUs() {

@@ -27,29 +27,10 @@ final class JsonTopoOptimizationParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(TOPOLOGICAL_ACTIONS_OPTIMIZATION);
-        jsonGenerator.writeNumberField(RELATIVE_MINIMUM_IMPACT_THRESHOLD, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold());
-        jsonGenerator.writeNumberField(ABSOLUTE_MINIMUM_IMPACT_THRESHOLD, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold());
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeObjectField(TOPOLOGICAL_ACTIONS_OPTIMIZATION, parameters.getTopoOptimizationParameters());
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.currentName()) {
-                case RELATIVE_MINIMUM_IMPACT_THRESHOLD -> {
-                    jsonParser.nextToken();
-                    raoParameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(jsonParser.getDoubleValue());
-                }
-                case ABSOLUTE_MINIMUM_IMPACT_THRESHOLD -> {
-                    jsonParser.nextToken();
-                    raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(jsonParser.getDoubleValue());
-                }
-                default -> throw new OpenRaoException(String.format(
-                    "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
-                    TOPOLOGICAL_ACTIONS_OPTIMIZATION,
-                    jsonParser.currentName()
-                ));
-            }
-        }
+        raoParameters.setTopoOptimizationParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters.class));
     }
 }

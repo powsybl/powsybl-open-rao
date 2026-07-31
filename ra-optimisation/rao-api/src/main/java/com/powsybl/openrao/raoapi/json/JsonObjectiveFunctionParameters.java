@@ -28,23 +28,11 @@ final class JsonObjectiveFunctionParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
-        jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
-        jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeObjectField(OBJECTIVE_FUNCTION, parameters.getObjectiveFunctionParameters());
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.currentName()) {
-                case TYPE -> raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
-                case ENFORCE_CURATIVE_SECURITY -> {
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(jsonParser.getBooleanValue());
-                }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.currentName()));
-            }
-        }
+        raoParameters.setObjectiveFunctionParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters.class));
     }
 
     private static ObjectiveFunctionParameters.ObjectiveFunctionType stringToObjectiveFunction(String string) {

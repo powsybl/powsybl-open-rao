@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoapi.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -105,7 +106,11 @@ public final class JsonRaoParameters {
     public static RaoParameters update(final RaoParameters parameters, final InputStream jsonStream, final ReportNode reportNode) {
         try {
             ObjectMapper objectMapper = createObjectMapper(reportNode);
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
+            InjectableValues injectableValues = new InjectableValues.Std()
+                    .addValue(ReportNode.class, reportNode);
+            return objectMapper.readerForUpdating(parameters)
+                    .with(injectableValues)
+                    .readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -156,37 +161,21 @@ public final class JsonRaoParameters {
      * @throws IOException when an unexpected field is found
      */
     public static RaoParameters deserialize(final JsonParser parser, final DeserializationContext context, final RaoParameters parameters, final ReportNode reportNode) throws IOException {
-        return new RaoParametersDeserializer(reportNode).deserialize(parser, context, parameters);
+        return new RaoParameters.Deserializer(reportNode).deserialize(parser, context, parameters);
     }
 
-    /**
-     * Low level deserialization method, to be used for instance for updating rao parameters nested in another object.
-     *
-     * @param parser JsonParser of a file containing a representation of RaoParameters
-     * @param context DeserializationContext used in the deserialization
-     * @param reportNode Parent reportNode.
-     * @return RaoParameters object representing the content of the JsonParser
-     * @throws IOException when an unexpected field is found
-     */
     public static RaoParameters deserialize(final JsonParser parser, final DeserializationContext context, final ReportNode reportNode) throws IOException {
-        return new RaoParametersDeserializer(reportNode).deserialize(parser, context);
+        return new RaoParameters.Deserializer(reportNode).deserialize(parser, context);
     }
 
-    /**
-     * Low level serialization method, to be used for instance for writing Rao Parameters nested in another object.
-     *
-     * @param parameters RaoParameters containing what needs to be serialized
-     * @param jsonGenerator JsonGenerator used for the serialization
-     * @param serializerProvider SerializerProvider used for the serialization
-     * @throws IOException if the serialization fails
-     */
     public static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new RaoParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+        new RaoParameters.Serializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper(final ReportNode reportNode) {
         return JsonUtil.createObjectMapper()
                 .registerModule(new RaoParametersJsonModule(reportNode))
-                .registerModule(new SensitivityJsonModule());
+                .registerModule(new SensitivityJsonModule())
+                .enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
     }
 }

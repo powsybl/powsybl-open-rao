@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 
@@ -19,6 +20,7 @@ import java.util.Set;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_INCREASE;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.COUNTRIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS_SECTION;
 
 /**
@@ -30,7 +32,14 @@ public class LoopFlowParameters {
     static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
     static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
     private double acceptableIncrease = DEFAULT_ACCEPTABLE_INCREASE;
+
+    @JsonProperty(COUNTRIES)
     private Set<Country> countries = DEFAULT_COUNTRIES;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize loopFlow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, name));
+    }
 
     // Getters and setters
     public double getAcceptableIncrease() {

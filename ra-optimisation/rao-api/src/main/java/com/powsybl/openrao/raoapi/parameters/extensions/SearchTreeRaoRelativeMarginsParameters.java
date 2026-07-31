@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -26,7 +27,10 @@ public class SearchTreeRaoRelativeMarginsParameters {
     static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
     // prevents relative margins from diverging to +infinity
+    @JsonProperty(PTDF_SUM_LOWER_BOUND)
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
+
+    @JsonProperty(PTDF_APPROXIMATION)
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
     public double getPtdfSumLowerBound() {

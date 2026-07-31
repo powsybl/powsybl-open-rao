@@ -17,7 +17,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 public class RaoParametersJsonModule extends SimpleModule {
 
     public RaoParametersJsonModule(final ReportNode reportNode) {
-        addDeserializer(RaoParameters.class, new RaoParametersDeserializer(reportNode));
-        addSerializer(RaoParameters.class, new RaoParametersSerializer());
+        addDeserializer(RaoParameters.class, new RaoParameters.Deserializer(reportNode));
+        addSerializer(RaoParameters.class, new RaoParameters.Serializer());
     }
 }

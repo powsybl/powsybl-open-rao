@@ -28,34 +28,10 @@ final class JsonRangeActionsOptimizationParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(RANGE_ACTIONS_OPTIMIZATION);
-        jsonGenerator.writeNumberField(PST_RA_MIN_IMPACT_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getPstRAMinImpactThreshold());
-        jsonGenerator.writeNumberField(HVDC_RA_MIN_IMPACT_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcRAMinImpactThreshold());
-        jsonGenerator.writeNumberField(INJECTION_RA_MIN_IMPACT_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getInjectionRAMinImpactThreshold());
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeObjectField(RANGE_ACTIONS_OPTIMIZATION, parameters.getRangeActionsOptimizationParameters());
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.currentName()) {
-                case PST_RA_MIN_IMPACT_THRESHOLD -> {
-                    jsonParser.nextToken();
-                    raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(jsonParser.getDoubleValue());
-                }
-                case HVDC_RA_MIN_IMPACT_THRESHOLD -> {
-                    jsonParser.nextToken();
-                    raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(jsonParser.getDoubleValue());
-                }
-                case INJECTION_RA_MIN_IMPACT_THRESHOLD -> {
-                    jsonParser.nextToken();
-                    raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(jsonParser.getDoubleValue());
-                }
-                default -> throw new OpenRaoException(String.format(
-                    "Cannot deserialize range action optimization parameters: unexpected field in %s (%s)",
-                    RANGE_ACTIONS_OPTIMIZATION,
-                    jsonParser.currentName()
-                ));
-            }
-        }
+        raoParameters.setRangeActionsOptimizationParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters.class));
     }
 }

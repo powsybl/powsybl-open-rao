@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -20,6 +23,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PROVIDER;
 
 /**
@@ -32,13 +36,22 @@ public class LoadFlowAndSensitivityParameters {
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
 
+    @JsonProperty(LOAD_FLOW_PROVIDER)
     private String loadFlowProvider;
+
+    @JsonProperty(SENSITIVITY_PROVIDER)
     private String sensitivityProvider;
+
+    @JsonProperty(SENSITIVITY_FAILURE_OVERCOST)
     private double sensitivityFailureOvercost;
+
+    @JsonProperty(SENSITIVITY_PARAMETERS)
     private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
+
     private final ReportNode reportNode;
 
-    public LoadFlowAndSensitivityParameters(final ReportNode reportNode) {
+    @JsonCreator
+    public LoadFlowAndSensitivityParameters(@JacksonInject final ReportNode reportNode) {
         this.loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
         this.sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
         this.sensitivityFailureOvercost = DEFAULT_SENSITIVITY_FAILURE_OVERCOST;

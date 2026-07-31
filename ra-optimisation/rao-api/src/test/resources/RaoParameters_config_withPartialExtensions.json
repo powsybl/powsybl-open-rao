@@ -34,12 +34,12 @@
         "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 0.2,
         "injection-ra-sensitivity-threshold" : 0.3,
-        "ra-range-shrinking" : "ENABLED",
         "linear-optimization-solver" : {
           "solver" : "CBC",
           "relative-mip-gap" : 0.004,
           "solver-specific-parameters" : "BLABLABLA"
-        }
+        },
+        "ra-range-shrinking" : "ENABLED"
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 3,
@@ -181,8 +181,8 @@
         "available-cpus" : 5
       },
       "relative-margins-parameters" : {
-        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "ptdf-sum-lower-bound" : 0.02
+        "ptdf-sum-lower-bound" : 0.02,
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST"
       },
       "loop-flow-parameters" : {
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",

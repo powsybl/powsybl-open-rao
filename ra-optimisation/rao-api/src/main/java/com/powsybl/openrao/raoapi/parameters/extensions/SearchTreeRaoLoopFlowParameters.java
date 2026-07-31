@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -26,9 +27,14 @@ public class SearchTreeRaoLoopFlowParameters {
     static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     static final double DEFAULT_VIOLATION_COST = 0.0;
+
+    @JsonProperty(PTDF_APPROXIMATION)
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
+    @JsonProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT)
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+
+    @JsonProperty(VIOLATION_COST)
     private double violationCost = DEFAULT_VIOLATION_COST;
 
     // Getters and setters

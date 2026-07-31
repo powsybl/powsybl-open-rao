@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -26,7 +27,10 @@ public class SecondPreventiveRaoParameters {
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
     private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
+    @JsonProperty(EXECUTION_CONDITION)
     private ExecutionCondition executionCondition = DEFAULT_EXECUTION_CONDITION;
+
+    @JsonProperty(HINT_FROM_FIRST_PREVENTIVE_RAO)
     private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 
     public enum ExecutionCondition {

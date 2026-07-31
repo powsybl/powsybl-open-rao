@@ -7,6 +7,14 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
@@ -14,26 +22,59 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.NOT_OPTIMIZED_CNECS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VERSION;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+@JsonSerialize(using = RaoParameters.Serializer.class)
+@JsonDeserialize(using = RaoParameters.Deserializer.class)
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
+    @JsonProperty(OBJECTIVE_FUNCTION)
     private ObjectiveFunctionParameters objectiveFunctionParameters;
+
+    @JsonProperty(RANGE_ACTIONS_OPTIMIZATION)
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+
+    @JsonProperty(TOPOLOGICAL_ACTIONS_OPTIMIZATION)
     private TopoOptimizationParameters topoOptimizationParameters;
+
+    @JsonProperty(NOT_OPTIMIZED_CNECS)
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters;
+
+    @JsonProperty(MNEC_PARAMETERS)
+    @JsonDeserialize(contentAs = MnecParameters.class)
     private Optional<MnecParameters> mnecParameters;
+
+    @JsonProperty(RELATIVE_MARGINS)
+    @JsonDeserialize(contentAs = RelativeMarginsParameters.class)
     private Optional<RelativeMarginsParameters> relativeMarginsParameters;
+
+    @JsonProperty(LOOP_FLOW_PARAMETERS)
+    @JsonDeserialize(contentAs = LoopFlowParameters.class)
     private Optional<LoopFlowParameters> loopFlowParameters;
+
     private ReportNode reportNode;
 
     public RaoParameters(final ReportNode reportNode) {
@@ -104,8 +145,143 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return loopFlowParameters;
     }
 
-    public boolean hasExtension(Class classType) {
-        return Objects.nonNull(this.getExtension(classType));
+    public boolean hasExtension(Class<? extends Extension<RaoParameters>> extensionClass) {
+        return getExtension(extensionClass) != null;
+    }
+
+    @JsonProperty(VERSION)
+    private String version = RAO_PARAMETERS_VERSION;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        if (!RAO_PARAMETERS_VERSION.equals(version)) {
+            throw new com.powsybl.openrao.commons.OpenRaoException(String.format("RaoParameters version '%s' cannot be deserialized. The only supported version currently is '%s'.", version, RAO_PARAMETERS_VERSION));
+        }
+        this.version = version;
+    }
+
+    public static class Deserializer extends com.fasterxml.jackson.databind.deser.std.StdDeserializer<RaoParameters> {
+
+        private final transient ReportNode reportNode;
+
+        public Deserializer() {
+            this(ReportNode.NO_OP);
+        }
+
+        public Deserializer(final ReportNode reportNode) {
+            super(RaoParameters.class);
+            this.reportNode = reportNode;
+        }
+
+        @Override
+        public RaoParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+            return deserialize(parser, deserializationContext, new RaoParameters(reportNode));
+        }
+
+        @Override
+        public RaoParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoParameters parameters) throws IOException {
+            List<Extension<RaoParameters>> extensions = java.util.Collections.emptyList();
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                String currentName = parser.currentName();
+                if (currentName == null) {
+                    continue;
+                }
+                try {
+                    switch (currentName) {
+                        case VERSION -> parameters.setVersion(parser.nextTextValue());
+                        case OBJECTIVE_FUNCTION -> {
+                            parser.nextToken();
+                            parameters.setObjectiveFunctionParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters.class));
+                        }
+                        case RANGE_ACTIONS_OPTIMIZATION -> {
+                            parser.nextToken();
+                            parameters.setRangeActionsOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters.class));
+                        }
+                        case TOPOLOGICAL_ACTIONS_OPTIMIZATION -> {
+                            parser.nextToken();
+                            parameters.setTopoOptimizationParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters.class));
+                        }
+                        case NOT_OPTIMIZED_CNECS -> {
+                            parser.nextToken();
+                            parameters.setNotOptimizedCnecsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters.class));
+                        }
+                        case MNEC_PARAMETERS -> {
+                            parser.nextToken();
+                            parameters.setMnecParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.MnecParameters.class));
+                        }
+                        case RELATIVE_MARGINS -> {
+                            parser.nextToken();
+                            parameters.setRelativeMarginsParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters.class));
+                        }
+                        case LOOP_FLOW_PARAMETERS -> {
+                            parser.nextToken();
+                            parameters.setLoopFlowParameters(deserializationContext.readValue(parser, com.powsybl.openrao.raoapi.parameters.LoopFlowParameters.class));
+                        }
+                        case "extensions" -> {
+                            parser.nextToken();
+                            extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters, reportNode);
+                        }
+                        default -> throw new com.powsybl.openrao.commons.OpenRaoException("Unexpected field in rao parameters: " + currentName);
+                    }
+                } catch (com.fasterxml.jackson.databind.JsonMappingException e) {
+                    if (e.getCause() instanceof com.powsybl.openrao.commons.OpenRaoException) {
+                        throw (com.powsybl.openrao.commons.OpenRaoException) e.getCause();
+                    }
+                    throw e;
+                }
+            }
+            extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
+            addOptionalExtensionsDefaultValuesIfExist(parameters, reportNode);
+            return parameters;
+        }
+    }
+
+    public static class Serializer extends com.fasterxml.jackson.databind.ser.std.StdSerializer<RaoParameters> {
+
+        public Serializer() {
+            super(RaoParameters.class);
+        }
+
+        @Override
+        public void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(VERSION, parameters.getVersion());
+            jsonGenerator.writeObjectField(OBJECTIVE_FUNCTION, parameters.getObjectiveFunctionParameters());
+            jsonGenerator.writeObjectField(RANGE_ACTIONS_OPTIMIZATION, parameters.getRangeActionsOptimizationParameters());
+            jsonGenerator.writeObjectField(TOPOLOGICAL_ACTIONS_OPTIMIZATION, parameters.getTopoOptimizationParameters());
+            jsonGenerator.writeObjectField(NOT_OPTIMIZED_CNECS, parameters.getNotOptimizedCnecsParameters());
+            parameters.getMnecParameters().ifPresent(p -> {
+                try {
+                    jsonGenerator.writeObjectField(MNEC_PARAMETERS, p);
+                } catch (IOException e) {
+                    throw new java.io.UncheckedIOException(e);
+                }
+            });
+            parameters.getRelativeMarginsParameters().ifPresent(p -> {
+                try {
+                    jsonGenerator.writeObjectField(RELATIVE_MARGINS, p);
+                } catch (IOException e) {
+                    throw new java.io.UncheckedIOException(e);
+                }
+            });
+            parameters.getLoopFlowParameters().ifPresent(p -> {
+                try {
+                    jsonGenerator.writeObjectField(LOOP_FLOW_PARAMETERS, p);
+                } catch (IOException e) {
+                    throw new java.io.UncheckedIOException(e);
+                }
+            });
+            JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Unexpected field in rao parameters: %s", name));
     }
 
     // ConfigLoader

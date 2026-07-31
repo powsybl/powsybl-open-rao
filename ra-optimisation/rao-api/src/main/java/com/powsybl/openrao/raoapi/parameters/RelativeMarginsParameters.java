@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_BOUNDARIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS_SECTION;
 
 /**
@@ -26,7 +28,14 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS_S
 public class RelativeMarginsParameters {
 
     static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
+    @JsonProperty(PTDF_BOUNDARIES)
     private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
+    // prevents relative margins from diverging to +infinity
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize relative margin parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, name));
+    }
     // prevents relative margins from diverging to +infinity
 
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {

@@ -7,31 +7,73 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Optional;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.COSTLY_MIN_MARGIN_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_REGULATION_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SECOND_PREVENTIVE_RAO;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters> {
+    @JsonProperty(OBJECTIVE_FUNCTION)
     private SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters;
+
+    @JsonProperty(RANGE_ACTIONS_OPTIMIZATION)
     private SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+
+    @JsonProperty(TOPOLOGICAL_ACTIONS_OPTIMIZATION)
     private SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters;
+
+    @JsonProperty(MULTI_THREADING)
     private MultithreadingParameters multithreadingParameters;
+
+    @JsonProperty(SECOND_PREVENTIVE_RAO)
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters;
+
+    @JsonProperty(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION)
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
+
+    @JsonProperty(COSTLY_MIN_MARGIN_PARAMETERS)
+    @JsonDeserialize(contentAs = SearchTreeRaoCostlyMinMarginParameters.class)
     private Optional<SearchTreeRaoCostlyMinMarginParameters> minMarginsParameters;
+
+    @JsonProperty(MNEC_PARAMETERS)
+    @JsonDeserialize(contentAs = SearchTreeRaoMnecParameters.class)
     private Optional<SearchTreeRaoMnecParameters> mnecParameters;
+
+    @JsonProperty(RELATIVE_MARGINS)
+    @JsonDeserialize(contentAs = SearchTreeRaoRelativeMarginsParameters.class)
     private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters;
+
+    @JsonProperty(LOOP_FLOW_PARAMETERS)
+    @JsonDeserialize(contentAs = SearchTreeRaoLoopFlowParameters.class)
     private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters;
+
+    @JsonProperty(PST_REGULATION_PARAMETERS)
+    @JsonDeserialize(contentAs = SearchTreeRaoPstRegulationParameters.class)
     private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters;
 
-    public OpenRaoSearchTreeParameters(final ReportNode reportNode) {
+    @JsonCreator
+    public OpenRaoSearchTreeParameters(@JacksonInject final ReportNode reportNode) {
         this.objectiveFunctionParameters = new SearchTreeRaoObjectiveFunctionParameters();
         this.rangeActionsOptimizationParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
         this.topoOptimizationParameters = new SearchTreeRaoTopoOptimizationParameters(reportNode);

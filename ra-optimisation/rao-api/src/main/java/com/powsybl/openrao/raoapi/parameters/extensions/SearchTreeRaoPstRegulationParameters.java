@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -25,6 +26,8 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_
  */
 public class SearchTreeRaoPstRegulationParameters {
     private static final Map<String, String> DEFAULT_PSTS_TO_REGULATE = new HashMap<>();
+
+    @JsonProperty(PSTS_TO_REGULATE)
     private Map<String, String> pstsToRegulate = DEFAULT_PSTS_TO_REGULATE;
 
     public Map<String, String> getPstsToRegulate() {

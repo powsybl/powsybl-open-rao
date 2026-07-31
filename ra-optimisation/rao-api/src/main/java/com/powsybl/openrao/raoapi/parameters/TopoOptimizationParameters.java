@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
@@ -15,6 +18,7 @@ import java.util.Objects;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ABSOLUTE_MINIMUM_IMPACT_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MINIMUM_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
 
 /**
@@ -27,14 +31,24 @@ public class TopoOptimizationParameters {
     private static final double DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD = 0;
     private static final double DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD = 0;
     // Attributes
+    @JsonProperty(RELATIVE_MINIMUM_IMPACT_THRESHOLD)
     private double relativeMinImpactThreshold;
+
+    @JsonProperty(ABSOLUTE_MINIMUM_IMPACT_THRESHOLD)
     private double absoluteMinImpactThreshold;
+
     private final ReportNode reportNode;
 
-    public TopoOptimizationParameters(final ReportNode reportNode) {
+    @JsonCreator
+    public TopoOptimizationParameters(@JacksonInject final ReportNode reportNode) {
         this.relativeMinImpactThreshold = DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD;
         this.absoluteMinImpactThreshold = DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD;
         this.reportNode = reportNode;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)", TOPOLOGICAL_ACTIONS_OPTIMIZATION, name));
     }
 
     public void setRelativeMinImpactThreshold(double relativeMinImpactThreshold) {

@@ -7,9 +7,14 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ENFORCE_CURATIVE_SECURITY;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION_SECTION;
@@ -25,8 +30,16 @@ public class ObjectiveFunctionParameters {
     private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.SECURE_FLOW;
     private static final boolean DEFAULT_ENFORCE_CURATIVE_SECURITY = false;
     // Attributes
+    @JsonProperty(TYPE)
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
+
+    @JsonProperty(ENFORCE_CURATIVE_SECURITY)
     private boolean enforceCurativeSecurity = DEFAULT_ENFORCE_CURATIVE_SECURITY;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in objective-function (%s)", name));
+    }
 
     // Enum
     public enum ObjectiveFunctionType {

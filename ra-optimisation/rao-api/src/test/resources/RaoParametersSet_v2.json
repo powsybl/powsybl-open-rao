@@ -51,12 +51,12 @@
         "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 0.3,
         "injection-ra-sensitivity-threshold" : 0.7,
-        "ra-range-shrinking" : "ENABLED",
         "linear-optimization-solver" : {
           "solver" : "SCIP",
           "relative-mip-gap" : 1.0E-5,
           "solver-specific-parameters" : "TREEMEMORYLIMIT 20"
-        }
+        },
+        "ra-range-shrinking" : "ENABLED"
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 10,
@@ -109,8 +109,8 @@
         "constraint-adjustment-coefficient" : 3.0
       },
       "relative-margins-parameters" : {
-        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
-        "ptdf-sum-lower-bound" : 0.05
+        "ptdf-sum-lower-bound" : 0.05,
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO"
       },
       "loop-flow-parameters" : {
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
@@ -123,8 +123,8 @@
       },
       "pst-regulation-parameters" : {
         "psts-to-regulate" : {
-          "pst-1" : "network-element-1",
-          "pst-2" : "network-element-2"
+          "pst-2" : "network-element-2",
+          "pst-1" : "network-element-1"
         }
       }
     }

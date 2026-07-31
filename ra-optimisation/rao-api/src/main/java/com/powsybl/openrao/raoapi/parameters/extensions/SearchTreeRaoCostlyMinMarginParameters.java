@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -22,7 +23,10 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_COSTLY_MIN_MARG
 public class SearchTreeRaoCostlyMinMarginParameters {
     static final double DEFAULT_SHIFTED_VIOLATION_PENALTY = 1000.0;
     static final double DEFAULT_SHIFTED_VIOLATION_THRESHOLD = 0.0;
+    @JsonProperty(SHIFTED_VIOLATION_PENALTY)
     private double shiftedViolationPenalty = DEFAULT_SHIFTED_VIOLATION_PENALTY;
+
+    @JsonProperty(SHIFTED_VIOLATION_THRESHOLD)
     private double shiftedViolationThreshold = DEFAULT_SHIFTED_VIOLATION_THRESHOLD;
 
     public double getShiftedViolationPenalty() {

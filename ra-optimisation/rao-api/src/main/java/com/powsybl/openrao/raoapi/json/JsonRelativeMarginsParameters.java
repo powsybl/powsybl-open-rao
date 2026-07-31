@@ -31,34 +31,13 @@ public final class JsonRelativeMarginsParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = parameters.getRelativeMarginsParameters();
-        if (optionalRelativeMarginsParameters.isPresent()) {
-            jsonGenerator.writeObjectFieldStart(RELATIVE_MARGINS);
-            jsonGenerator.writeArrayFieldStart(PTDF_BOUNDARIES);
-            for (String ptdfBoundary : optionalRelativeMarginsParameters.get().getPtdfBoundariesAsString()) {
-                jsonGenerator.writeString(ptdfBoundary);
-            }
-            jsonGenerator.writeEndArray();
-            jsonGenerator.writeEndObject();
+        if (parameters.getRelativeMarginsParameters().isPresent()) {
+            jsonGenerator.writeObjectField(RELATIVE_MARGINS, parameters.getRelativeMarginsParameters().get());
         }
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
-        while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.currentName().equals(PTDF_BOUNDARIES)) {
-                if (jsonParser.getCurrentToken() == JsonToken.START_ARRAY) {
-                    List<String> boundaries = new ArrayList<>();
-                    while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                        boundaries.add(jsonParser.getValueAsString());
-                    }
-                    relativeMarginsParameters.setPtdfBoundariesFromString(boundaries);
-                }
-            } else {
-                throw new OpenRaoException(String.format("Cannot deserialize relative margins parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, jsonParser.currentName()));
-            }
-        }
-        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        raoParameters.setRelativeMarginsParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters.class));
     }
 
 }

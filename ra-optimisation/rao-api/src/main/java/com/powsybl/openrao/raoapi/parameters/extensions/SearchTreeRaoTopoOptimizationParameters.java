@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.ParametersUtil;
@@ -37,14 +40,25 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     // Attributes
+    @JsonProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH)
     private int maxPreventiveSearchTreeDepth;
+
+    @JsonProperty(MAX_CURATIVE_SEARCH_TREE_DEPTH)
     private int maxCurativeSearchTreeDepth;
+
+    @JsonProperty(PREDEFINED_COMBINATIONS)
     private List<List<String>> predefinedCombinations;
+
+    @JsonProperty(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT)
     private boolean skipActionsFarFromMostLimitingElement;
+
+    @JsonProperty(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS)
     private int maxNumberOfBoundariesForSkippingActions;
+
     private final ReportNode reportNode;
 
-    public SearchTreeRaoTopoOptimizationParameters(final ReportNode reportNode) {
+    @JsonCreator
+    public SearchTreeRaoTopoOptimizationParameters(@JacksonInject final ReportNode reportNode) {
         this.maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
         this.maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
         this.predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;

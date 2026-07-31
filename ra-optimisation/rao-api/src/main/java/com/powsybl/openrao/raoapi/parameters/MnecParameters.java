@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_MARGIN_DECREASE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS_SECTION;
 
 /**
@@ -22,7 +24,15 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS_SE
  */
 public class MnecParameters {
     static final double DEFAULT_ACCEPTABLE_MARGIN_DECREASE = 50.0;
+
+    @JsonProperty(ACCEPTABLE_MARGIN_DECREASE)
     private double acceptableMarginDecrease = DEFAULT_ACCEPTABLE_MARGIN_DECREASE;
+    // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize MNEC parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, name));
+    }
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
 
     public double getAcceptableMarginDecrease() {

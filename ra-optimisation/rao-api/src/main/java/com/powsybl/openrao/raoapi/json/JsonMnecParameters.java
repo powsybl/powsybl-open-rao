@@ -28,25 +28,13 @@ public final class JsonMnecParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<MnecParameters> optionalMnecParameters = parameters.getMnecParameters();
-        if (optionalMnecParameters.isPresent()) {
-            jsonGenerator.writeObjectFieldStart(MNEC_PARAMETERS);
-            jsonGenerator.writeNumberField(ACCEPTABLE_MARGIN_DECREASE, optionalMnecParameters.get().getAcceptableMarginDecrease());
-            jsonGenerator.writeEndObject();
+        if (parameters.getMnecParameters().isPresent()) {
+            jsonGenerator.writeObjectField(MNEC_PARAMETERS, parameters.getMnecParameters().get());
         }
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        MnecParameters mnecParameters = new MnecParameters();
-        while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.currentName().equals(ACCEPTABLE_MARGIN_DECREASE)) {
-                jsonParser.nextToken();
-                mnecParameters.setAcceptableMarginDecrease(jsonParser.getDoubleValue());
-            } else {
-                throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.currentName()));
-            }
-        }
-        raoParameters.setMnecParameters(mnecParameters);
+        raoParameters.setMnecParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.MnecParameters.class));
     }
 
 }

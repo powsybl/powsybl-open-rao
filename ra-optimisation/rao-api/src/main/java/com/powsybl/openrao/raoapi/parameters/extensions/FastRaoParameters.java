@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -25,8 +26,13 @@ public class FastRaoParameters extends AbstractExtension<RaoParameters> {
     static final boolean DEFAULT_ADD_UNSECURE_CNECS = false;
     static final double DEFAULT_MARGIN_LIMIT = 5;
 
+    @JsonProperty("number-of-cnecs-to-add")
     private int getNumberOfCnecsToAdd = DEFAULT_NUMBER_OF_CNECS_TO_ADD;
+
+    @JsonProperty("add-unsecure-cnecs")
     private boolean addUnsecureCnecs = DEFAULT_ADD_UNSECURE_CNECS;
+
+    @JsonProperty("margin-limit")
     private double marginLimit = DEFAULT_MARGIN_LIMIT;
 
     public int getNumberOfCnecsToAdd() {

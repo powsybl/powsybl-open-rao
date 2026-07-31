@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -25,7 +26,10 @@ public class SearchTreeRaoMnecParameters {
     static final double DEFAULT_VIOLATION_COST = 10.0;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
+    @JsonProperty(VIOLATION_COST)
     private double violationCost = DEFAULT_VIOLATION_COST;
+
+    @JsonProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT)
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
     public double getViolationCost() {

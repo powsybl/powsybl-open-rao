@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -30,12 +31,25 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     static final boolean DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION = false;
     static final boolean DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION = false;
 
+    @JsonProperty("number-of-cnecs-to-add-per-virtual-cost-name")
     private int numberOfCnecsToAddPerVirtualCostName = DEFAULT_NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
+
+    @JsonProperty("min-relative-improvement-on-margin")
     private double minRelativeImprovementOnMargin = DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
+
+    @JsonProperty("margin-window-to-consider")
     private double marginWindowToConsider = DEFAULT_MARGIN_WINDOW_TO_CONSIDER;
+
+    @JsonProperty("max-mip-iterations")
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
+
+    @JsonProperty("number-of-threads")
     private int numberOfThreads = DEFAULT_NUMBER_OF_THREADS;
+
+    @JsonProperty("curative-range-actions-synchronization")
     private boolean curativeRangeActionsSynchronization = DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
+
+    @JsonProperty("curative-topological-actions-synchronization")
     private boolean curativeTopologicalActionsSynchronization = DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 
     public int getNumberOfCnecsToAddPerVirtualCostName() {

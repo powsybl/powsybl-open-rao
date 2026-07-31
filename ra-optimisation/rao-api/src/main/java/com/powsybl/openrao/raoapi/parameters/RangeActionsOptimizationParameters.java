@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_RA_MIN_IMPACT_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_MIN_IMPACT_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_RA_MIN_IMPACT_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION_SECTION;
 
 /**
@@ -28,9 +30,19 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_RA_MIN_IMPACT_THRESHOLD = 0.001;
     private static final double DEFAULT_INJECTION_RA_MIN_IMPACT_THRESHOLD = 0.001;
     // Attributes
+    @JsonProperty(PST_RA_MIN_IMPACT_THRESHOLD)
     private double pstRAMinImpactThreshold = DEFAULT_PST_RA_MIN_IMPACT_THRESHOLD;
+
+    @JsonProperty(HVDC_RA_MIN_IMPACT_THRESHOLD)
     private double hvdcRAMinImpactThreshold = DEFAULT_HVDC_RA_MIN_IMPACT_THRESHOLD;
+
+    @JsonProperty(INJECTION_RA_MIN_IMPACT_THRESHOLD)
     private double injectionRAMinImpactThreshold = DEFAULT_INJECTION_RA_MIN_IMPACT_THRESHOLD;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new com.powsybl.openrao.commons.OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, name));
+    }
 
     // Getters and setters
     public double getPstRAMinImpactThreshold() {

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -23,6 +24,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCT
  */
 public class SearchTreeRaoObjectiveFunctionParameters {
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
+    @JsonProperty(CURATIVE_MIN_OBJ_IMPROVEMENT)
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
 
     public double getCurativeMinObjImprovement() {

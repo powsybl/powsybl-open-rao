@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -62,6 +64,7 @@ public class ZoneToZonePtdfDefinition {
         this.zoneToSlackPtdfs = zoneToSlackPtdfs;
     }
 
+    @JsonCreator
     public ZoneToZonePtdfDefinition(String zoneToZonePtdf) {
         /*
         Examples of valid strings :
@@ -95,6 +98,7 @@ public class ZoneToZonePtdfDefinition {
     }
 
     @Override
+    @JsonValue
     public String toString() {
         if (Objects.isNull(zoneToZonePtdfAsString)) {
             this.zoneToZonePtdfAsString = getZoneToSlackPtdfs().stream().map(WeightedZoneToSlackPtdf::toString).collect(Collectors.joining(""));

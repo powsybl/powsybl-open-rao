@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_SENSITIVITY_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_SENSITIVITY_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_OPTIMIZATION_SOLVER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_OPTIMIZATION_SOLVER_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_MODEL;
@@ -41,12 +43,25 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-6;
     private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
     // Attributes
+    @JsonProperty(MAX_MIP_ITERATIONS)
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
+
+    @JsonProperty(PST_SENSITIVITY_THRESHOLD)
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
+
+    @JsonProperty(PST_MODEL)
     private PstModel pstModel = DEFAULT_PST_MODEL;
+
+    @JsonProperty(HVDC_SENSITIVITY_THRESHOLD)
     private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
+
+    @JsonProperty(INJECTION_RA_SENSITIVITY_THRESHOLD)
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
+
+    @JsonProperty(LINEAR_OPTIMIZATION_SOLVER)
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
+
+    @JsonProperty(RA_RANGE_SHRINKING)
     private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
 
     public enum PstModel {
@@ -64,8 +79,14 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         private static final Solver DEFAULT_SOLVER = Solver.CBC;
         public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
         public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
+
+        @JsonProperty(SOLVER)
         private Solver solver = DEFAULT_SOLVER;
+
+        @JsonProperty(RELATIVE_MIP_GAP)
         private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+
+        @JsonProperty(SOLVER_SPECIFIC_PARAMETERS)
         private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
         public Solver getSolver() {

@@ -26,19 +26,10 @@ final class JsonNotOptimizedCnecsParameters {
     }
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(NOT_OPTIMIZED_CNECS);
-        jsonGenerator.writeBooleanField(DO_NOT_OPTIMIZE_CURATIVE_CNECS, parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeObjectField(NOT_OPTIMIZED_CNECS, parameters.getNotOptimizedCnecsParameters());
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
-        while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.currentName().equals(DO_NOT_OPTIMIZE_CURATIVE_CNECS)) {
-                jsonParser.nextToken();
-                raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(jsonParser.getBooleanValue());
-            } else {
-                throw new OpenRaoException(String.format("Cannot deserialize not optimized cnecs parameters: unexpected field in %s (%s)", NOT_OPTIMIZED_CNECS, jsonParser.currentName()));
-            }
-        }
+        raoParameters.setNotOptimizedCnecsParameters(jsonParser.getCodec().readValue(jsonParser, com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters.class));
     }
 }
