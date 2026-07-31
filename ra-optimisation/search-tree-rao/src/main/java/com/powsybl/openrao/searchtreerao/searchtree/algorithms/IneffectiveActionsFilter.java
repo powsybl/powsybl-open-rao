@@ -66,7 +66,7 @@ public class IneffectiveActionsFilter implements NetworkActionCombinationFilter 
      *     <li>its total impact on the network, after filtering out the ineffective actions, is not identical to a cheaper combination's.</li>
      * </ul>
      * <p>
-     * The {@code elementaryActions} set if filled progressively as we stream the network actions. Thus, it contains the sets of effective
+     * The {@code elementaryActions} set is filled progressively as we stream the network actions. Thus, it contains the sets of effective
      * elementary actions that belong to the network action combinations that have been processed previously.
      *
      * @param networkActionCombination : the network action combination to check
