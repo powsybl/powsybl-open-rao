@@ -13,10 +13,10 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Configures how CNECs must be created.

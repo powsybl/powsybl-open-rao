@@ -8,10 +8,10 @@
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.Country;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Allows filtering elements on a list of countries.

@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.pstregulation.reports.PstRegulationReports;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -30,7 +31,6 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivi
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.pstregulation.reports.PstRegulationReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
@@ -91,7 +91,14 @@ public final class PstRegulation {
             return raoResult;
         }
 
-        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, raoResult, getFlowUnit(raoParameters), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
+        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(
+            crac,
+            raoResult,
+            getFlowUnit(raoParameters),
+            rangeActionsToRegulate,
+            SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters),
+            network
+        );
         if (statesToRegulate.isEmpty()) {
             resetNetworkVariantAndLogEnd(network, initialVariantId, initialVariants);
             return raoResult;
@@ -395,7 +402,9 @@ public final class PstRegulation {
         );
 
         RangeActionActivationResultImpl preventiveRangeActionActivationResult = new RangeActionActivationResultImpl(initialFlowResult);
-        raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> preventiveRangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
+        raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction ->
+            preventiveRangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction))
+        );
 
         final OptimizationResult preventiveResult = new OptimizationResultImpl(
             preventivePrePerimeterResult, preventivePrePerimeterResult, preventivePrePerimeterResult,
@@ -469,7 +478,15 @@ public final class PstRegulation {
 
                     final PostPerimeterResult statePostPerimeterResult =
                         new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
-                            .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, contingencyPrePerimeterResult, Set.of(), stateOptimizationResult, appliedRemedialActions, reportNode);
+                            .runBasedOnInitialPreviousAndOptimizationResults(
+                                network,
+                                initialFlowResult,
+                                contingencyPrePerimeterResult,
+                                Set.of(),
+                                stateOptimizationResult,
+                                appliedRemedialActions,
+                                reportNode
+                            );
                     postRegulationPostContingencyResults.put(state, statePostPerimeterResult);
 
                     contingencyPrePerimeterResult = statePrePerimeterResult;
