@@ -91,7 +91,9 @@ public final class MarmotReports {
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.warn("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation.");
+        TECHNICAL_LOGS.warn(
+            "[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation."
+        );
     }
 
     public static ReportNode reportMarmotRunningRaoForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
@@ -126,7 +128,16 @@ public final class MarmotReports {
                                                         final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotUnoptimizedRaoResult";
         final String prefix = "[MARMOT] Unoptimized RAO results: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportMarmotNextIterationOfMip(final ReportNode parentNode,
@@ -135,7 +146,16 @@ public final class MarmotReports {
                                                       final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotNextIterationOfMip";
         final String prefix = "[MARMOT] Next iteration of MIP: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportMarmotInitialResults(final ReportNode parentNode,
@@ -144,7 +164,16 @@ public final class MarmotReports {
                                                   final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotInitialResults";
         final String prefix = "[MARMOT] Initial results: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportMarmotResultAfterGlobalLinearOptimization(final ReportNode parentNode,
@@ -153,7 +182,16 @@ public final class MarmotReports {
                                                                        final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotResultAfterGlobalLinearOptimization";
         final String prefix = "[MARMOT] After global linear optimization: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static ReportNode reportMarmotTopologicalOptimization(final ReportNode parentNode) {
@@ -271,7 +309,14 @@ public final class MarmotReports {
                     .withSeverity(TRACE_SEVERITY)
                     .add();
 
-                logMessage.append(" for timestamp ").append(addedCnecsElement.timestamp()).append(" and virtual cost ").append(addedCnecsElement.vcName()).append(" ").append(addedCnecsElement.addedCnecs()).append(",");
+                logMessage
+                    .append(" for timestamp ")
+                    .append(addedCnecsElement.timestamp())
+                    .append(" and virtual cost ")
+                    .append(addedCnecsElement.vcName())
+                    .append(" ")
+                    .append(addedCnecsElement.addedCnecs())
+                    .append(",");
             });
 
         addedNode.addUntypedValue("nbAddedCnecs", nbAddedCnecs.get());

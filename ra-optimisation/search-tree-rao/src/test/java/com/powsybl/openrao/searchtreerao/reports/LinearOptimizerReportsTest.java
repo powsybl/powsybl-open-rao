@@ -29,7 +29,13 @@ class LinearOptimizerReportsTest {
         LinearOptimizerReports.reportLinearOptimFoundWorseResult(reportNode, 12, 1., 2., 3., 4.);
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
-        assertEquals("Iteration 12: linear optimization found a worse result than best iteration, with a cost increasing from 1.00 to 2.00 (functional: from 3.00 to 4.00)", traceReports.getFirst().getMessage());
-        assertEquals("[INFO] Iteration 12: linear optimization found a worse result than best iteration, with a cost increasing from 1.00 to 2.00 (functional: from 3.00 to 4.00)", technicalLogs.getFirst().toString());
+        assertEquals(
+            "Iteration 12: linear optimization found a worse result than best iteration, with a cost increasing from 1.00 to 2.00 (functional: from 3.00 to 4.00)",
+            traceReports.getFirst().getMessage()
+        );
+        assertEquals(
+            "[INFO] Iteration 12: linear optimization found a worse result than best iteration, with a cost increasing from 1.00 to 2.00 (functional: from 3.00 to 4.00)",
+            technicalLogs.getFirst().toString()
+        );
     }
 }

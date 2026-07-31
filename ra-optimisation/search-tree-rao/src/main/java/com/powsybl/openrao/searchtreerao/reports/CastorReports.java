@@ -70,7 +70,16 @@ public final class CastorReports {
                                                                      final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorInitialSensitivityAnalysisResults";
         final String prefix = "Initial sensitivity analysis: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
@@ -81,7 +90,16 @@ public final class CastorReports {
                                                                                 final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorSystematicSensitivityAnalysisAfterPraResults";
         final String prefix = "Systematic sensitivity analysis after preventive remedial actions: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterCraResults(final ReportNode parentNode,
@@ -92,7 +110,16 @@ public final class CastorReports {
                                                                                 final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorSystematicSensitivityAnalysisAfterCraResults";
         final String prefix = "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportIfMostLimitingElementIsFictional(final ReportNode parentNode,
@@ -129,7 +156,12 @@ public final class CastorReports {
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        ReportUtils.getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
+                        ReportUtils.getMostLimitingElementsAndMargins(
+                            contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
+                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            unit,
+                            relativePositiveMargins, 1
+                        )
                     )
                 );
         });
@@ -434,7 +466,11 @@ public final class CastorReports {
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
+        BUSINESS_LOGS.info(
+            "There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)",
+            targetEndInstant,
+            estimatedPreventiveRaoTimeInSeconds
+        );
     }
 
     public static void reportCostNotIncreasedDuringRao(final ReportNode parentNode) {
@@ -455,7 +491,7 @@ public final class CastorReports {
         BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
     }
 
-    public static void reportExceptionMessageAndStacktrace(final ReportNode parentNode, final RuntimeException exception) {
+    public static void reportExceptionMessageAndStacktrace(final ReportNode parentNode, final Exception exception) {
         final String exceptionMessage = exception.getMessage();
         final String stackTrace = ExceptionUtils.getStackTrace(exception);
         parentNode.newReportNode()

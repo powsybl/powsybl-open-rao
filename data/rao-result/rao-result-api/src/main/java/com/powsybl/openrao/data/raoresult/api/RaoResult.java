@@ -466,8 +466,22 @@ public interface RaoResult extends Extendable<RaoResult> {
         Set<String> tsosWithoutCras = new HashSet<>();
         if (excludeCnecsForTsosWithoutCras) {
             Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-            Set<String> allTsosWithCras = crac.getRemedialActions().stream().filter(remedialAction -> remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isCurative())).map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-            tsosWithoutCras.addAll(allTsos.stream().filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet()));
+            Set<String> allTsosWithCras = crac.getRemedialActions()
+                .stream()
+                .filter(remedialAction ->
+                    remedialAction
+                        .getUsageRules()
+                        .stream()
+                        .anyMatch(usageRule -> usageRule.getInstant().isCurative())
+                )
+                .map(RemedialAction::getOperator)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+            tsosWithoutCras.addAll(
+                allTsos
+                    .stream()
+                    .filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet())
+            );
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
             // use the same flow unit as the one use for the LF

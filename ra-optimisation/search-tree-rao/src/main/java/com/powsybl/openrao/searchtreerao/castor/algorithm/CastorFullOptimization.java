@@ -167,7 +167,15 @@ public class CastorFullOptimization {
 
             if (stateTree.getContingencyScenarios().isEmpty()) {
                 // log final result
-                MostLimitingElementsReports.reportTechnicalMostLimitingElements(preventivePerimeterOptimReportNode, preventiveResult, preventiveResult, null, raoParameters.getObjectiveFunctionParameters().getType(), getFlowUnit(raoParameters), 10);
+                MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+                    preventivePerimeterOptimReportNode,
+                    preventiveResult,
+                    preventiveResult,
+                    null,
+                    raoParameters.getObjectiveFunctionParameters().getType(),
+                    getFlowUnit(raoParameters),
+                    10
+                );
                 CastorReports.reportIfMostLimitingElementIsFictional(preventivePerimeterOptimReportNode, preventiveResult);
                 RaoResult raoResult = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, crac, raoParameters, preventivePerimeterOptimReportNode);
                 return postCheckResults(raoResult, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode);
@@ -203,17 +211,38 @@ public class CastorFullOptimization {
             final ReportNode postContingencyPerimeterOptimReportNode = CastorReports.reportPostContingencyPerimeterOptimization(curativePerimeterOptimReportNode);
             TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
             CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, curativeTreeParameters, initialOutput);
-            Map<State, PostPerimeterResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false, postContingencyPerimeterOptimReportNode);
+            Map<State, PostPerimeterResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(
+                network,
+                preCurativeSensitivityAnalysisOutput,
+                false,
+                postContingencyPerimeterOptimReportNode
+            );
             CastorReports.reportPostContingencyPerimeterOptimizationEnd();
 
             // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
             currentStep = "second preventive optimization";
 
             final ReportNode secondPreventivePerimeterOptimReportNode = CastorReports.reportSecondPreventivePerimeterOptimization(optimizationReportNode);
-            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, postContingencyResults, crac, raoParameters, secondPreventivePerimeterOptimReportNode);
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
+                stateTree,
+                initialOutput,
+                postPreventiveResult,
+                postContingencyResults,
+                crac,
+                raoParameters,
+                secondPreventivePerimeterOptimReportNode
+            );
             boolean logFinalResultsOutsideOfSecondPreventive = true;
             // Run second preventive when necessary
-            CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant, secondPreventivePerimeterOptimReportNode);
+            CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(
+                crac,
+                raoParameters,
+                network,
+                stateTree,
+                toolProvider,
+                targetEndInstant,
+                secondPreventivePerimeterOptimReportNode
+            );
 
             // define variables to set with second preventive results only if it improves first
             PostPerimeterResult finalSecondPreventiveResult = postPreventiveResult;
@@ -276,7 +305,7 @@ public class CastorFullOptimization {
             }
 
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             CastorReports.reportExceptionMessageAndStacktrace(optimizationReportNode, e);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         } finally {
@@ -347,7 +376,14 @@ public class CastorFullOptimization {
         if (handleCostIncrease && finalCost > initialCost + EPSILON) {
             CastorReports.reportRaoIncreasedOverallCost(optimizationReportNode, initialCost, initialFunctionalCost, initialVirtualCost, finalCost, finalFunctionalCost, finalVirtualCost);
             // log results
-            MostLimitingElementsReports.reportBusinessMostLimitingElements(optimizationReportNode, initialResult, initialResult, objectiveFunctionParameters.getType(), getFlowUnit(raoParameters), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            MostLimitingElementsReports.reportBusinessMostLimitingElements(
+                optimizationReportNode,
+                initialResult,
+                initialResult,
+                objectiveFunctionParameters.getType(),
+                getFlowUnit(raoParameters),
+                NUMBER_LOGGED_ELEMENTS_END_RAO
+            );
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
@@ -360,7 +396,18 @@ public class CastorFullOptimization {
         }
 
         // Log costs before and after RAO
-        CastorReports.reportCostsBeforeAndAfterRao(optimizationReportNode, initialCost, initialFunctionalCost, initialVirtualCost, initialResult, finalCost, finalFunctionalCost, finalVirtualCost, finalRaoResult, crac.getLastInstant());
+        CastorReports.reportCostsBeforeAndAfterRao(
+            optimizationReportNode,
+            initialCost,
+            initialFunctionalCost,
+            initialVirtualCost,
+            initialResult,
+            finalCost,
+            finalFunctionalCost,
+            finalVirtualCost,
+            finalRaoResult,
+            crac.getLastInstant()
+        );
 
         return CompletableFuture.completedFuture(finalRaoResult);
     }
@@ -370,7 +417,14 @@ public class CastorFullOptimization {
                                                                   final PrePerimeterResult initialResult,
                                                                   final ReportNode preventivePerimeterOptimReportNode) {
 
-        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(stateTree.getBasecaseScenario(), crac, network, raoParameters, initialResult, preventivePerimeterOptimReportNode);
+        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
+            stateTree.getBasecaseScenario(),
+            crac,
+            network,
+            raoParameters,
+            initialResult,
+            preventivePerimeterOptimReportNode
+        );
 
         SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)
