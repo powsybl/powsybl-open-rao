@@ -54,7 +54,8 @@ class IneffectiveActionsFilterTests {
         // combination 3 should be kept because it has impact on network
         // combination 2 should be filtered out because it has the exact same impact as combination 3 but is more expensive
         IneffectiveActionsFilter ineffectiveActionsFilter = new IneffectiveActionsFilter(NETWORK);
-        assertEquals(Set.of(networkActionCombination3), ineffectiveActionsFilter.filter(Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3), null, ReportNode.NO_OP));
+        assertEquals(Set.of(networkActionCombination3), ineffectiveActionsFilter.filter(
+            Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3), null, ReportNode.NO_OP));
     }
 
     private static NetworkAction mockNetworkAction(Set<Action> elementaryActions, double activationCost) {

@@ -59,6 +59,20 @@ public class IneffectiveActionsFilter implements NetworkActionCombinationFilter 
             .mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
     }
 
+    /**
+     * Indicate whether a network action combination has an impact on the network. The notion of impact is defined as follows:
+     * <ul>
+     *     <li>at least one of its elementary actions has an impact on the network;</li>
+     *     <li>its total impact on the network, after filtering out the ineffective actions, is not identical to a cheaper combination's.</li>
+     * </ul>
+     * <p>
+     * The {@code elementaryActions} set if filled progressively as we stream the network actions. Thus, it contains the sets of effective
+     * elementary actions that belong to the network action combinations that have been processed previously.
+     *
+     * @param networkActionCombination : the network action combination to check
+     * @param elementaryActions        : the set of elementary actions that have already been extracted from the network action combinations that have been processed before
+     * @return {@code true} if the network action combination has an impact on the network, {@code false} otherwise
+     */
     private boolean extractElementaryActionsWithImpact(NetworkActionCombination networkActionCombination, Set<Set<Action>> elementaryActions) {
         Set<Action> effectiveActions = new HashSet<>();
 
