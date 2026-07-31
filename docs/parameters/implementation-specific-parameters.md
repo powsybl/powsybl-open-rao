@@ -433,6 +433,17 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 1
 - **Usage**: This value corresponds to the number of threads that will be used to run computations in parallel.
 
+#### curative-range-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when same curative range actions must be activated on all the timestamps at once with the same setpoint value.
+
+#### curative-topological-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when the same topological actions must be applied on all the timestamps at once.
+
+
 #### PST regulation parameters
 
 ##### psts-to-regulate
@@ -449,7 +460,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -461,7 +472,9 @@ These parameters are meant to be used in costly optimization only.
       "min-relative-improvement-on-margin" : 12.0,
       "margin-window-to-consider" : 7.0,
       "max-mip-iterations" : 13,
-      "number-of-threads" : 4
+      "number-of-threads" : 4,
+      "curative-range-actions-synchronization" : false,
+      "curative-topological-actions-synchronization" : false
     },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
