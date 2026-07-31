@@ -207,7 +207,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
      * @param tapVariable
      * @param lastAvailableRangeAction
      */
-    static void addTotalPstRangeActionTapVariation(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, int initialTap, OpenRaoMPVariable tapVariable, Pair<RangeAction<?>, State> lastAvailableRangeAction) {
+    static void addTotalPstRangeActionTapVariation(LinearProblem linearProblem,
+                                                   PstRangeAction pstRangeAction,
+                                                   State state,
+                                                   int initialTap,
+                                                   OpenRaoMPVariable tapVariable,
+                                                   Pair<RangeAction<?>, State> lastAvailableRangeAction) {
         OpenRaoMPConstraint totalTapVariationConstraint = linearProblem.addTotalPstRangeActionTapVariationConstraint(pstRangeAction, state);
         OpenRaoMPVariable totalUpwardTapVariationVariable = linearProblem.addTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPVariable totalDownwardTapVariationVariable = linearProblem.addTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
