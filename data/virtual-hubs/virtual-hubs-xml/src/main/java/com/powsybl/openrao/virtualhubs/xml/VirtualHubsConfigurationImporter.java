@@ -80,7 +80,9 @@ class VirtualHubsConfigurationImporter {
         }
     }
 
-    private static void importMarketAreas(final List<com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea> rawMarketAreas, final Map<String, MarketArea> marketAreasMap, final VirtualHubsConfiguration configuration) {
+    private static void importMarketAreas(final List<com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea> rawMarketAreas,
+                                          final Map<String, MarketArea> marketAreasMap,
+                                          final VirtualHubsConfiguration configuration) {
         for (com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea rawMarketArea : rawMarketAreas) {
             final String code = rawMarketArea.getCode();
             final String eic = rawMarketArea.getEic();
@@ -92,7 +94,9 @@ class VirtualHubsConfigurationImporter {
         }
     }
 
-    private static void importVirtualHubs(final List<com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub> rawVirtualHubs, final Map<String, MarketArea> marketAreasMap, final VirtualHubsConfiguration configuration) {
+    private static void importVirtualHubs(final List<com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub> rawVirtualHubs,
+                                          final Map<String, MarketArea> marketAreasMap,
+                                          final VirtualHubsConfiguration configuration) {
         for (com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub rawVirtualHub : rawVirtualHubs) {
             final String code = rawVirtualHub.getCode();
             final String eic = rawVirtualHub.getEic();

@@ -349,6 +349,8 @@ class RaoParametersConfigTest {
         Mockito.when(marmotModuleConfig.getDoubleProperty(eq("margin-window-to-consider"), anyDouble())).thenReturn(3.2);
         Mockito.when(marmotModuleConfig.getIntProperty(eq("max-mip-iterations"), anyInt())).thenReturn(15);
         Mockito.when(marmotModuleConfig.getIntProperty(eq("number-of-threads"), anyInt())).thenReturn(42);
+        Mockito.when(marmotModuleConfig.getBooleanProperty(eq("curative-range-actions-synchronization"), anyBoolean())).thenReturn(true);
+        Mockito.when(marmotModuleConfig.getBooleanProperty(eq("curative-topological-actions-synchronization"), anyBoolean())).thenReturn(true);
 
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("marmot-parameters")).thenReturn(Optional.of(marmotModuleConfig));
 
@@ -360,5 +362,7 @@ class RaoParametersConfigTest {
         assertEquals(3.2, parameters.getMarginWindowToConsider(), DOUBLE_TOLERANCE);
         assertEquals(15, parameters.getMaxMipIterations());
         assertEquals(42, parameters.getNumberOfThreads());
+        assertTrue(parameters.getCurativeRangeActionsSynchronization());
+        assertTrue(parameters.getCurativeTopologicalActionsSynchronization());
     }
 }

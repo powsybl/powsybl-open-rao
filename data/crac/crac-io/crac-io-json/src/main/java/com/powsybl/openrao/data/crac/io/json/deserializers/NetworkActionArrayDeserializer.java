@@ -139,10 +139,16 @@ public final class NetworkActionArrayDeserializer {
                             BoundaryLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                             break;
                         } else {
-                            throw new OpenRaoException("%s were renamed to %s from version 2.10.".formatted(JsonSerializationConstants.DANGLINGLINE_ACTIONS, JsonSerializationConstants.BOUNDARYLINE_ACTIONS));
+                            throw new OpenRaoException(
+                                "%s were renamed to %s from version 2.10.".formatted(
+                                    JsonSerializationConstants.DANGLINGLINE_ACTIONS,
+                                    JsonSerializationConstants.BOUNDARYLINE_ACTIONS)
+                            );
                         }
                     case JsonSerializationConstants.BOUNDARYLINE_ACTIONS:
-                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2
+                            && JsonSerializationConstants.getSubVersionNumber(version) <= 9) {
                             throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.currentName());
                         }
                         jsonParser.nextToken();

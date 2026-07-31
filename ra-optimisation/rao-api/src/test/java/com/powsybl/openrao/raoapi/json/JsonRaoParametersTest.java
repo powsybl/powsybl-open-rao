@@ -150,6 +150,8 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         marmotParameters.setNumberOfCnecsToAddPerVirtualCostName(25);
         marmotParameters.setMaxMipIterations(13);
         marmotParameters.setNumberOfThreads(1515);
+        marmotParameters.setCurativeRangeActionsSynchronization(true);
+        marmotParameters.setCurativeTopologicalActionsSynchronization(true);
 
         roundTripTest(
                 parameters,

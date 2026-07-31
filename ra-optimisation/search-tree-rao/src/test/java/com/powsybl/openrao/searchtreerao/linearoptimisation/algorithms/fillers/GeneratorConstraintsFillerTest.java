@@ -826,7 +826,14 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownProhibited() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        GeneratorConstraints generatorConstraints = GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).build();
+        GeneratorConstraints generatorConstraints =
+            GeneratorConstraints.create()
+                .withGeneratorId("BBE1AA1 _generator")
+                .withUpwardPowerGradient(1500.0)
+                .withDownwardPowerGradient(-1000.0)
+                .withLeadTime(0.2).withLagTime(1.2)
+                .withShutDownAllowed(false)
+                .build();
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints);
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
@@ -876,7 +883,14 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndStartUpProhibited() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        GeneratorConstraints generatorConstraints = GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withStartUpAllowed(false).build();
+        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+            .withGeneratorId("BBE1AA1 _generator")
+            .withUpwardPowerGradient(1500.0)
+            .withDownwardPowerGradient(-1000.0)
+            .withLeadTime(0.2)
+            .withLagTime(1.2)
+            .withStartUpAllowed(false)
+            .build();
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints);
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
@@ -927,7 +941,14 @@ class GeneratorConstraintsFillerTest {
     @Test
     void testShortLeadAndLongLagTimesAndPowerGradientsAndShutDownAndStartUpProhibited() {
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-        GeneratorConstraints generatorConstraints = GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).withShutDownAllowed(false).withStartUpAllowed(false).build();
+        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+            .withGeneratorId("BBE1AA1 _generator")
+            .withUpwardPowerGradient(1500.0)
+            .withDownwardPowerGradient(-1000.0)
+            .withLeadTime(0.2).withLagTime(1.2)
+            .withShutDownAllowed(false)
+            .withStartUpAllowed(false)
+            .build();
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints);
         setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
 
@@ -1021,29 +1042,27 @@ class GeneratorConstraintsFillerTest {
     }
 
     void checkOnOffAndOffOnTransitionPowerVariation(GeneratorConstraints generatorConstraints) {
-        hourlyTimestamps.subList(0, hourlyTimestamps.size() - 1).forEach(
-            timestamp -> {
-                double upwardPowerGradient = generatorConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT);
-                double downwardPowerGradient = generatorConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT);
+        for (OffsetDateTime timestamp : hourlyTimestamps.subList(0, hourlyTimestamps.size() - 1)) {
+            double upwardPowerGradient = generatorConstraints.getUpwardPowerGradient().orElse(DEFAULT_POWER_GRADIENT);
+            double downwardPowerGradient = generatorConstraints.getDownwardPowerGradient().orElse(-DEFAULT_POWER_GRADIENT);
 
-                OpenRaoMPConstraint powerTransitionConstraintSup = linearProblem.getGeneratorPowerTransitionConstraint(
-                    generatorConstraints.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE
-                );
-                OpenRaoMPConstraint powerTransitionConstraintInf = linearProblem.getGeneratorPowerTransitionConstraint(
-                    generatorConstraints.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE
-                );
-                OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
-                    generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON
-                );
-                assertEquals(-100 - upwardPowerGradient, powerTransitionConstraintSup.getCoefficient(offOnTransitionVariable));
-                assertEquals(-(100 - OFF_POWER_THRESHOLD), powerTransitionConstraintInf.getCoefficient(offOnTransitionVariable), 1E-4);
+            OpenRaoMPConstraint powerTransitionConstraintSup = linearProblem.getGeneratorPowerTransitionConstraint(
+                generatorConstraints.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE
+            );
+            OpenRaoMPConstraint powerTransitionConstraintInf = linearProblem.getGeneratorPowerTransitionConstraint(
+                generatorConstraints.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE
+            );
+            OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
+                generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON
+            );
+            assertEquals(-100 - upwardPowerGradient, powerTransitionConstraintSup.getCoefficient(offOnTransitionVariable));
+            assertEquals(-(100 - OFF_POWER_THRESHOLD), powerTransitionConstraintInf.getCoefficient(offOnTransitionVariable), 1E-4);
 
-                OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
-                    generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF
-                );
-                assertEquals(100 - downwardPowerGradient, powerTransitionConstraintInf.getCoefficient(onOffTransitionVariable));
-                assertEquals(100 - OFF_POWER_THRESHOLD, powerTransitionConstraintSup.getCoefficient(onOffTransitionVariable), 1E-4);
-            }
-        );
+            OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(
+                generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF
+            );
+            assertEquals(100 - downwardPowerGradient, powerTransitionConstraintInf.getCoefficient(onOffTransitionVariable));
+            assertEquals(100 - OFF_POWER_THRESHOLD, powerTransitionConstraintSup.getCoefficient(onOffTransitionVariable), 1E-4);
+        }
     }
 }
