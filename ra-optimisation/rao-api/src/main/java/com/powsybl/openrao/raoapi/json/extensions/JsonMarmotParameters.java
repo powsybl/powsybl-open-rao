@@ -18,6 +18,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARGIN_WINDOW_TO_CONSIDER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARMOT_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
@@ -39,6 +41,8 @@ public class JsonMarmotParameters implements JsonRaoParameters.ExtensionSerializ
         jsonGenerator.writeNumberField(MARGIN_WINDOW_TO_CONSIDER, marmotParameters.getMarginWindowToConsider());
         jsonGenerator.writeNumberField(MAX_MIP_ITERATIONS, marmotParameters.getMaxMipIterations());
         jsonGenerator.writeNumberField(NUMBER_OF_THREADS, marmotParameters.getNumberOfThreads());
+        jsonGenerator.writeBooleanField(CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION, marmotParameters.getCurativeRangeActionsSynchronization());
+        jsonGenerator.writeBooleanField(CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION, marmotParameters.getCurativeTopologicalActionsSynchronization());
         jsonGenerator.writeEndObject();
     }
 
@@ -66,6 +70,14 @@ public class JsonMarmotParameters implements JsonRaoParameters.ExtensionSerializ
                 case NUMBER_OF_THREADS -> {
                     jsonParser.nextToken();
                     marmotParameters.setNumberOfThreads(jsonParser.getIntValue());
+                }
+                case CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION -> {
+                    jsonParser.nextToken();
+                    marmotParameters.setCurativeRangeActionsSynchronization(jsonParser.getBooleanValue());
+                }
+                case CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION -> {
+                    jsonParser.nextToken();
+                    marmotParameters.setCurativeTopologicalActionsSynchronization(jsonParser.getBooleanValue());
                 }
                 default -> throw new OpenRaoException(String.format("Cannot deserialize marmot parameters: unexpected field in %s (%s)", MARMOT_PARAMETERS, jsonParser.currentName()));
             }
