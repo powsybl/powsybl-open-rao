@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
@@ -61,6 +62,7 @@ public class LoopFlowParameters {
         this.countries.addAll(countries);
     }
 
+    @JsonIgnore
     public void setCountries(List<String> countryStrings) {
         this.countries = ParametersUtil.convertToCountrySet(countryStrings);
     }

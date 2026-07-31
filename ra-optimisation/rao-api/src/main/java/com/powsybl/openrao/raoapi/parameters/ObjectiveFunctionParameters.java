@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.Objects;
 
@@ -43,6 +44,15 @@ public class ObjectiveFunctionParameters {
         MAX_MIN_MARGIN,
         MAX_MIN_RELATIVE_MARGIN,
         MIN_COST;
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        public static ObjectiveFunctionType fromValue(String value) {
+            try {
+                return valueOf(value);
+            } catch (IllegalArgumentException e) {
+                throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in objective-function (type)"));
+            }
+        }
 
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN);

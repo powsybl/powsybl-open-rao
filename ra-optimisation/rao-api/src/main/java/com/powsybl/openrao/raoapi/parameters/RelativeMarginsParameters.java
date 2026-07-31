@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
@@ -42,6 +43,7 @@ public class RelativeMarginsParameters {
         return ptdfBoundaries;
     }
 
+    @JsonIgnore
     public List<String> getPtdfBoundariesAsString() {
         return ptdfBoundaries.stream()
                 .map(ZoneToZonePtdfDefinition::toString)

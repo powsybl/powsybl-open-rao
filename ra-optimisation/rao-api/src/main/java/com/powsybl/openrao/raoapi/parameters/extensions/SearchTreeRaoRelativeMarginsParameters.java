@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +33,11 @@ public class SearchTreeRaoRelativeMarginsParameters {
 
     @JsonProperty(PTDF_APPROXIMATION)
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize search tree relative margin parameters: unexpected field in search tree relative-margins-parameters (%s)", name));
+    }
 
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;

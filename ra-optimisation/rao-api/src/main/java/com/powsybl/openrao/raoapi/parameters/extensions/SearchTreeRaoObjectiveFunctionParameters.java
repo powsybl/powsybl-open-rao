@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 
@@ -26,6 +27,11 @@ public class SearchTreeRaoObjectiveFunctionParameters {
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     @JsonProperty(CURATIVE_MIN_OBJ_IMPROVEMENT)
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in search tree objective-function (%s)", name));
+    }
 
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;

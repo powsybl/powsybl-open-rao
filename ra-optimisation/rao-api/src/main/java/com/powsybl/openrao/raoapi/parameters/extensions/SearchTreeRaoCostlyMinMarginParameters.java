@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +29,11 @@ public class SearchTreeRaoCostlyMinMarginParameters {
 
     @JsonProperty(SHIFTED_VIOLATION_THRESHOLD)
     private double shiftedViolationThreshold = DEFAULT_SHIFTED_VIOLATION_THRESHOLD;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize costly min margin parameters: unexpected field in search tree costly-min-margin-parameters (%s)", name));
+    }
 
     public double getShiftedViolationPenalty() {
         return shiftedViolationPenalty;

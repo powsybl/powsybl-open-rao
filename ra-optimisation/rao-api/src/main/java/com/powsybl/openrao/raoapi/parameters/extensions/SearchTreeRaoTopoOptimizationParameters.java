@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ParametersUtil;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
@@ -54,6 +55,11 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     @JsonProperty(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS)
     private int maxNumberOfBoundariesForSkippingActions;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize search tree topo parameters: unexpected field in search tree topological-actions-optimization (%s)", name));
+    }
 
     private final ReportNode reportNode;
 

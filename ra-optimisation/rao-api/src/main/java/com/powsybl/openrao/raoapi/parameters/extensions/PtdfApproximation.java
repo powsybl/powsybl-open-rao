@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
+import com.powsybl.openrao.commons.OpenRaoException;
+
 /**
  * Approximation level for PTDF computations
  *
@@ -16,6 +18,15 @@ public enum PtdfApproximation {
     FIXED_PTDF, // compute PTDFs only once at beginning of RAO (best performance, worst accuracy)
     UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worse performance, better accuracy for AC, best accuracy for DC)
     UPDATE_PTDF_WITH_TOPO_AND_PST; // recompute PTDFs after every topological or PST change in the network (worst performance, best accuracy for AC)
+
+    @com.fasterxml.jackson.annotation.JsonCreator
+    public static PtdfApproximation fromValue(String value) {
+        try {
+            return valueOf(value);
+        } catch (IllegalArgumentException e) {
+            throw new OpenRaoException("Cannot deserialize loopFlow parameters: unexpected field in search tree loop-flow-parameters (ptdf-approximation)");
+        }
+    }
 
     public boolean shouldUpdatePtdfWithTopologicalChange() {
         return !this.equals(FIXED_PTDF);

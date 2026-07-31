@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.HashMap;
@@ -29,6 +30,11 @@ public class SearchTreeRaoPstRegulationParameters {
 
     @JsonProperty(PSTS_TO_REGULATE)
     private Map<String, String> pstsToRegulate = DEFAULT_PSTS_TO_REGULATE;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize search tree pst regulation parameters: unexpected field in search tree pst-regulation-parameters (%s)", name));
+    }
 
     public Map<String, String> getPstsToRegulate() {
         return pstsToRegulate;

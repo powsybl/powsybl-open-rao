@@ -24,6 +24,7 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
@@ -226,11 +227,11 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                             parser.nextToken();
                             extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters, reportNode);
                         }
-                        default -> throw new com.powsybl.openrao.commons.OpenRaoException("Unexpected field in rao parameters: " + currentName);
+                        default -> throw new OpenRaoException("Unexpected field in rao parameters: " + currentName);
                     }
                 } catch (com.fasterxml.jackson.databind.JsonMappingException e) {
-                    if (e.getCause() instanceof com.powsybl.openrao.commons.OpenRaoException) {
-                        throw (com.powsybl.openrao.commons.OpenRaoException) e.getCause();
+                    if (e.getCause() instanceof OpenRaoException) {
+                        throw (OpenRaoException) e.getCause();
                     }
                     throw e;
                 }

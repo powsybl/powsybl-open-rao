@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
@@ -27,6 +28,11 @@ public class MultithreadingParameters {
 
     @JsonProperty(AVAILABLE_CPUS)
     private int availableCPUs = DEFAULT_AVAILABLE_CPUS;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize multithreading parameters: unexpected field in multi-threading (%s)", name));
+    }
 
     public int getAvailableCPUs() {
         return availableCPUs;

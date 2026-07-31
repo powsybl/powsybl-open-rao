@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +32,11 @@ public class SearchTreeRaoMnecParameters {
 
     @JsonProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT)
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Cannot deserialize search tree MNEC parameters: unexpected field in search tree mnec-parameters (%s)", name));
+    }
 
     public double getViolationCost() {
         return violationCost;

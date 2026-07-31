@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Optional;
@@ -71,6 +72,11 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     @JsonProperty(PST_REGULATION_PARAMETERS)
     @JsonDeserialize(contentAs = SearchTreeRaoPstRegulationParameters.class)
     private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void handleUnknownProperty(String name, Object value) {
+        throw new OpenRaoException(String.format("Unexpected field in search tree rao parameters: %s", name));
+    }
 
     @JsonCreator
     public OpenRaoSearchTreeParameters(@JacksonInject final ReportNode reportNode) {
