@@ -188,7 +188,18 @@ public class FastRao implements RaoProvider {
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
-                raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, initialRangeActionSetpointResult, networkPool, counter, iterationReportNode);
+                raoResult = runFilteredRao(
+                    raoInput,
+                    parameters,
+                    targetEndInstant,
+                    consideredCnecs,
+                    toolProvider,
+                    initialResult,
+                    initialRangeActionSetpointResult,
+                    networkPool,
+                    counter,
+                    iterationReportNode
+                );
                 stepResult = raoResult.getAppropriateResult(lastInstant);
 
                 FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);

@@ -101,6 +101,8 @@ public final class PstRegulationReports {
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", flowCnec, contingency, allShiftedPstsDetails);
+        BUSINESS_LOGS.info(
+            "FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}",
+            flowCnec, contingency, allShiftedPstsDetails);
     }
 }

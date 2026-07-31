@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.icsimporter;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -321,7 +320,9 @@ public class IcsDataImporterTest {
             """;
         return Stream.of(
                 Arguments.of(pMinNotRespectedsv,
-                        "Redispatching action Redispatching_RA is not imported (hour 1): does not respect Pmin : P0 is 5.0 and Pmin at 10.0 (generator must be either off or with its power greater or equal than its minimal value)")
+                        "Redispatching action Redispatching_RA is not imported (hour 1): " +
+                            "does not respect Pmin : P0 is 5.0 and Pmin at 10.0 " +
+                            "(generator must be either off or with its power greater or equal than its minimal value)")
         );
     }
 
@@ -467,7 +468,9 @@ public class IcsDataImporterTest {
             generateOffsetDateTimeList(3));
 
         assertEquals(0, icsData.getRedispatchingActions().size());
-        assertEquals("Redispatching action Redispatching_RA is not imported (hour 0): does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0", logsList.get(0).getFormattedMessage());
+        assertEquals("Redispatching action Redispatching_RA is not imported (hour 0): " +
+            "does not respect power gradients : min/max/diff = -1000.0 / 1000.0 / 1964.0",
+            logsList.get(0).getFormattedMessage());
     }
 
     @Test
