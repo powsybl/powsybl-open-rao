@@ -142,7 +142,14 @@ class SearchTreeTest {
         // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
         hvdcUtilsMock = mockStatic(HvdcUtils.class);
         hvdcUtilsMock
-            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class), any(ReportNode.class)))
+            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(
+                any(Network.class),
+                any(State.class),
+                any(String.class),
+                any(LoadFlowParameters.class),
+                any(Set.class),
+                any(ReportNode.class))
+            )
             .thenReturn(Map.of());
 
         hvdcUtilsMock
