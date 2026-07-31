@@ -73,7 +73,7 @@
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "componentMode" : "MAIN_CONNECTED",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },
