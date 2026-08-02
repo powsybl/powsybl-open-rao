@@ -25,7 +25,7 @@ public final class RaoParametersCommons {
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
         3.4: add marmot-parameters
-        3.5: add curative remedial actions parameters in marmot parameters
+        3.5: add curative remedial actions synchronization parameters in marmot parameters
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.5";
@@ -147,8 +147,6 @@ public final class RaoParametersCommons {
     public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
     public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
     public static final String NUMBER_OF_THREADS = "number-of-threads";
-    public static final String CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION = "curative-range-actions-synchronization";
-    public static final String CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION = "curative-topological-actions-synchronization";
 
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";

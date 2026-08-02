@@ -276,8 +276,16 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
                 pstRangeActionPerStateFromOperator.forEach((state1, pstSet) ->
                     pstSet.forEach(pstRangeAction -> {
-                        OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.UPWARD);
-                        OpenRaoMPVariable totalPstRangeActionTapDownwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.DOWNWARD);
+                        OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(
+                            pstRangeAction,
+                            state1,
+                            LinearProblem.VariationDirectionExtension.UPWARD
+                        );
+                        OpenRaoMPVariable totalPstRangeActionTapDownwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(
+                            pstRangeAction,
+                            state1,
+                            LinearProblem.VariationDirectionExtension.DOWNWARD
+                        );
                         maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapUpwardVariationVariable, 1);
                         maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapDownwardVariationVariable, 1);
                     })
