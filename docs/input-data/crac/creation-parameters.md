@@ -521,6 +521,7 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
     "FbConstraintCracCreatorParameters" : {
       "timestamp": "2019-01-08T12:00+02:00",
       "internal-hvdcs" : [ {
+        "code" : "hvdc_code",
         "eic": "hvdc_eic",
         "poles": [
           {
@@ -534,6 +535,7 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
               "station" : "Station2"
             }],
             "lines" : [ {
+              "id" : "ID__1",
               "from" : "NODE__1A",
               "to" : "NODE__1B"
             } ]

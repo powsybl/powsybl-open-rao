@@ -109,7 +109,7 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Default value**: "CBC"
 - **Usage**: the solver called for optimising the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
 ###### relative-mip-gap
@@ -174,6 +174,14 @@ when searching for the best network actions.
   *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
   considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
+
+##### allow-electrical-island-creation
+- **Expected value**: boolean
+- **Default value**: true
+- **Usage**: configures whether islands can be created during the search-tree.  
+  If set to false, islands will not be created during the search-tree.  
+  If set to true, islands can be created during the search-tree.
+- **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
 
 #### Second preventive RAO parameters
 These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
@@ -500,7 +508,8 @@ These parameters are meant to be used in costly optimization only.
           [ "na4", "na5", "na6" ]
         ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation": true
       },
       "multi-threading" : {
         "available-cpus" : 4
