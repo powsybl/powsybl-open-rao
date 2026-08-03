@@ -109,7 +109,7 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Default value**: "CBC"
 - **Usage**: the solver called for optimising the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
 ###### relative-mip-gap
