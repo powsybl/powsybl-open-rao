@@ -37,6 +37,7 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -57,6 +58,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -274,8 +276,7 @@ class SearchTreeTest {
         HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
         when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
-        OptimizationResult result = searchTree.run().get();
-
+        searchTree.run().get();
         hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(1));
 
     }
@@ -697,5 +698,47 @@ class SearchTreeTest {
                 new NetworkActionCombination(Set.of(na2), false),
                 new NetworkActionCombination(Set.of(na1), false)
         ));
+    }
+
+    @Test
+    void testGetPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation() throws Exception {
+        GlobalOptimizationPerimeter globalOptimizationPerimeter = Mockito.mock(GlobalOptimizationPerimeter.class);
+        when(searchTreeInput.getOptimizationPerimeter()).thenReturn(globalOptimizationPerimeter);
+        when(globalOptimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+
+        State secondaryState = Mockito.mock(State.class);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(curativeInstant.isCurative()).thenReturn(true);
+        when(secondaryState.getInstant()).thenReturn(curativeInstant);
+
+        AppliedRemedialActions initialAppliedRemedialActions = new AppliedRemedialActions();
+        when(searchTreeInput.getPreOptimizationAppliedRemedialActions()).thenReturn(initialAppliedRemedialActions);
+
+        RangeAction<?> mainStateRangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> activatedSecondaryRangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> nonActivatedSecondaryRangeAction = Mockito.mock(RangeAction.class);
+
+        when(globalOptimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
+            optimizedState, Set.of(mainStateRangeAction),
+            secondaryState, Set.of(activatedSecondaryRangeAction, nonActivatedSecondaryRangeAction)
+        ));
+
+        RangeActionActivationResultImpl previousDepthRangeActionActivations = Mockito.mock(RangeActionActivationResultImpl.class);
+        when(previousDepthRangeActionActivations.getActivatedRangeActions(secondaryState)).thenReturn(Set.of(activatedSecondaryRangeAction));
+        when(previousDepthRangeActionActivations.getOptimizedSetpoint(activatedSecondaryRangeAction, secondaryState)).thenReturn(42.0);
+        when(previousDepthRangeActionActivations.getOptimizedSetpoint(nonActivatedSecondaryRangeAction, secondaryState)).thenReturn(1142.0);
+
+        Method method = SearchTree.class.getDeclaredMethod(
+            "getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation",
+            com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult.class
+        );
+        method.setAccessible(true);
+
+        AppliedRemedialActions result = (AppliedRemedialActions) method.invoke(searchTree, previousDepthRangeActionActivations);
+
+        assertEquals(1, result.getAppliedRangeActions(secondaryState).size());
+        assertTrue(result.getAppliedRangeActions(secondaryState).containsKey(activatedSecondaryRangeAction));
+        assertEquals(42.0, result.getAppliedRangeActions(secondaryState).get(activatedSecondaryRangeAction), DOUBLE_TOLERANCE);
+        assertFalse(result.getAppliedRangeActions(secondaryState).containsKey(nonActivatedSecondaryRangeAction));
     }
 }
