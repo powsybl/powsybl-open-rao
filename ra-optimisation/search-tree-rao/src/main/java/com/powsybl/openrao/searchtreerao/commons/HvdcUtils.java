@@ -63,7 +63,7 @@ public final class HvdcUtils {
 
             // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
-                .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
+                .filter(ra -> isAcEmulationDeactivationAction(ra))
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).getHvdcId().equals(hvdcLineId)))
                 .collect(Collectors.toSet());
 
@@ -189,7 +189,7 @@ public final class HvdcUtils {
     }
 
     /**
-     * Run load flow and update the active power setpoints of the HVDC range actions associated with HVDC lines in AC emulation mode
+     * Run load flow and update the active power setpoints of the HVDC line in AC emulation mode
      *
      * @param network
      * @param optimizationState used to get contingency to apply
@@ -286,4 +286,24 @@ public final class HvdcUtils {
         return controls;
     }
 
+    public static Map<State, Set<HvdcRangeAction>> getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState,
+        String hvdcLineId
+    ) {
+        return rangeActionsPerState.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .map(HvdcRangeAction.class::cast)
+                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElement().getId().equals(hvdcLineId))
+                    .collect(Collectors.toSet())
+            ));
+    }
+
+    public static boolean isAcEmulationDeactivationAction(NetworkAction networkAction) {
+        return networkAction.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance)
+            && networkAction.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).isAcEmulationEnabled().isPresent())
+            && networkAction.getElementaryActions().stream().allMatch(action -> !((HvdcAction) action).isAcEmulationEnabled().get());
+    }
 }
