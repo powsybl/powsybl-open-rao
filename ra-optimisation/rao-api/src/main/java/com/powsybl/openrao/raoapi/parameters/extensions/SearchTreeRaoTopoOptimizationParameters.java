@@ -158,7 +158,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     public static boolean isAllowElectricalIslandCreation(RaoParameters raoParameters) {
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getIslandCreationAllowed();
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getAllowElectricalIslandCreation();
         }
         return DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION;
     }

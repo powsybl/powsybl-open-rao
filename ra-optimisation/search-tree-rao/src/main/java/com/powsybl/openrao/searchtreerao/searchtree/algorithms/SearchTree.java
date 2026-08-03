@@ -107,7 +107,7 @@ public class SearchTree {
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
         this.bloomer = new SearchTreeBloomer(input, parameters);
-        if (!parameters.getNetworkActionParameters().isIslandCreationAllowed()) {
+        if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
             this.initialNumberOfConnectedComponent = Optional.of(getNumberOfConnectedComponent(input.getNetwork()));
         }
     }
@@ -400,7 +400,7 @@ public class SearchTree {
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
             shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
-            parameters.getNetworkActionParameters().isIslandCreationAllowed(),
+            parameters.getNetworkActionParameters().isAllowElectricalIslandCreation(),
             initialNumberOfConnectedComponent);
     }
 

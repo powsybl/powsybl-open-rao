@@ -37,7 +37,7 @@ public class NetworkActionParameters {
 
     private final boolean skipNetworkActionFarFromMostLimitingElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
-    private final boolean islandCreationAllowed;
+    private final boolean allowElectricalIslandCreation;
 
     public NetworkActionParameters(List<NetworkActionCombination> predefinedCombinations,
                                    double absoluteNetworkActionMinimumImpactThreshold,
@@ -50,7 +50,7 @@ public class NetworkActionParameters {
         this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
         this.skipNetworkActionFarFromMostLimitingElements = skipNetworkActionFarFromMostLimitingElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
-        this.islandCreationAllowed = islandCreationAllowed;
+        this.allowElectricalIslandCreation = islandCreationAllowed;
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations() {
@@ -73,8 +73,8 @@ public class NetworkActionParameters {
         return maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
-    public boolean isIslandCreationAllowed() {
-        return islandCreationAllowed;
+    public boolean isAllowElectricalIslandCreation() {
+        return allowElectricalIslandCreation;
     }
 
     public static NetworkActionParameters buildFromRaoParameters(final RaoParameters raoParameters, final Crac crac, final ReportNode reportNode) {
@@ -84,7 +84,7 @@ public class NetworkActionParameters {
                 topoOptimizationParameters.getRelativeMinImpactThreshold(),
                 isSkipActionsFarFromMostLimitingElement(raoParameters),
                 getMaxNumberOfBoundariesForSkippingActions(raoParameters),
-                SearchTreeRaoTopoOptimizationParameters.isIslandCreationAllowed(raoParameters)
+                SearchTreeRaoTopoOptimizationParameters.isAllowElectricalslandCreation(raoParameters)
         );
     }
 

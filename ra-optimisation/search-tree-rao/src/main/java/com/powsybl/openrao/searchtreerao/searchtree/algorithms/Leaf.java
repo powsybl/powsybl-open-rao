@@ -109,7 +109,7 @@ public class Leaf implements OptimizationResult {
          RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
-         boolean islandCreationAllowed,
+         boolean allowElectricalIslandCreation,
          Optional<Integer> initialNumberOfConnectedComponent) {
 
         this.optimizationPerimeter = optimizationPerimeter;
@@ -133,7 +133,7 @@ public class Leaf implements OptimizationResult {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
 
-            if (!islandCreationAllowed) {
+            if (!allowElectricalIslandCreation) {
                 throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent.orElseThrow());
             }
         }
