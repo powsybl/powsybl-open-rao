@@ -216,11 +216,11 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A on side 1
 
   @fast @rao @ac @preventive-only @hvdc @costly
-  Scenario: 2.2.2.3.13: AC Emulation is activated but not the HVDC range action
+  Scenario: 2.2.2.3.13: acEmulationDeactivation action is used but not the HVDC range action (the final setpoint is the same as the initial setpoint)
     Same network as tests 2.2.2.3.1 -> 2.2.2.3.8. We have one CNEC and two range actions available: a PST and an HVDC range action.
     The threshold of the CNEC is -450 A.
     In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
-    In the leaf evaluating the AC Emulation deactivation action, the sensi of the PST on the CNEC is higher (120A/tap vs 98A/tap in root)
+    In the leaf evaluating the acEmulationDeactivation action, the sensi of the PST on the CNEC is higher (120A/tap vs 98A/tap in root)
     ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
     Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
@@ -241,5 +241,49 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
     Then the value of the objective function after PRA should be 75.0
 
+  @fast @rao @ac @preventive-only @hvdc @costly
+  Scenario: 2.2.2.3.14: acEmulationDeactivation action is used but the MIP does not change the HVDC setpoint but final setpoint != initial one.
+    Same situation as 2.2.2.3.13 but in curative.
+    Introduce a contingency that open the line 'FFR1AA11 FFR3AA11 1' -> the HVDC is still in AC Emulation -> the power transiting in the HVDC line changes
+    and is != from the initial setpoint (823MW initially vs 796MW after contingency). So when the AC emulation is disabled, the active power setpoint
+    of the HVDC line is set to 796MW before entering the MIP.
+      Search tree evaluation in curative:
+    In root leaf, the optimal setpoint found for the PST is 8 => cost = 85.0 = 5+8*10
+    In the leaf evaluating the acEmulationDeactivation action, the sensi of the PST on the CNEC is higher (173A/tap vs 142A/tap in root)
+    ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 8 to secure the network => cost = 85.0 = 5+8*10
+    The HVDC does not move because it already reached its minimum setpoint of 786.
+    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
+    Given crac file is "epic15/jsonCrac_ep15us17case14.json"
+    Given configuration file is "common/RaoParameters_min_cost_ac.json"
+    When I launch rao
+    Then the initial setpoint of RangeAction "CRA_HVDC" should be 823
+    Then 0 remedial actions are used in preventive
+    Then 3 remedial actions are used after "CO_0001" at "curative"
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
+    Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 8 after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 796 MW after "CO_0001" at "curative"
 
 
+  @fast @rao @ac @preventive-only @hvdc @second-preventive
+  Scenario: 2.2.2.3.15: acEmulationDeactivation action used in 2nd preventive
+    In this test, we check that if we are in 2nd preventive, deactivating the AC Emulation in preventive -> make the HVDC available in curative too
+    1st preventive: nothing happens, because there is no preventive CNEC defined in the CRAC
+    "1st curative": No range action activated either
+    2nd preventive:
+      - close line FFR1AA11 FFR2AA11 1 (has the biggest impact on final cost)
+      - use "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
+      - move HVDC setpoint to 100 MW in preventive (the lowest it can go because of the range defined in the CRAC)
+      - then move HVDC setpoint to 0 MW in curative to get the max min margin (+ can only move between 0 and 100 MW from previous instant instant)
+      - move PST "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" tap to 16
+    Given network file is "epic15/network_2_2_2_3_15.xiidm"
+    Given crac file is "epic15/jsonCrac_ep15us17case15.json"
+    Given configuration file is "epic15/RaoParameters_2_2_2_3_15.json"
+    When I launch rao
+    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    Then 4 remedial actions are used in preventive
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
+    Then the remedial action "close_FFR1AA11 FFR2AA11 1" is used in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 100 MW in preventive
+    Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 16 in preventive
+    Then 1 remedial actions are used after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 0 MW after "CO_0001" at "curative"
