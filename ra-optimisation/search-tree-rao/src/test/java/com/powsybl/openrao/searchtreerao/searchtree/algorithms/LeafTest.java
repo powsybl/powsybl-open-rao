@@ -161,7 +161,16 @@ class LeafTest {
 
     private Leaf buildNotEvaluatedRootLeaf() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        return new Leaf(optimizationPerimeter, network, new HashSet<>(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions, true, Optional.empty());
+        return new Leaf(
+            optimizationPerimeter,
+            network, new HashSet<>(),
+            new NetworkActionCombination(na1),
+            rangeActionActivationResult,
+            prePerimeterResult,
+            appliedRemedialActions,
+            true,
+            Optional.empty()
+        );
     }
 
     private void prepareLinearProblemBuilder(IteratingLinearOptimizationResultImpl linearOptimizationResult) {
@@ -875,7 +884,17 @@ class LeafTest {
         Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
         OpenRaoException exception = assertThrows(
             OpenRaoException.class,
-            () -> new Leaf(optimizationPerimeter, network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions, true, Optional.empty())
+            () -> new Leaf(
+                optimizationPerimeter,
+                network,
+                alreadyAppliedNetworkActions,
+                naCombinationToApply,
+                rangeActionActivationResult,
+                prePerimeterResult,
+                appliedRemedialActions,
+                true,
+                Optional.empty()
+            )
         );
         assertEquals("null could not be applied on the network", exception.getMessage());
     }

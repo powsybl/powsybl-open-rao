@@ -84,7 +84,7 @@ public class NetworkActionParameters {
                 topoOptimizationParameters.getRelativeMinImpactThreshold(),
                 isSkipActionsFarFromMostLimitingElement(raoParameters),
                 getMaxNumberOfBoundariesForSkippingActions(raoParameters),
-                SearchTreeRaoTopoOptimizationParameters.isAllowElectricalslandCreation(raoParameters)
+                SearchTreeRaoTopoOptimizationParameters.isAllowElectricalIslandCreation(raoParameters)
         );
     }
 

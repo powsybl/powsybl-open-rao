@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.setActivePowerSetpointOnHvdcLine;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

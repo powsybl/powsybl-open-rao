@@ -141,6 +141,21 @@ public class Leaf implements OptimizationResult {
         this.status = Status.CREATED;
     }
 
+    Leaf(OptimizationPerimeter optimizationPerimeter,
+         Network network,
+         PrePerimeterResult prePerimeterOutput,
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeter,
+            network,
+            Collections.emptySet(),
+            null,
+            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, Optional.empty()
+        );
+        this.status = Status.EVALUATED;
+        this.preOptimFlowResult = prePerimeterOutput;
+        this.preOptimSensitivityResult = prePerimeterOutput;
+    }
+
     private static void throwAnErrorIfIslandIsCreated(OptimizationPerimeter optimizationPerimeter, Network network, NetworkAction networkAction, double initialNbOfComponent) {
         double newNbOfComponent;
         if (!optimizationPerimeter.getMainOptimizationState().isPreventive()) {
@@ -170,16 +185,6 @@ public class Leaf implements OptimizationResult {
         if (newNbOfComponent > initialNbOfComponent) {
             throw new OpenRaoException(String.format("%s will not be evaluated because it creates an island", networkAction.getId()));
         }
-    }
-
-    Leaf(OptimizationPerimeter optimizationPerimeter,
-         Network network,
-         PrePerimeterResult prePerimeterOutput,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, Optional.empty());
-        this.status = Status.EVALUATED;
-        this.preOptimFlowResult = prePerimeterOutput;
-        this.preOptimSensitivityResult = prePerimeterOutput;
     }
 
     public FlowResult getPreOptimBranchResult() {
