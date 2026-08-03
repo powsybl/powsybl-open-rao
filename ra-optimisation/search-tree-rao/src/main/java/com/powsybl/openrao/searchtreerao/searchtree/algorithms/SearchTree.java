@@ -521,8 +521,14 @@ public class SearchTree {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
-                    .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
-                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
+                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState()))
+                .forEach(e -> e.getValue().stream()
+                    .filter(ra -> previousDepthRangeActionActivations.getActivatedRangeActions(e.getKey()).contains(ra))
+                    .forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(
+                        e.getKey(),
+                        ra,
+                        previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey())
+                    )));
         }
         return alreadyAppliedRa;
     }

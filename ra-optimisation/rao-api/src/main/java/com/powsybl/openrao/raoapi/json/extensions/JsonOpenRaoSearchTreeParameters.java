@@ -71,7 +71,10 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
     }
 
     @Override
-    public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters, ReportNode reportNode) throws IOException {
+    public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser,
+                                                            DeserializationContext deserializationContext,
+                                                            OpenRaoSearchTreeParameters parameters,
+                                                            ReportNode reportNode) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case OBJECTIVE_FUNCTION -> {

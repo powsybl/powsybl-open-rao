@@ -128,7 +128,17 @@ public class CastorContingencyScenarios {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario -> {
                     final ReportNode scenarioOptimizationReportNode = CastorReports.reportOptimizingScenarioForContingency(reportNode, optimizedScenario.getContingency().getId());
-                    return networkPool.submit(() -> runScenario(prePerimeterSensitivityOutput, automatonsOnly, optimizedScenario, networkPool, automatonSimulator, contingencyScenarioResults, remainingScenarios, scenarioOptimizationReportNode));
+                    return networkPool.submit(() ->
+                        runScenario(prePerimeterSensitivityOutput,
+                            automatonsOnly,
+                            optimizedScenario,
+                            networkPool,
+                            automatonSimulator,
+                            contingencyScenarioResults,
+                            remainingScenarios,
+                            scenarioOptimizationReportNode
+                        )
+                    );
                 }
             ).toList();
             for (ForkJoinTask<Object> task : tasks) {
@@ -196,11 +206,25 @@ public class CastorContingencyScenarios {
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
-                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, null, stateTree.getOperatorsNotSharingCras(), null, reportNode);
+                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter)
+                        .runBasedOnInitialResults(
+                            networkClone,
+                            null,
+                            stateTree.getOperatorsNotSharingCras(),
+                            null,
+                            reportNode
+                        );
                 }
                 prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
-                    OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, networkClone, previousPerimeterResult, resultsPerPerimeter, prePerimeterResultPerPerimeter, reportNode);
+                    OptimizationResult curativeResult = optimizeCurativePerimeter(
+                        curativePerimeter,
+                        networkClone,
+                        previousPerimeterResult,
+                        resultsPerPerimeter,
+                        prePerimeterResultPerPerimeter,
+                        reportNode
+                    );
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
                     //recompute sensi and objective function considering curative + all instants following curative (useful if multi curative)
@@ -321,7 +345,15 @@ public class CastorContingencyScenarios {
             return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
         }
 
-        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput, reportNode);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(
+            curativeState,
+            curativePerimeter.getAllStates(),
+            crac,
+            network,
+            raoParameters,
+            prePerimeterSensitivityOutput,
+            reportNode
+        );
 
         SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)

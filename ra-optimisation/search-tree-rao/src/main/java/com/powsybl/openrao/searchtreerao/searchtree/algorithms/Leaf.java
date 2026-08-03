@@ -127,7 +127,7 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
+            boolean applicationSuccess = na.apply(network);
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }

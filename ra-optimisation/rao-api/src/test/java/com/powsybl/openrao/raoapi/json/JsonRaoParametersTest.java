@@ -7,20 +7,18 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -30,6 +28,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowPar
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
@@ -152,6 +152,8 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         marmotParameters.setNumberOfCnecsToAddPerVirtualCostName(25);
         marmotParameters.setMaxMipIterations(13);
         marmotParameters.setNumberOfThreads(1515);
+        marmotParameters.setCurativeRangeActionsSynchronization(true);
+        marmotParameters.setCurativeTopologicalActionsSynchronization(true);
 
         // -- PST regulation parameters
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();

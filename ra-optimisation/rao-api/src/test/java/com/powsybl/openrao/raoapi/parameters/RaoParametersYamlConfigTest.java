@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
