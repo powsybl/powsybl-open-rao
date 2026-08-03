@@ -109,6 +109,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
         jsonGenerator.writeStartArray();
         for (final InternalHvdc internalHvdc : internalHvdcs) {
             jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("code", internalHvdc.code());
             jsonGenerator.writeStringField("eic", internalHvdc.eic());
             serializePoles(internalHvdc.poles(), jsonGenerator);
             jsonGenerator.writeEndObject();
