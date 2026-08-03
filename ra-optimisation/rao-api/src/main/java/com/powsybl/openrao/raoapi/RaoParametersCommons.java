@@ -25,7 +25,7 @@ public final class RaoParametersCommons {
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
         3.4: add marmot-parameters
-        3.5: add curative remedial actions synchronization parameters in marmot parameters
+        3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.5";
@@ -74,6 +74,7 @@ public final class RaoParametersCommons {
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
     public static final String SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = "skip-actions-far-from-most-limiting-element";
     public static final String MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = "max-number-of-boundaries-for-skipping-actions";
+    public static final String ALLOW_ELECTRICAL_ISLAND_CREATION = "allow-electrical-island-creation";
 
     // Multi-threading parameters
     public static final String MULTI_THREADING = "multi-threading";
