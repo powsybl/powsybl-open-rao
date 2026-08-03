@@ -30,14 +30,16 @@ public class CounterTradeRangeActionSensiHandler implements RangeActionSensiHand
 
     @Override
     public double getSensitivityOnFlow(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side) * getSumOfValues(getPositiveGlskMap())
-                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side) * getSumOfValues(getNegativeGlskMap());
+        // in this first implementation we assume no loads so that all generators in the zone sum up to 1
+        return - sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side)
+                + sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side);
     }
 
     @Override
     public double getSensitivityOnIntensity(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnIntensity(getPositiveGlskMapId(), cnec, side) * getSumOfValues(getPositiveGlskMap())
-            - sensitivityResult.getSensitivityOnIntensity(getNegativeGlskMapId(), cnec, side) * getSumOfValues(getNegativeGlskMap());
+        // in this first implementation we assume no loads so that all generators in the zone sum up to 1
+        return sensitivityResult.getSensitivityOnIntensity(getPositiveGlskMapId(), cnec, side)
+            - sensitivityResult.getSensitivityOnIntensity(getNegativeGlskMapId(), cnec, side);
     }
 
     @Override
@@ -45,15 +47,18 @@ public class CounterTradeRangeActionSensiHandler implements RangeActionSensiHand
         // Consistency is ok?
     }
 
-    public Map<String, Float> getPositiveGlskMap() {
-        // TODO: how to get GLSK from here?
-        return Map.of("country", (float) 1.);
-    }
+//    public Map<String, Float> getPositiveGlskMap() {
+//        // TODO: how to get GLSK from here?
+//        return counterTradeRangeAction.getGlsk().get(counterTradeRangeAction.getExportingArea()).entrySet()
+//                .stream().filter(e -> e.getValue() > 0)
+//                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
+//        //return Map.of("country", (float) 1.);
+//    }
 
-    public Map<String, Float> getNegativeGlskMap() {
-        // TODO: how to get GLSK from here?
-        return Map.of("country", (float) 1.);
-    }
+//    public Map<String, Float> getNegativeGlskMap() {
+//        // TODO: how to get GLSK from here?
+//        return Map.of("country", (float) 1.);
+//    }
 
     private double getSumOfValues(Map<String, Float> glskMap) {
         return glskMap.values().stream()

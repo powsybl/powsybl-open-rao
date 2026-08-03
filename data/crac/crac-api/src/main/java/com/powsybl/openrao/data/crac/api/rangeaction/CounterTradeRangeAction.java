@@ -10,6 +10,8 @@ package com.powsybl.openrao.data.crac.api.rangeaction;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
+import java.util.Map;
+
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
@@ -29,4 +31,9 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
      * Set the Glsk
      */
     void setGlsk(ZonalData<SensitivityVariableSet> glsk);
+
+    /**
+     * Get the Glsk
+     */
+    Map<String, Map<String, Double>> getGlsk();
 }

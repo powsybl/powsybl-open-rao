@@ -95,6 +95,54 @@
           "side": 2
         }
       ]
+    },
+    {
+      "id": "cnecLine3Preventive",
+      "name": "cnecLine3Preventive",
+      "networkElementId": "FFR1AA1  FFR2AA1  1",
+      "operator": null,
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "cnecLine3OutageLine1",
+      "name": "cnecLine3OutageLine1",
+      "networkElementId": "FFR1AA1  FFR2AA1  1",
+      "operator": null,
+      "instant": "outage",
+      "contingencyId": "line1",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -600,
+          "max": 600,
+          "side": 2
+        }
+      ]
     }
   ],
   "counterTradeRangeActions": [

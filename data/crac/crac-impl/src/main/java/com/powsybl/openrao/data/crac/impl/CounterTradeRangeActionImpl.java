@@ -69,6 +69,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.emptySet();
+        // modified instead the method: concatenateNetworkElementsIds.
     }
 
     @Override
@@ -85,8 +86,8 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     public void apply(Network network, double setpoint) {
         Map<String, Double> exporting = glsk.get(exportingArea);
         Map<String, Double> importing = glsk.get(importingArea);
-        exporting.forEach((key, value) -> applyCT(network, key, setpoint * value));
-        importing.forEach((key, value) -> applyCT(network, key, -setpoint * value));
+        exporting.forEach((key, value) -> applyCT(network, key, -setpoint * value));
+        importing.forEach((key, value) -> applyCT(network, key, setpoint * value));
     }
 
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
@@ -101,6 +102,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                         .apply(network, true, ReportNode.NO_OP);
             return;
         }
+        // TODO do the same with loads (see: injection range actions)
 
         if (network.getIdentifiable(generatorId) == null) {
             throw new OpenRaoException(String.format("Injection %s not found in network", generatorId));
@@ -114,6 +116,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public double getCurrentSetpoint(Network network) {
         return 0;
+        // TODO: need to change this or not??
     }
 
     @Override
@@ -156,5 +159,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                  .getVariablesById()
                  .forEach((id, variable) -> glsk.get(getExportingArea()).put(id, variable.getWeight()));
 
+    }
+
+    public Map<String, Map<String, Double>> getGlsk() {
+        return glsk;
     }
 }

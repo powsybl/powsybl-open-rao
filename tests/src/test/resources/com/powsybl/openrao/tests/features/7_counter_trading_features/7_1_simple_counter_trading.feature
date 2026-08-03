@@ -38,12 +38,12 @@ Feature: 7.1: Simple CT Actions
     Then its security status should be "SECURED"
     Then the remedial action "counterTradingAction_FRBE" is used in preventive
     Then the remedial action "counterTradingAction_FRES" is used in preventive
-    Then the generator "FFR1AA1 _generator" should have a targetP of 1050 MW after PRA
-    Then the generator "BBE1AA1 _generator" should have a targetP of -600 MW after PRA
-    Then the generator "EES1AA1 _generator" should have a targetP of -450 MW after PRA
+    Then the generator "FFR1AA1 _generator" should have a targetP of -1050 MW after PRA
+    Then the generator "BBE1AA1 _generator" should have a targetP of 600 MW after PRA
+    Then the generator "EES1AA1 _generator" should have a targetP of 450 MW after PRA
 
   @rao @counter-trading
-  Scenario: 7.1.3: Preventive search tree RAO with 2 areas and 2 generators in an area
+  Scenario: 7.1.4: Preventive search tree RAO with 2 areas and 2 generators in an area
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -52,6 +52,6 @@ Feature: 7.1: Simple CT Actions
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the remedial action "counterTradingAction" is used in preventive
-    Then the generator "FFR1AA1 _generator" should have a targetP of 420 MW after PRA
-    Then the generator "FFR2AA1 _generator" should have a targetP of 180 MW after PRA
+    Then the generator "FFR1AA1 _generator" should have a targetP of 220 MW after PRA
+    Then the generator "FFR2AA1 _generator" should have a targetP of 380 MW after PRA
     Then the value of the objective function after PRA should be 20010.0

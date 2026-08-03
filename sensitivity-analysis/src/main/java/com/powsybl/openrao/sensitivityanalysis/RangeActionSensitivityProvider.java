@@ -144,6 +144,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 glsk.forEach((key, value) -> glsk.put(key, value / glskSum));
             }
         });
+        // TODO: do the same for the loads, with negative sign? Remove it all?
         return allGlsks;
     }
 
@@ -163,12 +164,12 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                                          Map<String, SensitivityVariableType> sensitivityVariables,
                                          Set<String> glskIds) {
         CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
-        var glsk = getGlsk(network);
+        var glsk = counterTradeRangeAction.getGlsk();
         var exporting = glsk.get(counterTradeRangeAction.getExportingArea());
         var importing = glsk.get(counterTradeRangeAction.getImportingArea());
 
-        var positiveGlskMap = getPositiveGlskMap(exporting);
-        positiveGlskMap.putAll(getNegativeGlskMap(importing));
+        var positiveGlskMap = getPositiveGlskMap(importing);
+        positiveGlskMap.putAll(getNegativeGlskMap(exporting));
 
         if (!positiveGlskMap.isEmpty()) {
             List<WeightedSensitivityVariable> positiveGlsk = positiveGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
@@ -179,10 +180,10 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
         }
 
-        var negativeGlskMap = getNegativeGlskMap(exporting);
-        negativeGlskMap.putAll(getPositiveGlskMap(importing));
+        var negativeGlskMap = getNegativeGlskMap(importing);
+        negativeGlskMap.putAll(getPositiveGlskMap(exporting));
         if (!negativeGlskMap.isEmpty()) {
-            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
+            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), -e.getValue())).toList();
             String negativeGlskMapId = handler.getNegativeGlskMapId();
             sensitivityVariables.put(negativeGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.putIfAbsent(negativeGlskMapId, new SensitivityVariableSet(negativeGlskMapId, negativeGlsk));

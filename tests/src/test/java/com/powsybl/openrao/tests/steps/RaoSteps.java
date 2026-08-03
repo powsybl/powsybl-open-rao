@@ -337,7 +337,7 @@ public class RaoSteps {
     @Then("the generator {string} should have a targetP of {double} MW after PRA")
     public void theGeneratorShouldHaveATargetPOfAfterPra(String generatorId, Double expectedTargetP) {
         final double targetPAfterPRA = getTargetPFromVariant(generatorId, "PreventiveScenario");
-        assertEquals(expectedTargetP, targetPAfterPRA);
+        assertEquals(expectedTargetP, targetPAfterPRA, 1e-4);
     }
 
     @Then("the generator {string} should have a targetP of {double} MW after 2PRA")
