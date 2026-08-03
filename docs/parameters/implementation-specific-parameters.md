@@ -175,7 +175,7 @@ when searching for the best network actions.
   considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
 
-##### island-creation-allowed
+##### allow-electrical-island-creation
 - **Expected value**: boolean
 - **Default value**: true
 - **Usage**: configures whether islands can be created during the search-tree.  
@@ -509,7 +509,7 @@ These parameters are meant to be used in costly optimization only.
         ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,
-        "island-creation-allowed": true
+        "allow-electrical-island-creation": true
       },
       "multi-threading" : {
         "available-cpus" : 4

@@ -76,7 +76,7 @@ Examples of rao parameters with business and implementation specific parameters
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,
-        "island-creation-allowed" : true
+        "allow-electrical-island-creation" : true
       },
       "multi-threading" : {
         "available-cpus" : 4

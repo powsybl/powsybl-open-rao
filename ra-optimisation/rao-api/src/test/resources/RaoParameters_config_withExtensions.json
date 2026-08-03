@@ -55,7 +55,7 @@
         "predefined-combinations" : [ [ "na1", "na2" ], [ "na3", "na4", "na5" ] ],
         "skip-actions-far-from-most-limiting-element" : true,
         "max-number-of-boundaries-for-skipping-actions" : 3,
-        "island-creation-allowed" : true
+        "allow-electrical-island-creation" : true
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",

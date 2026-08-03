@@ -31,14 +31,14 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
-    private static final boolean DEFAULT_ISLAND_CREATION_ALLOWED = true;
+    private static final boolean DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION = true;
     // Attributes
     private int maxPreventiveSearchTreeDepth;
     private int maxCurativeSearchTreeDepth;
     private List<List<String>> predefinedCombinations;
     private boolean skipActionsFarFromMostLimitingElement;
     private int maxNumberOfBoundariesForSkippingActions;
-    private boolean islandCreationAllowed;
+    private boolean allowElectricalIslandCreation;
     private final ReportNode reportNode;
 
     public SearchTreeRaoTopoOptimizationParameters(final ReportNode reportNode) {
@@ -47,7 +47,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
         this.predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
         this.skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
         this.maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
-        this.islandCreationAllowed = DEFAULT_ISLAND_CREATION_ALLOWED;
+        this.allowElectricalIslandCreation = DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION;
         this.reportNode = reportNode;
     }
 
@@ -76,8 +76,8 @@ public class SearchTreeRaoTopoOptimizationParameters {
         }
     }
 
-    public void setIslandCreationAllowed(boolean islandCreationAllowed) {
-        this.islandCreationAllowed = islandCreationAllowed;
+    public void setAllowElectricalIslandCreation(boolean allowElectricalIslandCreation) {
+        this.allowElectricalIslandCreation = allowElectricalIslandCreation;
     }
 
     public int getMaxPreventiveSearchTreeDepth() {
@@ -96,8 +96,8 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return maxNumberOfBoundariesForSkippingActions;
     }
 
-    public boolean getIslandCreationAllowed() {
-        return islandCreationAllowed;
+    public boolean getAllowElectricalIslandCreation() {
+        return allowElectricalIslandCreation;
     }
 
     public List<List<String>> getPredefinedCombinations() {
@@ -116,7 +116,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
                     ));
                     parameters.setSkipActionsFarFromMostLimitingElement(config.getBooleanProperty(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT));
                     parameters.setMaxNumberOfBoundariesForSkippingActions(config.getIntProperty(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS, DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS));
-                    parameters.setIslandCreationAllowed(config.getBooleanProperty(ISLAND_CREATION_ALLOWED, DEFAULT_ISLAND_CREATION_ALLOWED));
+                    parameters.setAllowElectricalIslandCreation(config.getBooleanProperty(ALLOW_ELECTRICAL_ISLAND_CREATION, DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION));
                 });
         return parameters;
     }

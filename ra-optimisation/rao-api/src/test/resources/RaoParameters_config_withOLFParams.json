@@ -40,7 +40,7 @@
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,
-        "island-creation-allowed" : true
+        "allow-electrical-island-creation" : true
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",

@@ -43,7 +43,7 @@ final class JsonTopoOptimizationParameters {
         jsonGenerator.writeEndArray();
         jsonGenerator.writeBooleanField(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
-        jsonGenerator.writeBooleanField(ISLAND_CREATION_ALLOWED, parameters.getTopoOptimizationParameters().getIslandCreationAllowed());
+        jsonGenerator.writeBooleanField(ALLOW_ELECTRICAL_ISLAND_CREATION, parameters.getTopoOptimizationParameters().getAllowElectricalIslandCreation());
         jsonGenerator.writeEndObject();
     }
 
@@ -68,9 +68,9 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(jsonParser.getIntValue());
                 }
-                case ISLAND_CREATION_ALLOWED -> {
+                case ALLOW_ELECTRICAL_ISLAND_CREATION -> {
                     jsonParser.nextToken();
-                    searchTreeParameters.getTopoOptimizationParameters().setIslandCreationAllowed(jsonParser.getBooleanValue());
+                    searchTreeParameters.getTopoOptimizationParameters().setAllowElectricalIslandCreation(jsonParser.getBooleanValue());
                 }
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
