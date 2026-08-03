@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JsonFbConstraintCracCreationParametersTest {
     private static final String POLE_ID = "EIC_OF_POLE";
     private static final String HVDC_EIC = "EIC_OF_HVDC";
+    private static final String HVDC_CODE = "CODE_OF_HVDC";
 
     private static FbConstraintCracCreationParameters getFbConstraintCracCreationParameters() {
         final FbConstraintCracCreationParameters exportedFbConstraintParameters = new FbConstraintCracCreationParameters();
@@ -42,13 +43,13 @@ class JsonFbConstraintCracCreationParametersTest {
         exportedFbConstraintParameters.setIcsCostDown(15.0);
 
         final HvdcPole pole1 = new HvdcPole(POLE_ID + "1", List.of(new HvdcConverter("node 1A", "station A"),
-                                                             new HvdcConverter("node 1B", "station B")),
-                                            List.of(new HvdcLine("node 1A", "node 1B")));
+                                                                   new HvdcConverter("node 1B", "station B")),
+                                            List.of(new HvdcLine("1", "node 1A", "node 1B")));
         final HvdcPole pole2 = new HvdcPole(POLE_ID + "2", List.of(new HvdcConverter("node 2A", "station A"),
-                                                             new HvdcConverter("node 2B", "station B")),
-                                            List.of(new HvdcLine("node 2A", "node 2B")));
+                                                                   new HvdcConverter("node 2B", "station B")),
+                                            List.of(new HvdcLine("2", "node 2A", "node 2B")));
 
-        exportedFbConstraintParameters.setInternalHvdcs(List.of(new InternalHvdc(HVDC_EIC, List.of(pole1, pole2))));
+        exportedFbConstraintParameters.setInternalHvdcs(List.of(new InternalHvdc(HVDC_EIC, HVDC_CODE, List.of(pole1, pole2))));
         return exportedFbConstraintParameters;
     }
 
@@ -82,27 +83,27 @@ class JsonFbConstraintCracCreationParametersTest {
 
         Assertions.assertThat(pole1.converters()).hasSize(2);
         Assertions.assertThat(pole1.converters().get(0))
-            .hasFieldOrPropertyWithValue("node", "node 1A")
-            .hasFieldOrPropertyWithValue("station", "station A");
+                .hasFieldOrPropertyWithValue("node", "node 1A")
+                .hasFieldOrPropertyWithValue("station", "station A");
         Assertions.assertThat(pole1.converters().get(1))
-            .hasFieldOrPropertyWithValue("node", "node 1B")
-            .hasFieldOrPropertyWithValue("station", "station B");
+                .hasFieldOrPropertyWithValue("node", "node 1B")
+                .hasFieldOrPropertyWithValue("station", "station B");
         Assertions.assertThat(pole1.lines()).hasSize(1);
         Assertions.assertThat(pole1.lines().getFirst())
-            .hasFieldOrPropertyWithValue("from", "node 1A")
-            .hasFieldOrPropertyWithValue("to", "node 1B");
+                .hasFieldOrPropertyWithValue("from", "node 1A")
+                .hasFieldOrPropertyWithValue("to", "node 1B");
 
         Assertions.assertThat(pole2.converters()).hasSize(2);
         Assertions.assertThat(pole2.converters().get(0))
-            .hasFieldOrPropertyWithValue("node", "node 2A")
-            .hasFieldOrPropertyWithValue("station", "station A");
+                .hasFieldOrPropertyWithValue("node", "node 2A")
+                .hasFieldOrPropertyWithValue("station", "station A");
         Assertions.assertThat(pole2.converters().get(1))
-            .hasFieldOrPropertyWithValue("node", "node 2B")
-            .hasFieldOrPropertyWithValue("station", "station B");
+                .hasFieldOrPropertyWithValue("node", "node 2B")
+                .hasFieldOrPropertyWithValue("station", "station B");
         Assertions.assertThat(pole2.lines()).hasSize(1);
         Assertions.assertThat(pole2.lines().getFirst())
-            .hasFieldOrPropertyWithValue("from", "node 2A")
-            .hasFieldOrPropertyWithValue("to", "node 2B");
+                .hasFieldOrPropertyWithValue("from", "node 2A")
+                .hasFieldOrPropertyWithValue("to", "node 2B");
 
     }
 
@@ -117,48 +118,51 @@ class JsonFbConstraintCracCreationParametersTest {
         JsonCracCreationParameters.write(exportedParameters, os);
 
         Assertions.assertThat(os.toString().replace("\r\n", "\n")).isEqualTo("""
-                                                                                    {
-                                                                                      "crac-factory" : "CracImplFactory",
-                                                                                      "default-monitored-line-side" : "monitor-lines-on-both-sides",
-                                                                                      "ra-usage-limits-per-instant" : [ ],
-                                                                                      "extensions" : {
-                                                                                        "FbConstraintCracCreatorParameters" : {
-                                                                                          "timestamp" : "2025-01-10T05:00:00Z",
-                                                                                          "ics-cost-up" : 30.0,
-                                                                                          "ics-cost-down" : 15.0,
-                                                                                          "internal-hvdcs" : [ {
-                                                                                            "eic" : "EIC_OF_HVDC",
-                                                                                            "poles" : [ {
-                                                                                              "id" : "EIC_OF_POLE1",
-                                                                                              "converters" : [ {
-                                                                                                "node" : "node 1A",
-                                                                                                "station" : "station A"
-                                                                                              }, {
-                                                                                                "node" : "node 1B",
-                                                                                                "station" : "station B"
-                                                                                              } ],
-                                                                                              "lines" : [ {
-                                                                                                "from" : "node 1A",
-                                                                                                "to" : "node 1B"
-                                                                                              } ]
-                                                                                            }, {
-                                                                                              "id" : "EIC_OF_POLE2",
-                                                                                              "converters" : [ {
-                                                                                                "node" : "node 2A",
-                                                                                                "station" : "station A"
-                                                                                              }, {
-                                                                                                "node" : "node 2B",
-                                                                                                "station" : "station B"
-                                                                                              } ],
-                                                                                              "lines" : [ {
-                                                                                                "from" : "node 2A",
-                                                                                                "to" : "node 2B"
-                                                                                              } ]
-                                                                                            } ]
-                                                                                          } ]
-                                                                                        }
-                                                                                      }
-                                                                                    }""");
+                                                                                     {
+                                                                                       "crac-factory" : "CracImplFactory",
+                                                                                       "default-monitored-line-side" : "monitor-lines-on-both-sides",
+                                                                                       "ra-usage-limits-per-instant" : [ ],
+                                                                                       "extensions" : {
+                                                                                         "FbConstraintCracCreatorParameters" : {
+                                                                                           "timestamp" : "2025-01-10T05:00:00Z",
+                                                                                           "ics-cost-up" : 30.0,
+                                                                                           "ics-cost-down" : 15.0,
+                                                                                           "internal-hvdcs" : [ {
+                                                                                             "code" : "CODE_OF_HVDC",
+                                                                                             "eic" : "EIC_OF_HVDC",
+                                                                                             "poles" : [ {
+                                                                                               "id" : "EIC_OF_POLE1",
+                                                                                               "converters" : [ {
+                                                                                                 "node" : "node 1A",
+                                                                                                 "station" : "station A"
+                                                                                               }, {
+                                                                                                 "node" : "node 1B",
+                                                                                                 "station" : "station B"
+                                                                                               } ],
+                                                                                               "lines" : [ {
+                                                                                                 "id" : "1",
+                                                                                                 "from" : "node 1A",
+                                                                                                 "to" : "node 1B"
+                                                                                               } ]
+                                                                                             }, {
+                                                                                               "id" : "EIC_OF_POLE2",
+                                                                                               "converters" : [ {
+                                                                                                 "node" : "node 2A",
+                                                                                                 "station" : "station A"
+                                                                                               }, {
+                                                                                                 "node" : "node 2B",
+                                                                                                 "station" : "station B"
+                                                                                               } ],
+                                                                                               "lines" : [ {
+                                                                                                 "id" : "2",
+                                                                                                 "from" : "node 2A",
+                                                                                                 "to" : "node 2B"
+                                                                                               } ]
+                                                                                             } ]
+                                                                                           } ]
+                                                                                         }
+                                                                                       }
+                                                                                     }""");
     }
 
     @Test

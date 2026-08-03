@@ -91,6 +91,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
         searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
+        searchTreeParameters.getTopoOptimizationParameters().setAllowElectricalIslandCreation(false);
         // Multi-threading parameters
         searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(21);
         // Second preventive RAO parameters

@@ -63,7 +63,8 @@
         "max-curative-search-tree-depth" : 10,
         "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation" : false
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",

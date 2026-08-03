@@ -10,5 +10,5 @@ package com.powsybl.openrao.virtualhubs;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-public record HvdcLine(String from, String to) {
+public record HvdcLine(String id, String from, String to) {
 }

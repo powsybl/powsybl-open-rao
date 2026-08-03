@@ -129,7 +129,7 @@ class VirtualHubsConfigurationImporter {
             .filter(Objects::nonNull)
             .toList();
 
-        configuration.addInternalHvdc(new InternalHvdc(internalHvdc.getEic(), hvdcPoles));
+        configuration.addInternalHvdc(new InternalHvdc(internalHvdc.getEic(), internalHvdc.getCode(), hvdcPoles));
     }
 
     private static HvdcPole poleTypeToHvdcPole(final PoleType pole) {
@@ -151,7 +151,7 @@ class VirtualHubsConfigurationImporter {
         final List<Serializable> lineLists = pole.getLineList().getContent();
         for (Serializable serializableConverter : lineLists) {
             if (serializableConverter instanceof JAXBElement<?> element && element.getValue() instanceof LineListType.Line hvdcLine) {
-                hvdcLines.add(new HvdcLine(hvdcLine.getFrom(), hvdcLine.getTo()));
+                hvdcLines.add(new HvdcLine(hvdcLine.getId(), hvdcLine.getFrom(), hvdcLine.getTo()));
             }
         }
 
