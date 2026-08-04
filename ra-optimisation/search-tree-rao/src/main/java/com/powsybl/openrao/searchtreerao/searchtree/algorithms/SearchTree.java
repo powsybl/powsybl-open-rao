@@ -90,7 +90,7 @@ public class SearchTree {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
-    private Optional<Integer> initialNumberOfConnectedComponent;
+    private Integer initialNumberOfConnectedComponent;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
@@ -107,8 +107,9 @@ public class SearchTree {
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
         this.bloomer = new SearchTreeBloomer(input, parameters);
+        this.initialNumberOfConnectedComponent = null;
         if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
-            this.initialNumberOfConnectedComponent = Optional.of(getNumberOfConnectedComponent(input.getNetwork()));
+            this.initialNumberOfConnectedComponent = getNumberOfConnectedComponent(input.getNetwork());
         }
     }
 

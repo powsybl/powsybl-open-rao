@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
@@ -52,10 +51,10 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCostDetailed;
 
 /**
@@ -110,7 +109,7 @@ public class Leaf implements OptimizationResult {
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
          boolean allowElectricalIslandCreation,
-         Optional<Integer> initialNumberOfConnectedComponent) {
+         Integer initialNumberOfConnectedComponent) {
 
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
@@ -133,8 +132,10 @@ public class Leaf implements OptimizationResult {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
 
+            // If island creation is not allowed, verify whether the network action (+ contingency in curative) creates an island
+            // before evaluating or optimizing the leaf. This saves computation time by rejecting invalid network actions upfront.
             if (!allowElectricalIslandCreation) {
-                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent.orElseThrow());
+                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent);
             }
         }
 
@@ -149,7 +150,7 @@ public class Leaf implements OptimizationResult {
             network,
             Collections.emptySet(),
             null,
-            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, Optional.empty()
+            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, null
         );
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
@@ -167,19 +168,13 @@ public class Leaf implements OptimizationResult {
             // Apply contingency and number of connected component
             applyContingency(network, optimizationPerimeter.getMainOptimizationState());
 
-            newNbOfComponent = StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
-                .map(Bus::getConnectedComponent)
-                .distinct()
-                .count();
+            newNbOfComponent = getNumberOfConnectedComponent(network);
 
             // Reset working variant
             network.getVariantManager().setWorkingVariant(initialVariantId);
             network.getVariantManager().removeVariant(tmpVariant);
         } else {
-            newNbOfComponent = StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
-                .map(Bus::getConnectedComponent)
-                .distinct()
-                .count();
+            newNbOfComponent = getNumberOfConnectedComponent(network);
         }
 
         if (newNbOfComponent > initialNbOfComponent) {
