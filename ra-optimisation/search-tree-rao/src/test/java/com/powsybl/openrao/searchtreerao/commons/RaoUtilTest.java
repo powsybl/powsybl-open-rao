@@ -542,7 +542,6 @@ class RaoUtilTest {
 
     @Test
     void testGetNumberOfConnectedComponent() {
-        assertEquals(1, RaoUtil.getNumberOfConnectedComponent(network));
         int numberOfComponents = RaoUtil.getNumberOfConnectedComponent(network);
         assertEquals(1, numberOfComponents);
         network.getGenerator("FFR1AA1 _generator").getTerminal().disconnect();
