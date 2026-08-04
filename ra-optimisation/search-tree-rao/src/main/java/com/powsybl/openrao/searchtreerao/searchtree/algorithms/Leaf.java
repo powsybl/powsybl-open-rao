@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -47,17 +48,13 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCostDetailed;
 
 /**
@@ -110,7 +107,10 @@ public class Leaf implements OptimizationResult {
          NetworkActionCombination newCombinationToApply,
          RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         boolean allowElectricalIslandCreation,
+         Integer initialNumberOfConnectedComponent) {
+
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
         this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
@@ -127,9 +127,15 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
+            boolean applicationSuccess = na.apply(network);
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
+            }
+
+            // If island creation is not allowed, verify whether the network action (+ contingency in curative) creates an island
+            // before evaluating or optimizing the leaf. This saves computation time by rejecting invalid network actions upfront.
+            if (!allowElectricalIslandCreation) {
+                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent);
             }
         }
 
@@ -140,10 +146,40 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter,
+            network,
+            Collections.emptySet(),
+            null,
+            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, null
+        );
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
+    }
+
+    private static void throwAnErrorIfIslandIsCreated(OptimizationPerimeter optimizationPerimeter, Network network, NetworkAction networkAction, double initialNbOfComponent) {
+        double newNbOfComponent;
+        if (!optimizationPerimeter.getMainOptimizationState().isPreventive()) {
+            String initialVariantId = network.getVariantManager().getWorkingVariantId();
+            String tmpVariant = RandomizedString.getRandomizedString("check_island", network.getVariantManager().getVariantIds(), 10);
+            network.getVariantManager().cloneVariant(initialVariantId, tmpVariant);
+            network.getVariantManager().setWorkingVariant(tmpVariant);
+
+            // Apply contingency and number of connected component
+            applyContingency(network, optimizationPerimeter.getMainOptimizationState());
+
+            newNbOfComponent = getNumberOfConnectedComponent(network);
+
+            // Reset working variant
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            network.getVariantManager().removeVariant(tmpVariant);
+        } else {
+            newNbOfComponent = getNumberOfConnectedComponent(network);
+        }
+
+        if (newNbOfComponent > initialNbOfComponent) {
+            throw new OpenRaoException(String.format("%s will not be evaluated because it creates an island", networkAction.getId()));
+        }
     }
 
     public FlowResult getPreOptimBranchResult() {

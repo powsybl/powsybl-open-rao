@@ -22,16 +22,16 @@ class HvdcPoleTest {
     void checkThatPoleCreationThrowsWhenConvertersIsNull() {
         final List<HvdcLine> lines = List.of();
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new HvdcPole(POLE_ID, null, lines))
-            .withMessage("Virtual hubs configuration does not allow adding null hvdc converters");
+                .isThrownBy(() -> new HvdcPole(POLE_ID, null, lines))
+                .withMessage("Virtual hubs configuration does not allow adding null hvdc converters");
     }
 
     @Test
     void checkThatPoleCreationThrowsWhenLinesIsNull() {
         final List<HvdcConverter> converters = List.of();
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new HvdcPole(POLE_ID, converters, null))
-            .withMessage("Virtual hubs configuration does not allow adding null hvdc lines");
+                .isThrownBy(() -> new HvdcPole(POLE_ID, converters, null))
+                .withMessage("Virtual hubs configuration does not allow adding null hvdc lines");
     }
 
     @Test
@@ -46,7 +46,7 @@ class HvdcPoleTest {
     void createPole() {
         final HvdcConverter hvdcConverter = new HvdcConverter("node value", "station value");
         final List<HvdcConverter> converters = List.of(hvdcConverter);
-        final HvdcLine hvdcLine = new HvdcLine("from node", "to node");
+        final HvdcLine hvdcLine = new HvdcLine("id", "from node", "to node");
         final List<HvdcLine> lines = List.of(hvdcLine);
         final HvdcPole pole = new HvdcPole(POLE_ID, converters, lines);
         Assertions.assertThat(pole).isNotNull();
