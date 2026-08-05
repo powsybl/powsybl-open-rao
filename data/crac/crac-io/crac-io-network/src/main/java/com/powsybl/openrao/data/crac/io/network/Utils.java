@@ -49,6 +49,13 @@ public final class Utils {
         return terminalIsInCountries(branch.getTerminal1(), countries) || terminalIsInCountries(branch.getTerminal2(), countries);
     }
 
+    public static boolean hvdcIsInCountries(HvdcLine hvdcLine, Set<Country> countries) {
+        if (countries == null) {
+            return true;
+        }
+        return terminalIsInCountries(hvdcLine.getConverterStation1().getTerminal(), countries) || terminalIsInCountries(hvdcLine.getConverterStation2().getTerminal(), countries);
+    }
+
     public static boolean injectionIsInCountries(Injection<?> generator, Set<Country> countries) {
         if (countries == null) {
             return true;
