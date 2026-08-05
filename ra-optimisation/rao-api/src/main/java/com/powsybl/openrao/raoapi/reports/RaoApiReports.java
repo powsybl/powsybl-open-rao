@@ -28,7 +28,7 @@ public final class RaoApiReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion, gitCommit);
+        BUSINESS_WARNS.warn("Running RAO using OpenRAO version {} from git commit {}.", openRaoVersion, gitCommit);
     }
 
     public static void reportNegativeMinimumObjectiveImprovement(final ReportNode parentNode, final double curativeRaoMinObjImprovement) {
