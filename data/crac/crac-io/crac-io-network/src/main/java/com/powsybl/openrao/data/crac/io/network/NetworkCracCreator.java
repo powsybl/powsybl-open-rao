@@ -47,6 +47,7 @@ public final class NetworkCracCreator {
 
         new CnecCreator(creationContext, network, cracCreationParameters).addCnecs();
         new PstRangeActionsCreator(creationContext, network, specificParameters.getPstRangeActions(), computeRaGroupsMap(specificParameters)).addPstRangeActions();
+        new HvdcRangeActionsCreator(creationContext, network, specificParameters.getHvdcRangeActions()).addHvdcRangeActions();
         new RedispatchingCreator(creationContext, network, specificParameters.getRedispatchingRangeActions()).addRedispatchRangeActions();
         new CountertradingRangeActionsCreator(creationContext, network, specificParameters.getCountertradingRangeActions()).addCountertradingActions();
         new BalancingRangeActionCreator(creationContext, network, specificParameters.getBalancingRangeAction()).addBalancingRangeAction();

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -29,9 +30,11 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> rdRaPredicate = (injection, instant, c) -> injection.getType() == IdentifiableType.GENERATOR;
     private BiFunction<Injection<?>, Instant, RangeActionCosts> raCostsProvider = (injection, instant) -> new RangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
+    private BiFunction<Injection<?>, Instant, Optional<Double>> raMinimumAdjustmentProvider = (injection, instant) -> Optional.empty();
     private Map<String, Set<String>> injectionCombinations = new HashMap<>();
     private BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider = (cominationId, instant) -> new MinAndMax<>(null, null);
     private BiFunction<String, Instant, RangeActionCosts> combinationCostsProvider = (combinationId, instant) -> new RangeActionCosts(0, 0, 0);
+    private BiFunction<String, Instant, Optional<Double>> combinationMinimumAdjustmentProvider = (injection, instant) -> Optional.empty();
 
     RedispatchingRangeActions() {
     }
@@ -84,6 +87,18 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
         return raRangeProvider.apply(injection, instant);
     }
 
+    /**
+     * Set the function that provides the minimum adjustment in MW for redispatching on given injection at a given instant.
+     * Not setting this (or using an empty optional) will set the minimum adjustment to 0 MW (no extra constraint).
+     */
+    public void setRaMinimumAdjustmentProvider(BiFunction<Injection<?>, Instant, Optional<Double>> raMinimumAdjustmentProvider) {
+        this.raMinimumAdjustmentProvider = raMinimumAdjustmentProvider;
+    }
+
+    public Optional<Double> getRaMinimumAdjustment(Injection<?> injection, Instant instant) {
+        return raMinimumAdjustmentProvider.apply(injection, instant);
+    }
+
     public Map<String, Set<String>> getInjectionCombinations() {
         return injectionCombinations;
     }
@@ -110,6 +125,18 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
      */
     public void setCombinationRangeProvider(BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider) {
         this.combinationRangeProvider = combinationRangeProvider;
+    }
+
+    /**
+     * Set the function that provides the minimum adjustment in MW for redispatching on an injection combination at a given instant.
+     * Not setting this (or using an empty optional) will set the minimum adjustment to 0 MW (no extra constraint).
+     */
+    public void setCombinationMinimumAdjustmentProvider(BiFunction<String, Instant, Optional<Double>> combinationMinimumAdjustmentProvider) {
+        this.combinationMinimumAdjustmentProvider = combinationMinimumAdjustmentProvider;
+    }
+
+    public Optional<Double> getCombinationMinimumAdjustment(String combinationId, Instant instant) {
+        return combinationMinimumAdjustmentProvider.apply(combinationId, instant);
     }
 
     public RangeActionCosts getCombinationCosts(String combinationId, Instant instant) {
