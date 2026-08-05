@@ -25,7 +25,7 @@ public final class RaoParametersCommons {
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
         3.4: add marmot-parameters
-        3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation
+        3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.5";
@@ -154,9 +154,4 @@ public final class RaoParametersCommons {
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
-
-    // -- PST regulation parameters
-    public static final String PST_REGULATION_PARAMETERS = "pst-regulation-parameters";
-    public static final String ST_PST_REGULATION_SECTION = "search-tree-pst-regulation-parameters";
-    public static final String PSTS_TO_REGULATE = "psts-to-regulate";
 }
