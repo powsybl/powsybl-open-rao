@@ -8,6 +8,9 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -40,6 +43,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
@@ -260,11 +264,28 @@ public final class RaoUtil {
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
 
+    public static void applyContingency(Network network, State state) {
+        if (state.getContingency().isPresent()) {
+            Contingency contingency = state.getContingency().orElseThrow();
+            if (!contingency.isValid(network)) {
+                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+            }
+            contingency.toModification().apply(network, (ComputationManager) null);
+        }
+    }
+
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
             .map(FlowCnec::getId)
             .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
+    }
+
+    public static int getNumberOfConnectedComponent(Network network) {
+        return Math.toIntExact(StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
+            .map(Bus::getConnectedComponent)
+            .distinct()
+            .count());
     }
 
     // TODO: find a better place for this function

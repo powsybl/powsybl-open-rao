@@ -156,4 +156,10 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return DEFAULT_PREDEFINED_COMBINATIONS;
     }
 
+    public static boolean isAllowElectricalIslandCreation(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getAllowElectricalIslandCreation();
+        }
+        return DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION;
+    }
 }
