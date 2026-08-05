@@ -165,6 +165,7 @@ class SearchTreeTest {
         predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
         when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
+        when(networkActionParameters.isAllowElectricalIslandCreation()).thenReturn(true);
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
         when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(Optional.ofNullable(loadFlowAndSensitivityParameters));
         SensitivityAnalysisParameters sensitivityAnalysisParameters = Mockito.mock(SensitivityAnalysisParameters.class);
