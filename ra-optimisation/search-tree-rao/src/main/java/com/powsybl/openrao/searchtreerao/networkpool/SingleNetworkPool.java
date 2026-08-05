@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.util;
+package com.powsybl.openrao.searchtreerao.networkpool;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;

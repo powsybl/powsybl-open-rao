@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.util;
+package com.powsybl.openrao.searchtreerao.networkpool;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.RandomizedString;
@@ -14,14 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import static com.powsybl.openrao.util.MCDContextWrapper.wrapWithMdcContext;
+import static com.powsybl.openrao.searchtreerao.networkpool.MCDContextWrapper.wrapWithMdcContext;
+
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
