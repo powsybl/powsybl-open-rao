@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -89,6 +90,7 @@ public class SearchTree {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
+    private Integer initialNumberOfConnectedComponent;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
@@ -105,6 +107,10 @@ public class SearchTree {
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
         this.bloomer = new SearchTreeBloomer(input, parameters);
+        this.initialNumberOfConnectedComponent = null;
+        if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
+            this.initialNumberOfConnectedComponent = getNumberOfConnectedComponent(input.getNetwork());
+        }
     }
 
     public CompletableFuture<OptimizationResult> run() {
@@ -387,7 +393,7 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) throws OpenRaoException {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
@@ -395,7 +401,9 @@ public class SearchTree {
             naCombination,
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
+            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
+            parameters.getNetworkActionParameters().isAllowElectricalIslandCreation(),
+            initialNumberOfConnectedComponent);
     }
 
     private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode) {

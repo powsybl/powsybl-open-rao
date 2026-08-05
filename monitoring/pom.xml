@@ -13,7 +13,7 @@
     <artifactId>open-rao-monitoring</artifactId>
     <packaging>jar</packaging>
     <name>Monitoring</name>
-    <description>Common monitoring algorithm for voltage and angle of Open RAO</description>
+    <description>Common monitoring algorithm for voltage and angle of OpenRAO</description>
 
     <dependencies>
         <!-- Compile dependencies -->

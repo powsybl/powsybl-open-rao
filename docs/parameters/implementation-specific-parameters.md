@@ -4,9 +4,9 @@
 
 Used to configure RAO implementation specific parameters
 
-### Open Rao Search Tree Parameters extension
+### OpenRAO Search Tree Parameters extension
 
-This extension is used to configure Open RAO specific parameters for search tree algorithms
+This extension is used to configure OpenRAO specific parameters for search tree algorithms
 
 #### Objective function parameters
 
@@ -405,14 +405,6 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
-#### PST regulation parameters
-
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
-
 ### Marmot Parameters extension
 
 #### number-of-cnecs-to-add-per-virtual-cost-name
@@ -450,15 +442,6 @@ These parameters are meant to be used in costly optimization only.
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: Set to true when the same topological actions must be applied on all the timestamps at once.
-
-
-#### PST regulation parameters
-
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
 
 ## Examples
 > ⚠️  **NOTE**  
@@ -587,12 +570,6 @@ These parameters are meant to be used in costly optimization only.
     "costly-min-margin-parameters" : {
       "shifted-violation-penalty": 1000.0,
       "shifted-violation-threshold": 0.0
-    },
-    "pst-regulation-parameters" : {
-      "psts-to-regulate": {
-        "pst-1": "line-1",
-        "pst-2": "line-2"
-      }
     }
   }
 }
