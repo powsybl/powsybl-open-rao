@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
@@ -33,6 +35,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -536,4 +539,47 @@ class RaoUtilTest {
         getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(false);
         assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(parameters));
     }
+
+    @Test
+    void testGetNumberOfConnectedComponent() {
+        int numberOfComponents = RaoUtil.getNumberOfConnectedComponent(network);
+        assertEquals(1, numberOfComponents);
+        network.getGenerator("FFR1AA1 _generator").getTerminal().disconnect();
+        network.getGenerator("FFR2AA1 _generator").getTerminal().disconnect();
+
+        Action elementaryAction1 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction1")
+            .withNetworkElementId("DDE2AA1  NNL3AA1  1")
+            .withOpen(true)
+            .build();
+        Action elementaryAction2 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction2")
+            .withNetworkElementId("FFR2AA1  DDE3AA1  1")
+            .withOpen(true)
+            .build();
+        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
+        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
+        NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+        networkActionThatCreateAnIsland.apply(network);
+        assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
+    }
+
+    @Test
+    void testApplyContingencyWithInvalidContingency() {
+        crac.newContingency()
+            .withId("InvalidContingency")
+            .withContingencyElement("NonExistentElement", com.powsybl.contingency.ContingencyElementType.LINE)
+            .add();
+        State stateWithInvalidContingency = Mockito.mock(State.class);
+        when(stateWithInvalidContingency.getContingency()).thenReturn(Optional.of(crac.getContingency("InvalidContingency")));
+
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency)
+        );
+        assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
+
+    }
+
 }
