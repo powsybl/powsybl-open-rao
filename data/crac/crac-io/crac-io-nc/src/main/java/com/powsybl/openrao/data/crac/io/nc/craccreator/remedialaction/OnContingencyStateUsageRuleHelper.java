@@ -42,7 +42,7 @@ public final class OnContingencyStateUsageRuleHelper {
                 contingencyStatusMap.put(
                     nativeContingencyWithRemedialAction.contingency(),
                     new AssociationStatus(false, ("OnContingencyState usage rule for remedial action %s with contingency %s ignored because this contingency " +
-                        "does not exist or was not imported by Open RAO.").formatted(remedialActionId, nativeContingencyWithRemedialAction.contingency()))
+                        "does not exist or was not imported by OpenRAO.").formatted(remedialActionId, nativeContingencyWithRemedialAction.contingency()))
                 );
                 continue;
             }
