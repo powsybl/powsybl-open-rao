@@ -26,7 +26,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
@@ -41,7 +40,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -155,11 +153,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         marmotParameters.setNumberOfThreads(1515);
         marmotParameters.setCurativeRangeActionsSynchronization(true);
         marmotParameters.setCurativeTopologicalActionsSynchronization(true);
-
-        // -- PST regulation parameters
-        SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
-        pstRegulationParameters.setPstsToRegulate(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"));
-        searchTreeParameters.setPstRegulationParameters(pstRegulationParameters);
 
         roundTripTest(
                 parameters,
