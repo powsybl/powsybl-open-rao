@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class UnitConverterTest {
+class UnitConverterTest {
 
     @Test
     void testGetFlowUnitMultiplier() {
