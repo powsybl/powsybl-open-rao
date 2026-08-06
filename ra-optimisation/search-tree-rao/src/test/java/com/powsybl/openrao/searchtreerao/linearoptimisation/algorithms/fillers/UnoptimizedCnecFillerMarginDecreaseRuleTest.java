@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -147,7 +148,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             maxMinRelativeMarginParameters,
             null);
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnecFr, TwoSides.ONE), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
-        double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnecFr, TwoSides.ONE, MEGAWATT, MEGAWATT);
+        double unitConversionCoefficient = getFlowUnitMultiplier(cnecFr.getNominalVoltage(TwoSides.ONE), MEGAWATT, MEGAWATT);
         constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecNl, cnecFr), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(

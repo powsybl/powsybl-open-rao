@@ -14,13 +14,13 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
 import static java.lang.String.format;
 
 /**
@@ -74,7 +74,7 @@ public class FlowResultImpl implements FlowResult {
         } else if (unit == Unit.AMPERE) {
             double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
             if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
+                return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }
@@ -90,7 +90,7 @@ public class FlowResultImpl implements FlowResult {
         } else if (unit == Unit.AMPERE) {
             double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side, instant);
             if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
+                return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant) * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }

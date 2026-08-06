@@ -54,6 +54,7 @@ import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredRegisteredResource;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredSeries;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newPtdfMeasurement;
+import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
@@ -319,7 +320,7 @@ public final class CoreCneCnecsCreator {
 
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
         // TODO : remove this when we go back to considering FRM in the exported threshold
-        double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double flowUnitMultiplier = getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
         double maxThreshold = cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
@@ -359,20 +360,6 @@ public final class CoreCneCnecsCreator {
             // no commercial flow
         }
         return measurements;
-    }
-
-    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new OpenRaoException("Only conversions between MW and A are supported.");
-        }
     }
 
     private TwoSides getMonitoredSide(FlowCnec cnec) {

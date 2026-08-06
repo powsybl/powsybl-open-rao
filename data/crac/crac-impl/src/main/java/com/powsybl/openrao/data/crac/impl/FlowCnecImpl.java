@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -106,8 +108,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                 double lowerBound = Double.NEGATIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
-                    currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound += changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), threshold.getUnit(), requestedUnit);
+                    currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
                     }
@@ -137,8 +139,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                 double upperBound = Double.POSITIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
-                    currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound -= changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), threshold.getUnit(), requestedUnit);
+                    currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;
                     }
@@ -158,19 +160,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
             return iMax * thresholdValue;
         } else {
             return thresholdValue;
-        }
-    }
-
-    private double changeValueUnit(double value, Unit oldUnit, Unit newUnit, TwoSides side) {
-        if (oldUnit.equals(newUnit) ||
-            oldUnit.equals(Unit.PERCENT_IMAX) && newUnit.equals(Unit.AMPERE)) {
-            return value;
-        } else {
-            double conversionFactor = Math.sqrt(3) * getNominalVoltage(side) / 1000; // Conversion from A to MW
-            if (oldUnit.equals(Unit.MEGAWATT) && newUnit.equals(Unit.AMPERE)) {
-                conversionFactor = 1 / conversionFactor;
-            }
-            return value * conversionFactor;
         }
     }
 
@@ -212,7 +201,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         double intensity = branch.getTerminal(side).getI();
         if (unit.equals(Unit.AMPERE)) {
             // In case flows are negative, we shall replace this value by its opposite
-            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplierMegawattToAmpere(side) : Math.signum(activeFlow) * intensity;
+            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE) : Math.signum(activeFlow) * intensity;
         } else if (!unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
@@ -303,11 +292,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    private double getFlowUnitMultiplierMegawattToAmpere(TwoSides voltageSide) {
-        double nominalVoltage = getNominalVoltage(voltageSide);
-        return 1000 / (nominalVoltage * Math.sqrt(3));
     }
 
 }

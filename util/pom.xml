@@ -20,53 +20,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-contingency-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-serde</artifactId>
-        </dependency>
 
         <!-- Test scope -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-config-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-ucte-converter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

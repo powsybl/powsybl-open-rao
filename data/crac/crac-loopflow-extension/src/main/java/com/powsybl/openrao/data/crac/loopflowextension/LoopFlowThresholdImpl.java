@@ -14,6 +14,8 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
+import static com.powsybl.openrao.util.UnitConverter.*;
+
 /**
  * Cnec extension for loop flow
  *
@@ -52,9 +54,13 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
             case MEGAWATT:
                 return getThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
             case AMPERE:
-                return getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
+                return getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin(), this.getExtendable().getNominalVoltage(TwoSides.ONE));
             case PERCENT_IMAX:
-                return getThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
+                return getThreshold(requestedUnit)
+                    - convertAToPercentImax(
+                        convertMWToA(this.getExtendable().getReliabilityMargin(), this.getExtendable().getNominalVoltage(TwoSides.ONE)),
+                        this.getExtendable().getNominalVoltage(TwoSides.ONE)
+                    );
             default:
                 throw new OpenRaoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
@@ -72,46 +78,30 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.AMPERE) {
-            return convertPercentImaxToA(inputThreshold);
+            return convertPercentImaxToA(inputThreshold, getCnecFmaxWithoutFrmInA());
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.MEGAWATT) {
-            return convertAToMW(convertPercentImaxToA(inputThreshold));
+            return convertAToMW(convertPercentImaxToA(inputThreshold, getCnecFmaxWithoutFrmInA()), getExtendable().getNominalVoltage(TwoSides.ONE));
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(inputThreshold);
+            return convertAToPercentImax(inputThreshold, getCnecFmaxWithoutFrmInA());
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.MEGAWATT) {
-            return convertAToMW(inputThreshold);
+            return convertAToMW(inputThreshold, getExtendable().getNominalVoltage(TwoSides.ONE));
         }
 
         if (inputThresholdUnit == Unit.MEGAWATT && requestedUnit == Unit.AMPERE) {
-            return convertMWToA(inputThreshold);
+            return convertMWToA(inputThreshold, getExtendable().getNominalVoltage(TwoSides.ONE));
         }
 
         if (inputThresholdUnit == Unit.MEGAWATT && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(convertMWToA(inputThreshold));
+            return convertAToPercentImax(convertMWToA(inputThreshold, getExtendable().getNominalVoltage(TwoSides.ONE)), getCnecFmaxWithoutFrmInA());
         }
 
         throw new OpenRaoException(String.format("Cannot convert %s into %s", inputThresholdUnit, requestedUnit));
-    }
-
-    private double convertMWToA(double valueInMW) {
-        return valueInMW * 1000 / (getExtendable().getNominalVoltage(TwoSides.ONE) * Math.sqrt(3));
-    }
-
-    private double convertAToMW(double valueInA) {
-        return valueInA * getExtendable().getNominalVoltage(TwoSides.ONE) * Math.sqrt(3) / 1000;
-    }
-
-    private double convertAToPercentImax(double valueInA) {
-        return valueInA / getCnecFmaxWithoutFrmInA();
-    }
-
-    private double convertPercentImaxToA(double valueInPercent) {
-        return valueInPercent * getCnecFmaxWithoutFrmInA();
     }
 
     private double getCnecFmaxWithoutFrmInA() {
@@ -123,6 +113,7 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
             getExtendable().getLowerBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
             getExtendable().getLowerBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
         );
-        return Math.min(minUpperBound, -maxLowerBound) + convertMWToA(getExtendable().getReliabilityMargin());
+        return Math.min(minUpperBound, -maxLowerBound)
+            + convertMWToA(getExtendable().getReliabilityMargin(), getExtendable().getNominalVoltage(TwoSides.ONE));
     }
 }
