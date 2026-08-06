@@ -108,7 +108,11 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                 double lowerBound = Double.NEGATIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
-                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), threshold.getUnit(), requestedUnit);
+                    Unit initialUnit = threshold.getUnit();
+                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                        initialUnit = Unit.AMPERE;
+                    }
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
                     currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
@@ -139,7 +143,11 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                 double upperBound = Double.POSITIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
-                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), threshold.getUnit(), requestedUnit);
+                    Unit initialUnit = threshold.getUnit();
+                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                        initialUnit = Unit.AMPERE;
+                    }
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
                     currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;

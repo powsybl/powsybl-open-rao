@@ -59,7 +59,7 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
                 return getThreshold(requestedUnit)
                     - convertAToPercentImax(
                         convertMWToA(this.getExtendable().getReliabilityMargin(), this.getExtendable().getNominalVoltage(TwoSides.ONE)),
-                        this.getExtendable().getNominalVoltage(TwoSides.ONE)
+                        getCnecFmaxWithoutFrmInA()
                     );
             default:
                 throw new OpenRaoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
