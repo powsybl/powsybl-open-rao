@@ -17,10 +17,6 @@
     <dependencies>
         <!-- Compile scope -->
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
         </dependency>
