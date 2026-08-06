@@ -18,7 +18,6 @@ import java.util.concurrent.*;
 
 import static com.powsybl.openrao.searchtreerao.networkpool.MCDContextWrapper.wrapWithMdcContext;
 
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
