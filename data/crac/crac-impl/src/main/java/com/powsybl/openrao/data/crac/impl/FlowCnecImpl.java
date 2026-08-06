@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

@@ -54,7 +54,7 @@ import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredRegisteredResource;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredSeries;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newPtdfMeasurement;
-import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series

@@ -14,7 +14,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
-import static com.powsybl.openrao.util.UnitConverter.*;
+import static com.powsybl.openrao.commons.UnitConverter.*;
 
 /**
  * Cnec extension for loop flow

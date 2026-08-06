@@ -40,7 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -5,10 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.util;
-
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
+package com.powsybl.openrao.commons;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

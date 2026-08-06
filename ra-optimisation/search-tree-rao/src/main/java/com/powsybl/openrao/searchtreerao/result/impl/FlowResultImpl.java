@@ -20,7 +20,7 @@ import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.powsybl.openrao.util.UnitConverter.getFlowUnitMultiplier;
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static java.lang.String.format;
 
 /**
