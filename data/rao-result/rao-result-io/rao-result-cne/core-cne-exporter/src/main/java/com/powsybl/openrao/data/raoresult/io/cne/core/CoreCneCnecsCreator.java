@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_PATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE;
@@ -54,7 +55,6 @@ import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredRegisteredResource;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newMonitoredSeries;
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newPtdfMeasurement;
-import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
