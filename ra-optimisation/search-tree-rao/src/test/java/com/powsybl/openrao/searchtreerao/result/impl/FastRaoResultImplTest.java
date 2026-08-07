@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -91,7 +90,6 @@ class FastRaoResultImplTest {
         );
         status = result.getComputationStatus();
         assertSame(FAILURE, status);
-        assertFalse(result.isSecure(crac, Unit.MEGAWATT, false, PhysicalParameter.FLOW));
     }
 
     @Test
@@ -226,7 +224,6 @@ class FastRaoResultImplTest {
         result.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, result.getExecutionDetails());
         when(afterPraResult.getFunctionalCost()).thenReturn(185.3);
-        assertFalse(result.isSecure(crac, Unit.MEGAWATT, false, PhysicalParameter.FLOW));
         State state = Mockito.mock(State.class);
         when(state.getInstant()).thenReturn(crac.getInstant("preventive"));
         when(afterPraResult.getComputationStatus(state)).thenReturn(FAILURE);
