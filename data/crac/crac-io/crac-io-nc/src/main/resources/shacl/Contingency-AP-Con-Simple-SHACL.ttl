@@ -1,0 +1,522 @@
+#Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  See the NOTICE file distributed with this work for additional information regarding copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHO WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
+@base   <https://ap-con.cim4.eu/Contingency-Simple/2.3> .
+@prefix cc:    <https://common-constraints.eu/> .
+@prefix cim:   <https://cim.ucaiug.io/ns#> .
+@prefix cim16: <http://iec.ch/TC57/2013/CIM-schema-cim16#> .
+@prefix cim17: <http://iec.ch/TC57/CIM100#> .
+@prefix co:    <https://ap-con.cim4.eu/Contingency-Simple/2.3#> .
+@prefix dcat:  <http://www.w3.org/ns/dcat#> .
+@prefix dcterms:   <http://purl.org/dc/terms/> .
+@prefix dm:    <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix ido:   <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:    <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:    <https://cim4.eu/ns/nc#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+co:Ontology  rdf:type     owl:Ontology;
+        dcterms:conformsTo    "urn:iso:std:iec:61970-501:draft:ed-2" , "file://CIM100_CGMES31v01_501-20v02_NC23v62_MM10v01.eap" , "urn:iso:std:iec:61970-401:draft:ed-1" , "file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap" , "urn:iso:std:iec:61970-301:ed-7:amd1" , "urn:iso:std:iec:61970-600-2:ed-1";
+        dcterms:description   "Describing constraints extracted from RDFS.";
+        dcterms:identifier    "66b0532e-f15f-4a75-ad92-8e5438abe461";
+        dcterms:issued        "2026-05-28T16:30:36.310062400"^^xsd:dateTime;
+        dcterms:language      "en-GB";
+        dcterms:license       "https://www.apache.org/licenses/LICENSE-2.0"@en;
+        dcterms:modified      "2026-05-28"^^xsd:date;
+        dcterms:publisher     "ENTSO-E"@en;
+        dcterms:rightsHolder  "ENTSO-E"@en;
+        dcterms:title         "Contingency Vocabulary"@en;
+        owl:versionIRI    <https://ap-con.cim4.eu/Contingency-Simple/2.3>;
+        owl:versionInfo   "2.3.5"@en;
+        dcat:keyword      "CO";
+        dcat:theme        "constraint"@en .
+
+co:OrdinaryContingency-AllowedProperties
+        rdf:type              sh:NodeShape;
+        sh:closed             true;
+        sh:description        "Checks if the dataset contains properties which are not defined in the profile to which this dataset conforms to.";
+        sh:group              co:ProfilePropertiesGroup;
+        sh:ignoredProperties  ( rdf:type );
+        sh:message            "This property is not part of the profile to which this dataset conforms to.";
+        sh:name               "PropertyNotInProfile";
+        sh:order              4;
+        sh:property           [ sh:path  nc:Contingency.normalProbability ];
+        sh:property           [ sh:path  nc:Contingency.SimulationEvents ];
+        sh:property           [ sh:path  nc:Contingency.normalMustStudy ];
+        sh:property           [ sh:path  nc:Contingency.EquipmentOperator ];
+        sh:property           [ sh:path  cim:IdentifiedObject.name ];
+        sh:property           [ sh:path  cim:IdentifiedObject.mRID ];
+        sh:property           [ sh:path  cim:IdentifiedObject.description ];
+        sh:severity           sh:Info;
+        sh:targetClass        nc:OrdinaryContingency .
+
+co:OrdinaryContingency
+        rdf:type        sh:NodeShape;
+        sh:property     ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , co:Contingency.EquipmentOperator-cardinality , co:Contingency.normalMustStudy-datatype , co:Contingency.normalMustStudy-cardinality , co:Contingency.SimulationEvents-valueType , co:Contingency.SimulationEvents-cardinality , co:Contingency.ContingencyElement-cardinality , co:Contingency.normalProbability-datatype , co:Contingency.normalProbability-cardinality;
+        sh:targetClass  nc:OrdinaryContingency .
+
+co:ExceptionalContingency.kind-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        co:DatatypesGroup;
+        sh:in           ( nc:ContingencyConditionKind.operational nc:ContingencyConditionKind.malfunction nc:ContingencyConditionKind.design nc:ContingencyConditionKind.environmental nc:ContingencyConditionKind.geographicalLocation );
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile.";
+        sh:name         "ExceptionalContingency.kind-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        8;
+        sh:path         nc:ExceptionalContingency.kind;
+        sh:severity     sh:Violation .
+
+co:ExceptionalContingency.kind-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "ExceptionalContingency.kind-cardinality";
+        sh:order        15;
+        sh:path         nc:ExceptionalContingency.kind;
+        sh:severity     sh:Violation .
+
+co:ExceptionalContingency-AllowedProperties
+        rdf:type              sh:NodeShape;
+        sh:closed             true;
+        sh:description        "Checks if the dataset contains properties which are not defined in the profile to which this dataset conforms to.";
+        sh:group              co:ProfilePropertiesGroup;
+        sh:ignoredProperties  ( rdf:type );
+        sh:message            "This property is not part of the profile to which this dataset conforms to.";
+        sh:name               "PropertyNotInProfile";
+        sh:order              3;
+        sh:property           [ sh:path  nc:ExceptionalContingency.kind ];
+        sh:property           [ sh:path  nc:Contingency.normalProbability ];
+        sh:property           [ sh:path  nc:Contingency.SimulationEvents ];
+        sh:property           [ sh:path  nc:Contingency.normalMustStudy ];
+        sh:property           [ sh:path  nc:Contingency.EquipmentOperator ];
+        sh:property           [ sh:path  cim:IdentifiedObject.name ];
+        sh:property           [ sh:path  cim:IdentifiedObject.mRID ];
+        sh:property           [ sh:path  cim:IdentifiedObject.description ];
+        sh:severity           sh:Info;
+        sh:targetClass        nc:ExceptionalContingency .
+
+co:ExceptionalContingency
+        rdf:type        sh:NodeShape;
+        sh:property     ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , co:ExceptionalContingency.kind-cardinality , co:ExceptionalContingency.kind-datatype , co:Contingency.normalProbability-cardinality , co:Contingency.normalProbability-datatype , co:Contingency.ContingencyElement-cardinality , co:Contingency.SimulationEvents-cardinality , co:Contingency.SimulationEvents-valueType , co:Contingency.normalMustStudy-cardinality , co:Contingency.normalMustStudy-datatype , co:Contingency.EquipmentOperator-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.mRID-datatype;
+        sh:targetClass  nc:ExceptionalContingency .
+
+co:Contingency.EquipmentOperator-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        co:AssociationsGroup;
+        sh:in           ( nc:DirectCurrentSystemOperator nc:TransmissionSystemOperator nc:ClosedDistributionSystemOperator nc:DistributionSystemOperator );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "Contingency.EquipmentOperator-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        4;
+        sh:path         ( nc:Contingency.EquipmentOperator rdf:type );
+        sh:severity     sh:Violation .
+
+co:Contingency.EquipmentOperator-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     co:Contingency.EquipmentOperator-valueType;
+        sh:targetClass  nc:OrdinaryContingency , nc:ExceptionalContingency , nc:OutOfRangeContingency .
+
+co:Contingency.EquipmentOperator-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "Contingency.EquipmentOperator-cardinality";
+        sh:order        11;
+        sh:path         nc:Contingency.EquipmentOperator;
+        sh:severity     sh:Violation .
+
+co:Contingency.normalMustStudy-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:boolean;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        co:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "Contingency.normalMustStudy-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        4;
+        sh:path         nc:Contingency.normalMustStudy;
+        sh:severity     sh:Violation .
+
+co:Contingency.normalMustStudy-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "Contingency.normalMustStudy-cardinality";
+        sh:order        10;
+        sh:path         nc:Contingency.normalMustStudy;
+        sh:severity     sh:Violation .
+
+co:Contingency.SimulationEvents-valueType
+        rdf:type        sh:PropertyShape;
+        sh:class        cim:SimulationEvents;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        co:AssociationsGroup;
+        sh:message      "One of the following does not conform: 1) The value shall be IRI; 2) The value shall be an instance of the class: cim18:SimulationEvents";
+        sh:name         "Contingency.SimulationEvents-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        3;
+        sh:path         nc:Contingency.SimulationEvents;
+        sh:severity     sh:Violation .
+
+co:Contingency.SimulationEvents-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "Contingency.SimulationEvents-cardinality";
+        sh:order        9;
+        sh:path         nc:Contingency.SimulationEvents;
+        sh:severity     sh:Violation .
+
+co:Contingency.ContingencyElement-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the inverse direction.";
+        sh:group        co:CardinalityGroup;
+        sh:message      "Cardinality violation. Lower bound shall be 1";
+        sh:minCount     1;
+        sh:name         "Contingency.ContingencyElement-cardinality";
+        sh:order        8;
+        sh:path         [ sh:alternativePath  ( [ sh:inversePath  cim:ContingencyElement.Contingency ]
+                                                [ sh:inversePath  cim17:ContingencyElement.Contingency ]
+                                                [ sh:inversePath  cim16:ContingencyElement.Contingency ]
+                                              )
+                        ];
+        sh:severity     sh:Violation .
+
+co:Contingency.ContingencyElement-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        co:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        1;
+        sh:path         cim:Contingency.ContingencyElement;
+        sh:severity     sh:Violation .
+
+co:Contingency.ContingencyElement-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          co:Contingency.ContingencyElement-propertyInverse;
+        sh:targetSubjectsOf  cim:Contingency.ContingencyElement .
+
+co:Contingency.normalProbability-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:float;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        co:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "Contingency.normalProbability-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        3;
+        sh:path         nc:Contingency.normalProbability;
+        sh:severity     sh:Violation .
+
+co:Contingency.normalProbability-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "Contingency.normalProbability-cardinality";
+        sh:order        7;
+        sh:path         nc:Contingency.normalProbability;
+        sh:severity     sh:Violation .
+
+co:OutOfRangeContingency-AllowedProperties
+        rdf:type              sh:NodeShape;
+        sh:closed             true;
+        sh:description        "Checks if the dataset contains properties which are not defined in the profile to which this dataset conforms to.";
+        sh:group              co:ProfilePropertiesGroup;
+        sh:ignoredProperties  ( rdf:type );
+        sh:message            "This property is not part of the profile to which this dataset conforms to.";
+        sh:name               "PropertyNotInProfile";
+        sh:order              2;
+        sh:property           [ sh:path  nc:Contingency.normalProbability ];
+        sh:property           [ sh:path  nc:Contingency.SimulationEvents ];
+        sh:property           [ sh:path  nc:Contingency.normalMustStudy ];
+        sh:property           [ sh:path  nc:Contingency.EquipmentOperator ];
+        sh:property           [ sh:path  cim:IdentifiedObject.name ];
+        sh:property           [ sh:path  cim:IdentifiedObject.mRID ];
+        sh:property           [ sh:path  cim:IdentifiedObject.description ];
+        sh:severity           sh:Info;
+        sh:targetClass        nc:OutOfRangeContingency .
+
+co:OutOfRangeContingency
+        rdf:type        sh:NodeShape;
+        sh:property     ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , co:Contingency.EquipmentOperator-cardinality , co:Contingency.normalMustStudy-datatype , co:Contingency.normalMustStudy-cardinality , co:Contingency.SimulationEvents-valueType , co:Contingency.SimulationEvents-cardinality , co:Contingency.ContingencyElement-cardinality , co:Contingency.normalProbability-datatype , co:Contingency.normalProbability-cardinality;
+        sh:targetClass  nc:OutOfRangeContingency .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        ido:DatatypesGroupIO;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "IdentifiedObject.description-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.description;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        ido:CardinalityIO;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "IdentifiedObject.description-cardinality";
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.description;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        ido:DatatypesGroupIO;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "IdentifiedObject.mRID-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.mRID;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        ido:CardinalityIO;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "IdentifiedObject.mRID-cardinality";
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.mRID;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        ido:DatatypesGroupIO;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "IdentifiedObject.name-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.name;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        ido:CardinalityIO;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "IdentifiedObject.name-cardinality";
+        sh:order        0.1;
+        sh:path         cim:IdentifiedObject.name;
+        sh:severity     sh:Violation .
+
+co:ContingencyElement.Contingency-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        co:AssociationsGroup;
+        sh:in           ( nc:OutOfRangeContingency nc:OrdinaryContingency nc:ExceptionalContingency );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "ContingencyElement.Contingency-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        2;
+        sh:path         ( cim:ContingencyElement.Contingency rdf:type );
+        sh:severity     sh:Violation .
+
+co:ContingencyElement.Contingency-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     co:ContingencyElement.Contingency-valueType;
+        sh:targetClass  cim:ContingencyEquipment .
+
+co:ContingencyElement.Contingency-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Association with cardinality violation at the used direction.";
+        sh:minCount     1;
+        sh:name         "ContingencyElement.Contingency-cardinality";
+        sh:order        3;
+        sh:path         cim:ContingencyElement.Contingency;
+        sh:severity     sh:Violation .
+
+co:ContingencyEquipment.Equipment-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        co:AssociationsGroup;
+        sh:in           ( cim:DCChopper cim17:DCBusbar cim16:DCSeriesDevice nc:DCHarmonicFilter nc:DCSmoothingReactor nc:DCSmoothingReactorArrester cim16:DCBusbar cim17:DCShunt cim16:DCChopper cim16:DCShunt cim16:DCLineSegment cim:DCShunt cim16:DCGround cim16:DCSwitch cim:DCBreaker cim:DCDisconnector cim16:DCBreaker cim17:DCBreaker cim16:DCDisconnector cim17:DCDisconnector nc:DCConverterParallelingSwitch nc:DCBypassSwitch nc:DCEarthReturnTransferSwitch nc:DCLineParallelingSwitch nc:DCNeutralBusGroundingSwitch nc:DCMetalicReturnSwitch nc:DCNeutralBusSwitch cim17:DCSeriesDevice cim17:DCGround cim:DCSwitch cim17:DCChopper cim:DCLineSegment cim:DCBusbar cim:DCGround cim17:DCLineSegment cim:DCSeriesDevice cim17:DCSwitch cim:GeneratingUnit cim17:WindGeneratingUnit cim16:NuclearGeneratingUnit cim16:HydroGeneratingUnit cim16:SolarGeneratingUnit cim16:ThermalGeneratingUnit cim16:WindGeneratingUnit nc:GeothermalGeneratingUnit cim17:HydroGeneratingUnit cim17:ThermalGeneratingUnit nc:EquivalentGeneratingUnit cim:NuclearGeneratingUnit cim17:SolarGeneratingUnit cim17:NuclearGeneratingUnit nc:Installation cim16:PowerTransformer cim17:EquivalentInjection cim16:EquivalentBranch cim16:EquivalentShunt cim16:EquivalentInjection cim17:EquivalentShunt cim17:EquivalentBranch cim16:EnergyConsumer cim16:ConformLoad cim17:NonConformLoad cim16:StationSupply cim17:StationSupply cim16:NonConformLoad cim17:ConformLoad cim17:Switch cim17:LoadBreakSwitch cim16:LoadBreakSwitch cim17:Breaker cim17:DisconnectingCircuitBreaker cim16:Breaker cim17:GroundDisconnector cim16:GroundDisconnector cim17:Jumper cim16:Disconnector cim17:Fuse cim17:Cut cim17:Disconnector cim16:StaticVarCompensator cim17:PowerElectronicsConnection cim16:NonlinearShuntCompensator cim17:LinearShuntCompensator cim16:LinearShuntCompensator cim17:NonlinearShuntCompensator nc:StaticSynchronousSeriesCompensator nc:StaticVarCompensator nc:StaticSynchronousCompensator nc:ThyristorControlledSeriesCompensator nc:ModularStaticSynchronousSeriesCompensator cim17:AsynchronousMachine cim17:SynchronousMachine cim16:AsynchronousMachine cim16:SynchronousMachine cim17:StaticVarCompensator cim16:ExternalNetworkInjection cim:ExternalNetworkInjection cim17:ExternalNetworkInjection cim17:EnergySource cim17:EnergyConsumer cim:EnergyConsumer cim17:Clamp cim17:BusbarSection cim16:BusbarSection cim16:Junction cim17:Junction cim16:PetersenCoil cim17:GroundingImpedance cim17:PetersenCoil cim16:GroundingImpedance cim16:CsConverter cim16:VsConverter cim17:VsConverter cim17:CsConverter cim17:ACLineSegment cim16:ACLineSegment cim17:SeriesCompensator cim17:Ground cim16:Ground cim16:EnergySource cim16:Switch cim17:PowerTransformer cim16:SeriesCompensator cim17:HydroPump cim16:HydroPump cim:HydroPump cim17:GeneratingUnit cim16:GeneratingUnit cim:PowerElectronicsUnit nc:ElectricalChargingUnit nc:EquivalentPowerElectronicsUnit cim17:PhotoVoltaicUnit cim:BatteryUnit nc:MobileElectricalUnit nc:FlexibleEnergyUnit cim17:PowerElectronicsWindUnit nc:PowerElectronicsMarineUnit cim17:BatteryUnit nc:PowerElectricalChemicalUnit cim17:WaveTrap cim17:PotentialTransformer cim17:PostLineSensor cim17:CurrentTransformer cim17:FaultIndicator cim17:SurgeArrester );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "ContingencyEquipment.Equipment-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        1;
+        sh:path         ( cim:ContingencyEquipment.Equipment rdf:type );
+        sh:severity     sh:Violation .
+
+co:ContingencyEquipment.Equipment-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     co:ContingencyEquipment.Equipment-valueType;
+        sh:targetClass  cim:ContingencyEquipment .
+
+co:ContingencyEquipment.Equipment-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Association with cardinality violation at the used direction.";
+        sh:minCount     1;
+        sh:name         "ContingencyEquipment.Equipment-cardinality";
+        sh:order        2;
+        sh:path         cim:ContingencyEquipment.Equipment;
+        sh:severity     sh:Violation .
+
+co:ContingencyEquipment.contingentStatus-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        co:DatatypesGroup;
+        sh:in           ( cim:ContingencyEquipmentStatusKind.inService cim:ContingencyEquipmentStatusKind.outOfService );
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile.";
+        sh:name         "ContingencyEquipment.contingentStatus-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        -1;
+        sh:path         cim:ContingencyEquipment.contingentStatus;
+        sh:severity     sh:Violation .
+
+co:ContingencyEquipment.contingentStatus-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        co:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "ContingencyEquipment.contingentStatus-cardinality";
+        sh:order        1;
+        sh:path         cim:ContingencyEquipment.contingentStatus;
+        sh:severity     sh:Violation .
+
+co:ContingencyEquipment-AllowedProperties
+        rdf:type              sh:NodeShape;
+        sh:closed             true;
+        sh:description        "Checks if the dataset contains properties which are not defined in the profile to which this dataset conforms to.";
+        sh:group              co:ProfilePropertiesGroup;
+        sh:ignoredProperties  ( rdf:type );
+        sh:message            "This property is not part of the profile to which this dataset conforms to.";
+        sh:name               "PropertyNotInProfile";
+        sh:order              1;
+        sh:property           [ sh:path  cim:IdentifiedObject.description ];
+        sh:property           [ sh:path  cim:IdentifiedObject.mRID ];
+        sh:property           [ sh:path  cim:IdentifiedObject.name ];
+        sh:property           [ sh:path  cim:ContingencyElement.Contingency ];
+        sh:property           [ sh:path  cim:ContingencyEquipment.Equipment ];
+        sh:property           [ sh:path  cim:ContingencyEquipment.contingentStatus ];
+        sh:severity           sh:Info;
+        sh:targetClass        cim:ContingencyEquipment .
+
+co:ContingencyEquipment
+        rdf:type        sh:NodeShape;
+        sh:property     ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , co:ContingencyElement.Contingency-cardinality , co:ContingencyEquipment.Equipment-cardinality , co:ContingencyEquipment.contingentStatus-datatype , co:ContingencyEquipment.contingentStatus-cardinality;
+        sh:targetClass  cim:ContingencyEquipment .
+
+cc:     rdf:type     owl:Ontology;
+        owl:imports  sh:;
+        sh:declare   [ rdf:type      sh:PrefixDeclaration;
+                       sh:namespace  "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+                       sh:prefix     "rdf"
+                     ] .
+
+cc:ClassCount-propertySparql
+        rdf:type     sh:SPARQLConstraint;
+        sh:message   "The class {?class} appears {?value} times in the data graph.";
+        sh:prefixes  cc:;
+        sh:select    """
+            SELECT $this ?class (COUNT(?instance) AS ?value)
+            WHERE {
+                    ?instance rdf:type ?class .
+                   }
+            GROUP BY $this ?class
+             """ .
+
+cc:ClassCount-property
+        rdf:type        sh:PropertyShape;
+        sh:description  "Counts instance of classes present in the data graph.";
+        sh:group        cc:ClassesCountGroup;
+        sh:name         "ClassCount";
+        sh:order        1;
+        sh:path         rdf:type;
+        sh:severity     sh:Info;
+        sh:sparql       cc:ClassCount-propertySparql .
+
+cc:ClassCount-node  rdf:type  sh:NodeShape;
+        sh:property    cc:ClassCount-property;
+        sh:targetClass  dcat:Dataset .
+
+cc:ClassesCountGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "ClassesCount";
+        sh:order    1 .
+
+co:AllowedClasses-property
+        rdf:type        sh:PropertyShape;
+        sh:description  "Checks if the dataset contains classes which are not defined in the profile to which this dataset conforms to.";
+        sh:group        co:ProfileClassesGroup;
+        sh:in           ( cim:ContingencyEquipment nc:OutOfRangeContingency nc:ExceptionalContingency nc:OrdinaryContingency md:FullModel dm:DifferenceModel dcat:Dataset );
+        sh:message      "This class is not part of the profile to which this dataset conforms to.";
+        sh:name         "ClassNotInProfile";
+        sh:order        1;
+        sh:path         rdf:type;
+        sh:severity     sh:Info .
+
+co:AllowedClasses-node
+        rdf:type             sh:NodeShape;
+        sh:property          co:AllowedClasses-property;
+        sh:targetSubjectsOf  rdf:type .
+
+co:ProfilePropertiesGroup
+        rdf:type    sh:PropertyGroup;
+        rdfs:label  "ProfileProperties";
+        sh:order    1 .
+
+co:AssociationsGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Associations";
+        sh:order    2 .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup;
+        rdfs:label  "DatatypesIO";
+        sh:order    1 .
+
+co:ProfileClassesGroup
+        rdf:type    sh:PropertyGroup;
+        rdfs:label  "ProfileClasses";
+        sh:order    1 .
+
+co:InverseAssociationsGroup
+        rdf:type    sh:PropertyGroup;
+        rdfs:label  "InverseAssociations";
+        sh:order    1 .
+
+co:DatatypesGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Datatypes";
+        sh:order    1 .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "CardinalityIO";
+        sh:order    0 .
+
+co:CardinalityGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Cardinality";
+        sh:order    0 .
