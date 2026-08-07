@@ -43,6 +43,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class RaoResultHelperTest {
     private Crac crac;
