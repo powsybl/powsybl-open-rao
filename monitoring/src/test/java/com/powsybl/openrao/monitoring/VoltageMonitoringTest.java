@@ -639,7 +639,7 @@ class VoltageMonitoringTest {
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE,  PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -662,7 +662,7 @@ class VoltageMonitoringTest {
             monitoringInput
         );
 
-        assertTrue(isSecure(raoResultWithVoltageMonitoring, crac,false, Unit.AMPERE,  PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)); // FIXME: crashes if no physical parameter provided
+        assertTrue(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
 
         // round trip on RAO Result
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
