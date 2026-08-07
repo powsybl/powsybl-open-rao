@@ -39,18 +39,12 @@ import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class RaoResultHelperTest {
+class RaoResultHelperTest {
     private Crac crac;
     private Instant preventiveInstant;
     private Instant curativeInstant;
@@ -106,8 +100,6 @@ public class RaoResultHelperTest {
         remedialActions.add(pstRangeActionBe);
         remedialActions.add(curativeRaBe);
         when(crac.getRemedialActions()).thenReturn(remedialActions);
-
-        RaoParameters raoParameters = mock(RaoParameters.class);
     }
 
     private Instant mockInstant(String id, InstantKind kind) {
