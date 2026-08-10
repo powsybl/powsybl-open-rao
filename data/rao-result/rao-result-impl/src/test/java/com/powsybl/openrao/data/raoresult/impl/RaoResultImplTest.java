@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -36,7 +35,6 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -300,8 +298,8 @@ class RaoResultImplTest {
         angleResult.addMeasurement(35.0, autoInstant, angleCnec, DEGREE);
         raoResult.addExtension(AngleResult.class, angleResult);
 
-        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
-        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
     }
 
     @Test
@@ -343,9 +341,14 @@ class RaoResultImplTest {
         addAngleCnecs();
         addVoltageCnecs();
 
+        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(crac.getFlowCnec("cnec1stateOutageContingency1"));
+        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getPreventiveInstant());
+        elementaryFlowResult.setMargin(10., MEGAWATT);
+
         AngleResult angleResult = new AngleResult();
         angleResult.addMeasurement(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
         angleResult.addMeasurement(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addMeasurement(90.0, crac.getOutageInstant(), crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
         angleResult.addMeasurement(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
         angleResult.addMeasurement(35.0, curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
         raoResult.addExtension(AngleResult.class, angleResult);
@@ -388,11 +391,6 @@ class RaoResultImplTest {
         assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
         assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
         assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-
-        assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
-        assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
-        assertEquals("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage());
-        assertEquals("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage());
 
         // check extensions
 

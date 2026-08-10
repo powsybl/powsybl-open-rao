@@ -98,7 +98,7 @@ public class AngleResult extends AbstractExtension<RaoResult> {
         private final Map<Instant, Double> anglePerInstant;
         private final Map<Instant, Double> marginPerInstant;
 
-        public AngleCnecResult(AngleCnec angleCnec) {
+        AngleCnecResult(AngleCnec angleCnec) {
             this.angleCnec = angleCnec;
             this.initialAngle = null;
             this.initialMargin = null;
