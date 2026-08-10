@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.util;
+package com.powsybl.openrao.searchtreerao.networkpool;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -37,7 +37,7 @@ class NetworkPoolTest {
 
     @BeforeEach
     public void setUp() {
-        network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        network = Network.read("network/testCase.xiidm", getClass().getResourceAsStream("/network/testCase.xiidm"));
         initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(initialVariant, otherVariant);
     }

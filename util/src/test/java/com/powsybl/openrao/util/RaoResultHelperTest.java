@@ -1,3 +1,4 @@
+package com.powsybl.openrao.util;
 /*
  * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -5,8 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.raoresult.api;
-
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -20,35 +20,32 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class RaoResultTest {
-
+class RaoResultHelperTest {
     private Crac crac;
     private Instant preventiveInstant;
     private Instant curativeInstant;
@@ -146,7 +143,7 @@ class RaoResultTest {
         return cnec;
     }
 
-    static Stream<Arguments> isSecureParams() {
+    static Stream<Arguments> raoParameters() {
         List<Unit> flowUnits = Arrays.asList(Unit.AMPERE, Unit.MEGAWATT);
         List<Boolean> excludeCnecsOptions = Arrays.asList(true, false);
         List<PhysicalParameter[]> parameterCombinations = new ArrayList<>();
@@ -164,35 +161,56 @@ class RaoResultTest {
         }
 
         Stream.Builder<Arguments> builder = Stream.builder();
+
         for (Unit unit : flowUnits) {
             for (Boolean exclude : excludeCnecsOptions) {
                 for (PhysicalParameter[] params : parameterCombinations) {
-                    builder.add(Arguments.of(unit, exclude, params));
+                    RaoParameters raoParameters = mock(RaoParameters.class);
+                    NotOptimizedCnecsParameters notOptimizedCnecsParameters = mock(NotOptimizedCnecsParameters.class);
+                    LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = mock(LoadFlowAndSensitivityParameters.class);
+                    SensitivityAnalysisParameters sensitivityAnalysisParameters = mock(SensitivityAnalysisParameters.class);
+                    OpenRaoSearchTreeParameters openRaoSearchTreeParameters = mock(OpenRaoSearchTreeParameters.class);
+                    LoadFlowParameters loadFlowParameters = mock(LoadFlowParameters.class);
+
+                    when(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()).thenReturn(exclude);
+                    when(raoParameters.getNotOptimizedCnecsParameters()).thenReturn(notOptimizedCnecsParameters);
+
+                    when(raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)).thenReturn(true);
+                    when(raoParameters.getExtension(OpenRaoSearchTreeParameters.class)).thenReturn(openRaoSearchTreeParameters);
+
+                    when(openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
+                    when(loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityAnalysisParameters);
+                    when(sensitivityAnalysisParameters.getLoadFlowParameters()).thenReturn(loadFlowParameters);
+
+                    when(loadFlowParameters.isDc()).thenReturn(unit == Unit.MEGAWATT);
+
+                    builder.add(Arguments.of(raoParameters, params));
                 }
             }
         }
+
         return builder.build();
     }
 
     @ParameterizedTest
-    @MethodSource("isSecureParams")
-    void testIsSecureTrue(Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... parameters) {
+    @MethodSource("raoParameters")
+    void testIsSecureTrue(RaoParameters raoParameters, PhysicalParameter... parameters) {
         mockMargins(1.0);
-        assertTrue(raoResult.isSecure(crac, flowUnit, excludeCnecsForTsosWithoutCras, parameters));
+        assertTrue(isSecure(raoResult, crac, raoParameters, parameters));
     }
 
     @ParameterizedTest
-    @MethodSource("isSecureParams")
-    void testIsSecureFalse(Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... parameters) {
+    @MethodSource("raoParameters")
+    void testIsSecureFalse(RaoParameters raoParameters, PhysicalParameter... parameters) {
         mockMargins(-1.0);
-        assertFalse(raoResult.isSecure(crac, flowUnit, excludeCnecsForTsosWithoutCras, parameters));
+        assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }
 
     @ParameterizedTest
-    @MethodSource("isSecureParams")
-    void testIsSecureException(Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... parameters) {
+    @MethodSource("raoParameters")
+    void testIsSecureException(RaoParameters raoParameters, PhysicalParameter... parameters) {
         mockMargins(Double.NaN);
-        assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, flowUnit, excludeCnecsForTsosWithoutCras, parameters));
+        assertThrows(OpenRaoException.class, () -> isSecure(raoResult, crac, raoParameters, parameters));
     }
 
     private void mockMargins(double margin) {
@@ -205,15 +223,16 @@ class RaoResultTest {
     }
 
     @ParameterizedTest
-    @MethodSource("isSecureParams")
-    void testIsSecureFailureStatus(Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... parameters) {
+    @MethodSource("raoParameters")
+    void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertFalse(raoResult.isSecure(crac, flowUnit, excludeCnecsForTsosWithoutCras, parameters));
+        assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }
 
     @ParameterizedTest
-    @MethodSource("isSecureParams")
-    void testIsSecureEmptyParams(Unit flowUnit, boolean excludeCnecsForTsosWithoutCras) {
-        assertThrows(OpenRaoException.class, () -> raoResult.isSecure(crac, flowUnit, excludeCnecsForTsosWithoutCras));
+    @MethodSource("raoParameters")
+    void testIsSecureEmptyParams(RaoParameters raoParameters) {
+        assertThrows(OpenRaoException.class, () -> isSecure(raoResult, crac, raoParameters));
     }
+
 }

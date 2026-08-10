@@ -16,12 +16,12 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -55,12 +55,12 @@ public class VoltageMonitoringSteps {
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(
-            CommonTestData.getRaoResult()
-                .isSecure(
-                    CommonTestData.getCrac(),
-                    RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()),
-                    CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(),
-                    PhysicalParameter.VOLTAGE),
+            isSecure(
+                CommonTestData.getRaoResult(),
+                CommonTestData.getCrac(),
+                CommonTestData.getRaoParameters(),
+                PhysicalParameter.VOLTAGE
+            ),
             "secure".equalsIgnoreCase(expectedStatus)
         );
     }
