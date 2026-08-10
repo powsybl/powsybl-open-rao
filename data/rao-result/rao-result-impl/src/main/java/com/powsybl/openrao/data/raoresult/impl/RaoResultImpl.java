@@ -326,20 +326,20 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    // TODO: do we want to keep the use of the extension here?
                     AngleResult angleResult = getExtension(AngleResult.class);
-                    if (angleResult != null) {
-                        if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> angleResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
-                            .anyMatch(Double::isNaN)) {
-                            throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
-                        }
-                        if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> angleResult.getMargin(optimizedInstant, cnec, Unit.DEGREE))
-                            .filter(margin -> !Double.isNaN(margin))
-                            .anyMatch(margin -> margin < 0)) {
-                            return false;
-                        }
+                    if (angleResult == null) {
+                        throw new OpenRaoException("RaoResult does not contain angle extension. Impossible to compute security status for physical parameter ANGLE.");
+                    }
+                    if (crac.getAngleCnecs().stream()
+                        .mapToDouble(cnec -> angleResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                        .anyMatch(Double::isNaN)) {
+                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                    }
+                    if (crac.getAngleCnecs().stream()
+                        .mapToDouble(cnec -> angleResult.getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                        .filter(margin -> !Double.isNaN(margin))
+                        .anyMatch(margin -> margin < 0)) {
+                        return false;
                     }
                 }
                 case FLOW -> {

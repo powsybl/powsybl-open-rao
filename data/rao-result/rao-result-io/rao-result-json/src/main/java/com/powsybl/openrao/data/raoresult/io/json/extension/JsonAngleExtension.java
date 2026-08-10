@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
-import com.powsybl.openrao.data.raoresult.io.json.Version;
+import com.powsybl.openrao.commons.Version;
 
 import java.io.IOException;
 

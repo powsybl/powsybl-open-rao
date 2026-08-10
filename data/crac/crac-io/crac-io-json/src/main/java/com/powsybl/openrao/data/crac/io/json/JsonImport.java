@@ -13,6 +13,7 @@ import com.google.auto.service.AutoService;
 import com.networknt.schema.Schema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
@@ -60,7 +61,7 @@ public class JsonImport implements Importer {
                 if (validationError.isEmpty()) {
                     return true;
                 }
-                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
+                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.major(), cracVersion.minor(), String.join("; ", validationError)));
             }
             return false;
         } catch (IOException e) {

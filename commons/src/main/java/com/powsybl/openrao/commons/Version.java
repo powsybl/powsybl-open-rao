@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.raoresult.io.json;
+package com.powsybl.openrao.commons;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
