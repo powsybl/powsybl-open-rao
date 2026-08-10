@@ -67,6 +67,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param side             The side of the branch to be queried.
@@ -79,6 +81,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
+     *
+     * @deprecated since 7.5.0, use Flow Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
@@ -94,6 +98,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the minimum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Voltage Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
@@ -107,6 +113,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It gives the maximum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
+     *
+     * @deprecated since 7.5.0, use Voltage Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
@@ -123,6 +131,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
@@ -135,6 +145,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
+     *
+     * @deprecated since 7.5.0, use Angle Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
@@ -150,6 +162,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the margin on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
+     *
+     * @deprecated since 7.5.0, use Voltage Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
@@ -169,6 +183,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
@@ -181,6 +197,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
+     *
+     * @deprecated since 7.5.0, use Flow Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -195,6 +213,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
@@ -207,6 +227,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
+     *
+     * @deprecated since 7.5.0, use Flow Extension
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
