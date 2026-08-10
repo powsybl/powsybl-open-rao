@@ -833,8 +833,6 @@ class ImporterRetrocompatibilityTest {
         AngleCnec
         */
         AngleResult angleResult = importedRaoResult.getExtension(AngleResult.class);
-        assertNotNull(angleResult);
-
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertEquals(3135.0, angleResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(-3045.0, angleResult.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
