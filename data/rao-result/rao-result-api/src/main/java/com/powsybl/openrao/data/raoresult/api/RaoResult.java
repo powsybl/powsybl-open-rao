@@ -73,7 +73,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -85,7 +85,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         throw new OpenRaoException("Angle cnecs are not computed in the rao");
     }
@@ -99,7 +99,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
@@ -113,7 +113,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
@@ -128,7 +128,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -141,7 +141,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         throw new OpenRaoException("Angle cnecs are not computed in the rao");
     }
@@ -156,7 +156,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
@@ -174,7 +174,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -187,7 +187,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -200,7 +200,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -212,7 +212,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 
     /**
