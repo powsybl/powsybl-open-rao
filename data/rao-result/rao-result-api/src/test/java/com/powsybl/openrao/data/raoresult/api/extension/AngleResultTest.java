@@ -93,9 +93,11 @@ public class AngleResultTest {
             angleResult.serialize(jsonGenerator);
         }
 
-        String expectedJson = "[{\"angleCnecId\":\"cnec1\",\"measurements\":" +
-            "{\"degree\":[{\"instant\":\"initial\",\"angle\":25.0,\"margin\":5.0},"
-            + "{\"instant\":\"preventive\",\"angle\":17.0,\"margin\":13.0}]}}]";
+        String expectedJson = "[{"
+            + "\"angleCnecId\":\"cnec1\","
+            + "\"initial\":{\"degree\":{\"angle\":25.0,\"margin\":5.0}},"
+            + "\"preventive\":{\"degree\":{\"angle\":17.0,\"margin\":13.0}}" +
+            "}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -134,8 +136,8 @@ public class AngleResultTest {
 
         // Should be sorted by ID: cnec1 then cnec2
         String expectedJson = "["
-            + "{\"angleCnecId\":\"cnec1\",\"measurements\":{\"degree\":[{\"instant\":\"initial\",\"angle\":25.0,\"margin\":5.0}]}},"
-            + "{\"angleCnecId\":\"cnec2\",\"measurements\":{\"degree\":[{\"instant\":\"initial\",\"angle\":10.0,\"margin\":35.0}]}}"
+            + "{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":25.0,\"margin\":5.0}}},"
+            + "{\"angleCnecId\":\"cnec2\",\"initial\":{\"degree\":{\"angle\":10.0,\"margin\":35.0}}}"
             + "]";
         assertEquals(expectedJson, writer.toString());
     }
@@ -168,11 +170,12 @@ public class AngleResultTest {
         }
 
         // Instants should be sorted: initial, then instant1, then instant2
-        String expectedJson = "[{\"angleCnecId\":\"cnec1\",\"measurements\":{\"degree\":["
-            + "{\"instant\":\"initial\",\"angle\":20.0,\"margin\":10.0},"
-            + "{\"instant\":\"instant1\",\"angle\":10.0,\"margin\":10.0},"
-            + "{\"instant\":\"instant2\",\"angle\":15.0,\"margin\":15.0}"
-            + "]}}]";
+        String expectedJson = "[{"
+            + "\"angleCnecId\":\"cnec1\","
+            + "\"initial\":{\"degree\":{\"angle\":20.0,\"margin\":10.0}},"
+            + "\"instant1\":{\"degree\":{\"angle\":10.0,\"margin\":10.0}},"
+            + "\"instant2\":{\"degree\":{\"angle\":15.0,\"margin\":15.0}}"
+            + "}]";
         assertEquals(expectedJson, writer.toString());
     }
 }

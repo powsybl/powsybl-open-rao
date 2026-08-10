@@ -492,24 +492,29 @@
   "extensions" : {
     "angle-results" : [ {
       "angleCnecId" : "angleCnecId",
-      "measurements" : {
-        "degree" : [ {
-          "instant" : "initial",
+      "initial" : {
+        "degree" : {
           "angle" : 3135.0,
           "margin" : -3045.0
-        }, {
-          "instant" : "preventive",
+        }
+      },
+      "preventive" : {
+        "degree" : {
           "angle" : 3235.0,
           "margin" : -3145.0
-        }, {
-          "instant" : "auto",
+        }
+      },
+      "auto" : {
+        "degree" : {
           "angle" : 3335.0,
           "margin" : -3245.0
-        }, {
-          "instant" : "curative",
+        }
+      },
+      "curative" : {
+        "degree" : {
           "angle" : 3435.0,
           "margin" : -3345.0
-        } ]
+        }
       }
     } ]
   }
