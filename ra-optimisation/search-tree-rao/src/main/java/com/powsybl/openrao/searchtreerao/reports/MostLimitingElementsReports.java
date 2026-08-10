@@ -53,7 +53,17 @@ public final class MostLimitingElementsReports {
                                                            final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                            final Unit objectiveFunctionUnit,
                                                            final int numberLoggedElementsDuringRao) {
-        reportMostLimitingElementsResults(parentNode, TRACE_SEVERITY, TECHNICAL_LOGS, objectiveFunctionResult, flowResult, automatonStates, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
+        reportMostLimitingElementsResults(
+            parentNode,
+            TRACE_SEVERITY,
+            TECHNICAL_LOGS,
+            objectiveFunctionResult,
+            flowResult,
+            automatonStates,
+            objectiveFunctionType,
+            objectiveFunctionUnit,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportTechnicalMostLimitingElements(final ReportNode parentNode,
@@ -62,7 +72,17 @@ public final class MostLimitingElementsReports {
                                                            final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                            final Unit objectiveFunctionUnit,
                                                            final int numberLoggedElementsDuringRao) {
-        reportMostLimitingElementsResults(parentNode, TRACE_SEVERITY, TECHNICAL_LOGS, objectiveFunctionResult, flowResult, null, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
+        reportMostLimitingElementsResults(
+            parentNode,
+            TRACE_SEVERITY,
+            TECHNICAL_LOGS,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            objectiveFunctionType,
+            objectiveFunctionUnit,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportBusinessMostLimitingElements(final ReportNode parentNode,
@@ -71,7 +91,17 @@ public final class MostLimitingElementsReports {
                                                           final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                           final Unit objectiveFunctionUnit,
                                                           final int numberLoggedElementsDuringRao) {
-        reportMostLimitingElementsResults(parentNode, INFO_SEVERITY, BUSINESS_LOGS, objectiveFunctionResult, flowResult, null, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
+        reportMostLimitingElementsResults(
+            parentNode,
+            INFO_SEVERITY,
+            BUSINESS_LOGS,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            objectiveFunctionType,
+            objectiveFunctionUnit,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportBusinessMostLimitingElements(final ReportNode parentNode,
@@ -82,7 +112,15 @@ public final class MostLimitingElementsReports {
                                                           final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                           final Unit unit,
                                                           final int numberOfLoggedElements) {
-        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements);
+        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(
+            preventivePerimeter,
+            basecaseOptimResult,
+            contingencyScenarios,
+            contingencyOptimizationResults,
+            objectiveFunctionType,
+            unit,
+            numberOfLoggedElements
+        );
         reportMostLimitingElementsResults(parentNode, INFO_SEVERITY, BUSINESS_LOGS, mostLimitingElementRecords);
     }
 
@@ -95,7 +133,14 @@ public final class MostLimitingElementsReports {
                                                           final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                           final Unit objectiveFunctionUnit,
                                                           final int numberLoggedElementsDuringRao) {
-        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(objectiveFunctionResult, flowResult, automatonStates, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
+        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(
+            objectiveFunctionResult,
+            flowResult,
+            automatonStates,
+            objectiveFunctionType,
+            objectiveFunctionUnit,
+            numberLoggedElementsDuringRao
+        );
         reportMostLimitingElementsResults(parentNode, reportSeverity, logger, mostLimitingElementRecords);
     }
 
@@ -205,7 +250,13 @@ public final class MostLimitingElementsReports {
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        ReportUtils.getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
+                        ReportUtils.getMostLimitingElementsAndMargins(
+                            contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
+                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            unit,
+                            relativePositiveMargins,
+                            numberOfLoggedElements
+                        )
                     )
                 );
         });

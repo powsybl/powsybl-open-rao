@@ -1,7 +1,8 @@
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
-    "type" : "SECURE_FLOW"
+    "type" : "MAX_MIN_MARGIN",
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -21,7 +22,7 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 0.0
+        "curative-min-obj-improvement" : 10000.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
@@ -40,7 +41,8 @@
         "max-curative-search-tree-depth" : 2147483647,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation" : false
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",
