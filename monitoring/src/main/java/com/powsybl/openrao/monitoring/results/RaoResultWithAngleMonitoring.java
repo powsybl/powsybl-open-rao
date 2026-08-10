@@ -8,18 +8,16 @@
 package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -43,6 +41,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             throw new OpenRaoException("AngleMonitoringResult must not be null");
         }
         this.angleMonitoringResult = angleMonitoringResult;
+        AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult);
+        this.addExtension(AngleResult.class, angleResult);
     }
 
     @Override
@@ -74,24 +74,6 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         }
         return angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
 
-    }
-
-    @Override
-    public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
-        if (angleCnecResultOpt.isPresent()) {
-            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
-        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override

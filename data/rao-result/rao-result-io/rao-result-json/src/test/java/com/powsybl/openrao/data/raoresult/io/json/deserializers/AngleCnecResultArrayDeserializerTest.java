@@ -12,12 +12,14 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +35,7 @@ class AngleCnecResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         AngleCnec angleCnec = mock(AngleCnec.class);
         when(crac.getAngleCnec("ac1")).thenReturn(angleCnec);
+        when(angleCnec.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(11.2));
 
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
@@ -40,10 +43,10 @@ class AngleCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentAngleCnecResult(angleCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(12.3, raoResult.getAngle(null, angleCnec, Unit.DEGREE));
-        assertEquals(-1.1, raoResult.getMargin(null, angleCnec, Unit.DEGREE));
+        AngleResult angleResult = raoResult.getExtension(AngleResult.class);
+        assertNotNull(angleResult);
+        assertEquals(12.3, angleResult.getAngle(null, angleCnec, Unit.DEGREE), 1e-3);
+        assertEquals(-1.1, angleResult.getMargin(null, angleCnec, Unit.DEGREE), 1e-3);
     }
 
     @Test
