@@ -22,7 +22,6 @@ import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -34,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -70,12 +70,10 @@ public class AngleMonitoringSteps {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(
             "secure".equalsIgnoreCase(expectedStatus),
-            CommonTestData
-                .getRaoResult()
-                .isSecure(
+                isSecure(
+                    CommonTestData.getRaoResult(),
                     CommonTestData.getCrac(),
-                    RaoUtil.getFlowUnit(CommonTestData.getRaoParameters()),
-                    CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras(),
+                    CommonTestData.getRaoParameters(),
                     PhysicalParameter.ANGLE
                 )
         );

@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -91,7 +90,6 @@ class FastRaoResultImplTest {
         );
         status = result.getComputationStatus();
         assertSame(FAILURE, status);
-        assertFalse(result.isSecure(crac, Unit.MEGAWATT, false, PhysicalParameter.FLOW));
     }
 
     @Test
@@ -210,23 +208,8 @@ class FastRaoResultImplTest {
 
     @Test
     void testExecutionDetailsAndStatus() {
-        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-            Instant cnecInstant = flowCnec.getState().getInstant();
-            if (cnecInstant.isPreventive() || cnecInstant.isOutage()) {
-                when(afterPraResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
-                when(afterPraResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
-            } else if (cnecInstant.isAuto()) {
-                when(afterAraResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
-                when(afterAraResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
-            } else {
-                when(finalResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(Double.NaN);
-                when(finalResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-100.0);
-            }
-        }
         result.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, result.getExecutionDetails());
-        when(afterPraResult.getFunctionalCost()).thenReturn(185.3);
-        assertFalse(result.isSecure(crac, Unit.MEGAWATT, false, PhysicalParameter.FLOW));
         State state = Mockito.mock(State.class);
         when(state.getInstant()).thenReturn(crac.getInstant("preventive"));
         when(afterPraResult.getComputationStatus(state)).thenReturn(FAILURE);
