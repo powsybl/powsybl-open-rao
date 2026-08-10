@@ -49,7 +49,7 @@ public class StateTree {
 
     /**
      * Process OUTAGE state for a given contingency.
-     * If the state has RAs, the case is not supported by Open RAO.
+     * If the state has RAs, the case is not supported by OpenRAO.
      * Else, the state is optimized in basecase RAO.
      */
     private void processOutageInstant(Contingency contingency, Crac crac) {
@@ -65,7 +65,7 @@ public class StateTree {
 
     /**
      * Process AUTO and CURATIVE states for a given contingency.
-     * If the state has RAs in AUTO but not in CURATIVE, the case is not supported by Open RAO.
+     * If the state has RAs in AUTO but not in CURATIVE, the case is not supported by OpenRAO.
      * If the state has AUTO and CURATIVE RAs, both states will be treated in a dedicated scenario.
      * If the AUTO has no RA but the CURATIVE has RAs, the AUTO will be optimized in basecase RAO and the CURATIVE in a dedicated scenario.
      * If neither AUTO nor CURATIVE states have RAs, they will be optimized in basecase RAO.

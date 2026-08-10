@@ -22,15 +22,21 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCnec {
+public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
+    private Set<BranchThreshold> thresholds;
+    private final Double[] nominalVoltages = new Double[2];
+    private BranchBoundsCache bounds = new BranchBoundsCache();
     private final Double[] iMax = new Double[2];
 
     FlowCnecImpl(String id,
@@ -47,9 +53,34 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                  Double nominalVRight,
                  Double iMaxLeft,
                  Double iMaxRight) {
-        super(id, name, networkElement, operator, border, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
+        super(id, name, Collections.singleton(networkElement), operator, border, state, optimized, monitored, frm);
+        this.thresholds = thresholds;
+        this.nominalVoltages[0] = nominalVLeft;
+        this.nominalVoltages[1] = nominalVRight;
         this.iMax[0] = iMaxLeft;
         this.iMax[1] = iMaxRight;
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return getNetworkElements().iterator().next();
+    }
+
+    @Override
+    public double computeMargin(double actualValue, TwoSides side, Unit unit) {
+        double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    @Override
+    public final Set<BranchThreshold> getThresholds() {
+        return thresholds;
+    }
+
+    @Override
+    public Double getNominalVoltage(TwoSides side) {
+        return nominalVoltages[side.equals(TwoSides.ONE) ? 0 : 1];
     }
 
     @Override
@@ -77,8 +108,12 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                 double lowerBound = Double.NEGATIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
-                    currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound += changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
+                    Unit initialUnit = threshold.getUnit();
+                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                        initialUnit = Unit.AMPERE;
+                    }
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
+                    currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
                     }
@@ -108,8 +143,12 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                 double upperBound = Double.POSITIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
-                    currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound -= changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
+                    Unit initialUnit = threshold.getUnit();
+                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                        initialUnit = Unit.AMPERE;
+                    }
+                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
+                    currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;
                     }
@@ -132,19 +171,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    private double changeValueUnit(double value, Unit oldUnit, Unit newUnit, TwoSides side) {
-        if (oldUnit.equals(newUnit) ||
-            oldUnit.equals(Unit.PERCENT_IMAX) && newUnit.equals(Unit.AMPERE)) {
-            return value;
-        } else {
-            double conversionFactor = Math.sqrt(3) * getNominalVoltage(side) / 1000; // Conversion from A to MW
-            if (oldUnit.equals(Unit.MEGAWATT) && newUnit.equals(Unit.AMPERE)) {
-                conversionFactor = 1 / conversionFactor;
-            }
-            return value * conversionFactor;
-        }
-    }
-
     public boolean isConnected(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(getNetworkElement().getId());
         if (identifiable instanceof Connectable) {
@@ -164,7 +190,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
-        Branch branch = network.getBranch(getNetworkElement().getId());
+        Branch<?> branch = network.getBranch(getNetworkElement().getId());
         if (getMonitoredSides().size() == 2) {
             return new FlowCnecValue(getFlow(branch, TwoSides.ONE, unit), getFlow(branch, TwoSides.TWO, unit));
         } else {
@@ -178,12 +204,12 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    private double getFlow(Branch branch, TwoSides side, Unit unit) {
+    private double getFlow(Branch<?> branch, TwoSides side, Unit unit) {
         double activeFlow = branch.getTerminal(side).getP();
         double intensity = branch.getTerminal(side).getI();
         if (unit.equals(Unit.AMPERE)) {
             // In case flows are negative, we shall replace this value by its opposite
-            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplierMegawattToAmpere(side) : Math.signum(activeFlow) * intensity;
+            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE) : Math.signum(activeFlow) * intensity;
         } else if (!unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
@@ -196,14 +222,14 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
         FlowCnecValue flowCnecValue = computeValue(network, unit);
-        return getMinimimMarginBetweenTwoSides(unit, flowCnecValue);
+        return getMinimumMarginBetweenTwoSides(unit, flowCnecValue);
     }
 
     private double computeMargin(FlowCnecValue flowCnecValue, Unit unit) {
-        return getMinimimMarginBetweenTwoSides(unit, flowCnecValue);
+        return getMinimumMarginBetweenTwoSides(unit, flowCnecValue);
     }
 
-    private double getMinimimMarginBetweenTwoSides(Unit unit, FlowCnecValue flowCnecValue) {
+    private double getMinimumMarginBetweenTwoSides(Unit unit, FlowCnecValue flowCnecValue) {
         if (getMonitoredSides().size() == 2) {
             double marginSide1 = computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
             double marginSide2 = computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
@@ -274,11 +300,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    private double getFlowUnitMultiplierMegawattToAmpere(TwoSides voltageSide) {
-        double nominalVoltage = getNominalVoltage(voltageSide);
-        return 1000 / (nominalVoltage * Math.sqrt(3));
     }
 
 }

@@ -512,7 +512,7 @@ class OnConstraintUsageRuleHelperTest {
             new AssociationStatus(
                 false,
                 "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 " +
-                    "ignored because no CNEC was imported by Open RAO from this assessed element."
+                    "ignored because no CNEC was imported by OpenRAO from this assessed element."
             )
         );
         expectedResult.put("assessed-element-8",
@@ -570,7 +570,7 @@ class OnConstraintUsageRuleHelperTest {
             new AssociationStatus(
                 false,
                 "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 " +
-                    "ignored because no CNEC was imported by Open RAO from this assessed element."
+                    "ignored because no CNEC was imported by OpenRAO from this assessed element."
             )
         );
         expectedResult.put("assessed-element-8",

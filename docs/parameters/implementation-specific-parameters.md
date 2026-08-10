@@ -4,9 +4,9 @@
 
 Used to configure RAO implementation specific parameters
 
-### Open Rao Search Tree Parameters extension
+### OpenRAO Search Tree Parameters extension
 
-This extension is used to configure Open RAO specific parameters for search tree algorithms
+This extension is used to configure OpenRAO specific parameters for search tree algorithms
 
 #### Objective function parameters
 
@@ -109,7 +109,7 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Default value**: "CBC"
 - **Usage**: the solver called for optimising the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
 ###### relative-mip-gap
@@ -174,6 +174,14 @@ when searching for the best network actions.
   *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
   considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
+
+##### allow-electrical-island-creation
+- **Expected value**: boolean
+- **Default value**: true
+- **Usage**: configures whether islands can be created during the search-tree.  
+  If set to false, islands will not be created during the search-tree.  
+  If set to true, islands can be created during the search-tree.
+- **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
 
 #### Second preventive RAO parameters
 These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
@@ -397,14 +405,6 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
-#### PST regulation parameters
-
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
-
 ### Marmot Parameters extension
 
 #### number-of-cnecs-to-add-per-virtual-cost-name
@@ -433,13 +433,15 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 1
 - **Usage**: This value corresponds to the number of threads that will be used to run computations in parallel.
 
-#### PST regulation parameters
+#### curative-range-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when same curative range actions must be activated on all the timestamps at once with the same setpoint value.
 
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+#### curative-topological-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when the same topological actions must be applied on all the timestamps at once.
 
 ## Examples
 > ⚠️  **NOTE**  
@@ -449,7 +451,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -461,7 +463,9 @@ These parameters are meant to be used in costly optimization only.
       "min-relative-improvement-on-margin" : 12.0,
       "margin-window-to-consider" : 7.0,
       "max-mip-iterations" : 13,
-      "number-of-threads" : 4
+      "number-of-threads" : 4,
+      "curative-range-actions-synchronization" : false,
+      "curative-topological-actions-synchronization" : false
     },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
@@ -487,7 +491,8 @@ These parameters are meant to be used in costly optimization only.
           [ "na4", "na5", "na6" ]
         ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation": true
       },
       "multi-threading" : {
         "available-cpus" : 4
@@ -565,12 +570,6 @@ These parameters are meant to be used in costly optimization only.
     "costly-min-margin-parameters" : {
       "shifted-violation-penalty": 1000.0,
       "shifted-violation-threshold": 0.0
-    },
-    "pst-regulation-parameters" : {
-      "psts-to-regulate": {
-        "pst-1": "line-1",
-        "pst-2": "line-2"
-      }
     }
   }
 }

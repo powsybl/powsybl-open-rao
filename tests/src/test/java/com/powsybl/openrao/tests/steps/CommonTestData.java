@@ -359,7 +359,11 @@ public final class CommonTestData {
                 virtualHubsUsed = true;
             }
             if (!virtualHubsUsed) {
-                throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file or provide a VirtualHubs file that contains internal-hvdcs element.");
+                throw new OpenRaoException(
+                    "In order to import a virtual hubs configuration file, " +
+                        "you should define a reference program file and a GLSK file " +
+                        "or provide a VirtualHubs file that contains internal-hvdcs element."
+                );
             }
         }
 

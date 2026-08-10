@@ -53,7 +53,16 @@ public final class CommonReports {
                                                         final RaoParameters raoParameters,
                                                         final int numberOfLoggedLimitingElements) {
         final ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult, parentNode);
-        reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, prePerimeterObjectiveFunctionResult, sensitivityAnalysisResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            prePerimeterObjectiveFunctionResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportObjectiveFunctionResult(final ReportNode parentNode,
@@ -166,7 +175,10 @@ public final class CommonReports {
             .withSeverity(WARN_SEVERITY)
             .add();
 
-        BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.", rangeActionId, initialSetPoint, minSetPoint, maxSetPoint);
+        BUSINESS_WARNS.warn(
+            "Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+            rangeActionId, initialSetPoint, minSetPoint, maxSetPoint
+        );
     }
 
     public static void reportRangeActionsOfGroupDoNotHaveSamePrePerimeterSetpoint(final ReportNode parentNode, final String groupId) {
@@ -252,6 +264,10 @@ public final class CommonReports {
             .withSeverity(WARN_SEVERITY)
             .add();
 
-        BUSINESS_WARNS.warn("A threshold for the flowCnec {} is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnecId);
+        BUSINESS_WARNS.warn(
+            "A threshold for the flowCnec {} is defined in MW but the loadflow computation is in AC. " +
+                "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects",
+            flowCnecId
+        );
     }
 }

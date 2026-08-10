@@ -9,8 +9,6 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -23,7 +21,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -79,13 +75,13 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
-    private Instant checkOptimizedInstant(Instant optimizedInstant, FlowCnec flowCnec) {
+    private Instant checkOptimizedInstant(Instant optimizedInstant, Cnec<?> cnec) {
         if (optimizedInstant == null) {
             return null;
         }
         Instant instant = optimizedInstant;
-        if (flowCnec.getState().getInstant().comesBefore(instant)) {
-            instant = flowCnec.getState().getInstant();
+        if (cnec.getState().getInstant().comesBefore(instant)) {
+            instant = cnec.getState().getInstant();
         }
         if (instant.isOutage()) {
             instant = crac.getPreventiveInstant();
@@ -100,12 +96,12 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMinVoltage(unit);
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMinVoltage(unit);
     }
 
     @Override
     public double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMaxVoltage(unit);
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMaxVoltage(unit);
     }
 
     @Override
@@ -115,7 +111,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMargin(unit);
     }
 
     @Override
@@ -320,88 +316,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    private boolean instantHasNoNegativeMargin(Instant optimizedInstant, PhysicalParameter... u) {
-        for (PhysicalParameter physicalParameter : Set.of(u)) {
-            switch (physicalParameter) {
-                case ANGLE -> {
-                    AngleResult angleResult = getExtension(AngleResult.class);
-                    if (angleResult == null) {
-                        throw new OpenRaoException("RaoResult does not contain angle extension. Impossible to compute security status for physical parameter ANGLE.");
-                    }
-                    if (crac.getAngleCnecs().stream()
-                        .mapToDouble(cnec -> angleResult.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
-                        .anyMatch(Double::isNaN)) {
-                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
-                    }
-                    if (crac.getAngleCnecs().stream()
-                        .mapToDouble(cnec -> angleResult.getMargin(optimizedInstant, cnec, Unit.DEGREE))
-                        .filter(margin -> !Double.isNaN(margin))
-                        .anyMatch(margin -> margin < 0)) {
-                        return false;
-                    }
-                }
-                case FLOW -> {
-                    if (crac.getFlowCnecs().stream()
-                        .filter(FlowCnec::isOptimized)
-                        .anyMatch(this::isFlowCnecUnsecure)) {
-                        return false;
-                    }
-                }
-                case VOLTAGE -> {
-                    if (crac.getVoltageCnecs().stream()
-                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.KILOVOLT))
-                        .anyMatch(Double::isNaN)) {
-                        throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
-                    }
-                    if (crac.getVoltageCnecs().stream()
-                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
-                            .filter(margin -> !Double.isNaN(margin))
-                            .anyMatch(margin -> margin < 0)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean isFlowCnecUnsecure(FlowCnec flowCnec) {
-        // Check if values in A are present:
-        // - if so, the security status of the CNEC is based on the minimal ampere margin
-        // - otherwise, the MW results are checked
-        // This is done to avoid inaccurate conversions between A and MW in AC mode
-        double minAmpereMargin = getMarginStream(flowCnec, Unit.AMPERE).collect(Collectors.toSet()).stream().min(Double::compareTo).orElse(Double.MAX_VALUE);
-        if (minAmpereMargin != Double.MAX_VALUE) {
-            return minAmpereMargin < 0;
-        }
-        return getMarginStream(flowCnec, Unit.MEGAWATT).anyMatch(margin -> margin < 0);
-    }
-
-    private Stream<Double> getMarginStream(FlowCnec flowCnec, Unit unit) {
-        return crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.comesBefore(flowCnec.getState().getInstant()))
-            .map(instant -> getMargin(instant, flowCnec, unit))
-            .filter(margin -> !Double.isNaN(margin));
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        if (computationStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
-                .anyMatch(state -> ComputationStatus.FAILURE.equals(computationStatusPerState.get(state)))) {
-            return false;
-        }
-        return instantHasNoNegativeMargin(optimizedInstant, u);
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override

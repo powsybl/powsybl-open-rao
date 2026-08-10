@@ -16,6 +16,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
@@ -29,6 +30,7 @@ public final class ReportsTestUtils {
         return ReportNode.newRootReportNode()
             .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
+            .withLocale(Locale.ENGLISH)
             .build();
     }
 

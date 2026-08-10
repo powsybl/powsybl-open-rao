@@ -1,5 +1,5 @@
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : false
@@ -72,7 +72,7 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },
