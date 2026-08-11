@@ -243,9 +243,12 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getCost(Instant optimizedInstant) {
         return getFunctionalCost(optimizedInstant) + getVirtualCost(optimizedInstant);
     }
@@ -254,9 +257,12 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getFunctionalCost(Instant optimizedInstant);
 
     /**
@@ -264,17 +270,23 @@ public interface RaoResult extends Extendable<RaoResult> {
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getVirtualCost(Instant optimizedInstant);
 
     /**
      * It gives the names of the different virtual cost implied in the objective function defined in
      * the RAO.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @return The set of virtual cost names.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     Set<String> getVirtualCostNames();
 
     /**
@@ -282,10 +294,13 @@ public interface RaoResult extends Extendable<RaoResult> {
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param virtualCostName  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getVirtualCost(Instant optimizedInstant, String virtualCostName);
 
     /**
