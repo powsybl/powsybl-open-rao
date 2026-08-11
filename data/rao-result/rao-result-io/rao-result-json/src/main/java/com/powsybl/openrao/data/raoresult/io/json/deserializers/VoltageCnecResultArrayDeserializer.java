@@ -66,7 +66,11 @@ final class VoltageCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, VoltageCnec voltageCnec, VoltageResult voltageResult, Instant optimizedInstant, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser,
+                                                               VoltageCnec voltageCnec,
+                                                               VoltageResult voltageResult,
+                                                               Instant optimizedInstant,
+                                                               String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             if (!jsonParser.currentName().equals(KILOVOLT_UNIT)) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.currentName()));
@@ -77,7 +81,11 @@ final class VoltageCnecResultArrayDeserializer {
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser, VoltageCnec voltageCnec, VoltageResult voltageResult, Instant optimizedInstant, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser,
+                                                                      VoltageCnec voltageCnec,
+                                                                      VoltageResult voltageResult,
+                                                                      Instant optimizedInstant,
+                                                                      String jsonFileVersion) throws IOException {
         double minVoltage = Double.NaN;
         double maxVoltage = Double.NaN;
         while (!jsonParser.nextToken().isStructEnd()) {

@@ -99,7 +99,11 @@ public class VoltageResultTest {
             voltageResult.serialize(jsonGenerator);
         }
 
-        String expectedJson = "[{\"voltageCnecId\":\"cnec1\",\"measurements\":{\"kilovolt\":[{\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0},{\"instant\":\"preventive\",\"minVoltage\":417.0,\"maxVoltage\":437.0,\"margin\":3.0}]}}]";
+        String expectedJson = "[{"
+            + "\"voltageCnecId\":\"cnec1\","
+            + "\"measurements\":{\"kilovolt\":[{"
+            + "\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0},"
+            + "{\"instant\":\"preventive\",\"minVoltage\":417.0,\"maxVoltage\":437.0,\"margin\":3.0}]}}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -138,9 +142,9 @@ public class VoltageResultTest {
 
         // Should be sorted by ID: cnec1 then cnec2
         String expectedJson = "["
-                + "{\"voltageCnecId\":\"cnec1\",\"measurements\":{\"kilovolt\":[{\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0}]}},"
-                + "{\"voltageCnecId\":\"cnec2\",\"measurements\":{\"kilovolt\":[{\"instant\":\"initial\",\"minVoltage\":215.0,\"maxVoltage\":220.0,\"margin\":5.0}]}}"
-                + "]";
+            + "{\"voltageCnecId\":\"cnec1\",\"measurements\":{\"kilovolt\":[{\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0}]}},"
+            + "{\"voltageCnecId\":\"cnec2\",\"measurements\":{\"kilovolt\":[{\"instant\":\"initial\",\"minVoltage\":215.0,\"maxVoltage\":220.0,\"margin\":5.0}]}}"
+            + "]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -173,10 +177,10 @@ public class VoltageResultTest {
 
         // Instants should be sorted: initial, then instant1, then instant2
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\",\"measurements\":{\"kilovolt\":["
-                + "{\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0},"
-                + "{\"instant\":\"instant1\",\"minVoltage\":405.0,\"maxVoltage\":410.0,\"margin\":25.0},"
-                + "{\"instant\":\"instant2\",\"minVoltage\":415.0,\"maxVoltage\":425.0,\"margin\":15.0}"
-                + "]}}]";
+            + "{\"instant\":\"initial\",\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0},"
+            + "{\"instant\":\"instant1\",\"minVoltage\":405.0,\"maxVoltage\":410.0,\"margin\":25.0},"
+            + "{\"instant\":\"instant2\",\"minVoltage\":415.0,\"maxVoltage\":425.0,\"margin\":15.0}"
+            + "]}}]";
         assertEquals(expectedJson, writer.toString());
     }
 }

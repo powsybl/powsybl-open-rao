@@ -21,8 +21,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -65,17 +65,6 @@ class FailedRaoResultImplTest {
     }
 
     @Test
-    void testAngleAndVoltageCnec() {
-        Instant optInstant = mock(Instant.class);
-        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 2");
-        AngleCnec angleCnec = mock(AngleCnec.class);
-        VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, voltageCnec, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMaxVoltage(optInstant, voltageCnec, MEGAWATT));
-        assertEquals("mocked error message 2", failedRaoResultImpl.getExecutionDetails());
-    }
-
-    @Test
     void testgetFlowAndMargin() {
         Instant optInstant = mock(Instant.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 3");

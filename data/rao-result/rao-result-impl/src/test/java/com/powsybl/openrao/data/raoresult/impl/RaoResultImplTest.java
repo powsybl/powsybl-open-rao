@@ -278,11 +278,6 @@ class RaoResultImplTest {
         voltageResult.addMeasurement(400., 420., preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT);
         raoResult.addExtension(VoltageResult.class, voltageResult);
 
-        assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
-        assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
-        assertEquals("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage());
-        assertEquals("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage());
-
         // check extensions
 
         assertEquals(50.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));

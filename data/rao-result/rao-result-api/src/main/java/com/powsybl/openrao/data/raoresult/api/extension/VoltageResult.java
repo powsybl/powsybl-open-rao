@@ -114,7 +114,7 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         private final Map<Instant, Double> maxVoltagePerInstant;
         private final Map<Instant, Double> marginPerInstant;
 
-        public VoltageCnecResult(VoltageCnec voltageCnec) {
+        VoltageCnecResult(VoltageCnec voltageCnec) {
             this.voltageCnec = voltageCnec;
             this.initialMinVoltage = null;
             this.initialMaxVoltage = null;
