@@ -13,12 +13,16 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARGIN_WINDOW_TO_CONSIDER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MARMOT_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.NUMBER_OF_THREADS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MARGIN_WINDOW_TO_CONSIDER;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters.DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
@@ -40,6 +44,8 @@ public class MarmotConfigLoader implements RaoParameters.ConfigLoader<MarmotPara
                 parameters.setMarginWindowToConsider(config.getDoubleProperty(MARGIN_WINDOW_TO_CONSIDER, DEFAULT_MARGIN_WINDOW_TO_CONSIDER));
                 parameters.setMaxMipIterations(config.getIntProperty(MAX_MIP_ITERATIONS, DEFAULT_MAX_MIP_ITERATIONS));
                 parameters.setNumberOfThreads(config.getIntProperty(NUMBER_OF_THREADS, DEFAULT_NUMBER_OF_THREADS));
+                parameters.setCurativeRangeActionsSynchronization(config.getBooleanProperty(CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION, DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION));
+                parameters.setCurativeTopologicalActionsSynchronization(config.getBooleanProperty(CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION, DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION));
                 return parameters;
             })
             .orElse(null);

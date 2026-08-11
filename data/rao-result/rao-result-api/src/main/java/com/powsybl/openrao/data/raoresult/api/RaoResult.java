@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
@@ -63,25 +62,29 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param side             The side of the branch to be queried.
      * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
      * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleResult angleResult = getExtension(AngleResult.class);
         if (angleResult != null) {
@@ -94,12 +97,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the minimum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Voltage Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
         if (voltageResult != null) {
@@ -112,12 +117,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the maximum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
+     * @deprecated since 7.5.0, use Voltage Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
         if (voltageResult != null) {
@@ -131,12 +138,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -144,12 +153,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
+     * @deprecated since 7.5.0, use Angle Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleResult angleResult = getExtension(AngleResult.class);
         if (angleResult != null) {
@@ -163,12 +174,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
+     * @deprecated since 7.5.0, use Voltage Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
         if (voltageResult != null) {
@@ -185,12 +198,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
@@ -198,12 +213,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -211,12 +228,14 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
@@ -224,11 +243,13 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Flow Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 
     /**
@@ -470,35 +491,6 @@ public interface RaoResult extends Extendable<RaoResult> {
     String getExecutionDetails();
 
     void setExecutionDetails(String executionDetails);
-
-    /**
-     * Indicates whether the all the CNECs of a given type at a given instant are secure.
-     *
-     * @param optimizedInstant The instant to assess
-     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
-     */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
-    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
-
-    /**
-     * Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO)..
-     *
-     * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
-     */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
-    boolean isSecure(PhysicalParameter... u);
-
-    /**
-     * Indicates whether all the CNECs are secure at last instant (i.e. after RAO)..
-     *
-     * @return whether all the CNECs are secure at last instant (i.e. after RAO)..
-     */
-    @Deprecated(since = "7.3.0") // TODO: keep version up to date depending on merging date
-    default boolean isSecure() {
-        return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
-    }
 
     /**
      * Import RaoResult from a file

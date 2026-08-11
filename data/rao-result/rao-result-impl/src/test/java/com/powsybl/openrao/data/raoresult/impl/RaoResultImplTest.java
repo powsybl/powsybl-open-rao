@@ -8,15 +8,11 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -37,7 +33,6 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -56,14 +51,12 @@ class RaoResultImplTest {
     private PstRangeAction pst;
     private NetworkAction na;
     private Instant preventiveInstant;
-    private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         cnec = crac.getFlowCnec("cnec1basecase");
@@ -78,6 +71,14 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
+        // add default secure margin for all FlowCNECs
+        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+            FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(flowCnec);
+            ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(flowCnec.getState().getInstant());
+            elementaryFlowResult.setMargin(10., MEGAWATT);
+        }
+
+        // override for FlowCNEC "cnec1basecase"
         FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
 
         flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
@@ -253,91 +254,22 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testIsSecureFlowCnecs() {
-        setUp();
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-    }
-
-    @Test
-    void testIsNotSecureIfComputationStatusIsFailure() {
-        setUp();
-        raoResult.setComputationStatus(ComputationStatus.FAILURE);
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
-    }
-
-    @Test
-    void testIsSecureIfNoCnecOfGivenParameterType() {
-        setUp();
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.ANGLE));
-    }
-
-    @Test
-    void testIsNotSecureCheckPhysicalParameterKind2() {
-        setUp();
-        AngleCnec angleCnec = crac.newAngleCnec()
-                .withId("AngleCnec")
-                .withInstant(AUTO_INSTANT_ID)
-                .withExportingNetworkElement("ExportingNE")
-                .withImportingNetworkElement("ImportingNE")
-                .withContingency("Contingency FR1 FR3")
-                .newThreshold()
-                .withMin(0.)
-                .withMax(30.)
-                .withUnit(DEGREE)
-                .add()
-                .add();
-
-        AngleResult angleResult = new AngleResult();
-        angleResult.addMeasurement(35.0, autoInstant, angleCnec, DEGREE);
-        raoResult.addExtension(AngleResult.class, angleResult);
-
-        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
-        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-    }
-
-    @Test
-    void testIsSecureDependsOnOptimizationState() {
-        setUp();
-        VoltageCnec voltageCnec = crac.newVoltageCnec()
-                .withId("VoltageCnec")
-                .withInstant(AUTO_INSTANT_ID)
-                .withNetworkElement("NetworkElement")
-                .withContingency("Contingency FR1 FR3")
-                .newThreshold()
-                .withMin(180.)
-                .withMax(250.)
-                .withUnit(KILOVOLT)
-                .add()
-                .add();
-
-        VoltageResult voltageResult = new VoltageResult();
-        voltageResult.addMeasurement(200., 220., preventiveInstant, voltageCnec, KILOVOLT);
-        voltageResult.addMeasurement(175., 195., autoInstant, voltageCnec, KILOVOLT);
-        voltageResult.addMeasurement(200., 220., curativeInstant, voltageCnec, KILOVOLT);
-        raoResult.addExtension(VoltageResult.class, voltageResult);
-
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResult.isSecure());
-    }
-
-    @Test
     void comprehensiveRaoResultWithAllThreeTypesOfCnecs() {
         setUp();
         addOutageFlowCnec();
         addAngleCnecs();
         addVoltageCnecs();
 
+        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(crac.getFlowCnec("cnec1stateOutageContingency1"));
+        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getPreventiveInstant());
+        elementaryFlowResult.setMargin(10., MEGAWATT);
+
         AngleResult angleResult = new AngleResult();
         angleResult.addMeasurement(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
         angleResult.addMeasurement(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addMeasurement(90.0, crac.getOutageInstant(), crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
         angleResult.addMeasurement(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
+        angleResult.addMeasurement(35.0, curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
         raoResult.addExtension(AngleResult.class, angleResult);
 
         VoltageResult voltageResult = new VoltageResult();
@@ -345,9 +277,6 @@ class RaoResultImplTest {
         voltageResult.addMeasurement(415., 435., preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT);
         voltageResult.addMeasurement(400., 420., preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT);
         raoResult.addExtension(VoltageResult.class, voltageResult);
-
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
 
         assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
         assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
@@ -364,6 +293,9 @@ class RaoResultImplTest {
 
         assertEquals(35.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
         assertEquals(-5.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+
+        assertEquals(35.0, raoResult.getExtension(AngleResult.class).getAngle(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(-5.0, raoResult.getExtension(AngleResult.class).getMargin(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
 
         assertEquals(400.0, raoResult.getExtension(VoltageResult.class).getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
         assertEquals(420.0, raoResult.getExtension(VoltageResult.class).getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));

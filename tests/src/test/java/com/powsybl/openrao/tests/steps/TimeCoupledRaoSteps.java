@@ -89,7 +89,11 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
 import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -515,23 +519,42 @@ public final class TimeCoupledRaoSteps {
         assertFalse(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
     }
 
-    @Then("its time coupled security status should be {string}")
+    @Then("the time-coupled security status should be {string}")
     public void statusShouldBe(String status) {
-        assertEquals(status.equalsIgnoreCase("secured"), timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW));
+        assertEquals(
+            "secured".equalsIgnoreCase(status),
+            isSecure(
+                timeCoupledRaoResult,
+                CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac),
+                CommonTestData.getRaoParameters(),
+                PhysicalParameter.FLOW,
+                PhysicalParameter.ANGLE,
+                PhysicalParameter.VOLTAGE
+            )
+        );
     }
 
     @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")
     public void theTapOfPstRangeActionPostContingencyShouldBe(String pstRangeActionId, String timestamp, String contingencyId, String instant, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+        assertEquals(
+            chosenPstTap,
+            timeCoupledRaoResult
+                .getIndividualRaoResult(offsetDateTime)
+                .getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId))
+        );
     }
 
     @Then("the preventive tap of PstRangeAction {string} at timestamp {string} should be {int}")
     public void theTapOfPreventivePstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
+        assertEquals(
+            chosenPstTap,
+            timeCoupledRaoResult
+                .getIndividualRaoResult(offsetDateTime)
+                .getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
     @Then("the CNEC {string} is overloaded before time-coupled optimization")
@@ -567,7 +590,7 @@ public final class TimeCoupledRaoSteps {
     }
 
     private static State getState(Crac crac, String contingencyId, String instantId) {
-        if (instantId.equalsIgnoreCase("preventive")) {
+        if ("preventive".equalsIgnoreCase(instantId)) {
             return crac.getPreventiveState();
         } else {
             return crac.getState(contingencyId, crac.getInstant(instantId));

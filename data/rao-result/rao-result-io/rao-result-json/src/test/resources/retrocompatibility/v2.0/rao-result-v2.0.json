@@ -534,30 +534,30 @@
   "extensions": {
     "angle-results": [
       {
-        "angleCnecId": "angleCnecId",
-        "measurements": {
-          "degree": [
-            {
-              "instant": "initial",
-              "angle": 3135.0,
-              "margin": -3045.0
-            },
-            {
-              "instant": "preventive",
-              "angle": 3235.0,
-              "margin": -3145.0
-            },
-            {
-              "instant": "auto",
-              "angle": 3335.0,
-              "margin": -3245.0
-            },
-            {
-              "instant": "curative",
-              "angle": 3435.0,
-              "margin": -3345.0
-            }
-          ]
+        "angleCnecId" : "angleCnecId",
+        "initial" : {
+          "degree" : {
+            "angle" : 3135.0,
+            "margin" : -3045.0
+          }
+        },
+        "preventive" : {
+          "degree" : {
+            "angle" : 3235.0,
+            "margin" : -3145.0
+          }
+        },
+        "auto" : {
+          "degree" : {
+            "angle" : 3335.0,
+            "margin" : -3245.0
+          }
+        },
+        "curative" : {
+          "degree" : {
+            "angle" : 3435.0,
+            "margin" : -3345.0
+          }
         }
       }
     ],

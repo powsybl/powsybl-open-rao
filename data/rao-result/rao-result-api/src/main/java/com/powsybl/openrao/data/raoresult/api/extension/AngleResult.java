@@ -98,7 +98,7 @@ public class AngleResult extends AbstractExtension<RaoResult> {
         private final Map<Instant, Double> anglePerInstant;
         private final Map<Instant, Double> marginPerInstant;
 
-        public AngleCnecResult(AngleCnec angleCnec) {
+        AngleCnecResult(AngleCnec angleCnec) {
             this.angleCnec = angleCnec;
             this.initialAngle = null;
             this.initialMargin = null;
@@ -142,14 +142,10 @@ public class AngleResult extends AbstractExtension<RaoResult> {
         public void serialize(JsonGenerator jsonGenerator) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("angleCnecId", angleCnec.getId());
-            jsonGenerator.writeObjectFieldStart("measurements");
-            jsonGenerator.writeArrayFieldStart(Unit.DEGREE.name().toLowerCase());
             serializeInitialResults(jsonGenerator);
             for (Instant instant : anglePerInstant.keySet().stream().sorted().toList()) {
                 serializeMeasurementsForInstant(jsonGenerator, instant);
             }
-            jsonGenerator.writeEndArray();
-            jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
 
@@ -164,10 +160,11 @@ public class AngleResult extends AbstractExtension<RaoResult> {
         }
 
         private static void serializeResults(JsonGenerator jsonGenerator, String instantId, double angle, double margin) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("instant", instantId);
+            jsonGenerator.writeObjectFieldStart(instantId);
+            jsonGenerator.writeObjectFieldStart(Unit.DEGREE.name().toLowerCase());
             jsonGenerator.writeNumberField("angle", angle);
             jsonGenerator.writeNumberField("margin", margin);
+            jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
     }

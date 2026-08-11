@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi.raomock;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -67,16 +66,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
         return 0;
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
-        return false;
     }
 
     @Override
@@ -212,15 +201,5 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public void setExecutionDetails(String executionDetails) {
 
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return false;
     }
 }

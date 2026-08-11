@@ -15,12 +15,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
-import com.powsybl.openrao.data.raoresult.io.json.Version;
 
 import java.io.IOException;
 
@@ -50,43 +50,34 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                         jsonParser.nextToken();
                         angleCnec = crac.getAngleCnec(jsonParser.getValueAsString());
                     }
-                    case "measurements" -> {
-                        jsonParser.nextToken();
-                        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                            if (jsonParser.currentName().equals(Unit.DEGREE.name().toLowerCase())) {
-                                jsonParser.nextToken();
-                                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                                    Instant instant = null;
-                                    Double angle = null;
-                                    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                                        switch (jsonParser.currentName()) {
-                                            case "instant" -> {
-                                                jsonParser.nextToken();
-                                                String instantId = jsonParser.getValueAsString();
-                                                instant = "initial".equals(instantId) ? null : crac.getInstant(instantId);
-                                            }
-                                            case "angle" -> {
-                                                jsonParser.nextToken();
-                                                angle = jsonParser.getDoubleValue();
-                                            }
-                                            case "margin" -> jsonParser.nextToken();
-                                            default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
-                                        }
-                                    }
-                                    if (angle != null) {
-                                        angleResult.addMeasurement(angle, instant, angleCnec, Unit.DEGREE);
-                                    }
-                                }
-                            } else {
-                                throw new OpenRaoException("Unsupported unit for angle values.");
-                            }
-                        }
-                    }
-                    default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
+                    case "initial" -> deserializeForInstant(jsonParser, angleResult, angleCnec, null, crac);
+                    default -> deserializeForInstant(jsonParser, angleResult, angleCnec, jsonParser.currentName(), crac);
                 }
             }
         }
         return angleResult;
+    }
+
+    private static void deserializeForInstant(JsonParser jsonParser, AngleResult angleResult, AngleCnec angleCnec, String instantId, Crac crac) throws IOException {
+        Instant instant = instantId == null ? null : crac.getInstant(instantId);
+        jsonParser.nextToken();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            if (jsonParser.currentName().equals(Unit.DEGREE.name().toLowerCase())) {
+                jsonParser.nextToken();
+                while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                    switch (jsonParser.currentName()) {
+                        case "angle" -> {
+                            jsonParser.nextToken();
+                            angleResult.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
+                        }
+                        case "margin" -> jsonParser.nextToken();
+                        default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
+                    }
+                }
+            } else {
+                throw new OpenRaoException("Unsupported unit for angle values: %s.".formatted(jsonParser.currentName()));
+            }
+        }
     }
 
     @Override
