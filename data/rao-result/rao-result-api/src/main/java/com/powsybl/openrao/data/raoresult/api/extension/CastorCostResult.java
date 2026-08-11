@@ -19,16 +19,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: rename to CastorCostResult
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class CostResult extends AbstractExtension<RaoResult> {
+public class CastorCostResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "castor-cost-results";
 
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
 
-    public CostResult() {
+    public CastorCostResult() {
         this.initialCostResult = new ElementaryCostResult();
         this.costResultPerInstant = new HashMap<>();
     }

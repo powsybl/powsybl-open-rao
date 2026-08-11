@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -119,16 +119,16 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = new CostResult();
-        costResult.addFunctionalCostResult(null, 100.0);
-        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
-        costResult.addVirtualCostResult(null, "MNEC", 0.0);
+        CastorCostResult castorCostResult = new CastorCostResult();
+        castorCostResult.addFunctionalCostResult(null, 100.0);
+        castorCostResult.addVirtualCostResult(null, "loopFlow", 0.0);
+        castorCostResult.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResult.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
-        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
-        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
+        castorCostResult.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        castorCostResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        castorCostResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
-        raoResult.addExtension(CostResult.class, costResult);
+        raoResult.addExtension(CastorCostResult.class, castorCostResult);
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }

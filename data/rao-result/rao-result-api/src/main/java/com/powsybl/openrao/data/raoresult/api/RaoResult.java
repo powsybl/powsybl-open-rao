@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
@@ -265,8 +265,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getFunctionalCost(Instant optimizedInstant) {
-        CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getFunctionalCost(optimizedInstant);
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getFunctionalCost(optimizedInstant);
     }
 
     /**
@@ -281,8 +281,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getVirtualCost(Instant optimizedInstant) {
-        CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant);
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getVirtualCost(optimizedInstant);
     }
 
     /**
@@ -295,8 +295,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default Set<String> getVirtualCostNames() {
-        CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Set.of() : costResult.getVirtualCostNames();
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Set.of() : castorCostResult.getVirtualCostNames();
     }
 
     /**
@@ -312,8 +312,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant, virtualCostName);
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getVirtualCost(optimizedInstant, virtualCostName);
     }
 
     /**
