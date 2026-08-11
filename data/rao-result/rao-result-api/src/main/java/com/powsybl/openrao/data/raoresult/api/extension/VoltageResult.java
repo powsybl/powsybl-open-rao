@@ -166,14 +166,10 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         public void serialize(JsonGenerator jsonGenerator) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("voltageCnecId", voltageCnec.getId());
-            jsonGenerator.writeObjectFieldStart("measurements");
-            jsonGenerator.writeArrayFieldStart(Unit.KILOVOLT.name().toLowerCase());
             serializeInitialResults(jsonGenerator);
             for (Instant instant : minVoltagePerInstant.keySet().stream().sorted().toList()) {
                 serializeMeasurementsForInstant(jsonGenerator, instant);
             }
-            jsonGenerator.writeEndArray();
-            jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
 
@@ -188,11 +184,12 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         }
 
         private static void serializeResults(JsonGenerator jsonGenerator, String instantId, double minVoltage, double maxVoltage, double margin) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("instant", instantId);
+            jsonGenerator.writeObjectFieldStart(instantId);
+            jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
             jsonGenerator.writeNumberField("minVoltage", minVoltage);
             jsonGenerator.writeNumberField("maxVoltage", maxVoltage);
             jsonGenerator.writeNumberField("margin", margin);
+            jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
     }

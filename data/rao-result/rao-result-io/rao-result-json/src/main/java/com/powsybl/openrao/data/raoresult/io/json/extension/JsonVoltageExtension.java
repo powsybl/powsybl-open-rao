@@ -50,48 +50,45 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
                         jsonParser.nextToken();
                         voltageCnec = crac.getVoltageCnec(jsonParser.getValueAsString());
                     }
-                    case "measurements" -> {
-                        jsonParser.nextToken();
-                        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                            if (jsonParser.currentName().equals(Unit.KILOVOLT.name().toLowerCase())) {
-                                jsonParser.nextToken();
-                                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                                    Instant instant = null;
-                                    Double minVoltage = null;
-                                    Double maxVoltage = null;
-                                    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                                        switch (jsonParser.currentName()) {
-                                            case "instant" -> {
-                                                jsonParser.nextToken();
-                                                String instantId = jsonParser.getValueAsString();
-                                                instant = "initial".equals(instantId) ? null : crac.getInstant(instantId);
-                                            }
-                                            case "minVoltage" -> {
-                                                jsonParser.nextToken();
-                                                minVoltage = jsonParser.getDoubleValue();
-                                            }
-                                            case "maxVoltage" -> {
-                                                jsonParser.nextToken();
-                                                maxVoltage = jsonParser.getDoubleValue();
-                                            }
-                                            case "margin" -> jsonParser.nextToken();
-                                            default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
-                                        }
-                                    }
-                                    if (minVoltage != null && maxVoltage != null) {
-                                        voltageResult.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
-                                    }
-                                }
-                            } else {
-                                throw new OpenRaoException("Unsupported unit for angle values.");
-                            }
-                        }
-                    }
-                    default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
+                    case "initial" -> deserializeForInstant(jsonParser, voltageResult, voltageCnec, null, crac);
+                    default -> deserializeForInstant(jsonParser, voltageResult, voltageCnec, jsonParser.currentName(), crac);
                 }
             }
         }
         return voltageResult;
+    }
+
+    private static void deserializeForInstant(JsonParser jsonParser, VoltageResult voltageResult, VoltageCnec voltageCnec, String instantId, Crac crac) throws IOException {
+        Instant instant = instantId == null ? null : crac.getInstant(instantId);
+        jsonParser.nextToken();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            if (jsonParser.currentName().equals(Unit.KILOVOLT.name().toLowerCase())) {
+                jsonParser.nextToken();
+                Double minVoltage = null;
+                Double maxVoltage = null;
+                while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                    switch (jsonParser.currentName()) {
+                        case "minVoltage" -> {
+                            jsonParser.nextToken();
+                            minVoltage = jsonParser.getDoubleValue();
+                        }
+                        case "maxVoltage" -> {
+                            jsonParser.nextToken();
+                            maxVoltage = jsonParser.getDoubleValue();
+                        }
+                        case "margin" -> jsonParser.nextToken();
+                        default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
+                    }
+                }
+                if (minVoltage != null && maxVoltage != null) {
+                    voltageResult.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
+                } else {
+                    throw new OpenRaoException("Missing min or max voltage for VoltageCNEC %s at instant %s.".formatted(voltageCnec.getId(), instant == null ? "initial" : instant.getId()));
+                }
+            } else {
+                throw new OpenRaoException("Unsupported unit for voltage values: %s.".formatted(jsonParser.currentName()));
+            }
+        }
     }
 
     @Override
