@@ -89,6 +89,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
+
 @Beta
 public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;

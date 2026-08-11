@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
@@ -33,6 +35,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -149,33 +152,6 @@ class RaoUtilTest {
         OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception2.getMessage());
 
-    }
-
-    @Test
-    void testGetBranchFlowUnitMultiplier() {
-        FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.ONE)).thenReturn(400.);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.TWO)).thenReturn(200.);
-
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.PERCENT_IMAX));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.KILOVOLT, Unit.MEGAWATT));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.TAP));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.DEGREE, Unit.AMPERE));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
     }
 
     @Test
@@ -536,4 +512,47 @@ class RaoUtilTest {
         getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(false);
         assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(parameters));
     }
+
+    @Test
+    void testGetNumberOfConnectedComponent() {
+        int numberOfComponents = RaoUtil.getNumberOfConnectedComponent(network);
+        assertEquals(1, numberOfComponents);
+        network.getGenerator("FFR1AA1 _generator").getTerminal().disconnect();
+        network.getGenerator("FFR2AA1 _generator").getTerminal().disconnect();
+
+        Action elementaryAction1 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction1")
+            .withNetworkElementId("DDE2AA1  NNL3AA1  1")
+            .withOpen(true)
+            .build();
+        Action elementaryAction2 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction2")
+            .withNetworkElementId("FFR2AA1  DDE3AA1  1")
+            .withOpen(true)
+            .build();
+        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
+        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
+        NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+        networkActionThatCreateAnIsland.apply(network);
+        assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
+    }
+
+    @Test
+    void testApplyContingencyWithInvalidContingency() {
+        crac.newContingency()
+            .withId("InvalidContingency")
+            .withContingencyElement("NonExistentElement", com.powsybl.contingency.ContingencyElementType.LINE)
+            .add();
+        State stateWithInvalidContingency = Mockito.mock(State.class);
+        when(stateWithInvalidContingency.getContingency()).thenReturn(Optional.of(crac.getContingency("InvalidContingency")));
+
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency)
+        );
+        assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
+
+    }
+
 }

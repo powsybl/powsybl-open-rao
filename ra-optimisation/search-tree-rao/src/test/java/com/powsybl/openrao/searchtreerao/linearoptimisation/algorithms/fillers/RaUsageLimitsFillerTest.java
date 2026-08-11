@@ -188,7 +188,12 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         // add multi-curative states
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, pst2, hvdc, injection), co1Curative2, Set.of(pst1, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
+        rangeActionsPerStateMultiCurative = Map.of(
+            co1Curative1, Set.of(pst1, pst2, hvdc, injection),
+            co1Curative2, Set.of(pst1, pst3),
+            co2Curative2, Set.of(pst2, pst3),
+            preventiveState, Set.of(injection)
+        );
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
         RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters(ReportNode.NO_OP)).getRangeActionsOptimizationParameters();
 
@@ -816,13 +821,25 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             true,
             false);
 
-        Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(co1Curative1, Set.of(pst1, pst2), co1Curative2, Set.of(pst1, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of());
+        Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(
+            co1Curative1, Set.of(pst1, pst2),
+            co1Curative2, Set.of(pst1, pst3),
+            co2Curative2, Set.of(pst2, pst3),
+            preventiveState, Set.of()
+        );
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(preventiveState);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false, true);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
+            optimizationPerimeter,
+            pstRangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            new RangeActionsOptimizationParameters(),
+            false,
+            true
+        );
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -857,7 +874,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
-        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD))); // PST3 is from opB
+        // PST3 is from opB
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
         assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
 
         // Check co1Curative2 - opB

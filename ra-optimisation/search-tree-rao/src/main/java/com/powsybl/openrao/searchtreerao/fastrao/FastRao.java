@@ -35,6 +35,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivi
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.reports.FastRaoReports;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
@@ -52,7 +53,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -188,7 +188,18 @@ public class FastRao implements RaoProvider {
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
-                raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, initialRangeActionSetpointResult, networkPool, counter, iterationReportNode);
+                raoResult = runFilteredRao(
+                    raoInput,
+                    parameters,
+                    targetEndInstant,
+                    consideredCnecs,
+                    toolProvider,
+                    initialResult,
+                    initialRangeActionSetpointResult,
+                    networkPool,
+                    counter,
+                    iterationReportNode
+                );
                 stepResult = raoResult.getAppropriateResult(lastInstant);
 
                 FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
