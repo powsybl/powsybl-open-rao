@@ -19,10 +19,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * TODO: rename to CastorCostResult
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class CostResult extends AbstractExtension<RaoResult> {
-    private static final String EXTENSION_NAME = "cost-results";
+    private static final String EXTENSION_NAME = "castor-cost-results";
 
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
@@ -113,14 +114,12 @@ public class CostResult extends AbstractExtension<RaoResult> {
     }
 
     public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartArray();
-        jsonGenerator.writeString("initial");
-        initialCostResult.serialize(jsonGenerator);
+        jsonGenerator.writeStartObject();
+        initialCostResult.serialize(jsonGenerator, "initial");
         for (Instant instant : costResultPerInstant.keySet().stream().sorted().toList()) {
-            jsonGenerator.writeString(instant.getId());
-            getAppropriateResult(instant).serialize(jsonGenerator);
+            getAppropriateResult(instant).serialize(jsonGenerator, instant.getId());
         }
-        jsonGenerator.writeEndArray();
+        jsonGenerator.writeEndObject();
     }
 
     @Override
@@ -134,12 +133,8 @@ public class CostResult extends AbstractExtension<RaoResult> {
         private static final double DEFAULT_COST = Double.NaN;
 
         private ElementaryCostResult() {
-            this(DEFAULT_COST, new HashMap<>());
-        }
-
-        private ElementaryCostResult(double functionalCost, Map<String, Double> virtualCosts) {
-            this.functionalCost = functionalCost;
-            this.virtualCosts = virtualCosts;
+            this.functionalCost = DEFAULT_COST;
+            this.virtualCosts = new HashMap<>();
         }
 
         private void setFunctionalCost(double functionalCost) {
@@ -166,10 +161,10 @@ public class CostResult extends AbstractExtension<RaoResult> {
             return virtualCosts.keySet();
         }
 
-        private void serialize(JsonGenerator jsonGenerator) throws IOException {
-            jsonGenerator.writeStartObject();
+        private void serialize(JsonGenerator jsonGenerator, String instantId) throws IOException {
+            jsonGenerator.writeObjectFieldStart(instantId);
             jsonGenerator.writeNumberField("functionalCost", functionalCost);
-            jsonGenerator.writeObjectFieldStart("virtualCosts");
+            jsonGenerator.writeObjectFieldStart("virtualCost");
             for (String virtualCostName : getVirtualCostNames().stream().sorted().toList()) {
                 jsonGenerator.writeNumberField(virtualCostName, virtualCosts.get(virtualCostName));
             }

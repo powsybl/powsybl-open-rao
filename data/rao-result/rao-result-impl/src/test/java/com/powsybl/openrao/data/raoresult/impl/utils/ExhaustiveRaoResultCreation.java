@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.data.raoresult.impl.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
@@ -59,29 +59,29 @@ public final class ExhaustiveRaoResultCreation {
         // --- Cost results ---
         // --------------------
 
+        CostResult costResult = new CostResult();
+
         // CostResult at initial state
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult("initial");
-        costResult.setFunctionalCost(100.);
-        costResult.setVirtualCost("loopFlow", 0.);
-        costResult.setVirtualCost("MNEC", 0.);
+        costResult.addFunctionalCostResult(null, 100.0);
+        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResult.addVirtualCostResult(null, "MNEC", 0.0);
 
         // CostResult after PRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult("preventive");
-        costResult.setFunctionalCost(80.);
-        costResult.setVirtualCost("loopFlow", 0.);
-        costResult.setVirtualCost("MNEC", 0.);
+        costResult.addFunctionalCostResult(crac.getPreventiveInstant(), 80.0);
+        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "loopFlow", 0.0);
+        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "MNEC", 0.0);
 
         // CostResult after ARA
-        costResult = raoResult.getAndCreateIfAbsentCostResult("auto");
-        costResult.setFunctionalCost(-20.);
-        costResult.setVirtualCost("loopFlow", 15.);
-        costResult.setVirtualCost("MNEC", 20.);
+        costResult.addFunctionalCostResult(crac.getInstant("auto"), -20.0);
+        costResult.addVirtualCostResult(crac.getInstant("auto"), "loopFlow", 15.0);
+        costResult.addVirtualCostResult(crac.getInstant("auto"), "MNEC", 20.0);
 
         // CostResult after CRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult("curative");
-        costResult.setFunctionalCost(-50.);
-        costResult.setVirtualCost("loopFlow", 10.);
-        costResult.setVirtualCost("MNEC", 2.);
+        costResult.addFunctionalCostResult(crac.getInstant("curative"), -50.0);
+        costResult.addVirtualCostResult(crac.getInstant("curative"), "loopFlow", 10.0);
+        costResult.addVirtualCostResult(crac.getInstant("curative"), "MNEC", 2.0);
+
+        raoResult.addExtension(CostResult.class, costResult);
 
         // ------------------------
         // --- FlowCnec results ---

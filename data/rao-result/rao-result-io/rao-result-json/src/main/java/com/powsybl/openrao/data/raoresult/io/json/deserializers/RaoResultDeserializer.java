@@ -116,7 +116,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case ANGLECNEC_RESULTS:
                     if (version.major() == 1) {
-                        System.out.println(version);
                         jsonParser.nextToken();
                         AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                         break;

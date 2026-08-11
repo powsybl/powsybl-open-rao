@@ -123,11 +123,13 @@ class CostResultTest {
             costResult.serialize(gen);
         }
 
-        String expectedJson = "[\"initial\","
-            + "{\"functionalCost\":10.0,\"virtualCosts\":{\"v1\":1.0}},"
-            + "\"preventive\",{\"functionalCost\":20.0,\"virtualCosts\":{\"v2\":2.0}},"
-            + "\"curative\",{\"functionalCost\":30.0,\"virtualCosts\":{\"v3\":3.0}"
-            + "}]";
+        String expectedJson = "{\"initial\":"
+            + "{\"functionalCost\":10.0,\"virtualCost\":{\"v1\":1.0}},"
+            + "\"preventive\":"
+            + "{\"functionalCost\":20.0,\"virtualCost\":{\"v2\":2.0}},"
+            + "\"curative\":"
+            + "{\"functionalCost\":30.0,\"virtualCost\":{\"v3\":3.0}}"
+            + "}";
         assertEquals(expectedJson, writer.toString());
     }
 }
