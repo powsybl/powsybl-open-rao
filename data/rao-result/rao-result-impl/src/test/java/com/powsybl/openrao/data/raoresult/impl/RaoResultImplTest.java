@@ -19,8 +19,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -119,15 +119,16 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(RaoResult.INITIAL_INSTANT_ID);
-        costResult.setFunctionalCost(100.);
-        costResult.setVirtualCost("loopFlow", 0.);
-        costResult.setVirtualCost("MNEC", 0.);
+        CostResult costResult = new CostResult();
+        costResult.addFunctionalCostResult(null, 100.0);
+        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResult.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResult = raoResult.getAndCreateIfAbsentCostResult(CURATIVE_INSTANT_ID);
-        costResult.setFunctionalCost(-50.);
-        costResult.setVirtualCost("loopFlow", 10.);
-        costResult.setVirtualCost("MNEC", 2.);
+        costResult.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
+
+        raoResult.addExtension(CostResult.class, costResult);
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }
