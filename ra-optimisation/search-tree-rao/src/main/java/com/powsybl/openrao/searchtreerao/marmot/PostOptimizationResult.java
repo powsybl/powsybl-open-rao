@@ -142,41 +142,6 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     }
 
     @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getFunctionalCost();
-        }
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost();
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getVirtualCost();
-        }
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost(virtualCostName);
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getVirtualCost(virtualCostName);
-        }
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         return MarmotUtils.getPreviousStates(state, crac).stream().anyMatch(s -> isActivatedDuringState(s, networkAction));
     }

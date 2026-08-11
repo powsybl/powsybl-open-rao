@@ -81,26 +81,6 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return null;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return 0;
-    }
-
-    @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         return false;
     }

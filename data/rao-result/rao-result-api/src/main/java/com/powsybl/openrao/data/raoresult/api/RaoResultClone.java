@@ -79,31 +79,6 @@ public class RaoResultClone extends AbstractExtendable<RaoResult> implements Rao
     }
 
     @Override
-    public double getCost(Instant optimizedInstant) {
-        return raoResult.getCost(optimizedInstant);
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return raoResult.getFunctionalCost(optimizedInstant);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return raoResult.getVirtualCost(optimizedInstant);
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return raoResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return raoResult.getVirtualCost(optimizedInstant, virtualCostName);
-    }
-
-    @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         return raoResult.isActivatedDuringState(state, remedialAction);
     }

@@ -19,6 +19,7 @@ public class CostResult {
     private double functionalCost;
     private final Map<String, Double> virtualCosts;
 
+    // TODO: remove class
     CostResult() {
         functionalCost = Double.NaN;
         virtualCosts = new HashMap<>();

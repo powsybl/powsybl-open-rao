@@ -119,26 +119,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return null;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return 0;
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         return false;
     }

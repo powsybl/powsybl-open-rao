@@ -139,27 +139,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        throw new OpenRaoException("Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.");
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        throw new OpenRaoException("Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return finalGlobalObjectiveFunctionResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        throw new OpenRaoException("Calling getVirtualCost with an instant and a name alone is ambiguous. " +
-            "For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         return MarmotUtils.getDataFromState(raoResultPerTimestamp, state).wasActivatedBeforeState(state, networkAction);
     }

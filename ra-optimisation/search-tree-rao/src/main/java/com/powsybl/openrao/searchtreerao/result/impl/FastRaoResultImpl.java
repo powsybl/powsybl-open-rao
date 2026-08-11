@@ -179,35 +179,8 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return getAppropriateResult(optimizedInstant).getFunctionalCost();
-    }
-
     public List<FlowCnec> getMostLimitingElements(Instant optimizedInstant, int number) {
         return getAppropriateResult(optimizedInstant).getMostLimitingElements(number);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return getAppropriateResult(optimizedInstant).getVirtualCost();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        Set<String> virtualCostNames = new HashSet<>();
-        if (initialResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(initialResult.getVirtualCostNames());
-        }
-        if (finalResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(finalResult.getVirtualCostNames());
-        }
-        return virtualCostNames;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return getAppropriateResult(optimizedInstant).getVirtualCost(virtualCostName);
     }
 
     public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
