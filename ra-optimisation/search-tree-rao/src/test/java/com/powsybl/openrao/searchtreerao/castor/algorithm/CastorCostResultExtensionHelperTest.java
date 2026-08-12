@@ -62,7 +62,7 @@ class CastorCostResultExtensionHelperTest {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(initialResult.getVirtualCost("v1")).thenReturn(10.0);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult, true, crac);
+        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
 
         assertEquals(100.0, result.getFunctionalCost(null));
         assertEquals(10.0, result.getVirtualCost(null, "v1"));
@@ -80,7 +80,13 @@ class CastorCostResultExtensionHelperTest {
         when(postPraResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(postPraResult.getVirtualCost("v1")).thenReturn(5.0);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult, postPraResult, true, crac);
+        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+            initialResult,
+            postPraResult,
+            postPraResult,
+            true,
+            preventiveInstant
+        );
 
         assertEquals(100.0, result.getFunctionalCost(null));
         assertEquals(80.0, result.getFunctionalCost(preventiveInstant));
@@ -203,7 +209,13 @@ class CastorCostResultExtensionHelperTest {
         ObjectiveFunctionResult initialResult = createMockResult(0, Map.of("v1", Double.NaN));
         ObjectiveFunctionResult postPraResult = createMockResult(0, Map.of("v1", Double.NaN));
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult, postPraResult, true, crac);
+        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+            initialResult,
+            postPraResult,
+            postPraResult,
+            true,
+            preventiveInstant
+        );
 
         assertEquals(0.0, result.getVirtualCost(null, "v1"));
         assertEquals(0.0, result.getVirtualCost(preventiveInstant, "v1"));
@@ -218,7 +230,7 @@ class CastorCostResultExtensionHelperTest {
         when(crac.getSortedInstants()).thenReturn(List.of(preventiveInstant, outageInstant, autoInstant));
 
         ObjectiveFunctionResult initialResult = createMockResult(100, Map.of());
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult, true, crac);
+        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
 
         // Outage instant should not have result
         // CastorCostResult.getFunctionalCost(outageInstant) would return the previous instant's result (preventive)

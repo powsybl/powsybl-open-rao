@@ -27,7 +27,6 @@ public class CastorCostResult extends AbstractExtension<RaoResult> {
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
 
-    // FIXME: handle missing instants (ex: outage)
     public CastorCostResult() {
         this.initialCostResult = new ElementaryCostResult();
         this.costResultPerInstant = new HashMap<>();
