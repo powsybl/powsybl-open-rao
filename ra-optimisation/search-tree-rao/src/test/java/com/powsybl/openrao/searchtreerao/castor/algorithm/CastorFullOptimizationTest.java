@@ -116,6 +116,7 @@ class CastorFullOptimizationTest {
 
     @Test
     void smallRaoWithGlobal2P() throws IOException {
+        // TODO: might be a duplicate of previous test since 2P is systematically global now
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);

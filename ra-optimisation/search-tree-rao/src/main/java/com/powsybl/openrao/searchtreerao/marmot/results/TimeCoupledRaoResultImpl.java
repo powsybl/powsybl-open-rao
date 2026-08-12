@@ -59,36 +59,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getGlobalFunctionalCost(Instant instant) {
-        return getRelevantResult(instant).getFunctionalCost();
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant) {
-        return getRelevantResult(instant).getVirtualCost();
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
-        return getRelevantResult(instant).getVirtualCost(virtualCostName);
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getFunctionalCost(optimizedInstant);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getVirtualCost(optimizedInstant);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getVirtualCost(optimizedInstant, virtualCostName);
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE));
     }

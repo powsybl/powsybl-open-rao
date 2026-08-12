@@ -27,6 +27,7 @@ public class CastorCostResult extends AbstractExtension<RaoResult> {
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
 
+    // FIXME: handle missing instants (ex: outage)
     public CastorCostResult() {
         this.initialCostResult = new ElementaryCostResult();
         this.costResultPerInstant = new HashMap<>();
@@ -95,18 +96,34 @@ public class CastorCostResult extends AbstractExtension<RaoResult> {
     }
 
     public void addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {
-        getAppropriateResult(optimizedInstant).setFunctionalCost(functionalCost);
+        getOrCreateAppropriateResult(optimizedInstant).setFunctionalCost(functionalCost);
     }
 
     public void addVirtualCostResult(Instant optimizedInstant, String virtualCostName, double virtualCost) {
-        getAppropriateResult(optimizedInstant).setVirtualCost(virtualCostName, virtualCost);
-    }
-
-    private static String getInstantId(Instant optimizedInstant) {
-        return optimizedInstant == null ? "initial" : optimizedInstant.getId();
+        getOrCreateAppropriateResult(optimizedInstant).setVirtualCost(virtualCostName, virtualCost);
     }
 
     private ElementaryCostResult getAppropriateResult(Instant optimizedInstant) {
+        Instant actualInstant = getPreviousInstantWithResult(optimizedInstant);
+        return actualInstant == null ? initialCostResult : costResultPerInstant.get(actualInstant);
+    }
+
+    private Instant getPreviousInstantWithResult(Instant optimizedInstant) {
+        if (optimizedInstant == null) {
+            return null;
+        } else if (costResultPerInstant.containsKey(optimizedInstant)) {
+            return optimizedInstant;
+        } else {
+            return costResultPerInstant.keySet()
+                .stream()
+                .filter(instant -> instant.comesBefore(optimizedInstant))
+                .sorted()
+                .findFirst()
+                .orElse(null);
+        }
+    }
+
+    private ElementaryCostResult getOrCreateAppropriateResult(Instant optimizedInstant) {
         return optimizedInstant == null ?
             initialCostResult :
             costResultPerInstant.computeIfAbsent(optimizedInstant, k -> new ElementaryCostResult());
@@ -116,7 +133,9 @@ public class CastorCostResult extends AbstractExtension<RaoResult> {
         jsonGenerator.writeStartObject();
         initialCostResult.serialize(jsonGenerator, "initial");
         for (Instant instant : costResultPerInstant.keySet().stream().sorted().toList()) {
-            getAppropriateResult(instant).serialize(jsonGenerator, instant.getId());
+            if (!instant.isOutage()) {
+                getAppropriateResult(instant).serialize(jsonGenerator, instant.getId());
+            }
         }
         jsonGenerator.writeEndObject();
     }

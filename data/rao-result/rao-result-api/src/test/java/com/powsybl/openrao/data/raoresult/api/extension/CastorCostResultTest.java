@@ -49,7 +49,7 @@ class CastorCostResultTest {
 
     @Test
     void getName() {
-        assertEquals("cost-results", castorCostResult.getName());
+        assertEquals("castor-cost-results", castorCostResult.getName());
     }
 
     @Test

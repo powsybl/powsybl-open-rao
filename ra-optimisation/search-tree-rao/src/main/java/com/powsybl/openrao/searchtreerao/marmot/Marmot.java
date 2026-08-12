@@ -15,14 +15,20 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
-import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -762,8 +768,38 @@ public class Marmot implements TimeCoupledRaoProvider {
                 reportNode
             )
         );
+
+        // add extensions
+        List<Instant> instants = raoInputs.map(RaoInput::getCrac).getDataPerTimestamp().values().iterator().next().getSortedInstants();
         result.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
+        result.addExtension(
+            CastorCostResult.class,
+            getCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
+        );
         return result;
+    }
+
+    private static CastorCostResult getCastorCostResultExtension(ObjectiveFunctionResult initialLinearOptimizationResult,
+                                                                 ObjectiveFunctionResult finalLinearOptimizationResult,
+                                                                 List<Instant> instants) {
+        CastorCostResult castorCostResult = new CastorCostResult();
+        addCostsForInstant(castorCostResult, initialLinearOptimizationResult, null);
+        instants.stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCostsForInstant(castorCostResult, finalLinearOptimizationResult, instant));
+        return castorCostResult;
+    }
+
+    private static void addCostsForInstant(CastorCostResult castorCostResult,
+                                           ObjectiveFunctionResult objectiveFunctionResult,
+                                           Instant optimizedInstant) {
+        castorCostResult.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        objectiveFunctionResult.getVirtualCostNames()
+            .forEach(virtualCostName -> castorCostResult.addVirtualCostResult(
+                optimizedInstant,
+                virtualCostName,
+                objectiveFunctionResult.getVirtualCost(virtualCostName))
+            );
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {

@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -388,7 +389,7 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        return new FastRaoResultImpl(
+        FastRaoResultImpl fastRaoResult = new FastRaoResultImpl(
             initialResult,
             postPraSensi.get().prePerimeterResultForAllFollowingStates(),
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
@@ -397,6 +398,30 @@ public class FastRao implements RaoProvider {
             raoInput.getCrac()
         );
 
+        // TODO: this is quite ugly since CASTOR may not be the inner loop provider
+        fastRaoResult.addExtension(CastorCostResult.class, duplicateCastorCostResult(raoResult.getExtension(CastorCostResult.class), crac));
+        return fastRaoResult;
+
+    }
+
+    private static CastorCostResult duplicateCastorCostResult(CastorCostResult castorCostResult, Crac crac) {
+        CastorCostResult castorCostResultCopy = new CastorCostResult();
+        copyCostResultsForInstant(castorCostResult, castorCostResultCopy, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> copyCostResultsForInstant(castorCostResult, castorCostResultCopy, instant));
+        return castorCostResultCopy;
+    }
+
+    private static void copyCostResultsForInstant(CastorCostResult castorCostResult, CastorCostResult castorCostResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
+        castorCostResultCopy.addFunctionalCostResult(instant, castorCostResult.getFunctionalCost(instant));
+        castorCostResult.getVirtualCostNames().forEach(
+            virtualCostName -> castorCostResultCopy.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                castorCostResult.getVirtualCost(instant, virtualCostName)
+            ));
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(

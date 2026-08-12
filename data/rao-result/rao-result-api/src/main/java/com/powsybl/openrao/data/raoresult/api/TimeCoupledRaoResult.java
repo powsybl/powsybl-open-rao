@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.api;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -27,11 +28,20 @@ public interface TimeCoupledRaoResult extends RaoResult {
         return getGlobalFunctionalCost(instant) + getGlobalVirtualCost(instant);
     }
 
-    double getGlobalFunctionalCost(Instant instant);
+    default double getGlobalFunctionalCost(Instant instant) {
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getFunctionalCost(instant);
+    }
 
-    double getGlobalVirtualCost(Instant instant);
+    default double getGlobalVirtualCost(Instant instant) {
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getVirtualCost(instant);
+    }
 
-    double getGlobalVirtualCost(Instant instant, String virtualCostName);
+    default double getGlobalVirtualCost(Instant instant, String virtualCostName) {
+        CastorCostResult castorCostResult = getExtension(CastorCostResult.class);
+        return castorCostResult == null ? Double.NaN : castorCostResult.getVirtualCost(instant, virtualCostName);
+    }
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
@@ -53,7 +63,9 @@ public interface TimeCoupledRaoResult extends RaoResult {
      * @param timestamp        The timestamp to be studied
      * @return The functional cost of the situation state.
      */
-    double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp);
+    default double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp) {
+        return getIndividualRaoResult(timestamp).getFunctionalCost(optimizedInstant);
+    }
 
     /**
      * It gives the sum of virtual costs of the situation at a given {@link Instant} according to the
@@ -64,7 +76,9 @@ public interface TimeCoupledRaoResult extends RaoResult {
      * @param timestamp        The timestamp to be studied
      * @return The global virtual cost of the situation state.
      */
-    double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp);
+    default double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp) {
+        return getIndividualRaoResult(timestamp).getVirtualCost(optimizedInstant);
+    }
 
     /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
@@ -76,7 +90,9 @@ public interface TimeCoupledRaoResult extends RaoResult {
      * @param timestamp        The timestamp to be studied
      * @return The specific virtual cost of the situation state.
      */
-    double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
+    default double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
+        return getIndividualRaoResult(timestamp).getVirtualCost(optimizedInstant, virtualCostName);
+    }
 
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 

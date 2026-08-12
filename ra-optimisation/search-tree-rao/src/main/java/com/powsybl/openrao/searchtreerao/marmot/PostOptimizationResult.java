@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -75,6 +76,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
+        computeCastorCostResultsExtension();
     }
 
     @Override
@@ -206,5 +208,27 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
+    }
+
+    private void computeCastorCostResultsExtension() {
+        CastorCostResult castorCostResult = new CastorCostResult();
+        addCostsForInstant(castorCostResult, initialResult, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCostsForInstant(castorCostResult, singleTimestampObjectiveFunctionResult, instant));
+        addExtension(CastorCostResult.class, castorCostResult);
+    }
+
+    private void addCostsForInstant(CastorCostResult castorCostResult,
+                                    ObjectiveFunctionResult objectiveFunctionResult,
+                                    Instant instant) {
+        castorCostResult.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        objectiveFunctionResult.getVirtualCostNames().forEach(
+            virtualCostName -> castorCostResult.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                objectiveFunctionResult.getVirtualCost(virtualCostName)
+            ));
     }
 }
