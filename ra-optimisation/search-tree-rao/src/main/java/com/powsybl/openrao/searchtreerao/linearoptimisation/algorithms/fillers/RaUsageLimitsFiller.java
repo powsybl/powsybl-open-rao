@@ -286,7 +286,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
                 pstRangeActionPerStateFromOperator.forEach((state1, pstSet) ->
                     pstSet.forEach(pstRangeAction -> {
-                        // The total variation of a PST after a previous instant without limit is still considered if said PST is also defined in the studied instant
+                        // The total variation of a PST at a previous instant is considered if:
+                        // - the previous instant was under a max-elementary-action-constraint
+                        // - the said PST is considered during the studied instant (we need the total variation at all previous instants of the same kind to properly define the max elementary actions constraint)
                         if (stateAndRangeActionsToConsider.get(state).contains(pstRangeAction) || rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state1).containsKey(tso)) {
                             OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(
                                 pstRangeAction,

@@ -73,13 +73,13 @@ public final class RaoUtil {
         for (Instant instant : sortedCurativeInstants) {
             RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
             if (raUsageLimits != null) {
-                getLimitBytLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
+                getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
                     dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
                 );
             }
 
             for (Map.Entry<String, List<Integer>> entry : dataPerTso.entrySet()) {
-                if (raUsageLimits == null || !getLimitBytLimitName(limitType, raUsageLimits).containsKey(entry.getKey())) {
+                if (raUsageLimits == null || !getRaUsageLimitByLimitName(limitType, raUsageLimits).containsKey(entry.getKey())) {
                     entry.getValue().add(null);
                 }
             }
@@ -88,7 +88,7 @@ public final class RaoUtil {
         return dataPerTso;
     }
 
-    private static Map<String, Integer> getLimitBytLimitName(String limitType, RaUsageLimits raUsageLimits) {
+    private static Map<String, Integer> getRaUsageLimitByLimitName(String limitType, RaUsageLimits raUsageLimits) {
         switch (limitType) {
             case "maxRaPerTso":
                 return raUsageLimits.getMaxRaPerTso();
