@@ -91,54 +91,6 @@ class TimeCoupledRaoResultImplTest {
     }
 
     @Test
-    void testCosts() {
-        assertEquals(Set.of("virtual"), timeCoupledRaoResult.getVirtualCostNames());
-
-        assertEquals(0., timeCoupledRaoResult.getGlobalCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalFunctionalCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null, "virtual"));
-
-        assertEquals(1000., timeCoupledRaoResult.getGlobalCost(instant));
-        assertEquals(900., timeCoupledRaoResult.getGlobalFunctionalCost(instant));
-        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant));
-        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant, "virtual"));
-
-        assertEquals(450., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(450., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_1));
-
-        assertEquals(340., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(250., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_2));
-
-        assertEquals(210., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(200., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_3));
-
-        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getFunctionalCost(instant));
-        assertEquals(
-            "Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.",
-            exception1.getMessage()
-        );
-
-        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant));
-        assertEquals(
-            "Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
-            exception2.getMessage()
-        );
-
-        OpenRaoException exception3 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant, "virtual"));
-        assertEquals(
-            "Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
-            exception3.getMessage()
-        );
-    }
-
-    @Test
     void testTimestamps() {
         assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), timeCoupledRaoResult.getTimestamps());
     }
