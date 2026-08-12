@@ -51,7 +51,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
@@ -99,6 +98,11 @@ public class Marmot implements TimeCoupledRaoProvider {
         }
         final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
+        // Launch time-coupled curative synchronization when the concerned parameters are enabled
+        if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
+            return new TimeCoupledCurativeSynchronization().run(timeCoupledRaoInput, raoParameters, reportNode);
+        }
+
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
         TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
@@ -126,8 +130,8 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 2. Evaluate the initial value of the global objective function
         final ReportNode globalObjFuncInitialValueEvalReportNode = MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunction(reportNode);
-        ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
-        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
+        ObjectiveFunction fullObjectiveFunction = MarmotUtils.buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
+        LinearOptimizationResult initialObjectiveFunctionResult = MarmotUtils.getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
 
         // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
@@ -138,7 +142,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
         MarmotReports.reportMarmotTopologicalOptimizationEnd();
 
-        // TODO : Add time-coupled constraint check if none violated then return
+        // TODO: add time-coupled constraint check, if none violated then return
         // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
 
         // 4. Retrieve post-topological optimization results
@@ -684,7 +688,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
 
         TimeCoupledIteratingLinearOptimizerInput timeCoupledLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
-            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints());
+                linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), false);
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer
@@ -766,20 +770,6 @@ public class Marmot implements TimeCoupledRaoProvider {
         return result;
     }
 
-    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
-        Set<FlowCnec> allFlowCnecs = new HashSet<>();
-        cracs.map(Crac::getFlowCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
-        Set<State> allOptimizedStates = new HashSet<>();
-        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
-        return ObjectiveFunction.build(allFlowCnecs,
-            new HashSet<>(), // no loop flows for now
-            globalInitialFlowResult,
-            globalInitialFlowResult, // always building from preventive so prePerimeter = initial
-            Collections.emptySet(),
-            raoParameters,
-            allOptimizedStates);
-    }
-
     private static ObjectiveFunction buildFilteredObjectiveFunction(TemporalData<Crac> cracs,
                                                                     FlowResult globalInitialFlowResult,
                                                                     RaoParameters raoParameters,
@@ -798,22 +788,6 @@ public class Marmot implements TimeCoupledRaoProvider {
             Collections.emptySet(),
             raoParameters,
             allOptimizedStates
-        );
-    }
-
-    private LinearOptimizationResult getInitialObjectiveFunctionResult(final TemporalData<PrePerimeterResult> prePerimeterResults,
-                                                                       final ObjectiveFunction objectiveFunction,
-                                                                       final ReportNode reportNode) {
-        TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
-        TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
-        return new GlobalLinearOptimizationResult(
-            prePerimeterResults.map(PrePerimeterResult::getFlowResult),
-            prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
-            rangeActionActivationResults,
-            networkActionsResults,
-            objectiveFunction,
-            LinearProblemStatus.OPTIMAL,
-            reportNode
         );
     }
 

@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class RangeActionsSynchronizationFillerTest {
+class CurativeRangeActionsSynchronizationFillerTest {
     private static final double DOUBLE_EPSILON = 1e-3;
     private static final String CONTINGENCY_ID = "common_contingency";  // the contingency opens FR1-FR3
 
@@ -80,32 +80,23 @@ class RangeActionsSynchronizationFillerTest {
     }
 
     private void createCoreProblemFillers() {
-        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
-            Crac crac = raoInput.getCrac();
-            State curativeState = getCurativeState(timestamp);
-            OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
-                    curativeState,
-                    crac.getFlowCnecs(),
-                    Set.of(),
-                    crac.getNetworkActions(curativeState),
-                    crac.getRangeActions(curativeState)
-            );
-            RangeActionsOptimizationParameters rangeActionsParameters = parameters.getRangeActionsOptimizationParameters();
-            Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(curativeState).forEach(rangeAction -> map.put(rangeAction, 0.0));
-            RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
-            CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(
-                    optimizationPerimeter,
-                    rangeActionSetpointResult,
-                    rangeActionsParameters,
-                    null,
-                    Unit.MEGAWATT,
-                    false,
-                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                    timestamp
-            );
-            linearProblemBuilder.withProblemFiller(coreProblemFiller);
-        });
+        raoInputs.getDataPerTimestamp().forEach(
+                (timestamp, raoInput) -> {
+                    Crac crac = raoInput.getCrac();
+                    State curativeState = getCurativeState(timestamp);
+                    OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(curativeState,
+                            crac.getFlowCnecs(), Set.of(), crac.getNetworkActions(curativeState), crac.getRangeActions(curativeState)
+                    );
+                    RangeActionsOptimizationParameters rangeActionsParameters = parameters.getRangeActionsOptimizationParameters();
+                    Map<RangeAction<?>, Double> map = new HashMap<>();
+                    crac.getRangeActions(curativeState).forEach(rangeAction -> map.put(rangeAction, 0.0));
+                    RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
+                    CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(optimizationPerimeter, rangeActionSetpointResult,
+                            rangeActionsParameters, null, Unit.MEGAWATT, false,
+                            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, timestamp
+                    );
+                    linearProblemBuilder.withProblemFiller(coreProblemFiller);
+                });
     }
 
     private void createRangeActionsSynchronizationFiller() {
@@ -118,7 +109,7 @@ class RangeActionsSynchronizationFillerTest {
             );
             rangeActionsPerStatePerTimestamp.put(timestamp, rangeActionsPerState);
         });
-        RangeActionsSynchronizationFiller rangeActionsSynchronizer = new RangeActionsSynchronizationFiller(new TemporalDataImpl<>(rangeActionsPerStatePerTimestamp));
+        CurativeRangeActionsSynchronizationFiller rangeActionsSynchronizer = new CurativeRangeActionsSynchronizationFiller(new TemporalDataImpl<>(rangeActionsPerStatePerTimestamp));
         linearProblemBuilder.withProblemFiller(rangeActionsSynchronizer);
     }
 

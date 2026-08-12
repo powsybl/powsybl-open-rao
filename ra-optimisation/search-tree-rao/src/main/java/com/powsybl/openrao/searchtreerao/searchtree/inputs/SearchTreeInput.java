@@ -8,6 +8,9 @@
 package com.powsybl.openrao.searchtreerao.searchtree.inputs;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -16,59 +19,74 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.time.OffsetDateTime;
+import java.util.Map;
+
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
  */
 public final class SearchTreeInput {
 
-    private final Network network;
+    private final TemporalData<Network> networks;
 
-    private final OptimizationPerimeter optimizationPerimeter;
+    private final TemporalData<OptimizationPerimeter> optimizationPerimeters;
 
-    private final FlowResult initialFlowResult;
-    private final PrePerimeterResult prePerimeterResult;
-    private final AppliedRemedialActions preOptimizationAppliedRemedialActions;
+    private final TemporalData<FlowResult> initialFlowResults;
+    private final TemporalData<PrePerimeterResult> prePerimeterResults;
+    private final TemporalData<AppliedRemedialActions> preOptimizationAppliedRemedialActions;
 
     private final ObjectiveFunction objectiveFunction;
-    private final ToolProvider toolProvider;
-    private final Instant outageInstant;
+    private final TemporalData<ToolProvider> toolProviders;
+    private final TemporalData<Instant> outageInstants;
 
-    private SearchTreeInput(Network network,
-                            OptimizationPerimeter optimizationPerimeter,
-                            FlowResult initialFlowResult,
-                            PrePerimeterResult prePerimeterResult,
-                            AppliedRemedialActions preOptimizationAppliedRemedialActions,
+    private final boolean isTimeCoupled;
+
+    private SearchTreeInput(TemporalData<Network> networks,
+                            TemporalData<OptimizationPerimeter> optimizationPerimeters,
+                            TemporalData<FlowResult> initialFlowResults,
+                            TemporalData<PrePerimeterResult> prePerimeterResults,
+                            TemporalData<AppliedRemedialActions> preOptimizationAppliedRemedialActions,
                             ObjectiveFunction objectiveFunction,
-                            ToolProvider toolProvider,
-                            Instant outageInstant) {
-        this.network = network;
-        this.optimizationPerimeter = optimizationPerimeter;
-        this.initialFlowResult = initialFlowResult;
-        this.prePerimeterResult = prePerimeterResult;
+                            TemporalData<ToolProvider> toolProviders,
+                            TemporalData<Instant> outageInstants) {
+        this.networks = networks;
+        this.optimizationPerimeters = optimizationPerimeters;
+        this.initialFlowResults = initialFlowResults;
+        this.prePerimeterResults = prePerimeterResults;
         this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
         this.objectiveFunction = objectiveFunction;
-        this.toolProvider = toolProvider;
-        this.outageInstant = outageInstant;
+        this.toolProviders = toolProviders;
+        this.outageInstants = outageInstants;
+        this.isTimeCoupled = networks.getTimestamps().size() > 1;
     }
 
+    // single timestamp
     public Network getNetwork() {
-        return network;
+        if (!isTimeCoupled) {
+            return networks.getData(networks.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getNetwork cannot be used on a time-coupled input, use getAllNetworks instead.");
     }
 
     public OptimizationPerimeter getOptimizationPerimeter() {
-        return optimizationPerimeter;
-    }
-
-    public FlowResult getInitialFlowResult() {
-        return initialFlowResult;
+        if (!isTimeCoupled) {
+            return optimizationPerimeters.getData(optimizationPerimeters.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getOptimizationPerimeter cannot be used on a time-coupled input, use getAllOptimizationPerimeters instead.");
     }
 
     public PrePerimeterResult getPrePerimeterResult() {
-        return prePerimeterResult;
+        if (!isTimeCoupled) {
+            return prePerimeterResults.getData(prePerimeterResults.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getPrePerimeterResult cannot be used on a time-coupled input, use getAllPrePerimeterResults instead.");
     }
 
     public AppliedRemedialActions getPreOptimizationAppliedRemedialActions() {
-        return preOptimizationAppliedRemedialActions;
+        if (!isTimeCoupled) {
+            return preOptimizationAppliedRemedialActions.getData(preOptimizationAppliedRemedialActions.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getPreOptimizationAppliedRemedialActions cannot be used on a time-coupled input, use getAllPreOptimizationAppliedRemedialActions instead.");
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -76,11 +94,53 @@ public final class SearchTreeInput {
     }
 
     public ToolProvider getToolProvider() {
-        return toolProvider;
+        if (!isTimeCoupled) {
+            return toolProviders.getData(toolProviders.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getToolProvider cannot be used on a time-coupled input, use getAllToolProviders instead.");
+    }
+
+    public FlowResult getInitialFlowResult() {
+        if (!isTimeCoupled) {
+            return initialFlowResults.getData(initialFlowResults.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getInitialFlowResult cannot be used on a time-coupled input, use getAllInitialFlowResults instead.");
     }
 
     public Instant getOutageInstant() {
-        return outageInstant;
+        if (!isTimeCoupled) {
+            return outageInstants.getData(outageInstants.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getOutageInstant cannot be used on a time-coupled input, use getAllOutageInstants instead.");
+    }
+
+    // time-coupled
+    public TemporalData<Network> getAllNetworks() {
+        return networks;
+    }
+
+    public TemporalData<OptimizationPerimeter> getAllOptimizationPerimeters() {
+        return optimizationPerimeters;
+    }
+
+    public TemporalData<FlowResult> getAllInitialFlowResults() {
+        return initialFlowResults;
+    }
+
+    public TemporalData<PrePerimeterResult> getAllPrePerimeterResults() {
+        return prePerimeterResults;
+    }
+
+    public TemporalData<AppliedRemedialActions> getAllPreOptimizationAppliedRemedialActions() {
+        return preOptimizationAppliedRemedialActions;
+    }
+
+    public TemporalData<ToolProvider> getAllToolProviders() {
+        return toolProviders;
+    }
+
+    public TemporalData<Instant> getAllOutageInstants() {
+        return outageInstants;
     }
 
     public static SearchTreeInputBuilder create() {
@@ -89,36 +149,61 @@ public final class SearchTreeInput {
 
     public static class SearchTreeInputBuilder {
 
-        private Network network;
-        private OptimizationPerimeter optimizationPerimeter;
-        private FlowResult initialFlowResult;
-        private PrePerimeterResult prePerimeterResult;
-        private AppliedRemedialActions preOptimizationAppliedNetworkActions;
+        private TemporalData<Network> networks;
+        private TemporalData<OptimizationPerimeter> optimizationPerimeters;
+        private TemporalData<FlowResult> initialFlowResults;
+        private TemporalData<PrePerimeterResult> prePerimeterResults;
+        private TemporalData<AppliedRemedialActions> preOptimizationAppliedNetworkActions;
         private ObjectiveFunction objectiveFunction;
-        private ToolProvider toolProvider;
-        private Instant outageInstant;
+        private TemporalData<ToolProvider> toolProviders;
+        private TemporalData<Instant> outageInstants;
 
         public SearchTreeInputBuilder withNetwork(Network network) {
-            this.network = network;
+            this.networks = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, network));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllNetworks(TemporalData<Network> networks) {
+            this.networks = networks;
             return this;
         }
 
         public SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
-            this.optimizationPerimeter = optimizationPerimeter;
+            this.optimizationPerimeters = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, optimizationPerimeter));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllOptimizationPerimeters(TemporalData<OptimizationPerimeter> optimizationPerimeters) {
+            this.optimizationPerimeters = optimizationPerimeters;
             return this;
         }
 
         public SearchTreeInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
-            this.initialFlowResult = initialFlowResult;
+            this.initialFlowResults = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, initialFlowResult));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllInitialFlowResults(TemporalData<FlowResult> initialFlowResults) {
+            this.initialFlowResults = initialFlowResults;
             return this;
         }
 
         public SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
-            this.prePerimeterResult = prePerimeterResult;
+            this.prePerimeterResults = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, prePerimeterResult));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllPrePerimeterResults(TemporalData<PrePerimeterResult> prePerimeterResults) {
+            this.prePerimeterResults = prePerimeterResults;
             return this;
         }
 
         public SearchTreeInputBuilder withPreOptimizationAppliedNetworkActions(AppliedRemedialActions preOptimizationAppliedNetworkActions) {
+            this.preOptimizationAppliedNetworkActions = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, preOptimizationAppliedNetworkActions));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllPreOptimizationAppliedNetworkActions(TemporalData<AppliedRemedialActions> preOptimizationAppliedNetworkActions) {
             this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
             return this;
         }
@@ -129,24 +214,34 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withToolProvider(ToolProvider toolProvider) {
-            this.toolProvider = toolProvider;
+            this.toolProviders = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, toolProvider));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllToolProviders(TemporalData<ToolProvider> toolProviders) {
+            this.toolProviders = toolProviders;
             return this;
         }
 
         public SearchTreeInputBuilder withOutageInstant(Instant outageInstant) {
-            this.outageInstant = outageInstant;
+            this.outageInstants = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, outageInstant));
+            return this;
+        }
+
+        public SearchTreeInputBuilder withAllOutageInstants(TemporalData<Instant> outageInstants) {
+            this.outageInstants = outageInstants;
             return this;
         }
 
         public SearchTreeInput build() {
-            return new SearchTreeInput(network,
-                optimizationPerimeter,
-                initialFlowResult,
-                prePerimeterResult,
+            return new SearchTreeInput(networks,
+                optimizationPerimeters,
+                initialFlowResults,
+                prePerimeterResults,
                 preOptimizationAppliedNetworkActions,
                 objectiveFunction,
-                toolProvider,
-                outageInstant);
+                toolProviders,
+                outageInstants);
         }
     }
 }

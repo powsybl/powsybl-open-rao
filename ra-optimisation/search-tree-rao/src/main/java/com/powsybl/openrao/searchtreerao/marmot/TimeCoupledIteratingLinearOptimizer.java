@@ -25,9 +25,9 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.RangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -230,14 +230,11 @@ public final class TimeCoupledIteratingLinearOptimizer {
         TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         boolean isPreventiveMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isPreventive());
         boolean isCurativeMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isCurative());
-        boolean isSecondPreventiveCurativeMip = input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream().allMatch(
-                iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter() instanceof GlobalOptimizationPerimeter
-        );
         if (!isPreventiveMip && !isCurativeMip) {
             throw new OpenRaoException("Main optimization state must be either preventive or curative.");
         }
 
-        if (isPreventiveMip && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
+        if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
                     .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
             problemFillers.add(new GeneratorConstraintsFiller(
@@ -247,14 +244,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     input.timeCoupledConstraints().getGeneratorConstraints()
             ));
         }
-        if (isCurativeMip) {
-            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+        if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
+            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                     iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
             )));
         }
-        // In second preventive, only curative range actions must be synchronized.
-        if (isSecondPreventiveCurativeMip) {
-            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+        // In second preventive, when we are in curative remedial action synchronization
+        // only curative range actions must be synchronized.
+        if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
+            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                     iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
             )));
         }

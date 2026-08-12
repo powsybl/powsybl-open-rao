@@ -14,7 +14,9 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 
@@ -27,6 +29,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Creates the network actions combinations tested at every depth of the search tree.
+ * <p>
+ * In a time-coupled search tree, a single combination is applied simultaneously on every timestamp's network.
+ * <p>
+ * Note :
+ * <li> The RaUsageLimits are assumed the same between the timestamps and are not checked for now.
+ * <li> For now, the first timestamp's perimeter and pre-perimeter results are the reference for all the usage-limits
+ * checks, like the single perimeter does in the single-timestamp search tree.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class SearchTreeBloomer {
@@ -36,7 +47,9 @@ public final class SearchTreeBloomer {
     private final SearchTreeParameters parameters;
 
     public SearchTreeBloomer(SearchTreeInput input, SearchTreeParameters parameters) {
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
+        this.input = input;
+        this.parameters = parameters;
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(getMainOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
         this.preDefinedNaCombinations = parameters.getNetworkActionParameters().getNetworkActionCombinations();
         this.networkActionCombinationFilters = new ArrayList<>(List.of(
             new AlreadyAppliedNetworkActionsFilter(),
@@ -48,11 +61,9 @@ public final class SearchTreeBloomer {
         );
         if (parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements()) {
             this.networkActionCombinationFilters.add(
-                new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
+                new FarFromMostLimitingElementFilter(input.getAllNetworks(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
             );
         }
-        this.input = input;
-        this.parameters = parameters;
     }
 
     /**
@@ -102,7 +113,7 @@ public final class SearchTreeBloomer {
      * Such a check is performed by analyzing RaUsageLimits for the given state.
      */
     boolean shouldRangeActionsBeRemovedToApplyNa(NetworkActionCombination naCombination, OptimizationResult optimizationResult) {
-        State optimizationState = input.getOptimizationPerimeter().getMainOptimizationState();
+        State optimizationState = getMainOptimizationPerimeter().getMainOptimizationState();
         RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(optimizationState.getInstant());
         if (Objects.isNull(raUsageLimits)) {
             return false;
@@ -149,8 +160,10 @@ public final class SearchTreeBloomer {
 
     Map<String, Integer> getNumberOfPstTapsMovedByTso(OptimizationResult optimizationResult) {
         Map<String, Integer> pstTapsMovedByTso = new HashMap<>();
+        State mainOptimizationState = getMainOptimizationPerimeter().getMainOptimizationState();
+        PrePerimeterResult prePerimeterResult = input.getAllPrePerimeterResults().getData(input.getAllPrePerimeterResults().getTimestamps().getFirst()).orElseThrow();
         Set<PstRangeAction> activatedRangeActions = optimizationResult
-            .getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState())
+            .getActivatedRangeActions(mainOptimizationState)
             .stream()
             .filter(PstRangeAction.class::isInstance)
             .map(ra -> (PstRangeAction) ra)
@@ -158,11 +171,16 @@ public final class SearchTreeBloomer {
         for (PstRangeAction pstRangeAction : activatedRangeActions) {
             String operator = pstRangeAction.getOperator();
             int tapsMoved = Math.abs(
-                optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState())
-                    - input.getPrePerimeterResult().getTap(pstRangeAction)
+                optimizationResult.getOptimizedTap(pstRangeAction, mainOptimizationState)
+                    - prePerimeterResult.getTap(pstRangeAction)
             );
             pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
         }
         return pstTapsMovedByTso;
+    }
+
+    private OptimizationPerimeter getMainOptimizationPerimeter() {
+        // the reference perimeter for the ra usage limits checks the first timestamp's perimeter which makes it work for a single timestamp search tree
+        return input.getAllOptimizationPerimeters().getData(input.getAllOptimizationPerimeters().getTimestamps().getFirst()).orElseThrow();
     }
 }

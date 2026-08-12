@@ -38,11 +38,11 @@ import java.util.Set;
  *
  * @author Atena Amnache {@literal <atena.amnache at rte-france.com>}
  */
-public class RangeActionsSynchronizationFiller implements ProblemFiller {
+public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller {
     private final List<OffsetDateTime> timestamps;
     private final TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp;
 
-    public RangeActionsSynchronizationFiller(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp) {
+    public CurativeRangeActionsSynchronizationFiller(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp) {
         this.timestamps = availableRangeActionsPerStatePerTimestamp.getTimestamps();
         this.availableRangeActionsPerStatePerTimestamp = availableRangeActionsPerStatePerTimestamp;
     }
@@ -100,7 +100,10 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
      * @param rangeActionId the ID of the common range action to synchronize.
      * @param timestampsSharingTheRangeAction the timestamps whose CRAC contains a range action with rangeActionId as their ID.
      */
-    private void addRangeActionsSynchronizationConstraints(LinearProblem linearProblem, String rangeActionId, List<OffsetDateTime> timestampsSharingTheRangeAction, Map<OffsetDateTime, State> statesPerTimestamp) {
+    private void addRangeActionsSynchronizationConstraints(LinearProblem linearProblem,
+                                                           String rangeActionId,
+                                                           List<OffsetDateTime> timestampsSharingTheRangeAction,
+                                                           Map<OffsetDateTime, State> statesPerTimestamp) {
         if (timestampsSharingTheRangeAction.size() < 2) {
             return;
         }
@@ -108,7 +111,9 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
         OffsetDateTime referenceTimestamp = timestampsSharingTheRangeAction.getFirst();
         timestampsSharingTheRangeAction.stream()
                 .filter(timestamp -> !timestamp.equals(referenceTimestamp))
-                .forEach(timestamp -> addSetpointEqualityConstraint(linearProblem, rangeActionId, statesPerTimestamp.get(referenceTimestamp), statesPerTimestamp.get(timestamp), referenceTimestamp, timestamp));
+                .forEach(timestamp ->
+                    addSetpointEqualityConstraint(linearProblem, rangeActionId, statesPerTimestamp.get(referenceTimestamp), statesPerTimestamp.get(timestamp), referenceTimestamp, timestamp)
+                );
     }
 
     /**
@@ -118,7 +123,9 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
      * @param referenceTimestamp timestamp for which the constraint is created.
      * @param otherTimestamp timestamp sharing the constraint with referenceTimestamp.
      */
-    private void addSetpointEqualityConstraint(LinearProblem linearProblem, String rangeActionId, State referenceTimestampState, State otherTimestampState, OffsetDateTime referenceTimestamp, OffsetDateTime otherTimestamp) {
+    private void addSetpointEqualityConstraint(LinearProblem linearProblem, String rangeActionId,
+                                               State referenceTimestampState, State otherTimestampState,
+                                               OffsetDateTime referenceTimestamp, OffsetDateTime otherTimestamp) {
         OpenRaoMPVariable referenceTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, rangeActionId, referenceTimestamp, referenceTimestampState);
         OpenRaoMPVariable otherTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, rangeActionId, otherTimestamp, otherTimestampState);
         OpenRaoMPConstraint rangeActionSynchronizationConstraint = linearProblem.addRangeActionSynchronizationConstraint(rangeActionId, referenceTimestampState, otherTimestampState);

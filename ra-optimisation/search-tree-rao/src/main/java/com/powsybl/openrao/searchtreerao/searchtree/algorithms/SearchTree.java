@@ -11,8 +11,11 @@ import com.google.common.hash.Hashing;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -34,9 +37,12 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,6 +51,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -105,7 +112,8 @@ public class SearchTree {
         this.reportNode = reportNode;
 
         // build from inputs
-        this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
+        // the optimization is purely virtual only if no timestamp's perimeter has any optimizable flow CNEC
+        this.purelyVirtual = input.getAllOptimizationPerimeters().getDataPerTimestamp().values().stream().allMatch(optimizationPerimeter -> optimizationPerimeter.getOptimizedFlowCnecs().isEmpty());
         this.bloomer = new SearchTreeBloomer(input, parameters);
         this.initialNumberOfConnectedComponent = null;
         if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
@@ -114,9 +122,8 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
-        String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
-        input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
-        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID); // the variant used for root leaf and all the child leaves
+        // one pre-search-tree variant per timestamp, restored at the end
+        TemporalData<String> preSearchTreeVariantIds = getPreSearchTreeVariantIds(input);
         try {
             initLeaves(input);
 
@@ -125,31 +132,27 @@ public class SearchTree {
             // Run load flow here, update HVDC lines' active power setpoint in network that will be used
             // if we deactivate AC emulation on a HVDC line in one of the leaf.
 
-            // Get all the range actions that are HVDC range actions and are not in AC emulation
-            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(
-                input.getOptimizationPerimeter()
-                    .getRangeActions()
-                    .stream()
-                    .filter(HvdcRangeAction.class::isInstance)
-                    .map(HvdcRangeAction.class::cast)
-                    .collect(Collectors.toSet()),
-                input.getNetwork());
-
             // Get Loadflow and sensitivity parameters
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters(reportNode));
-
-            if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
-                runLoadFlowAndUpdateHvdcActivePowerSetpoint(
-                    input.getNetwork(),
-                    input.getOptimizationPerimeter().getMainOptimizationState(),
-                    loadFlowAndSensitivityParameters.getLoadFlowProvider(),
-                    loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
-                    hvdcRasOnHvdcLineInAcEmulation,
-                    reportNode
-                );
-            }
-
-            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+            input.getAllNetworks().getDataPerTimestamp().forEach(
+                    (timestamp, network) -> {
+                        OptimizationPerimeter perimeter = input.getAllOptimizationPerimeters().getData(timestamp).orElseThrow();
+                        // Get all the range actions that are HVDC range actions and are not in AC emulation
+                        Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(
+                                perimeter.getRangeActions().stream().filter(HvdcRangeAction.class::isInstance).map(HvdcRangeAction.class::cast).collect(Collectors.toSet()), network
+                        );
+                        if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
+                            runLoadFlowAndUpdateHvdcActivePowerSetpoint(
+                                network,
+                                perimeter.getMainOptimizationState(),
+                                loadFlowAndSensitivityParameters.getLoadFlowProvider(),
+                                loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
+                                hvdcRasOnHvdcLineInAcEmulation,
+                                reportNode
+                            );
+                        }
+                    });
+            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputersForEvaluation(true, reportNode), reportNode);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
                 reportOptimizationSummary(rootLeaf);
@@ -171,7 +174,7 @@ public class SearchTree {
             optimizeLeaf(rootLeaf, reportNode);
 
             SearchTreeReports.reportRootLeaf(reportNode, verbose, rootLeaf);
-            SearchTreeReports.reportRangeActions(reportNode, optimalLeaf, input.getOptimizationPerimeter());
+            SearchTreeReports.reportRangeActions(reportNode, optimalLeaf, input.getAllOptimizationPerimeters());
             reportMostLimitingElementsWithVerbose(optimalLeaf, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
             reportVirtualCostInformation(reportNode, rootLeaf, false);
 
@@ -186,50 +189,58 @@ public class SearchTree {
             SearchTreeReports.reportSearchTreeRaoCompletedWithStatus(reportNode, optimalLeaf.getSensitivityStatus());
 
             SearchTreeReports.reportBestLeaf(reportNode, optimalLeaf);
-            SearchTreeReports.reportBestLeafRangeActions(reportNode, optimalLeaf, input.getOptimizationPerimeter());
+            SearchTreeReports.reportBestLeafRangeActions(reportNode, optimalLeaf, input.getAllOptimizationPerimeters());
             reportTechnicalMostLimitingElements(optimalLeaf, NUMBER_LOGGED_ELEMENTS_END_TREE);
 
             reportOptimizationSummary(optimalLeaf);
             optimalLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(optimalLeaf);
-        // Actions have been applied on root leaf, finally revert to initial network
+            // Actions have been applied on root leaf, revert every timestamp's network to its initial variant
         } finally {
-            input.getNetwork().getVariantManager().setWorkingVariant(preSearchTreeVariantId);
+            preSearchTreeVariantIds.getDataPerTimestamp().forEach((timestamp, variantId) ->
+                    input.getAllNetworks().getData(timestamp).orElseThrow().getVariantManager().setWorkingVariant(variantId));
         }
     }
 
     void initLeaves(SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
+        rootLeaf = makeLeaf(input.getAllOptimizationPerimeters(), input.getAllNetworks(), input.getAllPrePerimeterResults(), input.getAllPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    Leaf makeLeaf(TemporalData<OptimizationPerimeter> optimizationPerimeters,
+                  TemporalData<Network> networks,
+                  TemporalData<PrePerimeterResult> prePerimeterOutputs,
+                  TemporalData<AppliedRemedialActions> appliedRemedialActionsInSecondaryStates) {
+        return new Leaf(optimizationPerimeters, networks, prePerimeterOutputs, appliedRemedialActionsInSecondaryStates);
     }
 
     private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
-        if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
+        // the candidates are the network actions available on every timestamp's perimeter, matched by their ID
+        Set<NetworkAction> availableNetworkActions = getAvailableNetworkActionsAcrossTimestamps();
+        if (availableNetworkActions.isEmpty()) {
             SearchTreeReports.reportNoNetworkActionAvailable(reportNode, verbose);
             return;
         }
 
-        int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().leavesInParallel());
+        int leavesInParallel = Math.min(availableNetworkActions.size(), parameters.getTreeParameters().leavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
+        // one network pool per timestamp
+        TemporalData<AbstractNetworkPool> networkPools = makeOpenRaoNetworkPools(input.getAllNetworks(), leavesInParallel);
+        try {
             while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 final int depthForLogs = depth + 1;
                 final ReportNode searchDepthReportNode = SearchTreeReports.reportSearchDepth(reportNode, depthForLogs);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool, searchDepthReportNode);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPools, availableNetworkActions, searchDepthReportNode);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     SearchTreeReports.reportSearchDepthEnd(depthForLogs);
 
                     SearchTreeReports.reportSearchDepthBestLeaf(reportNode, verbose, depthForLogs, optimalLeaf);
-                    SearchTreeReports.reportSearchDepthBestLeafRangeActions(reportNode, depthForLogs, optimalLeaf, input.getOptimizationPerimeter());
+                    SearchTreeReports.reportSearchDepthBestLeafRangeActions(reportNode, depthForLogs, optimalLeaf, input.getAllOptimizationPerimeters());
                     reportMostLimitingElementsWithVerbose(optimalLeaf, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
                     SearchTreeReports.reportNoBetterResultFoundInSearchDepth(reportNode, verbose, depthForLogs);
@@ -239,23 +250,32 @@ public class SearchTree {
                     SearchTreeReports.reportMaxSearchDepthReached(reportNode, verbose);
                 }
             }
-            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
+            shutdownNetworkPools(networkPools);
         } catch (InterruptedException e) {
             TECHNICAL_LOGS.warn("A computation thread was interrupted");
             Thread.currentThread().interrupt();
+        } finally {
+            closeNetworkPools(networkPools);
         }
     }
 
     /**
-     * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
+     * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation.
+     * <p>
+     * In time coupled, tasks are submitted to the first timestamp's pool, which provides the execution threads. each
+     * Then, every task borrows one network clone from every timestamp's pool.
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final ReportNode reportNode) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(final TemporalData<AbstractNetworkPool> networkPools,
+                                                        final Set<NetworkAction> availableNetworkActions,
+                                                        final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
+        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, availableNetworkActions, reportNode));
         int numberOfCombinations = naCombinationsSorted.size();
 
-        networkPool.initClones(numberOfCombinations);
+        for (AbstractNetworkPool networkPool : networkPools.getDataPerTimestamp().values()) {
+            networkPool.initClones(numberOfCombinations);
+        }
         if (naCombinationsSorted.isEmpty()) {
             SearchTreeReports.reportNoMoreNetworkActionAvailable(reportNode);
             return;
@@ -263,11 +283,12 @@ public class SearchTree {
             SearchTreeReports.reportLeavesToEvaluate(reportNode, numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
+        // first timestamp's pool -> execution threads, every pool -> network clones
+        AbstractNetworkPool networkPool = networkPools.getData(networkPools.getTimestamps().getFirst()).orElseThrow();
         List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination -> {
-                final ReportNode leafOptimizationReportNode = SearchTreeReports.reportLeafOptimization(reportNode, verbose, naCombination.getConcatenatedId());
-                return networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves, leafOptimizationReportNode));
-            }
-        ).toList();
+            final ReportNode leafOptimizationReportNode = SearchTreeReports.reportLeafOptimization(reportNode, verbose, naCombination.getConcatenatedId());
+            return networkPool.submit(() -> optimizeOneLeaf(networkPools, naCombination, remainingLeaves, leafOptimizationReportNode));
+        }).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
                 task.get();
@@ -277,42 +298,52 @@ public class SearchTree {
         }
     }
 
-    private Object optimizeOneLeaf(final AbstractNetworkPool networkPool,
+    private Object optimizeOneLeaf(final TemporalData<AbstractNetworkPool> networkPools,
                                    final NetworkActionCombination naCombination,
                                    final AtomicInteger remainingLeaves,
                                    final ReportNode reportNode) throws InterruptedException {
-        Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+        Map<OffsetDateTime, Network> clones = new HashMap<>();
         try {
+            // one clone from every timestamp's pool, this is where the threads actually wait for available networks
+            for (Map.Entry<OffsetDateTime, AbstractNetworkPool> entry : networkPools.getDataPerTimestamp().entrySet()) {
+                clones.put(entry.getKey(), entry.getValue().getAvailableNetwork());
+            }
+            TemporalData<Network> networkClones = new TemporalDataImpl<>(clones);
+
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
-                    // If the HVDC line is in AC emulation the we won't be able to apply setpoint
-                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkClone)
-                        .forEach(ra ->
-                            ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
-                        );
-
+                    // If the HVDC line is in AC emulation then we won't be able to apply setpoint
+                    resetRangeActionsToSetpoints(networkClones,
+                            input.getAllOptimizationPerimeters().map(OptimizationPerimeter::getRangeActions),
+                            (timestamp, rangeAction) ->
+                                    input.getAllPrePerimeterResults().getData(timestamp).orElseThrow().getRangeActionSetpointResult().getSetpoint(rangeAction));
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
                     // from previous optimal leaf starting point
                     // Network actions are not applied here. If in previous leaf AC emulation was deactivated to optimize HVDC range action
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
-                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkClone)
-                        .forEach(ra ->
-                            ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
-                        );
+                    resetRangeActionsToSetpoints(networkClones,
+                            input.getAllOptimizationPerimeters().map(OptimizationPerimeter::getRangeActions),
+                            (timestamp, rangeAction) ->
+                                previousDepthOptimalLeaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow()
+                                        .getOptimizedSetpoint(rangeAction, input.getAllOptimizationPerimeters().getData(timestamp).orElseThrow().getMainOptimizationState()));
                 }
-                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone, reportNode);
+                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClones, reportNode);
 
             } else {
                 SearchTreeReports.reportSkippingOptimization(reportNode, verbose, naCombination.getConcatenatedId());
             }
         } catch (OpenRaoException e) {
             SearchTreeReports.reportCanNotOptimizeRemedialActionCombination(reportNode, naCombination.getConcatenatedId(), e.getMessage());
+        } finally {
+            SearchTreeReports.reportRemainingLeavesToEvaluate(reportNode, remainingLeaves.decrementAndGet());
+            // release every clone that was effectively borrowed (robust to partial acquisition)
+            for (Map.Entry<OffsetDateTime, Network> entry : clones.entrySet()) {
+                networkPools.getData(entry.getKey()).orElseThrow().releaseUsedNetwork(entry.getValue());
+            }
         }
-        SearchTreeReports.reportRemainingLeavesToEvaluate(reportNode, remainingLeaves.decrementAndGet());
-        networkPool.releaseUsedNetwork(networkClone);
         return null;
     }
 
@@ -351,26 +382,23 @@ public class SearchTree {
         return -Integer.compare(ra1.getNetworkActionSet().size(), ra2.getNetworkActionSet().size());
     }
 
-    AbstractNetworkPool makeOpenRaoNetworkPool(Network network, int leavesInParallel) {
-        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
-    }
-
     void optimizeNextLeafAndUpdate(final NetworkActionCombination naCombination,
                                    final boolean shouldRangeActionBeRemoved,
-                                   final Network network,
+                                   final TemporalData<Network> networks,
                                    final ReportNode reportNode) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(network, naCombination, shouldRangeActionBeRemoved);
+            leaf = createChildLeaf(networks, naCombination, shouldRangeActionBeRemoved);
         } catch (OpenRaoException e) {
+            // the leaf creation fails if the combination cannot be applied on every timestamp's network
             Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
             SearchTreeReports.reportCouldNotEvaluateNetworkActionCombination(reportNode, verbose, networkActions, e);
             return;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode);
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputersForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode);
 
         SearchTreeReports.reportEvaluatedLeaf(reportNode, verbose, leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -392,22 +420,24 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) throws OpenRaoException {
+    Leaf createChildLeaf(TemporalData<Network> networks, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) throws OpenRaoException {
         return new Leaf(
-            input.getOptimizationPerimeter(),
-            network,
+            input.getAllOptimizationPerimeters(),
+            networks,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
-            input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
+            shouldRangeActionBeRemoved ? input.getAllPrePerimeterResults().map(RangeActionActivationResultImpl::new) : previousDepthOptimalLeaf.getAllRangeActionActivationResults(),
+            input.getAllPrePerimeterResults().map(prePerimeterResult -> prePerimeterResult),
+            shouldRangeActionBeRemoved ? input.getAllPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
             parameters.getNetworkActionParameters().isAllowElectricalIslandCreation(),
             initialNumberOfConnectedComponent);
     }
 
     private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode) {
-        if (!input.getOptimizationPerimeter().getRangeActions().isEmpty()) {
-            leaf.optimize(input, parameters, reportNode);
+        // the linear optimization is run if at least one timestamp still has range actions to optimize
+        boolean anyRangeActions = input.getAllOptimizationPerimeters().getDataPerTimestamp().values().stream().anyMatch(perimeter -> !perimeter.getRangeActions().isEmpty());
+        if (anyRangeActions) {
+            leaf.optimize(input, parameters, getMipParallelism(), reportNode);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 SearchTreeReports.reportFailedToOptimizeLeaf(reportNode, verbose, leaf);
             }
@@ -416,37 +446,36 @@ public class SearchTree {
         }
     }
 
-    private SensitivityComputer getSensitivityComputerForEvaluation(final boolean isRootLeaf, final ReportNode reportNode) {
-
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(reportNode)
-            .withToolProvider(input.getToolProvider())
-            .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
-            .withOutageInstant(input.getOutageInstant());
-
+    private TemporalData<SensitivityComputer> getSensitivityComputersForEvaluation(final boolean isRootLeaf, final ReportNode reportNode) {
+        // build one sensitivity computer per timestamp
+        Map<OffsetDateTime, SensitivityComputer> sensitivityComputers = new HashMap<>();
+        TemporalData<AppliedRemedialActions> appliedRaForSensi;
         if (isRootLeaf) {
-            sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());
+            appliedRaForSensi = input.getAllPreOptimizationAppliedRemedialActions();
         } else {
-            sensitivityComputerBuilder.withAppliedRemedialActions(getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
+            appliedRaForSensi = getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf);
         }
-
-        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), input.getOptimizationPerimeter().getFlowCnecs());
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
+        input.getAllOptimizationPerimeters().getDataPerTimestamp().forEach((timestamp, perimeter) -> {
+            SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(reportNode)
+                    .withToolProvider(input.getAllToolProviders().getData(timestamp).orElseThrow()).withCnecs(perimeter.getFlowCnecs()).withRangeActions(perimeter.getRangeActions())
+                    .withOutageInstant(input.getAllOutageInstants().getData(timestamp).orElseThrow()).withAppliedRemedialActions(appliedRaForSensi.getData(timestamp).orElseThrow());
+            if (parameters.getObjectiveFunction().relativePositiveMargins()) {
+                if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withPtdfsResults(input.getAllToolProviders().getData(timestamp).orElseThrow().getAbsolutePtdfSumsComputation(), perimeter.getFlowCnecs());
+                } else {
+                    sensitivityComputerBuilder.withPtdfsResults(input.getAllInitialFlowResults().getData(timestamp).orElseThrow());
+                }
             }
-        }
-
-        if (parameters.getLoopFlowParametersExtension() != null) {
-            if (parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
+            if (parameters.getLoopFlowParametersExtension() != null) {
+                if (parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(input.getAllToolProviders().getData(timestamp).orElseThrow().getLoopFlowComputation(), perimeter.getLoopFlowCnecs());
+                } else {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(input.getAllInitialFlowResults().getData(timestamp).orElseThrow());
+                }
             }
-        }
-
-        return sensitivityComputerBuilder.build();
+            sensitivityComputers.put(timestamp, sensitivityComputerBuilder.build());
+        });
+        return new TemporalDataImpl<>(sensitivityComputers);
     }
 
     private synchronized void updateOptimalLeaf(final Leaf leaf,
@@ -485,6 +514,8 @@ public class SearchTree {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
+        // TODO: a satisfied global cost does not mean that every timestamp is secure,
+        //  should the stop criterion also require the worst margin of all the timestamps to be positive?
         return costSatisfiesStopCriterion(leaf.getCost(), parameters);
     }
 
@@ -525,20 +556,77 @@ public class SearchTree {
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private AppliedRemedialActions getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(RangeActionActivationResult previousDepthRangeActionActivations) {
-        AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
-        if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
-            input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
-                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState()))
-                .forEach(e -> e.getValue().stream()
-                    .filter(ra -> previousDepthRangeActionActivations.getActivatedRangeActions(e.getKey()).contains(ra))
-                    .forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(
-                        e.getKey(),
-                        ra,
-                        previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey())
-                    )));
+    private TemporalData<AppliedRemedialActions> getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(Leaf previousDepthLeaf) {
+        Map<OffsetDateTime, AppliedRemedialActions> appliedRemedialActions = new HashMap<>();
+        input.getAllOptimizationPerimeters().getDataPerTimestamp().forEach((timestamp, optimizationPerimeter) -> {
+            AppliedRemedialActions alreadyAppliedRa = input.getAllPreOptimizationAppliedRemedialActions().getData(timestamp).orElseThrow().copy();
+            if (optimizationPerimeter instanceof GlobalOptimizationPerimeter) {
+                RangeActionActivationResult previousDepthActivation = previousDepthLeaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow();
+                optimizationPerimeter.getRangeActionsPerState().keySet().stream()
+                        .filter(state -> !state.equals(optimizationPerimeter.getMainOptimizationState()))
+                        .forEach(state -> previousDepthActivation.getActivatedRangeActions(state)
+                                .forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(state, ra, previousDepthActivation.getOptimizedSetpoint(ra, state))));
+            }
+            appliedRemedialActions.put(timestamp, alreadyAppliedRa);
+        });
+        return new TemporalDataImpl<>(appliedRemedialActions);
+    }
+
+    private TemporalData<String> getPreSearchTreeVariantIds(SearchTreeInput input) {
+        return input.getAllNetworks().map(network -> {
+            String preSearchTreeVariantId = network.getVariantManager().getWorkingVariantId();
+            network.getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
+            network.getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID); // the variant used for root leaf and all the child leaves
+            return preSearchTreeVariantId;
+        });
+    }
+
+    TemporalData<AbstractNetworkPool> makeOpenRaoNetworkPools(TemporalData<Network> networks, int leavesInParallel) {
+        return networks.map(network -> AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false));
+    }
+
+    /** Waits for the shutdown of every timestamp's pool. */
+    private static void shutdownNetworkPools(TemporalData<AbstractNetworkPool> networkPools) throws InterruptedException {
+        for (AbstractNetworkPool networkPool : networkPools.getDataPerTimestamp().values()) {
+            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         }
-        return alreadyAppliedRa;
+    }
+
+    /** Closes every timestamp's pool and releases its network clones. */
+    private static void closeNetworkPools(TemporalData<AbstractNetworkPool> networkPools) {
+        networkPools.getDataPerTimestamp().values().forEach(AbstractNetworkPool::close);
+    }
+
+    /** Applies on every timestamp's network clone the given setpoint of the range actions, skipping the the HVDC range
+     * actions whose line is in AC emulation as their setpoint cannot be applied. */
+    private void resetRangeActionsToSetpoints(TemporalData<Network> networkClones,
+                                              TemporalData<Set<RangeAction<?>>> rangeActions,
+                                              BiFunction<OffsetDateTime, RangeAction<?>, Double> setpointProvider) {
+        networkClones.getDataPerTimestamp().forEach((timestamp, networkClone) ->
+                HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(rangeActions.getData(timestamp).orElseThrow(), networkClone)
+                        .forEach(rangeAction -> rangeAction.apply(networkClone, setpointProvider.apply(timestamp, rangeAction)))
+        );
+    }
+
+    /** Gathers the network actions available on every timestamp's perimeter.*/
+    private Set<NetworkAction> getAvailableNetworkActionsAcrossTimestamps() {
+        Map<String, NetworkAction> networkActionsById = new HashMap<>();
+        input.getAllOptimizationPerimeters().getDataPerTimestamp().values().forEach(
+                optimizationPerimeter -> optimizationPerimeter.getNetworkActions().forEach(
+                        networkAction -> networkActionsById.putIfAbsent(networkAction.getId(), networkAction)
+                )
+        );
+        // keep only the network actions whose ID is present in every timestamp's perimeter
+        input.getAllOptimizationPerimeters().getDataPerTimestamp().values().forEach(
+                optimizationPerimeter -> networkActionsById.keySet().retainAll(
+                        optimizationPerimeter.getNetworkActions().stream().map(NetworkAction::getId).collect(Collectors.toSet())
+                )
+        );
+        return new HashSet<>(networkActionsById.values());
+    }
+
+    private int getMipParallelism() {
+        return Math.min(parameters.getTreeParameters().leavesInParallel(), input.getAllNetworks().getTimestamps().size());
     }
 
     private void reportVirtualCostInformation(final ReportNode reportNode, final Leaf rootLeaf, final boolean optimized) {
