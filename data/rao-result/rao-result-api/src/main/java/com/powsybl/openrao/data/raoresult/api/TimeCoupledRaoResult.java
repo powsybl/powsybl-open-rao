@@ -7,10 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 
@@ -80,20 +77,6 @@ public interface TimeCoupledRaoResult extends RaoResult {
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
-
-    @Override
-    default boolean isSecure(Crac crac, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
-        throw new OpenRaoException("Time-coupled RAO results do not support this method.");
-    }
-
-    default boolean isSecure(TemporalData<Crac> cracs, Unit flowUnit, boolean excludeCnecsForTsosWithoutCras, PhysicalParameter... u) {
-        for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!getIndividualRaoResult(timestamp).isSecure(cracs.getData(timestamp).orElseThrow(), flowUnit, excludeCnecsForTsosWithoutCras, u)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 

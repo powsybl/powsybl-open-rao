@@ -58,10 +58,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -339,7 +337,7 @@ class AngleMonitoringTest {
 
         RaoResult raoResultWithAngleMonitoring = runAngleMonitoringAndUpdateRaoResult(scalableZonalData);
         // Status checks
-        assertFalse(raoResultWithAngleMonitoring.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.ANGLE));
+        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);
         assertEquals(1, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).size());
@@ -399,7 +397,6 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(true);
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
@@ -415,9 +412,9 @@ class AngleMonitoringTest {
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
-        assertTrue(raoResultWithAngleMonitoring.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResultWithAngleMonitoring.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.ANGLE));
-        assertFalse(raoResultWithAngleMonitoring.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
+        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
+        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -433,7 +430,6 @@ class AngleMonitoringTest {
         final ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(true);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
@@ -451,7 +447,7 @@ class AngleMonitoringTest {
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(raoResultWithAngleMonitoring.isSecure(crac, Unit.AMPERE, false, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
