@@ -17,7 +17,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
@@ -26,41 +26,41 @@ import java.io.IOException;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(RaoResultJsonUtils.ExtensionSerializer.class)
-public class JsonCastorCostResult implements RaoResultJsonUtils.ExtensionSerializer<CastorCostResult> {
+public class JsonCastorCostResult implements RaoResultJsonUtils.ExtensionSerializer<CostResult> {
     @Override
-    public void serialize(CastorCostResult castorCostResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        castorCostResult.serialize(jsonGenerator);
+    public void serialize(CostResult costResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        costResult.serialize(jsonGenerator);
     }
 
     @Override
-    public CastorCostResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public CostResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Version version = (Version) deserializationContext.getAttribute("version");
         if (version.major() == 1) {
             throw new OpenRaoException("Cost results extension is only available for JSON RAO Result versions >= 2.");
         }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        CastorCostResult castorCostResult = new CastorCostResult();
+        CostResult costResult = new CostResult();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("initial".equals(jsonParser.currentName())) {
-                deserializeElementaryCostResult(jsonParser, null, castorCostResult);
+                deserializeElementaryCostResult(jsonParser, null, costResult);
             } else {
                 Instant instant = crac.getInstant(jsonParser.currentName());
-                deserializeElementaryCostResult(jsonParser, instant, castorCostResult);
+                deserializeElementaryCostResult(jsonParser, instant, costResult);
             }
         }
-        return castorCostResult;
+        return costResult;
     }
 
-    private void deserializeElementaryCostResult(JsonParser jsonParser, Instant instant, CastorCostResult castorCostResult) throws IOException {
+    private void deserializeElementaryCostResult(JsonParser jsonParser, Instant instant, CostResult costResult) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("functionalCost".equals(jsonParser.currentName())) {
-                castorCostResult.addFunctionalCostResult(instant, jsonParser.getDoubleValue());
+                costResult.addFunctionalCostResult(instant, jsonParser.getDoubleValue());
             } else if ("virtualCost".equals(jsonParser.currentName())) {
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     jsonParser.nextToken();
-                    castorCostResult.addVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
+                    costResult.addVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
                 }
             } else {
                 throw new OpenRaoException("Unexpected field in '%s': '%s'.".formatted(jsonParser.currentName(), getExtensionName()));
@@ -70,7 +70,7 @@ public class JsonCastorCostResult implements RaoResultJsonUtils.ExtensionSeriali
 
     @Override
     public String getExtensionName() {
-        return "castor-cost-results";
+        return "cost-results";
     }
 
     @Override
@@ -79,7 +79,7 @@ public class JsonCastorCostResult implements RaoResultJsonUtils.ExtensionSeriali
     }
 
     @Override
-    public Class<? super CastorCostResult> getExtensionClass() {
-        return CastorCostResult.class;
+    public Class<? super CostResult> getExtensionClass() {
+        return CostResult.class;
     }
 }

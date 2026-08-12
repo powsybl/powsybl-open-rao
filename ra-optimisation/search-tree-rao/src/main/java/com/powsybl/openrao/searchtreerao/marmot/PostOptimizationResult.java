@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -211,21 +211,21 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     }
 
     private void computeCastorCostResultsExtension() {
-        CastorCostResult castorCostResult = new CastorCostResult();
-        addCostsForInstant(castorCostResult, initialResult, null);
+        CostResult costResult = new CostResult();
+        addCostsForInstant(costResult, initialResult, null);
         crac.getSortedInstants()
             .stream()
             .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(castorCostResult, singleTimestampObjectiveFunctionResult, instant));
-        addExtension(CastorCostResult.class, castorCostResult);
+            .forEach(instant -> addCostsForInstant(costResult, singleTimestampObjectiveFunctionResult, instant));
+        addExtension(CostResult.class, costResult);
     }
 
-    private void addCostsForInstant(CastorCostResult castorCostResult,
+    private void addCostsForInstant(CostResult costResult,
                                     ObjectiveFunctionResult objectiveFunctionResult,
                                     Instant instant) {
-        castorCostResult.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        costResult.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
-            virtualCostName -> castorCostResult.addVirtualCostResult(
+            virtualCostName -> costResult.addVirtualCostResult(
                 instant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName)

@@ -21,13 +21,13 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class CastorCostResult extends AbstractExtension<RaoResult> {
-    private static final String EXTENSION_NAME = "castor-cost-results";
+public class CostResult extends AbstractExtension<RaoResult> {
+    private static final String EXTENSION_NAME = "cost-results";
 
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
 
-    public CastorCostResult() {
+    public CostResult() {
         this.initialCostResult = new ElementaryCostResult();
         this.costResultPerInstant = new HashMap<>();
     }

@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.searchtreerao.marmot.TestsUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,10 +140,10 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(raoResult.isActivatedDuringState(state, networkAction)).thenReturn(isNetworkActionActivated);
 
         // mock cost extension
-        CastorCostResult castorCostResult = new CastorCostResult();
-        castorCostResult.addFunctionalCostResult(instant, functionalCost);
-        castorCostResult.addVirtualCostResult(instant, "virtual", virtualCost);
-        Mockito.when(raoResult.getExtension(CastorCostResult.class)).thenReturn(castorCostResult);
+        CostResult costResult = new CostResult();
+        costResult.addFunctionalCostResult(instant, functionalCost);
+        costResult.addVirtualCostResult(instant, "virtual", virtualCost);
+        Mockito.when(raoResult.getExtension(CostResult.class)).thenReturn(costResult);
 
         return raoResult;
     }

@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -56,9 +56,9 @@ class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
-        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
-        assertNotNull(castorCostResult);
-        assertEquals(-143.83, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(-143.83, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
@@ -75,9 +75,9 @@ class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
-        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
-        assertNotNull(castorCostResult);
-        assertEquals(314.7, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(314.7, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
@@ -92,9 +92,9 @@ class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
-        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
-        assertNotNull(castorCostResult);
-        assertEquals(-101.15, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(-101.15, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
 

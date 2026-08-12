@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
@@ -351,19 +351,19 @@ public final class CastorReports {
                                                                   final Instant curativeInstant,
                                                                   final RaoResult mergedRaoResults,
                                                                   final RaoResult secondPreventiveRaoResults) {
-        CastorCostResult mergedCastorCostResult = mergedRaoResults.getExtension(CastorCostResult.class);
-        CastorCostResult secondPreventiveCastorCostResult = secondPreventiveRaoResults.getExtension(CastorCostResult.class);
+        CostResult mergedCostResult = mergedRaoResults.getExtension(CostResult.class);
+        CostResult secondPreventiveCostResult = secondPreventiveRaoResults.getExtension(CostResult.class);
 
-        if (mergedCastorCostResult == null || secondPreventiveCastorCostResult == null) {
+        if (mergedCostResult == null || secondPreventiveCostResult == null) {
             return;
         }
 
         final String firstPreventiveCostFormatted = ReportUtils.formatDoubleBasedOnMargin(firstPreventiveCost, -firstPreventiveCost);
-        final String firstPreventiveFunctionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(mergedCastorCostResult.getFunctionalCost(curativeInstant), -firstPreventiveCost);
-        final String firstPreventiveVirtualCostFormatted = ReportUtils.formatDoubleBasedOnMargin(mergedCastorCostResult.getVirtualCost(curativeInstant), -firstPreventiveCost);
+        final String firstPreventiveFunctionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(mergedCostResult.getFunctionalCost(curativeInstant), -firstPreventiveCost);
+        final String firstPreventiveVirtualCostFormatted = ReportUtils.formatDoubleBasedOnMargin(mergedCostResult.getVirtualCost(curativeInstant), -firstPreventiveCost);
         final String secondPreventiveCostFormatted = ReportUtils.formatDoubleBasedOnMargin(secondPreventiveCost, -secondPreventiveCost);
-        final String secondPreventiveFunctionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(secondPreventiveCastorCostResult.getFunctionalCost(curativeInstant), -secondPreventiveCost);
-        final String secondPreventiveVirtualCostFormatted = ReportUtils.formatDoubleBasedOnMargin(secondPreventiveCastorCostResult.getVirtualCost(curativeInstant), -secondPreventiveCost);
+        final String secondPreventiveFunctionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(secondPreventiveCostResult.getFunctionalCost(curativeInstant), -secondPreventiveCost);
+        final String secondPreventiveVirtualCostFormatted = ReportUtils.formatDoubleBasedOnMargin(secondPreventiveCostResult.getVirtualCost(curativeInstant), -secondPreventiveCost);
 
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSecondPreventiveIncreasedOverallCost")
@@ -458,14 +458,14 @@ public final class CastorReports {
     }
 
     public static Map<String, Double> getVirtualCostDetailed(RaoResult raoResult, Instant instant) {
-        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
-        if (castorCostResult == null) {
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        if (costResult == null) {
             return Collections.emptyMap();
         }
-        return castorCostResult.getVirtualCostNames().stream()
-            .filter(virtualCostName -> castorCostResult.getVirtualCost(instant, virtualCostName) > 1e-6)
+        return costResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> costResult.getVirtualCost(instant, virtualCostName) > 1e-6)
             .collect(Collectors.toMap(Function.identity(),
-                name -> Math.round(castorCostResult.getVirtualCost(instant, name) * 100.0) / 100.0));
+                name -> Math.round(costResult.getVirtualCost(instant, name) * 100.0) / 100.0));
     }
 
     public static void reportNotEnoughTimeToRunSecondPreventiveRao(final ReportNode parentNode,

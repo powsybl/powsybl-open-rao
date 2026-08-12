@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CastorCostResultExtensionHelperTest {
+class CostResultExtensionHelperTest {
 
     private Crac crac;
     private Instant preventiveInstant;
@@ -62,7 +62,7 @@ class CastorCostResultExtensionHelperTest {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(initialResult.getVirtualCost("v1")).thenReturn(10.0);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
 
         assertEquals(100.0, result.getFunctionalCost(null));
         assertEquals(10.0, result.getVirtualCost(null, "v1"));
@@ -80,7 +80,7 @@ class CastorCostResultExtensionHelperTest {
         when(postPraResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(postPraResult.getVirtualCost("v1")).thenReturn(5.0);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
             initialResult,
             postPraResult,
             postPraResult,
@@ -111,7 +111,7 @@ class CastorCostResultExtensionHelperTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, true, crac
         );
 
@@ -152,7 +152,7 @@ class CastorCostResultExtensionHelperTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, false, crac
         );
 
@@ -192,7 +192,7 @@ class CastorCostResultExtensionHelperTest {
         PostPerimeterResult postPerimAuto = new PostPerimeterResult(optResAuto, preResAuto);
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, true, crac
         );
 
@@ -209,7 +209,7 @@ class CastorCostResultExtensionHelperTest {
         ObjectiveFunctionResult initialResult = createMockResult(0, Map.of("v1", Double.NaN));
         ObjectiveFunctionResult postPraResult = createMockResult(0, Map.of("v1", Double.NaN));
 
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
             initialResult,
             postPraResult,
             postPraResult,
@@ -230,10 +230,10 @@ class CastorCostResultExtensionHelperTest {
         when(crac.getSortedInstants()).thenReturn(List.of(preventiveInstant, outageInstant, autoInstant));
 
         ObjectiveFunctionResult initialResult = createMockResult(100, Map.of());
-        CastorCostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
+        CostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
 
         // Outage instant should not have result
-        // CastorCostResult.getFunctionalCost(outageInstant) would return the previous instant's result (preventive)
+        // CostResult.getFunctionalCost(outageInstant) would return the previous instant's result (preventive)
         // because it uses getPreviousInstantWithResult
         assertEquals(100.0, result.getFunctionalCost(outageInstant));
     }

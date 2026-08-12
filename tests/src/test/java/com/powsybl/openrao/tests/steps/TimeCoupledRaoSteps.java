@@ -30,7 +30,7 @@ import com.powsybl.openrao.data.icsimporter.IcsData;
 import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -425,7 +425,7 @@ public final class TimeCoupledRaoSteps {
         assertEquals(
             functionalCost,
             timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime)
-                .getExtension(CastorCostResult.class)
+                .getExtension(CostResult.class)
                 .getFunctionalCost(afterCra),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
         );
@@ -437,7 +437,7 @@ public final class TimeCoupledRaoSteps {
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(
             totalCost,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getExtension(CastorCostResult.class).getCost(afterCra),
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getExtension(CostResult.class).getCost(afterCra),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
         );
     }
@@ -448,7 +448,7 @@ public final class TimeCoupledRaoSteps {
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(
             functionalCost,
-            timeCoupledRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(lastInstant),
+            timeCoupledRaoResult.getExtension(CostResult.class).getFunctionalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
         );
     }
@@ -459,7 +459,7 @@ public final class TimeCoupledRaoSteps {
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(
             totalCost,
-            timeCoupledRaoResult.getExtension(CastorCostResult.class).getCost(lastInstant),
+            timeCoupledRaoResult.getExtension(CostResult.class).getCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
         );
     }

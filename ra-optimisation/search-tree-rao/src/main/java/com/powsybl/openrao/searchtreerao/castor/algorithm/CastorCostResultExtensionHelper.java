@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 
@@ -20,7 +20,7 @@ import java.util.function.BinaryOperator;
 
 /**
  * Utility class used to convert {@link ObjectiveFunctionResult}s to a
- * {@link CastorCostResult} RAO Result extension.
+ * {@link CostResult} RAO Result extension.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -29,29 +29,29 @@ public final class CastorCostResultExtensionHelper {
     private CastorCostResultExtensionHelper() {
     }
 
-    public static CastorCostResult convertToExtension(ObjectiveFunctionResult initialResult) {
-        CastorCostResult castorCostResult = new CastorCostResult();
-        addInitialCosts(initialResult, castorCostResult);
-        return castorCostResult;
+    public static CostResult convertToExtension(ObjectiveFunctionResult initialResult) {
+        CostResult costResult = new CostResult();
+        addInitialCosts(initialResult, costResult);
+        return costResult;
     }
 
-    public static CastorCostResult convertToExtension(ObjectiveFunctionResult initialResult,
-                                                      ObjectiveFunctionResult preventiveAndOutageOnlyResult,
-                                                      ObjectiveFunctionResult postPraResult,
-                                                      boolean costOptimization,
-                                                      Instant preventiveInstant) {
-        CastorCostResult castorCostResult = convertToExtension(initialResult);
-        addPreventiveCosts(preventiveAndOutageOnlyResult, postPraResult, castorCostResult, preventiveInstant, costOptimization);
-        return castorCostResult;
+    public static CostResult convertToExtension(ObjectiveFunctionResult initialResult,
+                                                ObjectiveFunctionResult preventiveAndOutageOnlyResult,
+                                                ObjectiveFunctionResult postPraResult,
+                                                boolean costOptimization,
+                                                Instant preventiveInstant) {
+        CostResult costResult = convertToExtension(initialResult);
+        addPreventiveCosts(preventiveAndOutageOnlyResult, postPraResult, costResult, preventiveInstant, costOptimization);
+        return costResult;
     }
 
-    public static CastorCostResult convertToExtension(ObjectiveFunctionResult initialResult,
-                                                      ObjectiveFunctionResult preventiveAndOutageOnlyResult,
-                                                      ObjectiveFunctionResult postPraResult,
-                                                      Map<State, PostPerimeterResult> postContingencyResults,
-                                                      boolean costOptimization,
-                                                      Crac crac) {
-        CastorCostResult castorCostResult = convertToExtension(
+    public static CostResult convertToExtension(ObjectiveFunctionResult initialResult,
+                                                ObjectiveFunctionResult preventiveAndOutageOnlyResult,
+                                                ObjectiveFunctionResult postPraResult,
+                                                Map<State, PostPerimeterResult> postContingencyResults,
+                                                boolean costOptimization,
+                                                Crac crac) {
+        CostResult costResult = convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,
             postPraResult,
@@ -60,12 +60,12 @@ public final class CastorCostResultExtensionHelper {
         );
         for (Instant instant : crac.getSortedInstants()) {
             if (instant.isAuto() || instant.isCurative()) {
-                castorCostResult.addFunctionalCostResult(
+                costResult.addFunctionalCostResult(
                     instant,
                     computeFunctionalCost(preventiveAndOutageOnlyResult, postContingencyResults, costOptimization, instant)
                 );
                 postPraResult.getVirtualCostNames().forEach(
-                    virtualCostName -> castorCostResult.addVirtualCostResult(
+                    virtualCostName -> costResult.addVirtualCostResult(
                         instant,
                         virtualCostName,
                         computeVirtualCost(virtualCostName, preventiveAndOutageOnlyResult, postContingencyResults, instant)
@@ -73,7 +73,7 @@ public final class CastorCostResultExtensionHelper {
                 );
             }
         }
-        return castorCostResult;
+        return costResult;
     }
 
     private static double computeFunctionalCost(ObjectiveFunctionResult preventiveAndOutageOnlyResult,
@@ -130,27 +130,27 @@ public final class CastorCostResultExtensionHelper {
         return totalCost.get();
     }
 
-    private static void addInitialCosts(ObjectiveFunctionResult objectiveFunctionResult, CastorCostResult castorCostResult) {
-        castorCostResult.addFunctionalCostResult(null, objectiveFunctionResult.getFunctionalCost());
+    private static void addInitialCosts(ObjectiveFunctionResult objectiveFunctionResult, CostResult costResult) {
+        costResult.addFunctionalCostResult(null, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
             virtualCostName -> {
                 double virtualCost = objectiveFunctionResult.getVirtualCost(virtualCostName);
-                castorCostResult.addVirtualCostResult(null, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
+                costResult.addVirtualCostResult(null, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
             }
         );
     }
 
     private static void addPreventiveCosts(ObjectiveFunctionResult preventiveAndOutageOnlyResult,
                                            ObjectiveFunctionResult postPraResult,
-                                           CastorCostResult castorCostResult,
+                                           CostResult costResult,
                                            Instant preventiveInstant,
                                            boolean costOptimization) {
         // for costly optimization, we only care about the cost of preventive actions (for after PRA result)
-        castorCostResult.addFunctionalCostResult(preventiveInstant, (costOptimization ? preventiveAndOutageOnlyResult : postPraResult).getFunctionalCost());
+        costResult.addFunctionalCostResult(preventiveInstant, (costOptimization ? preventiveAndOutageOnlyResult : postPraResult).getFunctionalCost());
         postPraResult.getVirtualCostNames().forEach(
             virtualCostName -> {
                 double virtualCost = postPraResult.getVirtualCost(virtualCostName);
-                castorCostResult.addVirtualCostResult(preventiveInstant, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
+                costResult.addVirtualCostResult(preventiveInstant, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
             }
         );
     }

@@ -487,7 +487,7 @@
         }
       }
     } ],
-    "castor-cost-results" : {
+    "cost-results" : {
       "initial" : {
         "functionalCost" : 100.0,
         "virtualCost" : {
