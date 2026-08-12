@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -20,16 +19,11 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FUNCTIONAL_COST;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INITIAL_INSTANT_ID;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VIRTUAL_COSTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
 
 /**
@@ -68,37 +62,6 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
         JsonUtil.writeExtensions(timeCoupledRaoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
-    }
-
-    private void serializeCostResults(TimeCoupledRaoResult timeCoupledRaoResult, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(COST_RESULTS);
-        serializeCostsAfterGivenStep(timeCoupledRaoResult, jsonGenerator, null); // initial situation
-        instants.forEach(instant -> {
-            try {
-                serializeCostsAfterGivenStep(timeCoupledRaoResult, jsonGenerator, instant);
-            } catch (IOException e) {
-                throw new OpenRaoException(e);
-            }
-        });
-        jsonGenerator.writeEndObject();
-    }
-
-    private void serializeCostsAfterGivenStep(TimeCoupledRaoResult timeCoupledRaoResult, JsonGenerator jsonGenerator, Instant instant) throws IOException {
-        jsonGenerator.writeObjectFieldStart(instant == null ? INITIAL_INSTANT_ID : instant.getName());
-        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(timeCoupledRaoResult.getGlobalFunctionalCost(instant)));
-        jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
-        for (String virtualCostName : timeCoupledRaoResult.getVirtualCostNames().stream().sorted().toList()) {
-            double virtualCostForAGivenName = timeCoupledRaoResult.getGlobalVirtualCost(instant, virtualCostName);
-            if (!Double.isNaN(virtualCostForAGivenName)) {
-                jsonGenerator.writeNumberField(virtualCostName, roundDouble(virtualCostForAGivenName));
-            }
-        }
-        jsonGenerator.writeEndObject();
-        jsonGenerator.writeEndObject();
-    }
-
-    private static BigDecimal roundDouble(double doubleValue) {
-        return BigDecimal.valueOf(doubleValue).setScale(2, RoundingMode.HALF_UP);
     }
 
     private static void serializeRaoResultPerTimestamp(TimeCoupledRaoResult timeCoupledRaoResult, JsonGenerator jsonGenerator, String individualRaoResultFilenameTemplate) throws IOException {

@@ -213,7 +213,6 @@ public class CastorFullOptimization {
                     raoParameters.getObjectiveFunctionParameters(),
                     true,
                     optimizationReportNode,
-                    costOptimization,
                     finalCastorCostResult
                 );
             }
@@ -249,7 +248,7 @@ public class CastorFullOptimization {
                     costOptimization,
                     crac.getPreventiveInstant()
                 );
-                return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, costOptimization, finalCastorCostResult);
+                return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, finalCastorCostResult);
             }
 
             final ReportNode postContingencyPerimeterOptimReportNode = CastorReports.reportPostContingencyPerimeterOptimization(curativePerimeterOptimReportNode);
@@ -378,7 +377,7 @@ public class CastorFullOptimization {
                 raoParameters.getObjectiveFunctionParameters().getType().costOptimization(),
                 crac
             );
-            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, costOptimization, finalCastorCostResult);
+            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, finalCastorCostResult);
         } catch (Exception e) {
             CastorReports.reportExceptionMessageAndStacktrace(optimizationReportNode, e);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
@@ -418,8 +417,9 @@ public class CastorFullOptimization {
             return true;
         }
         Instant curativeInstant = crac.getLastInstant();
-        double firstPreventiveCost = mergedRaoResults.getCost(curativeInstant);
-        double secondPreventiveCost = secondPreventiveRaoResults.getCost(curativeInstant);
+
+        double firstPreventiveCost = mergedRaoResults.getExtension(CastorCostResult.class).getCost(curativeInstant);
+        double secondPreventiveCost = secondPreventiveRaoResults.getExtension(CastorCostResult.class).getCost(curativeInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
             CastorReports.reportSecondPreventiveIncreasedOverallCost(
                 secondPreventiveReportNode, firstPreventiveCost, secondPreventiveCost, curativeInstant, mergedRaoResults, secondPreventiveRaoResults
@@ -437,7 +437,6 @@ public class CastorFullOptimization {
                                                           final ObjectiveFunctionParameters objectiveFunctionParameters,
                                                           final boolean handleCostIncrease,
                                                           final ReportNode optimizationReportNode,
-                                                          final boolean costOptimization,
                                                           CastorCostResult finalCastorCostResult) {
         RaoResult finalRaoResult = raoResult;
         finalRaoResult.addExtension(CastorCostResult.class, finalCastorCostResult);
@@ -446,9 +445,9 @@ public class CastorFullOptimization {
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
         Instant lastInstant = crac.getLastInstant();
-        double finalCost = finalRaoResult.getCost(lastInstant);
-        double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
-        double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
+        double finalCost = finalRaoResult.getExtension(CastorCostResult.class).getCost(lastInstant);
+        double finalFunctionalCost = finalRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(lastInstant);
+        double finalVirtualCost = finalRaoResult.getExtension(CastorCostResult.class).getVirtualCost(lastInstant);
 
         if (handleCostIncrease && finalCost > initialCost + EPSILON) {
             CastorReports.reportRaoIncreasedOverallCost(optimizationReportNode, initialCost, initialFunctionalCost, initialVirtualCost, finalCost, finalFunctionalCost, finalVirtualCost);

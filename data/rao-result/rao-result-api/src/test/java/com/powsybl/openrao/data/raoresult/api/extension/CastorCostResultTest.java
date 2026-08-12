@@ -56,13 +56,13 @@ class CastorCostResultTest {
     void testEmptyCostResult() {
         // Initial instant (null)
         assertTrue(Double.isNaN(castorCostResult.getFunctionalCost(null)));
-        assertTrue(Double.isNaN(castorCostResult.getVirtualCost(null)));
+        assertEquals(0.0, castorCostResult.getVirtualCost(null));
         assertTrue(Double.isNaN(castorCostResult.getCost(null)));
         assertTrue(castorCostResult.getVirtualCostNames().isEmpty());
 
         // Mocked instants
         assertTrue(Double.isNaN(castorCostResult.getFunctionalCost(preventive)));
-        assertTrue(Double.isNaN(castorCostResult.getVirtualCost(curative)));
+        assertEquals(0.0, castorCostResult.getVirtualCost(curative));
     }
 
     @Test

@@ -171,7 +171,7 @@ public class CastorCostResult extends AbstractExtension<RaoResult> {
         }
 
         private double getVirtualCost() {
-            return virtualCosts.isEmpty() ? DEFAULT_COST : virtualCosts.values().stream().reduce(0.0, Double::sum);
+            return virtualCosts.values().stream().reduce(0.0, Double::sum);
         }
 
         private Set<String> getVirtualCostNames() {
