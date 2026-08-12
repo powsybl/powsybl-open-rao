@@ -39,36 +39,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getGlobalFunctionalCost(Instant instant) {
-        return 0;
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant) {
-        return 0;
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
-        return 0;
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return null;
     }

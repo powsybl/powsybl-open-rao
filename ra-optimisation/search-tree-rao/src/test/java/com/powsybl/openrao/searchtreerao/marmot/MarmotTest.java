@@ -18,6 +18,7 @@ import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
@@ -101,9 +102,9 @@ class MarmotTest {
         assertEquals(-5, results.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
         assertEquals(-5, results.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
 
-        assertEquals(110., results.getGlobalCost(crac1.getLastInstant()));
-        assertEquals(55., results.getCost(crac1.getLastInstant(), timestamp1));
-        assertEquals(55., results.getCost(crac2.getLastInstant(), timestamp2));
+        assertEquals(110., results.getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(55., results.getIndividualRaoResult(timestamp1).getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(55., results.getIndividualRaoResult(timestamp2).getExtension(CastorCostResult.class).getCost(crac2.getLastInstant()));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -160,10 +161,10 @@ class MarmotTest {
         assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(-0.0, results.getPreOptimizationSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
-        assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
-        assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
-        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
-        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
+        assertEquals(53020., results.getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(0., results.getIndividualRaoResult(timestamp1).getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp2).getExtension(CastorCostResult.class).getCost(crac2.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp3).getExtension(CastorCostResult.class).getCost(crac3.getLastInstant()));
 
         assertNotNull(results.getExtension(PreTimeCouplingOverloadedCnecs.class));
         assertTrue(results.getExtension(PreTimeCouplingOverloadedCnecs.class).getCriticalCnecIds().isEmpty());
@@ -208,10 +209,10 @@ class MarmotTest {
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
-        assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
-        assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
-        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
-        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
+        assertEquals(53020., results.getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(0., results.getIndividualRaoResult(timestamp1).getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp2).getExtension(CastorCostResult.class).getCost(crac2.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp3).getExtension(CastorCostResult.class).getCost(crac3.getLastInstant()));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -263,10 +264,10 @@ class MarmotTest {
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
-        assertEquals(69530., results.getGlobalCost(crac1.getLastInstant()));
-        assertEquals(16510., results.getCost(crac1.getLastInstant(), timestamp1));
-        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
-        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
+        assertEquals(69530., results.getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(16510., results.getIndividualRaoResult(timestamp1).getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp2).getExtension(CastorCostResult.class).getCost(crac2.getLastInstant()));
+        assertEquals(26510, results.getIndividualRaoResult(timestamp3).getExtension(CastorCostResult.class).getCost(crac3.getLastInstant()));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -309,11 +310,11 @@ class MarmotTest {
         TimeCoupledRaoResult results = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
         assertTrue(results.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
-        assertEquals(40.0, results.getGlobalCost(crac1.getPreventiveInstant()));
+        assertEquals(40.0, results.getExtension(CastorCostResult.class).getCost(crac1.getPreventiveInstant()));
 
-        assertEquals(40., results.getGlobalCost(crac1.getLastInstant()));
-        assertEquals(20., results.getCost(crac1.getLastInstant(), timestamp1));
-        assertEquals(20., results.getCost(crac2.getLastInstant(), timestamp2));
+        assertEquals(40., results.getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(20., results.getIndividualRaoResult(timestamp1).getExtension(CastorCostResult.class).getCost(crac1.getLastInstant()));
+        assertEquals(20., results.getIndividualRaoResult(timestamp2).getExtension(CastorCostResult.class).getCost(crac2.getLastInstant()));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -373,7 +374,7 @@ class MarmotTest {
 
         TimeCoupledRaoResult timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
-        assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(625070.0, timeCoupledRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(crac1.getPreventiveInstant()));
 
         assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
@@ -432,7 +433,7 @@ class MarmotTest {
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
-        assertEquals(375030.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(375030.0, timeCoupledRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(crac1.getPreventiveInstant()));
 
         assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
@@ -495,7 +496,7 @@ class MarmotTest {
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
-        assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(625070.0, timeCoupledRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(crac1.getPreventiveInstant()));
 
         assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
@@ -586,7 +587,7 @@ class MarmotTest {
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
-        assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(625070.0, timeCoupledRaoResult.getExtension(CastorCostResult.class).getFunctionalCost(crac1.getPreventiveInstant()));
 
         assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
         assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
@@ -642,7 +643,9 @@ class MarmotTest {
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, TimeCoupledRaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
-        assertEquals(expectedFunctionalCost, timeCoupledRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().orElseThrow()));
+        assertEquals(expectedFunctionalCost, timeCoupledRaoResult.getIndividualRaoResult(crac.getTimestamp().orElseThrow())
+            .getExtension(CastorCostResult.class)
+            .getFunctionalCost(crac.getPreventiveInstant()));
         assertEquals(expectedRdSetPoint, timeCoupledRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
     }
 
@@ -669,8 +672,12 @@ class MarmotTest {
 
         TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
 
-        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac00.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
-        assertEquals(41.0, timeCoupledRaoResult.getFunctionalCost(crac01.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
+        assertEquals(41.0, timeCoupledRaoResult.getIndividualRaoResult(
+            OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)
+        ).getExtension(CastorCostResult.class).getFunctionalCost(crac00.getPreventiveInstant()));
+        assertEquals(41.0, timeCoupledRaoResult.getIndividualRaoResult(
+            OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)
+        ).getExtension(CastorCostResult.class).getFunctionalCost(crac01.getPreventiveInstant()));
 
         assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
         assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
