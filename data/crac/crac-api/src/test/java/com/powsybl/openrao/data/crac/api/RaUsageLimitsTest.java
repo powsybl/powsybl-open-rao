@@ -38,7 +38,7 @@ class RaUsageLimitsTest {
     @Test
     void testNominalBehavior() {
         // check default values
-        assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxRa());
+        assertEquals(null, raUsageLimits.getMaxRa());
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());

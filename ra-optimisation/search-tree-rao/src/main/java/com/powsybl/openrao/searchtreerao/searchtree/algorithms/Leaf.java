@@ -324,7 +324,11 @@ public class Leaf implements OptimizationResult {
                 RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
                 Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
                     appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
-                int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
+                Integer maxRa = raUsageLimits.getMaxRa();
+                if (maxRa != null) {
+                    maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
+                }
+
                 Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
                 Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                 maxRaPerTso.entrySet().forEach(entry -> {
