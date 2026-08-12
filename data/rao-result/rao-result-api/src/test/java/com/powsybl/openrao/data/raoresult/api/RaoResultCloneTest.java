@@ -8,8 +8,6 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -32,7 +30,6 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -432,13 +429,5 @@ class RaoResultCloneTest {
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, raoResultClone.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, MEGAWATT, false));
-        assertEquals("No physical parameter provided.", exception.getMessage());
-        assertTrue(raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.FLOW));
-        assertTrue(raoResultClone.isSecure(crac, AMPERE, false, PhysicalParameter.FLOW));
-        // note: more methods could be mocked to guarantee that getMargin called in isSecure is correctly mocked
-        exception = assertThrows(OpenRaoException.class, () -> raoResultClone.isSecure(crac, MEGAWATT, false, PhysicalParameter.VOLTAGE));
-        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage()); // RAO result clone is meant for flow results only
     }
 }

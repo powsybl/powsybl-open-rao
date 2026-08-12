@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
+import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.searchtreerao.reports.MostLimitingElementsReports;
 import com.powsybl.openrao.searchtreerao.reports.OptimizationSummaryReports;
 import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
@@ -31,7 +32,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
