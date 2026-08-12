@@ -1490,15 +1490,16 @@ crac.newRaUsageLimits("curative")
 :::
 ::::
 
-If several instants of the same kind are defined in the CRAC, the usage limits are **cumulative** among these instants.
+If several instants of the same kind are defined in the CRAC, the usage limits are **cumulative** among these instants with a limit defined.
+
+⚠️ If a limit is defined at two instants, all intermediate instants must also have a defined limit.
+ex. if max-ra is defined in curative 1 and 3, the limit has to be defined in curative 2 too else it will be too ambiguous as to how many RAs we can actually use in curative2
 
 For instance, let us consider a CRAC with 3 curative instants and the following usage limits:
 
 ```json
-"ra-usage-limits-per-instant" : [ {
-  "instant": "curative 1",
-  "max-ra" : 1,
-}, {
+"ra-usage-limits-per-instant" : [
+{
   "instant": "curative 2",
   "max-ra" : 3,
 }, {
@@ -1506,8 +1507,10 @@ For instance, let us consider a CRAC with 3 curative instants and the following 
   "max-ra" : 7,
 } ]
 ```
+⚠️ No limit is defined in curative 1, the RAO can apply as many remedial actions as needed, it won't impact the limit in curative 2 and curative 3. 
 
-The maximum number of applicable remedial actions defined for the second curative instant (3) is a cumulated value that includes the maximum number of applicable remedial actions during the first curative instant (1). Thus, if 1 remedial action was applied during the first curative instant, only 2 remedial actions can actually be applied during the second curative instant. Likewise, the maximum number of remedial actions for the third curative instant includes the remedial actions applied at curative 1 and 2 instants. Depending on the number of previously applied remedial actions, the number of actually applicable remedial actions during the third curative instant can vary between 4 and 7.
+The maximum number of applicable remedial actions defined for the third curative instant (7) is a cumulated value that includes the maximum number of applicable remedial actions during the second curative instant (3). 
+Thus, if 1 remedial action was applied during the second curative instant, only 6 remedial actions can actually be applied during the second curative instant. 
 
 ## Changelog
 
