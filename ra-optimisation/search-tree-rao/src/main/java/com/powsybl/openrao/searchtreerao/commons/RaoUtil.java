@@ -15,9 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -37,10 +35,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -64,6 +59,98 @@ public final class RaoUtil {
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
+        checkCurativeRaUsageLimit(raoInput.getCrac());
+    }
+
+    /**
+     * Generates a mapping of TSOs to their respective limit values for a given limit type, with values organized chronologically by instants.
+     * ex. {"BE": [1, 2, 3], "FR": [2, null, 3]}
+     */
+    public static Map<String, List<Integer>> dataPerTsoForLimit(Crac crac, String limitType, List<Instant> sortedCurativeInstants) {
+
+        // Collect for each TSO a list of limit values sorted by instant
+        Map<String, List<Integer>> dataPerTso = new HashMap<>();
+        for (Instant instant : sortedCurativeInstants) {
+            RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
+            if (raUsageLimits != null) {
+                getLimitBytLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                );
+            }
+
+            for (Map.Entry<String, List<Integer>> entry : dataPerTso.entrySet()) {
+                if (raUsageLimits == null || !getLimitBytLimitName(limitType, raUsageLimits).containsKey(entry.getKey())) {
+                    entry.getValue().add(null);
+                }
+            }
+        }
+
+        return dataPerTso;
+    }
+
+    private static Map<String, Integer> getLimitBytLimitName(String limitType, RaUsageLimits raUsageLimits) {
+        switch (limitType) {
+            case "maxRaPerTso":
+                return raUsageLimits.getMaxRaPerTso();
+            case "maxPstPerTso":
+                return raUsageLimits.getMaxPstPerTso();
+            case "maxTopoPerTso":
+                return raUsageLimits.getMaxTopoPerTso();
+            case "maxElementaryActionsPerTso":
+                return raUsageLimits.getMaxElementaryActionsPerTso();
+            case "maxRa":
+                return Collections.singletonMap(null, raUsageLimits.getMaxRa());
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * Check that remedial action usage limits are coherent.
+     * We do not allow null values for an instant if a limit was defined for a previous and following instant
+     * ex. if curative2 has no max-ra limit for TSO "FR" but curative1 and curative3 have a limit -> throw an error
+     */
+    public static void checkCurativeRaUsageLimit(Crac crac) {
+        List<String> raUsageLimitToCheck = List.of("maxRaPerTso", "maxTopoPerTso", "maxPstPerTso", "maxElementaryActionsPerTso", "maxRa");
+        List<Instant> sortedCurativeInstants = crac.getSortedInstants().stream()
+            .filter(Instant::isCurative)
+            .collect(Collectors.toList());
+
+        for (String limitType : raUsageLimitToCheck) {
+            Map<String, List<Integer>> dataPerTso = dataPerTsoForLimit(crac, limitType, sortedCurativeInstants);
+
+            for (String tso : dataPerTso.keySet()) {
+                List<Integer> values = dataPerTso.get(tso);
+
+                boolean foundNonNull = false; // Tracks if at least one non-null has been seen in the current sequence
+
+                for (int i = 0; i < values.size(); i++) {
+                    Integer value = values.get(i);
+
+                    if (value == null) {
+                        if (foundNonNull) {
+                            // Check if the sequence has begun and a null violates the rule
+                            for (int j = i + 1; j < values.size(); j++) {
+                                if (values.get(j) != null) {
+                                    if (tso == null) {
+                                        throw new OpenRaoException(String.format(
+                                            "Incoherence found for limit '%s' null value found between non-null values at instant %s.", limitType, sortedCurativeInstants.get(i).getId()
+                                        ));
+                                    }
+                                    throw new OpenRaoException(String.format(
+                                        "Incoherence found for limit '%s' null value found between non-null values for TSO '%s' at instant %s.", limitType, tso, sortedCurativeInstants.get(i).getId()
+                                    ));
+                                }
+                            }
+                        }
+                        break;
+                    } else {
+                        foundNonNull = true;
+                    }
+                }
+            }
+        }
+
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
