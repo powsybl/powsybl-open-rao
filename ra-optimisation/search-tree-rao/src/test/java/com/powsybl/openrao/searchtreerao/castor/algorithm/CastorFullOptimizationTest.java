@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -86,9 +87,14 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(493.56, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
-        assertEquals(256.78, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(371.88, castorCostResult.getFunctionalCost(null), 1.);
+        assertEquals(493.56, castorCostResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+        assertEquals(256.78, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
@@ -106,9 +112,13 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(694.30, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
-        assertEquals(-555.91, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+        assertEquals(371.88, castorCostResult.getFunctionalCost(null), 1.);
+        assertEquals(694.30, castorCostResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+        assertEquals(-555.91, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
@@ -127,9 +137,14 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(694.30, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
-        assertEquals(-555.91, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(371.88, castorCostResult.getFunctionalCost(null), 1.);
+        assertEquals(694.30, castorCostResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+        assertEquals(-555.91, castorCostResult.getFunctionalCost(crac.getLastInstant()), 1.);
+
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
@@ -238,10 +253,13 @@ class CastorFullOptimizationTest {
         assertEquals(150.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
         assertEquals(1267.27, raoResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
 
-        assertEquals(671.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(429.22, raoResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(671.88, castorCostResult.getFunctionalCost(null), 1.);
+        assertEquals(429.22, castorCostResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
+        assertEquals(-20.30, castorCostResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
+        assertEquals(-20.30, castorCostResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
     }
 
     @Test
@@ -345,11 +363,14 @@ class CastorFullOptimizationTest {
         assertEquals(709.68, raoResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
         assertEquals(1267.27, raoResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
 
-        assertEquals(671.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(429.22, raoResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative2")), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(671.88, castorCostResult.getFunctionalCost(null), 1.);
+        assertEquals(429.22, castorCostResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
+        assertEquals(-20.30, castorCostResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
+        assertEquals(-20.30, castorCostResult.getFunctionalCost(crac.getInstant("curative2")), 1.);
+        assertEquals(-20.30, castorCostResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
     }
 
     @Test
@@ -547,13 +568,17 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
 
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr4")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
-        assertEquals(10.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(10.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(0.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"), castorCostResult.getVirtualCostNames());
+
+        assertEquals(10.0, castorCostResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(10.0, castorCostResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(0.0, castorCostResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -564,8 +589,12 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertNotNull(raoResult);
+
         // When no cnec is present, a default value of -1e9 is returned
-        assertEquals(-1e9, raoResult.getCost(null));
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(-1e9, castorCostResult.getCost(null));
     }
 
     @Test
@@ -574,7 +603,12 @@ class CastorFullOptimizationTest {
         setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_AC.json"), ReportNode.NO_OP);
         RaoResult raoResult = new Castor().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
-        assertEquals(-432.82, raoResult.getCost(crac.getInstant("curative")), 1e-2);
+
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
+
+        assertEquals(-432.82, castorCostResult.getCost(crac.getInstant("curative")), 1e-2);
+
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
         assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
     }

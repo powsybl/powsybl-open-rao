@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -17,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CastorCostResult;
 import com.powsybl.openrao.searchtreerao.marmot.TestsUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -128,9 +127,6 @@ class TimeCoupledRaoResultImplTest {
                                     boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
-        Mockito.when(raoResult.getFunctionalCost(instant)).thenReturn(functionalCost);
-        Mockito.when(raoResult.getVirtualCost(instant)).thenReturn(virtualCost);
-        Mockito.when(raoResult.getVirtualCost(instant, "virtual")).thenReturn(virtualCost);
         Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(flow);
         Mockito.when(raoResult.getMargin(instant, flowCnec, Unit.MEGAWATT)).thenReturn(margin);
         Mockito.when(raoResult.getPreOptimizationTapOnState(state, pstRangeAction)).thenReturn(initialTap);
@@ -142,6 +138,13 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(raoResult.getOptimizedSetPointsOnState(state)).thenReturn(Map.of(pstRangeAction, optimizedSetPoint));
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(state)).thenReturn(isNetworkActionActivated ? Set.of(networkAction) : Set.of());
         Mockito.when(raoResult.isActivatedDuringState(state, networkAction)).thenReturn(isNetworkActionActivated);
+
+        // mock cost extension
+        CastorCostResult castorCostResult = new CastorCostResult();
+        castorCostResult.addFunctionalCostResult(instant, functionalCost);
+        castorCostResult.addVirtualCostResult(instant, "virtual", virtualCost);
+        Mockito.when(raoResult.getExtension(CastorCostResult.class)).thenReturn(castorCostResult);
+
         return raoResult;
     }
 

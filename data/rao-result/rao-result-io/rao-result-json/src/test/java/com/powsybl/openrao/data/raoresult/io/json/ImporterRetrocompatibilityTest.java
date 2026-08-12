@@ -256,31 +256,35 @@ class ImporterRetrocompatibilityTest {
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), importedRaoResult.getVirtualCostNames());
 
-        assertEquals(100., importedRaoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., importedRaoResult.getCost(null), DOUBLE_TOLERANCE);
+        CastorCostResult castorCostResult = importedRaoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
 
-        assertEquals(80., importedRaoResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(80., importedRaoResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), castorCostResult.getVirtualCostNames());
 
-        assertEquals(-20., importedRaoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., importedRaoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., importedRaoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., castorCostResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., castorCostResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., importedRaoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., importedRaoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., importedRaoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., importedRaoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, importedRaoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., castorCostResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., castorCostResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., castorCostResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., castorCostResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., castorCostResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., castorCostResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., castorCostResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., castorCostResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., castorCostResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., castorCostResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., castorCostResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, castorCostResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // -----------------------------
         // --- test FlowCnec results ---

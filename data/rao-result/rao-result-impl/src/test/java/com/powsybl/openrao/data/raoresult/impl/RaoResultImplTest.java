@@ -32,6 +32,7 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -221,19 +222,22 @@ class RaoResultImplTest {
     void testCostResults() {
         setUp();
 
-        assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
+        CastorCostResult castorCostResult = raoResult.getExtension(CastorCostResult.class);
+        assertNotNull(castorCostResult);
 
-        assertEquals(100., raoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), castorCostResult.getVirtualCostNames());
 
-        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., castorCostResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., castorCostResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., castorCostResult.getCost(null), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., castorCostResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., castorCostResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., castorCostResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., castorCostResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, castorCostResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
