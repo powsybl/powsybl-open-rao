@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
@@ -77,50 +76,4 @@ class RaoResultSerializerTest {
 
         assertEquals(inputString, outputString);
     }
-
-    @Test
-    void testSerializeWithMissingResultMonitoring() throws IOException {
-        // Add a voltage and angle cnec defined on curative instant but no results were associated in the raoResult
-        // => CNECs should not be serialized
-
-        Crac crac = ExhaustiveCracCreation.create();
-        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
-
-        crac.newVoltageCnec().withId("voltageCnecId2")
-            .withName("voltageCnecName2")
-            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
-            .withInstant("curative")
-            .withContingency("contingency1Id")
-            .withOperator("operator1")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
-            .withReliabilityMargin(1.)
-            .withMonitored()
-            .add();
-        crac.newAngleCnec().withId("angleCnecId2")
-            .withName("angleCnecName2")
-            .withExportingNetworkElement("eneId", "eneName")
-            .withImportingNetworkElement("ineId", "ineName")
-            .withInstant("curative")
-            .withContingency("contingency1Id")
-            .withOperator("operator1")
-            .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
-            .withReliabilityMargin(10.)
-            .withMonitored()
-            .add();
-
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
-        String outputString = outputStream.toString();
-
-        // import expected json to compare
-        InputStream inputStream = getClass().getResourceAsStream("/rao-result.json");
-        String inputString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-        assertEquals(inputString, outputString);
-    }
-
 }

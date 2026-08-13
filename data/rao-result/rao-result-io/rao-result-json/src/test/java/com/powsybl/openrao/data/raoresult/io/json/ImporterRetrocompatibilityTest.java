@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -521,22 +522,26 @@ class ImporterRetrocompatibilityTest {
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
-        VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        if (primaryVersionNumber >= 1 && subVersionNumber >= 6) {
-            assertEquals(4156., importedRaoResult.getMaxVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4256., importedRaoResult.getMaxVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4356., importedRaoResult.getMaxVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4456., importedRaoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        }
-        assertEquals(4146., importedRaoResult.getMinVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., importedRaoResult.getMinVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., importedRaoResult.getMinVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., importedRaoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        VoltageResult voltageResult = importedRaoResult.getExtension(VoltageResult.class);
+        assertNotNull(voltageResult);
 
-        assertEquals(4141., importedRaoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4241., importedRaoResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4341., importedRaoResult.getMargin(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., importedRaoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
+
+        if (primaryVersionNumber >= 1 && subVersionNumber >= 6) {
+            assertEquals(4156., voltageResult.getMaxVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4256., voltageResult.getMaxVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4356., voltageResult.getMaxVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4456., voltageResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        }
+        assertEquals(4146., voltageResult.getMinVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., voltageResult.getMinVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., voltageResult.getMinVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., voltageResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+
+        assertEquals(3765., voltageResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(3865., voltageResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(3965., voltageResult.getMargin(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4065., voltageResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private void testBaseContentOfV1Point2RaoResult(RaoResult importedRaoResult, Crac crac) {
