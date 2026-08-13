@@ -132,7 +132,7 @@ public final class CommonTestData {
     public static void setVoltageMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
+            // update RAO result with voltage values
             CommonTestData.raoResult.addExtension(VoltageResult.class, VoltageMonitoringResultAdapter.convertToVoltageExtension(CommonTestData.monitoringResult));
             CommonTestData.raoResult.setExecutionDetails(CommonTestData.raoResult.getExecutionDetails() + " and went through voltage monitoring");
         }
