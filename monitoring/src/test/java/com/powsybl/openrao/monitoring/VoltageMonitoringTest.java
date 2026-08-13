@@ -36,7 +36,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,13 +45,21 @@ import org.mockito.Mockito;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -68,6 +76,7 @@ class VoltageMonitoringTest {
     private Network network;
     private Crac crac;
     private RaoResult raoResult;
+    private RaoParameters raoParameters;
     private LoadFlowParameters loadFlowParameters;
     private MonitoringResult voltageMonitoringResult;
     private NetworkAction naOpenL1;
@@ -120,8 +129,14 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.LINE).add();
         crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
 
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters()
+            .getSensitivityWithLoadFlowParameters()
+            .setLoadFlowParameters(loadFlowParameters);
 
         raoResult = Mockito.mock(RaoResult.class);
         when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
@@ -599,7 +614,7 @@ class VoltageMonitoringTest {
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
+        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters, 1, monitoringInput);
 
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
@@ -641,7 +656,7 @@ class VoltageMonitoringTest {
         final CountDownLatch latch = new CountDownLatch(3);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
-        final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
+        final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 1, monitoringInput);
 
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
@@ -664,7 +679,7 @@ class VoltageMonitoringTest {
         MonitoringInput monitoringInput = MonitoringInput.buildWithVoltage(network, crac, raoResult).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult(
             "OpenLoadFlow",
-            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
+            raoParameters,
             1,
             monitoringInput
         );

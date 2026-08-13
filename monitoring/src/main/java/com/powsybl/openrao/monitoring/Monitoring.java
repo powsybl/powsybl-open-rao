@@ -12,6 +12,7 @@ import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
@@ -43,12 +44,18 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
+import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
-import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
+import com.powsybl.openrao.monitoring.results.VoltageMonitoringResultAdapter;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.util.RaoResultHelper;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -104,11 +111,14 @@ public class Monitoring {
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
     public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
-                                                       LoadFlowParameters loadFlowParameters,
+                                                       RaoParameters raoParameters,
                                                        int numberOfLoadFlowsInParallel,
                                                        MonitoringInput monitoringInput) throws OpenRaoException {
-        final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
+        final MonitoringResult angleMonitoringResult = new Monitoring(
+            loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
     }
 
     /**
@@ -116,12 +126,44 @@ public class Monitoring {
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
     public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
-                                                       LoadFlowParameters loadFlowParameters,
+                                                       RaoParameters raoParameters,
                                                        ComputationManager computationManager,
                                                        int numberOfLoadFlowsInParallel,
                                                        MonitoringInput monitoringInput) throws OpenRaoException {
-        final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
+        final MonitoringResult angleMonitoringResult = new Monitoring(
+            loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
+            computationManager
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
+    }
+
+    private static RaoResult postProcessAngleMonitoringResult(MonitoringResult angleMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+        monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        angleMonitoringResult.getAppliedRas().forEach(
+            (state, remedialActions) -> remedialActions.stream()
+                .filter(NetworkAction.class::isInstance)
+                .map(NetworkAction.class::cast)
+                .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
+        );
+        RaoResult raoResultWithAngleMonitoring = RaoResultHelper.addAppliedRemedialActions(
+            monitoringInput.getRaoResult(),
+            monitoringInput.getCrac(),
+            monitoringInput.getNetwork(),
+            appliedRemedialActions,
+            raoParameters,
+            ReportNode.NO_OP
+        );
+        raoResultWithAngleMonitoring.setExecutionDetails(
+            raoResultWithAngleMonitoring.getExecutionDetails()
+                + " and went through angle monitoring"
+        );
+        raoResultWithAngleMonitoring.addExtension(
+            AngleResult.class,
+            AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult)
+        );
+        return raoResultWithAngleMonitoring;
     }
 
     /**
@@ -129,11 +171,13 @@ public class Monitoring {
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
     public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
-                                                         LoadFlowParameters loadFlowParameters,
+                                                         RaoParameters raoParameters,
                                                          int numberOfLoadFlowsInParallel,
                                                          MonitoringInput monitoringInput) {
-        final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
+        final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
     }
 
     /**
@@ -141,16 +185,44 @@ public class Monitoring {
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
     public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
-                                                         LoadFlowParameters loadFlowParameters,
+                                                         RaoParameters raoParameters,
                                                          ComputationManager computationManager,
                                                          int numberOfLoadFlowsInParallel,
                                                          MonitoringInput monitoringInput) {
         final MonitoringResult voltageMonitoringResult = new Monitoring(
             loadFlowProvider,
-            loadFlowParameters,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
             computationManager
         ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
+        return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
+    }
+
+    private static RaoResult postProcessVoltageMonitoringResult(MonitoringResult voltageMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+        monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        voltageMonitoringResult.getAppliedRas().forEach(
+            (state, remedialActions) -> remedialActions.stream()
+                .filter(NetworkAction.class::isInstance)
+                .map(NetworkAction.class::cast)
+                .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
+        );
+        RaoResult raoResultWithVoltageMonitoring = RaoResultHelper.addAppliedRemedialActions(
+            monitoringInput.getRaoResult(),
+            monitoringInput.getCrac(),
+            monitoringInput.getNetwork(),
+            appliedRemedialActions,
+            raoParameters,
+            ReportNode.NO_OP
+        );
+        raoResultWithVoltageMonitoring.setExecutionDetails(
+            raoResultWithVoltageMonitoring.getExecutionDetails()
+                + " and went through voltage monitoring"
+        );
+        raoResultWithVoltageMonitoring.addExtension(
+            VoltageResult.class,
+            VoltageMonitoringResultAdapter.convertToVoltageExtension(voltageMonitoringResult)
+        );
+        return raoResultWithVoltageMonitoring;
     }
 
     public MonitoringResult runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
