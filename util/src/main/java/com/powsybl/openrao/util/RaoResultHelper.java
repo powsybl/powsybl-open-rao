@@ -185,7 +185,7 @@ public final class RaoResultHelper {
         final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
 
         // create a new network variant from initial variant for performing the results merging
-        final String variantName = "PSTRegulationResultsMerging";
+        final String variantName = "RaoResultMerging";
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), variantName);
         network.getVariantManager().setWorkingVariant(variantName);
 
@@ -220,7 +220,7 @@ public final class RaoResultHelper {
             new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
                 .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(), preventiveResult, new AppliedRemedialActions(), reportNode);
 
-        final Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>();
+        final Map<State, PostPerimeterResult> postMergingContingencyResults = new HashMap<>();
 
         final List<Instant> postOutageInstants = crac.getSortedInstants().stream()
             .filter(instant -> instant.isAuto() || instant.isCurative())
@@ -284,7 +284,7 @@ public final class RaoResultHelper {
                                 allAppliedRemedialActions,
                                 reportNode
                             );
-                    postRegulationPostContingencyResults.put(state, statePostPerimeterResult);
+                    postMergingContingencyResults.put(state, statePostPerimeterResult);
 
                     contingencyPrePerimeterResult = statePrePerimeterResult;
                 }
@@ -296,7 +296,7 @@ public final class RaoResultHelper {
             stateTree,
             initialFlowResult,
             preventivePostPerimeterResult,
-            postRegulationPostContingencyResults,
+            postMergingContingencyResults,
             crac,
             raoParameters,
             reportNode
