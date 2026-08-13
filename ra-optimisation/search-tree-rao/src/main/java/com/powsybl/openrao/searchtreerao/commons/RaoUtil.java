@@ -108,6 +108,7 @@ public final class RaoUtil {
     /**
      * Check that remedial action usage limits are coherent.
      * We do not allow null values for an instant if a limit was defined for a previous and following instant
+     * We do not allow a decrease in the limit value between two instants
      * ex. if curative2 has no max-ra limit for TSO "FR" but curative1 and curative3 have a limit -> throw an error
      */
     public static void checkCurativeRaUsageLimit(Crac crac) {
