@@ -22,9 +22,6 @@
   }],
   "ra-usage-limits-per-instant" : [
     {
-      "instant": "curative1"
-    },
-    {
     "instant" : "curative3",
     "max-ra" : 8,
     "max-tso" : 3,
@@ -64,7 +61,11 @@
       "FR" : 3,
       "BE" : 10
     }
-  } ],
+  }, {
+      "instant" : "curative1",
+      "max-ra" : 3
+    }
+  ],
   "networkElementsNamePerId" : { },
   "contingencies" : [ {
     "id" : "contingency",

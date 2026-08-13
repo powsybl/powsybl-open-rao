@@ -344,8 +344,9 @@ public class Leaf implements OptimizationResult {
                         .sum();
                     entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
                 });
-
-                limitationParameters.setMaxRangeAction(state, maxRa);
+                if (maxRa != null) {
+                    limitationParameters.setMaxRangeAction(state, maxRa);
+                }
                 limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
                 limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
                 limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
