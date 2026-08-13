@@ -112,41 +112,52 @@ public final class RaoUtil {
      */
     public static void checkCurativeRaUsageLimit(Crac crac) {
         List<String> raUsageLimitToCheck = List.of("maxRaPerTso", "maxTopoPerTso", "maxPstPerTso", "maxElementaryActionsPerTso", "maxRa");
-        List<Instant> sortedCurativeInstants = crac.getSortedInstants().stream()
-            .filter(Instant::isCurative)
-            .collect(Collectors.toList());
+        List<Instant> sortedCurativeInstants = crac.getInstants(InstantKind.CURATIVE).stream().toList();
 
         for (String limitType : raUsageLimitToCheck) {
             Map<String, List<Integer>> dataPerTso = dataPerTsoForLimit(crac, limitType, sortedCurativeInstants);
 
             for (String tso : dataPerTso.keySet()) {
                 List<Integer> values = dataPerTso.get(tso);
+                String tsoMessage = tso == null ? "" : String.format(" and TSO %s", tso);
 
-                boolean foundNonNull = false; // Tracks if at least one non-null has been seen in the current sequence
+                Integer previousValue = null;
+                int previousIndex = -1;
 
                 for (int i = 0; i < values.size(); i++) {
                     Integer value = values.get(i);
 
                     if (value == null) {
-                        if (foundNonNull) {
-                            // Check if the sequence has begun and a null violates the rule
+                        // A null after a non-null value is only invalid if another non-null follows it.
+                        if (previousValue != null) {
                             for (int j = i + 1; j < values.size(); j++) {
                                 if (values.get(j) != null) {
-                                    if (tso == null) {
-                                        throw new OpenRaoException(String.format(
-                                            "Incoherence found for limit '%s' null value found between non-null values at instant %s.", limitType, sortedCurativeInstants.get(i).getId()
-                                        ));
-                                    }
                                     throw new OpenRaoException(String.format(
-                                        "Incoherence found for limit '%s' null value found between non-null values for TSO '%s' at instant %s.", limitType, tso, sortedCurativeInstants.get(i).getId()
+                                        "Incoherence found for limit '%s'%s: null value found between non-null values for instant %s.",
+                                        limitType,
+                                        tsoMessage,
+                                        sortedCurativeInstants.get(i).getId()
                                     ));
                                 }
                             }
                         }
-                        break;
-                    } else {
-                        foundNonNull = true;
+                        continue;
                     }
+
+                    if (previousValue != null && value < previousValue) {
+                        throw new OpenRaoException(String.format(
+                            "Incoherence found for limit '%s'%s: the value decreased between instant %s (limit=%d) and instant %s (limit=%d).",
+                            limitType,
+                            tsoMessage,
+                            sortedCurativeInstants.get(previousIndex).getId(),
+                            previousValue,
+                            sortedCurativeInstants.get(i).getId(),
+                            value
+                        ));
+                    }
+
+                    previousValue = value;
+                    previousIndex = i;
                 }
             }
         }

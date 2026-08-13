@@ -24,10 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -38,7 +35,7 @@ class RaUsageLimitsTest {
     @Test
     void testNominalBehavior() {
         // check default values
-        assertEquals(null, raUsageLimits.getMaxRa());
+        assertNull(raUsageLimits.getMaxRa());
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());

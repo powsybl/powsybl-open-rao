@@ -553,8 +553,10 @@ class RaoUtilTest {
         Instant instant1 = mock(Instant.class);
         Instant instant2 = mock(Instant.class);
         Instant instant3 = mock(Instant.class);
-        List<Instant> instants = List.of(instant1, instant2, instant3);
-
+        SortedSet<Instant> instants = new TreeSet<>();
+        instants.add(instant1);
+        instants.add(instant2);
+        instants.add(instant3);
         RaUsageLimits usageLimits1 = new RaUsageLimits();
         RaUsageLimits usageLimits2 = new RaUsageLimits();
         RaUsageLimits usageLimits3 = new RaUsageLimits();
@@ -564,14 +566,11 @@ class RaoUtilTest {
         setUsageLimitsData(usageLimits2, usageLimitsByInstant.get("instant2"), limitType);
         setUsageLimitsData(usageLimits3, usageLimitsByInstant.get("instant3"), limitType);
 
-        when(instant1.isCurative()).thenReturn(true);
-        when(instant2.isCurative()).thenReturn(true);
-        when(instant3.isCurative()).thenReturn(true);
         when(instant1.getId()).thenReturn("instant1");
         when(instant2.getId()).thenReturn("instant2");
         when(instant3.getId()).thenReturn("instant3");
 
-        when(crac.getSortedInstants()).thenReturn(instants);
+        when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(instants);
         when(crac.getRaUsageLimits(instant1)).thenReturn(usageLimits1);
         when(crac.getRaUsageLimits(instant2)).thenReturn(usageLimits2);
         when(crac.getRaUsageLimits(instant3)).thenReturn(usageLimits3);
@@ -641,31 +640,37 @@ class RaoUtilTest {
             Arguments.of(
                 "maxRaPerTso",
                 incorrectData,
-                "Incoherence found for limit 'maxRaPerTso' null value found between non-null values for TSO 'TSO1' at instant instant2."
+                "Incoherence found for limit 'maxRaPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
             ),
 
             Arguments.of(
                 "maxPstPerTso",
                 incorrectData,
-                "Incoherence found for limit 'maxPstPerTso' null value found between non-null values for TSO 'TSO1' at instant instant2."
+                "Incoherence found for limit 'maxPstPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
             ),
 
             Arguments.of(
                 "maxTopoPerTso",
                 incorrectData,
-                "Incoherence found for limit 'maxTopoPerTso' null value found between non-null values for TSO 'TSO1' at instant instant2."
+                "Incoherence found for limit 'maxTopoPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
             ),
 
             Arguments.of(
                 "maxElementaryActionsPerTso",
                 incorrectData,
-                "Incoherence found for limit 'maxElementaryActionsPerTso' null value found between non-null values for TSO 'TSO1' at instant instant2."
+                "Incoherence found for limit 'maxElementaryActionsPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
             ),
 
             Arguments.of(
                 "maxRa",
                 Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, null), "instant3", Collections.singletonMap(null, 3)),
-                "Incoherence found for limit 'maxRa' null value found between non-null values at instant instant2."
+                "Incoherence found for limit 'maxRa': null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxRa",
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, 45), "instant3", Collections.singletonMap(null, 3)),
+                "Incoherence found for limit 'maxRa': the value decreased between instant instant2 (limit=45) and instant instant3 (limit=3)."
             )
         );
     }
