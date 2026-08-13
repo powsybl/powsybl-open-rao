@@ -78,9 +78,10 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
   - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
   - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
-  Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
+  Now we add the limit for BE: 0 in curative1 and 1 in curative2 => means that we cannot use any RA in curative1
   and for FR: 1 in curative1 and 1 curative2
   => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
+  and activating remedial actions in curative 2 won't improve the situation.
   Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_15_2_4_max_ra_per_tso.json"
   Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"

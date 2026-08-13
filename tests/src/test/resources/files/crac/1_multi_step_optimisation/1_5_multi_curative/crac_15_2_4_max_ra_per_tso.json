@@ -25,10 +25,10 @@
   "ra-usage-limits-per-instant" :  [
     {
       "instant": "curative1",
-      "max-ra-per-tso" : {"BE" : 1, "FR" : 1}
+      "max-ra-per-tso" : {"BE" : 0, "FR" : 1}
     }, {
       "instant": "curative2",
-      "max-ra-per-tso" : {"BE" : 0, "FR" : 1}
+      "max-ra-per-tso" : {"BE" : 1, "FR" : 1}
     }
   ],
   "networkElementsNamePerId": {},
