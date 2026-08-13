@@ -159,7 +159,7 @@ public final class SearchTreeInput {
         private TemporalData<Instant> outageInstants;
 
         public SearchTreeInputBuilder withNetwork(Network network) {
-            this.networks = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, network));
+            this.networks = singleTimestampData(network);
             return this;
         }
 
@@ -169,7 +169,7 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
-            this.optimizationPerimeters = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, optimizationPerimeter));
+            this.optimizationPerimeters = singleTimestampData(optimizationPerimeter);
             return this;
         }
 
@@ -179,7 +179,7 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
-            this.initialFlowResults = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, initialFlowResult));
+            this.initialFlowResults = singleTimestampData(initialFlowResult);
             return this;
         }
 
@@ -189,7 +189,7 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
-            this.prePerimeterResults = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, prePerimeterResult));
+            this.prePerimeterResults = singleTimestampData(prePerimeterResult);
             return this;
         }
 
@@ -199,7 +199,7 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withPreOptimizationAppliedNetworkActions(AppliedRemedialActions preOptimizationAppliedNetworkActions) {
-            this.preOptimizationAppliedNetworkActions = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, preOptimizationAppliedNetworkActions));
+            this.preOptimizationAppliedNetworkActions = singleTimestampData(preOptimizationAppliedNetworkActions);
             return this;
         }
 
@@ -214,7 +214,7 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withToolProvider(ToolProvider toolProvider) {
-            this.toolProviders = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, toolProvider));
+            this.toolProviders = singleTimestampData(toolProvider);
             return this;
         }
 
@@ -224,13 +224,17 @@ public final class SearchTreeInput {
         }
 
         public SearchTreeInputBuilder withOutageInstant(Instant outageInstant) {
-            this.outageInstants = new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, outageInstant));
+            this.outageInstants = singleTimestampData(outageInstant);
             return this;
         }
 
         public SearchTreeInputBuilder withAllOutageInstants(TemporalData<Instant> outageInstants) {
             this.outageInstants = outageInstants;
             return this;
+        }
+
+        private static <T> TemporalData<T> singleTimestampData(T value) {
+            return value == null ? new TemporalDataImpl<>() : new TemporalDataImpl<>(Map.of(OffsetDateTime.MIN, value));
         }
 
         public SearchTreeInput build() {
