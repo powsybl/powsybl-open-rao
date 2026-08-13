@@ -70,7 +70,7 @@ public class RangeActionLimitationParameters {
         }
     }
 
-    public void setMaxRangeAction(State state, Integer maxRangeActions) {
+    public void setMaxRangeAction(State state, int maxRangeActions) {
         createIfAbsent(state);
         rangeActionLimitationPerState.get(state).maxRangeActions = maxRangeActions;
     }

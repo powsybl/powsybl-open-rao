@@ -599,7 +599,9 @@ class RaoUtilTest {
                 usageLimits.setMaxElementaryActionsPerTso(data);
                 break;
             case "maxRa":
-                usageLimits.setMaxRa(data.get(null));
+                if (data != null) {
+                    usageLimits.setMaxRa(data.get(null));
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Invalid limit type: " + limitType);
@@ -663,7 +665,7 @@ class RaoUtilTest {
 
             Arguments.of(
                 "maxRa",
-                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, null), "instant3", Collections.singletonMap(null, 3)),
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant3", Collections.singletonMap(null, 3)),
                 "Incoherence found for limit 'maxRa': null value found between non-null values for instant instant2."
             ),
 

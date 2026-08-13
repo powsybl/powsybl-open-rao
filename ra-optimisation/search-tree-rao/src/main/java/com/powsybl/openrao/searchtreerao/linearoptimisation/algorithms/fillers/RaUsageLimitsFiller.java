@@ -99,7 +99,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         if (state.getInstant().isCurative()) {
             return rangeActions.entrySet().stream()
                 .filter(entry -> entry.getKey().getInstant().isCurative())
-                .filter(entry -> !entry.getKey().getInstant().comesAfter(state.getInstant())) // come before or same instant
+                .filter(entry -> !entry.getKey().getInstant().comesAfter(state.getInstant())) // comes before or same instant
                 .filter(entry -> entry.getKey().getContingency().equals(state.getContingency()))
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,
@@ -288,7 +288,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                     pstSet.forEach(pstRangeAction -> {
                         // The total variation of a PST at a previous instant is considered if:
                         // - the previous instant was under a max-elementary-action-constraint
-                        // - the said PST is considered during the studied instant
+                        // - said PST is considered during the studied instant
                         // (we need the total variation at all previous instants of the same kind to properly define the max elementary action constraint)
                         if (stateAndRangeActionsToConsider.get(state).contains(pstRangeAction) || rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state1).containsKey(tso)) {
                             OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(
