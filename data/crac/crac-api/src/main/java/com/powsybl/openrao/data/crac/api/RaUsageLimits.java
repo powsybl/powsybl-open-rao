@@ -33,8 +33,8 @@ public class RaUsageLimits {
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
     private Map<String, Integer> maxElementaryActionsPerTso = DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO;
 
-    public void setMaxRa(int maxRa) {
-        if (maxRa < 0) {
+    public void setMaxRa(Integer maxRa) {
+        if (maxRa != null && maxRa < 0) {
             BUSINESS_WARNS.warn("The value {} provided for max number of RAs is smaller than 0. It will be set to 0 instead.", maxRa);
             this.maxRa = 0;
         } else {
