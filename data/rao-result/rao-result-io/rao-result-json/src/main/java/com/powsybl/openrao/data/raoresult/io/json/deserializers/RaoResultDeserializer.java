@@ -129,7 +129,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                         VoltageCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                         break;
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, AngleCNEC results are no longer in the RAO Result but in the 'angle-results' extension");
+                        throw new OpenRaoException("From version 2.0 onward, VoltageCNEC results are no longer in the RAO Result but in the 'voltage-results' extension");
                     }
 
                 case NETWORKACTION_RESULTS:

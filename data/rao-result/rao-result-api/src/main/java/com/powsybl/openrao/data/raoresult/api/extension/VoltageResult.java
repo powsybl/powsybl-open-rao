@@ -44,9 +44,9 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
      * given {@link Unit}.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec      The voltage cnec to be studied.
-     * @param unit             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
-     * @return The minimum voltage on the cnec at the optimization state in the given unit.
+     * @param voltageCnec      The VoltageCNEC to be studied.
+     * @param unit             The unit in which the voltage is queried. The only accepted value for now is KILOVOLT.
+     * @return The minimum voltage on the CNEC at the optimization state in the given unit.
      */
     public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         checkUnit(unit);
@@ -54,13 +54,13 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
     }
 
     /**
-     * It gives the minimum voltage on an {@link VoltageCnec} at a given {@link Instant} and in a
+     * It gives the maximum voltage on an {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec      The voltage cnec to be studied.
-     * @param unit             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
-     * @return The maximum voltage on the cnec at the optimization state in the given unit.
+     * @param voltageCnec      The VoltageCNEC to be studied.
+     * @param unit             The unit in which the voltage is queried. The only accepted value for now is KILOVOLT.
+     * @return The maximum voltage on the CNEC at the optimization state in the given unit.
      */
     public double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         checkUnit(unit);
@@ -70,12 +70,12 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
     /**
      * It gives the margin on an {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
-     * angle direction of the given branch. If it is negative the cnec is under constraint.
+     * voltage direction of the given branch. If it is negative, the cnec is under constraint.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec      The voltage cnec to be studied.
-     * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
-     * @return The margin on the voltage cnec at the optimization state in the given unit.
+     * @param voltageCnec      The VoltageCNEC to be studied.
+     * @param unit             The unit in which the margin is queried. The only accepted value for now is KILOVOLT.
+     * @return The margin on the VoltageCNEC at the optimization state in the given unit.
      */
     public double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         checkUnit(unit);
