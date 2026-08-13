@@ -125,6 +125,7 @@ public final class CommonTestData {
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
             CommonTestData.raoResult.addExtension(AngleResult.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
+            CommonTestData.raoResult.setExecutionDetails(CommonTestData.raoResult.getExecutionDetails() + " and went through angle monitoring");
         }
     }
 
@@ -133,6 +134,7 @@ public final class CommonTestData {
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
             CommonTestData.raoResult.addExtension(VoltageResult.class, VoltageMonitoringResultAdapter.convertToVoltageExtension(CommonTestData.monitoringResult));
+            CommonTestData.raoResult.setExecutionDetails(CommonTestData.raoResult.getExecutionDetails() + " and went through voltage monitoring");
         }
     }
 
