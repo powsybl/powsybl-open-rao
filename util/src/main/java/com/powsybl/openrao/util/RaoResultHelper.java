@@ -7,20 +7,38 @@ package com.powsybl.openrao.util;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -150,5 +168,141 @@ public final class RaoResultHelper {
 
     private static Optional<Double> safeGetDouble(double value) {
         return Double.isNaN(value) ? Optional.empty() : Optional.of(value);
+    }
+
+    public static RaoResult addAppliedRemedialActions(RaoResult raoResult,
+                                                      Crac crac,
+                                                      Network network,
+                                                      AppliedRemedialActions appliedRemedialAction,
+                                                      RaoParameters raoParameters,
+                                                      ReportNode reportNode) {
+        final ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(
+            RaoInput.build(network, crac).build(), raoParameters
+        );
+        final PrePerimeterSensitivityAnalysis initialPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true
+        );
+        final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
+
+        // create a new network variant from initial variant for performing the results merging
+        final String variantName = "PSTRegulationResultsMerging";
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), variantName);
+        network.getVariantManager().setWorkingVariant(variantName);
+
+        // apply PRAs
+        final State preventiveState = crac.getPreventiveState();
+        raoResult.getActivatedNetworkActionsDuringState(preventiveState).forEach(
+            networkAction -> networkAction.apply(network)
+        );
+        raoResult.getOptimizedSetPointsOnState(preventiveState).forEach(
+            (rangeAction, setPoint) -> rangeAction.apply(network, setPoint)
+        );
+
+        // this result is only used as a data holder for flows: it does not contain the proper objective function value in costly
+        final PrePerimeterResult preventivePrePerimeterResult = initialPrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+            network, initialFlowResult, Set.of(), new AppliedRemedialActions(), reportNode
+        );
+
+        RangeActionActivationResultImpl preventiveRangeActionActivationResult = new RangeActionActivationResultImpl(initialFlowResult);
+        raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction ->
+            preventiveRangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction))
+        );
+
+        final OptimizationResult preventiveResult = new OptimizationResultImpl(
+            preventivePrePerimeterResult, preventivePrePerimeterResult, preventivePrePerimeterResult,
+            new NetworkActionsResultImpl(Map.of(
+                preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState)
+            )),
+            preventiveRangeActionActivationResult
+        );
+
+        final PostPerimeterResult preventivePostPerimeterResult =
+            new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
+                .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(), preventiveResult, new AppliedRemedialActions(), reportNode);
+
+        final Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>();
+
+        final List<Instant> postOutageInstants = crac.getSortedInstants().stream()
+            .filter(instant -> instant.isAuto() || instant.isCurative())
+            .toList();
+
+        for (final Contingency contingency : crac.getContingencies()) {
+            final AppliedRemedialActions allAppliedRemedialActions = new AppliedRemedialActions();
+
+            network.getVariantManager().cloneVariant(variantName, contingency.getId());
+            network.getVariantManager().setWorkingVariant(contingency.getId());
+
+            PrePerimeterResult contingencyPrePerimeterResult = preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates();
+
+            for (final Instant instant : postOutageInstants) {
+                final State state = crac.getState(contingency, instant);
+                if (state != null) {
+                    final RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(contingencyPrePerimeterResult);
+                    allAppliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                    raoResult.getActivatedRangeActionsDuringState(state).forEach(
+                        rangeAction -> {
+                            final double optimizedSetPointOnState = raoResult.getOptimizedSetPointOnState(state, rangeAction);
+                            allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizedSetPointOnState);
+                            rangeActionActivationResult.putResult(rangeAction, state, optimizedSetPointOnState);
+                        }
+                    );
+                    appliedRemedialAction.getAppliedNetworkActions(state).forEach(
+                        networkAction -> allAppliedRemedialActions.addAppliedNetworkAction(state, networkAction)
+                    );
+                    appliedRemedialAction.getAppliedRangeActions(state).forEach(
+                        (rangeAction, setPoint) -> allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, setPoint)
+                    );
+
+                    final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                        crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
+                    );
+
+                    final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+                        network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode
+                    );
+
+                    final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
+                        statePrePerimeterResult,
+                        statePrePerimeterResult,
+                        statePrePerimeterResult,
+                        new NetworkActionsResultImpl(Map.of(state, raoResult.getActivatedNetworkActionsDuringState(state))),
+                        rangeActionActivationResult
+                    );
+                    final Set<FlowCnec> statePostPerimeterFlowCnecs = crac.getFlowCnecs().stream()
+                        .filter(cnec -> !cnec.getState().getInstant().comesBefore(instant))
+                        .filter(cnec -> cnec.getState().getContingency().orElseThrow().equals(contingency))
+                        .collect(Collectors.toSet());
+
+                    final PostPerimeterResult statePostPerimeterResult =
+                        new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
+                            .runBasedOnInitialPreviousAndOptimizationResults(
+                                network,
+                                initialFlowResult,
+                                contingencyPrePerimeterResult,
+                                Set.of(),
+                                stateOptimizationResult,
+                                allAppliedRemedialActions,
+                                reportNode
+                            );
+                    postRegulationPostContingencyResults.put(state, statePostPerimeterResult);
+
+                    contingencyPrePerimeterResult = statePrePerimeterResult;
+                }
+            }
+        }
+
+        final StateTree stateTree = new StateTree(crac, reportNode);
+        final PreventiveAndCurativesRaoResultImpl mergedRaoResult = new PreventiveAndCurativesRaoResultImpl(
+            stateTree,
+            initialFlowResult,
+            preventivePostPerimeterResult,
+            postRegulationPostContingencyResults,
+            crac,
+            raoParameters,
+            reportNode
+        );
+
+        mergedRaoResult.setExecutionDetails(raoResult.getExecutionDetails());
+        return mergedRaoResult;
     }
 }
