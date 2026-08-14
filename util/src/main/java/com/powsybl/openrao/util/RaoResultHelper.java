@@ -265,7 +265,7 @@ public final class RaoResultHelper {
                         statePrePerimeterResult,
                         statePrePerimeterResult,
                         statePrePerimeterResult,
-                        new NetworkActionsResultImpl(Map.of(state, raoResult.getActivatedNetworkActionsDuringState(state))),
+                        new NetworkActionsResultImpl(Map.of(state, allAppliedRemedialActions.getAppliedNetworkActions(state))),
                         rangeActionActivationResult
                     );
                     final Set<FlowCnec> statePostPerimeterFlowCnecs = crac.getFlowCnecs().stream()

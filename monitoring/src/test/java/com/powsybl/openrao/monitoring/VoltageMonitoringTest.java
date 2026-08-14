@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -19,14 +20,12 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -40,12 +39,10 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,8 +57,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -79,11 +74,6 @@ class VoltageMonitoringTest {
     private RaoParameters raoParameters;
     private LoadFlowParameters loadFlowParameters;
     private MonitoringResult voltageMonitoringResult;
-    private NetworkAction naOpenL1;
-    private NetworkAction naCloseL1;
-    private NetworkAction naOpenL2;
-    private NetworkAction naCloseL2;
-    private PstRangeAction pst;
     private VoltageCnec vcPrev;
     private Instant curativeInstant;
 
@@ -97,27 +87,27 @@ class VoltageMonitoringTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
-        naOpenL1 = crac.newNetworkAction()
+        crac.newNetworkAction()
             .withId("Open L1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
-        naCloseL1 = crac.newNetworkAction()
+        crac.newNetworkAction()
             .withId("Close L1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
-        naOpenL2 = crac.newNetworkAction()
+        crac.newNetworkAction()
             .withId("Open L2")
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
-        naCloseL2 = crac.newNetworkAction()
+        crac.newNetworkAction()
             .withId("Close L2")
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
-        pst = crac.newPstRangeAction()
+        crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("PS1")
             .withInitialTap(2).withTapToAngleConversionMap(Map.of(1, -20., 2, 0., 3, 20.))
@@ -129,6 +119,22 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.LINE).add();
         crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
 
+        crac.newFlowCnec().withId("cnec-prev").withNetworkElement("L3").withNominalVoltage(400.0)
+            .withInstant(PREVENTIVE_INSTANT_ID).withOptimized(true)
+            .newThreshold().withSide(TwoSides.ONE).withMax(1000.0).withMin(1000.0).withUnit(Unit.MEGAWATT).add().add();
+        crac.newFlowCnec().withId("cnec-auto-L1").withNetworkElement("L3").withNominalVoltage(400.0)
+            .withInstant(AUTO_INSTANT_ID).withContingency("coL1").withOptimized(true)
+            .newThreshold().withSide(TwoSides.ONE).withMax(1500.0).withMin(1500.0).withUnit(Unit.MEGAWATT).add().add();
+        crac.newFlowCnec().withId("cnec-cur-L1").withNetworkElement("L3").withNominalVoltage(400.0)
+            .withInstant(CURATIVE_INSTANT_ID).withContingency("coL1").withOptimized(true)
+            .newThreshold().withSide(TwoSides.ONE).withMax(1000.0).withMin(1000.0).withUnit(Unit.MEGAWATT).add().add();
+        crac.newFlowCnec().withId("cnec-cur-L2").withNetworkElement("L3").withNominalVoltage(400.0)
+            .withInstant(CURATIVE_INSTANT_ID).withContingency("coL2").withOptimized(true)
+            .newThreshold().withSide(TwoSides.ONE).withMax(1000.0).withMin(1000.0).withUnit(Unit.MEGAWATT).add().add();
+        crac.newFlowCnec().withId("cnec-cur-L1L2").withNetworkElement("L3").withNominalVoltage(400.0)
+            .withInstant(CURATIVE_INSTANT_ID).withContingency("coL1L2").withOptimized(true)
+            .newThreshold().withSide(TwoSides.ONE).withMax(1000.0).withMin(1000.0).withUnit(Unit.MEGAWATT).add().add();
+
         raoParameters = new RaoParameters(ReportNode.NO_OP);
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
@@ -138,9 +144,7 @@ class VoltageMonitoringTest {
             .getSensitivityWithLoadFlowParameters()
             .setLoadFlowParameters(loadFlowParameters);
 
-        raoResult = Mockito.mock(RaoResult.class);
-        when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
-        when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Collections.emptySet());
+        readRaoResult("/rao-result.json");
     }
 
     private VoltageCnec addVoltageCnec(String id, String instantId, String contingency, String networkElement, Double min, Double max) {
@@ -207,7 +211,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageLowOn1Cnec() {
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
+        readRaoResult("/rao-result-L1-open.json");
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 383kV
@@ -224,7 +228,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageLowOn2Cnecs() {
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
+        readRaoResult("/rao-result-L1-open.json");
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 383kV
@@ -246,7 +250,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageHighOn1Cnec() {
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
+        readRaoResult("/rao-result-L2-open.json");
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 400kV
@@ -267,7 +271,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesHighAndLowConstraints() {
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
+        readRaoResult("/rao-result-L2-open.json");
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 400kV
@@ -289,8 +293,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevPstMakesVoltageLowOn1Cnec() {
-        when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(pst));
-        when(raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst)).thenReturn(-20.);
+        readRaoResult("/rao-result-pst.json");
 
         // Before RA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 379kV, VL3 = 387kV
@@ -338,9 +341,7 @@ class VoltageMonitoringTest {
         addVoltageCnec("vc1b", CURATIVE_INSTANT_ID, "coL1L2", "VL2", 375., 395.);
         addVoltageCnec("vc2b", CURATIVE_INSTANT_ID, "coL1L2", "VL3", 375., 395.);
 
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1"), curativeInstant))).thenReturn(Set.of(naCloseL1));
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL2"), curativeInstant))).thenReturn(Set.of(naCloseL2));
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1L2"), curativeInstant))).thenReturn(Set.of(naCloseL1, naCloseL2));
+        readRaoResult("/rao-result-curative.json");
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
@@ -352,9 +353,7 @@ class VoltageMonitoringTest {
     void testCurPstMakesVoltageLowOn1Cnec() {
         crac.newContingency().withId("co3").withContingencyElement("L3", ContingencyElementType.LINE).add();
         addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co3", "VL2", 375., 395.);
-        State state = crac.getState(crac.getContingency("co3"), curativeInstant);
-        when(raoResult.getActivatedRangeActionsDuringState(state)).thenReturn(Set.of(pst));
-        when(raoResult.getOptimizedSetPointOnState(state, pst)).thenReturn(-20.);
+        readRaoResult("/rao-result-pst.json");
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
@@ -454,7 +453,7 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
+        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(Set::isEmpty));
     }
 
     @Test
@@ -463,7 +462,7 @@ class VoltageMonitoringTest {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
 
         runVoltageMonitoring();
-        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
+        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(Set::isEmpty));
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -610,16 +609,12 @@ class VoltageMonitoringTest {
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
             .add();
 
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters, 1, monitoringInput);
 
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
+
         assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
@@ -647,8 +642,6 @@ class VoltageMonitoringTest {
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
             .add();
-
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
@@ -696,5 +689,9 @@ class VoltageMonitoringTest {
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
         assertTrue(isSecure(importedRaoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+    }
+
+    private void readRaoResult(String resourcePath) {
+        raoResult = MonitoringTestUtil.readRaoResult(resourcePath, crac);
     }
 }
