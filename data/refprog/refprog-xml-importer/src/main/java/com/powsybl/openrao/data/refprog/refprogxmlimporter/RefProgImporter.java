@@ -9,21 +9,26 @@ package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -36,6 +41,93 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  */
 public final class RefProgImporter {
     private RefProgImporter() {
+    }
+
+    public static void updateRefProg(final InputStream inputStream,
+                                     final TemporalData<Double> initialFrPisaSetpoints,
+                                     final TemporalData<Map<String, Double>> postPraPisaSetpoints,
+                                     final OutputStream outputStream) {
+        // Load initial RefProg
+        final PublicationDocument document = importXmlDocument(inputStream);
+
+        for (final PublicationTimeSeriesType pubTS : document.getPublicationTimeSeries()) {
+            final String timeSeriesIdentification = pubTS.getTimeSeriesIdentification().getV();
+            // Mieux d'en faire un switch ?
+            if ("FR-IT".equals(timeSeriesIdentification)) {
+                updateFrItValue(pubTS, initialFrPisaSetpoints, postPraPisaSetpoints);
+            } else if ("FR-IT_PISA1".equals(timeSeriesIdentification)) {
+                updatePisaValue(pubTS, postPraPisaSetpoints);
+            } else if ("FR-IT_PISA2".equals(timeSeriesIdentification)) {
+                updatePisaValue(pubTS, postPraPisaSetpoints);
+            } else if ("IT-FR_PISA1".equals(timeSeriesIdentification)) {
+                updatePisaValue(pubTS, postPraPisaSetpoints);
+            } else if ("IT-FR_PISA2".equals(timeSeriesIdentification)) {
+                updatePisaValue(pubTS, postPraPisaSetpoints);
+            }
+        }
+
+        exportXmlDocument(document, outputStream);
+    }
+
+    private static void updateFrItValue(final PublicationTimeSeriesType pubTS,
+                                        final TemporalData<Double> initialFrPisaSetpoints,
+                                        final TemporalData<Map<String, Double>> postPraPisaSetpoints) {
+        final List<OffsetDateTime> initialSetpointsSortedTimestamps = initialFrPisaSetpoints.getTimestamps();
+        final List<OffsetDateTime> postPraSetpointsSortedTimestamps = postPraPisaSetpoints.getTimestamps();
+        final List<IntervalType> periodIntervalList = pubTS.getPeriod().getFirst().getInterval();
+
+        assert initialSetpointsSortedTimestamps.size() == postPraSetpointsSortedTimestamps.size();
+        assert initialSetpointsSortedTimestamps.size() == periodIntervalList.size();
+
+        // TODO Devrait-on s'assurer que les timestamps correspondent bien à l'invervalle ou fait-on confiance aux données d'entrée ?
+        //        final Map<Integer, Interval> positionsMap = IntervalUtil.getPositionsMap(periodType.getTimeInterval().getV());
+
+        for (int i = 0; i < periodIntervalList.size(); i++) {
+            final IntervalType interval = periodIntervalList.get(i);
+            final double initialValue = interval.getQty().getV().doubleValue();
+            final Double initialFrPisaValue = initialFrPisaSetpoints.getData(initialSetpointsSortedTimestamps.get(i)).get();
+            final Double sumFrPisaValuesPostPra = postPraPisaSetpoints.getData(postPraSetpointsSortedTimestamps.get(i)).get().entrySet().stream()
+                // La clé est définie comme "rangeAction.getId() pour le moment dans le code de Core CC PP, à voir quelle sera la valeur réelle à mettre ici
+                .filter(entry -> entry.getKey().startsWith("FR-IT_PISA"))
+                .mapToDouble(Map.Entry::getValue)
+                .sum();
+            final double newValue = initialValue - (sumFrPisaValuesPostPra - initialFrPisaValue);
+
+            interval.getQty().setV(BigDecimal.valueOf(newValue));
+            // new FR-IT exchange value = old FR-IT echange value - (FR-PISA(PISA HVDC setpoint value post PRA) - FR-PISA(initial setpoint in initial network))
+        }
+    }
+
+    private static void updatePisaValue(final PublicationTimeSeriesType pubTS,
+                                        final TemporalData<Map<String, Double>> postPraPisaSetpoints) {
+        final List<OffsetDateTime> postPraSetpointsSortedTimestamps = postPraPisaSetpoints.getTimestamps();
+        final List<IntervalType> periodIntervalList = pubTS.getPeriod().getFirst().getInterval();
+
+        assert postPraSetpointsSortedTimestamps.size() == periodIntervalList.size();
+
+        for (int i = 0; i < periodIntervalList.size(); i++) {
+            final IntervalType interval = periodIntervalList.get(i);
+            final double initialValue = interval.getQty().getV().doubleValue();
+            final double newValue = postPraPisaSetpoints.getData(postPraSetpointsSortedTimestamps.get(i)).get().entrySet().stream()
+                // La clé est définie comme "rangeAction.getId() pour le moment dans le code de Core CC PP, à voir quelle sera la valeur réelle à mettre ici
+                .filter(entry -> entry.getKey().equals("FR-IT_PISA"))
+                .mapToDouble(Map.Entry::getValue)
+                .findFirst().orElse(initialValue);
+
+            interval.getQty().setV(BigDecimal.valueOf(newValue));
+        }
+    }
+
+    private static void exportXmlDocument(final PublicationDocument publicationDocument,
+                                          final OutputStream outputStream) {
+        try {
+            final JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
+            final Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(publicationDocument, outputStream);
+        } catch (final JAXBException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime) {
