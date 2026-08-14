@@ -6,6 +6,9 @@ package com.powsybl.openrao.util;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -18,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -26,16 +30,20 @@ import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -235,4 +243,113 @@ class RaoResultHelperTest {
         assertThrows(OpenRaoException.class, () -> isSecure(raoResult, crac, raoParameters));
     }
 
+    @Test
+    void testAddAppliedRemedialActions() throws IOException {
+        Network simpleNetwork = Network.read("3NodesPst.uct", RaoResultHelperTest.class.getResourceAsStream("/3NodesPst.uct"));
+        Crac simpleCrac = Crac.read("crac.json", RaoResultHelperTest.class.getResourceAsStream("/crac.json"), simpleNetwork);
+        RaoParameters raoParameters = setUpDcRaoParameters();
+        RaoResult originalRaoResult = RaoResult.read(RaoResultHelperTest.class.getResourceAsStream("/rao-result.json"), simpleCrac);
+
+        // get objects from CRAC
+        Instant cracPreventiveInstant = simpleCrac.getInstant("preventive");
+        Instant cracCurativeInstant = simpleCrac.getInstant("curative");
+        FlowCnec preventiveFlowCnec = simpleCrac.getFlowCnec("CNEC:FR1-FR2-1@preventive");
+        FlowCnec curativeFlowCnec = simpleCrac.getFlowCnec("CNEC:FR1-FR2-1@curative");
+        PstRangeAction pstRangeAction = simpleCrac.getPstRangeAction("PST:FR1-FR2-5");
+        NetworkAction curativeTopologicalAction1 = simpleCrac.getNetworkAction("TOPO:FR1-FR2-3");
+        NetworkAction curativeTopologicalAction2 = simpleCrac.getNetworkAction("TOPO:FR1-FR2-4");
+        State preventiveState = simpleCrac.getPreventiveState();
+        State curativeState = simpleCrac.getState("CO:FR1-FR2-2", simpleCrac.getInstant("curative"));
+        double tolerance = 1e-2;
+
+        // test content of original RAO Result
+        // assertEquals(1, originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertTrue(originalRaoResult.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
+        // assertTrue(originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertEquals(4, originalRaoResult.getOptimizedTapOnState(preventiveState, pstRangeAction));
+
+        assertTrue(originalRaoResult.getActivatedRangeActionsDuringState(curativeState).isEmpty());
+        assertEquals(1, originalRaoResult.getActivatedNetworkActionsDuringState(curativeState).size());
+        assertTrue(originalRaoResult.isActivated(curativeState, curativeTopologicalAction2));
+        assertEquals(4, originalRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
+
+        assertEquals(-1552.62, originalRaoResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, originalRaoResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, originalRaoResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, originalRaoResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, originalRaoResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        // ensure that RAO Result is not modified if AppliedRemedialActions is empty
+        RaoResult raoResultCopy = RaoResultHelper.addAppliedRemedialActions(
+            originalRaoResult,
+            simpleCrac,
+            simpleNetwork,
+            new AppliedRemedialActions(),
+            raoParameters,
+            ReportNode.NO_OP
+        );
+
+        // assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertTrue(raoResultCopy.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
+        // assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertEquals(4, raoResultCopy.getOptimizedTapOnState(preventiveState, pstRangeAction));
+
+        assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(curativeState).isEmpty());
+        assertEquals(1, raoResultCopy.getActivatedNetworkActionsDuringState(curativeState).size());
+        assertTrue(raoResultCopy.isActivated(curativeState, curativeTopologicalAction2));
+        assertEquals(4, raoResultCopy.getOptimizedTapOnState(curativeState, pstRangeAction));
+
+        assertEquals(-1552.62, raoResultCopy.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, raoResultCopy.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, raoResultCopy.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, raoResultCopy.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, raoResultCopy.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        // add new remedial actions and check changes
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedNetworkAction(curativeState, curativeTopologicalAction1);
+        appliedRemedialActions.addAppliedRangeAction(curativeState, pstRangeAction, 4.672743946063913); // tap position 12
+
+        RaoResult mergedRaoResult = RaoResultHelper.addAppliedRemedialActions(
+            originalRaoResult,
+            simpleCrac,
+            simpleNetwork,
+            appliedRemedialActions,
+            raoParameters,
+            ReportNode.NO_OP
+        );
+
+        // assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertTrue(raoResultCopy.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
+        // assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertEquals(4, raoResultCopy.getOptimizedTapOnState(preventiveState, pstRangeAction));
+
+        // assertEquals(1, mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).size());
+        assertEquals(2, mergedRaoResult.getActivatedNetworkActionsDuringState(curativeState).size());
+        // assertTrue(mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).contains(pstRangeAction));
+        assertTrue(mergedRaoResult.isActivated(curativeState, curativeTopologicalAction1));
+        assertTrue(mergedRaoResult.isActivated(curativeState, curativeTopologicalAction2));
+        // assertEquals(12, mergedRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
+
+        assertEquals(-1552.62, mergedRaoResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, mergedRaoResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, mergedRaoResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, mergedRaoResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(1154.94, mergedRaoResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+    }
+
+    private static RaoParameters setUpDcRaoParameters() {
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(true);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters()
+            .getSensitivityWithLoadFlowParameters()
+            .setLoadFlowParameters(loadFlowParameters);
+        return raoParameters;
+    }
 }
