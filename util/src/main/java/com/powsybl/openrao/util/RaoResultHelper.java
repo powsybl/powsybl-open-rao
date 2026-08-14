@@ -277,7 +277,10 @@ public final class RaoResultHelper {
                             networkAction -> allAppliedRemedialActions.addAppliedNetworkAction(state, networkAction)
                         );
                         appliedRemedialAction.getAppliedRangeActions(state).forEach(
-                            (rangeAction, setPoint) -> allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, setPoint)
+                            (rangeAction, setPoint) -> {
+                                allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, setPoint);
+                                rangeActionActivationResult.putResult(rangeAction, state, setPoint);
+                            }
                         );
 
                         final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(

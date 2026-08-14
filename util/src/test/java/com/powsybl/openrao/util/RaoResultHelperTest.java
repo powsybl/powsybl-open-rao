@@ -263,9 +263,9 @@ class RaoResultHelperTest {
         double tolerance = 1e-2;
 
         // test content of original RAO Result
-        // assertEquals(1, originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertEquals(1, originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).size());
         assertTrue(originalRaoResult.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
-        // assertTrue(originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertTrue(originalRaoResult.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
         assertEquals(4, originalRaoResult.getOptimizedTapOnState(preventiveState, pstRangeAction));
 
         assertTrue(originalRaoResult.getActivatedRangeActionsDuringState(curativeState).isEmpty());
@@ -290,9 +290,9 @@ class RaoResultHelperTest {
             ReportNode.NO_OP
         );
 
-        // assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
         assertTrue(raoResultCopy.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
-        // assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
         assertEquals(4, raoResultCopy.getOptimizedTapOnState(preventiveState, pstRangeAction));
 
         assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(curativeState).isEmpty());
@@ -321,17 +321,17 @@ class RaoResultHelperTest {
             ReportNode.NO_OP
         );
 
-        // assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
+        assertEquals(1, raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).size());
         assertTrue(raoResultCopy.getActivatedNetworkActionsDuringState(preventiveState).isEmpty());
-        // assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
+        assertTrue(raoResultCopy.getActivatedRangeActionsDuringState(preventiveState).contains(pstRangeAction));
         assertEquals(4, raoResultCopy.getOptimizedTapOnState(preventiveState, pstRangeAction));
 
-        // assertEquals(1, mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).size());
+        assertEquals(1, mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).size());
         assertEquals(2, mergedRaoResult.getActivatedNetworkActionsDuringState(curativeState).size());
-        // assertTrue(mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).contains(pstRangeAction));
+        assertTrue(mergedRaoResult.getActivatedRangeActionsDuringState(curativeState).contains(pstRangeAction));
         assertTrue(mergedRaoResult.isActivated(curativeState, curativeTopologicalAction1));
         assertTrue(mergedRaoResult.isActivated(curativeState, curativeTopologicalAction2));
-        // assertEquals(12, mergedRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
+        assertEquals(12, mergedRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
 
         assertEquals(-1552.62, mergedRaoResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
         assertEquals(385.43, mergedRaoResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
