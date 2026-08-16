@@ -52,7 +52,7 @@ FFR2AA1  FR2          0 2 400.00 0.00000 0.00000 700.000 0.00000 9000.00 -9000.0
 CRAC Json
 
 ```json
-"injectionRangeActions" : [
+"injectionRangeActions": [
     {
       "id": "redispatchingActionFR1FR2",
       "name": "redispatchingActionFR1FR2",
