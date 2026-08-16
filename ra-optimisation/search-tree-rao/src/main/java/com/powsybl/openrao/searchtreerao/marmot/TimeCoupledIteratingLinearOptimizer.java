@@ -224,16 +224,16 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
-        // for now, if preventive -> generator constraints filler, if curative/second preventive -> range action synchronization filler
-        List<ProblemFiller> problemFillers = new ArrayList<>();
         // TODO: add time-coupled margin filler (min of all min margins)
-        TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
+        List<ProblemFiller> problemFillers = new ArrayList<>();
+        TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(
+                iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getMainOptimizationState()
+        );
         boolean isPreventiveMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isPreventive());
         boolean isCurativeMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isCurative());
         if (!isPreventiveMip && !isCurativeMip) {
             throw new OpenRaoException("Main optimization state must be either preventive or curative.");
         }
-
         if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
                     .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
@@ -244,13 +244,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     input.timeCoupledConstraints().getGeneratorConstraints()
             ));
         }
+
+        // Two cases for the curative range actions synchronization :
+        // 1. curative MIP
         if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
             problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                     iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
             )));
         }
-        // In second preventive, when we are in curative remedial action synchronization
-        // only curative range actions must be synchronized.
+        // 2. global MIP (main optimization state is preventive but the optimization perimeter is global)
         if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
             problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                     iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
@@ -261,7 +263,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
     private static Map<State, Set<RangeAction<?>>> getCurativeRangeActionsPerState(OptimizationPerimeter optimizationPerimeter) {
         return optimizationPerimeter.getRangeActionsPerState().entrySet().stream()
-                .filter(stateSetEntry -> stateSetEntry.getKey().getInstant().isCurative())
+                .filter(statesSetEntry -> statesSetEntry.getKey().getInstant().isCurative())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
