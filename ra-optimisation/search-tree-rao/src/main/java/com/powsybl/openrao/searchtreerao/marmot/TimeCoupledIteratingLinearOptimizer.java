@@ -223,7 +223,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
+    static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
         // TODO: add time-coupled margin filler (min of all min margins)
         List<ProblemFiller> problemFillers = new ArrayList<>();
         TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(
