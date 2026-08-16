@@ -130,8 +130,8 @@ public class Marmot implements TimeCoupledRaoProvider {
 
         // 2. Evaluate the initial value of the global objective function
         final ReportNode globalObjFuncInitialValueEvalReportNode = MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunction(reportNode);
-        ObjectiveFunction fullObjectiveFunction = MarmotUtils.buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
-        LinearOptimizationResult initialObjectiveFunctionResult = MarmotUtils.getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
+        ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
+        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
 
         // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
@@ -142,7 +142,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
         MarmotReports.reportMarmotTopologicalOptimizationEnd();
 
-        // TODO: add time-coupled constraint check, if none violated then return
+        // TODO : Add time-coupled constraint check if none violated then return
         // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
 
         // 4. Retrieve post-topological optimization results
@@ -688,7 +688,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
 
         TimeCoupledIteratingLinearOptimizerInput timeCoupledLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
-                linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), false);
+            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), false);
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer

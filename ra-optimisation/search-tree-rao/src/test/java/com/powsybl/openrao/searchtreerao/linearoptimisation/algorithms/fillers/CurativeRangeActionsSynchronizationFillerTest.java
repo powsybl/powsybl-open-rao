@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +73,8 @@ class CurativeRangeActionsSynchronizationFillerTest {
         createTimestamps();
     }
 
+    // setup
+
     private void createTimestamps() {
         hourlyTimestamps = new ArrayList<>();
         hourlyTimestamps.add(OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC));
@@ -80,23 +83,24 @@ class CurativeRangeActionsSynchronizationFillerTest {
     }
 
     private void createCoreProblemFillers() {
-        raoInputs.getDataPerTimestamp().forEach(
-                (timestamp, raoInput) -> {
-                    Crac crac = raoInput.getCrac();
-                    State curativeState = getCurativeState(timestamp);
-                    OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(curativeState,
-                            crac.getFlowCnecs(), Set.of(), crac.getNetworkActions(curativeState), crac.getRangeActions(curativeState)
-                    );
-                    RangeActionsOptimizationParameters rangeActionsParameters = parameters.getRangeActionsOptimizationParameters();
-                    Map<RangeAction<?>, Double> map = new HashMap<>();
-                    crac.getRangeActions(curativeState).forEach(rangeAction -> map.put(rangeAction, 0.0));
-                    RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
-                    CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(optimizationPerimeter, rangeActionSetpointResult,
-                            rangeActionsParameters, null, Unit.MEGAWATT, false,
-                            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, timestamp
-                    );
-                    linearProblemBuilder.withProblemFiller(coreProblemFiller);
-                });
+        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
+            Crac crac = raoInput.getCrac();
+            State curativeState = getCurativeState(timestamp);
+            OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
+                curativeState,
+                crac.getFlowCnecs(),
+                Set.of(),
+                crac.getNetworkActions(curativeState),
+                crac.getRangeActions(curativeState)
+            );
+            RangeActionsOptimizationParameters rangeActionsParameters = parameters.getRangeActionsOptimizationParameters();
+            Map<RangeAction<?>, Double> map = new HashMap<>();
+            crac.getRangeActions(curativeState).forEach(rangeAction -> map.put(rangeAction, 0.0));
+            RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
+            CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(optimizationPerimeter, rangeActionSetpointResult,
+                    rangeActionsParameters, null, Unit.MEGAWATT, false, SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, timestamp);
+            linearProblemBuilder.withProblemFiller(coreProblemFiller);
+        });
     }
 
     private void createRangeActionsSynchronizationFiller() {
@@ -139,8 +143,67 @@ class CurativeRangeActionsSynchronizationFillerTest {
         setUpLinearProblem();
     }
 
+    private static Crac createSimplePstCrac(OffsetDateTime timestamp, Set<String> pstIds, Network network) {
+        String cracId = "crac-" + timestamp.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        Crac crac = CracFactory.findDefault().create(cracId, cracId, timestamp);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+                .newInstant("outage", InstantKind.OUTAGE)
+                .newInstant("curative", InstantKind.CURATIVE);
+        crac.newContingency()
+                .withId(CONTINGENCY_ID)
+                .withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.LINE)
+                .add();
+        crac.newFlowCnec()
+                .withId("cnec-" + cracId)
+                .withNetworkElement("FFR2AA1  FFR3AA1  1")
+                .withInstant("curative")
+                .withContingency(CONTINGENCY_ID)
+                .withOptimized()
+                .withNominalVoltage(400.0)
+                .newThreshold()
+                .withSide(TwoSides.ONE)
+                .withMax(1000.0)
+                .withMin(-1000.0)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+                .add();
+        pstIds.forEach(pstId -> {
+            PstHelper pstHelper = new IidmPstHelper(getNetworkElementOfPst(pstId), network);
+            var pstAdder = crac.newPstRangeAction()
+                    .withId(pstId)
+                    .withName(pstId)
+                    .withNetworkElement(getNetworkElementOfPst(pstId))
+                    .withInitialTap(0)
+                    .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
+                    .newTapRange()
+                    .withMinTap(-1)
+                    .withMaxTap(1)
+                    .withRangeType(RangeType.ABSOLUTE)
+                    .add()
+                    .newOnContingencyStateUsageRule()
+                    .withContingency(CONTINGENCY_ID)
+                    .withInstant("curative")
+                    .add();
+            pstAdder.add();
+        });
+        return crac;
+    }
+
+    // tests
+
+    @Test
+    void testSingleTimestampCreatesNoConstraints() {
+        TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp = new TemporalDataImpl<>(Map.of(
+                hourlyTimestamps.get(0), Map.of(mockCurativeState("curative_state"), Set.of(mockRangeAction("pst_be"))
+        )));
+        CurativeRangeActionsSynchronizationFiller curativeRangeActionsSynchronizationFiller = new CurativeRangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
+        LinearProblem linearProblemMock = Mockito.mock(LinearProblem.class);
+        curativeRangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null);
+        Mockito.verifyNoInteractions(linearProblemMock);
+    }
+
     /**
-     * All the timestamps share both PSTs : 2 range actions shared by 3 timestamps -> 4 synchronisation constraints,
+     * All the timestamps share both PSTs : 2 range actions shared by 3 timestamps -> 4 synchronization constraints,
      *  all of them between the reference timestamp (the first one) and one of the other timestamps.
      */
     @Test
@@ -193,6 +256,22 @@ class CurativeRangeActionsSynchronizationFillerTest {
         checkNoSynchronizationConstraint("pst_de", hourlyTimestamps.get(0), hourlyTimestamps.get(2));
     }
 
+    /** If the setpoint variable of a synchronized range action is missing from the linear problem an exception must be thrown. */
+    @Test
+    void testMissingSetpointVariable() {
+        TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp = new TemporalDataImpl<>(Map.of(
+                hourlyTimestamps.get(0), Map.of(mockCurativeState("curative_state_1"), Set.of(mockRangeAction("pst_be"))),
+                hourlyTimestamps.get(1), Map.of(mockCurativeState("curative_state_2"), Set.of(mockRangeAction("pst_be")))
+        ));
+        CurativeRangeActionsSynchronizationFiller curativeRangeActionsSynchronizationFiller = new CurativeRangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
+        LinearProblem linearProblemMock = Mockito.mock(LinearProblem.class);
+        when(linearProblemMock.getRangeActionSetpointVariable(any(), any())).thenThrow(new OpenRaoException("Variable not found"));
+        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> curativeRangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null));
+        assertEquals("The setpoint variable of range action pst_be was not found at state : curative_state_1.", openRaoException.getMessage());
+    }
+
+    // utils
+
     private void checkSynchronizationConstraint(String pstId, OffsetDateTime referenceTimestamp, OffsetDateTime otherTimestamp) {
         State referenceState = getCurativeState(referenceTimestamp);
         State otherState = getCurativeState(otherTimestamp);
@@ -210,52 +289,6 @@ class CurativeRangeActionsSynchronizationFillerTest {
         assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionSynchronizationConstraint(pstId, referenceState, otherState));
     }
 
-    private static Crac createSimplePstCrac(OffsetDateTime timestamp, Set<String> pstIds, Network network) {
-        String cracId = "crac-" + timestamp.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        Crac crac = CracFactory.findDefault().create(cracId, cracId, timestamp);
-        crac.newInstant("preventive", InstantKind.PREVENTIVE)
-                .newInstant("outage", InstantKind.OUTAGE)
-                .newInstant("curative", InstantKind.CURATIVE);
-        crac.newContingency()
-                .withId(CONTINGENCY_ID)
-                .withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.LINE)
-                .add();
-        crac.newFlowCnec()
-                .withId("cnec-" + cracId)
-                .withNetworkElement("FFR2AA1  FFR3AA1  1")
-                .withInstant("curative")
-                .withContingency(CONTINGENCY_ID)
-                .withOptimized()
-                .withNominalVoltage(400.0)
-                .newThreshold()
-                .withSide(TwoSides.ONE)
-                .withMax(1000.0)
-                .withMin(-1000.0)
-                .withUnit(Unit.MEGAWATT)
-                .add()
-                .add();
-        pstIds.forEach(pstId -> {
-            PstHelper pstHelper = new IidmPstHelper(getNetworkElementOfPst(pstId), network);
-            var pstAdder = crac.newPstRangeAction()
-                    .withId(pstId)
-                    .withName(pstId)
-                    .withNetworkElement(getNetworkElementOfPst(pstId))
-                    .withInitialTap(0)
-                    .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
-                    .newTapRange()
-                    .withMinTap(-1)
-                    .withMaxTap(1)
-                    .withRangeType(RangeType.ABSOLUTE)
-                    .add()
-                    .newOnContingencyStateUsageRule()
-                    .withContingency(CONTINGENCY_ID)
-                    .withInstant("curative")
-                    .add();
-            pstAdder.add();
-        });
-        return crac;
-    }
-
     private State getCurativeState(OffsetDateTime timestamp) {
         Crac crac = raoInputs.getData(timestamp).orElseThrow().getCrac();
         return crac.getState(CONTINGENCY_ID, crac.getInstant("curative"));
@@ -267,5 +300,20 @@ class CurativeRangeActionsSynchronizationFillerTest {
 
     private static String getNetworkElementOfPst(String pstId) {
         return "pst_be".equals(pstId) ? "BBE2AA1  BBE3AA1  1" : "DDE2AA1  DDE3AA1  1";
+    }
+
+    private static State mockCurativeState(String stateId) {
+        Contingency contingency = Mockito.mock(Contingency.class);
+        when(contingency.getId()).thenReturn(CONTINGENCY_ID);
+        State state = Mockito.mock(State.class);
+        when(state.getContingency()).thenReturn(Optional.of(contingency));
+        when(state.getId()).thenReturn(stateId);
+        return state;
+    }
+
+    private static RangeAction<?> mockRangeAction(String rangeActionId) {
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        when(rangeAction.getId()).thenReturn(rangeActionId);
+        return rangeAction;
     }
 }

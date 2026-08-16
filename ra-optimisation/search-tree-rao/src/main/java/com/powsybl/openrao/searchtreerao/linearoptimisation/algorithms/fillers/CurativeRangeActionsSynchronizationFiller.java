@@ -18,28 +18,28 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
- * This filler forces a range action that appears in several timestamps under the same CRAC ID to be applied
- * identically on all the timestamps at once, i.e. all common range actions must have the same setpoint.
+ * This filler adds constraints to the linear problem that force a curative range action shared by several
+ * timestamp's CRACs under the same ID to be activated identically across all of them, i.e. all the common
+ * range actions must share the same setpoint value.
  * <p>
- *     Range actions are matched across timestamps by their CRAC ID only and not by the network element. It will not
- *     work if the range action ID of the same network element is different from a timestamp to another.
- * </p>
- * <p>
- *     The filler is currently only used in curative optimization and second preventive optimization
- *     when curative range actions are involved.
+ *     Since the range actions are matched by their CRAC ID only (and not by their network elements). The
+ *     synchronization will not work if the same range action carries different CRAC IDs from one timestamp
+ *     to another.
  * </p>
  *
  * @author Atena Amnache {@literal <atena.amnache at rte-france.com>}
  */
 public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller {
     private final List<OffsetDateTime> timestamps;
+    // for each timestamp, for each state, which range actions are available
     private final TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp;
 
     public CurativeRangeActionsSynchronizationFiller(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp) {
@@ -55,7 +55,7 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
         if (timestamps.size() < 2) {
             return;
         }
-        // group the states to synchronize by contingency
+        // group by state in order to synchronize by contingency
         Map<String, Map<OffsetDateTime, State>> statesPerTimestampPerContingency = new HashMap<>();
         availableRangeActionsPerStatePerTimestamp.getDataPerTimestamp().forEach(
                 (timestamp, rangeActionsPerState) -> rangeActionsPerState.keySet().forEach(
@@ -75,60 +75,72 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
 
     // Constraints
     /**
-     * Adds the synchronization constraint for one contingency.
+     * Adds the synchronization constraints for one contingency.
      *
      * @param statesPerTimestamp the state to synchronize in every timestamp sharing the contingency.
      */
     private void addRangeActionsSynchronizationConstraintsForContingency(LinearProblem linearProblem, Map<OffsetDateTime, State> statesPerTimestamp) {
-        // for this contingency, the timestamps sharing every range action, keyed by the range action id
-        Map<String, List<OffsetDateTime>> timestampsPerRangeActionId = new HashMap<>();
+        // for this contingency, the range action objects carrying the same ID, keyed by this ID then by timestamp
+        Map<String, SortedMap<OffsetDateTime, RangeAction<?>>> rangeActionPerTimestampPerId = new HashMap<>();
         statesPerTimestamp.forEach((timestamp, state) ->
                 availableRangeActionsPerStatePerTimestamp.getData(timestamp).orElseThrow().get(state).forEach(
-                        rangeAction -> timestampsPerRangeActionId.computeIfAbsent(rangeAction.getId(), id -> new ArrayList<>()).add(timestamp)
+                        rangeAction -> rangeActionPerTimestampPerId.computeIfAbsent(rangeAction.getId(),
+                            id -> new TreeMap<>()).put(timestamp, rangeAction) // timestamps in chronological order
                 )
         );
-        timestampsPerRangeActionId.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(
-                entry -> addRangeActionsSynchronizationConstraints(linearProblem, entry.getKey(), entry.getValue(), statesPerTimestamp)
+        // sort range actions by id
+        rangeActionPerTimestampPerId.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(
+                entry -> addRangeActionsSynchronizationConstraints(linearProblem, entry.getValue(), statesPerTimestamp)
         );
     }
 
     /**
-     * Adds the setpoint equality constraints for one range action ID. one constraint is added between the first timestamp
-     * of the list (the reference timestamp) and all the other timestamps of the list. Meaning n timestamps create n-1 constraints.
+     * Adds the setpoint equality constraints for one range action ID. One constraint is added between the first timestamp
+     * (the reference timestamp) and all the other timestamps sharing the range action. Meaning n timestamps create n constraints.
      * The equality condition between the non-reference timestamps is implied by transitivity.
      *
-     * @param rangeActionId the ID of the common range action to synchronize.
-     * @param timestampsSharingTheRangeAction the timestamps whose CRAC contains a range action with rangeActionId as their ID.
+     * @param timestampRangeActionMap the range action instances carrying the common ID keyed by timestamp.
+     * @param timestampStateMap the state to synchronize in every timestamp sharing the contingency.
      */
     private void addRangeActionsSynchronizationConstraints(LinearProblem linearProblem,
-                                                           String rangeActionId,
-                                                           List<OffsetDateTime> timestampsSharingTheRangeAction,
-                                                           Map<OffsetDateTime, State> statesPerTimestamp) {
-        if (timestampsSharingTheRangeAction.size() < 2) {
+                                                           SortedMap<OffsetDateTime, RangeAction<?>> timestampRangeActionMap,
+                                                           Map<OffsetDateTime, State> timestampStateMap) {
+        if (timestampRangeActionMap.size() < 2) {
             return;
         }
         // the reference timestamp is the first one
-        OffsetDateTime referenceTimestamp = timestampsSharingTheRangeAction.getFirst();
-        timestampsSharingTheRangeAction.stream()
-                .filter(timestamp -> !timestamp.equals(referenceTimestamp))
-                .forEach(timestamp ->
-                    addSetpointEqualityConstraint(linearProblem, rangeActionId, statesPerTimestamp.get(referenceTimestamp), statesPerTimestamp.get(timestamp), referenceTimestamp, timestamp)
-                );
+        OffsetDateTime referenceTimestamp = timestampRangeActionMap.firstKey(); // earliest timestamp
+        timestampRangeActionMap.keySet().stream()
+            .filter(timestamp -> !timestamp.equals(referenceTimestamp))
+            .forEach(timestamp -> addSetpointEqualityConstraint(
+                linearProblem,
+                timestampRangeActionMap.get(referenceTimestamp),
+                timestampRangeActionMap.get(timestamp),
+                timestampStateMap.get(referenceTimestamp),
+                timestampStateMap.get(timestamp)
+            ));
     }
 
     /**
      * Adds a single setpoint equality constraint between the setpoint variables of the same range action at two different timestamps.
      *
-     * @param rangeActionId the ID of the common range action to synchronize.
-     * @param referenceTimestamp timestamp for which the constraint is created.
-     * @param otherTimestamp timestamp sharing the constraint with referenceTimestamp.
+     * @param referenceTimestampRangeAction the range action instance of the reference timestamp.
+     * @param otherTimestampRangeAction the range action instance, carrying the same ID, of the timestamp to synchronize with the reference one.
+     * @param referenceTimestampState the state of the reference timestamp.
+     * @param otherTimestampState the state of the timestamp to synchronize with the reference one.
      */
-    private void addSetpointEqualityConstraint(LinearProblem linearProblem, String rangeActionId,
-                                               State referenceTimestampState, State otherTimestampState,
-                                               OffsetDateTime referenceTimestamp, OffsetDateTime otherTimestamp) {
-        OpenRaoMPVariable referenceTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, rangeActionId, referenceTimestamp, referenceTimestampState);
-        OpenRaoMPVariable otherTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, rangeActionId, otherTimestamp, otherTimestampState);
-        OpenRaoMPConstraint rangeActionSynchronizationConstraint = linearProblem.addRangeActionSynchronizationConstraint(rangeActionId, referenceTimestampState, otherTimestampState);
+    private void addSetpointEqualityConstraint(LinearProblem linearProblem,
+                                               RangeAction<?> referenceTimestampRangeAction,
+                                               RangeAction<?> otherTimestampRangeAction,
+                                               State referenceTimestampState,
+                                               State otherTimestampState) {
+        OpenRaoMPVariable referenceTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, referenceTimestampRangeAction, referenceTimestampState);
+        OpenRaoMPVariable otherTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, otherTimestampRangeAction, otherTimestampState);
+        OpenRaoMPConstraint rangeActionSynchronizationConstraint = linearProblem.addRangeActionSynchronizationConstraint(
+                referenceTimestampRangeAction.getId(),
+                referenceTimestampState,
+                otherTimestampState
+        );
         // +1 * referenceTimestampRangeActionSetpoint - 1 * otherTimestampRangeActionSetpoint = 0
         rangeActionSynchronizationConstraint.setCoefficient(referenceTimestampRangeActionSetpoint, 1.0);
         rangeActionSynchronizationConstraint.setCoefficient(otherTimestampRangeActionSetpoint, -1.0);
@@ -136,23 +148,13 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
 
     // Utility methods
     /**
-     * Finds in a timestamp the range action instance carrying the ID "rangeActionId"
+     * Returns the setpoint variable of a range action at a given state
      */
-    private RangeAction<?> getRangeAction(String rangeActionId, OffsetDateTime timestamp, State state) {
-        return availableRangeActionsPerStatePerTimestamp.getData(timestamp).orElseThrow().get(state).stream()
-                .filter(rangeAction -> rangeAction.getId().equals(rangeActionId))
-                .findFirst()
-                .orElseThrow(() -> new OpenRaoException("Could not find range action with id " + rangeActionId));
-    }
-
-    /**
-     * Returns the setpoint variable of a range action at a given state.
-     */
-    private OpenRaoMPVariable getSetpointVariable(LinearProblem linearProblem, String rangeActionId, OffsetDateTime timestamp, State state) {
+    private OpenRaoMPVariable getSetpointVariable(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         try {
-            return linearProblem.getRangeActionSetpointVariable(getRangeAction(rangeActionId, timestamp, state), state);
+            return linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         } catch (OpenRaoException e) {
-            throw new OpenRaoException("Setpoint variable of range action %s was not found at state %s.".formatted(rangeActionId, state.getId()), e);
+            throw new OpenRaoException("The setpoint variable of range action %s was not found at state : %s.".formatted(rangeAction.getId(), state.getId()), e);
         }
     }
 }
