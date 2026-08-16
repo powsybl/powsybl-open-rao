@@ -54,7 +54,6 @@ class TimeCoupledIteratingLinearOptimizerTest {
         assertInstanceOf(CurativeRangeActionsSynchronizationFiller.class, problemFillers.getFirst());
     }
 
-
     private static TimeCoupledIteratingLinearOptimizerInput createTimeCoupledInput(boolean isGlobalMip) {
         TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs = new TemporalDataImpl<>(Map.of(
                 TIMESTAMP_1, mockIteratingLinearOptimizerInput(isGlobalMip),
