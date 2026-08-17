@@ -70,6 +70,8 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.buildGlobalObjectiveFunction;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getInitialObjectiveFunctionResult;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
@@ -98,7 +100,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         }
         final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
-        // Launch time-coupled curative synchronization when the concerned parameters are enabled
+        // Launch the time-coupled curative synchronization when the concerned parameters are enabled
         if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
             return new TimeCoupledCurativeSynchronization().run(timeCoupledRaoInput, raoParameters, reportNode);
         }
@@ -231,6 +233,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                 curativeTopologicalActions,
                 consideredCnecs,
                 filteredObjectiveFunction,
+                false,
                 parallelism,
                 globalRaOptimForIterationReportNode
             );
@@ -646,17 +649,18 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
     }
 
-    private static GlobalLinearOptimizationResult optimizeLinearRemedialActions(final TimeCoupledRaoInput raoInput,
-                                                                                final TemporalData<PrePerimeterResult> initialResults,
-                                                                                final TemporalData<RangeActionSetpointResult> initialSetpoints,
-                                                                                final TemporalData<PrePerimeterResult> postTopologicalActionsResults,
-                                                                                final RaoParameters parameters,
-                                                                                final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
-                                                                                final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
-                                                                                final TemporalData<Set<FlowCnec>> consideredCnecs,
-                                                                                final ObjectiveFunction objectiveFunction,
-                                                                                final int parallelism,
-                                                                                final ReportNode reportNode) {
+    static GlobalLinearOptimizationResult optimizeLinearRemedialActions(final TimeCoupledRaoInput raoInput,
+                                                                        final TemporalData<PrePerimeterResult> initialResults,
+                                                                        final TemporalData<RangeActionSetpointResult> initialSetpoints,
+                                                                        final TemporalData<PrePerimeterResult> postTopologicalActionsResults,
+                                                                        final RaoParameters parameters,
+                                                                        final TemporalData<NetworkActionsResult> preventiveTopologicalActions,
+                                                                        final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                        final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                        final ObjectiveFunction objectiveFunction,
+                                                                        final boolean synchronizeCurativeRangeActions,
+                                                                        final int parallelism,
+                                                                        final ReportNode reportNode) {
 
         // -- Build IteratingLinearOptimizertimeCoupledInput
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs, parallelism);
@@ -688,7 +692,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
 
         TimeCoupledIteratingLinearOptimizerInput timeCoupledLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
-            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), false);
+            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), synchronizeCurativeRangeActions);
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer
