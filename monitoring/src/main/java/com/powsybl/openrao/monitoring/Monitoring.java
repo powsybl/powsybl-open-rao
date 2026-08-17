@@ -12,6 +12,7 @@ import com.powsybl.action.BoundaryLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
@@ -73,6 +74,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
@@ -138,34 +140,6 @@ public class Monitoring {
         return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
     }
 
-    public static RaoResult postProcessAngleMonitoringResult(MonitoringResult angleMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
-        monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
-        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        angleMonitoringResult.getAppliedRas().forEach(
-            (state, remedialActions) -> remedialActions.stream()
-                .filter(NetworkAction.class::isInstance)
-                .map(NetworkAction.class::cast)
-                .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
-        );
-        RaoResult raoResultWithAngleMonitoring = RaoResultHelper.addAppliedRemedialActions(
-            monitoringInput.getRaoResult(),
-            monitoringInput.getCrac(),
-            monitoringInput.getNetwork(),
-            appliedRemedialActions,
-            raoParameters,
-            ReportNode.NO_OP
-        );
-        raoResultWithAngleMonitoring.setExecutionDetails(
-            raoResultWithAngleMonitoring.getExecutionDetails()
-                + " and went through angle monitoring"
-        );
-        raoResultWithAngleMonitoring.addExtension(
-            AngleResult.class,
-            AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult)
-        );
-        return raoResultWithAngleMonitoring;
-    }
-
     /**
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with VoltageMonitoringResult
@@ -195,34 +169,6 @@ public class Monitoring {
             computationManager
         ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
-    }
-
-    public static RaoResult postProcessVoltageMonitoringResult(MonitoringResult voltageMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
-        monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
-        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        voltageMonitoringResult.getAppliedRas().forEach(
-            (state, remedialActions) -> remedialActions.stream()
-                .filter(NetworkAction.class::isInstance)
-                .map(NetworkAction.class::cast)
-                .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
-        );
-        RaoResult raoResultWithVoltageMonitoring = RaoResultHelper.addAppliedRemedialActions(
-            monitoringInput.getRaoResult(),
-            monitoringInput.getCrac(),
-            monitoringInput.getNetwork(),
-            appliedRemedialActions,
-            raoParameters,
-            ReportNode.NO_OP
-        );
-        raoResultWithVoltageMonitoring.setExecutionDetails(
-            raoResultWithVoltageMonitoring.getExecutionDetails()
-                + " and went through voltage monitoring"
-        );
-        raoResultWithVoltageMonitoring.addExtension(
-            VoltageResult.class,
-            VoltageMonitoringResultAdapter.convertToVoltageExtension(voltageMonitoringResult)
-        );
-        return raoResultWithVoltageMonitoring;
     }
 
     public MonitoringResult runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
@@ -289,12 +235,12 @@ public class Monitoring {
     }
 
     private @Nullable Object optimizeOneContingencyState(MonitoringInput monitoringInput,
-                                       State state,
-                                       AbstractNetworkPool networkPool,
-                                       Crac crac,
-                                       MonitoringResult monitoringResult,
-                                       PhysicalParameter physicalParameter,
-                                       RaoResult raoResult) throws InterruptedException {
+                                                         State state,
+                                                         AbstractNetworkPool networkPool,
+                                                         Crac crac,
+                                                         MonitoringResult monitoringResult,
+                                                         PhysicalParameter physicalParameter,
+                                                         RaoResult raoResult) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork();
         Contingency contingency = state.getContingency().orElseThrow();
 
@@ -617,5 +563,78 @@ public class Monitoring {
     private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecResult> cnecResults) {
         BUSINESS_WARNS.warn(failureReason);
         return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
+    }
+
+    // POST-PROCESSING
+
+    /**
+     * Extends the content of the original RaoResult with additional angle monitoring results.
+     *
+     * @param angleMonitoringResult the result obtained after performing angle monitoring computations
+     * @param monitoringInput       the input parameters used for the monitoring process
+     * @param raoParameters         the parameters used for Rao optimization
+     * @return an enhanced RaoResult that incorporates the post-processed angle monitoring results
+     */
+    public static RaoResult postProcessAngleMonitoringResult(MonitoringResult angleMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+        return postProcessMonitoringResult(
+            angleMonitoringResult,
+            monitoringInput,
+            raoParameters,
+            PhysicalParameter.ANGLE,
+            AngleResult.class,
+            AngleMonitoringResultAdapter::convertToAngleExtension
+        );
+    }
+
+    /**
+     * Extends the content of the original RaoResult with additional voltage monitoring results.
+     *
+     * @param voltageMonitoringResult the result obtained after performing voltage monitoring computations
+     * @param monitoringInput         the input parameters used for the monitoring process
+     * @param raoParameters           the parameters used for Rao optimization
+     * @return an enhanced RaoResult that incorporates the post-processed voltage monitoring results
+     */
+    public static RaoResult postProcessVoltageMonitoringResult(MonitoringResult voltageMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+        return postProcessMonitoringResult(
+            voltageMonitoringResult,
+            monitoringInput,
+            raoParameters,
+            PhysicalParameter.VOLTAGE,
+            VoltageResult.class,
+            VoltageMonitoringResultAdapter::convertToVoltageExtension
+        );
+    }
+
+    private static <E extends Extension<RaoResult>> RaoResult postProcessMonitoringResult(MonitoringResult monitoringResult,
+                                                                                          MonitoringInput monitoringInput,
+                                                                                          RaoParameters raoParameters,
+                                                                                          PhysicalParameter physicalParameter,
+                                                                                          Class<E> extensionClass,
+                                                                                          Function<MonitoringResult, E> extensionAdapter) {
+        monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        monitoringResult.getAppliedRas().forEach(
+            (state, remedialActions) -> remedialActions.stream()
+                .filter(NetworkAction.class::isInstance)
+                .map(NetworkAction.class::cast)
+                .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
+        );
+        RaoResult raoResultWithMonitoring = RaoResultHelper.addAppliedRemedialActions(
+            monitoringInput.getRaoResult(),
+            monitoringInput.getCrac(),
+            monitoringInput.getNetwork(),
+            appliedRemedialActions,
+            raoParameters,
+            ReportNode.NO_OP
+        );
+        raoResultWithMonitoring.setExecutionDetails(
+            raoResultWithMonitoring.getExecutionDetails()
+                + " and went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
+        );
+        raoResultWithMonitoring.addExtension(
+            extensionClass,
+            extensionAdapter.apply(monitoringResult)
+        );
+        return raoResultWithMonitoring;
     }
 }

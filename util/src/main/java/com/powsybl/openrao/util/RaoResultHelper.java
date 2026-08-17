@@ -211,7 +211,7 @@ public final class RaoResultHelper {
             );
             final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
 
-            // create a new network variant from initial variant for performing the results merging
+            // create a new network variant from initial variant to perform the results merging
             final String variantName = "RaoResultMerging";
             network.getVariantManager().cloneVariant(initialVariant, variantName);
             network.getVariantManager().setWorkingVariant(variantName);
@@ -221,8 +221,11 @@ public final class RaoResultHelper {
             raoResult.getActivatedNetworkActionsDuringState(preventiveState).forEach(
                 networkAction -> networkAction.apply(network)
             );
-            raoResult.getOptimizedSetPointsOnState(preventiveState).forEach(
-                (rangeAction, setPoint) -> rangeAction.apply(network, setPoint)
+            raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(
+                rangeAction -> rangeAction.apply(
+                    network,
+                    raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)
+                )
             );
 
             // this result is only used as a data holder for flows: it does not contain the proper objective function value in costly

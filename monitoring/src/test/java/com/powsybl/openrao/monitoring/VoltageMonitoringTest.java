@@ -144,7 +144,7 @@ class VoltageMonitoringTest {
             .getSensitivityWithLoadFlowParameters()
             .setLoadFlowParameters(loadFlowParameters);
 
-        readRaoResult("/rao-result.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result.json", crac);
     }
 
     private VoltageCnec addVoltageCnec(String id, String instantId, String contingency, String networkElement, Double min, Double max) {
@@ -211,7 +211,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageLowOn1Cnec() {
-        readRaoResult("/rao-result-L1-open.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-L1-open.json", crac);
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 383kV
@@ -228,7 +228,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageLowOn2Cnecs() {
-        readRaoResult("/rao-result-L1-open.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-L1-open.json", crac);
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 383kV
@@ -250,7 +250,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesVoltageHighOn1Cnec() {
-        readRaoResult("/rao-result-L2-open.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-L2-open.json", crac);
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 400kV
@@ -271,7 +271,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevNetworkActionMakesHighAndLowConstraints() {
-        readRaoResult("/rao-result-L2-open.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-L2-open.json", crac);
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 368kV, VL3 = 400kV
@@ -293,7 +293,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testPrevPstMakesVoltageLowOn1Cnec() {
-        readRaoResult("/rao-result-pst.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-pst.json", crac);
 
         // Before RA, VL2 = 386kV, VL3 = 393kV
         // After applying NA, VL2 = 379kV, VL3 = 387kV
@@ -341,7 +341,7 @@ class VoltageMonitoringTest {
         addVoltageCnec("vc1b", CURATIVE_INSTANT_ID, "coL1L2", "VL2", 375., 395.);
         addVoltageCnec("vc2b", CURATIVE_INSTANT_ID, "coL1L2", "VL3", 375., 395.);
 
-        readRaoResult("/rao-result-curative.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-curative.json", crac);
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
@@ -353,7 +353,7 @@ class VoltageMonitoringTest {
     void testCurPstMakesVoltageLowOn1Cnec() {
         crac.newContingency().withId("co3").withContingencyElement("L3", ContingencyElementType.LINE).add();
         addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co3", "VL2", 375., 395.);
-        readRaoResult("/rao-result-pst.json");
+        raoResult = MonitoringTestUtil.readRaoResult("/rao-result-pst.json", crac);
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
@@ -689,9 +689,5 @@ class VoltageMonitoringTest {
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
         assertTrue(isSecure(importedRaoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-    }
-
-    private void readRaoResult(String resourcePath) {
-        raoResult = MonitoringTestUtil.readRaoResult(resourcePath, crac);
     }
 }
