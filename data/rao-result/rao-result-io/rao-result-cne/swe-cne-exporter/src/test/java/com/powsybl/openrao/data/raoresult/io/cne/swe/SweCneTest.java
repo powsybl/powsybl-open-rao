@@ -13,15 +13,20 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,8 +60,8 @@ class SweCneTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
-    private RaoResult raoResultWithAngle;
-    private RaoResult raoResultFailureWithAngle;
+    private RaoResultImpl raoResultWithAngle;
+    private RaoResultImpl raoResultFailureWithAngle;
     private Properties properties;
 
     @BeforeEach
@@ -79,7 +84,7 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResult = RaoResult.read(inputStream, crac);
+        raoResultWithAngle = (RaoResultImpl) RaoResult.read(inputStream, crac);
 
         InputStream inputStream3 = null;
         try {
@@ -87,15 +92,25 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
+        raoResultFailureWithAngle = (RaoResultImpl) RaoResult.read(inputStream3, crac);
 
-        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
-            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
-            Cnec.SecurityStatus.SECURE);
+        State curativeState = crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE));
+        NetworkAction networkAction = crac.getNetworkAction("na1");
+        MonitoringResult monitoringResult = new MonitoringResult(
+            PhysicalParameter.ANGLE,
+            Set.of(new CnecResult<>(crac.getAngleCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
+            Map.of(curativeState, Set.of(networkAction)),
+            Cnec.SecurityStatus.SECURE
+        );
 
-        raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
-        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
+        raoResultWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
+        AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
+        raoResultWithAngle.addExtension(AngleResult.class, angleResult);
+
+        raoResultFailureWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
+        AngleResult angleResultWithFailure = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
+        raoResultFailureWithAngle.addExtension(AngleResult.class, angleResultWithFailure);
+        raoResultFailureWithAngle.setComputationStatus(ComputationStatus.FAILURE);
 
         properties = new Properties();
         properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");
@@ -123,6 +138,7 @@ class SweCneTest {
 
     @Test
     void testExportWithFailure() {
+        // angle measurements should not be exported because RAO failed
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportData(raoResultFailureWithAngle, cracCreationContext, properties, outputStream);
         try {

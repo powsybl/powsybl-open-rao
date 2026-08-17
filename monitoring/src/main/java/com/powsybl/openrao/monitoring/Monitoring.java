@@ -138,7 +138,7 @@ public class Monitoring {
         return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
     }
 
-    private static RaoResult postProcessAngleMonitoringResult(MonitoringResult angleMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+    public static RaoResult postProcessAngleMonitoringResult(MonitoringResult angleMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
         monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         angleMonitoringResult.getAppliedRas().forEach(
@@ -197,7 +197,7 @@ public class Monitoring {
         return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
     }
 
-    private static RaoResult postProcessVoltageMonitoringResult(MonitoringResult voltageMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
+    public static RaoResult postProcessVoltageMonitoringResult(MonitoringResult voltageMonitoringResult, MonitoringInput monitoringInput, RaoParameters raoParameters) {
         monitoringInput.getNetwork().getVariantManager().setWorkingVariant("InitialState");
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         voltageMonitoringResult.getAppliedRas().forEach(
