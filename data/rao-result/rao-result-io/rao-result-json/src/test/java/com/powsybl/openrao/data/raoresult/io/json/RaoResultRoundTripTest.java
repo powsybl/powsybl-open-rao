@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
@@ -297,10 +298,13 @@ class RaoResultRoundTripTest {
         /*
         VoltageCnec, voltageCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
+        assertNotNull(voltageResult);
+
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4446., raoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4456., raoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., voltageResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4456., voltageResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4065., voltageResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private static void testFlowCnecResults(RaoResult raoResult, Crac crac, Instant preventiveInstant, Instant autoInstant, Instant curativeInstant) {
