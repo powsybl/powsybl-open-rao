@@ -264,7 +264,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the setpoint of RangeAction "CRA_HVDC" should be 796 MW after "CO_0001" at "curative"
 
 
-  @fast @rao @ac @preventive-only @hvdc @second-preventive @thisone
+  @fast @rao @ac @preventive-only @hvdc @second-preventive
   Scenario: 2.2.2.3.15: acEmulationDeactivation action used in 2nd preventive
     In this test, we check that if we are in 2nd preventive, deactivating the AC Emulation in preventive -> make the HVDC available in curative too
     1st preventive: nothing happens, because there is no preventive CNEC defined in the CRAC
