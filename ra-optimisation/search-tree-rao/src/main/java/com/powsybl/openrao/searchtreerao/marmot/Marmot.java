@@ -311,7 +311,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 
-    private TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<Crac> cracs, int parallelism) {
+    public static TemporalData<RangeActionSetpointResult> getInitialSetpointResults(TemporalData<Crac> cracs, int parallelism) {
         return MarmotUtils.smartMap(
             cracs,
             crac -> {
@@ -608,13 +608,13 @@ public class Marmot implements TimeCoupledRaoProvider {
         );
     }
 
-    private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(final TemporalData<RaoInput> raoInputs,
-                                                                                                  final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
-                                                                                                  final TemporalData<? extends FlowResult> initialFlowResults,
-                                                                                                  final TemporalData<RaoParameters> raoParameters,
-                                                                                                  final TemporalData<Set<FlowCnec>> consideredCnecs,
-                                                                                                  final int parallelism,
-                                                                                                  final ReportNode reportNode) {
+    static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(final TemporalData<RaoInput> raoInputs,
+                                                                                          final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                                          final TemporalData<? extends FlowResult> initialFlowResults,
+                                                                                          final TemporalData<RaoParameters> raoParameters,
+                                                                                          final TemporalData<Set<FlowCnec>> consideredCnecs,
+                                                                                          final int parallelism,
+                                                                                          final ReportNode reportNode) {
         return MarmotUtils.smartMap(
             raoInputs,
             raoInput -> {

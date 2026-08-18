@@ -153,12 +153,13 @@ public class TimeCoupledCastorContingencyScenarios {
         try {
             AtomicInteger remainingScenarios = new AtomicInteger(scenariosByContingencyId.size());
             // Go through all contingency scenarios
-            List<ForkJoinTask<Object>> tasks = scenariosByContingencyId.entrySet().stream().map(contingencyScenarioPerTimestamp -> {
-                String contingencyId = contingencyScenarioPerTimestamp.getKey();
-                TemporalData<ContingencyScenario> optimizedScenarios = new TemporalDataImpl<>(contingencyScenarioPerTimestamp.getValue());
+            List<ForkJoinTask<Object>> tasks = scenariosByContingencyId.entrySet().stream().map(timestampContingencyScenarioMap -> {
+                String contingencyId = timestampContingencyScenarioMap.getKey();
+                TemporalData<ContingencyScenario> optimizedScenarios = new TemporalDataImpl<>(timestampContingencyScenarioMap.getValue());
                 final ReportNode scenarioOptimizationReportNode = CastorReports.reportOptimizingScenarioForContingency(reportNode, contingencyId);
                 return firstNetworkPool.submit(() ->
-                        runScenario(prePerimeterSensitivityOutputs,
+                        runScenario(
+                            prePerimeterSensitivityOutputs,
                             automatonsOnly,
                             optimizedScenarios,
                             networkPools,
@@ -189,7 +190,9 @@ public class TimeCoupledCastorContingencyScenarios {
     }
 
     /** creates one timestamp's automaton simulator */
-    private AutomatonSimulator createAutomatonSimulator(OffsetDateTime timestamp, TemporalData<PrePerimeterResult> prePerimeterSensitivityOutputs, ReportNode reportNode) {
+    private AutomatonSimulator createAutomatonSimulator(OffsetDateTime timestamp,
+                                                        TemporalData<PrePerimeterResult> prePerimeterSensitivityOutputs,
+                                                        ReportNode reportNode) {
         return new AutomatonSimulator(
                 cracs.getData(timestamp).orElseThrow(),
                 raoParameters,
@@ -207,7 +210,7 @@ public class TimeCoupledCastorContingencyScenarios {
                                final TemporalData<ContingencyScenario> optimizedScenarios,
                                final TemporalData<AbstractNetworkPool> networkPools,
                                final TemporalData<AutomatonSimulator> automatonSimulators,
-                               final Map<OffsetDateTime, Map<State, PostPerimeterResult>> contingencyScenarioResultsPerTs,
+                               final Map<OffsetDateTime, Map<State, PostPerimeterResult>> contingencyScenarioResultsPerTimestamp,
                                final AtomicInteger remainingScenarios,
                                final ReportNode reportNode) throws InterruptedException {
 
@@ -224,9 +227,7 @@ public class TimeCoupledCastorContingencyScenarios {
 
             // Init variables
             TemporalData<Set<State>> curativeStates = optimizedScenarios.map(
-                    scenario -> scenario.getCurativePerimeters().stream().flatMap(
-                                    perimeter -> perimeter.getAllStates().stream())
-                            .collect(Collectors.toSet())
+                    scenario -> scenario.getCurativePerimeters().stream().flatMap(perimeter -> perimeter.getAllStates().stream()).collect(Collectors.toSet())
             );
             Map<OffsetDateTime, PrePerimeterResult> preCurativeResultPerTimestamp = new HashMap<>();
             optimizedScenarios.getTimestamps().forEach(
@@ -245,7 +246,7 @@ public class TimeCoupledCastorContingencyScenarios {
                             // recompute sensi and objective function considering auto + all instants following auto
                             PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone,
                                     prePerimeterSensitivityOutputs.getData(timestamp).orElseThrow(), automatonResult, timestamp, null, reportNode);
-                            contingencyScenarioResultsPerTs.get(timestamp).put(automatonState.get(), postAutoResult);
+                            contingencyScenarioResultsPerTimestamp.get(timestamp).put(automatonState.get(), postAutoResult);
                             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                                 autoStateSensiFailed.add(timestamp);
                             } else {
@@ -265,6 +266,7 @@ public class TimeCoupledCastorContingencyScenarios {
                 return !automatonsOnly
                         && automatonState.isEmpty()
                         && !optimizedScenario.getCurativePerimeters().isEmpty()
+                        //since multi-curative is not supported, the first curative perimeter is the only one
                         && prePerimeterSensitivityOutputs.getData(timestamp).orElseThrow()
                         .getSensitivityStatus(optimizedScenario.getCurativePerimeters().getFirst().getRaOptimisationState()) == ComputationStatus.FAILURE
                         || automatonState.isPresent()
@@ -273,60 +275,49 @@ public class TimeCoupledCastorContingencyScenarios {
             if (anyTimestampSensiFailed) {
                 double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
                 curativeStates.getDataPerTimestamp().forEach((timestamp, timestampCurativeStates) -> timestampCurativeStates.forEach(
-                        curativeState -> contingencyScenarioResultsPerTs.get(timestamp).put(curativeState, generateSkippedPostPerimeterResult(curativeState, sensitivityFailureOvercost))
+                        curativeState -> contingencyScenarioResultsPerTimestamp.get(timestamp).put(curativeState, generateSkippedPostPerimeterResult(curativeState, sensitivityFailureOvercost))
                 ));
-            } else if (!automatonsOnly) {
-                // optimize the curative perimeters with one global search tree
-                if (optimizedScenarios.getDataPerTimestamp().values().stream().anyMatch(scenario -> !scenario.getCurativePerimeters().isEmpty())) {
+            // optimize the curative perimeters with one global search tree
+            } else if (!automatonsOnly && optimizedScenarios.getDataPerTimestamp().values().stream().anyMatch(scenario -> !scenario.getCurativePerimeters().isEmpty())) {
+                // since multi-curative is not supported, every timestamp has a single curative perimeter to optimize
+                TemporalData<Perimeter> curativePerimeters = optimizedScenarios.map(scenario -> scenario.getCurativePerimeters().getFirst());
+                Map<OffsetDateTime, PrePerimeterResult> previousPerimeterResults = new HashMap<>();
+                Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
 
-                    TemporalData<Perimeter> curativePerimeters = optimizedScenarios.map(scenario -> scenario.getCurativePerimeters().getFirst());
-                    Map<OffsetDateTime, PrePerimeterResult> previousPerimeterResults = new HashMap<>();
-                    Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
+                curativePerimeters.getDataPerTimestamp().forEach((timestamp, curativePerimeter) -> {
+                    // since it is the first and only curative perimeter, the previous perimeter result is always the pre-curative one
+                    PrePerimeterResult previousPerimeterResult = preCurativeResultPerTimestamp.get(timestamp);
+                    previousPerimeterResults.put(timestamp, previousPerimeterResult);
+                    prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
+                });
 
-                    curativePerimeters.getDataPerTimestamp().forEach((timestamp, curativePerimeter) -> {
-                        PrePerimeterResult previousPerimeterResult = preCurativeResultPerTimestamp.get(timestamp);
-                        if (previousPerimeterResult == null) {
-                            previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter, timestamp)
-                                    .runBasedOnInitialResults(
-                                            networkClones.getData(timestamp).orElseThrow(),
-                                            null,
-                                            stateTrees.getData(timestamp).orElseThrow().getOperatorsNotSharingCras(),
-                                            null,
-                                            reportNode
-                                    );
-                        }
-                        previousPerimeterResults.put(timestamp, previousPerimeterResult);
-                        prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
-                    });
+                CurativeOptimizationResult curativeOptimizationResult = optimizeCurativePerimeter(
+                        curativePerimeters,
+                        networkClones,
+                        new TemporalDataImpl<>(previousPerimeterResults),
+                        Map.of(),
+                        prePerimeterResultPerPerimeter,
+                        reportNode
+                );
+                OptimizationResult curativeResult = curativeOptimizationResult.optimizationResult();
 
-                    CurativeOptimizationResult curativeOptimizationResult = optimizeCurativePerimeter(
-                            curativePerimeters,
-                            networkClones,
-                            new TemporalDataImpl<>(previousPerimeterResults),
-                            Map.of(),
-                            prePerimeterResultPerPerimeter,
-                            reportNode
-                    );
-                    OptimizationResult curativeResult = curativeOptimizationResult.optimizationResult();
+                TemporalData<ObjectiveFunction> curativeObjectiveFunctionsPerTimestamp = curativeOptimizationResult.objectiveFunctions;
 
-                    TemporalData<ObjectiveFunction> curativeObjectiveFunctionsPerTimestamp = curativeOptimizationResult.objectiveFunctionsPerTimestamp();
-
-                    curativePerimeters.getDataPerTimestamp().forEach((timestamp, curativePerimeter) -> {
-                        State curativeState = curativePerimeter.getRaOptimisationState();
-                        Network networkClone = networkClones.getData(timestamp).orElseThrow();
-                        applyRemedialActions(networkClone, curativeResult, curativeState);
-                        //recompute sensi and objective function considering curative + all instants following curative (useful if multi curative)
-                        PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResults.get(timestamp), curativeResult, timestamp,
-                                curativeObjectiveFunctionsPerTimestamp.getData(timestamp).orElseThrow(), reportNode);
-                        contingencyScenarioResultsPerTs.get(timestamp).put(curativeState, postCurativeResult);
-                    });
-                }
+                curativePerimeters.getDataPerTimestamp().forEach((timestamp, curativePerimeter) -> {
+                    State curativeState = curativePerimeter.getRaOptimisationState();
+                    Network networkClone = networkClones.getData(timestamp).orElseThrow();
+                    applyRemedialActions(networkClone, curativeResult, curativeState);
+                    //recompute sensi and objective function considering curative + all instants following curative (useful if multi curative)
+                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResults.get(timestamp), curativeResult, timestamp,
+                            curativeObjectiveFunctionsPerTimestamp.getData(timestamp).orElseThrow(), reportNode);
+                    contingencyScenarioResultsPerTimestamp.get(timestamp).put(curativeState, postCurativeResult);
+                });
             }
         } finally {
             TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
             for (Map.Entry<OffsetDateTime, Network> entry : timestampNetworkCloneMap.entrySet()) {
                 // compare contingencies by id
-                boolean actionWasApplied = contingencyScenarioResultsPerTs.get(entry.getKey()).entrySet().stream()
+                boolean actionWasApplied = contingencyScenarioResultsPerTimestamp.get(entry.getKey()).entrySet().stream()
                         .filter(stateAndResult -> stateAndResult.getKey().getContingency().orElseThrow().getId().equals(contingencyId))
                         .anyMatch(this::isAnyActionApplied);
                 networkPools.getData(entry.getKey()).orElseThrow().releaseUsedNetwork(entry.getValue(), actionWasApplied);
@@ -355,19 +346,22 @@ public class TimeCoupledCastorContingencyScenarios {
                                                    final PrePerimeterResult prePerimeterSensitivityOutput,
                                                    final OptimizationResult optimizationResult,
                                                    final OffsetDateTime timestamp,
-                                                   final ObjectiveFunction perTimestampObjectiveFunction,
+                                                   final ObjectiveFunction objectiveFunction,
                                                    final ReportNode reportNode) {
         Crac crac = cracs.getData(timestamp).orElseThrow();
         // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
         if (state.getInstant().equals(crac.getLastInstant())) {
-            OptimizationResult optimizationResultForTimestamp = getOptimizationResult(optimizationResult, state, timestamp, perTimestampObjectiveFunction, reportNode);
+            OptimizationResult optimizationResultForTimestamp = getOptimizationResult(optimizationResult, state, timestamp, objectiveFunction, reportNode);
             RangeActionActivationResult raActivationForState;
+            // when the method is called after automaton simulation it contains a single result (automaton simulation is not time coupled)
+            // and when it is called after time coupled search tree it contains one result per timestamp therefore they must be differenciated
             if (optimizationResult instanceof Leaf leaf) {
                 raActivationForState = leaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow();
             } else {
                 raActivationForState = optimizationResult;
             }
-            return new PostPerimeterResult(optimizationResultForTimestamp,
+            return new PostPerimeterResult(
+                optimizationResultForTimestamp,
                 new PrePerimeterSensitivityResultImpl(
                     optimizationResultForTimestamp,
                     optimizationResultForTimestamp,
@@ -391,7 +385,8 @@ public class TimeCoupledCastorContingencyScenarios {
             stateTrees.getData(timestamp).orElseThrow().getOperatorsNotSharingCras(),
             getOptimizationResult(optimizationResult, state, timestamp, null, reportNode),
             new AppliedRemedialActions(),
-            reportNode);
+            reportNode
+        );
     }
 
     /** Get the optimization result of one timestamp. */
@@ -399,7 +394,7 @@ public class TimeCoupledCastorContingencyScenarios {
         if (optimizationResult instanceof Leaf leaf) {
             RangeActionActivationResult activationForTimestamp = leaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow();
             // the shared decision is declared at this timestamp's state only
-            NetworkActionsResult networkActionsForState = new NetworkActionsResultImpl(Map.of(state, getNetworkActionsOfTimestamp(leaf.getActivatedNetworkActions(), timestamp)));
+            NetworkActionsResult networkActionsForState = new NetworkActionsResultImpl(Map.of(state, getSameNetworkActionsOfTimestamp(leaf.getActivatedNetworkActions(), timestamp)));
             ObjectiveFunctionResult objectiveFunctionResultForTimestamp = leaf;
             if (perTimestampObjectiveFunction != null) {
                 RemedialActionActivationResult remedialActionActivationResultForTimestamp = new RemedialActionActivationResultImpl(activationForTimestamp, networkActionsForState);
@@ -410,35 +405,18 @@ public class TimeCoupledCastorContingencyScenarios {
         return optimizationResult;
     }
 
-    private Set<NetworkAction> getNetworkActionsOfTimestamp(Set<NetworkAction> appliedNetworkActions, OffsetDateTime timestamp) {
-        Crac crac = cracs.getData(timestamp).orElseThrow();
-        return appliedNetworkActions.stream()
-            .map(networkAction -> crac.getNetworkAction(networkAction.getId()))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-    }
-
-    private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter, OffsetDateTime timestamp) {
-        Crac crac = cracs.getData(timestamp).orElseThrow();
-        Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(curativePerimeter.getRaOptimisationState());
-        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getRangeActions(curativePerimeter.getRaOptimisationState()));
-        for (State curativeState : curativePerimeter.getAllStates()) {
-            flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
-        }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProviders.getData(timestamp).orElseThrow(), false);
-    }
-
+    /** Runs one search tree over each timestamp's curative perimeter at once. */
     private CurativeOptimizationResult optimizeCurativePerimeter(final TemporalData<Perimeter> curativePerimeters,
                                                                  final TemporalData<Network> networks,
                                                                  final TemporalData<PrePerimeterResult> prePerimeterSensitivityOutputs,
                                                                  final Map<State, OptimizationResult> resultsPerPerimeter,
                                                                  final Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter,
                                                                  final ReportNode reportNode) {
-        // TODO : multi-curative is not supported
-        // flowCnecs, loopFlowCnecs, states, operators, filtered states per timestamps union
+        // TODO : multi-curative is not supported yet
+        // union of the flowCnecs, loopFlowCnecs states and operators to build the global objective funciton
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
         Set<FlowCnec> allLoopFlowCnecs = new HashSet<>();
-        Set<State> allOptimisationStates = new HashSet<>();
+        Set<State> allOptimizationStates = new HashSet<>();
         Set<String> allOperatorsNotSharingCras = new HashSet<>();
         // collect the optimization perimeters per timestamp
         Map<OffsetDateTime, OptimizationPerimeter> timestampOptimizationPerimeterMap = new HashMap<>();
@@ -458,7 +436,7 @@ public class TimeCoupledCastorContingencyScenarios {
             Set<String> operatorsNotSharingCras = stateTrees.getData(timestamp).orElseThrow().getOperatorsNotSharingCras();
             allFlowCnecs.addAll(flowCnecs);
             allLoopFlowCnecs.addAll(loopFlowCnecs);
-            allOptimisationStates.addAll(curativePerimeter.getAllStates());
+            allOptimizationStates.addAll(curativePerimeter.getAllStates());
             allOperatorsNotSharingCras.addAll(operatorsNotSharingCras);
             timestampObjectiveFunctionMap.put(timestamp, ObjectiveFunction.build(
                     flowCnecs,
@@ -477,6 +455,7 @@ public class TimeCoupledCastorContingencyScenarios {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             Network network = networks.getData(timestamp).orElseThrow();
             CastorReports.reportOptimizingCurativeState(reportNode, curativeState.getId());
+            // build curative optimization perimeter
             timestampOptimizationPerimeterMap.put(timestamp, CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(),
                     crac, network, raoParameters, prePerimeterSensitivityOutputs.getData(timestamp).orElseThrow(), reportNode));
             timestampInitialFlowResultMap.put(timestamp, initialSensitivityOutputs.getData(timestamp).orElseThrow());
@@ -492,12 +471,14 @@ public class TimeCoupledCastorContingencyScenarios {
         curativePerimeters.getDataPerTimestamp().forEach((timestamp, curativePerimeter) -> {
             PrePerimeterResult prePerimeterSensitivityOutput = prePerimeterSensitivityOutputs.getData(timestamp).orElseThrow();
             cracs.getData(timestamp).orElseThrow().getRangeActions(curativePerimeter.getRaOptimisationState())
-                    .forEach(ra -> rangeActionSetpointMap.put(ra, prePerimeterSensitivityOutput.getSetpoint(ra)));
+                    .forEach(ra -> rangeActionSetpointMap.put(ra, prePerimeterSensitivityOutput.getSetpoint(ra))
+            );
         });
         RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(rangeActionSetpointMap);
         RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionsResult, new NetworkActionsResultImpl(Map.of()));
 
+        // build the global objective function
         GlobalFlowResult globalPrePerimeterFlowResult = new GlobalFlowResult(prePerimeterSensitivityOutputs);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
             allFlowCnecs,
@@ -506,28 +487,36 @@ public class TimeCoupledCastorContingencyScenarios {
             globalPrePerimeterFlowResult,
             allOperatorsNotSharingCras,
             raoParameters,
-            allOptimisationStates
+            allOptimizationStates
         );
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(globalPrePerimeterFlowResult, remedialActionActivationResult, reportNode);
-        // TODO: since the global cost is a sum, it being satisfied does not mean that every timestamp is secure ?
-        //  The check is done here to avoid skipping the optimization of a scenario where one timestamp is still overloaded.
-        boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
-        boolean secureAtEveryTimestamp = objectiveFunctionResult.getMostLimitingElements(1).stream().allMatch(cnec -> globalPrePerimeterFlowResult.getMargin(cnec, Unit.MEGAWATT) >= 0);
-        if (stopCriterionReached && secureAtEveryTimestamp) {
+
+        // TODO : since the global cost is a sum, it being satisfied does not mean that every timestamp is secure ?
+        // The check is done here to avoid skipping the optimization of a scenario where one timestamp is still overloaded.
+        // if there's only one timestamp, only the stop criterion is checked
+        boolean isStopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
+        boolean secureAtEveryTimestamp = objectiveFunctionResult.getMostLimitingElements(1).stream()
+            .allMatch(cnec -> globalPrePerimeterFlowResult.getMargin(cnec, Unit.MEGAWATT) >= 0);
+        if (isStopCriterionReached && secureAtEveryTimestamp) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of());
             GlobalSensitivityResult globalPrePerimeterSensitivityResult = new GlobalSensitivityResult(prePerimeterSensitivityOutputs.map(SensitivityResult.class::cast));
-            OptimizationResult noActionResult = new OptimizationResultImpl(objectiveFunctionResult, globalPrePerimeterFlowResult,
-                    globalPrePerimeterSensitivityResult, networkActionsResult, rangeActionsResult
+            OptimizationResult noActionResult = new OptimizationResultImpl(
+                objectiveFunctionResult,
+                globalPrePerimeterFlowResult,
+                globalPrePerimeterSensitivityResult,
+                networkActionsResult,
+                rangeActionsResult
             );
             return new CurativeOptimizationResult(noActionResult, new TemporalDataImpl<>(timestampObjectiveFunctionMap));
         }
 
+        // first timestamp is used as reference fot the searchtreeparameters since they are the same for all of them
         Crac referenceCrac = cracs.getData(cracs.getTimestamps().getFirst()).orElseThrow();
         SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, referenceCrac)
             .withTreeParameters(curativeTreeParameters)
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), allOperatorsNotSharingCras))
-            .withGlobalRemedialActionLimitationParameters(mergeRaUsageLimitsAcrossTimestamps(cracs));
+            .withGlobalRemedialActionLimitationParameters(mergeRaUsageLimits(cracs));
 
         if (anyHvdcAcEmulation.get()) {
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
@@ -557,24 +546,6 @@ public class TimeCoupledCastorContingencyScenarios {
         return new CurativeOptimizationResult(result, new TemporalDataImpl<>(timestampObjectiveFunctionMap));
     }
 
-    /** Gathers the flow CNECs of the curative perimeter's states, ignoring the states whose sensitivity analysis failed */
-    private Set<FlowCnec> getFlowCnecsOfNonFailedStates(Crac crac, Perimeter curativePerimeter, PrePerimeterResult prePerimeterSensitivityOutput) {
-        Set<State> nonFailedStates = curativePerimeter.getAllStates().stream()
-                .filter(state -> !prePerimeterSensitivityOutput.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
-                .collect(Collectors.toSet());
-        return crac.getFlowCnecs().stream().filter(flowCnec -> nonFailedStates.contains(flowCnec.getState())).collect(Collectors.toSet());
-    }
-
-    /**
-     * Gathers the RaUsageLimits of every timestamp's CRAC in a single map, so that each timestamp's states resolve
-     * their limits with plain map lookups. The limits are assumed identical between the timestamps and are not checked.
-     */
-    public static Map<Instant, RaUsageLimits> mergeRaUsageLimitsAcrossTimestamps(TemporalData<Crac> cracs) {
-        Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
-        cracs.getDataPerTimestamp().values().forEach(crac -> raUsageLimitsPerInstant.putAll(crac.getRaUsageLimitsPerInstant()));
-        return raUsageLimitsPerInstant;
-    }
-
     static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
         if (result.getVirtualCost() > COST_EPSILON) {
             return false;
@@ -592,7 +563,33 @@ public class TimeCoupledCastorContingencyScenarios {
         }
     }
 
+    /**
+     * Merges the RaUsageLimits of every timestamp's CRAC in a single map, so that each timestamp's states resolve their limits with
+     * plain map lookups. The limits are assumed identical between the timestamps and are not checked.
+     */
+    public static Map<Instant, RaUsageLimits> mergeRaUsageLimits(TemporalData<Crac> cracs) {
+        Map<Instant, RaUsageLimits> instantRaUsageLimitsMap = new HashMap<>();
+        cracs.getDataPerTimestamp().values().forEach(crac -> instantRaUsageLimitsMap.putAll(crac.getRaUsageLimitsPerInstant()));
+        return instantRaUsageLimitsMap;
+    }
+
+    Set<NetworkAction> getSameNetworkActionsOfTimestamp(Set<NetworkAction> appliedNetworkActions, OffsetDateTime timestamp) {
+        Crac crac = cracs.getData(timestamp).orElseThrow();
+        return appliedNetworkActions.stream()
+                .map(networkAction -> crac.getNetworkAction(networkAction.getId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /** Gathers the flow CNECs of the curative perimeter's states, ignoring the states whose sensitivity analysis failed */
+    private Set<FlowCnec> getFlowCnecsOfNonFailedStates(Crac crac, Perimeter curativePerimeter, PrePerimeterResult prePerimeterSensitivityOutput) {
+        Set<State> nonFailedStates = curativePerimeter.getAllStates().stream()
+                .filter(state -> !prePerimeterSensitivityOutput.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
+                .collect(Collectors.toSet());
+        return crac.getFlowCnecs().stream().filter(flowCnec -> nonFailedStates.contains(flowCnec.getState())).collect(Collectors.toSet());
+    }
+
     /** Result of the coupled curative search tree, to report a timestamp's own cost instead of the coupled global one */
-    private record CurativeOptimizationResult(OptimizationResult optimizationResult, TemporalData<ObjectiveFunction> objectiveFunctionsPerTimestamp) {
+    private record CurativeOptimizationResult(OptimizationResult optimizationResult, TemporalData<ObjectiveFunction> objectiveFunctions) {
     }
 }

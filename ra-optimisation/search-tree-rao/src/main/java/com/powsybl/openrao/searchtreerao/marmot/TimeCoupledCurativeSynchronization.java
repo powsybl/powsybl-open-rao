@@ -16,13 +16,18 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
@@ -33,54 +38,59 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
 import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
 
 /**
- * Runs a time-coupled RAO where the curative remedial actions are synchronized across the timestamps, meaning that the same
- * decision is applied on every timestamp at once, i.e. the same set of activated network actions and the same
- * range action setpoints.
+ * Runs a time-coupled RAO where the curative remedial actions are synchronized across the timestamps, meaning that the
+ * same decision is applied on every timestamp at once in curative, i.e. the same set of activated network actions and
+ * the same set of activated range action set at the same setpoint values.
  * <p>
- * Remedial actions are matched across the timestamps by their CRAC ID only, therefore the IDs must be consistent between
- * all the cracs for this optimization to work.
+ * Remedial actions are matched across the timestamps by their CRAC ID only. Therefore, the IDs must be consistent between
+ * all the CRACs for this optimization to work properly.
  * <p>
  * Note:
- * <li> The UsageRules of the remedial actions are not checked across the timestamps.
- * <li> The RaUsageLimits are assumed identical between the timestamps and are not checked.
  * <li> Multi-curative optimization is not supported.
- * <li> No second preventive optimization is run for now
+ * <li> The UsageRules of the remedial actions are not managed yet.
+ * <li> The RaUsageLimits are considered to be identical for all the timestamps for now.
  */
 @Beta
 public class TimeCoupledCurativeSynchronization {
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode) {
+
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
         final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
-        // TODO: add multi-curative implementation in the TimeCoupledCastorContingencyScenarios
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
                 throw new OpenRaoException("Time-coupled curative synchronization does not support multi-curative optimization.");
             }
         });
 
-        // initiate lazy networks
+        // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
         TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
@@ -96,7 +106,8 @@ public class TimeCoupledCurativeSynchronization {
             MarmotReports.reportMarmotOptimizerSetToWorkOnNThreads(reportNode, parallelism, CURATIVE_SYNCHRONIZATION_PREFIX);
         }
 
-        // 1. Compute the initial results for every timestamp
+        // 1. Compute the initial results for every timestamp :
+        // Note that the range actions are part of the sensitivity analyses unlike for marmot because they are used in the independent preventive optimizations
         final ReportNode initialSensiReportNode = MarmotReports.reportMarmotRunningInitialSensiAnalyses(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
         TemporalData<PrePerimeterResult> initialResults = runAllSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
         MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
@@ -108,7 +119,7 @@ public class TimeCoupledCurativeSynchronization {
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
 
         // 3. Run independent preventive optimizations
-        CastorReports.reportPreventivePerimeterOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX + " ");
+        CastorReports.reportPreventivePerimeterOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
         TemporalData<OptimizationResult> preventiveOptimizationResults = runIndependentPreventiveOptimizations(
             initialInputs,
             stateTrees,
@@ -117,7 +128,7 @@ public class TimeCoupledCurativeSynchronization {
             parallelism,
             reportNode
         );
-        CastorReports.reportPreventivePerimeterOptimizationEnd(CURATIVE_SYNCHRONIZATION_PREFIX + " ");
+        CastorReports.reportPreventivePerimeterOptimizationEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
 
         // 4. Post-PRA sensitivity analyses per timestamp
         final ReportNode postPraSensiReportNode = CastorReports.reportPostPraSensiAnalysis(reportNode);
@@ -131,9 +142,9 @@ public class TimeCoupledCurativeSynchronization {
         );
         TemporalData<PrePerimeterResult> postPraResults = postPreventiveResults.map(PostPerimeterResult::prePerimeterResultForAllFollowingStates);
 
-        // 5. time coupled curative optimization : all the common curative remedial actions between the timestamps are optimized at once,
+        // 5. Time-coupled curative optimization : all the common curative remedial actions between the timestamps are optimized at once,
         // the activated range actions must have the same setpoint and the same set of network actions must be applied on all the timestamps.
-        final ReportNode postContingencyReportNode = CastorReports.reportPostContingencyPerimeterOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX + " ");
+        final ReportNode postContingencyReportNode = CastorReports.reportPostContingencyPerimeterOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
         TemporalData<Map<State, PostPerimeterResult>> postCurativeOptimizationResults = optimizeContingencyScenarios(
             initialInputs,
             stateTrees,
@@ -145,33 +156,89 @@ public class TimeCoupledCurativeSynchronization {
         );
         CastorReports.reportPostContingencyPerimeterOptimizationEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
 
-        // 6. merge the results
-        CastorReports.reportMergingPreventiveAndPostContingencyRaoResults(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
-        LinearOptimizationResult finalObjectiveFunctionResult = MarmotUtils.getInitialObjectiveFunctionResult(
-            getPostCurativeOptimizationResults(postCurativeOptimizationResults, postPraResults),
-            fullObjectiveFunction,
-            reportNode
-        );
-        TemporalData<RaoResult> raoResultsPerTimestamp = buildRaoResultsPerTimestamp(
-            initialInputs,
-            stateTrees,
-            initialResults,
-            postPreventiveResults,
-            postCurativeOptimizationResults,
-            raoParameters,
-            reportNode
-        );
-        TimeCoupledRaoResult timeCoupledRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, finalObjectiveFunctionResult, raoResultsPerTimestamp);
+        // 6. Global MIP launched when second preventive is enabled : all the range actions (curative and preventive) are re-optimized, with
+        // only the curative ones being synchronized and the preventive ones being re-optimized freeely.
+        LinearOptimizationResult finalObjectiveFunctionResult;
+        TimeCoupledRaoResult timeCoupledRaoResult;
+        if (!getSecondPreventiveExecutionCondition(raoParameters).equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
+            final ReportNode globalRangeActionsOptimizationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
+            // all the CNECs are considered by the MIP
+            TemporalData<Set<FlowCnec>> allCnecs = cracs.map(Crac::getFlowCnecs);
+            TemporalData<Set<NetworkAction>> preventiveNetworkActions = preventiveOptimizationResults.map(OptimizationResult::getActivatedNetworkActions);
+            TemporalData<AppliedRemedialActions> curativeTopologicalActions = getAppliedPostContingencyRemedialActions(postCurativeOptimizationResults);
+            TemporalData<PrePerimeterResult> postTopologicalActionsResults = Marmot.runAllSensitivityAnalysesBasedOnInitialResult(
+                initialInputs,
+                curativeTopologicalActions,
+                initialResults,
+                raoParametersDuplicates,
+                allCnecs,
+                parallelism,
+                globalRangeActionsOptimizationReportNode
+            );
+            // same global MIP as Marmot with curative range actions optimization enabled
+            GlobalLinearOptimizationResult globalLinearOptimizationResult = Marmot.optimizeLinearRemedialActions(
+                new TimeCoupledRaoInput(initialInputs, timeCoupledRaoInput.getTimestampsToRun(), new TimeCoupledConstraints()),
+                initialResults,
+                Marmot.getInitialSetpointResults(cracs, parallelism),
+                postTopologicalActionsResults,
+                raoParameters,
+                getPreventiveTopologicalActionsResults(cracs, preventiveNetworkActions, parallelism),
+                curativeTopologicalActions,
+                allCnecs,
+                fullObjectiveFunction,
+                true,
+                parallelism,
+                globalRangeActionsOptimizationReportNode
+            );
+            MarmotReports.reportMarmotGlobalRangeActionsOptimizationEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
+
+            // 7. merge the results
+            finalObjectiveFunctionResult = globalLinearOptimizationResult;
+            MarmotReports.reportMarmotMergingTopoAndLinearRemedialActionResults(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
+            timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
+                initialObjectiveFunctionResult,
+                globalLinearOptimizationResult,
+                MarmotUtils.getPostOptimizationResults(
+                initialInputs,
+                initialResults,
+                globalLinearOptimizationResult,
+                preventiveNetworkActions,
+                curativeTopologicalActions,
+                allCnecs,
+                raoParameters,
+                reportNode
+            ));
+        } else {
+            CastorReports.reportMergingPreventiveAndPostContingencyRaoResults(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
+            finalObjectiveFunctionResult = MarmotUtils.getInitialObjectiveFunctionResult(
+                getPostCurativeOptimizationResults(postCurativeOptimizationResults, postPraResults),
+                fullObjectiveFunction,
+                reportNode
+            );
+            TemporalData<RaoResult> raoResults = buildRaoResults(
+                initialInputs,
+                stateTrees,
+                initialResults,
+                postPreventiveResults,
+                postCurativeOptimizationResults,
+                raoParameters,
+                reportNode
+            );
+            timeCoupledRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, finalObjectiveFunctionResult, raoResults);
+        }
 
         // log final results
         MarmotReports.reportCurativeSynchronizationFinalResults(reportNode, finalObjectiveFunctionResult, raoParameters, 10);
         Instant lastInstant = cracs.getData(cracs.getTimestamps().getFirst()).orElseThrow().getLastInstant();
+        // report global optimization cost
         MarmotReports.reportCurativeSynchronizationGlobalCost(
             reportNode,
+            initialObjectiveFunctionResult.getCost(),
             timeCoupledRaoResult.getGlobalCost(lastInstant),
             timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
             timeCoupledRaoResult.getGlobalVirtualCost(lastInstant)
         );
+        // report individual cost for each timestamp
         cracs.getTimestamps().forEach(timestamp -> MarmotReports.reportCurativeSynchronizationCostForTimestamp(
             reportNode,
             timestamp,
@@ -180,42 +247,6 @@ public class TimeCoupledCurativeSynchronization {
         ));
         MarmotUtils.closeAll(initialNetworks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
-    }
-
-    /** Builds one RaoResult per timestamp from its own initial, post-preventive and post-contingency results. */
-    private static TemporalData<RaoResult> buildRaoResultsPerTimestamp(TemporalData<RaoInput> raoInputs,
-                                                                       TemporalData<StateTree> stateTrees,
-                                                                       TemporalData<PrePerimeterResult> initialResults,
-                                                                       TemporalData<PostPerimeterResult> postPreventiveResults,
-                                                                       TemporalData<Map<State, PostPerimeterResult>> postContingencyResults,
-                                                                       RaoParameters raoParameters,
-                                                                       ReportNode reportNode) {
-        Map<OffsetDateTime, RaoResult> raoResultPerTimestamp = new HashMap<>();
-        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> raoResultPerTimestamp.put(timestamp, new PreventiveAndCurativesRaoResultImpl(
-                stateTrees.getData(timestamp).orElseThrow(),
-                initialResults.getData(timestamp).orElseThrow(),
-                postPreventiveResults.getData(timestamp).orElseThrow(),
-                postContingencyResults.getData(timestamp).orElseThrow(),
-                raoInput.getCrac(),
-                raoParameters,
-                reportNode)));
-        return new TemporalDataImpl<>(raoResultPerTimestamp);
-    }
-
-    /**
-     * extracts, for every timestamp, the sensitivity results describing the final situation, it is used to evaluate the global cost.
-     * it's either the ones computed after the curtive optimization or the post-PRA ones when the timestamp has no curative state at all.
-     */
-    private static TemporalData<PrePerimeterResult> getPostCurativeOptimizationResults(TemporalData<Map<State, PostPerimeterResult>> postCurativeOptimizationResults,
-                                                                                       TemporalData<PrePerimeterResult> postPraResults) {
-        TemporalData<PrePerimeterResult> postCurativeResults = new TemporalDataImpl<>();
-        postCurativeOptimizationResults.getDataPerTimestamp().forEach((timestamp, resultPerState) -> postCurativeResults.put(timestamp,
-            resultPerState.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().isCurative())
-                .map(entry -> entry.getValue().prePerimeterResultForAllFollowingStates())
-                .findFirst()
-                .orElse(postPraResults.getData(timestamp).orElseThrow())));
-        return postCurativeResults;
     }
 
     /** Runs every timestamp's preventive optimization in parallel. */
@@ -326,5 +357,91 @@ public class TimeCoupledCurativeSynchronization {
                 return sensitivityAnalysisResult;
             },
             parallelism);
+    }
+
+    /** Builds one RaoResult per timestamp from its own initial, post-preventive and post-contingency results. */
+    private static TemporalData<RaoResult> buildRaoResults(TemporalData<RaoInput> raoInputs,
+                                                           TemporalData<StateTree> stateTrees,
+                                                           TemporalData<PrePerimeterResult> initialResults,
+                                                           TemporalData<PostPerimeterResult> postPreventiveResults,
+                                                           TemporalData<Map<State, PostPerimeterResult>> postContingencyResults,
+                                                           RaoParameters raoParameters,
+                                                           ReportNode reportNode) {
+        Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
+        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) ->
+                raoResults.put(timestamp, new PreventiveAndCurativesRaoResultImpl(
+                    stateTrees.getData(timestamp).orElseThrow(),
+                    initialResults.getData(timestamp).orElseThrow(),
+                    postPreventiveResults.getData(timestamp).orElseThrow(),
+                    postContingencyResults.getData(timestamp).orElseThrow(),
+                    raoInput.getCrac(),
+                    raoParameters,
+                    reportNode)
+                )
+        );
+        return new TemporalDataImpl<>(raoResults);
+    }
+
+    private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActionsResults(TemporalData<Crac> cracs,
+                                                                                             TemporalData<Set<NetworkAction>> preventiveNetworkActions,
+                                                                                             int parallelism) {
+        return MarmotUtils.smartMap(
+                cracs,
+                crac -> new NetworkActionsResultImpl(
+                    Map.of(
+                            crac.getPreventiveState(),
+                            preventiveNetworkActions.getData(crac.getTimestamp().orElseThrow()).orElseThrow()
+                    )),
+                parallelism
+        );
+    }
+
+    /**
+     * Gets, for every timestamp, the post-contingency optimization remedial actions that are applied on the networks
+     * before the global range actions optimization. The curative range actions are left out in order for them to be
+     * re-optimized in the global MIP when second preventive is enabled.
+     * Automan range actions are included because no second automaton simulation is done for now.
+     * the marmot one is not used because we don't have RaoResults at that point.
+     */
+    private static TemporalData<AppliedRemedialActions> getAppliedPostContingencyRemedialActions(TemporalData<Map<State, PostPerimeterResult>> postCurativeOptimizationResults) {
+        return postCurativeOptimizationResults.map(TimeCoupledCurativeSynchronization::getAppliedRemedialActions);
+    }
+
+    /** Gets one timestamp's applied post-contingency remedial actions (network actions + automaton range actions */
+    private static AppliedRemedialActions getAppliedRemedialActions(Map<State, PostPerimeterResult> statePostPerimeterResultMap) {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        for (Map.Entry<State, PostPerimeterResult> entry : statePostPerimeterResultMap.entrySet()) {
+            State state = entry.getKey();
+            OptimizationResult optimizationResult = entry.getValue().optimizationResult();
+            appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions());
+            if (state.getInstant().isAuto()) {
+                for (RangeAction<?> rangeAction : optimizationResult.getActivatedRangeActions(state)) {
+                    appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state));
+                }
+            }
+        }
+        return appliedRemedialActions;
+    }
+
+    /**
+     * Extracts one timestamp's sensitivity results of the final situation, either after the time-coupled curative optimization
+     * or the post-PRA results when the timestamp has no curative state at all.
+     */
+    private static PrePerimeterResult getPostCurativeResults(Map<State, PostPerimeterResult> statePostPerimeterResultMap,
+                                                             PrePerimeterResult postPraResult) {
+        return statePostPerimeterResultMap.entrySet().stream()
+            .filter(statePostPerimeterResultEntry -> statePostPerimeterResultEntry.getKey().getInstant().isCurative())
+            .map(statePostPerimeterResultEntry -> statePostPerimeterResultEntry.getValue().prePerimeterResultForAllFollowingStates())
+            .findFirst().orElse(postPraResult);
+    }
+
+    /** Extracts, for every timestamp, the sensitivity results of the final situation, used to evaluate the global cost. */
+    private static TemporalData<PrePerimeterResult> getPostCurativeOptimizationResults(TemporalData<Map<State, PostPerimeterResult>> postCurativeOptimizationResults,
+                                                                                       TemporalData<PrePerimeterResult> postPraResults) {
+        TemporalData<PrePerimeterResult> postCurativeResults = new TemporalDataImpl<>();
+        postCurativeOptimizationResults.getDataPerTimestamp().forEach((timestamp, statePostPerimeterResult) ->
+                postCurativeResults.put(timestamp, getPostCurativeResults(statePostPerimeterResult, postPraResults.getData(timestamp).orElseThrow()))
+        );
+        return postCurativeResults;
     }
 }

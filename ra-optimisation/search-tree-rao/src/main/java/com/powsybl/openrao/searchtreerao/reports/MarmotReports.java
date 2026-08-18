@@ -241,19 +241,27 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] No time-coupled constraint provided; no need to re-optimize range actions");
     }
 
-    public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode) {
+    public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode, String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimization")
-            .withSeverity(INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimization")
+                .withSeverity(INFO_SEVERITY)
+                .add();
 
-        TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
+        TECHNICAL_LOGS.info("{} ----- Global range actions optimization [start]", prefix);
 
         return addedNode;
     }
 
+    public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode) {
+        return reportMarmotGlobalRangeActionsOptimization(parentNode, MARMOT_PREFIX);
+    }
+
     public static void reportMarmotGlobalRangeActionsOptimizationEnd() {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
+    }
+
+    public static void reportMarmotGlobalRangeActionsOptimizationEnd(String prefix) {
+        TECHNICAL_LOGS.info("{} ----- Global range actions optimization [end]", prefix);
     }
 
     public static ReportNode reportMarmotGlobalRangeActionsOptimizationForIteration(final ReportNode parentNode, final int iterationCounter) {
@@ -287,15 +295,19 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] Systematic time-coupled sensitivity analysis [end]");
     }
 
-    public static ReportNode reportMarmotMergingTopoAndLinearRemedialActionResults(final ReportNode parentNode) {
+    public static ReportNode reportMarmotMergingTopoAndLinearRemedialActionResults(final ReportNode parentNode, String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotMergingTopoAndLinearRemedialActionResults")
             .withSeverity(TRACE_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
+        TECHNICAL_LOGS.info("{} Merging topological and linear remedial action results", prefix);
 
         return addedNode;
+    }
+
+    public static ReportNode reportMarmotMergingTopoAndLinearRemedialActionResults(final ReportNode parentNode) {
+        return reportMarmotMergingTopoAndLinearRemedialActionResults(parentNode, MARMOT_PREFIX);
     }
 
     public static void reportMarmotCnecs(final ReportNode parentNode, final List<Marmot.LoggingAddedCnecs> addedCnecsForLogging) {
@@ -357,23 +369,36 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", timestamp);
     }
 
-    public static void reportCurativeSynchronizationGlobalCost(final ReportNode parentNode, final double globalCost, final double functionalCost, final double virtualCost) {
+    public static void reportCurativeSynchronizationGlobalCost(final ReportNode parentNode,
+                                                               final double initialGlobalCost,
+                                                               final double globalCost,
+                                                               final double functionalCost,
+                                                               final double virtualCost) {
+        final String initialCostFormatted = ReportUtils.formatDoubleBasedOnMargin(initialGlobalCost, -initialGlobalCost);
+        final String costFormatted = ReportUtils.formatDoubleBasedOnMargin(globalCost, -globalCost);
+        final String functionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(functionalCost, -globalCost);
+        final String virtualCostFormatted = ReportUtils.formatDoubleBasedOnMargin(virtualCost, -globalCost);
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCurativeSynchronizationGlobalCost")
-            .withUntypedValue("cost", ReportUtils.formatDoubleBasedOnMargin(globalCost, -globalCost))
-            .withUntypedValue("functionalCost", ReportUtils.formatDoubleBasedOnMargin(functionalCost, -globalCost))
-            .withUntypedValue("virtualCost", ReportUtils.formatDoubleBasedOnMargin(virtualCost, -globalCost))
+            .withUntypedValue("initialCost", initialCostFormatted)
+            .withUntypedValue("cost", costFormatted)
+            .withUntypedValue("functionalCost", functionalCostFormatted)
+            .withUntypedValue("virtualCost", virtualCostFormatted)
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("{} Global cost after time-coupled curative synchronization : cost = {} (functional: {}, virtual: {}).",
+        BUSINESS_LOGS.info("{} Global cost before : {}, Global cost after time-coupled curative synchronization : cost = {} (functional: {}, virtual: {}).",
             CURATIVE_SYNCHRONIZATION_PREFIX,
+            ReportUtils.formatDoubleBasedOnMargin(initialGlobalCost, -initialGlobalCost),
             ReportUtils.formatDoubleBasedOnMargin(globalCost, -globalCost),
             ReportUtils.formatDoubleBasedOnMargin(functionalCost, -globalCost),
             ReportUtils.formatDoubleBasedOnMargin(virtualCost, -globalCost)
         );
     }
 
-    public static void reportCurativeSynchronizationCostForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp, final double functionalCost, final double virtualCost) {
+    public static void reportCurativeSynchronizationCostForTimestamp(final ReportNode parentNode,
+                                                                     final OffsetDateTime timestamp,
+                                                                     final double functionalCost,
+                                                                     final double virtualCost) {
         final double cost = functionalCost + virtualCost;
         final String costFormatted = ReportUtils.formatDoubleBasedOnMargin(cost, -cost);
         final String functionalCostFormatted = ReportUtils.formatDoubleBasedOnMargin(functionalCost, -cost);
