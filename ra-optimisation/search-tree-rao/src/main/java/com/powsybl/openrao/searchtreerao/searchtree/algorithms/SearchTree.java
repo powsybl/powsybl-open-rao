@@ -117,7 +117,8 @@ public class SearchTree {
         this.bloomer = new SearchTreeBloomer(input, parameters);
         this.initialNumberOfConnectedComponent = null;
         if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
-            this.initialNumberOfConnectedComponent = getNumberOfConnectedComponent(input.getNetwork());
+            this.initialNumberOfConnectedComponent = getNumberOfConnectedComponent(
+                    input.getAllNetworks().getData(input.getAllNetworks().getTimestamps().getFirst()).orElseThrow());
         }
     }
 
@@ -134,6 +135,7 @@ public class SearchTree {
 
             // Get Loadflow and sensitivity parameters
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters(reportNode));
+
             input.getAllNetworks().getDataPerTimestamp().forEach(
                     (timestamp, network) -> {
                         OptimizationPerimeter perimeter = input.getAllOptimizationPerimeters().getData(timestamp).orElseThrow();
@@ -152,6 +154,7 @@ public class SearchTree {
                             );
                         }
                     });
+
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputersForEvaluation(true, reportNode), reportNode);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
@@ -270,7 +273,8 @@ public class SearchTree {
                                                         final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
-        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        input.getAllNetworks().getDataPerTimestamp().values()
+                .forEach(network -> network.getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID));
         naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, availableNetworkActions, reportNode));
         int numberOfCombinations = naCombinationsSorted.size();
 
@@ -626,10 +630,6 @@ public class SearchTree {
         return new HashSet<>(networkActionsById.values());
     }
 
-    private int getMipParallelism() {
-        return Math.min(parameters.getTreeParameters().leavesInParallel(), input.getAllNetworks().getTimestamps().size());
-    }
-
     private void reportVirtualCostInformation(final ReportNode reportNode, final Leaf rootLeaf, final boolean optimized) {
         VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, rootLeaf, parameters.getFlowUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, optimized);
     }
@@ -649,5 +649,9 @@ public class SearchTree {
         } else {
             reportTechnicalMostLimitingElements(leaf, numberLoggedElementsDuringTree);
         }
+    }
+
+    private int getMipParallelism() {
+        return Math.min(parameters.getTreeParameters().leavesInParallel(), input.getAllNetworks().getTimestamps().size());
     }
 }
