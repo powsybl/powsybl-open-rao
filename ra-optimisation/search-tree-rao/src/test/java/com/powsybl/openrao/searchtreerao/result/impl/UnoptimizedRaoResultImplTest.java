@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -218,13 +217,5 @@ class UnoptimizedRaoResultImplTest {
     void testGetActivatedRangeActionsDuringState() {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
-    }
-
-    @Test
-    void testOptimizedStepsExecuted() {
-        setUp();
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, output.getExecutionDetails());
-        output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, output.getExecutionDetails());
     }
 }

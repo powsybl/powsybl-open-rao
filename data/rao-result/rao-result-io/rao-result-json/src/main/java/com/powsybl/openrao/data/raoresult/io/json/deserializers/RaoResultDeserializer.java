@@ -100,7 +100,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case OPTIMIZATION_STEPS_EXECUTED:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
-                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
+                    metadata.setExecutionDetails(jsonParser.nextTextValue());
                     break;
 
                 case EXECUTION_DETAILS:

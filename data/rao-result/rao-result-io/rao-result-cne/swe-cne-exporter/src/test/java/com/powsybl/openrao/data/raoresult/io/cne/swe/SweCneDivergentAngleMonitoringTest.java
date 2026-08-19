@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.CnecResult;
@@ -72,7 +73,10 @@ class SweCneDivergentAngleMonitoringTest {
         raoResult.getAndCreateIfAbsentNetworkActionResult(crac.getNetworkAction("na1")).addActivationForState(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)));
         AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResult.addExtension(AngleResult.class, angleResult);
-        raoResult.setComputationStatus(ComputationStatus.FAILURE);
+
+        Metadata metadata = new Metadata();
+        metadata.setComputationStatus(ComputationStatus.FAILURE);
+        raoResult.addExtension(Metadata.class, metadata);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();

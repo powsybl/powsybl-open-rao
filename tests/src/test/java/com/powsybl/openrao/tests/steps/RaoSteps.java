@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -871,8 +872,8 @@ public class RaoSteps {
         //Filter flow cnecs from failed perimeters
         final RaoResult commonTestRaoResult = CommonTestData.getRaoResult();
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> commonTestRaoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
-                        .collect(Collectors.toSet());
+            .filter(RaoSteps::hasStateComputationFailed)
+            .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
                 continue;
@@ -907,6 +908,11 @@ public class RaoSteps {
 
         FlowCnec worstCnecAlphabetical = worstCnecs.stream().sorted(Comparator.comparing(Identifiable::getId)).toList().getFirst();
         return new ImmutablePair<>(worstCnecAlphabetical, worstMargin);
+    }
+
+    private static boolean hasStateComputationFailed(State state) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
     }
 
     /*

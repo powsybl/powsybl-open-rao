@@ -183,15 +183,4 @@ class FastRaoResultImplTest {
         assertEquals(Map.of(rangeAction, 8.8), result.getOptimizedSetPointsOnState(state));
 
     }
-
-    @Test
-    void testExecutionDetailsAndStatus() {
-        result.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, result.getExecutionDetails());
-        State state = Mockito.mock(State.class);
-        when(state.getInstant()).thenReturn(crac.getInstant("preventive"));
-        when(afterPraResult.getComputationStatus(state)).thenReturn(FAILURE);
-        assertEquals(FAILURE, result.getComputationStatus(state));
-    }
-
 }

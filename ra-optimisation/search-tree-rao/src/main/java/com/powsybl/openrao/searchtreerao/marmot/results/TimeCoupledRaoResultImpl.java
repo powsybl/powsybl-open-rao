@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
@@ -66,16 +65,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
         RaoResultArchiveManager.exportAndZipResults(zipOutputStream, this, cracs, properties);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return MarmotUtils.getGlobalComputationStatus(raoResultPerTimestamp, RaoResult::getComputationStatus);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return MarmotUtils.getDataFromState(raoResultPerTimestamp, state).getComputationStatus(state);
     }
 
     @Override

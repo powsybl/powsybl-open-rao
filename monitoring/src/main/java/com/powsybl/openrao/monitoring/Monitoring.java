@@ -46,6 +46,7 @@ import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
@@ -627,9 +628,19 @@ public class Monitoring {
             raoParameters,
             ReportNode.NO_OP
         );
-        raoResultWithMonitoring.setExecutionDetails(
-            raoResultWithMonitoring.getExecutionDetails()
-                + " and went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
+
+        if (raoResultWithMonitoring.getExtension(Metadata.class) == null) {
+            raoResultWithMonitoring.addExtension(Metadata.class, new Metadata());
+        }
+        Metadata metadata = raoResultWithMonitoring.getExtension(Metadata.class);
+        metadata.getExecutionDetails().ifPresentOrElse(
+            executionDetails -> metadata.setExecutionDetails(
+                executionDetails
+                    + " and went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
+            ),
+            () -> metadata.setExecutionDetails(
+                "RAO went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
+            )
         );
         raoResultWithMonitoring.addExtension(
             extensionClass,

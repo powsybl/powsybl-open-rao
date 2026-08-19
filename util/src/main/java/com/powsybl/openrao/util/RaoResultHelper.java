@@ -335,6 +335,7 @@ public final class RaoResultHelper {
                 reportNode
             );
 
+            // TODO: clone metadata
             mergedRaoResult.setExecutionDetails(raoResult.getExecutionDetails());
             cleanNetworkVariants(network, initialVariant, initialVariants);
             return mergedRaoResult;

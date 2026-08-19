@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import org.junit.jupiter.api.Test;
 
@@ -871,9 +872,11 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
         checkVoltages(importedRaoResult, crac, 1, 3);
         // Test computation status map
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+        Metadata metadata = importedRaoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
     }
 
     private void testBaseContentOfV1Point6RaoResult(RaoResult importedRaoResult, Crac crac) {
@@ -883,9 +886,11 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
         checkVoltages(importedRaoResult, crac, 1, 6);
         // Test computation status map
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+        Metadata metadata = importedRaoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
     }
 
     private void testBaseContentOfV1Point7RaoResult(RaoResult importedRaoResult, Crac crac) {
