@@ -53,7 +53,7 @@ class TimeCoupledCurativeSynchronizationTest {
      * </p>
      */
     @Test
-    void testGlobalMipSynchronizesCurativePst() throws IOException {
+    void testGlobalMipSavesTheOverload() throws IOException {
         String networkFilePath = "/network/3NodesPST.uct";
         Network network1 = Network.read(networkFilePath, TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream(networkFilePath));
@@ -100,7 +100,7 @@ class TimeCoupledCurativeSynchronizationTest {
      * </p>
      */
     @Test
-    void testSynchronizedCurativePstWithRedispatchingFromGlobalMip() throws IOException {
+    void testCurativeSynchronizationAndGlobalMip() throws IOException {
         String networkFilePath = "/network/3NodesPST.uct";
         Network network1 = Network.read(networkFilePath, TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream(networkFilePath));
