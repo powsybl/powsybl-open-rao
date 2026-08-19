@@ -54,8 +54,19 @@ public interface State extends Comparable<State> {
 
     @Override
     default int compareTo(State state) {
-        // TODO: make this more robust
         if (state.getTimestamp().equals(getTimestamp())) {
+            if (getInstant().getOrder() == state.getInstant().getOrder()) {
+                if (getContingency().equals(state.getContingency())) {
+                    return 0;
+                }
+                Optional<Contingency> contingency = getContingency();
+                Optional<Contingency> otherContingency = state.getContingency();
+                if (contingency.isEmpty() || otherContingency.isEmpty()) {
+                    // should not happen if states are properly defined
+                    throw new OpenRaoException("Cannot compare states with no contingency");
+                }
+                return contingency.get().getId().compareTo(otherContingency.get().getId());
+            }
             return getInstant().getOrder() - state.getInstant().getOrder();
         }
         Optional<OffsetDateTime> timestamp = getTimestamp();
