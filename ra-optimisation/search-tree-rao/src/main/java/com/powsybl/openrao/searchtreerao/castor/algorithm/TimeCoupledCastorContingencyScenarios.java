@@ -352,20 +352,12 @@ public class TimeCoupledCastorContingencyScenarios {
         // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
         if (state.getInstant().equals(crac.getLastInstant())) {
             OptimizationResult optimizationResultForTimestamp = getOptimizationResult(optimizationResult, state, timestamp, objectiveFunction, reportNode);
-            RangeActionActivationResult raActivationForState;
-            // when the method is called after automaton simulation it contains a single result (automaton simulation is not time coupled)
-            // and when it is called after time coupled search tree it contains one result per timestamp therefore they must be differenciated
-            if (optimizationResult instanceof Leaf leaf) {
-                raActivationForState = leaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow();
-            } else {
-                raActivationForState = optimizationResult;
-            }
             return new PostPerimeterResult(
                 optimizationResultForTimestamp,
                 new PrePerimeterSensitivityResultImpl(
                     optimizationResultForTimestamp,
                     optimizationResultForTimestamp,
-                    RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(raActivationForState, state),
+                    RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(optimizationResultForTimestamp, state),
                     optimizationResultForTimestamp
                 )
             );
@@ -391,6 +383,8 @@ public class TimeCoupledCastorContingencyScenarios {
 
     /** Get the optimization result of one timestamp. */
     OptimizationResult getOptimizationResult(OptimizationResult optimizationResult, State state, OffsetDateTime timestamp, ObjectiveFunction perTimestampObjectiveFunction, ReportNode reportNode) {
+        // when the method is called after automaton simulation it contains a single result (automaton simulation is not time coupled)
+        // and when it is called after time coupled search tree it
         if (optimizationResult instanceof Leaf leaf) {
             RangeActionActivationResult activationForTimestamp = leaf.getAllRangeActionActivationResults().getData(timestamp).orElseThrow();
             // the shared decision is declared at this timestamp's state only

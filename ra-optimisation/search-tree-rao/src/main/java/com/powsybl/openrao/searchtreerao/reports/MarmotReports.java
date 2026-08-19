@@ -243,9 +243,9 @@ public final class MarmotReports {
 
     public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode, String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
-                .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimization")
-                .withSeverity(INFO_SEVERITY)
-                .add();
+            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimization")
+            .withSeverity(INFO_SEVERITY)
+            .add();
 
         TECHNICAL_LOGS.info("{} ----- Global range actions optimization [start]", prefix);
 

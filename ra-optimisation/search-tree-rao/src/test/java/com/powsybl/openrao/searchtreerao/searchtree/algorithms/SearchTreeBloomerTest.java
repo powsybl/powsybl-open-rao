@@ -185,7 +185,8 @@ class SearchTreeBloomerTest {
         Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
 
         // init bloomer with fake raUsageLimits
-        SearchTreeBloomer bloomer = initBloomer(naCombinations.stream().toList(), Map.of(Mockito.mock(Instant.class), new RaUsageLimits()));
+        Instant fakeInstant = Mockito.mock(Instant.class);
+        SearchTreeBloomer bloomer = initBloomer(naCombinations.stream().toList(), Map.of(fakeInstant, new RaUsageLimits()));
 
         // asserts that no range action should be removed as there are no RaUsageLimits in preventive
         for (NetworkActionCombination na : naCombinations) {
