@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -48,6 +49,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -97,7 +99,7 @@ class CastorFullOptimizationTest {
 
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
     }
 
     @Test
@@ -121,7 +123,7 @@ class CastorFullOptimizationTest {
 
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
     }
 
     @Test
@@ -147,7 +149,7 @@ class CastorFullOptimizationTest {
 
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
     }
 
     @Test
@@ -164,7 +166,7 @@ class CastorFullOptimizationTest {
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
 
         // Test Optimization steps executed
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
 
         // Test final log after RAO fallbacks
         listAppender.stop();
@@ -499,10 +501,7 @@ class CastorFullOptimizationTest {
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-        assertEquals(
-            "RAO failed during data initialization : This exception should be caught",
-            raoResult.getExecutionDetails()
-        );
+        checkExecutionDetails(raoResult, "RAO failed during data initialization : This exception should be caught");
     }
 
     @Test
@@ -517,7 +516,7 @@ class CastorFullOptimizationTest {
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-        assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, "RAO failed during initial sensitivity analysis : Testing exception handling");
     }
 
     @Test
@@ -527,7 +526,7 @@ class CastorFullOptimizationTest {
         when(raoParameters.getTopoOptimizationParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, "RAO failed during first preventive : Testing exception handling");
     }
 
     @Test
@@ -540,7 +539,7 @@ class CastorFullOptimizationTest {
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setTopoOptimizationParameters(topoOptimizationParameters);
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals("RAO failed during contingency scenarios : Testing exception handling", raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, "RAO failed during contingency scenarios : Testing exception handling");
     }
 
     @Test
@@ -554,7 +553,7 @@ class CastorFullOptimizationTest {
         when(searchTreeParametersSpied.getSecondPreventiveRaoParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertEquals("RAO failed during second preventive optimization : Testing exception handling", raoResult.getExecutionDetails());
+        checkExecutionDetails(raoResult, "RAO failed during second preventive optimization : Testing exception handling");
     }
 
     // Costly optimization tests
@@ -611,5 +610,12 @@ class CastorFullOptimizationTest {
 
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
         assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
+    }
+
+    private static void checkExecutionDetails(RaoResult raoResult, String expectedExecutionDetails) {
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals(expectedExecutionDetails, metadata.getExecutionDetails().get());
     }
 }

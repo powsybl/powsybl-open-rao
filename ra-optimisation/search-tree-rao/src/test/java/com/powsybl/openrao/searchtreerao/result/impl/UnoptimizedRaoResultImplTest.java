@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,12 +47,6 @@ class UnoptimizedRaoResultImplTest {
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);
-    }
-
-    @Test
-    void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test

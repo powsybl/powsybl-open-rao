@@ -136,7 +136,11 @@ class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+
         checkVoltages(raoResult, crac, 1, 2);
     }
 
@@ -253,8 +257,10 @@ class ImporterRetrocompatibilityTest {
 
         // --------------------------
         // --- Computation status ---
-        // --------------------------
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus());
+        // --------------------------*
+        Metadata metadata = importedRaoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
 
         // --------------------------
         // --- test Costs results ---
@@ -870,15 +876,15 @@ class ImporterRetrocompatibilityTest {
         // --------------------------
         // --- Computation status ---
         // --------------------------
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, importedRaoResult.getComputationStatus());
-
-        checkVoltages(importedRaoResult, crac, 1, 3);
-        // Test computation status map
         Metadata metadata = importedRaoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
+        // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+
+        checkVoltages(importedRaoResult, crac, 1, 3);
     }
 
     private void testBaseContentOfV1Point6RaoResult(RaoResult importedRaoResult, Crac crac) {
@@ -898,8 +904,11 @@ class ImporterRetrocompatibilityTest {
     private void testBaseContentOfV1Point7RaoResult(RaoResult importedRaoResult, Crac crac) {
 
         testBaseContentOfV1Point6RaoResult(importedRaoResult, crac);
+
         // check execution details
-        assertEquals("Custom execution details", importedRaoResult.getExecutionDetails());
+        Metadata metadata = importedRaoResult.getExtension(Metadata.class); // non null check already performed
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals("Custom execution details", metadata.getExecutionDetails().get());
     }
 
     private void testBaseContentOfV1Point8RaoResult(RaoResult importedRaoResult, Crac crac) {

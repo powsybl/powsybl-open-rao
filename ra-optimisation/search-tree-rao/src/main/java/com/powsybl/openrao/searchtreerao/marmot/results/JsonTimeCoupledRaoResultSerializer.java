@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
@@ -55,7 +56,8 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
         jsonGenerator.writeStringField(JsonSerializationConstants.INFO, RaoResultJsonConstants.RAO_RESULT_INFO);
 
         // computation status
-        ComputationStatus computationStatus = timeCoupledRaoResult.getComputationStatus();
+        Metadata metadata = timeCoupledRaoResult.getExtension(Metadata.class);
+        ComputationStatus computationStatus = metadata == null ? ComputationStatus.DEFAULT : metadata.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         serializeRaoResultPerTimestamp(timeCoupledRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);

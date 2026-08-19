@@ -422,8 +422,5 @@ class PreventiveAndCurativesRaoResultImplTest {
             .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
             .filter(state -> crac.getCnecs(state).isEmpty())
             .forEach(state -> postContingencyResults.put(state, failurePostPerimeterResult));
-
-        // status should ignore cnecless states and return DEFAULT
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 }

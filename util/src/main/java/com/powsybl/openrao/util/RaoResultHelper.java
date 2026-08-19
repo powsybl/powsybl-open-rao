@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
@@ -102,7 +103,8 @@ public final class RaoResultHelper {
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
         }
-        if (raoResult.getComputationStatus() == ComputationStatus.FAILURE) {
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        if (metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
             return false;
         }
@@ -335,8 +337,18 @@ public final class RaoResultHelper {
                 reportNode
             );
 
-            // TODO: clone metadata
-            mergedRaoResult.setExecutionDetails(raoResult.getExecutionDetails());
+            String executionDetails = null;
+            Metadata metadata = raoResult.getExtension(Metadata.class);
+            if (metadata != null) {
+                executionDetails = metadata.getExecutionDetails().orElse(null);
+            }
+            fillAndAddMetadata(
+                mergedRaoResult,
+                crac,
+                preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                postMergingContingencyResults,
+                executionDetails
+            );
             cleanNetworkVariants(network, initialVariant, initialVariants);
             return mergedRaoResult;
         } catch (OpenRaoException e) {
@@ -355,5 +367,34 @@ public final class RaoResultHelper {
             }
         }
         variantsToRemove.forEach(network.getVariantManager()::removeVariant);
+    }
+
+    private static void fillAndAddMetadata(RaoResult raoResult,
+                                           Crac crac,
+                                           PrePerimeterResult postPreventiveResults,
+                                           Map<State, PostPerimeterResult> postMergingContingencyResults,
+                                           String executionDetails) {
+        Metadata metadata = new Metadata();
+        if (executionDetails != null) {
+            metadata.setExecutionDetails(executionDetails);
+        }
+        for (State state : crac.getStates()) {
+            ComputationStatus computationStatus = getAppropriateResult(state, postPreventiveResults, postMergingContingencyResults)
+                .getComputationStatus(state);
+            if (computationStatus != ComputationStatus.DEFAULT) {
+                metadata.setComputationStatus(state, computationStatus);
+            }
+        }
+        raoResult.addExtension(Metadata.class, metadata);
+    }
+
+    private static PrePerimeterResult getAppropriateResult(State state,
+                                                           PrePerimeterResult postPreventiveResults,
+                                                           Map<State, PostPerimeterResult> postMergingContingencyResults) {
+        if (state.isPreventive() || state.getInstant().isOutage()) {
+            return postPreventiveResults;
+        }
+        PostPerimeterResult postPerimeterResult = postMergingContingencyResults.get(state);
+        return postPerimeterResult != null ? postPerimeterResult.prePerimeterResultForAllFollowingStates() : postPreventiveResults;
     }
 }

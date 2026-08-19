@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
@@ -48,7 +49,8 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
-        if (!ComputationStatus.FAILURE.equals(raoResult.getComputationStatus())) {
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        if (metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
             NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);

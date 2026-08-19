@@ -26,8 +26,6 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -150,27 +148,5 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return MarmotUtils.getDataFromState(raoResultPerTimestamp, state).getOptimizedSetPointsOnState(state);
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        List<String> executionDetails = new ArrayList<>();
-        getTimestamps().forEach(timestamp -> executionDetails.add(
-            timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + ": " + raoResultPerTimestamp.getData(timestamp).orElseThrow().getExecutionDetails()
-        ));
-        return String.join(" - ", executionDetails);
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        // nothing to do
-    }
-
-    private ObjectiveFunctionResult getRelevantResult(Instant instant) {
-        if (instant == null) {
-            return initialGlobalObjectiveFunctionResult;
-        } else {
-            return finalGlobalObjectiveFunctionResult;
-        }
     }
 }

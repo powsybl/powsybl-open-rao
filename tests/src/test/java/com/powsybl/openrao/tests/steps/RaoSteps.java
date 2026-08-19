@@ -150,17 +150,23 @@ public class RaoSteps {
 
     @Then("the calculation succeeds")
     public void theCalculationSucceeds() {
-        assertEquals(ComputationStatus.DEFAULT, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 
     @Then("the calculation partially fails")
     public void theCalculationPartiallyFails() {
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
 
     @Then("the calculation fails")
     public void theCalculationFails() {
-        assertEquals(ComputationStatus.FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Then("its security status should be {string}")
@@ -921,6 +927,9 @@ public class RaoSteps {
 
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
-        assertEquals(string, CommonTestData.getRaoResult().getExecutionDetails());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals(string, metadata.getExecutionDetails().get());
     }
 }
