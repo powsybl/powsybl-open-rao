@@ -131,8 +131,6 @@ class RaoResultImplTest {
         costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
         raoResult.addExtension(CostResult.class, costResult);
-
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }
 
     private void getResultAtAGivenState(Instant optimizedInstant) {
@@ -249,13 +247,6 @@ class RaoResultImplTest {
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
         raoResult.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getExecutionDetails());
-    }
-
-    @Test
-    void testSensitivityStatus() {
-        setUp();
-        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant), ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant)));
     }
 
     @Test

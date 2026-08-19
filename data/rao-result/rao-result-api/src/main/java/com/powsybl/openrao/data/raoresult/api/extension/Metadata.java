@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,21 @@ public class Metadata extends AbstractExtension<RaoResult> {
         // - preventive default + not all curative failure -> partial failure
         // - preventive default + all curative failure -> failure
         // - preventive default + all curative default -> default
+        // if (computationStatusPerState.isEmpty()) {
+        //     return DEFAULT_COMPUTATION_STATUS;
+        // }
+        // boolean anyFailure = false;
+        // for (State state : computationStatusPerState.keySet()) {
+        //     ComputationStatus stateStatus = computationStatusPerState.get(state);
+        //     if (stateStatus == ComputationStatus.FAILURE) {
+        //         if (state.isPreventive()) {
+        //             // TODO: is it okay in multi-timestamp computations?
+        //             return ComputationStatus.FAILURE;
+        //         }
+        //         anyFailure = true;
+        //     }
+        // }
+        // return anyFailure ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
         return computationStatus == null ? DEFAULT_COMPUTATION_STATUS : computationStatus;
     }
 
@@ -65,15 +79,19 @@ public class Metadata extends AbstractExtension<RaoResult> {
         return Optional.ofNullable(executionDetails);
     }
 
-    void setComputationStatus(ComputationStatus computationStatus) {
-        this.computationStatus = computationStatus;
+    public void setComputationStatus(ComputationStatus computationStatus) {
+        if (computationStatus != null) {
+            this.computationStatus = computationStatus;
+        }
     }
 
-    void setComputationStatusPerState(State state, ComputationStatus computationStatus) {
-        this.computationStatusPerState.put(state, computationStatus);
+    public void setComputationStatus(State state, ComputationStatus computationStatus) {
+        if (computationStatus != null) {
+            this.computationStatusPerState.put(state, computationStatus);
+        }
     }
 
-    void setExecutionDetails(String executionDetails) {
+    public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
     }
 
@@ -84,7 +102,7 @@ public class Metadata extends AbstractExtension<RaoResult> {
 
     public void serialize(JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("computationStatus", getComputationStatus().toString());
+        jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(getComputationStatus()));
         if (executionDetails != null) {
             jsonGenerator.writeStringField("executionDetails", executionDetails);
         }
@@ -92,14 +110,12 @@ public class Metadata extends AbstractExtension<RaoResult> {
             jsonGenerator.writeArrayFieldStart("computationStatusMap");
             for (State state : getSortedStates()) {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("computationStatus", computationStatusPerState.get(state).toString());
+                jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(computationStatusPerState.get(state)));
                 jsonGenerator.writeStringField("instant", state.getInstant().getId());
                 if (state.getContingency().isPresent()) {
                     jsonGenerator.writeStringField("contingency", state.getContingency().get().getId());
                 }
-                if (state.getTimestamp().isPresent()) {
-                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(state.getTimestamp().get()));
-                }
+                // TODO: serialize timestamp?
                 jsonGenerator.writeEndObject();
             }
             jsonGenerator.writeEndArray();
@@ -109,5 +125,9 @@ public class Metadata extends AbstractExtension<RaoResult> {
 
     private List<State> getSortedStates() {
         return computationStatusPerState.keySet().stream().sorted().toList();
+    }
+
+    private static String getComputationStatusAsString(ComputationStatus computationStatus) {
+        return computationStatus.name().toLowerCase().replace("_", "-");
     }
 }

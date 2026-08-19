@@ -55,7 +55,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @deprecated since 7.5.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    ComputationStatus getComputationStatus();
+    default ComputationStatus getComputationStatus() {
+        Metadata metadata = getExtension(Metadata.class);
+        return metadata == null ? ComputationStatus.DEFAULT : metadata.getComputationStatus();
+    }
 
     /**
      * Get the sensitivity computation status for a given state
@@ -63,7 +66,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @deprecated since 7.5.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    ComputationStatus getComputationStatus(State state);
+    default ComputationStatus getComputationStatus(State state) {
+        Metadata metadata = getExtension(Metadata.class);
+        return metadata == null ? ComputationStatus.DEFAULT : metadata.getComputationStatus(state);
+    }
 
     /**
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
@@ -525,10 +531,20 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @deprecated since 7.5.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    String getExecutionDetails();
+    default String getExecutionDetails() {
+        Metadata metadata = getExtension(Metadata.class);
+        return metadata == null ? "Not provided." : metadata.getExecutionDetails().orElse("Not provided.");
+    }
 
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    void setExecutionDetails(String executionDetails);
+    default void setExecutionDetails(String executionDetails) {
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata == null) {
+            metadata = new Metadata();
+            addExtension(Metadata.class, metadata);
+        }
+        metadata.setExecutionDetails(executionDetails);
+    }
 
     /**
      * Import RaoResult from a file

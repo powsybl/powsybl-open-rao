@@ -54,6 +54,7 @@ public interface State extends Comparable<State> {
 
     @Override
     default int compareTo(State state) {
+        // TODO: make this more robust
         if (state.getTimestamp().equals(getTimestamp())) {
             return getInstant().getOrder() - state.getInstant().getOrder();
         }

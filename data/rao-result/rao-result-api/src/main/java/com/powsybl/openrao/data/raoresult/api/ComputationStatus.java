@@ -13,10 +13,5 @@ package com.powsybl.openrao.data.raoresult.api;
 public enum ComputationStatus {
     DEFAULT,
     PARTIAL_FAILURE,
-    FAILURE;
-
-    @Override
-    public String toString() {
-        return name().toLowerCase().replace("_", "-");
-    }
+    FAILURE
 }

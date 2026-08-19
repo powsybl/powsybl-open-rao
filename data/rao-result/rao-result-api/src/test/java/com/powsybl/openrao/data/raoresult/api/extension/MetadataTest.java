@@ -73,8 +73,8 @@ class MetadataTest {
         // Default value for unknown state
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(state1));
 
-        metadata.setComputationStatusPerState(state1, ComputationStatus.FAILURE);
-        metadata.setComputationStatusPerState(state2, ComputationStatus.PARTIAL_FAILURE);
+        metadata.setComputationStatus(state1, ComputationStatus.FAILURE);
+        metadata.setComputationStatus(state2, ComputationStatus.PARTIAL_FAILURE);
 
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus(state1));
         assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus(state2));
@@ -155,10 +155,10 @@ class MetadataTest {
         when(instant3.getOrder()).thenReturn(3);
         when(instant4.getOrder()).thenReturn(4);
 
-        metadata.setComputationStatusPerState(state1, ComputationStatus.DEFAULT);
-        metadata.setComputationStatusPerState(state2, ComputationStatus.FAILURE);
-        metadata.setComputationStatusPerState(state3, ComputationStatus.PARTIAL_FAILURE);
-        metadata.setComputationStatusPerState(state4, ComputationStatus.DEFAULT);
+        metadata.setComputationStatus(state1, ComputationStatus.DEFAULT);
+        metadata.setComputationStatus(state2, ComputationStatus.FAILURE);
+        metadata.setComputationStatus(state3, ComputationStatus.PARTIAL_FAILURE);
+        metadata.setComputationStatus(state4, ComputationStatus.DEFAULT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
@@ -172,8 +172,8 @@ class MetadataTest {
             + "\"computationStatusMap\":["
             + "{\"computationStatus\":\"default\",\"instant\":\"i1\"},"
             + "{\"computationStatus\":\"failure\",\"instant\":\"i2\",\"contingency\":\"c2\"},"
-            + "{\"computationStatus\":\"partial-failure\",\"instant\":\"i3\",\"timestamp\":\"2026-08-18T10:00:00Z\"},"
-            + "{\"computationStatus\":\"default\",\"instant\":\"i4\",\"contingency\":\"c4\",\"timestamp\":\"2026-08-18T11:00:00Z\"}"
+            + "{\"computationStatus\":\"partial-failure\",\"instant\":\"i3\"},"
+            + "{\"computationStatus\":\"default\",\"instant\":\"i4\",\"contingency\":\"c4\"}"
             + "]"
             + "}";
         assertEquals(expectedJson, writer.toString());

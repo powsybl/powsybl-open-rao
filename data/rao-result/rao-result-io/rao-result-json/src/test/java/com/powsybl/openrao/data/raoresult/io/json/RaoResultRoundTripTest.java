@@ -528,7 +528,6 @@ class RaoResultRoundTripTest {
         raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).addActivationForState(crac.getPreventiveState(), 10.);
         raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).addActivationForState(autoState, 20.);
         raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).addActivationForState(curativeState, 30.);
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
         return raoResult;
     }

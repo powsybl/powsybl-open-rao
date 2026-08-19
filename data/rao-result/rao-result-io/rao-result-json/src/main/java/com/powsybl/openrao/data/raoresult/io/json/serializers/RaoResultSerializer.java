@@ -19,15 +19,12 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.EXECUTION_DETAILS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INFO;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_INFO;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,13 +48,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
-        // computation status
-        ComputationStatus computationStatus = raoResult.getComputationStatus();
-        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
-        jsonGenerator.writeStringField(EXECUTION_DETAILS, raoResult.getExecutionDetails());
-
-        if (!ComputationStatus.FAILURE.equals(computationStatus)) {
-            ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
+        if (!ComputationStatus.FAILURE.equals(raoResult.getComputationStatus())) {
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
             NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
