@@ -199,8 +199,8 @@ class MetadataTest {
             + "\"computationStatusMap\":["
             + "{\"computationStatus\":\"default\",\"instant\":\"i1\"},"
             + "{\"computationStatus\":\"failure\",\"instant\":\"i2\",\"contingency\":\"c2\"},"
-            + "{\"computationStatus\":\"partial-failure\",\"instant\":\"i3\"},"
-            + "{\"computationStatus\":\"default\",\"instant\":\"i4\",\"contingency\":\"c4\"}"
+            + "{\"computationStatus\":\"partial-failure\",\"instant\":\"i3\",\"timestamp\":\"2026-08-18T10:00:00Z\"},"
+            + "{\"computationStatus\":\"default\",\"instant\":\"i4\",\"contingency\":\"c4\",\"timestamp\":\"2026-08-18T11:00:00Z\"}"
             + "]"
             + "}";
         assertEquals(expectedJson, writer.toString());

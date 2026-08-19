@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,9 @@ public class Metadata extends AbstractExtension<RaoResult> {
                 if (state.getContingency().isPresent()) {
                     jsonGenerator.writeStringField("contingency", state.getContingency().get().getId());
                 }
-                // TODO: serialize timestamp?
+                if (state.getTimestamp().isPresent()) {
+                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(state.getTimestamp().get()));
+                }
                 jsonGenerator.writeEndObject();
             }
             jsonGenerator.writeEndArray();
