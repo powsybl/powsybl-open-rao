@@ -114,6 +114,8 @@ class SweCneTest {
 
         Metadata metadata = new Metadata();
         metadata.setComputationStatus(ComputationStatus.FAILURE);
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        metadata.setComputationStatus(curativeState, ComputationStatus.FAILURE);
         raoResultFailureWithAngle.addExtension(Metadata.class, metadata);
 
         properties = new Properties();
