@@ -439,7 +439,6 @@ public class FastRao implements RaoProvider {
                                                PrePerimeterResult postAraSensi,
                                                PrePerimeterResult postCraSensi) {
         Metadata metadataCopy = new Metadata();
-        metadataCopy.setComputationStatus(metadata.getComputationStatus());
         metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);

@@ -24,14 +24,11 @@ import java.util.Optional;
  */
 public class Metadata extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "metadata";
-    private static final ComputationStatus DEFAULT_COMPUTATION_STATUS = ComputationStatus.DEFAULT;
 
-    private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState;
     private String executionDetails;
 
     public Metadata() {
-        this.computationStatus = DEFAULT_COMPUTATION_STATUS;
         this.computationStatusPerState = new HashMap<>();
         this.executionDetails = null;
     }
@@ -40,35 +37,28 @@ public class Metadata extends AbstractExtension<RaoResult> {
      * Returns the overall sensitivity computation status of the RAO.
      */
     public ComputationStatus getComputationStatus() {
-        // Currently used as an attribute.
-        // Should be computed from the states as follows:
-        // - preventive failure -> failure
-        // - preventive default + not all curative failure -> partial failure
-        // - preventive default + all curative failure -> failure
-        // - preventive default + all curative default -> default
-        // if (computationStatusPerState.isEmpty()) {
-        //     return DEFAULT_COMPUTATION_STATUS;
-        // }
-        // boolean anyFailure = false;
-        // for (State state : computationStatusPerState.keySet()) {
-        //     ComputationStatus stateStatus = computationStatusPerState.get(state);
-        //     if (stateStatus == ComputationStatus.FAILURE) {
-        //         if (state.isPreventive()) {
-        //             // TODO: is it okay in multi-timestamp computations?
-        //             return ComputationStatus.FAILURE;
-        //         }
-        //         anyFailure = true;
-        //     }
-        // }
-        // return anyFailure ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
-        return computationStatus == null ? DEFAULT_COMPUTATION_STATUS : computationStatus;
+        if (computationStatusPerState.isEmpty()) {
+            return ComputationStatus.DEFAULT;
+        }
+        boolean anyFailure = false;
+        for (State state : computationStatusPerState.keySet()) {
+            ComputationStatus stateStatus = computationStatusPerState.get(state);
+            if (stateStatus == ComputationStatus.FAILURE) {
+                if (state.isPreventive()) {
+                    // TODO: is it okay in multi-timestamp computations?
+                    return ComputationStatus.FAILURE;
+                }
+                anyFailure = true;
+            }
+        }
+        return anyFailure ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
     }
 
     /**
      * Returns the sensitivity computation status for a given state.
      */
     public ComputationStatus getComputationStatus(State state) {
-        return computationStatusPerState.getOrDefault(state, DEFAULT_COMPUTATION_STATUS);
+        return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
     /**
@@ -77,12 +67,6 @@ public class Metadata extends AbstractExtension<RaoResult> {
      */
     public Optional<String> getExecutionDetails() {
         return Optional.ofNullable(executionDetails);
-    }
-
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        if (computationStatus != null) {
-            this.computationStatus = computationStatus;
-        }
     }
 
     public void setComputationStatus(State state, ComputationStatus computationStatus) {

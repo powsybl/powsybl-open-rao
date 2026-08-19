@@ -317,10 +317,7 @@ public class CastorFullOptimization {
                 .stream()
                 .filter(finalPostOutageResults::containsKey)
                 .filter(state -> finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state) != ComputationStatus.DEFAULT)
-                .forEach(state -> {
-                    metadata.setComputationStatus(state, finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state));
-                    metadata.setComputationStatus(ComputationStatus.PARTIAL_FAILURE);
-                });
+                .forEach(state -> metadata.setComputationStatus(state, finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
             mergedRaoResults.addExtension(Metadata.class, metadata);
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, finalCostResult, secondPreventiveRan);
         } catch (Exception e) {

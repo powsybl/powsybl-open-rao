@@ -136,6 +136,7 @@ class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
         checkVoltages(raoResult, crac, 1, 2);
     }
 
@@ -557,11 +558,6 @@ class ImporterRetrocompatibilityTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         // --------------------------
-        // --- Computation status ---
-        // --------------------------
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus());
-
-        // --------------------------
         // --- test Costs results ---
         // --------------------------
         checkCosts(importedRaoResult, preventiveInstant, autoInstant, curativeInstant);
@@ -870,6 +866,12 @@ class ImporterRetrocompatibilityTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
+
+        // --------------------------
+        // --- Computation status ---
+        // --------------------------
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, importedRaoResult.getComputationStatus());
+
         checkVoltages(importedRaoResult, crac, 1, 3);
         // Test computation status map
         Metadata metadata = importedRaoResult.getExtension(Metadata.class);

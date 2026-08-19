@@ -32,7 +32,6 @@ public final class CastorMetadataHelper {
                 metadata.setComputationStatus(state, prePerimeterResult.getComputationStatus(state));
             }
         }
-        metadata.setComputationStatus(prePerimeterResult.getComputationStatus());
         raoResult.addExtension(Metadata.class, metadata);
     }
 
@@ -40,7 +39,6 @@ public final class CastorMetadataHelper {
         Metadata metadata = new Metadata();
         metadata.setExecutionDetails(failureReason);
         crac.getStates().forEach(state -> metadata.setComputationStatus(state, ComputationStatus.FAILURE));
-        metadata.setComputationStatus(ComputationStatus.FAILURE);
         raoResult.addExtension(Metadata.class, metadata);
     }
 }

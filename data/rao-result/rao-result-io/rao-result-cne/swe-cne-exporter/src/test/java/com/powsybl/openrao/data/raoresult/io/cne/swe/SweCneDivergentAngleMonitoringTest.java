@@ -75,7 +75,7 @@ class SweCneDivergentAngleMonitoringTest {
         raoResult.addExtension(AngleResult.class, angleResult);
 
         Metadata metadata = new Metadata();
-        metadata.setComputationStatus(ComputationStatus.FAILURE);
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
         raoResult.addExtension(Metadata.class, metadata);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

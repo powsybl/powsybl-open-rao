@@ -47,13 +47,8 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
         Metadata metadata = new Metadata();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
-                case "computationStatus" -> {
-                    // TODO: remove when status is computed from the map
-                    metadata.setComputationStatus(getComputationStatus(jsonParser.nextTextValue()));
-                }
-                case "executionDetails" -> {
-                    metadata.setExecutionDetails(jsonParser.nextTextValue());
-                }
+                case "computationStatus" -> jsonParser.nextToken();
+                case "executionDetails" -> metadata.setExecutionDetails(jsonParser.nextTextValue());
                 case "computationStatusMap" -> {
                     jsonParser.nextToken();
                     getComputationStatusMap(jsonParser, crac).forEach(metadata::setComputationStatus);
@@ -103,13 +98,24 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
                     default -> throw new OpenRaoException("Unknown computationStatusMap field in metadata: %s.".formatted(jsonParser.currentName()));
                 }
             }
-            if (computationStatus != null && instant != null && contingency != null) {
-                State state = crac.getState(contingency, instant);
+            if (computationStatus != null && instant != null) {
+                State state = getState(crac, contingency, instant);
                 if (state != null) {
                     map.put(state, computationStatus);
                 }
             }
         }
         return map;
+    }
+
+    private static State getState(Crac crac, Contingency contingency, Instant instant) {
+        if (contingency == null) {
+            State preventiveState = crac.getPreventiveState();
+            if (!instant.isPreventive()) {
+                throw new OpenRaoException("No state for instant %s can be defined without a contingency.".formatted(instant.getId()));
+            }
+            return preventiveState;
+        }
+        return crac.getState(contingency, instant);
     }
 }

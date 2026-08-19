@@ -43,7 +43,6 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeStatus;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
@@ -91,8 +90,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case COMPUTATION_STATUS:
                     if (version.major() == 1) {
-                        // jsonParser.nextToken();
-                        metadata.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+                        jsonParser.nextToken();
                     } else {
                         throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadata' extension.");
                     }
@@ -198,7 +196,8 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
              at this time, there were not the headers with TYPE, VERSION and INFO of the document
              */
             jsonFileVersion = "1.0";
-            metadata.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+            jsonParser.nextToken();
+            // metadata.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
         } else {
             if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
                 throw new OpenRaoException(String.format("type of document must be %s", RAO_RESULT_TYPE));

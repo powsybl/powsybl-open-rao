@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
@@ -54,7 +53,6 @@ public final class ExhaustiveRaoResultCreation {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
         Metadata metadata = new Metadata();
-        metadata.setComputationStatus(ComputationStatus.DEFAULT);
         metadata.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
         raoResult.addExtension(Metadata.class, metadata);
 
