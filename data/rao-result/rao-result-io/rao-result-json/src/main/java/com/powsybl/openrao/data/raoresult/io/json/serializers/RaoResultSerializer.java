@@ -52,8 +52,8 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
             NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-            JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
         }
+        JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }
