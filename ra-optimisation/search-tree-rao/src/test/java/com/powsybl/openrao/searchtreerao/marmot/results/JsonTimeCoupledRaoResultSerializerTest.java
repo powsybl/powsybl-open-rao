@@ -72,8 +72,6 @@ class JsonTimeCoupledRaoResultSerializerTest {
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
 
         timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
-            initialLinearOptimizationResult,
-            globalLinearOptimizationResult,
             new TemporalDataImpl<>(Map.of(
                 timestamp1, raoResult1,
                 timestamp2, raoResult2,

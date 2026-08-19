@@ -80,8 +80,6 @@ class TimeCoupledRaoResultImplTest {
         final RaoResult raoResultTimestamp3 = mockRaoResult("RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
         timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
-            initialObjectiveFunctionResult,
-            objectiveFunctionResult,
             new TemporalDataImpl<>(Map.of(
                 TestsUtils.TIMESTAMP_1, raoResultTimestamp1,
                 TestsUtils.TIMESTAMP_2, raoResultTimestamp2,
