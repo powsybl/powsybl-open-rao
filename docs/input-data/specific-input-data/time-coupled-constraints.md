@@ -60,11 +60,11 @@ Note that for this to work, the PST model must be set to **APPROXIMATED_INTEGERS
 
 ### Pst constraints
 
-| Field name            | Type    | Status    | Unit | Description                                             |
-|-----------------------|---------|-----------|------|---------------------------------------------------------|
-| `pstId`               | string  | Mandatory | -    | Id of the pst on which the constraints apply.           |
-| `upwardTapGradient`   | number  | Optional  | -    | Upward tap gradient for the pst. Must be positive.      |
-| `downwardTapGradient` | number  | Optional  | -    | Downward tap gradient for the pst.  Must be negative.   |
+| Field name            | Type    | Status    | Unit  | Description                                            |
+|-----------------------|---------|-----------|-------|--------------------------------------------------------|
+| `pstId`               | string  | Mandatory | -     | Id of the pst on which the constraints apply.          |
+| `upwardTapGradient`   | number  | Optional  | tap/h | Upward tap gradient for the pst. Must be positive.     |
+| `downwardTapGradient` | number  | Optional  | tap/h | Downward tap gradient for the pst. Must be negative.   |
 
 ### Comprehensive example
 
