@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.CountertradingRangeActions;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,7 +66,7 @@ class CountertradingRangeActionsCreator {
             .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant, creationContext))
             .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
-            .filter(generator -> generator.getTargetP() >= 0)
+            .filter(generator -> generator.getTerminal().isConnected() && generator.getTargetP() >= 0)
             .collect(Collectors.toSet());
 
         Utils.addInjectionRangeAction(
@@ -75,6 +76,7 @@ class CountertradingRangeActionsCreator {
             instant,
             parameters.getRaRange(country, instant),
             true,
-            parameters.getRaCosts(country, instant));
+            parameters.getRaCosts(country, instant),
+            Optional.of(100.));
     }
 }

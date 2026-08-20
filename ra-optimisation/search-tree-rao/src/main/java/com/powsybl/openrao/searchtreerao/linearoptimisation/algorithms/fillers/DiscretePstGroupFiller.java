@@ -27,6 +27,7 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private final State optimizedState;
     private final Map<State, Set<PstRangeAction>> pstRangeActions;
+    private int iteration = 0;
 
     public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions) {
         this.pstRangeActions = pstRangeActions;
@@ -35,16 +36,26 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
-            buildRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
-        ));
+        iteration = 0;
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        if (iteration == 0) {
+            pstRangeActions.forEach(
+                (state, rangeActionSet) -> rangeActionSet.forEach(
+                    rangeAction -> buildRangeActionGroupConstraint(
+                        linearProblem,
+                        rangeAction,
+                        state,
+                        rangeActionActivationResult
+                    )
+            ));
+        }
         pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
             updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
         ));
+        iteration++;
     }
 
     private void buildRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {

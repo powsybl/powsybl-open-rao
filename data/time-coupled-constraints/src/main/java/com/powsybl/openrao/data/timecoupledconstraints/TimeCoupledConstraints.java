@@ -7,28 +7,40 @@
 
 package com.powsybl.openrao.data.timecoupledconstraints;
 
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class TimeCoupledConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
+    private final Set<AdjustmentConstraints> adjustmentConstraints;
 
     public TimeCoupledConstraints() {
-        this.generatorConstraints = new HashSet<>();
+        this.generatorConstraints = new TreeSet<>(Comparator.comparing(GeneratorConstraints::getGeneratorId));
+        this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
     public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints) {
         this.generatorConstraints = generatorConstraints;
+        this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
     public void addGeneratorConstraints(GeneratorConstraints generatorConstraints) {
         this.generatorConstraints.add(generatorConstraints);
     }
 
+    public void addAdjustmentConstraints(AdjustmentConstraints adjustmentConstraints) {
+        this.adjustmentConstraints.add(adjustmentConstraints);
+    }
+
     public Set<GeneratorConstraints> getGeneratorConstraints() {
         return generatorConstraints;
+    }
+
+    public Set<AdjustmentConstraints> getAdjustmentConstraints() {
+        return adjustmentConstraints;
     }
 }

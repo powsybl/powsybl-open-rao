@@ -4,7 +4,9 @@
   "enum": [
     "absolute",
     "relativeToPreviousInstant",
-    "relativeToInitialNetwork"
+    "relativeToInitialNetwork",
+    "relativeToPreviousTimeStep",
+    "minimumAdjustment"
   ],
   "additionalProperties": false
 }

@@ -27,11 +27,11 @@ import java.util.function.BiFunction;
 public class RedispatchingRangeActions extends AbstractCountriesFilter {
     private boolean includeAllInjections = true;
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> rdRaPredicate = (injection, instant, c) -> injection.getType() == IdentifiableType.GENERATOR;
-    private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
+    private BiFunction<Injection<?>, Instant, RangeActionCosts> raCostsProvider = (injection, instant) -> new RangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
     private Map<String, Set<String>> injectionCombinations = new HashMap<>();
     private BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider = (cominationId, instant) -> new MinAndMax<>(null, null);
-    private BiFunction<String, Instant, InjectionRangeActionCosts> combinationCostsProvider = (combinationId, instant) -> new InjectionRangeActionCosts(0, 0, 0);
+    private BiFunction<String, Instant, RangeActionCosts> combinationCostsProvider = (combinationId, instant) -> new RangeActionCosts(0, 0, 0);
 
     RedispatchingRangeActions() {
     }
@@ -63,11 +63,11 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
      * Set the function that provides the costs of redispatching on a given injection at a given instant.
      * All costs default to 0.
      */
-    public void setRaCostsProvider(BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider) {
+    public void setRaCostsProvider(BiFunction<Injection<?>, Instant, RangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;
     }
 
-    public InjectionRangeActionCosts getRaCosts(Injection<?> injection, Instant instant) {
+    public RangeActionCosts getRaCosts(Injection<?> injection, Instant instant) {
         return raCostsProvider.apply(injection, instant);
     }
 
@@ -112,7 +112,7 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
         this.combinationRangeProvider = combinationRangeProvider;
     }
 
-    public InjectionRangeActionCosts getCombinationCosts(String combinationId, Instant instant) {
+    public RangeActionCosts getCombinationCosts(String combinationId, Instant instant) {
         return combinationCostsProvider.apply(combinationId, instant);
     }
 
@@ -120,7 +120,7 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
      * Set the function that provides the costs of redispatching on a given generator combination at a given instant.
      * All costs default to 0.
      */
-    public void setCombinationCostsProvider(BiFunction<String, Instant, InjectionRangeActionCosts> combinationCostsProvider) {
+    public void setCombinationCostsProvider(BiFunction<String, Instant, RangeActionCosts> combinationCostsProvider) {
         this.combinationCostsProvider = combinationCostsProvider;
     }
 }
