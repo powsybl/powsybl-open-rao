@@ -34,7 +34,6 @@ class JsonTimeCoupledConstraintsRetrocompatibilityTest {
         // PST constraints were added for v1.1
         TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/retrocompatibility/v1.1/time-coupled-constraints-v1.1.json"));
 
-        testBaseContentOfV1Point0TimeCoupledConstraints(timeCoupledConstraints);
         testBaseContentOfV1Point1TimeCoupledConstraints(timeCoupledConstraints);
     }
 
@@ -50,6 +49,7 @@ class JsonTimeCoupledConstraintsRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1Point1TimeCoupledConstraints(TimeCoupledConstraints timeCoupledConstraints) {
+        testBaseContentOfV1Point0TimeCoupledConstraints(timeCoupledConstraints);
         assertEquals(1, timeCoupledConstraints.getPstConstraints().size());
         PstConstraints pstConstraints = timeCoupledConstraints.getPstConstraints().iterator().next();
         assertEquals("pst-1", pstConstraints.getPstId());
