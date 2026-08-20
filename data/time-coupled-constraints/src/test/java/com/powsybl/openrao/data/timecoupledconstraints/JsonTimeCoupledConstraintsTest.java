@@ -168,7 +168,7 @@ class JsonTimeCoupledConstraintsTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class,
             () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints-with-invalid-pst-constraints.json"))
         );
-        assertEquals("Unexpected field 'unknownField' in JSON pst constraints.", exception.getMessage());
+        assertEquals("Unexpected field 'unknownField' in JSON PST constraints.", exception.getMessage());
     }
 
     private static void assertJsonEquivalence(String expectedJson, String actualJson) throws JsonProcessingException {
