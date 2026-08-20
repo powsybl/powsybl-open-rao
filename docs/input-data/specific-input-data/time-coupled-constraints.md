@@ -39,7 +39,7 @@ that generator can be started up.
 A preventive PST can be restricted by **tap gradients** that limit its tap variation between two consecutive timestamps.
 These gradients can be defined upward and/or downward.
 
-Note that for this to work, the PST model must be set to APPROXIMATED_INTEGERS in the [raoParameters](https://powsybl.readthedocs.io/projects/openrao/en/stable/parameters.html) 
+Note that for this to work, the PST model must be set to **APPROXIMATED_INTEGERS** in the [raoParameters](https://powsybl.readthedocs.io/projects/openrao/en/stable/parameters.html) 
 (see [DiscreetPstTapFiller](https://powsybl.readthedocs.io/projects/openrao/en/stable/algorithms/castor/linear-problem/discrete-pst-tap-filler.html) for more details).
 
 
@@ -60,11 +60,11 @@ Note that for this to work, the PST model must be set to APPROXIMATED_INTEGERS i
 
 ### Pst constraints
 
-| Field name            | Type    | Status    | Unit  | Description                                             |
-|-----------------------|---------|-----------|-------|---------------------------------------------------------|
-| `pstId`               | string  | Mandatory | -     | Id of the pst on which the constraints apply.           |
-| `upwardTapGradient`   | number  | Optional  | hours | Upward tap gradient for the pst. Must be positive.      |
-| `downwardTapGradient` | number  | Optional  | hours | Downward tap gradient for the pst.  Must be negative.   |
+| Field name            | Type    | Status    | Unit | Description                                             |
+|-----------------------|---------|-----------|------|---------------------------------------------------------|
+| `pstId`               | string  | Mandatory | -    | Id of the pst on which the constraints apply.           |
+| `upwardTapGradient`   | number  | Optional  | -    | Upward tap gradient for the pst. Must be positive.      |
+| `downwardTapGradient` | number  | Optional  | -    | Downward tap gradient for the pst.  Must be negative.   |
 
 ### Comprehensive example
 
