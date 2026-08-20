@@ -6,6 +6,7 @@
       "generatorId": "generator-1",
       "leadTime": 1.15,
       "lagTime": 2.0,
+      "minOffTime": 1.0,
       "upwardPowerGradient": 100.0,
       "downwardPowerGradient": -50.0,
       "shutDownAllowed": true,

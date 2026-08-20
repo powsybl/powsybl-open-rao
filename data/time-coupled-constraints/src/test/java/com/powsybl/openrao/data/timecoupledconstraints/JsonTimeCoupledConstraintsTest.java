@@ -47,6 +47,7 @@ class JsonTimeCoupledConstraintsTest {
             .withGeneratorId("generator-3")
             .withLeadTime(0.5)
             .withLagTime(4.0)
+            .withMinOffTime(1.0)
             .withDownwardPowerGradient(-1000.0)
             .build();
 
@@ -113,6 +114,7 @@ class JsonTimeCoupledConstraintsTest {
         assertEquals("generator-1", generatorConstraints1.getGeneratorId());
         assertEquals(Optional.of(1.15), generatorConstraints1.getLeadTime());
         assertEquals(Optional.of(2.0), generatorConstraints1.getLagTime());
+        assertTrue(generatorConstraints1.getMinOffTime().isEmpty());
         assertEquals(Optional.of(100.0), generatorConstraints1.getUpwardPowerGradient());
         assertEquals(Optional.of(-50.0), generatorConstraints1.getDownwardPowerGradient());
 
@@ -120,6 +122,7 @@ class JsonTimeCoupledConstraintsTest {
         assertEquals("generator-2", generatorConstraints2.getGeneratorId());
         assertTrue(generatorConstraints2.getLeadTime().isEmpty());
         assertTrue(generatorConstraints2.getLagTime().isEmpty());
+        assertTrue(generatorConstraints2.getMinOffTime().isEmpty());
         assertTrue(generatorConstraints2.getUpwardPowerGradient().isEmpty());
         assertTrue(generatorConstraints2.getDownwardPowerGradient().isEmpty());
 
@@ -127,6 +130,7 @@ class JsonTimeCoupledConstraintsTest {
         assertEquals("generator-3", generatorConstraints3.getGeneratorId());
         assertEquals(Optional.of(0.5), generatorConstraints3.getLeadTime());
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());
+        assertEquals(Optional.of(1.0), generatorConstraints3.getMinOffTime());
         assertTrue(generatorConstraints3.getUpwardPowerGradient().isEmpty());
         assertEquals(Optional.of(-1000.0), generatorConstraints3.getDownwardPowerGradient());
 
