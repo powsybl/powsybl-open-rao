@@ -84,7 +84,7 @@ public final class PstConstraints {
                 throw new OpenRaoException("The upward tap gradient of the pst must be positive.");
             }
             if (downwardTapGradient != null && downwardTapGradient > 0) {
-                throw new OpenRaoException("The downward tap gradient of the pst must be negative.");
+                throw new OpenRaoException("The downward tap gradient of the PST must be negative.");
             }
             return new PstConstraints(pstId, upwardTapGradient, downwardTapGradient);
         }
