@@ -60,7 +60,7 @@ class PstConstraintsTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class,
             () -> PstConstraints.create().withUpwardTapGradient(1).withDownwardTapGradient(-1).build()
         );
-        assertEquals("The id of the pst is mandatory.", exception.getMessage());
+        assertEquals("The id of the PST is mandatory.", exception.getMessage());
     }
 
     @Test
@@ -68,7 +68,7 @@ class PstConstraintsTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class,
             () -> PstConstraints.create().withPstId("pst").withUpwardTapGradient(-1).withDownwardTapGradient(-3).build()
         );
-        assertEquals("The upward tap gradient of the pst must be positive.", exception.getMessage());
+        assertEquals("The upward tap gradient of the PST must be positive.", exception.getMessage());
     }
 
     @Test
@@ -76,6 +76,6 @@ class PstConstraintsTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class,
             () -> PstConstraints.create().withPstId("pst").withUpwardTapGradient(1).withDownwardTapGradient(2).build()
         );
-        assertEquals("The downward tap gradient of the pst must be negative.", exception.getMessage());
+        assertEquals("The downward tap gradient of the PST must be negative.", exception.getMessage());
     }
 }
