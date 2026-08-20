@@ -43,7 +43,7 @@ public class PstConstraintsDeserializer extends StdDeserializer<PstConstraints> 
                     builder.withDownwardTapGradient(jsonParser.getValueAsInt());
                 }
                 default ->
-                    throw new OpenRaoException("Unexpected field '%s' in JSON pst constraints.".formatted(jsonParser.currentName()));
+                    throw new OpenRaoException("Unexpected field '%s' in JSON PST constraints.".formatted(jsonParser.currentName()));
             }
         }
         return builder.build();
