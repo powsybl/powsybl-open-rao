@@ -78,7 +78,7 @@ public final class PstConstraints {
 
         public PstConstraints build() {
             if (pstId == null) {
-                throw new OpenRaoException("The id of the pst is mandatory.");
+                throw new OpenRaoException("The id of the PST is mandatory.");
             }
             if (upwardTapGradient != null && upwardTapGradient < 0) {
                 throw new OpenRaoException("The upward tap gradient of the pst must be positive.");
