@@ -124,14 +124,14 @@ $$P_{\min}(g, t) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t
 issues that can stem from number rounding and to ensure a distinct definition of ON and OFF states, we define an _ON power threshold_ $\epsilon_{P}^{\text{ON}}$
 such that if the generator's defined Pmin is lower that $\epsilon_{P}^{\text{ON}}$, Pmin will be redefined as $\epsilon_{P}^{\text{ON}}$.
 
-### C5 - Start up constraints (Lead time)
+### C5 - Starting up constraints (Lead time)
 
 When the generator is turned on, it has a warm-up time called _lead time_ during which the power remains null before it
 steps up to $P_{\min}$.
 
 $$\forall t' \in \left [ t + \Delta_{\tau} - \Delta_{\tau} \left \lceil \frac{LEAD(g)}{\Delta_{\tau}} \right \rceil, t \right ] \cap \mathcal{T_{N-1}}, \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
 
-### C6 - Shut off constraints (Lag time and Min-off time)
+### C6 - Shutting down constraints (Lag time and Min-off time)
 
 This constraint incorporates all the necessary conditions to account for a generator being shut down.
 1. **Lag Time**: When the generator is shut off, there is a cool-down period called lag time. During this time, the generator's power decreases to 0 from its minimum power (power is considered null in our model!), and it cannot be turned back on during this interval.
