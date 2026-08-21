@@ -1,6 +1,6 @@
 {
   "type": "OpenRAO Time-Coupled Constraints",
-  "version": "1.0",
+  "version": "1.1",
   "generatorConstraints": [
     {
       "generatorId": "generator-1",
@@ -23,6 +23,21 @@
       "downwardPowerGradient": -1000.0,
       "shutDownAllowed": true,
       "startUpAllowed": true
+    }
+  ],
+  "pstConstraints" : [
+    {
+      "pstId": "pst-1",
+      "upwardTapGradient": 1,
+      "downwardTapGradient": -1
+    },
+    {
+      "pstId": "pst-2",
+      "upwardTapGradient": 1
+    },
+    {
+      "pstId": "pst-3",
+      "downwardTapGradient": -3
     }
   ]
 }
