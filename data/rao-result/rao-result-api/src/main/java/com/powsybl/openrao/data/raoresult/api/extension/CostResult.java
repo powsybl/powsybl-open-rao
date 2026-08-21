@@ -67,7 +67,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
     }
 
     /**
-     * It gives the names of the different virtual cost implied in the objective function defined in
+     * It gives the names of the different virtual costs implied in the objective function defined in
      * the RAO.
      *
      * @return The set of virtual cost names.
