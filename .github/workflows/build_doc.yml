@@ -48,7 +48,7 @@ jobs:
 
       - name: Check all Markdown links
         run: |
-          BROKEN_LINKS=$(markdown-link-check -q -a 200,403 ./docs)
+          BROKEN_LINKS=$(markdown-link-check -q -a 200,201,202,203,204,205,206,207,208,226,403 ./docs)
           if [ -n "$BROKEN_LINKS" ]; then
             echo "❌ Found broken links: $BROKEN_LINKS"
             exit 1
