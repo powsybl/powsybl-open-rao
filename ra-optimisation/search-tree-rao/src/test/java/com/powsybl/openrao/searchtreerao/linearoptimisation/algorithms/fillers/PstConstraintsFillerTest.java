@@ -224,7 +224,7 @@ class PstConstraintsFillerTest {
             hourlyTimestamps.get(1), Set.of(),
             hourlyTimestamps.get(2), Set.of("pst_be")
         ), Set.of(pstConstraints));
-        // pst_be is not optimized in the second timestamp, no gradient constraiint is created for this pst
+        // pst_be is not optimized in the second timestamp, no gradient constraint is created for this pst
         checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(1));
         checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(1), hourlyTimestamps.get(2));
         checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(2));
