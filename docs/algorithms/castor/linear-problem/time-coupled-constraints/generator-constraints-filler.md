@@ -53,7 +53,8 @@ the timestamps, and not some time in between two timestamps.
 | Downward power gradient constraint | $\nabla^{-}(g)$     | Maximum downward power variation between two consecutive timestamps for generator $g$. This value must be negative. |
 | ShutDown allowed                   | $isShutDownAllowed$ | Indicates if generator $g$ can be shutdown. This value is a boolean.                                                |
 | StartUp allowed                    | $isStartUpAllowed$  | Indicates if generator $g$ can be started up. This value is a boolean.                                              |
-| Min-off Time                       | $minOffTime(g)$     | Minimum time a generator $g$ must stay off before to be switched on again, once it has been shut down.              |
+| Min-off Time                       | $minOffTime(g)$     | Minimum time a generator $g$ must stay off before being switched on again, once it has been shut down.              |
+| Min-on Time                        | $minOnTime(g)$      | Minimum time a generator $g$ must stay on before being switched off, once it has been start up.                     |
 
 #### Time-dependant input data
 
@@ -130,6 +131,12 @@ When the generator is turned on, it has a warm-up time called _lead time_ during
 steps up to $P_{\min}$.
 
 $$\forall t' \in \left [ t + \Delta_{\tau} - \Delta_{\tau} \left \lceil \frac{LEAD(g)}{\Delta_{\tau}} \right \rceil, t \right ] \cap \mathcal{T_{N-1}}, \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
+
+### C5 bis - Staying on constraints (Min-on time)
+
+Once it is turned on, the generator must remain on for a minimum duration called "min-on time" if defined.
+
+$$\forall t' \in \left [ t + \Delta_{\tau}, t + \Delta_{\tau} \left \lceil \frac{minOnTime(g)}{\Delta_{\tau}} \right \rceil \right ] \cap \mathcal{T}, \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t')$$
 
 ### C6 - Shutting down constraints (Lag time and Min-off time)
 
