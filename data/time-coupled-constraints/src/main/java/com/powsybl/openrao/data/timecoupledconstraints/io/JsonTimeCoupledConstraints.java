@@ -42,7 +42,7 @@ public final class JsonTimeCoupledConstraints {
      * CHANGELOG v1
      * ------------
      * 1.0 : generator-constraints (leadTime, lagTime, upwardPowerGradient, downwardPowerGradient, shutDownAllowed, startUpAllowed).
-     * 1.1 : add pst-constraints (upwardTapGradient, downwardTapGradient).
+     * 1.1 : add pst-constraints (upwardTapGradient, downwardTapGradient) + add minOffTime for generator-constraints.
      */
 
     // Generator constraints
@@ -51,6 +51,7 @@ public final class JsonTimeCoupledConstraints {
     public static final String GENERATOR_ID = "generatorId";
     public static final String LEAD_TIME = "leadTime";
     public static final String LAG_TIME = "lagTime";
+    public static final String MIN_OFF_TIME = "minOffTime";
     public static final String UPWARD_POWER_GRADIENT = "upwardPowerGradient";
     public static final String DOWNWARD_POWER_GRADIENT = "downwardPowerGradient";
     public static final String SHUTDOWN_ALLOWED = "shutDownAllowed";

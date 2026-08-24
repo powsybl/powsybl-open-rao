@@ -594,6 +594,14 @@ public final class LinearProblem {
         return solver.makeConstraint(-infinity(), 0.0, generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
     }
 
+    public OpenRaoMPConstraint getGeneratorShuttingDownConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.getConstraint(generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorStartingUpConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.getConstraint(generatorStartingUpConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
     public double infinity() {
         return solver.infinity();
     }
