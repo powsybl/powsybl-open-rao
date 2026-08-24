@@ -44,6 +44,11 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
             jsonGenerator.writeNumberField(JsonTimeCoupledConstraints.MIN_OFF_TIME, minOffTime.get());
         }
 
+        Optional<Double> minOnTime = generatorConstraints.getMinOnTime();
+        if (minOnTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonTimeCoupledConstraints.MIN_ON_TIME, minOnTime.get());
+        }
+
         Optional<Double> upwardPowerGradient = generatorConstraints.getUpwardPowerGradient();
         if (upwardPowerGradient.isPresent()) {
             jsonGenerator.writeNumberField(JsonTimeCoupledConstraints.UPWARD_POWER_GRADIENT, upwardPowerGradient.get());
