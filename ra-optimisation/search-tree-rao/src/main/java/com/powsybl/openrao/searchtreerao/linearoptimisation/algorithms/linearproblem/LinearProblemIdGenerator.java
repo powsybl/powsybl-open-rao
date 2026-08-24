@@ -68,6 +68,7 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
     private static final String GENERATOR_STARTINGUP = "generatorstartingup";
     private static final String GENERATOR_SHUTTINGDOWN = "generatorshuttingdown";
+    private static final String GENERATOR_STAYINGON = "generatorstayingon";
     private static final String PROHIBIT_GENERATOR_SHUTTINGDOWN = "prohibitgeneratorshuttingdown";
     private static final String PROHIBIT_GENERATOR_STARTINGUP = "prohibitgeneratorstartingup";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
@@ -318,6 +319,10 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorShuttingDownConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
         return formatName(GENERATOR_SHUTTINGDOWN, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorStayingOnConstraintId(String generatorId, OffsetDateTime startUpTimestamp, OffsetDateTime nextTimestamp) {
+        return formatName(GENERATOR_STAYINGON, generatorId, startUpTimestamp.format(DATE_TIME_FORMATER), nextTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 
     public static String prohibitGeneratorShuttingDownConstraintId(String generatorId, OffsetDateTime timestamp) {

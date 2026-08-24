@@ -52,6 +52,7 @@ class JsonTimeCoupledConstraintsRetrocompatibilityTest {
         testBaseContentOfV1Point0TimeCoupledConstraints(timeCoupledConstraints);
         GeneratorConstraints generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().iterator().next();
         assertEquals(Optional.of(1.), generatorConstraints.getMinOffTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getMinOnTime());
 
         assertEquals(1, timeCoupledConstraints.getPstConstraints().size());
         PstConstraints pstConstraints = timeCoupledConstraints.getPstConstraints().iterator().next();
