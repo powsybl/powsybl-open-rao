@@ -586,6 +586,22 @@ public final class LinearProblem {
         return solver.makeConstraint(-infinity(), 0.0, generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
     }
 
+    public OpenRaoMPConstraint addGeneratorStayingOnConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.makeConstraint(-infinity(), 0.0, generatorStayingOnConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorShuttingDownConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.getConstraint(generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorStartingUpConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.getConstraint(generatorStartingUpConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorStayingOnConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.getConstraint(generatorStayingOnConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
     public OpenRaoMPConstraint getRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
         return solver.getConstraint(rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
     }

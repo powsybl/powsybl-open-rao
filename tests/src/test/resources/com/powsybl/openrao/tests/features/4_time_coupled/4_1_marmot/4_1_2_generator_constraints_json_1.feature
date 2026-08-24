@@ -674,7 +674,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
 #  In the following test, ideally we would need:
 #   From 00:30 to 03:30, 3000 MW of redispatching
 #   From 08:30 to 15:30, 1100 MW of redispatching
-#   From 20:30 to 23:30, 3000 MW or redispatching
+#   From 20:30 to 23:30, 3000 MW of redispatching
 #  ----------------------
 
   Scenario: 4.2.6: No generator constraints
