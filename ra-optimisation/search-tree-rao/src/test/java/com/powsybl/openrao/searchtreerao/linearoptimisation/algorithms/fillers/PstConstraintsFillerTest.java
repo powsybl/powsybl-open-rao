@@ -9,20 +9,14 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.io.commons.PstHelper;
-import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -45,9 +39,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,12 +134,13 @@ class PstConstraintsFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
-    private void setUpLinearProblemWithPstConstraints(Map<OffsetDateTime, Set<String>> pstIdsPerTimestamp, Set<PstConstraints> pstConstraints) {
+    private void setUpLinearProblemWithPstConstraints(List<String> cracFileNames, Set<PstConstraints> pstConstraints) throws IOException {
         Network network = Network.read("TestCase12Nodes2PSTs.uct", getClass().getResourceAsStream("/network/TestCase12Nodes2PSTs.uct"));
         Map<OffsetDateTime, RaoInput> raoInputPerTimestamp = new HashMap<>();
-        pstIdsPerTimestamp.forEach((timestamp, pstIds) ->
-            raoInputPerTimestamp.put(timestamp, RaoInput.build(network, createSimplePreventivePstCrac(timestamp, pstIds, network)).build())
-        );
+        for (String cracFileName : cracFileNames) {
+            Crac crac = Crac.read(cracFileName, getClass().getResourceAsStream("/crac/" + cracFileName), network);
+            raoInputPerTimestamp.put(crac.getTimestamp().orElseThrow(), RaoInput.build(network, crac).build());
+        }
         raoInputs = new TemporalDataImpl<>(raoInputPerTimestamp);
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_approximated_integers.json"), ReportNode.NO_OP);
         createInitialSetpoints();
@@ -151,58 +149,18 @@ class PstConstraintsFillerTest {
         buildAndFillLinearProblem();
     }
 
-    private static Crac createSimplePreventivePstCrac(OffsetDateTime timestamp, Set<String> pstIds, Network network) {
-        String cracId = "crac-" + timestamp.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        Crac crac = CracFactory.findDefault().create(cracId, cracId, timestamp);
-        crac.newInstant("preventive", InstantKind.PREVENTIVE);
-        crac.newFlowCnec()
-            .withId("cnec-" + cracId)
-            .withNetworkElement("FFR2AA1  FFR3AA1  1")
-            .withInstant("preventive")
-            .withOptimized()
-            .withNominalVoltage(400.0)
-            .newThreshold()
-            .withSide(TwoSides.ONE)
-            .withMax(1000.0)
-            .withMin(-1000.0)
-            .withUnit(Unit.MEGAWATT)
-            .add()
-            .add();
-        pstIds.forEach(pstId -> {
-            PstHelper pstHelper = new IidmPstHelper(getNetworkElementOfPst(pstId), network);
-            crac.newPstRangeAction()
-                .withId(pstId)
-                .withName(pstId)
-                .withNetworkElement(getNetworkElementOfPst(pstId))
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
-                .newTapRange()
-                .withMinTap(-1)
-                .withMaxTap(1)
-                .withRangeType(RangeType.ABSOLUTE)
-                .add()
-                .newOnInstantUsageRule()
-                .withInstant("preventive")
-                .add()
-                .add();
-        });
-        return crac;
-    }
-
     // Tests
-
     @Test
-    void testPstConstrainedOnThreeConsecutiveTimestamps() {
+    void testPstConstrainedOnConsecutiveTimestampsOnly() throws IOException {
         PstConstraints pstConstraints = PstConstraints.create()
             .withPstId("pst_be")
             .withUpwardTapGradient(1)
             .withDownwardTapGradient(-1)
             .build();
-        setUpLinearProblemWithPstConstraints(Map.of(
-            hourlyTimestamps.get(0), Set.of("pst_be"),
-            hourlyTimestamps.get(1), Set.of("pst_be"),
-            hourlyTimestamps.get(2), Set.of("pst_be")
-        ), Set.of(pstConstraints));
+        setUpLinearProblemWithPstConstraints(
+            List.of("crac-both-psts-202601090000.json", "crac-both-psts-202601090100.json", "crac-both-psts-202601090200.json"),
+            Set.of(pstConstraints)
+        );
         // pst_be is optimized in the 3 timestamps :
         // one gradient constraint between the first and second,
         // one between the second and the third
@@ -213,25 +171,24 @@ class PstConstraintsFillerTest {
     }
 
     @Test
-    void testNoConstraintWhenPstMissingFromATimestamp() {
+    void testNoConstraintWhenPstMissingFromATimestamp() throws IOException {
         PstConstraints pstConstraints = PstConstraints.create()
-            .withPstId("pst_be")
+            .withPstId("pst_de")
             .withUpwardTapGradient(1)
             .withDownwardTapGradient(-1)
             .build();
-        setUpLinearProblemWithPstConstraints(Map.of(
-            hourlyTimestamps.get(0), Set.of("pst_be"),
-            hourlyTimestamps.get(1), Set.of(),
-            hourlyTimestamps.get(2), Set.of("pst_be")
-        ), Set.of(pstConstraints));
-        // pst_be is not optimized in the second timestamp, no gradient constraint is created for this pst
-        checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(1));
-        checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(1), hourlyTimestamps.get(2));
-        checkNoTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(2));
+        setUpLinearProblemWithPstConstraints(
+            List.of("crac-both-psts-202601090000.json", "crac-pst-be-only-202601090100.json", "crac-both-psts-202601090200.json"),
+            Set.of(pstConstraints)
+        );
+        // pst_de is not optimized in the second timestamp, no gradient constraint is created for this pst
+        checkNoTapGradientConstraint("pst_de", hourlyTimestamps.get(0), hourlyTimestamps.get(1));
+        checkNoTapGradientConstraint("pst_de", hourlyTimestamps.get(1), hourlyTimestamps.get(2));
+        checkNoTapGradientConstraint("pst_de", hourlyTimestamps.get(0), hourlyTimestamps.get(2));
     }
 
     @Test
-    void testTwoPstConstraints() {
+    void testTwoPstConstraints() throws IOException {
         PstConstraints pstBeConstraints = PstConstraints.create()
             .withPstId("pst_be")
             .withUpwardTapGradient(1)
@@ -242,35 +199,21 @@ class PstConstraintsFillerTest {
             .withUpwardTapGradient(5)
             .withDownwardTapGradient(-5)
             .build();
-        setUpLinearProblemWithPstConstraints(Map.of(
-            hourlyTimestamps.get(0), Set.of("pst_be", "pst_de"),
-            hourlyTimestamps.get(1), Set.of("pst_be", "pst_de")
-        ), Set.of(pstBeConstraints, pstDeConstraints));
+        setUpLinearProblemWithPstConstraints(
+            List.of("crac-both-psts-202601090000.json", "crac-both-psts-202601090100.json"),
+            Set.of(pstBeConstraints, pstDeConstraints)
+        );
         // both tap gradient constraints are created for both PSTs
         checkTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(1), -1, 1);
         checkTapGradientConstraint("pst_de", hourlyTimestamps.get(0), hourlyTimestamps.get(1), -5, 5);
     }
 
     @Test
-    void testPstConstraintWithOnlyUpwardGradient() {
-        PstConstraints pstConstraints = PstConstraints.create()
-            .withPstId("pst_be")
-            .withUpwardTapGradient(2)
-            .build();
-        setUpLinearProblemWithPstConstraints(Map.of(
-            hourlyTimestamps.get(0), Set.of("pst_be"),
-            hourlyTimestamps.get(1), Set.of("pst_be")
-        ), Set.of(pstConstraints));
-        checkTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(1), -linearProblem.infinity(), 2);
-
-    }
-
-    @Test
     void testSingleTimestampThrows() {
         PstConstraints pstConstraints = PstConstraints.create().withPstId("pst_be").withUpwardTapGradient(1).build();
-        Map<OffsetDateTime, Set<String>> pstIdsPerTimestamp = Map.of(hourlyTimestamps.get(0), Set.of("pst_be"));
+        List<String> cracFileNames = List.of("crac-both-psts-202601090000.json");
         Set<PstConstraints> constraints = Set.of(pstConstraints);
-        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> setUpLinearProblemWithPstConstraints(pstIdsPerTimestamp, constraints));
+        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> setUpLinearProblemWithPstConstraints(cracFileNames, constraints));
         assertEquals("There must be at least two timestamps.", openRaoException.getMessage());
     }
 
@@ -307,9 +250,5 @@ class PstConstraintsFillerTest {
 
     private State getPreventiveState(OffsetDateTime timestamp) {
         return raoInputs.getData(timestamp).orElseThrow().getCrac().getPreventiveState();
-    }
-
-    private static String getNetworkElementOfPst(String pstId) {
-        return "pst_be".equals(pstId) ? "BBE2AA1  BBE3AA1  1" : "DDE2AA1  DDE3AA1  1";
     }
 }

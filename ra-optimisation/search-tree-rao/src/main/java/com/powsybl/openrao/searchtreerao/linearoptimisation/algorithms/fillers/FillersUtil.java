@@ -70,8 +70,7 @@ public final class FillersUtil {
         ).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Identifiable::getId))));
     }
 
-    // TODO: move this check at a prior moment
-    static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
+    public static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
             throw new OpenRaoException("There must be at least two timestamps.");
         }

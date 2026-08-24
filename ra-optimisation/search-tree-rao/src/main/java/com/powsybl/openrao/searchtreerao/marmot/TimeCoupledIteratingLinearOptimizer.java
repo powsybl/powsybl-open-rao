@@ -229,7 +229,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs()
             .map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-            .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
+            .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
 
         List<ProblemFiller> problemFillers = new ArrayList<>();
         problemFillers.add(new GeneratorConstraintsFiller(
@@ -245,7 +245,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
             }
             TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
-                .map(linearOptimizerInput -> filterPreventivePstRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), PstRangeAction.class));
             problemFillers.add(new PstConstraintsFiller(
                 preventiveStates,
                 preventivePstRangeActions,
@@ -255,12 +255,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return problemFillers;
     }
 
-    private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
-        return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
-    }
-
-    private static Set<PstRangeAction> filterPreventivePstRangeAction(Set<RangeAction<?>> rangeActions) {
-        return rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet());
+    private static <T extends RangeAction<?>> Set<T> filterPreventiveRangeAction(Set<RangeAction<?>> rangeActions, Class<T> classType) {
+        return rangeActions.stream().filter(classType::isInstance).map(classType::cast).collect(Collectors.toSet());
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
