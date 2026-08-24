@@ -46,6 +46,10 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
                     jsonParser.nextToken();
                     builder.withMinOffTime(jsonParser.getValueAsDouble());
                 }
+                case JsonTimeCoupledConstraints.MIN_ON_TIME -> {
+                    jsonParser.nextToken();
+                    builder.withMinOnTime(jsonParser.getValueAsDouble());
+                }
                 case JsonTimeCoupledConstraints.UPWARD_POWER_GRADIENT -> {
                     jsonParser.nextToken();
                     builder.withUpwardPowerGradient(jsonParser.getValueAsDouble());
