@@ -53,7 +53,7 @@ the timestamps, and not some time in between two timestamps.
 | Downward power gradient constraint | $\nabla^{-}(g)$     | Maximum downward power variation between two consecutive timestamps for generator $g$. This value must be negative. |
 | ShutDown allowed                   | $isShutDownAllowed$ | Indicates if generator $g$ can be shutdown. This value is a boolean.                                                |
 | StartUp allowed                    | $isStartUpAllowed$  | Indicates if generator $g$ can be started up. This value is a boolean.                                              |
-| Min-off Time                       | $minOffTime(g)$     | Minimum time a generator $g$ must stay off before to be switched on again, once it has been shut down.              |
+| Min-off Time                       | $minOffTime(g)$     | Minimum time a generator $g$ must stay off before being switched on again, once it has been shut down.              |
 
 #### Time-dependant input data
 
