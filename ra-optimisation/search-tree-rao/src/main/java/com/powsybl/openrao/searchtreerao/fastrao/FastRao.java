@@ -399,29 +399,9 @@ public class FastRao implements RaoProvider {
         );
 
         // TODO: this is quite ugly since CASTOR may not be the inner loop provider
-        fastRaoResult.addExtension(CostResult.class, duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
+        fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
         return fastRaoResult;
 
-    }
-
-    private static CostResult duplicateCastorCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
-    }
-
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(

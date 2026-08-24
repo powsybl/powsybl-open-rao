@@ -367,7 +367,7 @@ public class CastorFullOptimization {
             null,
             raoParameters.getObjectiveFunctionParameters().getType(),
             getFlowUnit(raoParameters),
-            10
+            NUMBER_LOGGED_ELEMENTS_END_RAO
         );
         CastorReports.reportIfMostLimitingElementIsFictional(preventivePerimeterOptimReportNode, preventiveResult);
         RaoResult raoResult = new PreventiveAndCurativesRaoResultImpl(
