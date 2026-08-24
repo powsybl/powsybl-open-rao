@@ -27,7 +27,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -66,23 +65,8 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         this.preventiveStates = preventiveStates;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.generatorConstraints = generatorConstraints;
-        this.timestampDuration = computeTimestampDuration(networks.getTimestamps());
+        this.timestampDuration = FillersUtil.computeTimestampDuration(networks.getTimestamps());
         this.timestamps = networks.getTimestamps();
-    }
-
-    // TODO: move this check at a prior moment
-    private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
-        if (timestamps.size() < 2) {
-            throw new OpenRaoException("There must be at least two timestamps.");
-        }
-        double referenceTimestampDuration = computeTimeGap(timestamps.getFirst(), timestamps.get(1));
-        for (int timestampIndex = 1; timestampIndex < timestamps.size() - 1; timestampIndex++) {
-            double timestampDuration = computeTimeGap(timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
-            if (timestampDuration != referenceTimestampDuration) {
-                throw new OpenRaoException("All timestamps are not evenly spread.");
-            }
-        }
-        return referenceTimestampDuration;
     }
 
     @Override
@@ -401,15 +385,6 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     // ** Utility methods
-    private static double computeTimeGap(OffsetDateTime timestamp1, OffsetDateTime timestamp2) {
-        if (timestamp1 == null || timestamp2 == null) {
-            throw new OpenRaoException("timestamp1 and timestamp2 cannot both be null");
-        } else if (timestamp1.isAfter(timestamp2)) {
-            throw new OpenRaoException("timestamp1 is expected to come before timestamp2");
-        }
-        return timestamp1.until(timestamp2, ChronoUnit.SECONDS) / 3600.0;
-    }
-
     private Optional<TemporalData<InjectionRangeAction>> getInjectionRangeActionOfGenerator(String generatorId) {
         Map<OffsetDateTime, InjectionRangeAction> injectionRangeActionPerTimestamp = new HashMap<>();
         for (OffsetDateTime timestamp : injectionRangeActionsPerTimestamp.getTimestamps()) {
