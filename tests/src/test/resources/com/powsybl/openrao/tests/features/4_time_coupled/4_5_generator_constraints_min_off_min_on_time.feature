@@ -273,9 +273,9 @@ From 20:30 to 23:30, 3000 MW of redispatching
   Scenario: 4.5.3: Min-on time
     Min-on Time = 9h
     The generator must stay on for 9h after being turned on.
-    -> the generator need to stay on one timestamp longer than necessary at Pmin. The generator stays on between 7h30 and 15h30 instead of 8h30 and 15h30.
+    -> the generator needs to stay on one timestamp longer than necessary at Pmin. The generator stays on between 7:30 and 15:30 instead of 8:30 and 15:30.
     Since we don't know when the generator was first started up, the constraint does not apply for the first timestamps
-    -> we don't need to force the generator to stay on from 00h30 to 9h30
+    -> we don't need to force the generator to stay on from 00:30 to 9:30
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-4_5_3.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |

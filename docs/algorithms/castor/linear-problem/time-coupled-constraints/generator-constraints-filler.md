@@ -54,7 +54,7 @@ the timestamps, and not some time in between two timestamps.
 | ShutDown allowed                   | $isShutDownAllowed$ | Indicates if generator $g$ can be shutdown. This value is a boolean.                                                |
 | StartUp allowed                    | $isStartUpAllowed$  | Indicates if generator $g$ can be started up. This value is a boolean.                                              |
 | Min-off Time                       | $minOffTime(g)$     | Minimum time a generator $g$ must stay off before being switched on again, once it has been shut down.              |
-| Min-on Time                        | $minOnTime(g)$      | Minimum time a generator $g$ must stay on before being switched off, once it has been start up.                     |
+| Min-on Time                        | $minOnTime(g)$      | Minimum time a generator $g$ must stay on before being switched off, once it has been started up.                   |
 
 #### Time-dependant input data
 
