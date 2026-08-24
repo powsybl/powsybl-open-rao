@@ -67,7 +67,7 @@ public class PstConstraintsFiller implements ProblemFiller {
     /**
      * Constraint limiting the tap variation of a PST between two consecutive timestamps.
      * <br/>
-     * |τ(r,s,t+1) − τ(r,s,t)| <= gradient
+     * downwardTapGradient <= TAP(r,s,t+1) − TAP(r,s,t) <= upwardTapGradient
      */
     private void addTapGradientConstraint(LinearProblem linearProblem, PstConstraints pstConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {
         String pstId = pstConstraints.getPstId();
