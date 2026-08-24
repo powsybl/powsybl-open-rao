@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.4 : Time-coupled PST tap gradient constraints
+Feature: 4.5 : Time-coupled PST tap gradient constraints
 
   Presentation of the US
   ----------------------
