@@ -61,24 +61,6 @@
       "max" : 16,
       "rangeType" : "absolute"
     } ]
-  }, {
-    "id" : "PST_CRA_PST_be_BBE2AA11 BBE3AA11 1",
-    "name" : "CRA_PST_be",
-    "operator" : "BE",
-    "activationCost": 5.0,
-    "variationCosts": {
-      "up": 10.0,
-      "down": 10.0
-    },
-    "onInstantUsageRules" : [ {
-      "instant" : "curative"
-    } ],
-    "networkElementId" : "BBE2AA11 BBE3AA11 1",
-    "ranges" : [ {
-      "min" : -16,
-      "max" : 16,
-      "rangeType" : "absolute"
-    } ]
   }],
   "hvdcRangeActions" : [ {
     "id" : "PRA_HVDC",

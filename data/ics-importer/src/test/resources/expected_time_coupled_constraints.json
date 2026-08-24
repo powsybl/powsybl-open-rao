@@ -1,6 +1,6 @@
 {
   "type" : "OpenRAO Time-Coupled Constraints",
-  "version" : "1.0",
+  "version" : "1.1",
   "generatorConstraints" : [ {
     "generatorId" : "Redispatching_RA_1_BBE1AA1_GENERATOR",
     "leadTime" : 1.0,

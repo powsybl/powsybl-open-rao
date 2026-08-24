@@ -50,9 +50,29 @@ class JsonTimeCoupledConstraintsTest {
             .withDownwardPowerGradient(-1000.0)
             .build();
 
+        PstConstraints pstConstraints1 = PstConstraints.create()
+            .withPstId("pst-1")
+            .withUpwardTapGradient(1)
+            .withDownwardTapGradient(-1)
+            .build();
+
+        PstConstraints pstConstraints2 = PstConstraints.create()
+            .withPstId("pst-2")
+            .withUpwardTapGradient(1)
+            .build();
+
+        PstConstraints pstConstraints3 = PstConstraints.create()
+            .withPstId("pst-3")
+            .withDownwardTapGradient(-3)
+            .build();
+
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints1);
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints2);
         timeCoupledConstraints.addGeneratorConstraints(generatorConstraints3);
+
+        timeCoupledConstraints.addPstConstraints(pstConstraints1);
+        timeCoupledConstraints.addPstConstraints(pstConstraints2);
+        timeCoupledConstraints.addPstConstraints(pstConstraints3);
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/time-coupled-constraints.json")).transferTo(expectedOutputStream);
@@ -82,8 +102,12 @@ class JsonTimeCoupledConstraintsTest {
         List<GeneratorConstraints> generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().stream()
             .sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId))
             .toList();
+        List<PstConstraints> pstConstraints = timeCoupledConstraints.getPstConstraints().stream()
+            .sorted(Comparator.comparing(PstConstraints::getPstId))
+            .toList();
 
         assertEquals(3, generatorConstraints.size());
+        assertEquals(3, pstConstraints.size());
 
         GeneratorConstraints generatorConstraints1 = generatorConstraints.get(0);
         assertEquals("generator-1", generatorConstraints1.getGeneratorId());
@@ -105,6 +129,21 @@ class JsonTimeCoupledConstraintsTest {
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());
         assertTrue(generatorConstraints3.getUpwardPowerGradient().isEmpty());
         assertEquals(Optional.of(-1000.0), generatorConstraints3.getDownwardPowerGradient());
+
+        PstConstraints pstConstraints1 = pstConstraints.get(0);
+        assertEquals("pst-1", pstConstraints1.getPstId());
+        assertEquals(Optional.of(1), pstConstraints1.getUpwardTapGradient());
+        assertEquals(Optional.of(-1), pstConstraints1.getDownwardTapGradient());
+
+        PstConstraints pstConstraints2 = pstConstraints.get(1);
+        assertEquals("pst-2", pstConstraints2.getPstId());
+        assertEquals(Optional.of(1), pstConstraints2.getUpwardTapGradient());
+        assertTrue(pstConstraints2.getDownwardTapGradient().isEmpty());
+
+        PstConstraints pstConstraints3 = pstConstraints.get(2);
+        assertEquals("pst-3", pstConstraints3.getPstId());
+        assertEquals(Optional.of(-3), pstConstraints3.getDownwardTapGradient());
+        assertTrue(pstConstraints3.getUpwardTapGradient().isEmpty());
     }
 
     @Test
@@ -122,6 +161,14 @@ class JsonTimeCoupledConstraintsTest {
             () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints-with-invalid-generator-constraints.json"))
         );
         assertEquals("Unexpected field 'unknownField' in JSON generator constraints.", exception.getMessage());
+    }
+
+    @Test
+    void testDeserializationWithIllegalFieldInPstConstraints() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints-with-invalid-pst-constraints.json"))
+        );
+        assertEquals("Unexpected field 'unknownField' in JSON PST constraints.", exception.getMessage());
     }
 
     private static void assertJsonEquivalence(String expectedJson, String actualJson) throws JsonProcessingException {
