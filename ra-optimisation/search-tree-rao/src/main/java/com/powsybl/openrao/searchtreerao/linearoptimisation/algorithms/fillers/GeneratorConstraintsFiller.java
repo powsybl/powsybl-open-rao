@@ -93,6 +93,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             Optional<Double> leadTime = individualGeneratorConstraints.getLeadTime();
             // We add leadTime and minOffTime to lagTime : after shutdown, we need to be OFF for at least lagTime + leadTime + minOffTime
             Optional<Double> lagTimeWithLeadTimeAndMinOffTime = addLeadAndLagAndMinOffTime(leadTime, individualGeneratorConstraints.getLagTime(), individualGeneratorConstraints.getMinOffTime());
+            Optional<Double> minOnTime = individualGeneratorConstraints.getMinOnTime();
             Optional<TemporalData<InjectionRangeAction>> associatedInjections = getInjectionRangeActionOfGenerator(generatorId);
             if (associatedInjections.isPresent()) {
                 // Add variables
@@ -124,6 +125,14 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                             int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(leadTime.get() / timestampDuration));
                             for (int earlierTimestampIndex = timestampIndex; earlierTimestampIndex >= firstTimestampIndex; earlierTimestampIndex--) {
                                 addStartingUpConstraint(linearProblem, generatorId, timestamps.get(timestampIndex), timestamps.get(earlierTimestampIndex));
+                            }
+                        }
+
+                        // For t' between [t+1, ceil(t + minOnTime)] and t, T(OFF->ON)(t) <= ON(t')
+                        if (minOnTime.isPresent() && minOnTime.get() > timestampDuration) {
+                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(minOnTime.get() / timestampDuration));
+                            for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex <= lastTimestampIndex; laterTimestampIndex++) {
+                                addStayingOnConstraint(linearProblem, generatorId, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex));
                             }
                         }
 
@@ -270,6 +279,17 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         OpenRaoMPConstraint leadTimeConstraint = linearProblem.addGeneratorStartingUpConstraint(generatorId, startingUpTimestamp, previousTimestamp);
         leadTimeConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorId, startingUpTimestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1.0);
         leadTimeConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorId, previousTimestamp, LinearProblem.GeneratorState.OFF), -1.0);
+    }
+
+    /**
+     * C5 bis - Staying on constraint
+     * <br/>
+     * For t' between [t+1, ceil(t + minOnTime)] and t, T(OFF->ON)(t) <= ON(t')
+     */
+    private static void addStayingOnConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime startingUpTimestamp, OffsetDateTime nextTimestamp) {
+        OpenRaoMPConstraint minOnTimeConstraint = linearProblem.addGeneratorStayingOnConstraint(generatorId, startingUpTimestamp, nextTimestamp);
+        minOnTimeConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorId, startingUpTimestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1.0);
+        minOnTimeConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorId, nextTimestamp, LinearProblem.GeneratorState.ON), -1.0);
     }
 
     /**
