@@ -1354,7 +1354,12 @@ class GeneratorConstraintsFillerTest {
         for (int timestampIdx = 0; timestampIdx < hourlyTimestamps.size() - 1; timestampIdx++) {
             for (OffsetDateTime otherTimestamp : hourlyTimestamps.subList(timestampIdx + 1, (int) Math.min(timestampIdx + Math.ceil(minOnTime) + 1, hourlyTimestamps.size()))) {
                 OpenRaoMPConstraint stayingConstraint = linearProblem.getGeneratorStayingOnConstraint("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), otherTimestamp);
-                assertEquals(1, stayingConstraint.getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON)));
+                assertEquals(
+                    1,
+                    stayingConstraint.getCoefficient(
+                        linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON)
+                    )
+                );
                 assertEquals(-1, stayingConstraint.getCoefficient(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", otherTimestamp, LinearProblem.GeneratorState.ON)));
             }
         }

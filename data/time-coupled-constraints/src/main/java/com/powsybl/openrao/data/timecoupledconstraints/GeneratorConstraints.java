@@ -28,7 +28,15 @@ public final class GeneratorConstraints {
     private final boolean isShutDownAllowed;
     private final boolean isStartUpAllowed;
 
-    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double minOffTime, Double minOnTime, Double upwardPowerGradient, Double downwardPowerGradient, Boolean isShutDownAllowed, Boolean isStartUpAllowed) {
+    private GeneratorConstraints(String generatorId,
+                                 Double leadTime,
+                                 Double lagTime,
+                                 Double minOffTime,
+                                 Double minOnTime,
+                                 Double upwardPowerGradient,
+                                 Double downwardPowerGradient,
+                                 Boolean isShutDownAllowed,
+                                 Boolean isStartUpAllowed) {
         this.generatorId = generatorId;
         this.leadTime = leadTime;
         this.lagTime = lagTime;
@@ -82,7 +90,9 @@ public final class GeneratorConstraints {
      *
      * @return minimum on time of the generator
      */
-    public Optional<Double> getMinOnTime() { return Optional.ofNullable(minOnTime);}
+    public Optional<Double> getMinOnTime() {
+        return Optional.ofNullable(minOnTime);
+    }
 
     /**
      * Get the upward power gradient of the generator in MW/hours.
