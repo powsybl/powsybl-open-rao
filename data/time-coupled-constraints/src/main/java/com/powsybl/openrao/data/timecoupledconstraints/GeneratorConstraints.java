@@ -27,7 +27,14 @@ public final class GeneratorConstraints {
     private final boolean isShutDownAllowed;
     private final boolean isStartUpAllowed;
 
-    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient, Boolean isShutDownAllowed, Boolean isStartUpAllowed) {
+    private GeneratorConstraints(String generatorId,
+                                 Double leadTime,
+                                 Double lagTime,
+                                 Double minOffTime,
+                                 Double upwardPowerGradient,
+                                 Double downwardPowerGradient,
+                                 Boolean isShutDownAllowed,
+                                 Boolean isStartUpAllowed) {
         this.generatorId = generatorId;
         this.leadTime = leadTime;
         this.lagTime = lagTime;

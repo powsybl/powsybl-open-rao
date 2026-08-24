@@ -1262,7 +1262,12 @@ class GeneratorConstraintsFillerTest {
         for (int timestampIdx = 0; timestampIdx < hourlyTimestamps.size() - 1; timestampIdx++) {
             for (OffsetDateTime otherTimestamp : hourlyTimestamps.subList(timestampIdx + 1, (int) Math.min(timestampIdx + Math.ceil(lagAndLeadAndMinOffTime) + 1, hourlyTimestamps.size()))) {
                 OpenRaoMPConstraint shuttingDownConstraint = linearProblem.getGeneratorShuttingDownConstraint("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), otherTimestamp);
-                assertEquals(1, shuttingDownConstraint.getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF)));
+                assertEquals(
+                    1,
+                    shuttingDownConstraint.getCoefficient(
+                        linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF)
+                    )
+                );
                 assertEquals(-1, shuttingDownConstraint.getCoefficient(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", otherTimestamp, LinearProblem.GeneratorState.OFF)));
             }
         }
@@ -1274,9 +1279,14 @@ class GeneratorConstraintsFillerTest {
         }
 
         for (int timestampIdx = 1; timestampIdx < hourlyTimestamps.size() - 1; timestampIdx++) {
-            for (OffsetDateTime otherTimestamp : hourlyTimestamps.subList((int) Math.max(0,timestampIdx - Math.ceil(leadTime) + 1), timestampIdx + 1)) {
+            for (OffsetDateTime otherTimestamp : hourlyTimestamps.subList((int) Math.max(0, timestampIdx - Math.ceil(leadTime) + 1), timestampIdx + 1)) {
                 OpenRaoMPConstraint startingUpConstraint = linearProblem.getGeneratorStartingUpConstraint("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), otherTimestamp);
-                assertEquals(1.0, startingUpConstraint.getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON)));
+                assertEquals(
+                    1.0,
+                    startingUpConstraint.getCoefficient(
+                        linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON)
+                    )
+                );
                 assertEquals(-1.0, startingUpConstraint.getCoefficient(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", otherTimestamp, LinearProblem.GeneratorState.OFF)));
             }
         }
