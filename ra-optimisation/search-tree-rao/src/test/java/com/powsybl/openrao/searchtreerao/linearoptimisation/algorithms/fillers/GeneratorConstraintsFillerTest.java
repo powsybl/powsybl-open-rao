@@ -1056,7 +1056,7 @@ class GeneratorConstraintsFillerTest {
         //   - state to OFF (except for last timestamp) * 4
         //   - power transition (lower bound; except for last timestamp) * 4
         //   - power transition (upper bound; except for last timestamp) * 4
-        //   - generator shutting down constraint * 9
+        //   - generator shutting down constraint * 7
         //   -> if transition_0N_OFF at timestamp 0 = 1 -> the generator is OFF for at least timestamp 1 and 2 -> 2 constraints
         //   -> if transition_0N_OFF at timestamp 1 = 1 -> the generator is OFF for at least timestamp 2 and 3  -> 2 constraints
         //   -> if transition_0N_OFF at timestamp 2 = 1 -> the generator is OFF for at least timestamp 3 and 4 -> 2 constraints
@@ -1186,6 +1186,61 @@ class GeneratorConstraintsFillerTest {
         checkStartingUpConstraint(1.2);
     }
 
+    @Test
+    void testMinOnTimeConstraint() {
+        TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
+        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+            .withGeneratorId("BBE1AA1 _generator")
+            .withMinOnTime(1.2)
+            .build();
+        timeCoupledConstraints.addGeneratorConstraints(generatorConstraints);
+        setUpLinearProblemWithTimeCoupledConstraints(timeCoupledConstraints, hourlyTimestamps);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (66):
+        //   - flow * 5
+        //   - set-point variation * 5
+        //   - network balancing * 5
+        //   - generator power to redispatching * 5
+        //   - ON / OFF power (lower bound) * 5
+        //   - ON / OFF power (upper bound) * 5
+        //   - only one state * 5
+        //   - state from ON (except for last timestamp) * 4
+        //   - state from OFF (except for last timestamp) * 4
+        //   - state to ON (except for last timestamp) * 4
+        //   - state to OFF (except for last timestamp) * 4
+        //   - power transition (lower bound; except for last timestamp) * 4
+        //   - power transition (upper bound; except for last timestamp) * 4
+        //   - generator starting up constraint * 7
+        //   -> if transition_0FF_ON at timestamp 0 = 1 -> the generator is ON for timestamp 1 and 2 -> 2 constraints
+        //   -> if transition_0FF_ON at timestamp 1 = 1 -> the generator is OFF for timestamp 2 and 3 -> 2 constraints
+        //   -> if transition_0FF_ON at timestamp 2 = 1 -> the generator is OFF for timestamp 3 and 4 -> 2 constraints
+        //   -> if transition_0FF_ON at timestamp 3 = 1 -> the generator is OFF for timestamp 4 -> 1 constraints
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(66, linearProblem.numConstraints());
+
+        checkInjectionKey();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkOnOffAndOffOnTransitionPowerVariation(generatorConstraints);
+        checkStayingOnConstraint(1.2);
+    }
+
     private void checkInjectionKey() {
         iterateOnHourlyTimestamps(
             timestamp -> assertEquals(
@@ -1288,6 +1343,24 @@ class GeneratorConstraintsFillerTest {
                     )
                 );
                 assertEquals(-1.0, startingUpConstraint.getCoefficient(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", otherTimestamp, LinearProblem.GeneratorState.OFF)));
+            }
+        }
+    }
+
+    void checkStayingOnConstraint(Double minOnTime) {
+        if (minOnTime <= 1.) {
+            return;
+        }
+        for (int timestampIdx = 0; timestampIdx < hourlyTimestamps.size() - 1; timestampIdx++) {
+            for (OffsetDateTime otherTimestamp : hourlyTimestamps.subList(timestampIdx + 1, (int) Math.min(timestampIdx + Math.ceil(minOnTime) + 1, hourlyTimestamps.size()))) {
+                OpenRaoMPConstraint stayingConstraint = linearProblem.getGeneratorStayingOnConstraint("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), otherTimestamp);
+                assertEquals(
+                    1,
+                    stayingConstraint.getCoefficient(
+                        linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", hourlyTimestamps.get(timestampIdx), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON)
+                    )
+                );
+                assertEquals(-1, stayingConstraint.getCoefficient(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", otherTimestamp, LinearProblem.GeneratorState.ON)));
             }
         }
     }

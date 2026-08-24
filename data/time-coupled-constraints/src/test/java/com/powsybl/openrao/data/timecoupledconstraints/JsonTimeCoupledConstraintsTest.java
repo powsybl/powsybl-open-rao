@@ -48,6 +48,7 @@ class JsonTimeCoupledConstraintsTest {
             .withLeadTime(0.5)
             .withLagTime(4.0)
             .withMinOffTime(1.0)
+            .withMinOnTime(2.0)
             .withDownwardPowerGradient(-1000.0)
             .build();
 
@@ -131,6 +132,7 @@ class JsonTimeCoupledConstraintsTest {
         assertEquals(Optional.of(0.5), generatorConstraints3.getLeadTime());
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());
         assertEquals(Optional.of(1.0), generatorConstraints3.getMinOffTime());
+        assertEquals(Optional.of(2.0), generatorConstraints3.getMinOnTime());
         assertTrue(generatorConstraints3.getUpwardPowerGradient().isEmpty());
         assertEquals(Optional.of(-1000.0), generatorConstraints3.getDownwardPowerGradient());
 
