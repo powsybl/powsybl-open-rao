@@ -456,19 +456,13 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private Optional<Double> addLeadAndLagAndMinOffTime(Optional<Double> lead, Optional<Double> lag, Optional<Double> minOffTime) {
-        double sum = 0.0;
-        if (lag.isPresent()) {
-            sum += lag.get();
-        }
-        if (minOffTime.isPresent()) {
-            sum += minOffTime.get();
+        double totalTime = lag.orElse(0.0) + minOffTime.orElse(0.0);
+
+        if (totalTime != 0.0 && lead.isPresent()) {
+            totalTime += lead.get();
         }
 
-        if (sum != 0.0 && lead.isPresent()) {
-            sum += lead.get();
-        }
-
-        return sum > 0.0 ? Optional.of(sum) : Optional.empty();
+        return totalTime > 0.0 ? Optional.of(totalTime) : Optional.empty();
     }
 
     @Override
