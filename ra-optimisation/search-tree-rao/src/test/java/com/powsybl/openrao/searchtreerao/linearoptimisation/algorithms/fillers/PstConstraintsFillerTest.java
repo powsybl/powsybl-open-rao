@@ -252,6 +252,20 @@ class PstConstraintsFillerTest {
     }
 
     @Test
+    void testPstConstraintWithOnlyUpwardGradient() {
+        PstConstraints pstConstraints = PstConstraints.create()
+            .withPstId("pst_be")
+            .withUpwardTapGradient(2)
+            .build();
+        setUpLinearProblemWithPstConstraints(Map.of(
+            hourlyTimestamps.get(0), Set.of("pst_be"),
+            hourlyTimestamps.get(1), Set.of("pst_be")
+        ), Set.of(pstConstraints));
+        checkTapGradientConstraint("pst_be", hourlyTimestamps.get(0), hourlyTimestamps.get(1), -linearProblem.infinity(), 2);
+
+    }
+
+    @Test
     void testSingleTimestampThrows() {
         PstConstraints pstConstraints = PstConstraints.create().withPstId("pst_be").withUpwardTapGradient(1).build();
         Map<OffsetDateTime, Set<String>> pstIdsPerTimestamp = Map.of(hourlyTimestamps.get(0), Set.of("pst_be"));
