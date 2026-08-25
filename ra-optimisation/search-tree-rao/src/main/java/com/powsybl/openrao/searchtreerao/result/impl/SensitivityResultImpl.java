@@ -10,10 +10,12 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.UnitConverter;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -55,23 +57,25 @@ public class SensitivityResultImpl implements SensitivityResult {
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side);
-        } else if (unit == Unit.AMPERE) {
-            return systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, flowCnec, side);
-        } else {
-            throw new OpenRaoException(format("Unhandled unit for sensitivity value on range action : %s.", unit));
-        }
+        double multiplier = getSensitivityMultiplier(flowCnec, side, unit, "range action");
+        double sensitivityValue = systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side);
+        return multiplier * sensitivityValue;
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side);
-        } else if (unit == Unit.AMPERE) {
-            return systematicSensitivityResult.getSensitivityOnIntensity(linearGlsk, flowCnec, side);
+        double multiplier = getSensitivityMultiplier(flowCnec, side, unit, "linear GLSK");
+        double sensitivityValue = systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side);
+        return multiplier * sensitivityValue;
+    }
+
+    double getSensitivityMultiplier(FlowCnec flowCnec, TwoSides side, Unit targetUnit, String sensitivityType) {
+        if (targetUnit == Unit.MEGAWATT) {
+            return 1.0;
+        } else if (targetUnit == Unit.AMPERE) {
+            return UnitConverter.getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE);
         } else {
-            throw new OpenRaoException(format("Unknown unit for sensitivity value on linear GLSK : %s.", unit));
+            throw new OpenRaoException(format("Unknown unit for sensitivity value on %s : %s.", sensitivityType, targetUnit));
         }
     }
 }
