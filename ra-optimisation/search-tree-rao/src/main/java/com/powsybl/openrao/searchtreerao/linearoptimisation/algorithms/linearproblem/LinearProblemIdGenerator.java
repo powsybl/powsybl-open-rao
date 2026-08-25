@@ -39,6 +39,7 @@ public final class LinearProblemIdGenerator {
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String VIRTUAL_TAP = "virtualtap";
+    private static final String PST_TAP_GRADIENT = "psttapgradient";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
@@ -125,6 +126,10 @@ public final class LinearProblemIdGenerator {
 
     public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), UP_OR_DOWN_VARIATION, CONSTRAINT_SUFFIX);
+    }
+
+    public static String pstTapGradientConstraintId(PstRangeAction pstRangeAction, State state, State nextState) {
+        return formatName(pstRangeAction.getId(), state.getId(), nextState.getId(), PST_TAP_GRADIENT, CONSTRAINT_SUFFIX);
     }
 
     public static String isVariationConstraintId(RangeAction<?> rangeAction, State state) {

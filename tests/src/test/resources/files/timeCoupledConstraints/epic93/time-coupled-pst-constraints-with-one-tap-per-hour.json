@@ -1,0 +1,11 @@
+{
+  "type" : "OpenRAO Time-Coupled Constraints",
+  "version" : "1.1",
+  "pstConstraints" : [
+    {
+      "pstId" : "pst_be_fr",
+      "upwardTapGradient" : 1,
+      "downwardTapGradient" : -1
+    }
+  ]
+}
