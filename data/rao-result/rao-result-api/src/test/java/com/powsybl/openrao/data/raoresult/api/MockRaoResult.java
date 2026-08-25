@@ -41,16 +41,6 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     @Override
-    public ComputationStatus getComputationStatus() {
-        return null;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return null;
-    }
-
-    @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return 0;
     }
@@ -138,15 +128,5 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return null;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return null;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        //not used
     }
 }

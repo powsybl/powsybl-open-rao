@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherRaoProviderMock;
@@ -68,10 +67,8 @@ class RaoTest {
         // run rao
         RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
-        assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
         RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
-        assertEquals(ComputationStatus.DEFAULT, resultAsync.getComputationStatus());
     }
 
     @Test

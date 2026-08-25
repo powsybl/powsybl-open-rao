@@ -16,10 +16,10 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
 import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
@@ -51,8 +51,10 @@ public final class ExhaustiveRaoResultCreation {
 
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
-        raoResult.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
+
+        Metadata metadata = new Metadata();
+        metadata.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
+        raoResult.addExtension(Metadata.class, metadata);
 
         // --------------------
         // --- Cost results ---

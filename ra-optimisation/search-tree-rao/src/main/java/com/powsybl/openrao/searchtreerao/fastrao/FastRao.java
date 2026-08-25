@@ -23,15 +23,18 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorMetadataHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -108,7 +111,9 @@ public class FastRao implements RaoProvider {
         } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+            RaoResult raoResult = new FailedRaoResultImpl(failure);
+            CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failure);
+            return CompletableFuture.completedFuture(raoResult);
         }
 
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode));
@@ -127,7 +132,10 @@ public class FastRao implements RaoProvider {
 
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
             FastRaoReports.reportFastRaoDoesNotSupportMultiCurativeOptimization(reportNode);
-            return new FailedRaoResultImpl("Fast Rao does not support multi-curative optimization");
+            String failureReason = "Fast Rao does not support multi-curative optimization";
+            RaoResult raoResult = new FailedRaoResultImpl(failureReason);
+            CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
+            return raoResult;
         }
 
         try {
@@ -156,12 +164,17 @@ public class FastRao implements RaoProvider {
             );
 
             if (crac.getFlowCnecs().isEmpty()) {
-                return new UnoptimizedRaoResultImpl(initialResult);
+                RaoResult raoResult = new UnoptimizedRaoResultImpl(initialResult);
+                CastorMetadataHelper.fillAndAddFromPrePerimeter(raoInput.getCrac(), raoResult, initialResult, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
+                return raoResult;
             }
 
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(reportNode);
-                return new FailedRaoResultImpl("Initial sensitivity analysis failed");
+                String failureReason = "Initial sensitivity analysis failed";
+                RaoResult raoResult = new FailedRaoResultImpl(failureReason);
+                CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
+                return raoResult;
             }
 
             FastRaoReports.reportFastRaoInitialSensitivityAnalysisResults(reportNode,
@@ -398,10 +411,63 @@ public class FastRao implements RaoProvider {
             raoInput.getCrac()
         );
 
-        // TODO: this is quite ugly since CASTOR may not be the inner loop provider
-        fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
+        fastRaoResult.addExtension(CostResult.class, duplicateCostResult(raoResult.getExtension(CostResult.class), crac));
+        fastRaoResult.addExtension(Metadata.class, regenerateMetadata(
+            raoResult.getExtension(Metadata.class),
+            crac,
+            postPraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postAraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postCraSensi.get().prePerimeterResultForAllFollowingStates()
+        ));
         return fastRaoResult;
 
+    }
+
+    private static CostResult duplicateCostResult(CostResult costResult, Crac crac) {
+        CostResult costResultCopy = new CostResult();
+        copyCostResultsForInstant(costResult, costResultCopy, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
+        return costResultCopy;
+    }
+
+    private static Metadata regenerateMetadata(Metadata metadata,
+                                               Crac crac,
+                                               PrePerimeterResult postPraSensi,
+                                               PrePerimeterResult postAraSensi,
+                                               PrePerimeterResult postCraSensi) {
+        Metadata metadataCopy = new Metadata();
+        metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
+        for (State state : crac.getStates()) {
+            ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
+            if (computationStatus != ComputationStatus.DEFAULT) {
+                metadataCopy.setComputationStatus(state, computationStatus);
+            }
+        }
+        return metadataCopy;
+    }
+
+    private static PrePerimeterResult getAppropriateResult(State state,
+                                                           PrePerimeterResult postPraSensi,
+                                                           PrePerimeterResult postAraSensi,
+                                                           PrePerimeterResult postCraSensi) {
+        return switch (state.getInstant().getKind()) {
+            case PREVENTIVE, OUTAGE -> postPraSensi;
+            case AUTO -> postAraSensi;
+            case CURATIVE -> postCraSensi;
+        };
+    }
+
+    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
+        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
+        costResult.getVirtualCostNames().forEach(
+            virtualCostName -> costResultCopy.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                costResult.getVirtualCost(instant, virtualCostName)
+            ));
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(

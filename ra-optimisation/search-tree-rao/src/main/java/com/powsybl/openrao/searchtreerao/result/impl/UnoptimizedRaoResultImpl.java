@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -37,16 +36,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return initialResult.getSensitivityStatus();
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return initialResult.getSensitivityStatus(state);
     }
 
     @Override
@@ -142,15 +131,5 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
             setpointPerRa.put(ra, initialResult.getSetpoint(ra))
         );
         return setpointPerRa;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
     }
 }

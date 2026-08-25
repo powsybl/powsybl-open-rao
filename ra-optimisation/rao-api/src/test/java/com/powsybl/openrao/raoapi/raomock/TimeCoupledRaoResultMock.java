@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 
@@ -46,16 +45,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) {
 
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return null;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return null;
     }
 
     @Override
@@ -141,15 +130,5 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return null;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return null;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-
     }
 }
