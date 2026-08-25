@@ -41,11 +41,6 @@ class FailedRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
 
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFunctionalCost(optInstant));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant));
-        assertThrows(OpenRaoException.class, failedRaoResultImpl::getVirtualCostNames);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant, ""));
-
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));

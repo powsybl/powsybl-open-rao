@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -17,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.searchtreerao.marmot.TestsUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -91,54 +90,6 @@ class TimeCoupledRaoResultImplTest {
     }
 
     @Test
-    void testCosts() {
-        assertEquals(Set.of("virtual"), timeCoupledRaoResult.getVirtualCostNames());
-
-        assertEquals(0., timeCoupledRaoResult.getGlobalCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalFunctionalCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null));
-        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null, "virtual"));
-
-        assertEquals(1000., timeCoupledRaoResult.getGlobalCost(instant));
-        assertEquals(900., timeCoupledRaoResult.getGlobalFunctionalCost(instant));
-        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant));
-        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant, "virtual"));
-
-        assertEquals(450., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(450., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_1));
-
-        assertEquals(340., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(250., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_2));
-
-        assertEquals(210., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(200., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_3));
-
-        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getFunctionalCost(instant));
-        assertEquals(
-            "Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.",
-            exception1.getMessage()
-        );
-
-        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant));
-        assertEquals(
-            "Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
-            exception2.getMessage()
-        );
-
-        OpenRaoException exception3 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant, "virtual"));
-        assertEquals(
-            "Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
-            exception3.getMessage()
-        );
-    }
-
-    @Test
     void testTimestamps() {
         assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), timeCoupledRaoResult.getTimestamps());
     }
@@ -176,9 +127,6 @@ class TimeCoupledRaoResultImplTest {
                                     boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
-        Mockito.when(raoResult.getFunctionalCost(instant)).thenReturn(functionalCost);
-        Mockito.when(raoResult.getVirtualCost(instant)).thenReturn(virtualCost);
-        Mockito.when(raoResult.getVirtualCost(instant, "virtual")).thenReturn(virtualCost);
         Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(flow);
         Mockito.when(raoResult.getMargin(instant, flowCnec, Unit.MEGAWATT)).thenReturn(margin);
         Mockito.when(raoResult.getPreOptimizationTapOnState(state, pstRangeAction)).thenReturn(initialTap);
@@ -190,6 +138,13 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(raoResult.getOptimizedSetPointsOnState(state)).thenReturn(Map.of(pstRangeAction, optimizedSetPoint));
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(state)).thenReturn(isNetworkActionActivated ? Set.of(networkAction) : Set.of());
         Mockito.when(raoResult.isActivatedDuringState(state, networkAction)).thenReturn(isNetworkActionActivated);
+
+        // mock cost extension
+        CostResult costResult = new CostResult();
+        costResult.addFunctionalCostResult(instant, functionalCost);
+        costResult.addVirtualCostResult(instant, "virtual", virtualCost);
+        Mockito.when(raoResult.getExtension(CostResult.class)).thenReturn(costResult);
+
         return raoResult;
     }
 

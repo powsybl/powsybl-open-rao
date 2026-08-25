@@ -114,25 +114,6 @@ class FastRaoResultImplTest {
     }
 
     @Test
-    void testGetVirtualCostNames() {
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("costA", "costB"));
-        when(finalResult.getVirtualCostNames()).thenReturn(Set.of("costB", "costC"));
-        Set<String> allNames = result.getVirtualCostNames();
-        assertEquals(3, allNames.size());
-        assertTrue(allNames.contains("costA"));
-        assertTrue(allNames.contains("costB"));
-        assertTrue(allNames.contains("costC"));
-    }
-
-    @Test
-    void testGetVirtualCostNamesBothNull() {
-        when(initialResult.getVirtualCostNames()).thenReturn(null);
-        when(finalResult.getVirtualCostNames()).thenReturn(null);
-        Set<String> allNames = result.getVirtualCostNames();
-        assertTrue(allNames.isEmpty());
-    }
-
-    @Test
     void testGetterAndSetter() {
         FlowCnec flowCnec = crac.getFlowCnec("cnec3autoId");
         Instant preventive = crac.getInstant("preventive");
@@ -159,9 +140,6 @@ class FastRaoResultImplTest {
         assertEquals(9.3, result.getCommercialFlow(preventive, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
         assertEquals(856.3, result.getLoopFlow(preventive, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
         assertEquals(85.3, result.getPtdfZonalSum(preventive, flowCnec, TwoSides.TWO));
-        assertEquals(185.3, result.getFunctionalCost(preventive));
-        assertEquals(-6.3, result.getVirtualCost(preventive));
-        assertEquals(15.2, result.getVirtualCost(preventive, "vcost1"));
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId"), crac.getFlowCnec("cnec3autoId")),
             result.getMostLimitingElements(preventive, 2));
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId")), result.getCostlyElements(preventive, "vcost1", 1));

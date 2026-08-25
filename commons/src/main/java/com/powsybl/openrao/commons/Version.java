@@ -22,4 +22,8 @@ public record Version(int major, int minor) {
         }
         throw new IllegalArgumentException("Invalid pattern for a version string.");
     }
+
+    public String toString() {
+        return major + "." + minor;
+    }
 }

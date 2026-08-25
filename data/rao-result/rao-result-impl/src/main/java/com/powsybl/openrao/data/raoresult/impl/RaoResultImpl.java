@@ -38,7 +38,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
-    private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
 
@@ -47,7 +46,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
-    private final Map<String, CostResult> costResults = new HashMap<>();
 
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -120,44 +118,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
-    }
-
-    public CostResult getAndCreateIfAbsentCostResult(String optimizedInstantId) {
-        costResults.putIfAbsent(optimizedInstantId, new CostResult());
-        return costResults.get(optimizedInstantId);
-    }
-
-    @Override
-    public double getCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return costResults.values().stream().flatMap(c -> c.getVirtualCostNames().stream()).collect(Collectors.toSet());
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
-    }
-
-    private static String getIdFromNullableInstant(Instant optimizedInstant) {
-        return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {

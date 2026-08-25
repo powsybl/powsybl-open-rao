@@ -336,8 +336,6 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testResult() {
-        checkFunctionalCosts();
-        checkVirtualCosts();
         checkFlows();
         checkOptimizationResults();
         checkOptimizedPsts();
@@ -375,20 +373,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
         assert optimizedTapscur4state.isEmpty();
         assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
-    }
-
-    private void checkFunctionalCosts() {
-        assertEquals(34., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(134., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(233., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-111., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    private void checkVirtualCosts() {
-        assertEquals(34.1, output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(134.1, output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(233.1, output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     private void checkFlows() {

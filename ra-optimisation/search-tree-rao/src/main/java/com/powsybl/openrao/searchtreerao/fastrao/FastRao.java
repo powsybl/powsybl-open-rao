@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -388,7 +389,7 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        return new FastRaoResultImpl(
+        FastRaoResultImpl fastRaoResult = new FastRaoResultImpl(
             initialResult,
             postPraSensi.get().prePerimeterResultForAllFollowingStates(),
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
@@ -396,6 +397,10 @@ public class FastRao implements RaoProvider {
             raoResult,
             raoInput.getCrac()
         );
+
+        // TODO: this is quite ugly since CASTOR may not be the inner loop provider
+        fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
+        return fastRaoResult;
 
     }
 

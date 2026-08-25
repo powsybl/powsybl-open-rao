@@ -80,31 +80,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getCost(Instant optimizedInstant) {
-        return initialResult.getCost();
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return initialResult.getFunctionalCost();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return initialResult.getVirtualCost();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return initialResult.getVirtualCost(virtualCostName);
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         return false;
     }

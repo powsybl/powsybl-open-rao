@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -276,6 +277,26 @@ public final class RaoUtil {
     // TODO: find a better place for this function
     public static Unit getFlowUnit(final RaoParameters raoParameters) {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
+    }
+
+    public static CostResult duplicateCastorCostResult(CostResult costResult, Crac crac) {
+        CostResult costResultCopy = new CostResult();
+        copyCostResultsForInstant(costResult, costResultCopy, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
+        return costResultCopy;
+    }
+
+    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
+        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
+        costResult.getVirtualCostNames().forEach(
+            virtualCostName -> costResultCopy.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                costResult.getVirtualCost(instant, virtualCostName)
+            ));
     }
 
 }

@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import org.junit.jupiter.api.Test;
 
@@ -256,31 +257,35 @@ class ImporterRetrocompatibilityTest {
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), importedRaoResult.getVirtualCostNames());
 
-        assertEquals(100., importedRaoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., importedRaoResult.getCost(null), DOUBLE_TOLERANCE);
+        CostResult costResult = importedRaoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
 
-        assertEquals(80., importedRaoResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(80., importedRaoResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
 
-        assertEquals(-20., importedRaoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., importedRaoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., importedRaoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., importedRaoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., importedRaoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., importedRaoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., importedRaoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, importedRaoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., costResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., costResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., costResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // -----------------------------
         // --- test FlowCnec results ---
@@ -558,31 +563,7 @@ class ImporterRetrocompatibilityTest {
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), importedRaoResult.getVirtualCostNames());
-
-        assertEquals(100., importedRaoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., importedRaoResult.getCost(null), DOUBLE_TOLERANCE);
-
-        assertEquals(80., importedRaoResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., importedRaoResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(80., importedRaoResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
-
-        assertEquals(-20., importedRaoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., importedRaoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., importedRaoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
-
-        assertEquals(-50., importedRaoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., importedRaoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., importedRaoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., importedRaoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, importedRaoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        checkCosts(importedRaoResult, preventiveInstant, autoInstant, curativeInstant);
 
         // -----------------------------
         // --- test FlowCnec results ---
@@ -847,6 +828,40 @@ class ImporterRetrocompatibilityTest {
         assertEquals(-3245.0, angleResult.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3435.0, angleResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(-3345.0, angleResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+    }
+
+    private static void checkCosts(RaoResult importedRaoResult, Instant preventiveInstant, Instant autoInstant, Instant curativeInstant) {
+        CostResult costResult = importedRaoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
+
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
+
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
+
+        assertEquals(80., costResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., costResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., costResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., costResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     private void testBaseContentOfV1Point3RaoResult(RaoResult importedRaoResult, Crac crac) {

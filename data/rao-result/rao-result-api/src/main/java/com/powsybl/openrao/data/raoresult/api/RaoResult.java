@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
@@ -256,9 +257,12 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
      */
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
     default double getCost(Instant optimizedInstant) {
         return getFunctionalCost(optimizedInstant) + getVirtualCost(optimizedInstant);
     }
@@ -267,39 +271,63 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
      */
-    double getFunctionalCost(Instant optimizedInstant);
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
+    default double getFunctionalCost(Instant optimizedInstant) {
+        CostResult costResult = getExtension(CostResult.class);
+        return costResult == null ? Double.NaN : costResult.getFunctionalCost(optimizedInstant);
+    }
 
     /**
      * It gives the sum of virtual costs of the situation at a given {@link Instant} according to the
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
      */
-    double getVirtualCost(Instant optimizedInstant);
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
+    default double getVirtualCost(Instant optimizedInstant) {
+        CostResult costResult = getExtension(CostResult.class);
+        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant);
+    }
 
     /**
      * It gives the names of the different virtual cost implied in the objective function defined in
      * the RAO.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @return The set of virtual cost names.
      */
-    Set<String> getVirtualCostNames();
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
+    default Set<String> getVirtualCostNames() {
+        CostResult costResult = getExtension(CostResult.class);
+        return costResult == null ? Set.of() : costResult.getVirtualCostNames();
+    }
 
     /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
+     * @deprecated since 7.5.0, use Cost Extension
+     *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param virtualCostName  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
      */
-    double getVirtualCost(Instant optimizedInstant, String virtualCostName);
+    @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
+    default double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
+        CostResult costResult = getExtension(CostResult.class);
+        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant, virtualCostName);
+    }
 
     /**
      * It states if the {@link RemedialAction} is activated on a specific {@link State}.
