@@ -9,11 +9,13 @@ package com.powsybl.openrao.data.raoresult.api.extension;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -97,11 +99,13 @@ public class Metadata extends AbstractExtension<RaoResult> {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(computationStatusPerState.get(state)));
                 jsonGenerator.writeStringField("instant", state.getInstant().getId());
-                if (state.getContingency().isPresent()) {
-                    jsonGenerator.writeStringField("contingency", state.getContingency().get().getId());
+                Optional<Contingency> contingency = state.getContingency();
+                if (contingency.isPresent()) {
+                    jsonGenerator.writeStringField("contingency", contingency.get().getId());
                 }
-                if (state.getTimestamp().isPresent()) {
-                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(state.getTimestamp().get()));
+                Optional<OffsetDateTime> timestamp = state.getTimestamp();
+                if (timestamp.isPresent()) {
+                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(timestamp.get()));
                 }
                 jsonGenerator.writeEndObject();
             }
