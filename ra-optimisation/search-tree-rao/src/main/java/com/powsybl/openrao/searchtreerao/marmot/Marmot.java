@@ -775,17 +775,17 @@ public class Marmot implements TimeCoupledRaoProvider {
         result.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
         result.addExtension(
             CostResult.class,
-            getCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
+            createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
         );
         result.addExtension(Metadata.class, getMetadataExtension(raoInputs.map(RaoInput::getCrac), globalLinearOptimizationResult));
         return result;
     }
 
-    private static CostResult getCostResultExtension(ObjectiveFunctionResult initialLinearOptimizationResult,
-                                                     ObjectiveFunctionResult finalLinearOptimizationResult,
-                                                     List<Instant> instants) {
+    private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
+                                                              ObjectiveFunctionResult finalLinearOptimizationResult,
+                                                              List<Instant> instants) {
         CostResult costResult = new CostResult();
-        addCostsForInstant(costResult, initialLinearOptimizationResult, null);
+        addCostsForInstant(costResult, initialOptimizationResult, null);
         instants.stream()
             .filter(instant -> !instant.isOutage())
             .forEach(instant -> addCostsForInstant(costResult, finalLinearOptimizationResult, instant));

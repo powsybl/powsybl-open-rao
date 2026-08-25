@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
     }
 
     /**
-     * It gives the names of the different virtual cost implied in the objective function defined in
+     * It gives the names of the different virtual costs implied in the objective function defined in
      * the RAO.
      *
      * @return The set of virtual cost names.
@@ -84,7 +85,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
     /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
-     * objective function, this method could return {@code Double.NaN} values.
+     * objective function, this method will return {@code Double.NaN} values.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param virtualCostName  The name of the virtual cost.
@@ -116,8 +117,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
             return costResultPerInstant.keySet()
                 .stream()
                 .filter(instant -> instant.comesBefore(optimizedInstant))
-                .sorted()
-                .findFirst()
+                .max(Comparator.comparing(Instant::getOrder))
                 .orElse(null);
         }
     }
