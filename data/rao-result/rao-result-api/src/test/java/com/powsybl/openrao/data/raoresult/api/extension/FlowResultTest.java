@@ -498,6 +498,119 @@ class FlowResultTest {
     }
 
     @Nested
+    @DisplayName("Instant Fallback Tests")
+    class InstantFallbackTests {
+
+        @Test
+        @DisplayName("Outage instant without results falls back to preventive instant results")
+        void testOutageFallbackToPreventive() {
+            Instant outageInstant = mock(Instant.class);
+            when(outageInstant.getId()).thenReturn("outage");
+            when(outageInstant.getOrder()).thenReturn(2);
+
+            when(preventiveInstant.getOrder()).thenReturn(1);
+            when(curativeInstant.getOrder()).thenReturn(3);
+
+            when(preventiveInstant.comesBefore(outageInstant)).thenReturn(true);
+            when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
+            when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
+            when(curativeInstant.comesBefore(outageInstant)).thenReturn(false);
+            when(curativeInstant.comesBefore(preventiveInstant)).thenReturn(false);
+            when(outageInstant.comesBefore(preventiveInstant)).thenReturn(false);
+
+            // Add results for initial, preventive, and curative, but NOT for outage
+            flowResult.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addCommercialFlowMeasurement(40.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE);
+
+            flowResult.addFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addCommercialFlowMeasurement(60.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE);
+
+            flowResult.addFlowMeasurement(300.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addCommercialFlowMeasurement(80.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.8, curativeInstant, flowCnec, TwoSides.ONE);
+
+            // Outage instant should fall back to preventive instant results
+            assertEquals(200.0, flowResult.getFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(60.0, flowResult.getCommercialFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(140.0, flowResult.getLoopFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(800.0, flowResult.getMargin(outageInstant, flowCnec, Unit.MEGAWATT));
+            assertEquals(0.5, flowResult.getPtdfZonalSum(outageInstant, flowCnec, TwoSides.ONE));
+            assertEquals(1600.0, flowResult.getRelativeMargin(outageInstant, flowCnec, Unit.MEGAWATT));
+
+            // Verify preventive, curative, and initial remain unaffected
+            assertEquals(200.0, flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(300.0, flowResult.getFlow(curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(100.0, flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        }
+
+        @Test
+        @DisplayName("Instant with no prior instant with results falls back to initial results")
+        void testFallbackToInitialWhenNoPriorInstantHasResults() {
+            Instant outageInstant = mock(Instant.class);
+            when(outageInstant.getId()).thenReturn("outage");
+            when(outageInstant.getOrder()).thenReturn(2);
+
+            when(preventiveInstant.getOrder()).thenReturn(1);
+            when(curativeInstant.getOrder()).thenReturn(3);
+
+            when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
+            when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
+            when(curativeInstant.comesBefore(outageInstant)).thenReturn(false);
+            when(curativeInstant.comesBefore(preventiveInstant)).thenReturn(false);
+
+            // Initial has results, curative has results, but neither preventive nor outage has results
+            flowResult.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addCommercialFlowMeasurement(50.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE);
+
+            flowResult.addFlowMeasurement(400.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+
+            // Preventive has no previous instant with results -> falls back to initial
+            assertEquals(100.0, flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(50.0, flowResult.getCommercialFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(50.0, flowResult.getLoopFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(900.0, flowResult.getMargin(preventiveInstant, flowCnec, Unit.MEGAWATT));
+            assertEquals(0.2, flowResult.getPtdfZonalSum(preventiveInstant, flowCnec, TwoSides.ONE));
+            assertEquals(4500.0, flowResult.getRelativeMargin(preventiveInstant, flowCnec, Unit.MEGAWATT));
+
+            // Outage has no previous instant with results -> falls back to initial
+            assertEquals(100.0, flowResult.getFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(50.0, flowResult.getCommercialFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(50.0, flowResult.getLoopFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(900.0, flowResult.getMargin(outageInstant, flowCnec, Unit.MEGAWATT));
+
+            // Curative returns its own results
+            assertEquals(400.0, flowResult.getFlow(curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        }
+
+        @Test
+        @DisplayName("Both outage and curative fall back to preventive when only preventive has results")
+        void testOutageAndCurativeFallbackToPreventive() {
+            Instant outageInstant = mock(Instant.class);
+            when(outageInstant.getId()).thenReturn("outage");
+            when(outageInstant.getOrder()).thenReturn(2);
+
+            when(preventiveInstant.getOrder()).thenReturn(1);
+            when(curativeInstant.getOrder()).thenReturn(3);
+
+            when(preventiveInstant.comesBefore(outageInstant)).thenReturn(true);
+            when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
+            when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
+
+            flowResult.addFlowMeasurement(250.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+
+            // Both outage and curative fall back to preventive
+            assertEquals(250.0, flowResult.getFlow(outageInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(750.0, flowResult.getMargin(outageInstant, flowCnec, Unit.MEGAWATT));
+
+            assertEquals(250.0, flowResult.getFlow(curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(750.0, flowResult.getMargin(curativeInstant, flowCnec, Unit.MEGAWATT));
+        }
+    }
+
+    @Nested
     @DisplayName("Serialization Tests")
     class SerializationTests {
 
