@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,10 +44,13 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        assertEquals(100., raoResult.getMargin(null, flowCnec, Unit.MEGAWATT));
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(100., flowResult.getMargin(null, flowCnec, Unit.MEGAWATT));
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(490., flowResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -114,8 +118,11 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
         }
 
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(490., flowResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @ParameterizedTest
@@ -157,8 +164,10 @@ class FlowCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
 
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
     }
 
     @Test
@@ -175,8 +184,11 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -193,8 +205,11 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        assertEquals(Double.NaN, raoResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(Double.NaN, raoResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(Double.NaN, flowResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(Double.NaN, flowResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -211,8 +226,11 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.TWO));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.TWO));
     }
 
     @Test
@@ -246,7 +264,10 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
     }
 
     @Test

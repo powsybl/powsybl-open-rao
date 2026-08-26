@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
 
@@ -41,7 +39,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
-    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
@@ -81,11 +78,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             instant = crac.getPreventiveInstant();
         }
         return instant;
-    }
-
-    public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
-        return flowCnecResults.get(flowCnec);
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
