@@ -18,18 +18,16 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class FlowResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "flow-results";
-    private static final TwoSides[] SIDES = new TwoSides[]{TwoSides.ONE, TwoSides.TWO};
-    private static final Unit[] UNITS = new Unit[]{Unit.MEGAWATT, Unit.AMPERE};
+    private static final List<Unit> UNITS = List.of(Unit.AMPERE, Unit.MEGAWATT);
 
     private final Map<FlowCnec, FlowCnecResult> results;
 
@@ -398,16 +396,21 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return flows.isEmpty();
         }
 
-        Set<Unit> getUnitsWithResults() {
-            return flows.keySet().stream().map(SidedUnit::unit).collect(Collectors.toSet());
+        List<Unit> getUnitsWithResults() {
+            return flows.keySet()
+                .stream()
+                .map(SidedUnit::unit)
+                .sorted(Comparator.comparing(Unit::name))
+                .toList();
         }
 
-        Set<TwoSides> getSidesWithResults(Unit unit) {
+        List<TwoSides> getSidesWithResults(Unit unit) {
             return flows.keySet()
                 .stream()
                 .filter(sidedUnit -> sidedUnit.unit() == unit)
                 .map(SidedUnit::side)
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(TwoSides::getNum))
+                .toList();
         }
 
     }
@@ -428,6 +431,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     }
 
     private static double computeRelativeMargin(double margin, double ptdfZonalSum) {
-        return margin <= 0 ? margin : margin / ptdfZonalSum;
+        return margin <= 0 ? margin : Math.min(Double.MAX_VALUE, margin / ptdfZonalSum);
     }
 }

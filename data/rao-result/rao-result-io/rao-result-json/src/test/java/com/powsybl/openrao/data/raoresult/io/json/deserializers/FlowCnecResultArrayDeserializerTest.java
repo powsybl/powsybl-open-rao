@@ -19,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,7 @@ class FlowCnecResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
+        when(flowCnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(600.0));
 
         RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
 
@@ -41,8 +43,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(100., raoResult.getMargin(null, flowCnec, Unit.MEGAWATT));
         assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -114,8 +114,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
@@ -160,8 +158,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
     }
 
@@ -179,8 +175,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
@@ -199,10 +193,8 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        assertEquals(Double.NaN, raoResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(Double.NaN, raoResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -219,8 +211,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
         assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.TWO));
     }
@@ -256,8 +246,6 @@ class FlowCnecResultArrayDeserializerTest {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
         assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
     }
 

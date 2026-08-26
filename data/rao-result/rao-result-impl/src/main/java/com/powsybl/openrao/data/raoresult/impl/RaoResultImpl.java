@@ -8,8 +8,6 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -83,36 +81,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             instant = crac.getPreventiveInstant();
         }
         return instant;
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getRelativeMargin(unit);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {

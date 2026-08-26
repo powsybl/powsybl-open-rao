@@ -73,7 +73,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The flow on the branch at the optimization state in the given unit.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    default double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -148,7 +151,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The margin on the branch at the optimization state in the given unit.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    default double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getMargin(optimizedInstant, flowCnec, unit);
+    }
 
     /**
      * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -208,7 +214,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    default double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getRelativeMargin(optimizedInstant, flowCnec, unit);
+    }
 
     /**
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -223,7 +232,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    default double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getCommercialFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -238,7 +250,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    default double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getLoopFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -252,7 +267,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     @Deprecated(since = "7.5.0") // TODO: keep version up to date depending on merging date
-    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
+    default double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        return flowResult == null ? Double.NaN : flowResult.getPtdfZonalSum(optimizedInstant, flowCnec, side);
+    }
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
