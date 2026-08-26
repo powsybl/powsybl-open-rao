@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
@@ -63,7 +64,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -78,7 +79,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
@@ -139,7 +140,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -199,7 +200,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -214,7 +215,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -229,7 +230,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -244,7 +245,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use Flow Extension
+     * @deprecated since 7.5.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
