@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -19,6 +21,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -115,11 +119,12 @@ class FlowResultTest {
             // Bounds are [-1000, 1000]: margin = min(200 - (-1000), 1000 - 200) = min(1200, 800) = 800.0
             assertEquals(800.0, flowResult.getMargin(null, flowCnec, Unit.MEGAWATT));
 
-            // Other side, other unit, and other instant should remain NaN
+            // Other side and other unit on initial instant remain NaN
             assertTrue(Double.isNaN(flowResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT)));
             assertTrue(Double.isNaN(flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.AMPERE)));
-            assertTrue(Double.isNaN(flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)));
-            assertTrue(Double.isNaN(flowResult.getMargin(preventiveInstant, flowCnec, Unit.MEGAWATT)));
+            // Instant query with no instant-specific result falls back to initial measurement
+            assertEquals(200.0, flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+            assertEquals(800.0, flowResult.getMargin(preventiveInstant, flowCnec, Unit.MEGAWATT));
         }
 
         @Test
@@ -489,6 +494,222 @@ class FlowResultTest {
             assertEquals(50.0, flowResult.getLoopFlow(null, cnec2, TwoSides.ONE, Unit.MEGAWATT));
             assertEquals(300.0, flowResult.getMargin(null, cnec2, Unit.MEGAWATT));
             assertEquals(1500.0, flowResult.getRelativeMargin(null, cnec2, Unit.MEGAWATT));
+        }
+    }
+
+    @Nested
+    @DisplayName("Serialization Tests")
+    class SerializationTests {
+
+        private String serializeToJson(FlowResult result) throws IOException {
+            StringWriter writer = new StringWriter();
+            JsonFactory factory = new JsonFactory();
+            try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
+                result.serialize(jsonGenerator);
+            }
+            return writer.toString();
+        }
+
+        @Test
+        @DisplayName("Serialize empty FlowResult produces empty array")
+        void testSerializeEmpty() throws IOException {
+            assertEquals("[]", serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize Cnec with only commercial flow or PTDF (no flows) produces flowCnec object with no instant keys")
+        void testSerializeCnecWithoutFlows() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+
+            String json = serializeToJson(flowResult);
+            assertEquals("[{\"flowCnecId\":\"cnec1\"}]", json);
+        }
+
+        @Test
+        @DisplayName("Serialize initial instant with flow only (MW)")
+        void testSerializeInitialFlowOnly() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"initial\":{"
+                + "\"megawatt\":{"
+                + "\"margin\":800.0,"
+                + "\"side1\":{\"flow\":200.0}"
+                + "}"
+                + "}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize initial instant with all MW fields: flow, commercial flow, loop flow, margin, relative margin, zonalPtdfSum")
+        void testSerializeInitialAllMegawattFields() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"initial\":{"
+                + "\"megawatt\":{"
+                + "\"margin\":700.0,"
+                + "\"relativeMargin\":1400.0,"
+                + "\"side1\":{"
+                + "\"flow\":300.0,"
+                + "\"commercialFlow\":100.0,"
+                + "\"loopFlow\":200.0,"
+                + "\"zonalPtdfSum\":0.5"
+                + "}"
+                + "}"
+                + "}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize AMPERE unit does not include zonalPtdfSum even if PTDF measurement is present")
+        void testSerializeAmpereUnitDoesNotIncludeZonalPtdfSum() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(500.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
+            flowResult.addCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
+            flowResult.addPtdfZonalSumMeasurement(0.4, null, flowCnec, TwoSides.TWO);
+
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"initial\":{"
+                + "\"ampere\":{"
+                + "\"margin\":1500.0,"
+                + "\"relativeMargin\":3750.0,"
+                + "\"side2\":{"
+                + "\"flow\":500.0,"
+                + "\"commercialFlow\":200.0,"
+                + "\"loopFlow\":300.0"
+                + "}"
+                + "}"
+                + "}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize with multiple sides (side1 and side2)")
+        void testSerializeMultipleSides() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addFlowMeasurement(250.0, null, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
+
+            String json = serializeToJson(flowResult);
+            // Verify structure includes flowCnecId, initial, megawatt, margin = 750.0, side1 flow = 200.0, side2 flow = 250.0
+            assertTrue(json.contains("\"flowCnecId\":\"cnec1\""));
+            assertTrue(json.contains("\"margin\":750.0"));
+            assertTrue(json.contains("\"side1\":{\"flow\":200.0}"));
+            assertTrue(json.contains("\"side2\":{\"flow\":250.0}"));
+        }
+
+        @Test
+        @DisplayName("Serialize with multiple units (megawatt and ampere)")
+        void testSerializeMultipleUnits() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
+
+            String json = serializeToJson(flowResult);
+            assertTrue(json.contains("\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}"));
+            assertTrue(json.contains("\"ampere\":{\"margin\":1600.0,\"side1\":{\"flow\":400.0}}"));
+        }
+
+        @Test
+        @DisplayName("Serialize negative margin and relative margin (overload)")
+        void testSerializeNegativeMarginAndRelativeMargin() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            // Flow 1200 MW > 1000 MW -> margin = -200 MW, relative margin = -200 MW
+            flowResult.addFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"initial\":{"
+                + "\"megawatt\":{"
+                + "\"margin\":-200.0,"
+                + "\"relativeMargin\":-200.0,"
+                + "\"side1\":{"
+                + "\"flow\":1200.0,"
+                + "\"zonalPtdfSum\":0.5"
+                + "}"
+                + "}"
+                + "}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize multiple FlowCnecs sorted alphabetically by ID")
+        void testSerializeMultipleFlowCnecsSortedById() throws IOException {
+            FlowCnec cnecB = mock(FlowCnec.class);
+            when(cnecB.getId()).thenReturn("cnec-b");
+            when(cnecB.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(-1000.0));
+            when(cnecB.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
+
+            FlowCnec cnecA = mock(FlowCnec.class);
+            when(cnecA.getId()).thenReturn("cnec-a");
+            when(cnecA.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(-1000.0));
+            when(cnecA.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
+
+            // Add cnecB first, then cnecA
+            flowResult.addFlowMeasurement(200.0, null, cnecB, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addFlowMeasurement(100.0, null, cnecA, TwoSides.ONE, Unit.MEGAWATT);
+
+            String expectedJson = "["
+                + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"margin\":900.0,\"side1\":{\"flow\":100.0}}}},"
+                + "{\"flowCnecId\":\"cnec-b\",\"initial\":{\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}}}"
+                + "]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize multiple Instants sorted: initial, then sorted instants")
+        void testSerializeMultipleInstantsSorted() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+
+            Instant instant1 = mock(Instant.class);
+            when(instant1.getId()).thenReturn("instant1");
+            Instant instant2 = mock(Instant.class);
+            when(instant2.getId()).thenReturn("instant2");
+
+            when(instant1.compareTo(instant2)).thenReturn(-1);
+            when(instant2.compareTo(instant1)).thenReturn(1);
+
+            // Add in reverse order: instant2, instant1, then null (initial)
+            flowResult.addFlowMeasurement(300.0, instant2, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addFlowMeasurement(200.0, instant1, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResult.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"initial\":{\"megawatt\":{\"margin\":900.0,\"side1\":{\"flow\":100.0}}},"
+                + "\"instant1\":{\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}},"
+                + "\"instant2\":{\"megawatt\":{\"margin\":700.0,\"side1\":{\"flow\":300.0}}}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
+        }
+
+        @Test
+        @DisplayName("Serialize when only non-initial instant has flows")
+        void testSerializeOnlyNonInitialInstantHasFlow() throws IOException {
+            when(flowCnec.getId()).thenReturn("cnec1");
+            flowResult.addFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+
+            // Initial has no flows, so only preventive instant appears
+            String expectedJson = "[{"
+                + "\"flowCnecId\":\"cnec1\","
+                + "\"preventive\":{\"megawatt\":{\"margin\":700.0,\"side1\":{\"flow\":300.0}}}"
+                + "}]";
+            assertEquals(expectedJson, serializeToJson(flowResult));
         }
     }
 }

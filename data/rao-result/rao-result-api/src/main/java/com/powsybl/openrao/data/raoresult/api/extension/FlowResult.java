@@ -16,15 +16,20 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class FlowResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "flow-results";
+    private static final TwoSides[] SIDES = new TwoSides[]{TwoSides.ONE, TwoSides.TWO};
+    private static final Unit[] UNITS = new Unit[]{Unit.MEGAWATT, Unit.AMPERE};
 
     private final Map<FlowCnec, FlowCnecResult> results;
 
@@ -146,7 +151,11 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     // serialization
 
     public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        // TODO
+        jsonGenerator.writeStartArray();
+        for (FlowCnec flowCnec : results.keySet().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList()) {
+            results.get(flowCnec).serialize(jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
     }
 
     // result data model
@@ -175,35 +184,125 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         }
 
         Optional<Double> getFlow(Instant instant, TwoSides side, Unit unit) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getFlow(side, unit));
+            return getMeasurement(instant).getFlow(side, unit);
         }
 
         Optional<Double> getMargin(Instant instant, Unit unit) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getMargin(unit));
+            return getMeasurement(instant).getMargin(unit);
         }
 
         Optional<Double> getRelativeMargin(Instant instant, Unit unit) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getRelativeMargin(unit));
+            return getMeasurement(instant).getRelativeMargin(unit);
         }
 
         Optional<Double> getCommercialFlow(Instant instant, TwoSides side, Unit unit) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getCommercialFlow(side, unit));
+            return getMeasurement(instant).getCommercialFlow(side, unit);
         }
 
         Optional<Double> getLoopFlow(Instant instant, TwoSides side, Unit unit) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getLoopFlow(side, unit));
+            return getMeasurement(instant).getLoopFlow(side, unit);
         }
 
         Optional<Double> getPtdfZonalSum(Instant instant, TwoSides side) {
-            return safeGetMeasurement(instant).flatMap(measurement -> measurement.getPtdfZonalSum(side));
+            return getMeasurement(instant).getPtdfZonalSum(side);
         }
 
         private ElementaryFlowCnecMeasurement getOrCreateMeasurement(Instant instant) {
             return instant == null ? initialMeasurement : measurementsPerInstant.computeIfAbsent(instant, k -> new ElementaryFlowCnecMeasurement(flowCnec));
         }
 
-        private Optional<ElementaryFlowCnecMeasurement> safeGetMeasurement(Instant instant) {
-            return Optional.ofNullable(instant == null ? initialMeasurement : measurementsPerInstant.get(instant));
+        private ElementaryFlowCnecMeasurement getMeasurement(Instant instant) {
+            Instant actualInstant = getPreviousInstantWithResult(instant);
+            return actualInstant == null ? initialMeasurement : measurementsPerInstant.get(actualInstant);
+        }
+
+        void serialize(JsonGenerator jsonGenerator) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("flowCnecId", flowCnec.getId());
+            if (!initialMeasurement.isEmpty()) {
+                serializeForInstant(jsonGenerator, initialMeasurement, "initial");
+            }
+            for (Instant instant : measurementsPerInstant.keySet().stream().sorted().toList()) {
+                serializeForInstant(jsonGenerator, measurementsPerInstant.get(instant), instant.getId());
+            }
+            jsonGenerator.writeEndObject();
+        }
+
+        private void serializeForInstant(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, String instantId) throws IOException {
+            if (!measurement.isEmpty()) {
+                jsonGenerator.writeObjectFieldStart(instantId);
+                for (Unit unit : measurement.getUnitsWithResults()) {
+                    serializeForUnit(jsonGenerator, measurement, unit);
+                }
+                jsonGenerator.writeEndObject();
+            }
+        }
+
+        private void serializeForUnit(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, Unit unit) throws IOException {
+            jsonGenerator.writeObjectFieldStart(unit.name().toLowerCase());
+
+            // serialize margin
+            Optional<Double> margin = measurement.getMargin(unit);
+            if (margin.isPresent()) {
+                jsonGenerator.writeNumberField("margin", margin.get());
+            }
+
+            // serialize relative margin
+            Optional<Double> relativeMargin = measurement.getRelativeMargin(unit);
+            if (relativeMargin.isPresent()) {
+                jsonGenerator.writeNumberField("relativeMargin", relativeMargin.get());
+            }
+
+            for (TwoSides side : measurement.getSidesWithResults(unit)) {
+                serializeForSide(jsonGenerator, measurement, unit, side);
+            }
+            jsonGenerator.writeEndObject();
+        }
+
+        private void serializeForSide(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, Unit unit, TwoSides side) throws IOException {
+            jsonGenerator.writeObjectFieldStart("side" + side.getNum());
+
+            // serialize flow
+            Optional<Double> flow = measurement.getFlow(side, unit);
+            if (flow.isPresent()) {
+                jsonGenerator.writeNumberField("flow", flow.get());
+            }
+
+            // serialize commercial flow
+            Optional<Double> commercialFlow = measurement.getCommercialFlow(side, unit);
+            if (commercialFlow.isPresent()) {
+                jsonGenerator.writeNumberField("commercialFlow", commercialFlow.get());
+            }
+
+            // serialize loop flow
+            Optional<Double> loopFlow = measurement.getLoopFlow(side, unit);
+            if (loopFlow.isPresent()) {
+                jsonGenerator.writeNumberField("loopFlow", loopFlow.get());
+            }
+
+            // serialize PTDF zonal sum -> TODO: kept here to mimic RAO Result, might have a better place
+            if (unit == Unit.MEGAWATT) {
+                Optional<Double> ptdfZonalSum = measurement.getPtdfZonalSum(side);
+                if (ptdfZonalSum.isPresent()) {
+                    jsonGenerator.writeNumberField("zonalPtdfSum", ptdfZonalSum.get());
+                }
+            }
+
+            jsonGenerator.writeEndObject();
+        }
+
+        private Instant getPreviousInstantWithResult(Instant instant) {
+            if (instant == null) {
+                return null;
+            } else if (measurementsPerInstant.containsKey(instant)) {
+                return instant;
+            } else {
+                return measurementsPerInstant.keySet()
+                    .stream()
+                    .filter(otherInstant -> otherInstant.comesBefore(instant))
+                    .max(Comparator.comparing(Instant::getOrder))
+                    .orElse(null);
+            }
         }
 
         static FlowCnecResult of(FlowCnec flowCnec) {
@@ -264,7 +363,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             ptdfZonalSums.put(side, ptdfZonalSum);
 
             // update relative margin, if applicable
-            for (Unit unit : new Unit[]{Unit.MEGAWATT, Unit.AMPERE}) {
+            for (Unit unit : UNITS) {
                 if (margins.containsKey(unit)) {
                     relativeMargins.put(unit, computeRelativeMargin(margins.get(unit), ptdfZonalSum));
                 }
@@ -293,6 +392,22 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
         Optional<Double> getPtdfZonalSum(TwoSides side) {
             return Optional.ofNullable(ptdfZonalSums.get(side));
+        }
+
+        boolean isEmpty() {
+            return flows.isEmpty();
+        }
+
+        Set<Unit> getUnitsWithResults() {
+            return flows.keySet().stream().map(SidedUnit::unit).collect(Collectors.toSet());
+        }
+
+        Set<TwoSides> getSidesWithResults(Unit unit) {
+            return flows.keySet()
+                .stream()
+                .filter(sidedUnit -> sidedUnit.unit() == unit)
+                .map(SidedUnit::side)
+                .collect(Collectors.toSet());
         }
 
     }
