@@ -21,12 +21,18 @@ import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.GlskBidActionDistribution;
+import com.powsybl.openrao.data.crac.io.nc.objects.GlskSchedule;
 import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.ParticipationFactorTimePoint;
+import com.powsybl.openrao.data.crac.io.nc.objects.PowerBidSchedule;
+import com.powsybl.openrao.data.crac.io.nc.objects.RedispatchRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
 import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
 import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
+import com.powsybl.openrao.data.crac.io.nc.objects.SynchronousMachine;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
@@ -145,6 +151,36 @@ public class NcCrac {
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
         return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag)
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+    }
+
+    public Set<RedispatchRemedialAction> getRedispatchRemedialActions() {
+        return new NcPropertyBagsConverter<>(RedispatchRemedialAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.REDISPATCH_REMEDIAL_ACTION, NcConstants.REDISPATCH_REMEDIAL_ACTION));
+    }
+
+    public Set<PowerBidSchedule> getPowerBidSchedules() {
+        return new NcPropertyBagsConverter<>(PowerBidSchedule::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.STEADY_INSTRUCTION_SCHEDULE, NcConstants.POWER_BID_SCHEDULE));
+    }
+
+    public Set<GlskBidActionDistribution> getGlskBidActionDistributions() {
+        return new NcPropertyBagsConverter<>(GlskBidActionDistribution::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.STEADY_INSTRUCTION_SCHEDULE, NcConstants.GLSK_BID_ACTION_DISTRIBUTION));
+    }
+
+    public Set<GlskSchedule> getGlskSchedules() {
+        return new NcPropertyBagsConverter<>(GlskSchedule::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.STEADY_INSTRUCTION_SCHEDULE, NcConstants.GLSK_SCHEDULE));
+    }
+
+    public Set<ParticipationFactorTimePoint> getParticipationFactorTimePoints() {
+        return new NcPropertyBagsConverter<>(ParticipationFactorTimePoint::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.STEADY_INSTRUCTION_SCHEDULE, NcConstants.PARTICIPATION_FACTOR_TIME_POINT));
+    }
+
+    public Set<SynchronousMachine> getSynchronousMachines() {
+        return new NcPropertyBagsConverter<>(SynchronousMachine::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.CGMES, NcConstants.SYNCHRONOUS_MACHINE));
     }
 
     public Set<TopologyAction> getTopologyActions() {

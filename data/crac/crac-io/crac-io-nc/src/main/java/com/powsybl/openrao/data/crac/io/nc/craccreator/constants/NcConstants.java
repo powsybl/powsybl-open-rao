@@ -88,6 +88,12 @@ public final class NcConstants {
     public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String REDISPATCH_REMEDIAL_ACTION = "redispatchRemedialAction";
+    public static final String POWER_BID_SCHEDULE = "powerBidSchedule";
+    public static final String GLSK_BID_ACTION_DISTRIBUTION = "glskBidActionDistribution";
+    public static final String GLSK_SCHEDULE = "glskSchedule";
+    public static final String PARTICIPATION_FACTOR_TIME_POINT = "participationFactorTimePoint";
+    public static final String SYNCHRONOUS_MACHINE = "synchronousMachine";
     public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
@@ -140,6 +146,20 @@ public final class NcConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
     public static final String REQUEST_FLOW_RELIABILITY_MARGIN = "flowReliabilityMargin";
     public static final String OVERLAPPING_ZONE = "overlappingZone";
+
+    // redispatching
+    public static final String REQUEST_REDISPATCH_REMEDIAL_ACTION = "redispatchRemedialAction";
+    public static final String REQUEST_POWER_BID_SCHEDULE = "powerBidSchedule";
+    public static final String REQUEST_POWER_REMEDIAL_ACTION = "powerRemedialAction";
+    public static final String REQUEST_STARTUP_COST = "startupCost";
+    public static final String REQUEST_TOTAL_MINIMUM_ENERGY = "totalMinimumEnergy";
+    public static final String REQUEST_TOTAL_MAXIMUM_ENERGY = "totalMaximumEnergy";
+    public static final String REQUEST_GLSK_BID_ACTION_DISTRIBUTION = "glskBidActionDistribution";
+    public static final String REQUEST_GLSK_SCHEDULE = "glskSchedule";
+    public static final String REQUEST_SYNCHRONOUS_MACHINE = "synchronousMachine";
+    public static final String REQUEST_GENERATING_UNIT = "generatingUnit";
+    public static final String REQUEST_PARTICIPATION_FACTOR = "participationFactor";
+    public static final String REQUEST_AT_TIME = "atTime";
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
