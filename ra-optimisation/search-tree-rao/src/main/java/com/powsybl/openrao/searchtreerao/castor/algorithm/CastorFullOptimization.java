@@ -291,6 +291,9 @@ public class CastorFullOptimization {
                     crac
                 );
                 secondPreventiveRaoResults.addExtension(CostResult.class, postSecondRaoCostResult);
+                secondPreventiveRaoResults.addExtension(FlowResult.class,
+                    CastorFlowResultExtensionHelper.convertToExtension(initialOutput, intermediateSecondPreventiveResult.prePerimeterResultForAllFollowingStates(),
+                        secondPreventiveRaoResultsHolder.postContingencyResults(), crac, flowUnit));
 
                 if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults, secondPreventivePerimeterOptimReportNode)) {
                     finalSecondPreventiveResult = intermediateSecondPreventiveResult;
@@ -441,11 +444,7 @@ public class CastorFullOptimization {
             crac.getPreventiveInstant()
         );
         FlowResult finalFlowResult = CastorFlowResultExtensionHelper.convertToExtension(
-            initialOutput,
-            preCurativeSensitivityAnalysisOutput,
-            crac,
-            flowUnit
-        );
+            initialOutput, preCurativeSensitivityAnalysisOutput, crac, flowUnit);
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(),
             true, optimizationReportNode, finalCostResult, finalFlowResult, flowUnit);
     }

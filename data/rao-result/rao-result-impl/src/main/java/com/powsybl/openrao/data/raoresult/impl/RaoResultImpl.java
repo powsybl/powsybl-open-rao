@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -64,20 +63,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public ComputationStatus getComputationStatus(State state) {
         return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
-    }
-
-    private Instant checkOptimizedInstant(Instant optimizedInstant, Cnec<?> cnec) {
-        if (optimizedInstant == null) {
-            return null;
-        }
-        Instant instant = optimizedInstant;
-        if (cnec.getState().getInstant().comesBefore(instant)) {
-            instant = cnec.getState().getInstant();
-        }
-        if (instant.isOutage()) {
-            instant = crac.getPreventiveInstant();
-        }
-        return instant;
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {

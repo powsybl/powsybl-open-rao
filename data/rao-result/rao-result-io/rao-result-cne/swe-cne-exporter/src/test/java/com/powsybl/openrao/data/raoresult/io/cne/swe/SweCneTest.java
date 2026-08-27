@@ -126,6 +126,7 @@ class SweCneTest {
 
     @Test
     void testExport() {
+        // FIXME: margins value in RAO Result are inconsistent
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportData(raoResultWithAngle, cracCreationContext, properties, outputStream);
         try {

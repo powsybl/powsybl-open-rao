@@ -25,11 +25,14 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -189,7 +192,6 @@ public final class RaoResultHelper {
      * @param raoParameters         The set of parameters used for the initial RAO computation.
      * @param reportNode            The report node that logs the workflow and stores information related to the analysis progress.
      * @return The updated RAO result instance containing all applied remedial actions.
-     *
      * @apiNote Preventive remedial actions are not supported yet because {@link AppliedRemedialActions}
      * is only defined for post-outage remedial actions.
      */
@@ -337,6 +339,16 @@ public final class RaoResultHelper {
 
             mergedRaoResult.setExecutionDetails(raoResult.getExecutionDetails());
             cleanNetworkVariants(network, initialVariant, initialVariants);
+
+            // add extensions
+            mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
+                initialFlowResult,
+                preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                postMergingContingencyResults,
+                crac,
+                RaoUtil.getFlowUnit(raoParameters))
+            );
+
             return mergedRaoResult;
         } catch (OpenRaoException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("An error occurred during merging, returning original RAO Result. Error was: {}", e.getMessage());

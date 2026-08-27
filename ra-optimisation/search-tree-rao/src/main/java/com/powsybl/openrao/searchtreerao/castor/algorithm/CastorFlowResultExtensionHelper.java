@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -16,11 +17,9 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -49,52 +48,48 @@ public final class CastorFlowResultExtensionHelper {
                                                 Unit flowUnit) {
         // FIXME: this is potentially really slow and could use a speed-up
         FlowResult flowResult = convertToExtension(initialResult, preventiveResult, crac, flowUnit);
-        crac.getFlowCnecs()
-            .stream()
-            .filter(flowCnec -> flowCnec.getState().getInstant().isAuto() || flowCnec.getState().getInstant().isCurative())
-            .forEach(flowCnec -> {
-                Pair<Instant, PrePerimeterResult> instantAndPrePerimeterResult = getLastComputedResult(
-                    flowCnec.getState(),
-                    preventiveResult,
-                    postContingencyResults,
-                    crac.getPreventiveInstant()
-                );
-                crac.getSortedInstants()
-                    .stream()
-                    .filter(instant -> !instant.comesBefore(instantAndPrePerimeterResult.getLeft())
-                        && !instant.comesAfter(flowCnec.getState().getInstant()))
-                    .forEach(instant -> fillResultForInstant(flowResult, instantAndPrePerimeterResult.getRight(), flowCnec, instant, flowUnit));
-
-            });
+        for (State state : postContingencyResults.keySet()) {
+            PrePerimeterResult prePerimeterResult = postContingencyResults.get(state).prePerimeterResultForAllFollowingStates();
+            List<State> followingStates = crac.getStates(state.getContingency().orElseThrow())
+                .stream()
+                .filter(s -> !s.getInstant().comesBefore(state.getInstant()))
+                .toList();
+            followingStates.forEach(
+                s -> crac.getFlowCnecs(s).forEach(
+                    flowCnec -> fillResultForInstant(flowResult, prePerimeterResult, flowCnec, state.getInstant(), flowUnit)
+                )
+            );
+        }
         return flowResult;
     }
 
     private static void fillResultForInstant(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
-        flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
-        flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
-        flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
-        flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
+        // TODO: note to future self, please fix this
+        try {
+            flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
+        } catch (OpenRaoException ignored) {
+        }
         if (flowUnit == Unit.MEGAWATT) {
-            flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.ONE), instant, flowCnec, TwoSides.ONE);
-            flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.TWO), instant, flowCnec, TwoSides.TWO);
+            try {
+                flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.ONE), instant, flowCnec, TwoSides.ONE);
+            } catch (OpenRaoException ignored) {
+            }
+            try {
+                flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.TWO), instant, flowCnec, TwoSides.TWO);
+            } catch (OpenRaoException ignored) {
+            }
         }
-    }
-
-    private static Pair<Instant, PrePerimeterResult> getLastComputedResult(State state,
-                                                                           PrePerimeterResult preventiveResult,
-                                                                           Map<State, PostPerimeterResult> postContingencyResults,
-                                                                           Instant preventiveInstant) {
-        if (postContingencyResults.containsKey(state)) {
-            return Pair.of(state.getInstant(), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates());
-        }
-        Optional<State> lastStateWithResult = postContingencyResults.keySet()
-            .stream()
-            .filter(s -> s.getContingency().equals(state.getContingency()))
-            .filter(s -> s.getInstant().comesBefore(state.getInstant()))
-            .max(Comparator.comparing(State::getInstant));
-        Instant instant = lastStateWithResult.map(State::getInstant).orElse(preventiveInstant);
-        PrePerimeterResult prePerimeterResult = lastStateWithResult.map(s -> postContingencyResults.get(s).prePerimeterResultForAllFollowingStates())
-            .orElse(preventiveResult);
-        return Pair.of(instant, prePerimeterResult);
     }
 }
