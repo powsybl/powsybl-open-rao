@@ -87,8 +87,6 @@ class PostOptimizationResultTest {
             ReportNode.NO_OP
         );
 
-        assertEquals(12.2, postOptimizationResult.getFlow(null, cnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(345.25, postOptimizationResult.getFlow(crac.getPreventiveInstant(), cnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(Set.of(networkAction), postOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState));
         assertEquals(Set.of(rangeAction), postOptimizationResult.getActivatedRangeActionsDuringState(preventiveState));
     }

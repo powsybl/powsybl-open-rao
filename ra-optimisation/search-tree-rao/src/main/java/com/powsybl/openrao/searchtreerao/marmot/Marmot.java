@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -776,6 +777,10 @@ public class Marmot implements TimeCoupledRaoProvider {
             CostResult.class,
             createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
         );
+        result.addExtension(
+            com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
+            createFlowResultExtension(initialResults, globalLinearOptimizationResult, raoInputs.map(RaoInput::getCrac), RaoUtil.getFlowUnit(raoParameters))
+        );
         return result;
     }
 
@@ -800,6 +805,28 @@ public class Marmot implements TimeCoupledRaoProvider {
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
             );
+    }
+
+    private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult createFlowResultExtension(TemporalData<PrePerimeterResult> initialResults,
+                                                                                                         FlowResult finalFlowResult,
+                                                                                                         TemporalData<Crac> cracs,
+                                                                                                         Unit flowUnit) {
+        com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult = new com.powsybl.openrao.data.raoresult.api.extension.FlowResult();
+        cracs.getDataPerTimestamp().values().forEach(
+            crac -> crac.getFlowCnecs().forEach(
+                flowCnec -> {
+                    // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
+                    // TODO: see if using both units is relevant
+                    // TODO: include curatives
+                    PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
+                    flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit);
+                    flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit);
+                    flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit);
+                    flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                }
+            )
+        );
+        return flowResult;
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
