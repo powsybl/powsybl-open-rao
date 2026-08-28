@@ -397,6 +397,12 @@ public class RaoSteps {
         assertEquals(expectedMargin, getMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
+    @Then("the margin on cnec {string} after {string} instant remedial actions should be {double} MW")
+    public void afterSpecificInstantCraMarginInA(String cnecId, String instantId, Double expectedMargin) {
+        Instant instant = crac.getInstant(instantId);
+        assertEquals(expectedMargin, getMargin(instant, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowAmpereTolerance(expectedMargin));
+    }
+
     @Then("the worst margin is {double} A")
     public void worstMarginInA(double expectedMargin) {
         Pair<FlowCnec, Double> worstCnec = getWorstCnec(Unit.AMPERE, false);
