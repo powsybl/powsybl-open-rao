@@ -32,6 +32,7 @@ import java.io.IOException;
 public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<FlowResult> {
     @Override
     public void serialize(FlowResult flowResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        // TODO: select units to export with configuration?
         flowResult.serialize(jsonGenerator);
     }
 

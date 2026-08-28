@@ -15,10 +15,10 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,50 +46,70 @@ public final class CastorFlowResultExtensionHelper {
                                                 Map<State, PostPerimeterResult> postContingencyResults,
                                                 Crac crac,
                                                 Unit flowUnit) {
-        // FIXME: this is potentially really slow and could use a speed-up
         FlowResult flowResult = convertToExtension(initialResult, preventiveResult, crac, flowUnit);
         for (State state : postContingencyResults.keySet()) {
-            PrePerimeterResult prePerimeterResult = postContingencyResults.get(state).prePerimeterResultForAllFollowingStates();
-            List<State> followingStates = crac.getStates(state.getContingency().orElseThrow())
-                .stream()
-                .filter(s -> !s.getInstant().comesBefore(state.getInstant()))
-                .toList();
-            followingStates.forEach(
-                s -> crac.getFlowCnecs(s).forEach(
-                    flowCnec -> fillResultForInstant(flowResult, prePerimeterResult, flowCnec, state.getInstant(), flowUnit)
-                )
-            );
+            if (hasRemedialActionsApplied(postContingencyResults.get(state).optimizationResult(), state)) {
+                PrePerimeterResult prePerimeterResult = postContingencyResults.get(state).prePerimeterResultForAllFollowingStates();
+                crac.getStates(state.getContingency().orElseThrow())
+                    .stream()
+                    .filter(s -> !s.getInstant().comesBefore(state.getInstant()))
+                    .forEach(
+                        s -> crac.getFlowCnecs(s).forEach(
+                            flowCnec -> fillResultForInstant(flowResult, prePerimeterResult, flowCnec, state.getInstant(), flowUnit)
+                        )
+                    );
+            }
         }
         return flowResult;
     }
 
+    private static boolean hasRemedialActionsApplied(OptimizationResult optimizationResult, State state) {
+        return !optimizationResult.getActivatedNetworkActions().isEmpty() || !optimizationResult.getActivatedRangeActions(state).isEmpty();
+    }
+
     private static void fillResultForInstant(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
+        fillResultForUnit(flowResult, prePerimeterResult, flowCnec, instant, Unit.AMPERE);
+        fillResultForUnit(flowResult, prePerimeterResult, flowCnec, instant, Unit.MEGAWATT);
+    }
+
+    private static void fillResultForUnit(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
+        // TODO: check zero-flows
         // TODO: note to future self, please fix this
-        try {
-            flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
-        } catch (OpenRaoException ignored) {
+        double flow1 = prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit);
+        if (!Double.isNaN(flow1)) {
+            flowResult.addFlowMeasurement(flow1, instant, flowCnec, TwoSides.ONE, flowUnit);
+        }
+        double flow2 = prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit);
+        if (!Double.isNaN(flow2)) {
+            flowResult.addFlowMeasurement(flow2, instant, flowCnec, TwoSides.TWO, flowUnit);
         }
         try {
-            flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
-        } catch (OpenRaoException ignored) {
-        }
-        try {
-            flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.ONE, flowUnit), instant, flowCnec, TwoSides.ONE, flowUnit);
-        } catch (OpenRaoException ignored) {
-        }
-        try {
-            flowResult.addCommercialFlowMeasurement(prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.TWO, flowUnit), instant, flowCnec, TwoSides.TWO, flowUnit);
-        } catch (OpenRaoException ignored) {
-        }
-        if (flowUnit == Unit.MEGAWATT) {
-            try {
-                flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.ONE), instant, flowCnec, TwoSides.ONE);
-            } catch (OpenRaoException ignored) {
+            double commercialFlow1 = prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.ONE, flowUnit);
+            if (!Double.isNaN(commercialFlow1)) {
+                flowResult.addCommercialFlowMeasurement(commercialFlow1, instant, flowCnec, TwoSides.ONE, flowUnit);
             }
-            try {
-                flowResult.addPtdfZonalSumMeasurement(prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.TWO), instant, flowCnec, TwoSides.TWO);
-            } catch (OpenRaoException ignored) {
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            double commercialFlow2 = prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.TWO, flowUnit);
+            if (!Double.isNaN(commercialFlow2)) {
+                flowResult.addCommercialFlowMeasurement(commercialFlow2, instant, flowCnec, TwoSides.TWO, flowUnit);
             }
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            double ptdfZonalSum1 = prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.ONE);
+            if (!Double.isNaN(ptdfZonalSum1)) {
+                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum1, instant, flowCnec, TwoSides.ONE);
+            }
+        } catch (OpenRaoException ignored) {
+        }
+        try {
+            double ptdfZonalSum2 = prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.TWO);
+            if (!Double.isNaN(ptdfZonalSum2)) {
+                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum2, instant, flowCnec, TwoSides.TWO);
+            }
+        } catch (OpenRaoException ignored) {
         }
     }
 }

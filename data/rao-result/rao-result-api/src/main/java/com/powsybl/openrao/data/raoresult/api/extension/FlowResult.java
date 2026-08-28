@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -241,13 +244,13 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
             // serialize margin
             Optional<Double> margin = measurement.getMargin(unit);
-            if (margin.isPresent()) {
+            if (margin.isPresent() && margin.get() != Double.POSITIVE_INFINITY) {
                 jsonGenerator.writeNumberField("margin", margin.get());
             }
 
             // serialize relative margin
             Optional<Double> relativeMargin = measurement.getRelativeMargin(unit);
-            if (relativeMargin.isPresent()) {
+            if (relativeMargin.isPresent() && relativeMargin.get() != Double.POSITIVE_INFINITY) {
                 jsonGenerator.writeNumberField("relativeMargin", relativeMargin.get());
             }
 
@@ -295,6 +298,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             } else if (measurementsPerInstant.containsKey(instant)) {
                 return instant;
             } else {
+                // TODO: might be wrong if previous results are only available for the other unit
                 return measurementsPerInstant.keySet()
                     .stream()
                     .filter(otherInstant -> otherInstant.comesBefore(instant))
@@ -337,8 +341,8 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             }
 
             // update margin
-            double currentMargin = margins.getOrDefault(unit, Double.MAX_VALUE);
-            double newMargin = computeMargin(flowCnec, flow, unit);
+            double currentMargin = margins.getOrDefault(unit, Double.POSITIVE_INFINITY);
+            double newMargin = computeMargin(flowCnec, flow, side, unit);
             margins.put(unit, Math.min(currentMargin, newMargin));
 
             // update relative margin, if applicable
@@ -396,21 +400,25 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return flows.isEmpty();
         }
 
-        List<Unit> getUnitsWithResults() {
-            return flows.keySet()
+        private Set<Unit> getUnitsWithResults() {
+            SortedSet<Unit> unitsWithResults = new TreeSet<>();
+            flows.keySet()
                 .stream()
                 .map(SidedUnit::unit)
                 .sorted(Comparator.comparing(Unit::name))
-                .toList();
+                .forEach(unitsWithResults::add);
+            return unitsWithResults;
         }
 
-        List<TwoSides> getSidesWithResults(Unit unit) {
-            return flows.keySet()
+        private Set<TwoSides> getSidesWithResults(Unit unit) {
+            SortedSet<TwoSides> sidesWithResults = new TreeSet<>();
+            flows.keySet()
                 .stream()
                 .filter(sidedUnit -> sidedUnit.unit() == unit)
                 .map(SidedUnit::side)
                 .sorted(Comparator.comparing(TwoSides::getNum))
-                .toList();
+                .forEach(sidesWithResults::add);
+            return sidesWithResults;
         }
 
     }
@@ -418,19 +426,14 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     private record SidedUnit(TwoSides side, Unit unit) {
     }
 
-    private static double computeMargin(FlowCnec flowCnec, double flow, Unit unit) {
-        double marginOne = Math.min(
-            flow - flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(-Double.MAX_VALUE),
-            flowCnec.getUpperBound(TwoSides.ONE, unit).orElse(Double.MAX_VALUE) - flow
+    private static double computeMargin(FlowCnec flowCnec, double flow, TwoSides side, Unit unit) {
+        return Math.min(
+            flow - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY),
+            flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flow
         );
-        double marginTwo = Math.min(
-            flow - flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(-Double.MAX_VALUE),
-            flowCnec.getUpperBound(TwoSides.TWO, unit).orElse(Double.MAX_VALUE) - flow
-        );
-        return Math.min(marginOne, marginTwo);
     }
 
     private static double computeRelativeMargin(double margin, double ptdfZonalSum) {
-        return margin <= 0 ? margin : Math.min(Double.MAX_VALUE, margin / ptdfZonalSum);
+        return margin <= 0 ? margin : Math.min(Double.POSITIVE_INFINITY, margin / ptdfZonalSum);
     }
 }

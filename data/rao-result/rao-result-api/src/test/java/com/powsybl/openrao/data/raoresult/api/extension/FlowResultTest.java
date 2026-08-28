@@ -202,6 +202,8 @@ class FlowResultTest {
             // Side TWO margin: min(350 - (-400), 400 - 350) = min(750, 50) = 50
             // Overall margin: min(150, 50) = 50
             flowResult.addFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.ONE, Unit.MEGAWATT);
+            assertEquals(150.0, flowResult.getMargin(null, asymmetricCnec, Unit.MEGAWATT));
+            flowResult.addFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.TWO, Unit.MEGAWATT);
             assertEquals(50.0, flowResult.getMargin(null, asymmetricCnec, Unit.MEGAWATT));
         }
 
@@ -216,7 +218,7 @@ class FlowResultTest {
             // marginOne = min(500 - (-Double.MAX_VALUE), Double.MAX_VALUE - 500) = Double.MAX_VALUE - 500
             // marginTwo = same
             flowResult.addFlowMeasurement(500.0, null, unboundedCnec, TwoSides.ONE, Unit.MEGAWATT);
-            assertEquals(Double.MAX_VALUE - 500.0, flowResult.getMargin(null, unboundedCnec, Unit.MEGAWATT));
+            assertEquals(Double.POSITIVE_INFINITY, flowResult.getMargin(null, unboundedCnec, Unit.MEGAWATT));
         }
     }
 
