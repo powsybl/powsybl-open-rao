@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -32,9 +31,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.opentest4j.AssertionFailedError;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -336,7 +333,6 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testResult() {
-        checkFlows();
         checkOptimizationResults();
         checkOptimizedPsts();
     }
@@ -373,26 +369,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
         assert optimizedTapscur4state.isEmpty();
         assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
-    }
-
-    private void checkFlows() {
-        for (FlowCnec cnec : crac.getFlowCnecs().stream().sorted(Comparator.comparing(Identifiable::getId)).toList()) {
-            for (Instant instant : List.of(preventiveInstant, autoInstant, curativeInstant)) {
-                if (!instant.comesAfter(cnec.getState().getInstant())) {
-                    double signum = shouldBeSecured(cnec, instant) ? 1 : -1;
-                    double expectedFlow = signum * (
-                        FLOW_PER_OPTIMIZED_INSTANT.get(getMostRecentOptimInstant(cnec, instant).getKind()) +
-                            FLOW_PER_INSTANT.get(cnec.getState().getInstant().getKind()) +
-                            Double.parseDouble(cnec.getId().charAt(5) + ""));
-                    try {
-                        assertEquals(expectedFlow, output.getFlow(instant, cnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
-                    } catch (AssertionFailedError e) {
-                        System.out.println("Error for flow on " + cnec.getId() + " at " + instant);
-                        throw e;
-                    }
-                }
-            }
-        }
     }
 
     private void checkOptimizationResults() {

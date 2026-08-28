@@ -266,36 +266,6 @@
             "loopFlow" : -4.0
           }
         },
-        "ampere" : {
-          "margin" : -920.5,
-          "relativeMargin" : -920.5,
-          "side1" : {
-            "flow" : 2120.0,
-            "commercialFlow" : 2124.0,
-            "loopFlow" : -4.0
-          },
-          "side2" : {
-            "flow" : 2120.5,
-            "commercialFlow" : 2124.5,
-            "loopFlow" : -4.0
-          }
-        },
-        "megawatt" : {
-          "margin" : -1653.2385868018164,
-          "relativeMargin" : -1653.2385868018164,
-          "side1" : {
-            "flow" : 2110.0,
-            "commercialFlow" : 2114.0,
-            "loopFlow" : -4.0,
-            "zonalPtdfSum" : 0.2
-          },
-          "side2" : {
-            "flow" : 2110.5,
-            "commercialFlow" : 2114.5,
-            "loopFlow" : -4.0,
-            "zonalPtdfSum" : 0.7
-          }
-        },
         "megawatt" : {
           "margin" : -1653.2385868018164,
           "relativeMargin" : -1653.2385868018164,
@@ -326,36 +296,6 @@
             "flow" : 2220.5,
             "commercialFlow" : 2224.5,
             "loopFlow" : -4.0
-          }
-        },
-        "ampere" : {
-          "margin" : -1020.5,
-          "relativeMargin" : -1020.5,
-          "side1" : {
-            "flow" : 2220.0,
-            "commercialFlow" : 2224.0,
-            "loopFlow" : -4.0
-          },
-          "side2" : {
-            "flow" : 2220.5,
-            "commercialFlow" : 2224.5,
-            "loopFlow" : -4.0
-          }
-        },
-        "megawatt" : {
-          "margin" : -1753.2385868018164,
-          "relativeMargin" : -1753.2385868018164,
-          "side1" : {
-            "flow" : 2210.0,
-            "commercialFlow" : 2214.0,
-            "loopFlow" : -4.0,
-            "zonalPtdfSum" : 0.2
-          },
-          "side2" : {
-            "flow" : 2210.5,
-            "commercialFlow" : 2214.5,
-            "loopFlow" : -4.0,
-            "zonalPtdfSum" : 0.7
           }
         },
         "megawatt" : {
@@ -379,30 +319,11 @@
       "flowCnecId" : "cnec3autoId",
       "initial" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3120.0
           },
           "side2" : {
             "flow" : 3120.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3120.0
-          },
-          "side2" : {
-            "flow" : 3120.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2630.5,
-          "side1" : {
-            "flow" : 3110.0
-          },
-          "side2" : {
-            "flow" : 3110.5
           }
         },
         "megawatt" : {
@@ -417,30 +338,11 @@
       },
       "preventive" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3220.0
           },
           "side2" : {
             "flow" : 3220.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3220.0
-          },
-          "side2" : {
-            "flow" : 3220.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2730.5,
-          "side1" : {
-            "flow" : 3210.0
-          },
-          "side2" : {
-            "flow" : 3210.5
           }
         },
         "megawatt" : {
@@ -455,30 +357,11 @@
       },
       "auto" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3320.0
           },
           "side2" : {
             "flow" : 3320.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3320.0
-          },
-          "side2" : {
-            "flow" : 3320.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2830.5,
-          "side1" : {
-            "flow" : 3310.0
-          },
-          "side2" : {
-            "flow" : 3310.5
           }
         },
         "megawatt" : {
@@ -495,30 +378,11 @@
       "flowCnecId" : "cnec3curId",
       "initial" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3120.0
           },
           "side2" : {
             "flow" : 3120.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3120.0
-          },
-          "side2" : {
-            "flow" : 3120.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2630.5,
-          "side1" : {
-            "flow" : 3110.0
-          },
-          "side2" : {
-            "flow" : 3110.5
           }
         },
         "megawatt" : {
@@ -533,30 +397,11 @@
       },
       "preventive" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3220.0
           },
           "side2" : {
             "flow" : 3220.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3220.0
-          },
-          "side2" : {
-            "flow" : 3220.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2730.5,
-          "side1" : {
-            "flow" : 3210.0
-          },
-          "side2" : {
-            "flow" : 3210.5
           }
         },
         "megawatt" : {
@@ -571,30 +416,11 @@
       },
       "auto" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3320.0
           },
           "side2" : {
             "flow" : 3320.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3320.0
-          },
-          "side2" : {
-            "flow" : 3320.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2830.5,
-          "side1" : {
-            "flow" : 3310.0
-          },
-          "side2" : {
-            "flow" : 3310.5
           }
         },
         "megawatt" : {
@@ -609,30 +435,11 @@
       },
       "curative" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3420.0
           },
           "side2" : {
             "flow" : 3420.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3420.0
-          },
-          "side2" : {
-            "flow" : 3420.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2930.5,
-          "side1" : {
-            "flow" : 3410.0
-          },
-          "side2" : {
-            "flow" : 3410.5
           }
         },
         "megawatt" : {
@@ -649,30 +456,11 @@
       "flowCnecId" : "cnec3prevId",
       "initial" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3120.0
           },
           "side2" : {
             "flow" : 3120.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3120.0
-          },
-          "side2" : {
-            "flow" : 3120.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2630.5,
-          "side1" : {
-            "flow" : 3110.0
-          },
-          "side2" : {
-            "flow" : 3110.5
           }
         },
         "megawatt" : {
@@ -687,30 +475,11 @@
       },
       "preventive" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 3220.0
           },
           "side2" : {
             "flow" : 3220.5
-          }
-        },
-        "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "side1" : {
-            "flow" : 3220.0
-          },
-          "side2" : {
-            "flow" : 3220.5
-          }
-        },
-        "megawatt" : {
-          "margin" : -2730.5,
-          "side1" : {
-            "flow" : 3210.0
-          },
-          "side2" : {
-            "flow" : 3210.5
           }
         },
         "megawatt" : {
@@ -727,8 +496,6 @@
       "flowCnecId" : "cnec4prevId",
       "initial" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "relativeMargin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 4120.0
           }
@@ -744,8 +511,6 @@
       },
       "preventive" : {
         "ampere" : {
-          "margin" : 1.7976931348623157E308,
-          "relativeMargin" : 1.7976931348623157E308,
           "side1" : {
             "flow" : 4220.0
           }
