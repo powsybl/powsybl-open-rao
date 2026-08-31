@@ -32,6 +32,7 @@ public final class RaoResultJsonConstants {
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
     // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
     // v1.8 : export tap instead of set-point for PST range actions
+    // v2.0 : gather remedial actions in "remedialActionActivations" and collect other data in extensions
 
     // header
     public static final String TYPE = "type";
@@ -84,6 +85,13 @@ public final class RaoResultJsonConstants {
     public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
+
+    // remedialActionActivations
+    public static final String REMEDIAL_ACTION_ACTIVATIONS = "remedialActionActivations";
+    public static final String ACTIVATED_REMEDIAL_ACTIONS = "activatedRemedialActions";
+    public static final String ID = "id";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String SET_POINT = "setPoint";
 
     // instants
     public static final String INSTANT = "instant";

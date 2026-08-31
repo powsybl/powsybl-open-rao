@@ -39,6 +39,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.REMEDIAL_ACTION_ACTIVATIONS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
@@ -132,10 +133,19 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                         throw new OpenRaoException("From version 2.0 onward, VoltageCNEC results are no longer in the RAO Result but in the 'voltage-results' extension");
                     }
 
-                case NETWORKACTION_RESULTS:
+                case REMEDIAL_ACTION_ACTIVATIONS:
                     jsonParser.nextToken();
-                    NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    RemedialActionActivationsDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
+
+                case NETWORKACTION_RESULTS:
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                        break;
+                    } else {
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", NETWORKACTION_RESULTS));
+                    }
 
                 case DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.1");
@@ -148,8 +158,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case RANGEACTION_RESULTS:
-                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        importRangeAction(jsonParser, raoResult, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", RANGEACTION_RESULTS));
+                    }
+
                 case "extensions":
                     jsonParser.nextToken();
                     deserializationContext.setAttribute("version", version);

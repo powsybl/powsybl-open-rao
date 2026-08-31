@@ -416,89 +416,58 @@
       }
     }
   ],
-  "networkActionResults": [
+  "remedialActionActivations": [
     {
-      "networkActionId": "complexNetworkActionId",
-      "activatedStates": [
+      "instant": "preventive",
+      "activatedRemedialActions": [
         {
-          "instant": "preventive"
-        }
-      ]
-    },
-    {
-      "networkActionId": "injectionSetpointRaId",
-      "activatedStates": [
-        {
-          "instant": "auto",
-          "contingency": "contingency2Id"
-        }
-      ]
-    },
-    {
-      "networkActionId": "pstSetpointRaId",
-      "activatedStates": [
-        {
-          "instant": "curative",
-          "contingency": "contingency1Id"
-        }
-      ]
-    }
-  ],
-  "rangeActionResults": [
-    {
-      "rangeActionId": "hvdcRange1Id",
-      "initialSetpoint": 0.0,
-      "activatedStates": [
-        {
-          "instant": "preventive",
-          "setpoint": -1000.0
-        }
-      ]
-    },
-    {
-      "rangeActionId": "hvdcRange2Id",
-      "initialSetpoint": -100.0,
-      "activatedStates": [
-        {
-          "instant": "curative",
-          "contingency": "contingency2Id",
-          "setpoint": 400.0
+          "id": "complexNetworkActionId"
         },
         {
-          "instant": "curative",
-          "contingency": "contingency1Id",
-          "setpoint": 100.0
-        }
-      ]
-    },
-    {
-      "rangeActionId": "injectionRange1Id",
-      "initialSetpoint": 100.0,
-      "activatedStates": [
+          "id": "hvdcRange1Id",
+          "setPoint": -1000.0
+        },
         {
-          "instant": "curative",
-          "contingency": "contingency1Id",
-          "setpoint": -300.0
-        }
-      ]
-    },
-    {
-      "rangeActionId": "pstRange1Id",
-      "initialTap": -3,
-      "activatedStates": [
-        {
-          "instant": "preventive",
+          "id": "pstRange1Id",
           "tap": 3
         }
       ]
     },
     {
-      "rangeActionId": "pstRange2Id",
-      "initialTap": 0
+      "instant": "auto",
+      "contingency": "contingency2Id",
+      "activatedRemedialActions": [
+        {
+          "id": "injectionSetpointRaId"
+        }
+      ]
     },
     {
-      "rangeActionId": "pstRange3Id",
-      "initialTap": -1
+      "instant": "curative",
+      "contingency": "contingency1Id",
+      "activatedRemedialActions": [
+        {
+          "id": "hvdcRange2Id",
+          "setPoint": 100.0
+        },
+        {
+          "id": "injectionRange1Id",
+          "setPoint": -300.0
+        },
+        {
+          "id": "pstSetpointRaId"
+        }
+      ]
+    },
+    {
+      "instant": "curative",
+      "contingency": "contingency2Id",
+      "activatedRemedialActions": [
+        {
+          "id": "hvdcRange2Id",
+          "setPoint": 400.0
+        }
+      ]
     }
   ],
   "extensions": {
