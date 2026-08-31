@@ -7,9 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -99,20 +97,6 @@ class TimeCoupledRaoResultImplTest {
         assertEquals("2025-02-17T13:33:00Z: RAO 1 succeeded. - 2025-02-18T13:33:00Z: RAO 2 succeeded. - 2025-02-19T13:33:00Z: RAO 3 failed.", timeCoupledRaoResult.getExecutionDetails());
     }
 
-    @Test
-    void testFlow() {
-        assertEquals(850., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp1, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(510., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp2, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(1000., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp3, TwoSides.ONE, Unit.MEGAWATT));
-    }
-
-    @Test
-    void testMargin() {
-        assertEquals(10., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp1, Unit.MEGAWATT));
-        assertEquals(45., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp2, Unit.MEGAWATT));
-        assertEquals(-60., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp3, Unit.MEGAWATT));
-    }
-
     private RaoResult mockRaoResult(String executionDetails,
                                     double functionalCost,
                                     double virtualCost,
@@ -127,8 +111,6 @@ class TimeCoupledRaoResultImplTest {
                                     boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
-        Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(flow);
-        Mockito.when(raoResult.getMargin(instant, flowCnec, Unit.MEGAWATT)).thenReturn(margin);
         Mockito.when(raoResult.getPreOptimizationTapOnState(state, pstRangeAction)).thenReturn(initialTap);
         Mockito.when(raoResult.getOptimizedTapOnState(state, pstRangeAction)).thenReturn(optimizedTap);
         Mockito.when(raoResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pstRangeAction, optimizedTap));

@@ -8,13 +8,9 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -44,36 +40,6 @@ public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implement
     @Override
     public ComputationStatus getComputationStatus(State state) {
         return ComputationStatus.FAILURE;
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override

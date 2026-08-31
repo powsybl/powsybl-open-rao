@@ -31,6 +31,7 @@ import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -414,7 +415,7 @@ public final class TimeCoupledRaoSteps {
         FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getExtension(FlowResult.class).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 

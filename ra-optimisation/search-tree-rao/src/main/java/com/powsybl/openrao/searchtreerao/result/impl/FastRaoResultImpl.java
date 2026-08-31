@@ -8,9 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -147,36 +145,6 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         Instant minInstant = optimizedInstant.comesBefore(flowCnec.getState().getInstant()) ?
                 optimizedInstant : flowCnec.getState().getInstant();
         return getAppropriateResult(minInstant);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getRelativeMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     public List<FlowCnec> getMostLimitingElements(Instant optimizedInstant, int number) {
