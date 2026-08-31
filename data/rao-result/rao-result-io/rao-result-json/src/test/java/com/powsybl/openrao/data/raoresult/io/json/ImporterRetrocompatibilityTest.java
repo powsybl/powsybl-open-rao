@@ -456,8 +456,8 @@ class ImporterRetrocompatibilityTest {
         assertTrue(importedRaoResult.isActivatedDuringState(pState, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstP));
-        assertEquals(-3, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
-        assertEquals(0., importedRaoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
+        assertEquals(2.5, importedRaoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3, importedRaoResult.getOptimizedTapOnState(pState, pstP));
         assertEquals(3., importedRaoResult.getOptimizedSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3., importedRaoResult.getPreOptimizationSetPointOnState(cState1, pstP), DOUBLE_TOLERANCE);
@@ -472,10 +472,10 @@ class ImporterRetrocompatibilityTest {
         assertFalse(importedRaoResult.isActivatedDuringState(pState, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstN));
-        assertEquals(0, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(pState, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(pState, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
 
         // ---------------------------
         // --- RangeAction results ---
@@ -500,10 +500,10 @@ class ImporterRetrocompatibilityTest {
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
-        assertEquals(-1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), crac.getPstRangeAction("pstRange3Id")));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), crac.getPstRangeAction("pstRange3Id")));
 
         InjectionRangeAction rangeAction = crac.getInjectionRangeAction("injectionRange1Id");
-        assertEquals(100., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(50.0, importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction), DOUBLE_TOLERANCE);
         assertEquals(-300., importedRaoResult.getOptimizedSetPointOnState(crac.getState("contingency1Id", curativeInstant), rangeAction), DOUBLE_TOLERANCE);
 
         AngleResult angleResult = importedRaoResult.getExtension(AngleResult.class);
@@ -766,8 +766,8 @@ class ImporterRetrocompatibilityTest {
         assertTrue(importedRaoResult.isActivatedDuringState(pState, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstP));
-        assertEquals(-3, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
-        assertEquals(0., importedRaoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
+        assertEquals(2.5, importedRaoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3, importedRaoResult.getOptimizedTapOnState(pState, pstP));
         assertEquals(3., importedRaoResult.getOptimizedSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3., importedRaoResult.getPreOptimizationSetPointOnState(cState1, pstP), DOUBLE_TOLERANCE);
@@ -782,10 +782,10 @@ class ImporterRetrocompatibilityTest {
         assertFalse(importedRaoResult.isActivatedDuringState(pState, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstN));
-        assertEquals(0, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(pState, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
-        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(pState, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
 
         // ---------------------------
         // --- RangeAction results ---
@@ -811,8 +811,8 @@ class ImporterRetrocompatibilityTest {
         assertFalse(importedRaoResult.isActivatedDuringState(pState, injectionC));
         assertTrue(importedRaoResult.isActivatedDuringState(cState1, injectionC));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, injectionC));
-        assertEquals(100, importedRaoResult.getPreOptimizationSetPointOnState(pState, injectionC), DOUBLE_TOLERANCE);
-        assertEquals(100, importedRaoResult.getPreOptimizationSetPointOnState(cState1, injectionC), DOUBLE_TOLERANCE);
+        assertEquals(50.0, importedRaoResult.getPreOptimizationSetPointOnState(pState, injectionC), DOUBLE_TOLERANCE);
+        assertEquals(50.0, importedRaoResult.getPreOptimizationSetPointOnState(cState1, injectionC), DOUBLE_TOLERANCE);
         assertEquals(-300, importedRaoResult.getOptimizedSetPointOnState(cState1, injectionC), DOUBLE_TOLERANCE);
 
         /*
