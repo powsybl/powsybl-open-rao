@@ -75,11 +75,11 @@ public final class CastorFlowResultExtensionHelper {
     private static void fillResultForUnit(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
         // TODO: check zero-flows
         // TODO: note to future self, please fix this
-        double flow1 = prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit);
+        double flow1 = prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit, instant);
         if (!Double.isNaN(flow1)) {
             flowResult.addFlowMeasurement(flow1, instant, flowCnec, TwoSides.ONE, flowUnit);
         }
-        double flow2 = prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit);
+        double flow2 = prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit, instant);
         if (!Double.isNaN(flow2)) {
             flowResult.addFlowMeasurement(flow2, instant, flowCnec, TwoSides.TWO, flowUnit);
         }

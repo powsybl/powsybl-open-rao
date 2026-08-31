@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -65,12 +66,14 @@ class PostOptimizationResultTest {
         Mockito.when(initialResult.getSetpoint(rangeActionCur)).thenReturn(4.672743946063913);
 
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(prePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(12.2);
+        Mockito.when(prePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT, crac.getPreventiveInstant())).thenReturn(12.2);
         Mockito.when(prePerimeterResult.getSetpoint(rangeAction)).thenReturn(4.672743946063913);
         Mockito.when(prePerimeterResult.getSetpoint(rangeActionCur)).thenReturn(4.672743946063913);
 
+        FlowResult sensiResult = Mockito.mock(FlowResult.class);
+        Mockito.when(sensiResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT, crac.getPreventiveInstant())).thenReturn(345.25);
         GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
-        Mockito.when(globalLinearOptimizationResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(345.25);
+        Mockito.when(globalLinearOptimizationResult.getFlowResult(Mockito.any())).thenReturn(sensiResult);
         Mockito.when(globalLinearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction, rangeActionCur));
         Mockito.when(globalLinearOptimizationResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(rangeAction, 6.2276423729910535));
