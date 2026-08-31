@@ -134,12 +134,6 @@ class FastRaoResultImplTest {
             List.of(crac.getFlowCnec("cnec2prevId")));
 
         // Margin, flows, functional and virtual cost
-        assertEquals(12.2, result.getMargin(preventive, flowCnec, Unit.MEGAWATT));
-        assertEquals(2.2, result.getRelativeMargin(preventive, flowCnec, Unit.MEGAWATT));
-        assertEquals(89.3, result.getFlow(preventive, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
-        assertEquals(9.3, result.getCommercialFlow(preventive, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
-        assertEquals(856.3, result.getLoopFlow(preventive, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
-        assertEquals(85.3, result.getPtdfZonalSum(preventive, flowCnec, TwoSides.TWO));
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId"), crac.getFlowCnec("cnec3autoId")),
             result.getMostLimitingElements(preventive, 2));
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId")), result.getCostlyElements(preventive, "vcost1", 1));

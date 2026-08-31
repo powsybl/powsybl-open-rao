@@ -157,8 +157,11 @@ public class Marmot implements TimeCoupledRaoProvider {
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
-            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
-                .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+            com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult = raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class);
+            if (flowResult != null) {
+                crac.getFlowCnecs().stream().filter(flowCnec -> flowResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
+                    .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+            }
         });
         topologicalOptimizationResults.clear(); // delete RAO results
 
@@ -816,7 +819,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             crac -> crac.getFlowCnecs().forEach(
                 flowCnec -> {
                     // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
-                    // TODO: see if using both units is relevant
+                    // TODO: ponder if using both units is relevant
                     // TODO: include curatives
                     PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
                     flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit);

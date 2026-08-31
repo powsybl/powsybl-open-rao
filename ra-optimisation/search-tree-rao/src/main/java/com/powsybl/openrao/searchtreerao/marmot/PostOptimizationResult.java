@@ -9,15 +9,19 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -27,6 +31,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,6 +79,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
         computeCastorCostResultsExtension();
+        computeFlowResultsExtension();
     }
 
     @Override
@@ -161,6 +167,60 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
             .filter(instant -> !instant.isOutage())
             .forEach(instant -> addCostsForInstant(costResult, singleTimestampObjectiveFunctionResult, instant));
         addExtension(CostResult.class, costResult);
+    }
+
+    private void computeFlowResultsExtension() {
+        FlowResult flowResult = new FlowResult();
+        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+            addFlowMeasurements(flowResult, flowCnec, initialResult, null);
+            crac.getSortedInstants()
+                .stream()
+                .filter(instant -> !instant.isOutage())
+                .filter(instant -> !instant.comesAfter(flowCnec.getState().getInstant()))
+                .forEach(instant -> addFlowMeasurements(
+                    flowResult,
+                    flowCnec,
+                    postMipResult.getFlowResult(crac.getTimestamp().orElseThrow()),
+                    instant)
+                );
+        }
+        addExtension(FlowResult.class, flowResult);
+    }
+
+    private void addFlowMeasurements(FlowResult flowResult,
+                                     FlowCnec flowCnec,
+                                     com.powsybl.openrao.searchtreerao.result.api.FlowResult sensiResult,
+                                     Instant instant) {
+        List<Unit> possibleUnits = List.of(Unit.AMPERE, Unit.MEGAWATT);
+        List<TwoSides> possibleSides = List.of(TwoSides.ONE, TwoSides.TWO);
+        for (Unit unit : possibleUnits) {
+            for (TwoSides side : possibleSides) {
+                addFlowMeasurements(flowResult, flowCnec, sensiResult, instant, side, unit);
+            }
+        }
+
+    }
+
+    private void addFlowMeasurements(FlowResult flowResult,
+                                     FlowCnec flowCnec,
+                                     com.powsybl.openrao.searchtreerao.result.api.FlowResult sensiResult,
+                                     Instant instant,
+                                     TwoSides side,
+                                     Unit unit) {
+        double flow = sensiResult.getFlow(flowCnec, side, unit);
+        if (!Double.isNaN(flow)) {
+            flowResult.addFlowMeasurement(flow, instant, flowCnec, side, unit);
+        }
+
+        double commercialFlow = sensiResult.getCommercialFlow(flowCnec, side, unit);
+        if (!Double.isNaN(commercialFlow)) {
+            flowResult.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, unit);
+        }
+
+        double ptdfZonalSum = sensiResult.getPtdfZonalSum(flowCnec, side);
+        if (!Double.isNaN(ptdfZonalSum)) {
+            flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+        }
     }
 
     private void addCostsForInstant(CostResult costResult,

@@ -398,8 +398,12 @@ public class FastRao implements RaoProvider {
             raoInput.getCrac()
         );
 
-        // TODO: this is quite ugly since CASTOR may not be the inner loop provider
+        // TODO: this is not quite proper since CASTOR may not be the inner loop provider
         fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
+        fastRaoResult.addExtension(
+            com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
+            RaoUtil.duplicateFlowResult(raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class), crac)
+        );
         return fastRaoResult;
 
     }
