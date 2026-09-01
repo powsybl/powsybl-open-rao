@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
@@ -42,7 +43,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
@@ -346,15 +346,8 @@ public final class RaoResultHelper {
             }
 
             final StateTree stateTree = new StateTree(crac, reportNode);
-            final PreventiveAndCurativesRaoResultImpl mergedRaoResult = new PreventiveAndCurativesRaoResultImpl(
-                stateTree,
-                initialFlowResult,
-                preventivePostPerimeterResult,
-                postMergingContingencyResults,
-                crac,
-                raoParameters,
-                reportNode
-            );
+            final RaoResultImpl mergedRaoResult = new RaoResultImpl(crac);
+            RaoUtil.fillWithActivatedRemedialActions(mergedRaoResult, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
 
             // add extensions
             mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(

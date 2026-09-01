@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
@@ -37,7 +38,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -78,7 +77,10 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Test
@@ -507,7 +509,9 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
         checkExecutionDetails(raoResult, "RAO failed during data initialization : This exception should be caught");
     }
 
@@ -522,7 +526,9 @@ class CastorFullOptimizationTest {
         when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
         checkExecutionDetails(raoResult, "RAO failed during initial sensitivity analysis : Testing exception handling");
     }
 

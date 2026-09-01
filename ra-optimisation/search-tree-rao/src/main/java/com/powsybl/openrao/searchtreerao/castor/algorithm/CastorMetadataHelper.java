@@ -38,7 +38,7 @@ public final class CastorMetadataHelper {
     public static void fillAndAddWithGlobalFailure(Crac crac, RaoResult raoResult, String failureReason) {
         Metadata metadata = new Metadata();
         metadata.setExecutionDetails(failureReason);
-        crac.getStates().forEach(state -> metadata.setComputationStatus(state, ComputationStatus.FAILURE));
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
         raoResult.addExtension(Metadata.class, metadata);
     }
 }

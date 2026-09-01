@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -38,10 +39,12 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -351,6 +354,27 @@ public final class RaoUtil {
                 virtualCostName,
                 costResult.getVirtualCost(instant, virtualCostName)
             ));
+    }
+
+    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult, OptimizationResult preventiveOptimizationResult, State preventiveState) {
+        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
+    }
+
+    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult,
+                                                        OptimizationResult preventiveOptimizationResult,
+                                                        State preventiveState,
+                                                        Map<State, PostPerimeterResult> postContingencyResults) {
+        fillWithActivatedRemedialActions(raoResult, preventiveOptimizationResult, preventiveState);
+        postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResult, postPerimeterResult.optimizationResult(), state));
+    }
+
+    private static void fillForState(RaoResultImpl raoResult, OptimizationResult optimizationResult, State state) {
+        optimizationResult.getActivatedNetworkActions().forEach(
+            ra -> raoResult.getAndCreateIfAbsentNetworkActionResult(ra).addActivationForState(state)
+        );
+        optimizationResult.getActivatedRangeActions(state).forEach(
+            ra -> raoResult.getAndCreateIfAbsentRangeActionResult(ra).addActivationForState(state, optimizationResult.getOptimizedSetpoint(ra, state))
+        );
     }
 
 }
