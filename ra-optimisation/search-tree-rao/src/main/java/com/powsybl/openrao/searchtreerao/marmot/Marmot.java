@@ -80,7 +80,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getIndividualRaoResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
@@ -762,7 +762,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                          final RaoParameters raoParameters,
                                                                                          final ReportNode reportNode) {
         TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
-            getPostOptimizationResults(
+            getIndividualRaoResults(
                 raoInputs,
                 initialResults,
                 globalLinearOptimizationResult,
