@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 
 import java.util.HashMap;
@@ -36,8 +37,11 @@ public class SweCneHelper extends CneHelper {
 
     private void defineContingencyFailureMap() {
         contingencyFailureMap = getCrac().getContingencies().stream()
-                .collect(Collectors.toMap(Function.identity(), contingency -> getCrac().getStates(contingency).stream()
-                        .anyMatch(state -> getRaoResult().getComputationStatus(state).equals(ComputationStatus.FAILURE))));
+            .collect(Collectors.toMap(Function.identity(), contingency -> getCrac().getStates(contingency).stream()
+                .anyMatch(state -> {
+                    Metadata metadata = getRaoResult().getExtension(Metadata.class);
+                    return metadata != null && metadata.getComputationStatus(state).equals(ComputationStatus.FAILURE);
+                })));
     }
 
     public boolean isAnyContingencyInFailure() {

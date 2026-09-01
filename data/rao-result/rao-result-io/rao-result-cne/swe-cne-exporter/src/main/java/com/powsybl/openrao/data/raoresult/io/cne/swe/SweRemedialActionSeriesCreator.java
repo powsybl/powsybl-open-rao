@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.PstRangeActionSeriesCrea
 import com.powsybl.openrao.data.crac.io.cim.craccreator.RemedialActionSeriesCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.RemedialActionRegisteredResource;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.RemedialActionSeries;
 import org.apache.commons.lang3.NotImplementedException;
@@ -146,10 +147,11 @@ public class SweRemedialActionSeriesCreator {
         if (raoResult == null) {
             return null;
         }
+        Metadata metadata = raoResult.getExtension(Metadata.class);
         context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction)
                 .filter(ra -> raoResult.isActivatedDuringState(state, ra)).forEach(usedRas::add);
-        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
+        if (metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction).filter(ra ->
                     raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||

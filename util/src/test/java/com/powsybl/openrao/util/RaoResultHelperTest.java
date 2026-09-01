@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -96,11 +97,14 @@ class RaoResultHelperTest {
         when(raoResult.getExtension(AngleResult.class)).thenReturn(angleResult);
         when(raoResult.getExtension(VoltageResult.class)).thenReturn(voltageResult);
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.getExtension(Metadata.class)).thenReturn(new Metadata());
 
         preventiveInstant = mockInstant("preventive", InstantKind.PREVENTIVE);
         curativeInstant = mockInstant("curative", InstantKind.CURATIVE);
 
         State preventiveState = mockState(preventiveInstant);
+        when(preventiveState.isPreventive()).thenReturn(true);
+        when(crac.getPreventiveState()).thenReturn(preventiveState);
         State curativeState = mockState(curativeInstant);
 
         preventiveFlowCnecFr = mockFlowCnec("preventiveFlowFr", preventiveState, "FR");
@@ -257,7 +261,9 @@ class RaoResultHelperTest {
     @ParameterizedTest
     @MethodSource("raoParameters")
     void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        Metadata metadata = new Metadata();
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }
 

@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,9 +34,6 @@ class FailedRaoResultImplTest {
 
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 1");
 
-        assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
-        assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
-
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));
@@ -51,6 +47,5 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }
 }

@@ -16,7 +16,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -58,6 +61,10 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
+        Metadata metadata = new Metadata();
+        metadata.setExecutionDetails("The RAO only went through first preventive");
+        raoResult.addExtension(Metadata.class, metadata);
+
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", autoInstant));
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant));
 
@@ -75,8 +82,6 @@ class RaoResultImplTest {
         costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
         raoResult.addExtension(CostResult.class, costResult);
-
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }
 
     @Test
@@ -144,21 +149,8 @@ class RaoResultImplTest {
         assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
         assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
-    }
-
-    @Test
-    void testExecutionDetails() {
-        setUp();
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
-        raoResult.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getExecutionDetails());
-    }
-
-    @Test
-    void testSensitivityStatus() {
-        setUp();
-        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant), ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant)));
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 }

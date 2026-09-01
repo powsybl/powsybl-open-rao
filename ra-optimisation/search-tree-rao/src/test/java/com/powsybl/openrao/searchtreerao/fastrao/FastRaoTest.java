@@ -13,9 +13,11 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -29,6 +31,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -96,6 +100,12 @@ class FastRaoTest {
         assertNotNull(costResult);
         assertEquals(-101.15, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals("The RAO only went through first preventive", metadata.getExecutionDetails().get());
     }
 
     //TODO : add costly objec function exemple
@@ -112,7 +122,12 @@ class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-        assertEquals("Initial sensitivity analysis failed", raoResult.getExecutionDetails());
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals("Initial sensitivity analysis failed", metadata.getExecutionDetails().get());
     }
 
     @Test
@@ -133,12 +148,19 @@ class FastRaoTest {
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-        assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals("Fast Rao does not support multi-curative optimization", metadata.getExecutionDetails().get());
     }
 
     @Test
     void testErrorInitData() throws ExecutionException, InterruptedException {
         RaoInput raoInput = Mockito.mock(RaoInput.class);
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getStates()).thenReturn(Set.of());
+        Mockito.when(raoInput.getCrac()).thenReturn(crac);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         // Run RAO

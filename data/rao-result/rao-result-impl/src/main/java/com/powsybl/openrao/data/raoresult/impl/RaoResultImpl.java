@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.HashMap;
@@ -43,28 +42,8 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
-    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
-
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
-    }
-
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        this.computationStatus = computationStatus;
-    }
-
-    public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        this.computationStatusPerState.put(state, computationStatus);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return computationStatus;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
@@ -203,15 +182,5 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
     }
 }

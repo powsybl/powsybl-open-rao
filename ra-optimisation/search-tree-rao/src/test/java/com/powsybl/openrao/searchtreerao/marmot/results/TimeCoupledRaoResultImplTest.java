@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.searchtreerao.marmot.TestsUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,8 +78,6 @@ class TimeCoupledRaoResultImplTest {
         final RaoResult raoResultTimestamp3 = mockRaoResult("RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
         timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
-            initialObjectiveFunctionResult,
-            objectiveFunctionResult,
             new TemporalDataImpl<>(Map.of(
                 TestsUtils.TIMESTAMP_1, raoResultTimestamp1,
                 TestsUtils.TIMESTAMP_2, raoResultTimestamp2,
@@ -90,11 +89,6 @@ class TimeCoupledRaoResultImplTest {
     @Test
     void testTimestamps() {
         assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), timeCoupledRaoResult.getTimestamps());
-    }
-
-    @Test
-    void testExecutionDetails() {
-        assertEquals("2025-02-17T13:33:00Z: RAO 1 succeeded. - 2025-02-18T13:33:00Z: RAO 2 succeeded. - 2025-02-19T13:33:00Z: RAO 3 failed.", timeCoupledRaoResult.getExecutionDetails());
     }
 
     private RaoResult mockRaoResult(String executionDetails,
@@ -110,7 +104,6 @@ class TimeCoupledRaoResultImplTest {
                                     double optimizedSetPoint,
                                     boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
-        Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
         Mockito.when(raoResult.getPreOptimizationTapOnState(state, pstRangeAction)).thenReturn(initialTap);
         Mockito.when(raoResult.getOptimizedTapOnState(state, pstRangeAction)).thenReturn(optimizedTap);
         Mockito.when(raoResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pstRangeAction, optimizedTap));
@@ -126,6 +119,11 @@ class TimeCoupledRaoResultImplTest {
         costResult.addFunctionalCostResult(instant, functionalCost);
         costResult.addVirtualCostResult(instant, "virtual", virtualCost);
         Mockito.when(raoResult.getExtension(CostResult.class)).thenReturn(costResult);
+
+        // mock metadata extension
+        Metadata metadata = new Metadata();
+        metadata.setExecutionDetails(executionDetails);
+        Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
 
         return raoResult;
     }

@@ -15,13 +15,11 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.PostContingencyState;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -43,9 +41,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
@@ -284,38 +279,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         });
     }
 
-    @Override
-    public ComputationStatus getComputationStatus() {
-        if (initialResult.getComputationStatus() == FAILURE
-            || finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == FAILURE) {
-            return FAILURE;
-        }
-        Set<State> autoAndCurativeStatesWithFlowCnecs = crac.getFlowCnecs().stream()
-            .map(Cnec::getState)
-            .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
-            .collect(Collectors.toSet());
-        if (initialResult.getComputationStatus() == PARTIAL_FAILURE ||
-            finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
-            autoAndCurativeStatesWithFlowCnecs.stream().anyMatch(state ->
-                postContingencyResults.get(state) == null || postContingencyResults.get(state).optimizationResult().getSensitivityStatus(state) != DEFAULT)) {
-            return PARTIAL_FAILURE;
-        }
-        return DEFAULT;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        Instant instant = state.getInstant();
-        while (instant != null) {
-            OptimizationResult perimeterResult = getOptimizationResult(instant, state);
-            if (Objects.nonNull(perimeterResult)) {
-                return perimeterResult.getComputationStatus(state);
-            }
-            instant = crac.getInstantBefore(instant);
-        }
-        return FAILURE;
-    }
-
     public OptimizationResult getOptimizationResult(Instant optimizedInstant, State state) {
         if (optimizedInstant == null) {
             throw new OpenRaoException("No OptimizationResult for INITIAL optimization state");
@@ -467,15 +430,5 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
                 .max(Comparator.comparingInt(mapState -> mapState.getInstant().getOrder()))
                 .orElse(preventiveState);
         }
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
     }
 }

@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -150,17 +151,23 @@ public class RaoSteps {
 
     @Then("the calculation succeeds")
     public void theCalculationSucceeds() {
-        assertEquals(ComputationStatus.DEFAULT, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 
     @Then("the calculation partially fails")
     public void theCalculationPartiallyFails() {
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
 
     @Then("the calculation fails")
     public void theCalculationFails() {
-        assertEquals(ComputationStatus.FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Then("its security status should be {string}")
@@ -883,8 +890,8 @@ public class RaoSteps {
         //Filter flow cnecs from failed perimeters
         final RaoResult commonTestRaoResult = CommonTestData.getRaoResult();
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> commonTestRaoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
-                        .collect(Collectors.toSet());
+            .filter(RaoSteps::hasStateComputationFailed)
+            .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
                 continue;
@@ -945,12 +952,20 @@ public class RaoSteps {
         return flowResult.getRelativeMargin(instant, flowCnec, unit);
     }
 
+    private static boolean hasStateComputationFailed(State state) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
+    }
+
     /*
     RaoResult infos
      */
 
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
-        assertEquals(string, CommonTestData.getRaoResult().getExecutionDetails());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals(string, metadata.getExecutionDetails().get());
     }
 }
