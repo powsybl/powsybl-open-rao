@@ -24,7 +24,6 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -56,7 +55,7 @@ class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -75,7 +74,7 @@ class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -92,7 +91,7 @@ class FastRaoTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);

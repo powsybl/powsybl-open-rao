@@ -48,7 +48,6 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
@@ -57,6 +56,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import com.powsybl.openrao.searchtreerao.result.impl.RaoResultGenerator;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import org.jgrapht.alg.util.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -154,10 +154,10 @@ public class FastRao implements RaoProvider {
             PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
             PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
-                    initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
-                    initialResultWithoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
-                    initialRangeActionSetpointResult,
-                    initialResultWithoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
+                initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
+                initialResultWithoutUpdatedRangeActionSetpointResult.getSensitivityResult(),
+                initialRangeActionSetpointResult,
+                initialResultWithoutUpdatedRangeActionSetpointResult.getObjectiveFunctionResult()
             );
 
             if (crac.getFlowCnecs().isEmpty()) {
@@ -181,8 +181,7 @@ public class FastRao implements RaoProvider {
 
             PrePerimeterResult stepResult = initialResult;
             FlowCnec worstCnec;
-            FastRaoResultImpl raoResult;
-            com.powsybl.openrao.data.crac.api.Instant lastInstant = raoInput.getCrac().getLastInstant();
+            RaoResultImpl raoResult;
             AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             int counter = 1;
 
@@ -197,7 +196,7 @@ public class FastRao implements RaoProvider {
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
-                raoResult = runFilteredRao(
+                Pair<RaoResultImpl, PrePerimeterResult> filteredRaoResults = runFilteredRao(
                     raoInput,
                     parameters,
                     targetEndInstant,
@@ -209,7 +208,8 @@ public class FastRao implements RaoProvider {
                     counter,
                     iterationReportNode
                 );
-                stepResult = raoResult.getAppropriateResult(lastInstant);
+                raoResult = filteredRaoResults.getFirst();
+                stepResult = filteredRaoResults.getSecond();
 
                 FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
@@ -280,16 +280,16 @@ public class FastRao implements RaoProvider {
         return flowCnecs;
     }
 
-    private static FastRaoResultImpl runFilteredRao(final RaoInput raoInput,
-                                                    final RaoParameters parameters,
-                                                    final Instant targetEndInstant,
-                                                    final Set<FlowCnec> flowCnecsToKeep,
-                                                    final ToolProvider toolProvider,
-                                                    final PrePerimeterResult initialResult,
-                                                    final RangeActionSetpointResult initialRangeActionSetpointResult,
-                                                    final AbstractNetworkPool networkPool,
-                                                    final int counter,
-                                                    final ReportNode reportNode) throws ExecutionException, InterruptedException {
+    private static Pair<RaoResultImpl, PrePerimeterResult> runFilteredRao(final RaoInput raoInput,
+                                                                          final RaoParameters parameters,
+                                                                          final Instant targetEndInstant,
+                                                                          final Set<FlowCnec> flowCnecsToKeep,
+                                                                          final ToolProvider toolProvider,
+                                                                          final PrePerimeterResult initialResult,
+                                                                          final RangeActionSetpointResult initialRangeActionSetpointResult,
+                                                                          final AbstractNetworkPool networkPool,
+                                                                          final int counter,
+                                                                          final ReportNode reportNode) throws ExecutionException, InterruptedException {
         Crac crac = raoInput.getCrac();
 
         // Filter CRAC to only keep flowCnecsToKeep
@@ -397,14 +397,15 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        FastRaoResultImpl fastRaoResult = new FastRaoResultImpl(
-            initialResult,
-            postPraSensi.get().prePerimeterResultForAllFollowingStates(),
-            postAraSensi.get().prePerimeterResultForAllFollowingStates(),
-            postCraSensi.get().prePerimeterResultForAllFollowingStates(),
-            raoResult,
-            raoInput.getCrac()
-        );
+        RaoResultImpl fastRaoResult = new RaoResultImpl(crac);
+        crac.getStates().forEach(state -> {
+            raoResult.getActivatedNetworkActionsDuringState(state)
+                .forEach(networkAction -> fastRaoResult.getAndCreateIfAbsentNetworkActionResult(networkAction)
+                    .addActivationForState(state));
+            raoResult.getActivatedRangeActionsDuringState(state)
+                .forEach(rangeAction -> fastRaoResult.getAndCreateIfAbsentRangeActionResult(rangeAction)
+                    .addActivationForState(state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+        });
 
         // TODO: this is not quite proper since CASTOR may not be the inner loop provider
         fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
@@ -419,18 +420,8 @@ public class FastRao implements RaoProvider {
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
             postCraSensi.get().prePerimeterResultForAllFollowingStates()
         ));
-        return fastRaoResult;
+        return Pair.of(fastRaoResult, postCraSensi.get().prePerimeterResultForAllFollowingStates());
 
-    }
-
-    private static CostResult duplicateCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
     }
 
     private static Metadata regenerateMetadata(Metadata metadata,

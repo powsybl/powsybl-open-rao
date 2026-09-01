@@ -368,7 +368,7 @@ public final class RaoUtil {
         postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResult, postPerimeterResult.optimizationResult(), state));
     }
 
-    private static void fillForState(RaoResultImpl raoResult, OptimizationResult optimizationResult, State state) {
+    public static void fillForState(RaoResultImpl raoResult, OptimizationResult optimizationResult, State state) {
         optimizationResult.getActivatedNetworkActions().forEach(
             ra -> raoResult.getAndCreateIfAbsentNetworkActionResult(ra).addActivationForState(state)
         );

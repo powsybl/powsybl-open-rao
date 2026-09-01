@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.HashMap;
@@ -37,8 +36,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private final Crac crac;
 
-    private ComputationStatus computationStatus;
-    private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
