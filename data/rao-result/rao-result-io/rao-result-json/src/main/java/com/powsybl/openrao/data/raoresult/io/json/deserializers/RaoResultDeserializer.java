@@ -111,9 +111,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case FLOWCNEC_RESULTS:
-                    jsonParser.nextToken();
-                    FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, FlowCNEC results are no longer in the RAO Result but in the 'flow-results' extension");
+                    }
 
                 case ANGLECNEC_RESULTS:
                     if (version.major() == 1) {

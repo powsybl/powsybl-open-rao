@@ -58,7 +58,6 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
         if (!ComputationStatus.FAILURE.equals(computationStatus)) {
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
-            FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
             RemedialActionActivationsSerializer.serialize(raoResult, crac, jsonGenerator);
             JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
         }

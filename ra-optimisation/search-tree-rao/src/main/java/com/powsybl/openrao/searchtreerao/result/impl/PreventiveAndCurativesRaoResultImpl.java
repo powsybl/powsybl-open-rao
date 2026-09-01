@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -30,7 +28,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -338,96 +335,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             return postContingencyResults.get(state).optimizationResult();
         }
         throw new OpenRaoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getMargin(flowCnec, unit);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getRelativeMargin(flowCnec, unit);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getFlow(flowCnec, side, unit, optimizedInstant);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getCommercialFlow(flowCnec, side, unit);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getLoopFlow(flowCnec, side, unit);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
-        if (Objects.nonNull(flowResult)) {
-            return flowResult.getPtdfZonalSum(flowCnec, side);
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    private FlowResult getFlowResult(Instant optimizedInstant, FlowCnec flowCnec) {
-        if (optimizedInstant == null) {
-            return initialResult;
-        } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
-            throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
-        } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates();
-        } else {
-            return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec)).prePerimeterResultForAllFollowingStates();
-        }
-    }
-
-    private State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {
-        if (optimizedInstant.isPreventive()) {
-            return null;
-        }
-        optimizedStateForInstantAndState.putIfAbsent(optimizedInstant, new HashMap<>());
-        Map<State, State> optimizedStateForState = optimizedStateForInstantAndState.get(optimizedInstant);
-        State cnecState = flowCnec.getState();
-        if (optimizedStateForState.containsKey(cnecState)) {
-            return optimizedStateForState.get(cnecState);
-        } else {
-            State optimizedState = postContingencyResults.keySet().stream().filter(state ->
-                state.getInstant().equals(optimizedInstant) && state.getContingency().equals(cnecState.getContingency())
-            ).findAny().orElseThrow(() -> new OpenRaoException("Contingency Results does not contain a result for every state"));
-            optimizedStateForState.put(cnecState, optimizedState);
-            return optimizedState;
-        }
     }
 
     @Override

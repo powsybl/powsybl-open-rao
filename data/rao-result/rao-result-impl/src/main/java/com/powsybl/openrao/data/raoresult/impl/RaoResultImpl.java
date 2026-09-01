@@ -14,8 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
 
@@ -45,7 +42,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
-    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
@@ -71,55 +67,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public ComputationStatus getComputationStatus(State state) {
         return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
-    }
-
-    private Instant checkOptimizedInstant(Instant optimizedInstant, Cnec<?> cnec) {
-        if (optimizedInstant == null) {
-            return null;
-        }
-        Instant instant = optimizedInstant;
-        if (cnec.getState().getInstant().comesBefore(instant)) {
-            instant = cnec.getState().getInstant();
-        }
-        if (instant.isOutage()) {
-            instant = crac.getPreventiveInstant();
-        }
-        return instant;
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getRelativeMargin(unit);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
-    }
-
-    public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
-        return flowCnecResults.get(flowCnec);
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
