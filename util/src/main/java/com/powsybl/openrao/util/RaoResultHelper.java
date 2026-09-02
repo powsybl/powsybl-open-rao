@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
@@ -93,10 +92,10 @@ public final class RaoResultHelper {
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    public static boolean isSecure(TimeCoupledRaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
+    public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
 
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!isSecure(raoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
+            if (!isSecure(raoResult, cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
                 return false;
             }
         }
