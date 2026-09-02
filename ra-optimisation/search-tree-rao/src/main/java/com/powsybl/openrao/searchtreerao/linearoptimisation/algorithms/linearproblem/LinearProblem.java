@@ -488,6 +488,14 @@ public final class LinearProblem {
         return solver.getConstraint(tapConstraintId(pstRangeAction, state));
     }
 
+    public OpenRaoMPConstraint addPstTapGradientConstraint(PstRangeAction pstRangeAction, double lb, double ub, State state, State nextState) {
+        return solver.makeConstraint(lb, ub, pstTapGradientConstraintId(pstRangeAction, state, nextState));
+    }
+
+    public OpenRaoMPConstraint getPstTapGradientConstraint(PstRangeAction pstRangeAction, State state, State nextState) {
+        return solver.getConstraint(pstTapGradientConstraintId(pstRangeAction, state, nextState));
+    }
+
     public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, double pMax, OffsetDateTime timestamp) {
         return solver.makeNumVar(-solver.infinity(), pMax, generatorPowerVariableId(generatorId, timestamp));
     }
