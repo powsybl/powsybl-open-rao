@@ -233,18 +233,13 @@ final class SystematicSensitivityAdapter {
      * its own operator strategies calculation mode, which the provider may read asynchronously during the run; mutating the
      * shared instance would race on that field and make the provider read another analysis' mode, producing empty/incoherent
      * results. Working on a copy keeps each analysis isolated.
-     *
-     * <p>Being private to the running analysis, the copy is also where any {@link SensitivityAnalysisParametersCustomization}
-     * installed by the calling thread is applied.
      */
     private static SensitivityAnalysisParameters copy(SensitivityAnalysisParameters parameters) {
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             objectMapper.writeValue(outputStream, parameters);
             try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-                SensitivityAnalysisParameters copy = JsonSensitivityAnalysisParameters.read(inputStream);
-                SensitivityAnalysisParametersCustomization.apply(copy);
-                return copy;
+                return JsonSensitivityAnalysisParameters.read(inputStream);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
