@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.extension;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -14,12 +15,13 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * TODO: JSON ser-de
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
@@ -114,5 +116,14 @@ public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
     @Override
     public String getName() {
         return EXTENSION_NAME;
+    }
+
+    public void serialize(JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStartObject();
+        for (OffsetDateTime timestamp : costResults.getTimestamps()) {
+            jsonGenerator.writeFieldName(DateTimeFormatter.ISO_DATE_TIME.format(timestamp));
+            costResults.getData(timestamp).orElseThrow().serialize(jsonGenerator);
+        }
+        jsonGenerator.writeEndObject();
     }
 }
