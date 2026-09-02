@@ -71,7 +71,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
     @Override
     public RaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
         List<Extension<RaoResult>> extensions = Collections.emptyList();
 
         Metadata metadata = new Metadata();
@@ -82,6 +81,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
             return null;
         }
 
+        RaoResultImpl raoResult = new RaoResultImpl(crac);
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case INFO:

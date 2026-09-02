@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -18,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,14 +36,20 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
+    private static final OffsetDateTime DEFAULT_TIMESTAMP = OffsetDateTime.MIN;
 
-    private final Crac crac;
+    private final TemporalData<Crac> cracs;
 
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
     public RaoResultImpl(Crac crac) {
-        this.crac = crac;
+        this.cracs = new TemporalDataImpl<>();
+        this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
+    }
+
+    public RaoResultImpl(TemporalData<Crac> cracs) {
+        this.cracs = cracs;
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
@@ -133,7 +142,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             stateBefore = stateBefore(stateBefore);
         }
         // If no activated RA was found, return initial setpoint
-        return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
+        return getPreOptimizationSetPointOnState(getCrac(state).getPreventiveState(), rangeAction);
     }
 
     @Override
@@ -146,38 +155,47 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return crac.getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
+        return getCrac(state).getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return crac.getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
+        return getCrac(state).getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
     }
 
     private State stateBefore(State state) {
         if (state.getContingency().isPresent()) {
-            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant());
+            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant(), state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
         } else {
             return null;
         }
     }
 
-    private State stateBefore(String contingencyId, Instant instant) {
+    private State stateBefore(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        Crac crac = getCrac(timestamp);
         if (instant.isOutage()) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
+        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant), timestamp);
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, crac.getInstantBefore(instant));
+            return stateBefore(contingencyId, crac.getInstantBefore(instant), timestamp);
         }
     }
 
-    private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant).stream()
+    private State lookupState(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        return getCrac(timestamp).getStates(instant).stream()
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
+    }
+
+    private Crac getCrac(OffsetDateTime timestamp) {
+        return cracs.getData(timestamp).orElseThrow();
+    }
+
+    private Crac getCrac(State state) {
+        return getCrac(state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
     }
 }
