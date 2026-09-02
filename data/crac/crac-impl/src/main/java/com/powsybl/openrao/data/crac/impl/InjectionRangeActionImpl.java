@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.action.Action;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.LoadActionBuilder;
 import com.powsybl.commons.report.ReportNode;
@@ -21,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,44 +78,36 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        injectionDistributionKeys.forEach((ne, sk) -> applyInjection(network, ne.getId(), targetSetpoint * sk));
+        toActions(targetSetpoint, network).forEach(action -> action.toModification().apply(network, true, ReportNode.NO_OP));
     }
 
-    // Initial setpoint was taken into account in linear problem, hence targetSetpoint represents network's initial value + optimized variation
-    // That's why we overwrite network's exisiting generator/load.
-    private void applyInjection(Network network, String injectionId, double targetSetpoint) {
+    @Override
+    public List<Action> toActions(double setpoint, Network network) {
+        List<Action> actions = new ArrayList<>();
+        injectionDistributionKeys.forEach((ne, key) -> actions.add(buildInjectionAction(network, ne.getId(), setpoint * key)));
+        return actions;
+    }
+
+    private static Action buildInjectionAction(Network network, String injectionId, double targetSetpoint) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
-            new GeneratorActionBuilder()
-                .withId("id")
+            return new GeneratorActionBuilder()
+                .withId(injectionId)
                 .withGeneratorId(injectionId)
                 .withActivePowerRelativeValue(false)
                 .withActivePowerValue(targetSetpoint)
-                .build()
-                .toModification()
-                .apply(network, true, ReportNode.NO_OP);
-            return;
+                .build();
         }
-
         Load load = network.getLoad(injectionId);
         if (load != null) {
-            new LoadActionBuilder()
-                .withId("id")
+            return new LoadActionBuilder()
+                .withId(injectionId)
                 .withLoadId(injectionId)
                 .withRelativeValue(false)
                 .withActivePowerValue(-targetSetpoint)
-                .build()
-                .toModification()
-                .apply(network, true, ReportNode.NO_OP);
-            return;
-
+                .build();
         }
-
-        if (network.getIdentifiable(injectionId) == null) {
-            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
-        } else {
-            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
-        }
+        throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
     }
 
     // When injection range action has several generators/loads, each generator/load's value divided by its key

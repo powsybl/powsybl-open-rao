@@ -108,7 +108,7 @@
         <maven.jvnet.jaxb.version>4.0.12</maven.jvnet.jaxb.version>
         <powsybl.core.version>7.3.0</powsybl.core.version>
         <powsybl.entsoe.version>3.3.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>2.3.0</powsybl.openloadflow.version>
+        <powsybl.openloadflow.version>2.4.0-SNAPSHOT</powsybl.openloadflow.version>
         <slf4j.version>2.0.18</slf4j.version>
         <com.networknt.version>2.0.1</com.networknt.version><!-- TODO: update to v3 when powsybl-core updates Jackson dependency to v3 -->
     </properties>

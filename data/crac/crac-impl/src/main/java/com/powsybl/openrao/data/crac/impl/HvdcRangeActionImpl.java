@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
@@ -78,19 +80,32 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     @Override
     public void apply(Network network, double targetSetpoint) {
         // Possible only if the network element associated is NOT in ac emulation mode (ie. fixed active power setpoint operation only)
-        HvdcActionBuilder actionBuilder = null;
-        if (!isAngleDroopActivePowerControlEnabled(network)) {
-            actionBuilder = new HvdcActionBuilder()
-                .withId("")
-                .withHvdcId(networkElement.getId())
-                .withActivePowerSetpoint(Math.abs(targetSetpoint));
-            if (targetSetpoint < 0) {
-                actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-            } else {
-                actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-            }
-            actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
+        checkNotInAcEmulationMode(network);
+        toAction(targetSetpoint).toModification().apply(network, true, ReportNode.NO_OP);
+    }
+
+    @Override
+    public List<Action> toActions(double targetSetpoint, Network network) {
+        // Possible only if the network element associated is NOT in ac emulation mode (ie. fixed active power setpoint operation only)
+        checkNotInAcEmulationMode(network);
+        return List.of(toAction(targetSetpoint));
+    }
+
+    HvdcAction toAction(double targetSetpoint) {
+        HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
+            .withId(networkElement.getId() + "_" + targetSetpoint)
+            .withHvdcId(networkElement.getId())
+            .withActivePowerSetpoint(Math.abs(targetSetpoint));
+        if (targetSetpoint < 0) {
+            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         } else {
+            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        }
+        return actionBuilder.build();
+    }
+
+    private void checkNotInAcEmulationMode(Network network) {
+        if (isAngleDroopActivePowerControlEnabled(network)) {
             throw new OpenRaoException(String.format(
                 "Unable to set an active power setpoint for HVDC line %s because it is operating in AC Emulation mode.",
                 networkElement.getId()
