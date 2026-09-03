@@ -107,8 +107,8 @@ public class Leaf implements OptimizationResult {
      * Status of the leaf's Network Action evaluation
      */
     private Status status;
-    private TemporalData<FlowResult> preOptimFlowResults;
-    private TemporalData<SensitivityResult> preOptimSensitivityResults;
+    private TemporalData<FlowResult> preOptimFlowResults = new TemporalDataImpl<>();
+    private TemporalData<SensitivityResult> preOptimSensitivityResults = new TemporalDataImpl<>();
     private ObjectiveFunctionResult preOptimObjectiveFunctionResult;
     private LinearOptimizationResult postOptimResult;
 
@@ -302,7 +302,7 @@ public class Leaf implements OptimizationResult {
         optimizationPerimeters.getDataPerTimestamp().forEach(
             (timestamp, optimizationPerimeter) ->
                 networkActionsResults.put(timestamp, new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
-            )
+                )
         );
         return new GlobalLinearOptimizationResult(
             preOptimFlowResults,
@@ -557,7 +557,7 @@ public class Leaf implements OptimizationResult {
             }).sum();
         } else if (status == Status.OPTIMIZED) {
             return optimizationPerimeters.getDataPerTimestamp().values().stream().mapToLong(
-                    perimeter -> perimeter.getRangeActionsPerState().keySet().stream()
+                perimeter -> perimeter.getRangeActionsPerState().keySet().stream()
                     .mapToLong(s -> postOptimResult.getActivatedRangeActions(s).size())
                     .sum()).sum();
         } else {
@@ -648,7 +648,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
         return optimizationPerimeters.getDataPerTimestamp().values().stream().collect(
-                Collectors.toMap(OptimizationPerimeter::getMainOptimizationState, perimeter -> appliedNetworkActionsInPrimaryState)
+            Collectors.toMap(OptimizationPerimeter::getMainOptimizationState, perimeter -> appliedNetworkActionsInPrimaryState)
         );
     }
 
@@ -765,7 +765,7 @@ public class Leaf implements OptimizationResult {
         if (status == Status.EVALUATED) {
             Map<State, Set<RangeAction<?>>> stateActivatedRangeActionsMap = new HashMap<>();
             raActivationResultFromParentLeaf.getDataPerTimestamp().values().forEach(
-                    activation -> stateActivatedRangeActionsMap.putAll(activation.getActivatedRangeActionsPerState())
+                activation -> stateActivatedRangeActionsMap.putAll(activation.getActivatedRangeActionsPerState())
             );
             return stateActivatedRangeActionsMap;
         } else if (status == Status.OPTIMIZED) {
