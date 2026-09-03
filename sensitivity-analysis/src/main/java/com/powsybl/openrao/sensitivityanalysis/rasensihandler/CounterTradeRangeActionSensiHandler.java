@@ -31,8 +31,8 @@ public class CounterTradeRangeActionSensiHandler implements RangeActionSensiHand
     @Override
     public double getSensitivityOnFlow(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
         // in this first implementation we assume no loads so that all generators in the zone sum up to 1
-        return - sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side)
-                + sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side);
+        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side)
+                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side);
     }
 
     @Override

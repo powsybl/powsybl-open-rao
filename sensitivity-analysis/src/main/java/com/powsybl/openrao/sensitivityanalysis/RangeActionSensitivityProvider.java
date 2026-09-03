@@ -183,7 +183,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         var negativeGlskMap = getNegativeGlskMap(importing);
         negativeGlskMap.putAll(getPositiveGlskMap(exporting));
         if (!negativeGlskMap.isEmpty()) {
-            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), -e.getValue())).toList();
+            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
             String negativeGlskMapId = handler.getNegativeGlskMapId();
             sensitivityVariables.put(negativeGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.putIfAbsent(negativeGlskMapId, new SensitivityVariableSet(negativeGlskMapId, negativeGlsk));
