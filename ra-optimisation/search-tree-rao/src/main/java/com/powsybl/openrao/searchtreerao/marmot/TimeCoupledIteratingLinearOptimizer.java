@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -28,6 +29,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFi
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PstConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -86,7 +88,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input);
+        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input, parameters);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters);
         fillLinearProblem(
             linearProblem,
@@ -223,7 +225,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
+    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: add time-coupled margin filler (min of all min margins)
         List<ProblemFiller> problemFillers = new ArrayList<>();
         TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(
@@ -234,41 +236,54 @@ public final class TimeCoupledIteratingLinearOptimizer {
         if (!isPreventiveMip && !isCurativeMip) {
             throw new OpenRaoException("Main optimization state must be either preventive or curative.");
         }
-        if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
-            TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-                    .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-            problemFillers.add(new GeneratorConstraintsFiller(
+        Set<PstConstraints> pstConstraints = input.timeCoupledConstraints().getPstConstraints();
+        if (isPreventiveMip && !input.synchronizeCurativeRangeActions()) {
+            if (!input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
+                TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
+                    .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
+                problemFillers.add(new GeneratorConstraintsFiller(
                     input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                     mainOptimizationStates,
                     preventiveInjectionRangeActions,
                     input.timeCoupledConstraints().getGeneratorConstraints()
-            ));
+                ));
+            }
+            if (!pstConstraints.isEmpty()) {
+                if (!getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+                    throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
+                }
+                TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
+                    .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), PstRangeAction.class));
+                problemFillers.add(new PstConstraintsFiller(
+                    mainOptimizationStates,
+                    preventivePstRangeActions,
+                    pstConstraints
+                ));
+            }
+            // Two cases for the curative range actions synchronization :
+            // 1. curative MIP
+            if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
+                problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                    iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
+                )));
+            }
+            // 2. global MIP (main optimization state is preventive but the optimization perimeter is global)
+            if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
+                problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                    iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
+                )));
+            }
+            return problemFillers;
         }
 
-        // Two cases for the curative range actions synchronization :
-        // 1. curative MIP
-        if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
-            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
-                    iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
-            )));
-        }
-        // 2. global MIP (main optimization state is preventive but the optimization perimeter is global)
-        if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
-            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
-                    iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
-            )));
-        }
-        return problemFillers;
+    private static <T extends RangeAction<?>> Set<T> filterPreventiveRangeAction(Set<RangeAction<?>> rangeActions, Class<T> classType) {
+        return rangeActions.stream().filter(classType::isInstance).map(classType::cast).collect(Collectors.toSet());
     }
 
     private static Map<State, Set<RangeAction<?>>> getCurativeRangeActionsPerState(OptimizationPerimeter optimizationPerimeter) {
         return optimizationPerimeter.getRangeActionsPerState().entrySet().stream()
                 .filter(statesSetEntry -> statesSetEntry.getKey().getInstant().isCurative())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
-        return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
