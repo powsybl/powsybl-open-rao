@@ -58,9 +58,8 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
             new ElementaryActionsCompatibilityFilter(),
             new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()),
-            // 1st timestamp for now
-            // todo : an action is considered ineffective if it has no impact on all the timestamps
-            new IneffectiveActionsFilter(input.getAllNetworks().getData(input.getAllNetworks().getTimestamps().getFirst()).orElseThrow())
+            // an action is considered ineffective if it has no impact on any of the timestamps' networks
+            new IneffectiveActionsFilter(input.getAllNetworks())
         ));
         if (parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements()) {
             this.networkActionCombinationFilters.add(
