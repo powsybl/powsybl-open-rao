@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -390,6 +391,16 @@ public final class SearchTreeReports {
             .toList();
     }
 
+    /** Gets the activated range actions of every timestamp's perimeter. */
+    private static List<String> getRangeActionSetpoints(final Leaf leaf, final TemporalData<OptimizationPerimeter> optimizationContexts) {
+        final boolean isTimeCoupled = optimizationContexts.getTimestamps().size() > 1;
+        return optimizationContexts.getTimestamps().stream()
+            .flatMap(timestamp -> getRangeActionSetpoints(leaf, optimizationContexts.getData(timestamp).orElseThrow()).stream()
+                .map(setpoint -> isTimeCoupled ? format("[%s] %s", timestamp, setpoint) : setpoint)
+            )
+            .toList();
+    }
+
     private static String getIndividualStringForRangeActionAndState(Leaf leaf, State state, RangeAction<?> rangeAction, boolean globalPstOptimization) {
         final double valueVariation = rangeAction instanceof PstRangeAction pstRangeAction
             ? leaf.getTapVariation(pstRangeAction, state)
@@ -407,6 +418,18 @@ public final class SearchTreeReports {
                                           final Leaf leaf,
                                           final OptimizationPerimeter optimizationContext) {
         final List<String> rangeActionSetpoints = getRangeActionSetpoints(leaf, optimizationContext);
+
+        if (rangeActionSetpoints.isEmpty()) {
+            reportNoRangeActionActivated(parentNode);
+        } else {
+            reportRangeActionsActivated(parentNode, rangeActionSetpoints);
+        }
+    }
+
+    public static void reportRangeActions(final ReportNode parentNode,
+                                          final Leaf leaf,
+                                          final TemporalData<OptimizationPerimeter> optimizationContexts) {
+        final List<String> rangeActionSetpoints = getRangeActionSetpoints(leaf, optimizationContexts);
 
         if (rangeActionSetpoints.isEmpty()) {
             reportNoRangeActionActivated(parentNode);
@@ -448,6 +471,18 @@ public final class SearchTreeReports {
         }
     }
 
+    public static void reportBestLeafRangeActions(final ReportNode parentNode,
+                                                  final Leaf leaf,
+                                                  final TemporalData<OptimizationPerimeter> optimizationContexts) {
+        final List<String> rangeActionSetpoints = getRangeActionSetpoints(leaf, optimizationContexts);
+
+        if (rangeActionSetpoints.isEmpty()) {
+            reportBestLeafNoRangeActionActivated(parentNode);
+        } else {
+            reportBestLeafRangeActionsActivated(parentNode, rangeActionSetpoints);
+        }
+    }
+
     private static void reportBestLeafNoRangeActionActivated(final ReportNode parentNode) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportBestLeafNoRangeActionActivated")
@@ -474,6 +509,19 @@ public final class SearchTreeReports {
                                                              final Leaf leaf,
                                                              final OptimizationPerimeter optimizationContext) {
         final List<String> rangeActionSetpoints = getRangeActionSetpoints(leaf, optimizationContext);
+
+        if (rangeActionSetpoints.isEmpty()) {
+            reportSearchDepthBestLeafNoRangeActionActivated(parentNode, depth);
+        } else {
+            reportSearchDepthBestLeafRangeActionsActivated(parentNode, depth, rangeActionSetpoints);
+        }
+    }
+
+    public static void reportSearchDepthBestLeafRangeActions(final ReportNode parentNode,
+                                                             final int depth,
+                                                             final Leaf leaf,
+                                                             final TemporalData<OptimizationPerimeter> optimizationContexts) {
+        final List<String> rangeActionSetpoints = getRangeActionSetpoints(leaf, optimizationContexts);
 
         if (rangeActionSetpoints.isEmpty()) {
             reportSearchDepthBestLeafNoRangeActionActivated(parentNode, depth);
