@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +48,10 @@ class JsonNcCracCreationParametersTest {
         assertNotNull(ncCracCreationParameters);
         assertEquals(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE, ncCracCreationParameters.getCapacityCalculationRegion());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
+        assertEquals(
+            List.of(new NcCracCreationParameters.ConnectedArea("ES", List.of(new NcCracCreationParameters.BorderRange("relative", -500.0, 500.0)))),
+            ncCracCreationParameters.getConnectedAreas()
+        );
     }
 
     @Test
@@ -91,6 +96,9 @@ class JsonNcCracCreationParametersTest {
         csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         csaParameters.setCounterTradingMinRange(-1000.0);
         csaParameters.setCounterTradingMaxRange(1000.0);
+        csaParameters.setConnectedAreas(List.of(
+            new NcCracCreationParameters.ConnectedArea("ES", List.of(new NcCracCreationParameters.BorderRange("relative", -500.0, 500.0)))
+        ));
         parameters.addExtension(NcCracCreationParameters.class, csaParameters);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -107,6 +115,10 @@ class JsonNcCracCreationParametersTest {
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
         assertEquals(-1000.0, ncCracCreationParameters.getCounterTradingMinRange());
         assertEquals(1000.0, ncCracCreationParameters.getCounterTradingMaxRange());
+        assertEquals(
+            List.of(new NcCracCreationParameters.ConnectedArea("ES", List.of(new NcCracCreationParameters.BorderRange("relative", -500.0, 500.0)))),
+            ncCracCreationParameters.getConnectedAreas()
+        );
     }
 
 }

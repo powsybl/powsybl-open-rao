@@ -17,7 +17,7 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                                          String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
                                          String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
                                          double minEconomicP, double maxEconomicP,
-                                         String timeToImplement, String region) implements NativeRemedialAction {
+                                         String timeToImplement, String biddingZone, String gLSKStrategy, String shiftMethod, String creator) implements NativeRemedialAction {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(
                 propertyBag.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION),
@@ -35,7 +35,10 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 propertyBag.asDouble(NcConstants.MIN_ECONOMIC_P),
                 propertyBag.asDouble(NcConstants.MAX_ECONOMIC_P),
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
-                propertyBag.get(NcConstants.APPOINTED_TO_REGION)
+                propertyBag.get(NcConstants.BIDDING_ZONE),
+                propertyBag.get(NcConstants.GLSK_STRATEGY),
+                propertyBag.get(NcConstants.SHIFT_METHOD),
+                propertyBag.get(NcConstants.CREATOR)
         );
     }
 

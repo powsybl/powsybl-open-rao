@@ -20,7 +20,9 @@ import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,12 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private static final String TIMESTAMP = "timestamp";
     private static final String COUNTER_TRADING_MIN_RANGE = "counter-trading-min-range";
     private static final String COUNTER_TRADING_MAX_RANGE = "counter-trading-max-range";
+    private static final String CONNECTED_AREAS = "connected-areas";
+    private static final String AREA = "area";
+    private static final String RANGE_TYPE = "range-type";
+    private static final String BORDER_RANGES = "border-ranges";
+    private static final String BORDER_RANGE_MIN = "border-range-min";
+    private static final String BORDER_RANGE_MAX = "border-range-max";
 
     @Override
     public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -44,6 +52,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         serializeCapacityCalculationRegion(ncParameters.getCapacityCalculationRegion(), jsonGenerator);
         serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
         serializeCounterTradingRange(ncParameters.getCounterTradingMinRange(), ncParameters.getCounterTradingMaxRange(), jsonGenerator);
+        serializeConnectedAreas(ncParameters.getConnectedAreas(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -70,6 +79,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 case COUNTER_TRADING_MAX_RANGE:
                     jsonParser.nextToken();
                     parameters.setCounterTradingMaxRange(jsonParser.readValueAs(Double.class));
+                    break;
+                case CONNECTED_AREAS:
+                    jsonParser.nextToken();
+                    parameters.setConnectedAreas(deserializeConnectedAreas(jsonParser));
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
@@ -158,6 +171,91 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
             curativeInstants.put(name, applicationTime);
         }
         return curativeInstants;
+    }
+
+    private void serializeConnectedAreas(List<NcCracCreationParameters.ConnectedArea> connectedAreas, JsonGenerator jsonGenerator) throws IOException {
+        if (connectedAreas.isEmpty()) {
+            return;
+        }
+        jsonGenerator.writeFieldName(CONNECTED_AREAS);
+        jsonGenerator.writeStartArray();
+        for (NcCracCreationParameters.ConnectedArea connectedArea : connectedAreas) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(AREA, connectedArea.area());
+            jsonGenerator.writeFieldName(BORDER_RANGES);
+            jsonGenerator.writeStartArray();
+            for (NcCracCreationParameters.BorderRange borderRange : connectedArea.borderRanges()) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField(RANGE_TYPE, borderRange.rangeType());
+                if (borderRange.borderRangeMin() != null) {
+                    jsonGenerator.writeNumberField(BORDER_RANGE_MIN, borderRange.borderRangeMin());
+                }
+                if (borderRange.borderRangeMax() != null) {
+                    jsonGenerator.writeNumberField(BORDER_RANGE_MAX, borderRange.borderRangeMax());
+                }
+                jsonGenerator.writeEndObject();
+            }
+            jsonGenerator.writeEndArray();
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private List<NcCracCreationParameters.ConnectedArea> deserializeConnectedAreas(JsonParser jsonParser) throws IOException {
+        List<NcCracCreationParameters.ConnectedArea> connectedAreas = new ArrayList<>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            String area = null;
+            List<NcCracCreationParameters.BorderRange> borderRanges = null;
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                switch (jsonParser.currentName()) {
+                    case AREA:
+                        area = jsonParser.nextTextValue();
+                        break;
+                    case BORDER_RANGES:
+                        jsonParser.nextToken();
+                        borderRanges = deserializeBorderRanges(jsonParser);
+                        break;
+                    default:
+                        throw new OpenRaoException("Unexpected field in %s: %s".formatted(CONNECTED_AREAS, jsonParser.currentName()));
+                }
+            }
+            if (area == null || borderRanges == null) {
+                throw new OpenRaoException("Incomplete data for connected areas; please provide both a %s and a %s".formatted(AREA, BORDER_RANGES));
+            }
+            connectedAreas.add(new NcCracCreationParameters.ConnectedArea(area, borderRanges));
+        }
+        return connectedAreas;
+    }
+
+    private List<NcCracCreationParameters.BorderRange> deserializeBorderRanges(JsonParser jsonParser) throws IOException {
+        List<NcCracCreationParameters.BorderRange> borderRanges = new ArrayList<>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            String rangeType = null;
+            Double borderRangeMin = null;
+            Double borderRangeMax = null;
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                switch (jsonParser.currentName()) {
+                    case RANGE_TYPE:
+                        rangeType = jsonParser.nextTextValue();
+                        break;
+                    case BORDER_RANGE_MIN:
+                        jsonParser.nextToken();
+                        borderRangeMin = jsonParser.readValueAs(Double.class);
+                        break;
+                    case BORDER_RANGE_MAX:
+                        jsonParser.nextToken();
+                        borderRangeMax = jsonParser.readValueAs(Double.class);
+                        break;
+                    default:
+                        throw new OpenRaoException("Unexpected field in %s: %s".formatted(BORDER_RANGES, jsonParser.currentName()));
+                }
+            }
+            if (rangeType == null) {
+                throw new OpenRaoException("Incomplete data for border range; please provide an %s".formatted(RANGE_TYPE));
+            }
+            borderRanges.add(new NcCracCreationParameters.BorderRange(rangeType, borderRangeMin, borderRangeMax));
+        }
+        return borderRanges;
     }
 
     private static void throwSerializationError(String nonSerializableField, IOException e) {

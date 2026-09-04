@@ -272,6 +272,7 @@ SELECT *
 # query: countertradeRemedialAction
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
 SELECT *
@@ -283,7 +284,10 @@ SELECT *
             nc:RemedialAction.normalAvailable ?normalAvailable ;
             nc:RemedialAction.kind ?kind ;
             nc:RemedialAction.isCrossBorderRelevant ?isCrossBorderRelevant ;
-            nc:RemedialAction.AppointedToRegion ?appointedToRegion .
+            nc:PowerRemedialAction.BiddingZone ?biddingZone .
+        OPTIONAL {
+            ?fullModel dcterms:creator ?creator .
+        }
         OPTIONAL {
             ?countertradeRemedialAction cim:IdentifiedObject.name ?name .
         }
@@ -310,6 +314,12 @@ SELECT *
         }
         OPTIONAL {
             ?countertradeRemedialAction nc:CountertradeRemedialAction.minEconomicP ?minEconomicP .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.gLSKStrategy ?glskStrategy .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.shiftMethod ?shiftMethod .
         }
     }
 }
