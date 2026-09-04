@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="https://cim4.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="https://cim.ucaiug.io/ns#">
+  <md:FullModel rdf:about="urn:uuid:00000000-0000-0000-0000-000000000000">
+    <dcat:startDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2023-01-01T00:00:00Z</dcat:startDate>
+    <dcat:endDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2100-01-01T00:00:00Z</dcat:endDate>
+    <dcat:keyword>CO</dcat:keyword>
+  </md:FullModel>
+  <nc:OrdinaryContingency rdf:ID="_contingency-1">
+    <cim:IdentifiedObject.mRID>contingency-1</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency with 1 network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-1">
+    <cim:IdentifiedObject.mRID>contingency-equipment-1</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-1"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:ExceptionalContingency rdf:ID="_contingency-2">
+    <cim:IdentifiedObject.mRID>contingency-2</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO2</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Exceptional contingency with 1 network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:ExceptionalContingency.kind rdf:resource="http://entsoe.eu/ns/nc#ContingencyConditionKind.operational"/>
+  </nc:ExceptionalContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-2">
+    <cim:IdentifiedObject.mRID>contingency-equipment-2</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-2"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OutOfRangeContingency rdf:ID="_contingency-3">
+    <cim:IdentifiedObject.mRID>contingency-3</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO3</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Out-of-range contingency with 1 network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OutOfRangeContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-3">
+    <cim:IdentifiedObject.mRID>contingency-equipment-3</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-3"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-4">
+    <cim:IdentifiedObject.mRID>contingency-4</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO4</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency with 2 network elements</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-4-1">
+    <cim:IdentifiedObject.mRID>contingency-equipment-4-1</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-4"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-4-2">
+    <cim:IdentifiedObject.mRID>contingency-equipment-4-2</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-4"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR3AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-5">
+    <cim:IdentifiedObject.mRID>contingency-5</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.description>Ordinary contingency without name</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-5">
+    <cim:IdentifiedObject.mRID>contingency-equipment-5</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-5"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-6">
+    <cim:IdentifiedObject.mRID>contingency-6</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO6</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency without TSO</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-6">
+    <cim:IdentifiedObject.mRID>contingency-equipment-6</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-6"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-7">
+    <cim:IdentifiedObject.mRID>contingency-7</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.description>Ordinary contingency without name and TSO</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-7">
+    <cim:IdentifiedObject.mRID>contingency-equipment-7</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-7"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-8">
+    <cim:IdentifiedObject.mRID>contingency-8</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO8</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency without network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <nc:OrdinaryContingency rdf:ID="_contingency-9">
+    <cim:IdentifiedObject.mRID>contingency-9</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO9</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency to ignore</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-9">
+    <cim:IdentifiedObject.mRID>contingency-equipment-9</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-9"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-10">
+    <cim:IdentifiedObject.mRID>contingency-10</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO10</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency with operational equipment</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-10">
+    <cim:IdentifiedObject.mRID>contingency-equipment-10</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-10"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.inService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-11">
+    <cim:IdentifiedObject.mRID>contingency-11</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO11</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Austrian ordinary contingency with unknown network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XAT-APG------Z"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-11">
+    <cim:IdentifiedObject.mRID>contingency-equipment-11</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-11"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_unknown-network-element"/>
+  </cim:ContingencyEquipment>
+  <nc:OrdinaryContingency rdf:ID="_contingency-12">
+    <cim:IdentifiedObject.mRID>contingency-12</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO12</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Ordinary contingency with 1 out-of-service, 2 in-service and 2 unknown network elements</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.normalProbability rdf:datatype="http://www.w3.org/2001/XMLSchema#float">110</nc:Contingency.normalProbability>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-1">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-1</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-2">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-2</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.inService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR3AA1++1"/>
+  </cim:ContingencyEquipment>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-3">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-3</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.inService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR4AA1++1"/>
+  </cim:ContingencyEquipment>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-4">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-4</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_missing-line"/>
+  </cim:ContingencyEquipment>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-5">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-5</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_missing-generator"/>
+  </cim:ContingencyEquipment>
+
+  <nc:OutOfRangeContingency rdf:ID="_out-of-range-contingency-12">
+    <cim:IdentifiedObject.mRID>out-of-range-contingency-12</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO12</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Out-of-range contingency has only one contingency equipment</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.normalProbability rdf:datatype="http://www.w3.org/2001/XMLSchema#float">100</nc:Contingency.normalProbability>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+  </nc:OutOfRangeContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-12-6">
+    <cim:IdentifiedObject.mRID>contingency-equipment-12-6</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_out-of-range-contingency-12"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+
+  <nc:ExceptionalContingency rdf:ID="_exceptional-contingency-12">
+    <cim:IdentifiedObject.mRID>exceptional-contingency-12</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO12</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Exceptional contingency has only one contingency equipment</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.normalProbability rdf:datatype="http://www.w3.org/2001/XMLSchema#float">100</nc:Contingency.normalProbability>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+    <nc:ExceptionalContingency.kind rdf:resource="http://entsoe.eu/ns/nc#ContingencyConditionKind.malfunction"/>
+  </nc:ExceptionalContingency>
+
+  <nc:ExceptionalContingency rdf:ID="_empty-exceptional-contingency" />
+  <nc:OrdinaryContingency rdf:ID="_empty-ordinary-contingency" />
+  <nc:OutOfRangeContingency rdf:ID="_empty-out-of-range-contingency" />
+  <cim:ContingencyEquipment rdf:ID="_empty-contingency-equipment" />
+
+  <nc:OrdinaryContingency rdf:ID="_contingency-from-unknown-country">
+    <cim:IdentifiedObject.mRID>contingency-from-unknown-country</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>CO</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Austrian ordinary contingency with unknown network element</cim:IdentifiedObject.description>
+    <nc:Contingency.normalMustStudy rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</nc:Contingency.normalMustStudy>
+    <nc:Contingency.EquipmentOperator rdf:resource="http://energy.referencedata.eu/EIC/UNKNOWN---COUNRY"/>
+  </nc:OrdinaryContingency>
+  <cim:ContingencyEquipment rdf:ID="_contingency-equipment-no-contingency">
+    <cim:IdentifiedObject.mRID>contingency-equipment-no-contingency</cim:IdentifiedObject.mRID>
+    <cim:ContingencyElement.Contingency rdf:resource="#_this-contingency-does-not-exist"/>
+    <cim:ContingencyEquipment.contingentStatus rdf:resource="https://cim.ucaiug.io/ns#ContingencyEquipmentStatusKind.outOfService"/>
+    <cim:ContingencyEquipment.Equipment rdf:resource="#_FFR1AA1++FFR2AA1++1"/>
+  </cim:ContingencyEquipment>
+</rdf:RDF>
