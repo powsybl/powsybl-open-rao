@@ -39,6 +39,7 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private static final PstModel DEFAULT_PST_MODEL = PstModel.CONTINUOUS;
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 1e-6;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-6;
+    private static final double DEFAULT_COUNTER_TRADE_RA_SENSITIVITY_THRESHOLD = 1e-6;
     private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
@@ -46,6 +47,7 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private PstModel pstModel = DEFAULT_PST_MODEL;
     private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
+    private double counterTradeRaSensitivityThreshold = DEFAULT_COUNTER_TRADE_RA_SENSITIVITY_THRESHOLD;
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
     private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
 
@@ -153,6 +155,17 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         this.injectionRaSensitivityThreshold = injectionRaSensitivityThreshold;
     }
 
+    public double getCounterTradeRaSensitivityThreshold() {
+        return counterTradeRaSensitivityThreshold;
+    }
+
+    public void setCounterTradeRaSensitivityThreshold(double counterTradeRaSensitivityThreshold) {
+        if (counterTradeRaSensitivityThreshold < 1e-6) {
+            throw new OpenRaoException("counterTradeRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.");
+        }
+        this.counterTradeRaSensitivityThreshold = counterTradeRaSensitivityThreshold;
+    }
+
     public LinearOptimizationSolver getLinearOptimizationSolver() {
         return linearOptimizationSolver;
     }
@@ -249,5 +262,12 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
             return rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold();
         }
         return DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
+    }
+
+    public static double getCounterTradeRaSensitivityThreshold(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+        if (!Objects.isNull(rangeActionsOptimizationParameters)) {
+            return rangeActionsOptimizationParameters.getCounterTradeRaSensitivityThreshold();
+        }
+        return DEFAULT_COUNTER_TRADE_RA_SENSITIVITY_THRESHOLD;
     }
 }

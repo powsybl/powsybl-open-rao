@@ -50,7 +50,7 @@ class CounterTradeRangeActionImplTest {
                 .withImportingArea("DE")
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
-        assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
+        assertEquals("Glsk must be set to apply a counter trade range action", e.getMessage());
     }
 
     @Test

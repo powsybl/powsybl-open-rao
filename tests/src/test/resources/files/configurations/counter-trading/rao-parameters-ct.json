@@ -1,0 +1,17 @@
+{
+  "version": "3.4",
+  "objective-function": {
+    "type": "MIN_COST"
+  },
+  "extensions": {
+    "open-rao-search-tree-parameters": {
+      "costly-min-margin-parameters": {
+        "shifted-violation-penalty": 1000,
+        "shifted-violation-threshold": 0
+      },
+      "range-actions-optimization": {
+        "pst-model": "APPROXIMATED_INTEGERS"
+      }
+    }
+  }
+}
