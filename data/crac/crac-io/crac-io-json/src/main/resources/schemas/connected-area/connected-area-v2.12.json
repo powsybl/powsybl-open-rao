@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/connected-area/connected-area-v2.12.json",
+  "type": "object",
+  "properties": {
+    "area": {
+      "type": "string"
+    },
+    "borderRanges": {
+      "type": "array",
+      "items": {
+        "$ref": "../range/range-v2.10.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "area",
+    "borderRanges"
+  ]
+}

@@ -34,7 +34,7 @@ class CounterTradeRangeActionImplTest {
     private Crac crac;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
@@ -46,8 +46,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("FR")
+                .newConnectedArea().withArea("DE").add()
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
@@ -59,8 +59,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("FR")
+                .newConnectedArea().withArea("DE").add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
@@ -74,8 +74,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("FR")
+                .newConnectedArea().withArea("DE").add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
@@ -96,7 +96,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            null,
+            List.of(new ConnectedAreaImpl("ES", List.of())));
         CounterTradeRangeActionImpl ctFrEs2 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -109,7 +110,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            null,
+            List.of(new ConnectedAreaImpl("ES", List.of())));
         CounterTradeRangeActionImpl ctFrEs3 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -122,7 +124,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            null,
+            List.of(new ConnectedAreaImpl("ES", List.of())));
         CounterTradeRangeActionImpl ctPtEs = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -135,7 +138,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "PT",
-            "ES");
+            null,
+            List.of(new ConnectedAreaImpl("ES", List.of())));
         CounterTradeRangeActionImpl ctFrNl = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -148,7 +152,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "NL");
+            null,
+            List.of(new ConnectedAreaImpl("NL", List.of())));
 
         assertEquals(ctFrEs1, ctFrEs1);
         assertEquals(ctFrEs1, ctFrEs2);

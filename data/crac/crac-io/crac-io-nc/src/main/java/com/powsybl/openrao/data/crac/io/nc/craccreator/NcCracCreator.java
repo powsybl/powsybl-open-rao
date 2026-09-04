@@ -34,14 +34,17 @@ class NcCracCreator {
 
     private Crac crac;
     private Network network;
-    NcCracCreationContext creationContext;
+    private NcCracCreationContext creationContext;
     private NcCrac nativeCrac;
+    private NcCracCreationParameters ncParameters;
+    private CracCreationParameters cracCreationParameters;
 
     NcCracCreationContext createCrac(NcCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
+        this.cracCreationParameters = cracCreationParameters;
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
-        NcCracCreationParameters ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
-        OffsetDateTime offsetDateTime = null;
+        ncParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
+        OffsetDateTime offsetDateTime;
         if (ncParameters == null) {
             ncParameters = new NcCracCreationParameters();
         }
@@ -74,8 +77,8 @@ class NcCracCreator {
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
-        createCnecs(cracCreationParameters);
-        createRemedialActions(ncParameters);
+        createCnecs();
+        createRemedialActions();
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
@@ -92,15 +95,15 @@ class NcCracCreator {
         sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
-    private void createRemedialActions(NcCracCreationParameters ncCracCreationParameters) {
-        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, creationContext.getCnecCreationContexts(), ncCracCreationParameters);
+    private void createRemedialActions() {
+        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, ncParameters);
     }
 
     private void createContingencies() {
         new NcContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(CracCreationParameters cracCreationParameters) {
+    private void createCnecs() {
         new NcCnecCreator(crac, network, nativeCrac, creationContext, cracCreationParameters);
     }
 }
