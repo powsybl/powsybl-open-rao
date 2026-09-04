@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.State;
@@ -16,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -26,6 +28,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.Iterating
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PstConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -45,6 +48,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +87,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input);
+        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input, parameters);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters);
         fillLinearProblem(
             linearProblem,
@@ -220,22 +224,39 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
+    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: add time-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs()
             .map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-            .map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new GeneratorConstraintsFiller(
+            .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
+
+        List<ProblemFiller> problemFillers = new ArrayList<>();
+        problemFillers.add(new GeneratorConstraintsFiller(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
             preventiveStates,
             preventiveInjectionRangeActions,
             input.timeCoupledConstraints().getGeneratorConstraints()
         ));
+
+        Set<PstConstraints> pstConstraints = input.timeCoupledConstraints().getPstConstraints();
+        if (!pstConstraints.isEmpty()) {
+            if (!getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+                throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
+            }
+            TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), PstRangeAction.class));
+            problemFillers.add(new PstConstraintsFiller(
+                preventiveStates,
+                preventivePstRangeActions,
+                pstConstraints
+            ));
+        }
+        return problemFillers;
     }
 
-    private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
-        return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
+    private static <T extends RangeAction<?>> Set<T> filterPreventiveRangeAction(Set<RangeAction<?>> rangeActions, Class<T> classType) {
+        return rangeActions.stream().filter(classType::isInstance).map(classType::cast).collect(Collectors.toSet());
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {

@@ -31,7 +31,7 @@ class JsonTimeCoupledConstraintsRetrocompatibilityTest {
 
     @Test
     void testV1Point1() throws IOException {
-        // PST constraints were added for v1.1
+        // PST constraints were added for v1.1 + minOffTime for generator constraints
         TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/retrocompatibility/v1.1/time-coupled-constraints-v1.1.json"));
 
         testBaseContentOfV1Point1TimeCoupledConstraints(timeCoupledConstraints);
@@ -50,6 +50,10 @@ class JsonTimeCoupledConstraintsRetrocompatibilityTest {
 
     private void testBaseContentOfV1Point1TimeCoupledConstraints(TimeCoupledConstraints timeCoupledConstraints) {
         testBaseContentOfV1Point0TimeCoupledConstraints(timeCoupledConstraints);
+        GeneratorConstraints generatorConstraints = timeCoupledConstraints.getGeneratorConstraints().iterator().next();
+        assertEquals(Optional.of(1.), generatorConstraints.getMinOffTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getMinOnTime());
+
         assertEquals(1, timeCoupledConstraints.getPstConstraints().size());
         PstConstraints pstConstraints = timeCoupledConstraints.getPstConstraints().iterator().next();
         assertEquals("pst-1", pstConstraints.getPstId());
