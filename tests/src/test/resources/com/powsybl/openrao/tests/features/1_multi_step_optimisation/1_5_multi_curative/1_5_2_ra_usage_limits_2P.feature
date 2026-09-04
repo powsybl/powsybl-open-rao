@@ -78,9 +78,10 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
   - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
   - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
-  Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
+  Now we add the limit for BE: 0 in curative1 and 1 in curative2 => means that we cannot use any RA in curative1
   and for FR: 1 in curative1 and 1 curative2
   => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
+  and activating remedial actions in curative 2 won't improve the situation.
   Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_2PST.uct"
   Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_15_2_4_max_ra_per_tso.json"
   Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -125,3 +126,23 @@ Feature: 15.2: RA Usage Limits - 2P - Multi-curative
   And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative2"
   And the tap of PstRangeAction "CRA_PST_FR_2" should be 11 after "Contingency DE2 DE3 1" at "curative2"
   And the value of the objective function after CRA should be 9.17
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: 15.2.6: Multi-curative - with no max-ra-per-tso limits in curative 1 but a limit in curative 2 and 2P
+    Same case as 15.2.4, but we have no max-ra-per-tso limit for TSO "BE" in curative 1 and a limit of 0 in curative 2.
+    We expect the RAO to still apply remedial actions in curative 1 and no remedial action in curative 2.
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_15_2_5_no_limit_in_curative1_and_zero_in_curative2.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    And the initial tap of PstRangeAction "CRA_PST_FR" should be 0
+    And the initial tap of PstRangeAction "CRA_PST_BE" should be 0
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 2 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    And the value of the objective function after CRA should be 6.48

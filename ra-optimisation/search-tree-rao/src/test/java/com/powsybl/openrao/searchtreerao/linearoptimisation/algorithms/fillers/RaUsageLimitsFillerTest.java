@@ -39,9 +39,8 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.rangeActionBinaryVariableId;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -661,6 +660,45 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
+    void testMaxRaUsageLimitMultiCurativeSecondPreventiveStartingFromCurative2() {
+        // Check that the max-ra usage limit is correctly defined in multi curative scenarios when no limit is defined in curative1
+        setUpMultiCurativeIn2P();
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(co1Curative2, 2);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // co1Curative1
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(co1Curative1));
+        assertEquals("Constraint maxra_co1Curative1_constraint has not been created yet", exception.getMessage());
+
+        // co1Curative2 should not take into account co1Curative1's range action, because no limit were defined on this state
+        OpenRaoMPConstraint constraint = linearProblem.getMaxRaConstraint(co1Curative2);
+        assertNotNull(constraint);
+        assertEquals(0, constraint.lb());
+        assertEquals(2, constraint.ub());
+
+        for (RangeAction<?> rangeAction : rangeActionsPerStateMultiCurative.get(co1Curative1)) {
+            exception = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionVariationBinary(rangeAction, co1Curative1));
+            assertEquals("Variable " + rangeActionBinaryVariableId(rangeAction, co1Curative1) + " has not been created yet", exception.getMessage());
+        }
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co1Curative2)));
+    }
+
+    @Test
     void testMaxRaPerTsoUsageLimitInMultiCurativeSecondPreventive() {
         // Check that max ra per tso usage limit is applied correctly in multi curative scenario with second preventive state
 
@@ -730,6 +768,58 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintOpCCo1Curative2.lb());
         assertEquals(2, constraintOpCCo1Curative2.ub());
         assertEquals(1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
+    }
+
+    @Test
+    void testMaxRaPerTsoUsageLimitInMultiCurativeSecondPreventiveStartingFromCurative2() {
+        // Check that the max-ra-per-tso usage limit is correctly defined in multi curative scenarios when no limit is defined in curative1 for one of the tso
+        setUpMultiCurativeIn2P();
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeActionPerTso(co1Curative1, Map.of("opA", 1));
+        raLimitationParameters.setMaxRangeActionPerTso(co1Curative2, Map.of("opA", 2, "opB", 2));
+
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // Check state co1Curative1 - opA
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative1);
+        assertEquals(0, constraintOpACo1Curative1.lb());
+        assertEquals(1, constraintOpACo1Curative1.ub());
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
+        assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1))); // not opA but opC
+        // Check state co1Curative1 - opB, no limit defined
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaPerTsoConstraint("opB", co1Curative1));
+        assertEquals("Constraint maxrapertso_opB_co1Curative1_constraint has not been created yet", exception.getMessage());
+
+        // Check state co1Curative2 - opA, check that we consider both the range action from curative2 AND curative1
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative2);
+        assertEquals(0, constraintOpACo1Curative2.lb());
+        assertEquals(2, constraintOpACo1Curative2.ub());
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)));
+        // Check state co1Curative2 - opB, pst3 is available in curative1 and curative2 but only the variation in curative2 is checked
+        OpenRaoMPConstraint constraintOpBCo1Curative2 = linearProblem.getMaxRaPerTsoConstraint("opB", co1Curative2);
+        assertEquals(0, constraintOpBCo1Curative2.lb());
+        assertEquals(2, constraintOpBCo1Curative2.ub());
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co1Curative2)));
+        exception = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionVariationBinary(pst3, co1Curative1));
+        assertEquals("Variable " + rangeActionBinaryVariableId(pst3, co1Curative1) + " has not been created yet", exception.getMessage());
     }
 
     @Test
@@ -803,6 +893,58 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
+    void testMaxPstPerTsoUsageLimitInMultiCurativeSecondPreventiveStartingFromCurative2() {
+        // Check that the max-pst-per-tso usage limit is correctly defined in multi curative scenarios when no limit is defined in curative1 for one of the tso
+        setUpMultiCurativeIn2P();
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxPstPerTso(co1Curative1, Map.of("opA", 1));
+        raLimitationParameters.setMaxPstPerTso(co1Curative2, Map.of("opA", 2, "opB", 2));
+
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // Check state co1Curative1 - opA
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative1);
+        assertEquals(0, constraintOpACo1Curative1.lb());
+        assertEquals(1, constraintOpACo1Curative1.ub());
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1))); // even if opA, it is not a PST
+        assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1))); // not opA but opC
+        // Check state co1Curative1 - opB, a limit is defined but no range action is concerned
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opB", co1Curative1));
+        assertEquals("Constraint maxpstpertso_opB_co1Curative1_constraint has not been created yet", exception.getMessage());
+
+        // Check state co1Curative2 - opA, check that we consider both the range action from curative2 AND curative1
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative2);
+        assertEquals(0, constraintOpACo1Curative2.lb());
+        assertEquals(2, constraintOpACo1Curative2.ub());
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co1Curative1)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1))); // not a PST
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)));
+        // Check state co1Curative2 - opB, pst3 is available in curative1 and curative2 but only the variation in curative2 is checked
+        OpenRaoMPConstraint constraintOpBCo1Curative2 = linearProblem.getMaxPstPerTsoConstraint("opB", co1Curative2);
+        assertEquals(0, constraintOpBCo1Curative2.lb());
+        assertEquals(2, constraintOpBCo1Curative2.ub());
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co1Curative2)));
+        exception = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionVariationBinary(pst3, co1Curative1));
+        assertEquals("Variable " + rangeActionBinaryVariableId(pst3, co1Curative1) + " has not been created yet", exception.getMessage());
+    }
+
+    @Test
     void testMaxElementaryActionPerTsoUsageLimitMultiCurativeSecondPreventive() {
         setUpMultiCurativeIn2P();
         when(prePerimeterRangeActionSetpointResult.getTap(pst1)).thenReturn(1);
@@ -864,7 +1006,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative1));
         assertEquals("Constraint maxelementaryactionspertso_opB_co1Curative1_constraint has not been created yet", exception.getMessage());
 
-        // Check co1Curative2 - opA, even if pst2 is only available in curative1, it still needs to be considered in curative2 !!+
+        // Check co1Curative2 - opA, even if pst2 is only available in curative1, it still needs to be considered in curative2 !!
         OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative2);
         assertEquals(0, constraintOpACo1Curative2.lb());
         assertEquals(16, constraintOpACo1Curative2.ub());
@@ -888,6 +1030,73 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals("Variable totalpstrangeactiontapvariation_pst3_co1Curative1_variable_DOWNWARD has not been created yet", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD));
         assertEquals("Variable totalpstrangeactiontapvariation_pst3_co1Curative1_variable_UPWARD has not been created yet", exception.getMessage());
+    }
+
+    @Test
+    void testMaxElementaryActionPerTsoUsageLimitMultiCurativeSecondPreventiveStartingFromCurative2() {
+        // Check that the max-elementary-actions-per-tso usage limit is correctly defined in multi curative scenarios when no limit is defined in curative1 for one of the tso
+        setUpMultiCurativeIn2P();
+        when(prePerimeterRangeActionSetpointResult.getTap(pst1)).thenReturn(1);
+        when(prePerimeterRangeActionSetpointResult.getTap(pst2)).thenReturn(1);
+        when(pst1.getCurrentTapPosition(network)).thenReturn(-1);
+        when(pst2.getCurrentTapPosition(network)).thenReturn(0);
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxElementaryActionsPerTso(co1Curative1, Map.of());
+        raLimitationParameters.setMaxElementaryActionsPerTso(co1Curative2, Map.of("opA", 16));
+
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            true,
+            false);
+
+        Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(
+            co1Curative1, Set.of(pst1, pst2),
+            co1Curative2, Set.of(pst1, pst3),
+            preventiveState, Set.of()
+        );
+
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(preventiveState);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
+
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
+            optimizationPerimeter,
+            pstRangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            new RangeActionsOptimizationParameters(),
+            false,
+            true
+        );
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(discretePstTapFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // Check co1Curative1 - opA
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative1));
+        assertEquals("Constraint maxelementaryactionspertso_opA_co1Curative1_constraint has not been created yet", exception.getMessage());
+
+        // Check co1Curative2 - opA, even if no limit is defined in curative1
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative2);
+        assertEquals(0, constraintOpACo1Curative2.lb());
+        assertEquals(16, constraintOpACo1Curative2.ub());
+        // We take into account pst1, co1Curative1 because we need the total variation in curative1 to get the total variation in curative2.
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        // pst2 not available in curative2, how much pst2 moved in curative1 should not impact the elementary limit in curative2
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
     }
 
 }
