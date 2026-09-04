@@ -30,6 +30,7 @@ import com.powsybl.openrao.data.icsimporter.IcsData;
 import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -244,8 +245,8 @@ public final class TimeCoupledRaoSteps {
                 cracImportResult = importCrac(cracFile, lazyNetwork, cracCreationParameters);
             }
             RaoInput raoInput = RaoInput
-                    .build(lazyNetwork, cracImportResult.getLeft())
-                    .build();
+                .build(lazyNetwork, cracImportResult.getLeft())
+                .build();
             raoInputs.put(offsetDateTime, raoInput);
             cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
             lazyNetwork.release();
@@ -421,36 +422,46 @@ public final class TimeCoupledRaoSteps {
     public static void theFunctionalCostForTimestampIs(String timestamp, double functionalCost) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
-        assertEquals(functionalCost,
-            timeCoupledRaoResult.getFunctionalCost(afterCra, offsetDateTime),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        assertEquals(
+            functionalCost,
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime)
+                .getExtension(CostResult.class)
+                .getFunctionalCost(afterCra),
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
+        );
     }
 
     @Then("the total cost for timestamp {string} is {double}")
     public static void theTotalCostForTimestampIs(String timestamp, double totalCost) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
-        assertEquals(totalCost,
-            timeCoupledRaoResult.getCost(afterCra, offsetDateTime),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        assertEquals(
+            totalCost,
+            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getExtension(CostResult.class).getCost(afterCra),
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
+        );
     }
 
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(functionalCost,
-            timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        assertEquals(
+            functionalCost,
+            timeCoupledRaoResult.getExtension(CostResult.class).getFunctionalCost(lastInstant),
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
+        );
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(totalCost,
-            timeCoupledRaoResult.getGlobalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        assertEquals(
+            totalCost,
+            timeCoupledRaoResult.getExtension(CostResult.class).getCost(lastInstant),
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT
+        );
     }
 
     @When("I export F711 for business date {string}") // expected format yyyyMMdd

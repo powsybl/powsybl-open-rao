@@ -19,7 +19,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -31,6 +33,7 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -118,15 +121,16 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(RaoResult.INITIAL_INSTANT_ID);
-        costResult.setFunctionalCost(100.);
-        costResult.setVirtualCost("loopFlow", 0.);
-        costResult.setVirtualCost("MNEC", 0.);
+        CostResult costResult = new CostResult();
+        costResult.addFunctionalCostResult(null, 100.0);
+        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResult.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResult = raoResult.getAndCreateIfAbsentCostResult(CURATIVE_INSTANT_ID);
-        costResult.setFunctionalCost(-50.);
-        costResult.setVirtualCost("loopFlow", 10.);
-        costResult.setVirtualCost("MNEC", 2.);
+        costResult.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
+
+        raoResult.addExtension(CostResult.class, costResult);
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }
@@ -219,19 +223,22 @@ class RaoResultImplTest {
     void testCostResults() {
         setUp();
 
-        assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
 
-        assertEquals(100., raoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
 
-        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
@@ -258,82 +265,49 @@ class RaoResultImplTest {
         addAngleCnecs();
         addVoltageCnecs();
 
-        FlowCnec outageCnec = crac.getFlowCnec("cnec1stateOutageContingency1");
-        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(outageCnec);
-        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(PREVENTIVE_INSTANT_ID));
+        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(crac.getFlowCnec("cnec1stateOutageContingency1"));
+        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getPreventiveInstant());
         elementaryFlowResult.setMargin(10., MEGAWATT);
 
-        AngleCnecResult angleResult1 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecPreventive"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult1 = angleResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult1.setAngle(50., DEGREE);
-        elementaryAngleCnecResult1.setMargin(10., DEGREE);
+        AngleResult angleResult = new AngleResult();
+        angleResult.addMeasurement(50.0, preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE);
+        angleResult.addMeasurement(90.0, preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addMeasurement(90.0, crac.getOutageInstant(), crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE);
+        angleResult.addMeasurement(35.0, preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
+        angleResult.addMeasurement(35.0, curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE);
+        raoResult.addExtension(AngleResult.class, angleResult);
 
-        AngleCnecResult angleResult2 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateOutageContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult2 = angleResult2.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult2.setAngle(90., DEGREE);
-        elementaryAngleCnecResult2.setMargin(30., DEGREE);
+        VoltageResult voltageResult = new VoltageResult();
+        voltageResult.addMeasurement(400., 420., preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT);
+        voltageResult.addMeasurement(415., 435., preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT);
+        voltageResult.addMeasurement(400., 420., preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT);
+        raoResult.addExtension(VoltageResult.class, voltageResult);
 
-        AngleCnecResult angleResult3 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateCurativeContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult3 = angleResult3.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult3.setAngle(35., DEGREE);
-        elementaryAngleCnecResult3.setMargin(-.5, DEGREE);
+        // check extensions
 
-        AngleCnecResult angleResul4 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateCurativeContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult4 = angleResul4.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
-        elementaryAngleCnecResult4.setAngle(35., DEGREE);
-        elementaryAngleCnecResult4.setMargin(-.5, DEGREE);
+        assertEquals(50.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+        assertEquals(10.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
 
-        VoltageCnecResult voltageResult1 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecPreventive"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult1 = voltageResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult1.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult1.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult1.setMargin(40., KILOVOLT);
+        assertEquals(90.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
+        assertEquals(30.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
 
-        VoltageCnecResult voltageResult2 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateOutageContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult2 = voltageResult2.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult2.setMinVoltage(415., KILOVOLT);
-        elementaryVoltageCnecResult2.setMaxVoltage(435., KILOVOLT);
-        elementaryVoltageCnecResult2.setMargin(5., KILOVOLT);
+        assertEquals(35.0, raoResult.getExtension(AngleResult.class).getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(-5.0, raoResult.getExtension(AngleResult.class).getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
 
-        VoltageCnecResult voltageResult3 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateCurativeContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult3 = voltageResult3.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult3.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult3.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult3.setMargin(40., KILOVOLT);
+        assertEquals(35.0, raoResult.getExtension(AngleResult.class).getAngle(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(-5.0, raoResult.getExtension(AngleResult.class).getMargin(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
 
-        VoltageCnecResult voltageResult4 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateCurativeContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult4 = voltageResult4.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
-        elementaryVoltageCnecResult4.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult4.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult4.setMargin(40., KILOVOLT);
+        assertEquals(400.0, raoResult.getExtension(VoltageResult.class).getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
+        assertEquals(420.0, raoResult.getExtension(VoltageResult.class).getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
+        assertEquals(20.0, raoResult.getExtension(VoltageResult.class).getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
 
-        assertEquals(50.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
-        assertEquals(10.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+        assertEquals(415.0, raoResult.getExtension(VoltageResult.class).getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
+        assertEquals(435.0, raoResult.getExtension(VoltageResult.class).getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
+        assertEquals(-15.0, raoResult.getExtension(VoltageResult.class).getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
 
-        assertEquals(90.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
-        assertEquals(30.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
-
-        assertEquals(35.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-        assertEquals(-.5, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-
-        assertEquals(35.0, raoResult.getAngle(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-        assertEquals(-.5, raoResult.getMargin(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-
-        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-
-        assertEquals(415.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-        assertEquals(435.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-        assertEquals(5.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-
-        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-
-        assertEquals(400.0, raoResult.getMinVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+        assertEquals(400.0, raoResult.getExtension(VoltageResult.class).getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+        assertEquals(420.0, raoResult.getExtension(VoltageResult.class).getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+        assertEquals(20.0, raoResult.getExtension(VoltageResult.class).getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
     }
 
     private void addVoltageCnecs() {

@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -80,6 +81,14 @@ class JsonTimeCoupledRaoResultSerializerTest {
             ))
         );
 
+        CostResult costResult = new CostResult();
+        costResult.addFunctionalCostResult(null, 0.0);
+        costResult.addVirtualCostResult(null, "min-margin-violation-evaluator", 3333333.33);
+        costResult.addVirtualCostResult(null, "sensitivity-failure-cost", 0.0);
+        costResult.addFunctionalCostResult(preventiveInstant, 65030.00);
+        costResult.addVirtualCostResult(preventiveInstant, "min-margin-violation-evaluator", 0.0);
+        costResult.addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 0.0);
+        timeCoupledRaoResult.addExtension(CostResult.class, costResult);
     }
 
     @Test

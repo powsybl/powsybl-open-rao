@@ -59,36 +59,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getGlobalFunctionalCost(Instant instant) {
-        return getRelevantResult(instant).getFunctionalCost();
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant) {
-        return getRelevantResult(instant).getVirtualCost();
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
-        return getRelevantResult(instant).getVirtualCost(virtualCostName);
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getFunctionalCost(optimizedInstant);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getVirtualCost(optimizedInstant);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getVirtualCost(optimizedInstant, virtualCostName);
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE));
     }
@@ -136,27 +106,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return MarmotUtils.getDataFromState(raoResultPerTimestamp, flowCnec.getState()).getPtdfZonalSum(optimizedInstant, flowCnec, side);
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        throw new OpenRaoException("Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.");
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        throw new OpenRaoException("Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return finalGlobalObjectiveFunctionResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        throw new OpenRaoException("Calling getVirtualCost with an instant and a name alone is ambiguous. " +
-            "For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.");
     }
 
     @Override

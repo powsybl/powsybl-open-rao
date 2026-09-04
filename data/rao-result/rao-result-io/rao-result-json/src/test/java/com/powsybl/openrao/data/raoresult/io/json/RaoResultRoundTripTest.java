@@ -26,6 +26,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,7 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -123,31 +127,35 @@ class RaoResultRoundTripTest {
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
 
-        assertEquals(100., raoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
 
-        assertEquals(80., raoResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(80., raoResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
 
-        assertEquals(-20., raoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., raoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., raoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., raoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., raoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., costResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., costResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., costResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // -----------------------------
         // --- test FlowCnec results ---
@@ -280,17 +288,23 @@ class RaoResultRoundTripTest {
         /*
         AngleCnec, angleCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        AngleResult angleResult = raoResult.getExtension(AngleResult.class);
+        assertNotNull(angleResult);
+
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        assertEquals(3435., raoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., raoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435., angleResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3345., angleResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         /*
         VoltageCnec, voltageCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
+        assertNotNull(voltageResult);
+
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4446., raoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4456., raoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., voltageResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4456., voltageResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4065., voltageResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private static void testFlowCnecResults(RaoResult raoResult, Crac crac, Instant preventiveInstant, Instant autoInstant, Instant curativeInstant) {

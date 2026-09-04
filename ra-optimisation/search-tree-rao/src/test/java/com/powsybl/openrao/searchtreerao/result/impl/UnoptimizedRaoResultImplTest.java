@@ -20,8 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Set;
-
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
@@ -147,55 +145,6 @@ class UnoptimizedRaoResultImplTest {
         assertEquals(100., output.getPtdfZonalSum(preventiveInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
         assertEquals(100., output.getPtdfZonalSum(autoInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
         assertEquals(100., output.getPtdfZonalSum(curativeInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetCost() {
-        when(initialResult.getCost()).thenReturn(-50.);
-        assertEquals(-50., output.getCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetFunctionalCost() {
-        when(initialResult.getFunctionalCost()).thenReturn(-500.);
-        assertEquals(-500., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetVirtualCost() {
-        when(initialResult.getVirtualCost()).thenReturn(-5000.);
-        assertEquals(-5000., output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetVirtualCostNames() {
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("one", "two"));
-        assertEquals(Set.of("one", "two"), output.getVirtualCostNames());
-    }
-
-    @Test
-    void testGetVirtualCostWithName() {
-        when(initialResult.getVirtualCost("one")).thenReturn(60.);
-        when(initialResult.getVirtualCost("two")).thenReturn(600.);
-
-        assertEquals(60., output.getVirtualCost(null, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(preventiveInstant, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(autoInstant, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(curativeInstant, "one"), DOUBLE_TOLERANCE);
-
-        assertEquals(600., output.getVirtualCost(null, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(preventiveInstant, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(autoInstant, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(curativeInstant, "two"), DOUBLE_TOLERANCE);
     }
 
     @Test

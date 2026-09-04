@@ -77,26 +77,6 @@ public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implement
     }
 
     @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         throw new OpenRaoException(exceptionMessage);
     }

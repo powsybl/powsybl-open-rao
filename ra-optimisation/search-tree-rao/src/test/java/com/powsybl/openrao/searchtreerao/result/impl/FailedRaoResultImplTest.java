@@ -12,9 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -43,11 +41,6 @@ class FailedRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
 
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFunctionalCost(optInstant));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant));
-        assertThrows(OpenRaoException.class, failedRaoResultImpl::getVirtualCostNames);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant, ""));
-
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));
@@ -62,20 +55,6 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
         assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
-    }
-
-    @Test
-    void testAngleAndVoltageCnec() {
-        Instant optInstant = mock(Instant.class);
-        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 2");
-        AngleCnec angleCnec = mock(AngleCnec.class);
-        VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, angleCnec, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, voltageCnec, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMaxVoltage(optInstant, voltageCnec, MEGAWATT));
-        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getAngle(optInstant, angleCnec, MEGAWATT));
-        assertEquals("Angle cnecs are not computed in the rao", e.getMessage());
-        assertEquals("mocked error message 2", failedRaoResultImpl.getExecutionDetails());
     }
 
     @Test

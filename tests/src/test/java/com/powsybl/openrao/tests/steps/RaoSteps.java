@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -176,28 +177,38 @@ public class RaoSteps {
 
     @Then("the value of the objective function initially should be {double}")
     public void objectiveFunctionValueInitialShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after PRA should be {double}")
     public void objectiveFunctionValueAfterPraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after ARA should be {double}")
     public void objectiveFunctionValueAfterAraShouldBe(double expectedValue) {
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
         Instant instant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getOutageInstant();
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(instant), flowAmpereTolerance(expectedValue));
+        assertEquals(expectedValue, costResult.getCost(instant), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after CRA should be {double}")
     public void objectiveFunctionValueAfterCraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function before optimisation should be {double}")
     public void objectiveFunctionValueBeforeOptShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("{int} remedial actions are used in preventive")

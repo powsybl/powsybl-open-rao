@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -75,6 +76,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
+        computeCastorCostResultsExtension();
     }
 
     @Override
@@ -138,41 +140,6 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
             return initialResult.getPtdfZonalSum(flowCnec, side);
         } else {
             return postMipResult.getPtdfZonalSum(flowCnec, side);
-        }
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getFunctionalCost();
-        }
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost();
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getVirtualCost();
-        }
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost(virtualCostName);
-        } else {
-            //TODO: someday maybe separate post PRA etc costs
-            return singleTimestampObjectiveFunctionResult.getVirtualCost(virtualCostName);
         }
     }
 
@@ -241,5 +208,27 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
+    }
+
+    private void computeCastorCostResultsExtension() {
+        CostResult costResult = new CostResult();
+        addCostsForInstant(costResult, initialResult, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCostsForInstant(costResult, singleTimestampObjectiveFunctionResult, instant));
+        addExtension(CostResult.class, costResult);
+    }
+
+    private void addCostsForInstant(CostResult costResult,
+                                    ObjectiveFunctionResult objectiveFunctionResult,
+                                    Instant instant) {
+        costResult.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        objectiveFunctionResult.getVirtualCostNames().forEach(
+            virtualCostName -> costResult.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                objectiveFunctionResult.getVirtualCost(virtualCostName)
+            ));
     }
 }
