@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementMarketDocument;
@@ -121,7 +122,8 @@ public class SweCne {
     private void addReason(Point point) {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
         try {
             isUnsecure = !isSecure(raoResult, cracCreationContext.getCrac(), false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE);

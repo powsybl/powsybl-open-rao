@@ -8,20 +8,19 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,89 +34,22 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
+    private static final OffsetDateTime DEFAULT_TIMESTAMP = OffsetDateTime.MIN;
 
-    private final Crac crac;
+    private final TemporalData<Crac> cracs;
 
-    private ComputationStatus computationStatus;
-    private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
-    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
 
-    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
-
     public RaoResultImpl(Crac crac) {
-        this.crac = crac;
+        this.cracs = new TemporalDataImpl<>();
+        this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
     }
 
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        this.computationStatus = computationStatus;
-    }
-
-    public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        this.computationStatusPerState.put(state, computationStatus);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return computationStatus;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
-    }
-
-    private Instant checkOptimizedInstant(Instant optimizedInstant, Cnec<?> cnec) {
-        if (optimizedInstant == null) {
-            return null;
-        }
-        Instant instant = optimizedInstant;
-        if (cnec.getState().getInstant().comesBefore(instant)) {
-            instant = cnec.getState().getInstant();
-        }
-        if (instant.isOutage()) {
-            instant = crac.getPreventiveInstant();
-        }
-        return instant;
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getRelativeMargin(unit);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
-    }
-
-    public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
-        return flowCnecResults.get(flowCnec);
+    public RaoResultImpl(TemporalData<Crac> cracs) {
+        this.cracs = cracs;
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
@@ -181,7 +113,14 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.isPreventive()) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).getInitialSetpoint();
+            if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+            } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+                return standardRangeAction.getInitialSetpoint();
+            } else {
+                // should not happen
+                throw new OpenRaoException("Unsupported range action type: " + rangeAction.getClass().getName());
+            }
         } else {
             return getOptimizedSetPointOnState(stateBefore(state), rangeAction);
         }
@@ -203,7 +142,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             stateBefore = stateBefore(stateBefore);
         }
         // If no activated RA was found, return initial setpoint
-        return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
+        return getPreOptimizationSetPointOnState(getCrac(state).getPreventiveState(), rangeAction);
     }
 
     @Override
@@ -216,48 +155,47 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return crac.getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
+        return getCrac(state).getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return crac.getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
+        return getCrac(state).getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
     }
 
     private State stateBefore(State state) {
         if (state.getContingency().isPresent()) {
-            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant());
+            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant(), state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
         } else {
             return null;
         }
     }
 
-    private State stateBefore(String contingencyId, Instant instant) {
+    private State stateBefore(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        Crac crac = getCrac(timestamp);
         if (instant.isOutage()) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
+        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant), timestamp);
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, crac.getInstantBefore(instant));
+            return stateBefore(contingencyId, crac.getInstantBefore(instant), timestamp);
         }
     }
 
-    private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant).stream()
+    private State lookupState(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        return getCrac(timestamp).getStates(instant).stream()
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
     }
 
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
+    private Crac getCrac(OffsetDateTime timestamp) {
+        return cracs.getData(timestamp).orElseThrow();
     }
 
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
+    private Crac getCrac(State state) {
+        return getCrac(state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
     }
 }

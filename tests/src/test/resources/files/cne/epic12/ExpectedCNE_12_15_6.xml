@@ -132,8 +132,8 @@
                     </Monitored_Series>
                 </Constraint_Series>
                 <Reason>
-                    <code>Z13</code>
-                    <text>Network is secure</text>
+                    <code>Z03</code>
+                    <text>Network is unsecure</text>
                 </Reason>
             </Point>
         </Period>

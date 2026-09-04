@@ -14,20 +14,18 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.EXECUTION_DETAILS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INFO;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_INFO;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,18 +49,11 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
-        // computation status
-        ComputationStatus computationStatus = raoResult.getComputationStatus();
-        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
-        jsonGenerator.writeStringField(EXECUTION_DETAILS, raoResult.getExecutionDetails());
-
-        if (!ComputationStatus.FAILURE.equals(computationStatus)) {
-            ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
-            FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
-            NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-            RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-            JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        if (metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE)) {
+            RemedialActionActivationsSerializer.serialize(raoResult, crac, jsonGenerator);
         }
+        JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }

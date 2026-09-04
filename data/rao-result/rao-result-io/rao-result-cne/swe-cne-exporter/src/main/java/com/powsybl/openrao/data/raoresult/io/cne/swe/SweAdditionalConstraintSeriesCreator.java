@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
@@ -73,8 +74,9 @@ public class SweAdditionalConstraintSeriesCreator {
         RaoResult raoResult = sweCneHelper.getRaoResult();
 
         // only export if angle check ran
+        Metadata metadata = raoResult.getExtension(Metadata.class);
         AngleResult angleResult = raoResult.getExtension(AngleResult.class);
-        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)
+        if ((metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE))
             && angleResult != null
             && !Double.isNaN(angleResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
             AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();

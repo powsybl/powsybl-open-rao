@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -38,7 +37,6 @@ public class AnotherRaoProviderMock implements RaoProvider {
                                             final RaoParameters parameters,
                                             final ReportNode reportNode) {
         RaoResultImpl raoResult = new RaoResultImpl(raoInput.getCrac());
-        raoResult.setComputationStatus(ComputationStatus.FAILURE);
         return CompletableFuture.completedFuture(raoResult);
     }
 

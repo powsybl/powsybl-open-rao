@@ -8,12 +8,8 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -38,46 +34,6 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
 
     public boolean wasExportSuccessful() {
         return wasExportSuccessful;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return null;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return null;
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return 0;
     }
 
     @Override
@@ -138,15 +94,5 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return null;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return null;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        //not used
     }
 }

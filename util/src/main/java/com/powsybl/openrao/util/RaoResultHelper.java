@@ -24,19 +24,24 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
@@ -87,10 +92,10 @@ public final class RaoResultHelper {
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    public static boolean isSecure(TimeCoupledRaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
+    public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
 
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!isSecure(raoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
+            if (!isSecure(raoResult, cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
                 return false;
             }
         }
@@ -102,7 +107,8 @@ public final class RaoResultHelper {
         if (parameters.isEmpty()) {
             throw new OpenRaoException("No physical parameter provided.");
         }
-        if (raoResult.getComputationStatus() == ComputationStatus.FAILURE) {
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        if (metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
             return false;
         }
@@ -128,46 +134,61 @@ public final class RaoResultHelper {
             );
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
+            FlowResult flowResult = raoResult.getExtension(FlowResult.class);
             // use the same flow unit as the one use for the LF
             // some FlowCNECs shall not be taken into account for the security assessment:
             // - MNECs
             // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
             // - outage CNECs that were duplicated from auto CNECs
-            for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
-                    Optional<Double> minMargin = safeGetDouble(raoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
-                    if (minMargin.isPresent()) {
-                        if (minMargin.get() < 0) {
-                            return false;
+            if (flowResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No FlowResult extension found in the RaoResult. Impossible to compute flow security status.");
+            } else {
+                for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+                    if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
+                        Optional<Double> minMargin = safeGetDouble(flowResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
+                        if (minMargin.isPresent()) {
+                            if (minMargin.get() < 0) {
+                                return false;
+                            }
+                        } else {
+                            // no flow value available: assume it is secure
+                            throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                         }
-                    } else {
-                        // no flow value available: assume it is secure
-                        throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                     }
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.ANGLE)) {
-            for (AngleCnec angleCnec : crac.getAngleCnecs()) {
-                Optional<Double> minDegreeMargin = safeGetDouble(raoResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
-                if (minDegreeMargin.isPresent()) {
-                    if (minDegreeMargin.get() < 0) {
-                        return false;
+            AngleResult angleResult = raoResult.getExtension(AngleResult.class);
+            if (angleResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No AngleResult extension found in the RaoResult. Impossible to compute angle security status.");
+            } else {
+                for (AngleCnec angleCnec : crac.getAngleCnecs()) {
+                    Optional<Double> minDegreeMargin = safeGetDouble(angleResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
+                    if (minDegreeMargin.isPresent()) {
+                        if (minDegreeMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
                     }
-                } else {
-                    throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.VOLTAGE)) {
-            for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
-                Optional<Double> minKiloVoltMargin = safeGetDouble(raoResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
-                if (minKiloVoltMargin.isPresent()) {
-                    if (minKiloVoltMargin.get() < 0) {
-                        return false;
+            VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
+            if (voltageResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.");
+            } else {
+                for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
+                    Optional<Double> minKiloVoltMargin = safeGetDouble(voltageResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
+                    if (minKiloVoltMargin.isPresent()) {
+                        if (minKiloVoltMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
                     }
-                } else {
-                    throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
                 }
             }
         }
@@ -189,7 +210,6 @@ public final class RaoResultHelper {
      * @param raoParameters         The set of parameters used for the initial RAO computation.
      * @param reportNode            The report node that logs the workflow and stores information related to the analysis progress.
      * @return The updated RAO result instance containing all applied remedial actions.
-     *
      * @apiNote Preventive remedial actions are not supported yet because {@link AppliedRemedialActions}
      * is only defined for post-outage remedial actions.
      */
@@ -325,18 +345,32 @@ public final class RaoResultHelper {
             }
 
             final StateTree stateTree = new StateTree(crac, reportNode);
-            final PreventiveAndCurativesRaoResultImpl mergedRaoResult = new PreventiveAndCurativesRaoResultImpl(
-                stateTree,
+            final RaoResultImpl mergedRaoResult = new RaoResultImpl(crac);
+            RaoUtil.fillWithActivatedRemedialActions(mergedRaoResult, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
+
+            // add extensions
+            mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
                 initialFlowResult,
-                preventivePostPerimeterResult,
+                preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
                 postMergingContingencyResults,
                 crac,
-                raoParameters,
-                reportNode
+                RaoUtil.getFlowUnit(raoParameters))
             );
 
-            mergedRaoResult.setExecutionDetails(raoResult.getExecutionDetails());
+            String executionDetails = null;
+            Metadata metadata = raoResult.getExtension(Metadata.class);
+            if (metadata != null) {
+                executionDetails = metadata.getExecutionDetails().orElse(null);
+            }
+            fillAndAddMetadata(
+                mergedRaoResult,
+                crac,
+                preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                postMergingContingencyResults,
+                executionDetails
+            );
             cleanNetworkVariants(network, initialVariant, initialVariants);
+
             return mergedRaoResult;
         } catch (OpenRaoException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("An error occurred during merging, returning original RAO Result. Error was: {}", e.getMessage());
@@ -354,5 +388,34 @@ public final class RaoResultHelper {
             }
         }
         variantsToRemove.forEach(network.getVariantManager()::removeVariant);
+    }
+
+    private static void fillAndAddMetadata(RaoResult raoResult,
+                                           Crac crac,
+                                           PrePerimeterResult postPreventiveResults,
+                                           Map<State, PostPerimeterResult> postMergingContingencyResults,
+                                           String executionDetails) {
+        Metadata metadata = new Metadata();
+        if (executionDetails != null) {
+            metadata.setExecutionDetails(executionDetails);
+        }
+        for (State state : crac.getStates()) {
+            ComputationStatus computationStatus = getAppropriateResult(state, postPreventiveResults, postMergingContingencyResults)
+                .getComputationStatus(state);
+            if (computationStatus != ComputationStatus.DEFAULT) {
+                metadata.setComputationStatus(state, computationStatus);
+            }
+        }
+        raoResult.addExtension(Metadata.class, metadata);
+    }
+
+    private static PrePerimeterResult getAppropriateResult(State state,
+                                                           PrePerimeterResult postPreventiveResults,
+                                                           Map<State, PostPerimeterResult> postMergingContingencyResults) {
+        if (state.isPreventive() || state.getInstant().isOutage()) {
+            return postPreventiveResults;
+        }
+        PostPerimeterResult postPerimeterResult = postMergingContingencyResults.get(state);
+        return postPerimeterResult != null ? postPerimeterResult.prePerimeterResultForAllFollowingStates() : postPreventiveResults;
     }
 }

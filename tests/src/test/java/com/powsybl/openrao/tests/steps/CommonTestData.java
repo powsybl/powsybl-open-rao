@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
@@ -125,7 +126,15 @@ public final class CommonTestData {
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
             CommonTestData.raoResult.addExtension(AngleResult.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
-            CommonTestData.raoResult.setExecutionDetails(CommonTestData.raoResult.getExecutionDetails() + " and went through angle monitoring");
+            Metadata metadata = CommonTestData.raoResult.getExtension(Metadata.class);
+            if (metadata != null) {
+                metadata.getExecutionDetails().ifPresent(
+                    executionDetails -> metadata.setExecutionDetails(
+                        executionDetails
+                            + " and went through angle monitoring"
+                    )
+                );
+            }
         }
     }
 
@@ -134,7 +143,15 @@ public final class CommonTestData {
         if (CommonTestData.raoResult != null) {
             // update RAO result with voltage values
             CommonTestData.raoResult.addExtension(VoltageResult.class, VoltageMonitoringResultAdapter.convertToVoltageExtension(CommonTestData.monitoringResult));
-            CommonTestData.raoResult.setExecutionDetails(CommonTestData.raoResult.getExecutionDetails() + " and went through voltage monitoring");
+            Metadata metadata = CommonTestData.raoResult.getExtension(Metadata.class);
+            if (metadata != null) {
+                metadata.getExecutionDetails().ifPresent(
+                    executionDetails -> metadata.setExecutionDetails(
+                        executionDetails
+                            + " and went through voltage monitoring"
+                    )
+                );
+            }
         }
     }
 

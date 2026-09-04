@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherTimeCoupledRaoProviderMock;
@@ -32,8 +31,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -77,8 +76,7 @@ class TimeCoupledRaoTest {
         assertEquals("RandomTimeCoupledRAO", defaultRao.getName());
 
         // run rao
-        TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
-        assertNotNull(result);
+        assertDoesNotThrow(() -> defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP)));
     }
 
     @Test
