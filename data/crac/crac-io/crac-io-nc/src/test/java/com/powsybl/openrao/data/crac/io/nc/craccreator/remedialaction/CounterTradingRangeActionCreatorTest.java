@@ -7,10 +7,12 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -23,11 +25,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class CounterTradingRangeActionCreatorTest {
 
+    private static final String FR_AREA = "FR";
+    private static final String ES_AREA = "ES";
+
     @Test
     void importCounterTradingRangeActions() {
+        CracCreationParameters cracCreationParameters = NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension();
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setConnectedAreas(List.of(
+                new NcCracCreationParameters.ConnectedArea(ES_AREA, List.of(new NcCracCreationParameters.BorderRange("relative", -500.0, 500.0)))
+        ));
+
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(
                 "/profiles/remedialactions/CountertradeRemedialActions.zip",
-                NcCracCreationTestUtil.NETWORK
+                NcCracCreationTestUtil.NETWORK,
+                cracCreationParameters
         );
 
         List<CounterTradeRangeAction> importedCountertradeActions = cracCreationContext.getCrac().getRangeActions().stream()
@@ -39,37 +50,46 @@ class CounterTradingRangeActionCreatorTest {
         assertEquals(4, importedCountertradeActions.size());
 
         NcCracCreationTestUtil.assertCounterTradeRangeActionsImported(
-                importedCountertradeActions.get(0),
+                importedCountertradeActions.getFirst(),
                 "remedial-action-11",
                 "RA11 COUNTERTRADING SWE",
                 4000,
                 3000,
                 "RTE"
         );
+        assertEquals(FR_AREA, importedCountertradeActions.getFirst().getArea());
+        assertEquals(1, importedCountertradeActions.getFirst().getConnectedAreas().size());
+        assertEquals(ES_AREA, importedCountertradeActions.getFirst().getConnectedAreas().getFirst().getArea());
+
         NcCracCreationTestUtil.assertCounterTradeRangeActionsImported(
                 importedCountertradeActions.get(1),
                 "remedial-action-12",
-                "RA12 COUNTERTRADING FR BASELINE",
+                "RA12 COUNTERTRADING BASELINE",
                 3500,
                 1500,
                 "RTE"
         );
+        assertEquals(FR_AREA, importedCountertradeActions.get(1).getArea());
+
         NcCracCreationTestUtil.assertCounterTradeRangeActionsImported(
                 importedCountertradeActions.get(2),
                 "remedial-action-13",
-                "RA13 COUNTERTRADING ES ONLY-UP",
+                "RA13 COUNTERTRADING ONLY-UP",
                 2500,
                 -5000,
-                "REE"
+                "RTE"
         );
+        assertEquals(FR_AREA, importedCountertradeActions.get(2).getArea());
+
         NcCracCreationTestUtil.assertCounterTradeRangeActionsImported(
                 importedCountertradeActions.get(3),
                 "remedial-action-14",
-                "RA14 COUNTERTRADING ES ONLY-DOWN",
+                "RA14 COUNTERTRADING ONLY-DOWN",
                 5000,
                 1200,
-                "REE"
+                "RTE"
         );
+        assertEquals(FR_AREA, importedCountertradeActions.get(3).getArea());
 
         NcCracCreationTestUtil.assertRaNotImported(
                 cracCreationContext,
@@ -80,20 +100,8 @@ class CounterTradingRangeActionCreatorTest {
         NcCracCreationTestUtil.assertRaNotImported(
                 cracCreationContext,
                 "remedial-action-16",
-                ImportStatus.NOT_FOR_RAO,
-                "Remedial action remedial-action-16 will not be imported because system operator 10XDE-VE-------2 is not supported."
-        );
-        NcCracCreationTestUtil.assertRaNotImported(
-                cracCreationContext,
-                "remedial-action-17",
-                ImportStatus.INCOMPLETE_DATA,
-                "Remedial action remedial-action-17 will not be imported the counter trading remedial action has null operator code."
-        );
-        NcCracCreationTestUtil.assertRaNotImported(
-                cracCreationContext,
-                "remedial-action-18",
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                "Remedial action remedial-action-18 will not be imported because border 10Y1001C--00095L is not supported."
+                "Remedial action remedial-action-16 will not be imported because the bidding zone code XXXXX-XXX------X is invalid."
         );
 
     }

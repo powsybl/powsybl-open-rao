@@ -12,9 +12,11 @@ package com.powsybl.openrao.data.crac.api.rangeaction;
  */
 public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<CounterTradeRangeActionAdder> {
 
-    CounterTradeRangeActionAdder withExportingArea(String exportingArea);
+    CounterTradeRangeActionAdder withArea(String area);
 
-    CounterTradeRangeActionAdder withImportingArea(String importingArea);
+    CounterTradeRangeActionAdder withInitialNetPosition(Double initialNetPosition);
+
+    ConnectedAreaAdder newConnectedArea();
 
     CounterTradeRangeAction add();
 }
