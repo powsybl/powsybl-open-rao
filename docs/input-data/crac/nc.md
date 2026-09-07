@@ -812,6 +812,98 @@ of sections.
 :::
 ::::
 
+### Counter-trade Range Action
+
+A [counter-trade range action](json.md#counter-trade-range-action) is described by a `CountertradeRemedialAction` 
+object. Unlike other remedial actions, it does **not** use a `GridStateAlterationRemedialAction` object as parent, 
+nor does it use `GridStateAlteration` or `StaticPropertyRange` objects. Instead, all the information is contained 
+directly within the `CountertradeRemedialAction` object itself, which inherits from `RemedialAction`.
+
+```xml
+<!-- RA Profile -->
+<rdf:RDF>
+    ...
+    <nc:CountertradeRemedialAction rdf:ID="_remedial-action">
+        <cim:IdentifiedObject.mRID>remedial-action</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Counter-trade action</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Example of counter-trade action</cim:IdentifiedObject.description>
+        <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+        <nc:RemedialAction.isManual>true</nc:RemedialAction.isManual>
+        <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+        <nc:RemedialAction.timeToImplement>PT10S</nc:RemedialAction.timeToImplement>
+        <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+        <nc:RemedialAction.RemedialActionSystemOperator 
+                rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+        <nc:RemedialAction.AppointedToRegion 
+                rdf:resource="http://energy.referencedata.eu/EIC/10YDOM--ES-FR--D"/>
+        <nc:PowerRemedialAction.BiddingZone 
+                rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
+        <nc:CountertradeRemedialAction.maxEconomicP>4000</nc:CountertradeRemedialAction.maxEconomicP>
+        <nc:CountertradeRemedialAction.minEconomicP>1500</nc:CountertradeRemedialAction.minEconomicP>
+        <nc:CountertradeRemedialAction.shiftMethod 
+                rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+        <nc:CountertradeRemedialAction.gLSKStrategy 
+                rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    </nc:CountertradeRemedialAction>
+    ...
+</rdf:RDF>
+```
+
+The counter-trade remedial action is imported only if the `normalAvailable` field is set to `true`.
+
+> The remedial action can still be imported if `normalAvailable` is set to `false` if the remedial action is also
+> defined in the SSI profile with its field `available` set to `true`.
+
+As for other remedial actions, the `mRID` is used as the remedial action's identifier and the 
+`RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The instant 
+of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
+
+> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all curative instants at once.
+
+If the remedial action is of kind `curative` and its `isManual` attribute is present and set to `false`, the importer 
+will interpret this remedial action as an automaton. Thus, its [usage rules](#usage-rules) will all be defined for the 
+auto instant.
+
+> Preventive automatons are not supported by OpenRAO so preventive remedial actions with `isManual` set to false will be ignored.
+
+Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+
+#### Specific fields
+
+The `CountertradeRemedialAction` object has specific fields that define the range and behavior of the counter-trade action:
+
+- **`maxEconomicP`**: The maximum economic power (in MW) that can be traded. This value is used as the upper bound of 
+  the counter-trade range action.
+- **`minEconomicP`**: The minimum economic power (in MW) that can be traded. This value is used as the lower bound of 
+  the counter-trade range action.
+- **`AppointedToRegion`**: The region (border) to which the counter-trade action is appointed. This field is used to 
+  determine the importing and exporting areas based on the `RemedialActionSystemOperator`.
+- **`BiddingZone`**: (Optional) The bidding zone related to the power remedial action.
+- **`shiftMethod`**: (Optional) The method used for shifting power. Can be values like `shared`.
+- **`gLSKStrategy`**: (Optional) The GLSK (Generation and Load Shift Keys) strategy to be applied. Can be values like 
+  `proportionalForGenerator`.
+
+If the `maxEconomicP` or `minEconomicP` fields are not provided, default values or values from the creation parameters 
+will be used as fallback.
+
+#### Importing and exporting areas
+
+The importing and exporting areas are automatically determined based on the combination of the 
+`RemedialActionSystemOperator` and the `AppointedToRegion`:
+
+- **French operator (10XFR-RTE------Q)**
+  - **ES-FR border (10YDOM--ES-FR--D)**:  The counter-trade is between ES (importing) and FR (exporting).
+- **Portuguese operator (10XPT-REN------9)**
+  - **ES-PT border (10YDOM--ES-PT--T)**: Counter-trade between ES (importing) and PT (exporting).
+- **Spanish operator (10XES-REE------E)**
+  - **ES-FR border (10YDOM--ES-FR--D)**: Counter-trade between FR (importing) and ES (exporting).
+  - **ES-PT border (10YDOM--ES-PT--T)**: Counter-trade between PT (importing) and ES (exporting).
+
+If the operator or region combination is not supported, the remedial action will not be imported.
+
+> ⚠️ Currently, counter-trade remedial actions are only supported for the SWE (South-West Europe) region, specifically 
+> for the ES-FR and ES-PT borders.
+
 ### Usage Rules
 
 #### OnInstant

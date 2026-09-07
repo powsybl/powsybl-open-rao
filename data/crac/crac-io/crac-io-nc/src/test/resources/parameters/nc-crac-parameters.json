@@ -16,6 +16,18 @@
           "name": "curative 3",
           "application-time": 1200
         }
+      ],
+      "connected-areas": [
+        {
+          "area": "ES",
+          "border-ranges": [
+            {
+              "range-type": "relative",
+              "border-range-min": -500.0,
+              "border-range-max": 500.0
+            }
+          ]
+        }
       ]
     },
     "SweNcCracCreatorParameters": {

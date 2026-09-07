@@ -8,6 +8,7 @@
 package com.powsybl.openrao.commons;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -76,7 +77,7 @@ public enum TsoEICode {
         return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.shortId.equals(shortId)).findAny().orElseThrow();
     }
 
-    public static TsoEICode fromEICode(String eiCode) {
-        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.eiCode.equals(eiCode)).findAny().orElseThrow();
+    public static Optional<TsoEICode> fromEICode(String eiCode) {
+        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.eiCode.equals(eiCode)).findAny();
     }
 }
