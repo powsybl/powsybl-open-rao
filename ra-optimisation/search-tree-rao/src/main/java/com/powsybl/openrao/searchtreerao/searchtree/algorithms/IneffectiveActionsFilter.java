@@ -9,8 +9,10 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
@@ -26,10 +28,10 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class IneffectiveActionsFilter implements NetworkActionCombinationFilter {
-    private final Network network;
+    private final TemporalData<Network> networks;
 
-    public IneffectiveActionsFilter(Network network) {
-        this.network = network;
+    public IneffectiveActionsFilter(TemporalData<Network> networks) {
+        this.networks = networks;
     }
 
     @Override
@@ -78,7 +80,7 @@ public class IneffectiveActionsFilter implements NetworkActionCombinationFilter 
 
         for (NetworkAction networkAction : networkActionCombination.getNetworkActionSet()) {
             for (Action action : networkAction.getElementaryActions()) {
-                if (action.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK) {
+                if (hasImpactOnAtLeastOneNetwork(action)) {
                     effectiveActions.add(action);
                 }
             }
@@ -90,5 +92,14 @@ public class IneffectiveActionsFilter implements NetworkActionCombinationFilter 
 
         elementaryActions.add(effectiveActions);
         return true;
+    }
+
+    /**
+     * Indicate whether an elementary action has an impact on at least one of the timestamps' networks.
+     */
+    private boolean hasImpactOnAtLeastOneNetwork(Action action) {
+        NetworkModification networkModification = action.toModification();
+        return networks.getDataPerTimestamp().values().stream()
+            .anyMatch(network -> networkModification.hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
     }
 }

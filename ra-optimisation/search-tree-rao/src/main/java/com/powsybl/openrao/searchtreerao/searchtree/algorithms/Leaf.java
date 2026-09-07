@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -22,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -30,9 +33,14 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitatio
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.marmot.TimeCoupledIteratingLinearOptimizer;
+import com.powsybl.openrao.searchtreerao.marmot.TimeCoupledIteratingLinearOptimizerInput;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -48,7 +56,15 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.*;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +76,7 @@ import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCo
 /**
  * A "leaf" is a node of the search tree.
  * Each leaf contains a Network Action, which should be tested in combination with
- * it's parent Leaves' Network Actions
+ * its parent Leaves' Network Actions
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -79,19 +95,20 @@ public class Leaf implements OptimizationResult {
      * network actions from the parent leaves as well as from
      * this leaf), can be empty for root leaf
      */
-    private final OptimizationPerimeter optimizationPerimeter;
+    private final TemporalData<OptimizationPerimeter> optimizationPerimeters;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
-    private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
-    private Network network;
-    private final RangeActionActivationResult raActivationResultFromParentLeaf;
-    private final RangeActionSetpointResult prePerimeterSetpoints;
+    private final TemporalData<AppliedRemedialActions> appliedRemedialActionsInSecondaryStates; // for 2nd prev
+    private TemporalData<Network> networks;
+    private final TemporalData<RangeActionActivationResult> raActivationResultFromParentLeaf;
+    private final TemporalData<RangeActionSetpointResult> prePerimeterSetpoints;
+    private final boolean isTimeCoupled;
 
     /**
      * Status of the leaf's Network Action evaluation
      */
     private Status status;
-    private FlowResult preOptimFlowResult;
-    private SensitivityResult preOptimSensitivityResult;
+    private TemporalData<FlowResult> preOptimFlowResults = new TemporalDataImpl<>();
+    private TemporalData<SensitivityResult> preOptimSensitivityResults = new TemporalDataImpl<>();
     private ObjectiveFunctionResult preOptimObjectiveFunctionResult;
     private LinearOptimizationResult postOptimResult;
 
@@ -101,18 +118,18 @@ public class Leaf implements OptimizationResult {
      */
     private boolean optimizationDataPresent = true;
 
-    Leaf(OptimizationPerimeter optimizationPerimeter,
-         Network network,
+    Leaf(TemporalData<OptimizationPerimeter> optimizationPerimeters,
+         TemporalData<Network> networks,
          Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
          NetworkActionCombination newCombinationToApply,
-         RangeActionActivationResult raActivationResultFromParentLeaf,
-         RangeActionSetpointResult prePerimeterSetpoints,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         TemporalData<RangeActionActivationResult> raActivationResultFromParentLeaf,
+         TemporalData<RangeActionSetpointResult> prePerimeterSetpoints,
+         TemporalData<AppliedRemedialActions> appliedRemedialActionsInSecondaryStates,
          boolean allowElectricalIslandCreation,
          Integer initialNumberOfConnectedComponent) {
 
-        this.optimizationPerimeter = optimizationPerimeter;
-        this.network = network;
+        this.optimizationPerimeters = optimizationPerimeters;
+        this.networks = networks;
         this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
@@ -125,36 +142,41 @@ public class Leaf implements OptimizationResult {
         }
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
 
-        // apply Network Actions on initial network
-        for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network);
-            if (!applicationSuccess) {
-                throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
-            }
+        // apply Network Actions on every timestamp's initial network
+        // if an application fails on one of the timestamps, the leaf creation is stopped
+        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
+            for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
+                boolean applicationSuccess = na.apply(network);
+                if (!applicationSuccess) {
+                    throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
+                }
 
-            // If island creation is not allowed, verify whether the network action (+ contingency in curative) creates an island
-            // before evaluating or optimizing the leaf. This saves computation time by rejecting invalid network actions upfront.
-            if (!allowElectricalIslandCreation) {
-                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent);
+                // If island creation is not allowed, verify whether the network action (+ contingency in curative) creates an island
+                // before evaluating or optimizing the leaf. This saves computation time by rejecting invalid network actions upfront.
+                if (!allowElectricalIslandCreation) {
+                    throwAnErrorIfIslandIsCreated(optimizationPerimeters.getData(timestamp).orElseThrow(), network, na, initialNumberOfConnectedComponent);
+                }
             }
-        }
-
+        });
         this.status = Status.CREATED;
+        this.isTimeCoupled = networks.getTimestamps().size() > 1;
     }
 
-    Leaf(OptimizationPerimeter optimizationPerimeter,
-         Network network,
-         PrePerimeterResult prePerimeterOutput,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter,
-            network,
+    Leaf(TemporalData<OptimizationPerimeter> optimizationPerimeters,
+         TemporalData<Network> networks,
+         TemporalData<PrePerimeterResult> prePerimeterOutputs,
+         TemporalData<AppliedRemedialActions> appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeters,
+            networks,
             Collections.emptySet(),
             null,
-            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, null
+            prePerimeterOutputs.map(RangeActionActivationResultImpl::new),
+            prePerimeterOutputs.map(prePerimeterOutput -> prePerimeterOutput),
+            appliedRemedialActionsInSecondaryStates, true, null
         );
         this.status = Status.EVALUATED;
-        this.preOptimFlowResult = prePerimeterOutput;
-        this.preOptimSensitivityResult = prePerimeterOutput;
+        this.preOptimFlowResults = prePerimeterOutputs.map(prePerimeterOutput -> prePerimeterOutput);
+        this.preOptimSensitivityResults = prePerimeterOutputs.map(prePerimeterOutput -> prePerimeterOutput);
     }
 
     private static void throwAnErrorIfIslandIsCreated(OptimizationPerimeter optimizationPerimeter, Network network, NetworkAction networkAction, double initialNbOfComponent) {
@@ -183,7 +205,14 @@ public class Leaf implements OptimizationResult {
     }
 
     public FlowResult getPreOptimBranchResult() {
-        return preOptimFlowResult;
+        if (!isTimeCoupled) {
+            return preOptimFlowResults.getData(preOptimFlowResults.getTimestamps().getFirst()).orElseThrow();
+        }
+        throw new OpenRaoException("getPreOptimBranchResult cannot be used on a time-coupled leaf, use getAllPreOptimBranchResults instead.");
+    }
+
+    public TemporalData<FlowResult> getAllPreOptimBranchResults() {
+        return preOptimFlowResults;
     }
 
     public ObjectiveFunctionResult getPreOptimObjectiveFunctionResult() {
@@ -201,30 +230,89 @@ public class Leaf implements OptimizationResult {
     /**
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
+     * <p>
+     *     In time-coupled, one sensitivity per timestamp is done sequentially. One failure fails the whole Leaf.
      */
     void evaluate(final ObjectiveFunction objectiveFunction,
-                  final SensitivityComputer sensitivityComputer,
+                  final TemporalData<SensitivityComputer> sensitivityComputers,
                   final ReportNode reportNode) {
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
-            raActivationResultFromParentLeaf,
-            new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
-        );
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult, reportNode);
+            preOptimObjectiveFunctionResult = evaluateObjectiveFunction(objectiveFunction, reportNode);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network);
-        if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            SearchTreeReports.reportFailedToEvaluateLeafSensiFailed(reportNode);
+        if (!computeAllSensitivities(sensitivityComputers, reportNode)) {
             status = Status.ERROR;
             return;
         }
-        preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
-        preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult, reportNode);
+        preOptimObjectiveFunctionResult = evaluateObjectiveFunction(objectiveFunction, reportNode);
         status = Status.EVALUATED;
+    }
+
+    /** Runs every timestamp's sensitivity computation sequentially and fills the pre-optimization results. */
+    private boolean computeAllSensitivities(TemporalData<SensitivityComputer> sensitivityComputers, ReportNode reportNode) {
+
+        Map<OffsetDateTime, FlowResult> timestampFlowResultMap = new HashMap<>();
+        Map<OffsetDateTime, SensitivityResult> timestampSensitivityResultMap = new HashMap<>();
+
+        // TODO: parallelize sensitivity analyses
+        for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
+            SensitivityComputer sensitivityComputer = sensitivityComputers.getData(timestamp).orElseThrow();
+            Network network = networks.getData(timestamp).orElseThrow();
+            sensitivityComputer.compute(network);
+            SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
+            if (sensitivityResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                // a single failed timestamp fails the whole leaf
+                SearchTreeReports.reportFailedToEvaluateLeafSensiFailed(reportNode);
+                return false;
+            }
+            timestampSensitivityResultMap.put(timestamp, sensitivityResult);
+            timestampFlowResultMap.put(timestamp, sensitivityComputer.getBranchResult(network));
+        }
+        preOptimSensitivityResults = new TemporalDataImpl<>(timestampSensitivityResultMap);
+        preOptimFlowResults = new TemporalDataImpl<>(timestampFlowResultMap);
+        return true;
+    }
+
+    /**
+     * Evaluates the objective function on the pre-optimization results.
+     * <p>
+     *     In time-coupled, the objective function is global and gathers every timestamp's pre-optimization results.
+     */
+    private ObjectiveFunctionResult evaluateObjectiveFunction(ObjectiveFunction objectiveFunction, ReportNode reportNode) {
+        if (!isTimeCoupled) {
+            OffsetDateTime timestamp = optimizationPerimeters.getTimestamps().getFirst();
+            RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
+                raActivationResultFromParentLeaf.getData(timestamp).orElseThrow(),
+                new NetworkActionsResultImpl(Map.of(optimizationPerimeters.getData(timestamp).orElseThrow().getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
+            );
+            return objectiveFunction.evaluate(preOptimFlowResults.getData(timestamp).orElseThrow(), remedialActionActivationResult, reportNode);
+        }
+        return buildGlobalObjectiveFunctionResult(objectiveFunction, reportNode);
+    }
+
+    /**
+     * Groups the pre-optimization results (flow + sensitivity results) of every timestamp into one
+     * GlobalLinearOptimizationResult to evaluate the global objective function.
+     */
+    private GlobalLinearOptimizationResult buildGlobalObjectiveFunctionResult(ObjectiveFunction objectiveFunction, ReportNode reportNode) {
+        // the same network action combination is applied on every timestamp, only the main optimization state differs
+        TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
+        optimizationPerimeters.getDataPerTimestamp().forEach(
+            (timestamp, optimizationPerimeter) ->
+                networkActionsResults.put(timestamp, new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
+                )
+        );
+        return new GlobalLinearOptimizationResult(
+            preOptimFlowResults,
+            preOptimSensitivityResults,
+            raActivationResultFromParentLeaf,
+            networkActionsResults,
+            objectiveFunction,
+            LinearProblemStatus.OPTIMAL,
+            reportNode
+        );
     }
 
     /**
@@ -236,9 +324,14 @@ public class Leaf implements OptimizationResult {
      * be done on this leaf anymore. IteratingLinearOptimizer should never fail so the optimized variant ID in the end
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
+     * <p>
+     *     In time-coupled, all the timestamp's range actions are optimized simultaneously and are synchronized.
+     * </p>
+     * @param parallelism number of threads used by the time-coupled optimizer, it is not used on a single-timestamp leaf.
      */
     void optimize(final SearchTreeInput searchTreeInput,
                   final SearchTreeParameters parameters,
+                  final int parallelism,
                   final ReportNode reportNode) {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
@@ -246,36 +339,29 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
             TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
-            resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
+            resetPreOptimRangeActionsSetpoints(searchTreeInput.getAllOptimizationPerimeters());
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
-            // make a deep copy and change availableRangeAction
-            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(network);
+            // make a deep copy of every timestamp's perimeter and change availableRangeAction
+            TemporalData<OptimizationPerimeter> optimizationPerimetersWithFilteredHvdcRangeActions = new TemporalDataImpl<>();
+            networks.getDataPerTimestamp().forEach(
+                (timestamp, network) ->
+                optimizationPerimetersWithFilteredHvdcRangeActions.put(timestamp,
+                        searchTreeInput.getAllOptimizationPerimeters().getData(timestamp).orElseThrow().copyWithFilteredAvailableHvdcRangeAction(network))
+            );
 
-            // check if there are still range actions to optimize
-            if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
+            // check if there are still range actions to optimize -> the optimization is launched if at least one timestamp still has some
+            boolean noRangeActionsLeftToOptimize = optimizationPerimetersWithFilteredHvdcRangeActions.getDataPerTimestamp().values().stream()
+                .allMatch(optimizationPerimeter -> optimizationPerimeter.getRangeActions().isEmpty());
+            if (noRangeActionsLeftToOptimize) {
                 SearchTreeReports.reportNoRangeActionToOptimizeAfterFilteringHvdcRangeActions(reportNode);
                 return;
             }
 
-            // build input
-            IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(network)
-                    .withOptimizationPerimeter(optimizationPerimeterWithFilteredHvdcRangeAction)
-                    .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
-                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
-                    .withPrePerimeterSetpoints(prePerimeterSetpoints)
-                    .withPreOptimizationFlowResult(preOptimFlowResult)
-                    .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
-                    .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-                    .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
-                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
-                    .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
-                    .withToolProvider(searchTreeInput.getToolProvider())
-                    .withOutageInstant(searchTreeInput.getOutageInstant())
-                    .build();
+            // build inputs
+            TemporalData<IteratingLinearOptimizerInput> linearOptimizerInputs = buildLinearOptimizerInputs(searchTreeInput, optimizationPerimetersWithFilteredHvdcRangeActions);
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
@@ -290,13 +376,27 @@ public class Leaf implements OptimizationResult {
                 .withLoopFlowParameters(parameters.getLoopFlowParameters())
                 .withLoopFlowParametersExtension(parameters.getLoopFlowParametersExtension())
                 .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
-                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
+                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getAllOptimizationPerimeters(), parameters))
                 .withSolverParameters(parameters.getSolverParameters())
                 .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
                 .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                 .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, reportNode);
+            if (!isTimeCoupled) {
+                postOptimResult = IteratingLinearOptimizer.optimize(
+                    linearOptimizerInputs.getData(linearOptimizerInputs.getTimestamps().getFirst()).orElseThrow(),
+                    linearOptimizerParameters,
+                    reportNode
+                );
+            } else {
+                TimeCoupledIteratingLinearOptimizerInput timeCoupledIteratingLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
+                    linearOptimizerInputs,
+                    searchTreeInput.getObjectiveFunction(),
+                    new TimeCoupledConstraints(),
+                    true
+                );
+                postOptimResult = TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledIteratingLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode);
+            }
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -306,30 +406,75 @@ public class Leaf implements OptimizationResult {
         }
     }
 
-    private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+    private TemporalData<IteratingLinearOptimizerInput> buildLinearOptimizerInputs(SearchTreeInput searchTreeInput,
+                                                                                   TemporalData<OptimizationPerimeter> optimizationPerimetersWithFilteredHvdcRangeActions) {
+        Map<OffsetDateTime, IteratingLinearOptimizerInput> linearOptimizerInputPerTimestamp = new HashMap<>();
+        optimizationPerimeters.getDataPerTimestamp().forEach(
+                (timestamp, optimizationPerimeter) -> {
+                    Network network = networks.getData(timestamp).orElseThrow();
+                    IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
+                        .withNetwork(network)
+                        .withOptimizationPerimeter(optimizationPerimetersWithFilteredHvdcRangeActions.getData(timestamp).orElseThrow())
+                        .withInitialFlowResult(searchTreeInput.getAllInitialFlowResults().getData(timestamp).orElseThrow())
+                        .withPrePerimeterFlowResult(searchTreeInput.getAllPrePerimeterResults().getData(timestamp).orElseThrow())
+                        .withPrePerimeterSetpoints(prePerimeterSetpoints.getData(timestamp).orElseThrow())
+                        .withPreOptimizationFlowResult(preOptimFlowResults.getData(timestamp).orElseThrow())
+                        .withPreOptimizationSensitivityResult(preOptimSensitivityResults.getData(timestamp).orElseThrow())
+                        .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates.getData(timestamp).orElseThrow())
+                        .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf.getData(timestamp).orElseThrow())
+                        .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
+                        .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
+                        .withToolProvider(searchTreeInput.getAllToolProviders().getData(timestamp).orElseThrow())
+                        .withOutageInstant(searchTreeInput.getAllOutageInstants().getData(timestamp).orElseThrow())
+                        .build();
+                    linearOptimizerInputPerTimestamp.put(timestamp, linearOptimizerInput);
+                });
+        return new TemporalDataImpl<>(linearOptimizerInputPerTimestamp);
+    }
+
+    private void resetPreOptimRangeActionsSetpoints(TemporalData<OptimizationPerimeter> optimizationContexts) {
+        optimizationContexts.getDataPerTimestamp().forEach((timestamp, optimizationContext) -> {
+            Network network = networks.getData(timestamp).orElseThrow();
+            RangeActionActivationResult raActivationFromParentLeaf = raActivationResultFromParentLeaf.getData(timestamp).orElseThrow();
+            optimizationContext.getRangeActionsPerState().forEach(
+                (state, rangeActions)
+                        -> rangeActions.forEach(ra -> ra.apply(network, raActivationFromParentLeaf.getOptimizedSetpoint(ra, state)))
+            );
+        });
     }
 
     /**
      *  This method computes remedial action limitation parameters. Already applied network actions must be taken into account.
      *  In all steps except second preventive, context is main optimization state and appliedNetworkActionsInPrimaryState contain
      *  the state's applied network actions. But during second preventive, primary state refers to preventive, and secondary states to other optimized states.
+     *  <p>
+     *      In time-coupled, the RaUsageLimits are resolved by the instant ID and are considered the same for all the timestamps.
      */
-    RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
+    RangeActionLimitationParameters getRaLimitationParameters(TemporalData<OptimizationPerimeter> contexts, SearchTreeParameters parameters) {
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
+        contexts.getDataPerTimestamp().forEach(
+            (timestamp, context) ->
+            addRaLimitationParametersOfPerimeter(limitationParameters, context, parameters.getRaLimitationParameters(), appliedRemedialActionsInSecondaryStates.getData(timestamp).orElseThrow())
+        );
+        return limitationParameters;
+    }
 
+    private void addRaLimitationParametersOfPerimeter(RangeActionLimitationParameters limitationParameters,
+                                                      OptimizationPerimeter context,
+                                                      Map<Instant, RaUsageLimits> raUsageLimitsPerInstant,
+                                                      AppliedRemedialActions appliedRasInSecondaryStates) {
         for (State state : context.getRangeActionOptimizationStates()) {
-            if (parameters.getRaLimitationParameters().containsKey(state.getInstant())) {
-                RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
-                Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
-                    appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
+            RaUsageLimits raUsageLimits = raUsageLimitsPerInstant.get(state.getInstant());
+            if (raUsageLimits != null) {
+                Set<NetworkAction> appliedNetworkActions = state
+                    .equals(context.getMainOptimizationState())
+                    ? appliedNetworkActionsInPrimaryState : appliedRasInSecondaryStates.getAppliedNetworkActions(state);
                 int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
                 Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
                 Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                 maxRaPerTso.entrySet().forEach(entry -> {
-                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(
-                        Collectors.toSet()).size();
+                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator()))
+                        .collect(Collectors.toSet()).size();
                     entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                 });
                 Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
@@ -347,14 +492,29 @@ public class Leaf implements OptimizationResult {
                 limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
             }
         }
-        return limitationParameters;
     }
 
     public RangeActionActivationResult getRangeActionActivationResult() {
+        if (isTimeCoupled) {
+            throw new OpenRaoException("getRangeActionActivationResult cannot be used on a time-coupled leaf, use getAllRangeActionActivationResults instead.");
+        }
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getData(raActivationResultFromParentLeaf.getTimestamps().getFirst()).orElseThrow();
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getRangeActionActivationResult();
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    public TemporalData<RangeActionActivationResult> getAllRangeActionActivationResults() {
         if (status == Status.EVALUATED) {
             return raActivationResultFromParentLeaf;
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getRangeActionActivationResult();
+            if (postOptimResult instanceof GlobalLinearOptimizationResult globalPostOptimResult) {
+                return globalPostOptimResult.getRangeActionActivationResultTemporalData();
+            }
+            return new TemporalDataImpl<>(Map.of(raActivationResultFromParentLeaf.getTimestamps().getFirst(), postOptimResult.getRangeActionActivationResult()));
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }
@@ -386,15 +546,20 @@ public class Leaf implements OptimizationResult {
         return info;
     }
 
+    /** Sums the activated range actions over every timestamp's range action optimization states. */
     long getNumberOfActivatedRangeActions() {
         if (status == Status.EVALUATED) {
-            return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
-                .sum();
+            return optimizationPerimeters.getDataPerTimestamp().entrySet().stream().mapToLong(entry -> {
+                RangeActionActivationResult parentActivation = raActivationResultFromParentLeaf.getData(entry.getKey()).orElseThrow();
+                return entry.getValue().getRangeActionsPerState().keySet().stream()
+                    .mapToLong(s -> parentActivation.getActivatedRangeActions(s).size())
+                    .sum();
+            }).sum();
         } else if (status == Status.OPTIMIZED) {
-            return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
-                .sum();
+            return optimizationPerimeters.getDataPerTimestamp().values().stream().mapToLong(
+                perimeter -> perimeter.getRangeActionsPerState().keySet().stream()
+                    .mapToLong(s -> postOptimResult.getActivatedRangeActions(s).size())
+                    .sum()).sum();
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }
@@ -403,7 +568,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getMargin(FlowCnec flowCnec, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getMargin(flowCnec, unit);
+            return preOptimFlowResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getMargin(flowCnec, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getMargin(flowCnec, unit);
         } else {
@@ -414,7 +579,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getFlow(flowCnec, side, unit);
+            return preOptimFlowResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getFlow(flowCnec, side, unit);
         } else {
@@ -425,7 +590,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getFlow(flowCnec, side, unit, instant);
+            return preOptimFlowResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getFlow(flowCnec, side, unit, instant);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getFlow(flowCnec, side, unit, instant);
         } else {
@@ -436,7 +601,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getCommercialFlow(flowCnec, side, unit);
+            return preOptimFlowResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getCommercialFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getCommercialFlow(flowCnec, side, unit);
         } else {
@@ -447,7 +612,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getPtdfZonalSum(flowCnec, side);
+            return preOptimFlowResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getPtdfZonalSum(flowCnec, side);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getPtdfZonalSum(flowCnec, side);
         } else {
@@ -458,7 +623,11 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getPtdfZonalSums();
+            Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
+            preOptimFlowResults.getDataPerTimestamp().values().forEach(
+                    flowResult -> ptdfZonalSums.putAll(flowResult.getPtdfZonalSums())
+            );
+            return ptdfZonalSums;
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getPtdfZonalSums();
         } else {
@@ -478,7 +647,9 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
-        return Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState);
+        return optimizationPerimeters.getDataPerTimestamp().values().stream().collect(
+            Collectors.toMap(OptimizationPerimeter::getMainOptimizationState, perimeter -> appliedNetworkActionsInPrimaryState)
+        );
     }
 
     @Override
@@ -573,13 +744,15 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return optimizationPerimeter.getRangeActions();
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
+        optimizationPerimeters.getDataPerTimestamp().values().forEach(optimizationPerimeter -> rangeActions.addAll(optimizationPerimeter.getRangeActions()));
+        return rangeActions;
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getActivatedRangeActions(state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getActivatedRangeActions(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getActivatedRangeActions(state);
         } else {
@@ -590,7 +763,11 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getActivatedRangeActionsPerState();
+            Map<State, Set<RangeAction<?>>> stateActivatedRangeActionsMap = new HashMap<>();
+            raActivationResultFromParentLeaf.getDataPerTimestamp().values().forEach(
+                activation -> stateActivatedRangeActionsMap.putAll(activation.getActivatedRangeActionsPerState())
+            );
+            return stateActivatedRangeActionsMap;
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getActivatedRangeActionsPerState();
         } else {
@@ -601,12 +778,12 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedSetpoint(rangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedSetpoint(rangeAction, state);
             } catch (OpenRaoException e) {
-                return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
+                return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedSetpoint(rangeAction, state);
             }
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
@@ -616,7 +793,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getOptimizedSetpointsOnState(state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedSetpointsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedSetpointsOnState(state);
         } else {
@@ -627,7 +804,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getSetPointVariation(rangeAction, state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getSetPointVariation(rangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSetPointVariation(rangeAction, state);
         } else {
@@ -638,12 +815,12 @@ public class Leaf implements OptimizationResult {
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedTap(pstRangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedTap(pstRangeAction, state);
             } catch (OpenRaoException e) {
-                return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
+                return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedTap(pstRangeAction, state);
             }
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
@@ -653,7 +830,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getOptimizedTapsOnState(state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getOptimizedTapsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedTapsOnState(state);
         } else {
@@ -664,7 +841,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getTapVariation(pstRangeAction, state);
+            return raActivationResultFromParentLeaf.getData(getStateTimestamp(state)).orElseThrow().getTapVariation(pstRangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getTapVariation(pstRangeAction, state);
         } else {
@@ -674,8 +851,9 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
+        // worst status across all the timestamps
         if (status == Status.EVALUATED) {
-            return preOptimSensitivityResult.getSensitivityStatus();
+            return worstSensitivityStatus(preOptimSensitivityResults);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityStatus();
         } else {
@@ -686,7 +864,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         if (status == Status.EVALUATED) {
-            return preOptimSensitivityResult.getSensitivityStatus(state);
+            return preOptimSensitivityResults.getData(getStateTimestamp(state)).orElseThrow().getSensitivityStatus(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityStatus(state);
         } else {
@@ -697,7 +875,9 @@ public class Leaf implements OptimizationResult {
     @Override
     public Set<String> getContingencies() {
         if (status == Status.EVALUATED) {
-            return preOptimSensitivityResult.getContingencies();
+            Set<String> contingencies = new HashSet<>();
+            preOptimSensitivityResults.getDataPerTimestamp().values().forEach(sensitivityResult -> contingencies.addAll(sensitivityResult.getContingencies()));
+            return contingencies;
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getContingencies();
         } else {
@@ -709,7 +889,7 @@ public class Leaf implements OptimizationResult {
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
             status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction)) {
-            return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
+            return preOptimSensitivityResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else {
@@ -720,7 +900,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
+            return preOptimSensitivityResults.getData(getFlowCnecTimestamp(flowCnec)).orElseThrow().getSensitivityValue(flowCnec, side, linearGlsk, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
         } else {
@@ -732,7 +912,42 @@ public class Leaf implements OptimizationResult {
      * Releases data used in optimization to make leaf lighter
      */
     public void finalizeOptimization() {
-        this.network = null;
+        this.networks = null;
         this.optimizationDataPresent = false;
+    }
+
+    /** Aggregates the sensitivity statuses of all the timestamps into the worst one. */
+    private static ComputationStatus worstSensitivityStatus(TemporalData<SensitivityResult> sensitivityResults) {
+        boolean anyFailure = false;
+        boolean anyPartialFailure = false;
+        for (SensitivityResult sensitivityResult : sensitivityResults.getDataPerTimestamp().values()) {
+            ComputationStatus sensitivityStatus = sensitivityResult.getSensitivityStatus();
+            if (sensitivityStatus == ComputationStatus.FAILURE) {
+                anyFailure = true;
+            } else if (sensitivityStatus == ComputationStatus.PARTIAL_FAILURE) {
+                anyPartialFailure = true;
+            }
+        }
+        if (anyFailure) {
+            return ComputationStatus.FAILURE;
+        }
+        if (anyPartialFailure) {
+            return ComputationStatus.PARTIAL_FAILURE;
+        }
+        return ComputationStatus.DEFAULT;
+    }
+
+    private OffsetDateTime getFlowCnecTimestamp(FlowCnec flowCnec) {
+        if (!isTimeCoupled) {
+            return optimizationPerimeters.getTimestamps().getFirst();
+        }
+        return flowCnec.getState().getTimestamp().orElseThrow(() -> new OpenRaoException("FlowCnec " + flowCnec.getId() + " has no timestamp"));
+    }
+
+    private OffsetDateTime getStateTimestamp(State state) {
+        if (!isTimeCoupled) {
+            return optimizationPerimeters.getTimestamps().getFirst();
+        }
+        return state.getTimestamp().orElseThrow(() -> new OpenRaoException("State " + state.getId() + " has no timestamp"));
     }
 }

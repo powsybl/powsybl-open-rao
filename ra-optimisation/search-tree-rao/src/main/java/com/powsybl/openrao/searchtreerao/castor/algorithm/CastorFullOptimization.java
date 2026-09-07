@@ -75,7 +75,7 @@ public class CastorFullOptimization {
     private final java.time.Instant targetEndInstant;
     private final ReportNode reportNode;
 
-    CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
+    public CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -412,10 +412,10 @@ public class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    private OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
-                                                                  final ToolProvider toolProvider,
-                                                                  final PrePerimeterResult initialResult,
-                                                                  final ReportNode preventivePerimeterOptimReportNode) {
+    public OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
+                                                          final ToolProvider toolProvider,
+                                                          final PrePerimeterResult initialResult,
+                                                          final ReportNode preventivePerimeterOptimReportNode) {
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
             stateTree.getBasecaseScenario(),
