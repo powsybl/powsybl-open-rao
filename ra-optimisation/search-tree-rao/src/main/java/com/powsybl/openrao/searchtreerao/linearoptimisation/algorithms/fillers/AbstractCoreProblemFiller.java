@@ -49,7 +49,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractCoreProblemFiller implements ProblemFiller {
-    protected static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
+    protected static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-3;
     protected final OptimizationPerimeter optimizationContext;
     protected final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     protected final Set<FlowCnec> flowCnecs;
@@ -381,6 +381,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             0., linearProblem.infinity(), rangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
         isVariationDownConstraint.setCoefficient(variationDownVariable, -1.0);
         isVariationDownConstraint.setCoefficient(isVariationDownVariable, maxVariation + RANGE_ACTION_SETPOINT_EPSILON);
+
+        // this doesnt work when doing first step continuous and second step approximated taps, because first step doesnt always respect relative ranges
+        //linearProblem.setHint(isVariationUpVariable, 0.);
+       // linearProblem.setHint(isVariationDownVariable, 0.);
 
         // isUpVariation + isDownVariation <= 1
         OpenRaoMPConstraint isVariationUpAndDownConstraint = linearProblem.addUpOrDownVariationConstraint(rangeAction, state);

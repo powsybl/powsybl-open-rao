@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction> implements PstRangeAction {
     // Note : Ranges of type RELATIVE_TO_PREVIOUS_TIME_STEP are not taken into account
-    private static final double EPSILON = 1e-3;
+    private static final double EPSILON = 1e-2;
 
     private final NetworkElement networkElement;
     private final List<TapRange> ranges;

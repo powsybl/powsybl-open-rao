@@ -239,6 +239,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
             OpenRaoMPConstraint relativeTapConstraint = linearProblem.getPstRelativeTapConstraint(pstRangeAction, state);
             relativeTapConstraint.setUb(maxRelativeTap + optimalTapInPreviousState - optimalTap);
             relativeTapConstraint.setLb(minRelativeTap + optimalTapInPreviousState - optimalTap);
+            /*if (maxRelativeTap + optimalTapInPreviousState - optimalTap < 0 ||
+                minRelativeTap + optimalTapInPreviousState - optimalTap > 0) {
+                System.out.println(pstRangeAction.getId() + " at " + state.getId() + " : " + (minRelativeTap + optimalTapInPreviousState - optimalTap) + " / " + (maxRelativeTap + optimalTapInPreviousState - optimalTap));
+                linearProblem.removeHint(linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD));
+                linearProblem.removeHint(linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD));
+            }*/
         }
     }
 

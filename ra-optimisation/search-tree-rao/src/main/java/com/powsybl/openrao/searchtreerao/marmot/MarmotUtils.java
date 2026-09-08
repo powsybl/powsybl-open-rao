@@ -52,6 +52,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -299,6 +303,48 @@ public final class MarmotUtils {
             return temporalData.map(function);
         }
         return temporalData.mapMultiThreading(function, threads);
+    }
+
+    /**
+     * Select the best TemporalData mapping strategy based on the number of threads.
+     * Necessary not to create a pool for only one thread.
+     */
+    public static <A> TemporalData<A> smartMap(List<OffsetDateTime> offsetDateTimes, Function<OffsetDateTime, A> function, int threads) {
+        if (threads == 1) {
+            return new TemporalDataImpl<>(
+                offsetDateTimes.stream().collect(Collectors.toMap(
+                    Function.identity(),
+                    function)
+                )
+            );
+        }
+
+        try (ExecutorService executor = Executors.newFixedThreadPool(threads)) {
+            try {
+                List<Future<Map.Entry<OffsetDateTime, A>>> futures = new ArrayList<>();
+
+                for (OffsetDateTime offsetDateTime : offsetDateTimes) {
+                    futures.add(executor.submit(
+                        () -> Map.entry(offsetDateTime, function.apply(offsetDateTime))
+                    ));
+                }
+
+                Map<OffsetDateTime, A> result = new HashMap<>();
+
+                for (Future<Map.Entry<OffsetDateTime, A>> future : futures) {
+                    Map.Entry<OffsetDateTime, A> e = future.get();
+                    result.put(e.getKey(), e.getValue());
+                }
+
+                return new TemporalDataImpl<>(result);
+
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new OpenRaoException(e);
+            } finally {
+                executor.shutdown();
+            }
+        }
     }
 
     public static double getInitialSetPoint(RangeAction<?> rangeAction) {

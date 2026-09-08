@@ -48,7 +48,13 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         super.addAllRangeActionVariables(linearProblem, rangeAction, state);
         Optional<Double> activationCost = rangeAction.getActivationCost();
         if (activationCost.isPresent() && activationCost.get() > 0) {
-            linearProblem.addRangeActionVariationBinary(rangeAction, state);
+            OpenRaoMPVariable b = linearProblem.addRangeActionVariationBinary(rangeAction, state);
+            // This does not work, because if a pst moves at least 2 taps in the "continuous" stage, then it cannot go back to exactly its initial
+            // setpoint because of tap intervals having different angle sizes.
+            if (!(rangeAction instanceof PstRangeAction)) {
+                linearProblem.setHint(b, 0.0);
+            }
+            //linearProblem.setHint(b, 0.0);
         }
     }
 

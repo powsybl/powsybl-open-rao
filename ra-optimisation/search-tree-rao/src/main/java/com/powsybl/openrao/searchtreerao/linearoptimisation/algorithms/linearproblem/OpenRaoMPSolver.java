@@ -10,11 +10,13 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
+import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -51,6 +53,7 @@ public class OpenRaoMPSolver {
     Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
     OpenRaoMPObjective objective;
     private boolean objectiveMinimization = true;
+    Map<OpenRaoMPVariable, Double> hintValues = new TreeMap<>(Comparator.comparing(OpenRaoMPVariable::name, String.CASE_INSENSITIVE_ORDER));
 
     public OpenRaoMPSolver(String optProblemName, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
@@ -63,6 +66,7 @@ public class OpenRaoMPSolver {
         this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
         constraints = new TreeMap<>();
         variables = new TreeMap<>();
+        hintValues = new TreeMap<>(Comparator.comparing(OpenRaoMPVariable::name, String.CASE_INSENSITIVE_ORDER));
         this.objective = new OpenRaoMPObjective(mpSolver.objective());
         setSolverSpecificParametersAsString(solverSpecificParameters);
         if (objectiveMinimization) {
@@ -214,6 +218,27 @@ public class OpenRaoMPSolver {
     public void setMaximization() {
         mpSolver.objective().setMaximization();
         objectiveMinimization = false;
+    }
+
+    public void setHint(OpenRaoMPVariable variable, double value) {
+        hintValues.put(variable, value);
+    }
+
+    public void removeHint(OpenRaoMPVariable variable) {
+        hintValues.remove(variable);
+    }
+
+    public void applyHint() {
+        double[] values = new double[hintValues.size()];
+        MPVariable[] variables = new MPVariable[hintValues.size()];
+        int counter = 0;
+        for (Map.Entry<OpenRaoMPVariable, Double> entry : hintValues.entrySet()) {
+            System.out.println(entry.getKey().getMPVariable().name() + " : " + entry.getValue());
+            variables[counter] = entry.getKey().getMPVariable();
+            values[counter] = entry.getValue();
+            counter++;
+        }
+        mpSolver.setHint(variables, values);
     }
 
     /* Method used to make sure the MIP is reproducible. This basically rounds the least significant bits of a double.

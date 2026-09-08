@@ -137,7 +137,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
+            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, timeCoupledProblemFillers, parallelism);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -148,23 +148,27 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 return bestResult;
             }
 
-            // e.  Run sensitivity analyses with new set-points -> TODO: multi-thread
-            Map<OffsetDateTime, SensitivityComputer> newSensitivityComputers = new HashMap<>();
-            for (OffsetDateTime timestamp : rangeActionActivationPerTimestamp.getTimestamps()) {
-                IteratingLinearOptimizerInput inputForTimestamp = input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow();
-                newSensitivityComputers.put(
-                    timestamp,
-                    runSensitivityAnalysis(
-                        sensitivityComputers.getData(timestamp).orElse(null),
-                        iteration,
-                        rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
+            // e.  Run sensitivity analyses with new set-points
+            TemporalData<SensitivityComputer> finalSensitivityComputers = sensitivityComputers;
+            int finalIteration = iteration;
+            TemporalData<RangeActionActivationResult> finalRangeActionActivationPerTimestamp = rangeActionActivationPerTimestamp;
+            Map<OffsetDateTime, SensitivityComputer> newSensitivityComputers = MarmotUtils.smartMap(
+                rangeActionActivationPerTimestamp.getTimestamps(),
+                timestamp -> {
+                    IteratingLinearOptimizerInput inputForTimestamp = input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow();
+                    SensitivityComputer sensitivityComputer = runSensitivityAnalysis(
+                        finalSensitivityComputers.getData(timestamp).orElse(null),
+                        finalIteration,
+                        finalRangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
                         inputForTimestamp,
                         parameters,
                         reportNode
-                    )
-                );
-                MarmotUtils.releaseNetwork(inputForTimestamp.network());
-            }
+                    );
+                    MarmotUtils.releaseNetwork(inputForTimestamp.network());
+                    return sensitivityComputer;
+                },
+                parallelism
+            ).getDataPerTimestamp();
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -283,12 +287,14 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
     private static void updateLinearProblemBetweenMipIterations(LinearProblem linearProblem,
                                                                 TemporalData<List<ProblemFiller>> problemFillers,
+                                                                List<ProblemFiller> timeCoupledProblemFillers,
                                                                 TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(linearProblem, rangeActionActivationResults.getData(timestamp).orElseThrow()));
         });
+        timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(linearProblem, null));
     }
 
     private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem,
@@ -416,6 +422,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                           TimeCoupledIteratingLinearOptimizerInput input,
                                                                                           IteratingLinearOptimizerParameters parameters,
                                                                                           TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                          List<ProblemFiller> timeCoupledProblemFillers,
                                                                                           int parallelism) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
@@ -431,7 +438,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, rangeActionActivationResults);
+            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, timeCoupledProblemFillers, rangeActionActivationResults);
 
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {

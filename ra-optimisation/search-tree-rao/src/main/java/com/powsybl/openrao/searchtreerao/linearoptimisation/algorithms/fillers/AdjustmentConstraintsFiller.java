@@ -49,6 +49,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private final Set<AdjustmentConstraints> adjustmentConstraints;
     private final List<OffsetDateTime> timestamps;
     private final double timestampDuration;
+    private int iteration = 0;
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
     private static final double DEFAULT_P_MAX = 10000.0;

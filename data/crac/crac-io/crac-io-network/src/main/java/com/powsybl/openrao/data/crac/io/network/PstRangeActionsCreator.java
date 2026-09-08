@@ -67,7 +67,9 @@ class PstRangeActionsCreator {
         if (availableForAllStates) {
             pstAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
         } else {
-            crac.getStates().stream().filter(state -> parameters.isAvailable(twt, state, creationContext))
+            crac.getStates().stream()
+                .filter(state -> state.getInstant().equals(instant))
+                .filter(state -> parameters.isAvailable(twt, state, creationContext))
                 .forEach(
                     state -> pstAdder.newOnContingencyStateUsageRule()
                         .withInstant(instant.getId())

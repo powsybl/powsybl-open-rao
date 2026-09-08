@@ -133,6 +133,7 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        solver.applyHint();
         return solver.solve();
     }
 
@@ -150,6 +151,14 @@ public final class LinearProblem {
 
     public int numConstraints() {
         return solver.numConstraints();
+    }
+
+    public void setHint(OpenRaoMPVariable variable, double value) {
+        solver.setHint(variable, value);
+    }
+
+    public void removeHint(OpenRaoMPVariable variable) {
+        solver.removeHint(variable);
     }
 
     public OpenRaoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {

@@ -17,6 +17,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -133,7 +134,7 @@ public class Marmot implements TimeCoupledRaoProvider {
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
         TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
+        MarmotUtils.releaseAllWithoutOverwrite(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
 
@@ -716,9 +717,14 @@ public class Marmot implements TimeCoupledRaoProvider {
                 OffsetDateTime timestamp = crac.getTimestamp().orElseThrow();
                 Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
                 State preventiveState = crac.getPreventiveState();
+                Set<State> optimizedCurativeStates = consideredCnecs.getData(timestamp).orElseThrow().stream()
+                    .map(Cnec::getState)
+                    .filter(state -> state.getInstant().isCurative())
+                    .collect(Collectors.toSet());
+
                 // set of range actions optimized by the mip
                 crac.getStates().stream()
-                        .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+                        .filter(state -> state.isPreventive() || state.getInstant().isCurative() && optimizedCurativeStates.contains(state))
                         .forEach(state -> MarmotUtils.addRangeActionsPerState(availableRangeActions, crac, state));
                 return new GlobalOptimizationPerimeter(
                         preventiveState,
