@@ -22,19 +22,19 @@ import static com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParam
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 public class RaUsageLimits {
-    private static final int DEFAULT_MAX_RA = Integer.MAX_VALUE;
+    private static final Integer DEFAULT_MAX_RA = null;
     private static final Map<String, Integer> DEFAULT_MAX_TOPO_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_PST_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_RA_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO = new HashMap<>();
-    private int maxRa = DEFAULT_MAX_RA;
+    private Integer maxRa = DEFAULT_MAX_RA;
     private Map<String, Integer> maxTopoPerTso = DEFAULT_MAX_TOPO_PER_TSO;
     private Map<String, Integer> maxPstPerTso = DEFAULT_MAX_PST_PER_TSO;
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
     private Map<String, Integer> maxElementaryActionsPerTso = DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO;
 
-    public void setMaxRa(int maxRa) {
-        if (maxRa < 0) {
+    public void setMaxRa(Integer maxRa) {
+        if (maxRa != null && maxRa < 0) {
             BUSINESS_WARNS.warn("The value {} provided for max number of RAs is smaller than 0. It will be set to 0 instead.", maxRa);
             this.maxRa = 0;
         } else {
@@ -76,7 +76,7 @@ public class RaUsageLimits {
         this.maxElementaryActionsPerTso = Objects.isNull(maxElementaryActionsPerTso) ? new HashMap<>() : replaceNegativeValues(maxElementaryActionsPerTso);
     }
 
-    public int getMaxRa() {
+    public Integer getMaxRa() {
         return maxRa;
     }
 
@@ -113,11 +113,11 @@ public class RaUsageLimits {
         tsos.addAll(maxPstPerTso.keySet());
         tsos.forEach(tso -> {
             if (maxTopoPerTso.containsKey(tso)
-                && maxRaPerTso.getOrDefault(tso, DEFAULT_MAX_RA) < maxTopoPerTso.get(tso)) {
+                && maxRaPerTso.containsKey(tso) && maxRaPerTso.get(tso) < maxTopoPerTso.get(tso)) {
                 throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed RAs smaller than the number of allowed topological RAs. This is not supported.", tso));
             }
             if (maxPstPerTso.containsKey(tso)
-                && maxRaPerTso.getOrDefault(tso, DEFAULT_MAX_RA) < maxPstPerTso.get(tso)) {
+                && maxRaPerTso.containsKey(tso) && maxRaPerTso.get(tso) < maxPstPerTso.get(tso)) {
                 throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed RAs smaller than the number of allowed PST RAs. This is not supported.", tso));
             }
         });

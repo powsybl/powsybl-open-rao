@@ -113,7 +113,7 @@ public final class SearchTreeBloomer {
         int naCombinationSize = naCombination.getNetworkActionSet().size();
         Set<NetworkAction> alreadyActivatedNetworkActions = optimizationResult.getActivatedNetworkActions();
         Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions(optimizationState);
-        if (alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
+        if (raUsageLimits.getMaxRa() != null && alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
             return true;
         }
 
