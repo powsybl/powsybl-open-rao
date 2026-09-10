@@ -61,6 +61,7 @@ class SensitivityResultImplTest {
 
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        when(cnec.getNominalVoltage(ONE)).thenReturn(800.0 / Math.sqrt(3));
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, ONE)).thenReturn(8.);
         when(systematicSensitivityResult.getSensitivityOnIntensity(linearGlsk, cnec, ONE)).thenReturn(10.);
 
