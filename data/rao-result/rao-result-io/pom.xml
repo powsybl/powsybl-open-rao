@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-rao-result</artifactId>
-        <version>7.3.2-SNAPSHOT</version>
+        <version>7.3.2</version>
     </parent>
 
     <artifactId>open-rao-rao-result-io</artifactId>
