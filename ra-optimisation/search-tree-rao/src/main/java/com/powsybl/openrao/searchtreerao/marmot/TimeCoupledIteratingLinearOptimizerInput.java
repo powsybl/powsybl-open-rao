@@ -18,5 +18,6 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
  */
 public record TimeCoupledIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs,
                                                        ObjectiveFunction objectiveFunction,
-                                                       TimeCoupledConstraints timeCoupledConstraints) {
+                                                       TimeCoupledConstraints timeCoupledConstraints,
+                                                       boolean synchronizeCurativeRangeActions) {
 }
