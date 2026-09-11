@@ -46,7 +46,8 @@ myst_enable_extensions = [
     "amsmath",
     "colon_fence",
     "dollarmath",
-    "attrs_inline"
+    "attrs_inline",
+    "substitution"
 ]
 myst_heading_anchors = 6
 
@@ -108,3 +109,9 @@ copybutton_prompt_is_regexp = True
 
 copybutton_copy_text = "Copy"
 copybutton_success_text = "Copied!"
+
+# Version for dynamic links
+myst_substitutions = {
+    "version": "test",
+}
+release_version = os.environ.get("READTHEDOCS_VERSION", "latest")
