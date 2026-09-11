@@ -32,7 +32,7 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
 ## Non-specific parameters
 
-OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/|version|/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java) 
+OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/{version}/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java) 
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
