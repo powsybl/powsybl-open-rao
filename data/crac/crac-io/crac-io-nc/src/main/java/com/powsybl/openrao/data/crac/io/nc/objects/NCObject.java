@@ -11,5 +11,4 @@ package com.powsybl.openrao.data.crac.io.nc.objects;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface NCObject {
-    String mrid();
 }

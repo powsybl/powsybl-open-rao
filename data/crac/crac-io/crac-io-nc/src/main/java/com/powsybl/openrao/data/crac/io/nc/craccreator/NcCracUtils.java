@@ -40,7 +40,8 @@ public final class NcCracUtils {
     }
 
     public static String getUniqueName(String prefixUrl, String suffix) {
-        return getTsoNameFromUrl(prefixUrl).concat("_").concat(suffix);
+        String tsoName = getTsoNameFromUrl(prefixUrl);
+        return tsoName == null ? suffix : tsoName.concat("_").concat(suffix);
     }
 
     public static Optional<String> createElementName(String nativeElementName, String tsoNameUrl) {
@@ -59,12 +60,20 @@ public final class NcCracUtils {
             return false;
         }
         try {
-            OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
-            OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
+            OffsetDateTime startDateTime = parseDate(startTime);
+            OffsetDateTime endDateTime = parseDate(endTime);
             return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    private static OffsetDateTime parseDate(String timestamp) {
+        // TODO: check zone offset
+        if (!timestamp.endsWith("Z")) {
+            return OffsetDateTime.parse(timestamp + "Z");
+        }
+        return OffsetDateTime.parse(timestamp);
     }
 
     public static int convertDurationToSeconds(String duration) {
@@ -129,6 +138,7 @@ public final class NcCracUtils {
     }
 
     public static String getTsoNameFromUrl(String url) {
-        return TsoEICode.fromEICode(getEicFromUrl(url)).getDisplayName();
+        String eic = getEicFromUrl(url);
+        return eic == null ? null : TsoEICode.fromEICode(eic).getDisplayName();
     }
 }
