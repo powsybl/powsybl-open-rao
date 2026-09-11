@@ -46,7 +46,8 @@ myst_enable_extensions = [
     "amsmath",
     "colon_fence",
     "dollarmath",
-    "attrs_inline"
+    "attrs_inline",
+    "substitution"
 ]
 myst_heading_anchors = 6
 
