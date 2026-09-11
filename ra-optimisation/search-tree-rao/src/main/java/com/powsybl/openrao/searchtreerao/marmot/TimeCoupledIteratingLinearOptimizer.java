@@ -84,7 +84,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input);
+        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input, parameters);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters);
         fillLinearProblem(
             linearProblem,
@@ -225,7 +225,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
+    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: add time-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs()
             .map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
@@ -242,7 +242,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 input.iteratingLinearOptimizerInputs().map(tsInput -> tsInput.optimizationPerimeter().getRangeActions()),
                 preventiveStates,
                 input.timeCoupledConstraints().getAdjustmentConstraints(),
-                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints)
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints),
+                parameters
             )
         );
     }

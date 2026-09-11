@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.timecoupledconstraints.AdjustmentConstraints;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -34,6 +35,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.BoundExtension.LOWER_BOUND;
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.BoundExtension.UPPER_BOUND;
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.DOWNWARD;
@@ -49,6 +51,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private final Set<AdjustmentConstraints> adjustmentConstraints;
     private final List<OffsetDateTime> timestamps;
     private final double timestampDuration;
+    private final IteratingLinearOptimizerParameters parameters;
     private int iteration = 0;
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
@@ -61,13 +64,14 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
             - if the physical adjustments are happening on the setpoint, or if the setpoint only really makes sense as a delta (eg rd/pst vs ct)
             - if the adjustments can only happen on round hours (eg ct)
      */
-    public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActionsPerTimestamp, TemporalData<State> preventiveStates, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints) {
+    public AdjustmentConstraintsFiller(TemporalData<Set<RangeAction<?>>> rangeActionsPerTimestamp, TemporalData<State> preventiveStates, Set<AdjustmentConstraints> adjustmentConstraints, TemporalData<RangeActionSetpointResult> prePerimeterSetpoints, IteratingLinearOptimizerParameters parameters) {
         this.rangeActionsPerTimestamp = rangeActionsPerTimestamp;
         this.preventiveStates = preventiveStates;
         this.adjustmentConstraints = adjustmentConstraints;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         this.timestampDuration = computeTimestampDuration(rangeActionsPerTimestamp.getTimestamps());
         this.timestamps = rangeActionsPerTimestamp.getTimestamps();
+        this.parameters = parameters;
     }
 
     // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
@@ -143,7 +147,7 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
         // for psts, remove cost of being far from initial setpoint
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            try {
+            if (APPROXIMATED_INTEGERS == parameters.getRangeActionParametersExtension().getPstModel()) {
                 OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
                 linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
                 OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
@@ -155,8 +159,6 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
                     linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
 
                 }
-            } catch (OpenRaoException e) {
-                // nothing to do
             }
         }
         // instead penalize number of adjustments
