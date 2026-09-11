@@ -10,11 +10,11 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.UnitConverter;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -72,7 +72,7 @@ public class SensitivityResultImpl implements SensitivityResult {
         if (targetUnit == Unit.MEGAWATT) {
             return 1.0;
         } else if (targetUnit == Unit.AMPERE) {
-            return UnitConverter.getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE);
+            return RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
         } else {
             throw new OpenRaoException(format("Unknown unit for sensitivity value on %s : %s.", sensitivityType, targetUnit));
         }
