@@ -108,3 +108,9 @@ copybutton_prompt_is_regexp = True
 
 copybutton_copy_text = "Copy"
 copybutton_success_text = "Copied!"
+
+# Version for dynamic links
+release_version = os.environ.get("READTHEDOCS_VERSION", "latest")
+rst_epilog = f"""
+.. |version| replace:: {release_version}
+"""
