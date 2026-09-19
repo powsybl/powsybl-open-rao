@@ -445,8 +445,8 @@ imposes the flow direction. Two terminals are referenced by the AngleCNEC in the
 *terminal_2*) is referenced by the `OperationalLimitSet`'s `Terminal` field. The flow direction is determined depending
 on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 
-- if it is missing of `false`, the importing element is *terminal_1* and the exporting element is *terminal_2*
-- if it is present of `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
+- if it is missing or `false`, the importing element is *terminal_1* and the exporting element is *terminal_2*
+- if it is present or `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
 
 > ⚠️ Note that if the `OperationalLimitType`'s `direction` is **not** `absoluteValue`, the `isFlowToRefTerminal` must be
 > present otherwise the AngleCNEC will be ignored.
