@@ -57,14 +57,14 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
     Then the value of the objective function after CRA should be -1000
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @second-preventive
-  # Even though there is no preventive state, the second preventive still works
-  # and finds the same tap values as the first curative (expected behaviour)
+  # Even if the parameter is set to POSSIBLE_CURATIVE_IMPROVEMENT, the second preventive is skipped.
+  # Indeed there is no preventive state, so no available preventive actions to improve the curative.
   Scenario: 1.3.2.2-ter: Simple case with curative remedial actions only and ONLY curative cnec WITH second preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us6_curative_only.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
-    Then the execution details should be "Second preventive improved first preventive results"
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"

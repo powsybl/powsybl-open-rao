@@ -57,11 +57,13 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -184,8 +186,7 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, getFlowUnit(parameters), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                // Add worst preventive cnec to considered cnecs to ensure preventive state is defined
-                consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
+                //consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 raoResult = runFilteredRao(
@@ -293,9 +294,12 @@ public class FastRao implements RaoProvider {
         RaoResult raoResult;
         try {
             raoResult = Rao.find(INNER_LOOP_RAO_IMPLEMENTATION).runAsync(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).get();
-            List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
-                .map(Identifiable::getId)
-                .toList();
+            List<String> preventiveNetworkActions = new ArrayList<>();
+            if (!Objects.isNull(crac.getPreventiveState())) {
+                preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
+                    .map(Identifiable::getId)
+                    .toList();
+            }
             // Define combinations to improve performance
             if (preventiveNetworkActions.size() >= 2) {
                 List<List<String>> predefinedCombinations = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
@@ -416,7 +420,9 @@ public class FastRao implements RaoProvider {
         RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialRangeActionSetpointResult);
 
         // Apply Preventive Remedial Actions
-        applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        if (!Objects.isNull(crac.getPreventiveState())) {
+            applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        }
 
         AppliedRemedialActions appliedRemedialActions;
         if (instantKind.equals(InstantKind.PREVENTIVE)) {

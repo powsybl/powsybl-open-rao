@@ -10,23 +10,6 @@
     "networkElementsIds" : [ "FFR2AA1  FFR3AA1  1" ]
   } ],
   "flowCnecs" : [ {
-    "id" : "BBE1AA1  FFR5AA1  1 - preventive",
-    "name" : "be1_fr5_n",
-    "networkElementId" : "BBE1AA1  FFR5AA1  1",
-    "operator" : null,
-    "instant" : "preventive",
-    "optimized" : true,
-    "monitored" : false,
-    "frm" : 0.0,
-    "iMax" : [ 2000.0 ],
-    "nominalV" : [ 400.0 ],
-    "thresholds" : [ {
-      "unit" : "ampere",
-      "min" : -1500.0,
-      "max" : 1500.0,
-      "rule" : "onNonRegulatedSide"
-    } ]
-  }, {
     "id" : "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative",
     "name" : "fr3_fr5_co1",
     "networkElementId" : "FFR3AA1  FFR5AA1  1",

@@ -141,6 +141,8 @@ class CastorSecondPreventiveTest {
         when(crac.getLastInstant()).thenReturn(curativeInstant);
         preventiveInstant = Mockito.mock(Instant.class);
         autoInstant = Mockito.mock(Instant.class);
+        State preventiveState = Mockito.mock(State.class);
+        when(crac.getPreventiveState()).thenReturn(preventiveState);
     }
 
     @Test
