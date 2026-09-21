@@ -459,6 +459,22 @@ class CastorFullOptimizationTest {
     }
 
     @Test
+    void testRaoWithNoPreventiveState() throws IOException {
+        setup("small-network-2P.uct", "small-crac-to-check-curative-optimization-if-preventive-secure.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
+        raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(false);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertEquals(
+            Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")),
+            raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant()))
+        );
+    }
+
+    @Test
     void curativeStopCriterionReachedSkipsPerimeterBuilding() throws IOException {
         setup("small-network-2P.uct", "small-crac-purely-virtual-curative.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
