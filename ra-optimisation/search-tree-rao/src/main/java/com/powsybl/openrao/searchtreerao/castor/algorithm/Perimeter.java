@@ -36,7 +36,6 @@ public class Perimeter {
      * @param cnecStates the other states to optimize in the perimeter (can be empty or null)
      */
     public Perimeter(State raOptimisationState, Set<State> cnecStates) {
-        Objects.requireNonNull(raOptimisationState);
         this.raOptimisationState = raOptimisationState;
         this.cnecStates = new HashSet<>();
         if (Objects.nonNull(cnecStates)) {
