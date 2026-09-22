@@ -139,7 +139,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             initialResult,
             Collections.emptySet(),
             raoParameters,
-            Set.of(crac.getPreventiveState())
+            Objects.isNull(crac.getPreventiveState()) ? Collections.emptySet() : Set.of(crac.getPreventiveState())
         );
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
             finalPreventivePerimeterResult.optimizationResult(),

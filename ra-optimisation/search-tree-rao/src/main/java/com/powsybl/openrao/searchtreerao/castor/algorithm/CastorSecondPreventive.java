@@ -112,6 +112,9 @@ public class CastorSecondPreventive {
                                          Collection<PostPerimeterResult> curativeRaoResults,
                                          RaoResult postFirstRaoResult,
                                          long estimatedPreventiveRaoTimeInSeconds) {
+        if (Objects.isNull(crac.getPreventiveState())) {
+            return false;
+        }
         Instant lastCurativeInstant = crac.getLastInstant();
         if (getSecondPreventiveExecutionCondition(raoParameters).equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
             return false;
