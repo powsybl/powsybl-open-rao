@@ -26,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PstConstraintsFiller;
@@ -224,39 +225,66 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: add time-coupled margin filler (min of all min margins)
-        TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs()
-            .map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
-        TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-            .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
-
         List<ProblemFiller> problemFillers = new ArrayList<>();
-        problemFillers.add(new GeneratorConstraintsFiller(
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
-            preventiveStates,
-            preventiveInjectionRangeActions,
-            input.timeCoupledConstraints().getGeneratorConstraints()
-        ));
+        TemporalData<State> mainOptimizationStates = input.iteratingLinearOptimizerInputs().map(
+            iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getMainOptimizationState()
+        );
+        boolean isPreventiveMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isPreventive());
+        boolean isCurativeMip = mainOptimizationStates.getDataPerTimestamp().values().stream().allMatch(state -> state.getInstant().isCurative());
+        if (!isPreventiveMip && !isCurativeMip) {
+            throw new OpenRaoException("Main optimization state must be either preventive or curative.");
+        }
+        if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
+            TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
+            problemFillers.add(new GeneratorConstraintsFiller(
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
+                mainOptimizationStates,
+                preventiveInjectionRangeActions,
+                input.timeCoupledConstraints().getGeneratorConstraints()
+            ));
+        }
 
         Set<PstConstraints> pstConstraints = input.timeCoupledConstraints().getPstConstraints();
-        if (!pstConstraints.isEmpty()) {
+        if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !pstConstraints.isEmpty()) {
             if (!getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
                 throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
             }
             TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
                 .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), PstRangeAction.class));
             problemFillers.add(new PstConstraintsFiller(
-                preventiveStates,
+                mainOptimizationStates,
                 preventivePstRangeActions,
                 pstConstraints
             ));
+        }
+
+        // Two cases for the curative range actions synchronization :
+        // 1. curative MIP
+        if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
+            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
+            )));
+        }
+        // 2. global MIP (main optimization state is preventive but the optimization perimeter is global)
+        if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
+            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+                iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
+            )));
         }
         return problemFillers;
     }
 
     private static <T extends RangeAction<?>> Set<T> filterPreventiveRangeAction(Set<RangeAction<?>> rangeActions, Class<T> classType) {
         return rangeActions.stream().filter(classType::isInstance).map(classType::cast).collect(Collectors.toSet());
+    }
+
+    private static Map<State, Set<RangeAction<?>>> getCurativeRangeActionsPerState(OptimizationPerimeter optimizationPerimeter) {
+        return optimizationPerimeter.getRangeActionsPerState().entrySet().stream()
+            .filter(statesSetEntry -> statesSetEntry.getKey().getInstant().isCurative())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
@@ -494,11 +522,11 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                        final LinearOptimizationResult currentResult,
                                        final ReportNode reportNode) {
         LinearOptimizerReports.reportLinearOptimFoundWorseResult(reportNode,
-                iteration,
-                bestResult.getCost(),
-                currentResult.getCost(),
-                bestResult.getFunctionalCost(),
-                currentResult.getFunctionalCost());
+            iteration,
+            bestResult.getCost(),
+            currentResult.getCost(),
+            bestResult.getFunctionalCost(),
+            currentResult.getFunctionalCost());
 
         currentResult.getVirtualCostNames().forEach(vc -> {
             double cost = currentResult.getVirtualCost(vc);
