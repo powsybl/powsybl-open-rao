@@ -1,0 +1,108 @@
+@base          <https://ap-con.cim4.eu/Contingency-Complex/2.3> .
+@prefix psb:     <https://www.powsybl.org/#> .
+@prefix cim:     <https://cim.ucaiug.io/ns#> .
+@prefix cim16:   <http://iec.ch/TC57/2013/CIM-schema-cim16#> .
+@prefix cim17:   <http://iec.ch/TC57/CIM100#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nc:      <https://cim4.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+psb:Ontology  rdf:type        owl:Ontology ;
+        dcterms:creator       "PowSyBl"@en ;
+        dcterms:description   "Custom PowSyBl constraints for the Contingency profile."@en ;
+        dcterms:language      "en-GB" ;
+        dcterms:publisher     "PowSyBl"@en ;
+        dcterms:rights        "Copyright"@en ;
+        dcterms:rightsHolder  "PowSyBl"@en ;
+        dcterms:title         "Contingency profile custom PowSyBl constraints"@en ;
+        dcterms:license       "http://mozilla.org/MPL/2.0/" ;
+        owl:versionInfo       "1.0.0.beta"@en ;
+        dcat:landingPage      "https://www.powsybl.org/" ;
+        dcat:theme            "constraints"@en .
+
+psb:COgroup
+        a           sh:PropertyGroup ;
+        rdfs:label  "ContingencyGroup" ;
+        sh:order    0 .
+
+psb:Contingency  a          sh:NodeShape ;
+        sh:property     psb:Contingency.normalMustStudy-allowedValues, psb:Contingency.normalProbability-allowedValues, psb:Contingency.EquipmentOperator-allowedValues ;
+        sh:targetClass  nc:ExceptionalContingency, nc:OrdinaryContingency, nc:OutOfRangeContingency .
+
+psb:Contingency.normalMustStudy-allowedValues
+        a               sh:PropertyShape ;
+        sh:description  "A contingency should be imported only if it is labeled as to study." ;
+        sh:message      "Contingency must not be studied." ;
+        sh:path         nc:Contingency.normalMustStudy ;
+        sh:group        psb:COgroup ;
+        sh:in           ( "true"^^xsd:boolean ) ;
+        sh:name         "C:NC:CO:Contingency.normalMustStudy:allowedValues" ;
+        sh:order        0 ;
+        sh:severity     sh:Info .
+
+psb:Contingency.normalProbability-allowedValues
+        a               sh:PropertyShape ;
+        sh:description  "A probability must fall in the range [0, 100]." ;
+        sh:message      "Probability of the contingency is not in the allowed range [0, 100]." ;
+        sh:path         nc:Contingency.normalProbability ;
+        sh:group        psb:COgroup ;
+        sh:datatype     xsd:float ;
+        sh:minInclusive "0.0"^^xsd:float ;
+        sh:maxInclusive "100.0"^^xsd:float ;
+        sh:name         "C:NC:CO:Contingency.normalProbability:allowedValues" ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .
+
+psb:Contingency.EquipmentOperator-allowedValues
+        a               sh:PropertyShape ;
+        sh:description  "Contingency.EquipmentOperator shall reference a registered TSO EIC." ;
+        sh:message      "The declared operator of the contingency does not match any known TSO EIC." ;
+        sh:path         nc:Contingency.EquipmentOperator ;
+        sh:group        psb:COgroup ;
+        sh:nodeKind     sh:IRI ;
+        sh:in           (
+                            <http://energy.referencedata.eu/EIC/10XAL-KESH-----J>
+                            <http://energy.referencedata.eu/EIC/10XAT-APG------Z>
+                            <http://energy.referencedata.eu/EIC/10XBA-JPCCZEKC-K>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A094>
+                            <http://energy.referencedata.eu/EIC/10XCH-SWISSGRIDC>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A523>
+                            <http://energy.referencedata.eu/EIC/10XCZ-CEPS-GRIDE>
+                            <http://energy.referencedata.eu/EIC/10XDE-EON-NETZ-C>
+                            <http://energy.referencedata.eu/EIC/10XDE-ENBW--TNGX>
+                            <http://energy.referencedata.eu/EIC/10XDE-RWENET---W>
+                            <http://energy.referencedata.eu/EIC/10XDE-VE-TRANSMK>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A248>
+                            <http://energy.referencedata.eu/EIC/10XES-REE------E>
+                            <http://energy.referencedata.eu/EIC/10XFR-RTE------Q>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A264>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A515>
+                            <http://energy.referencedata.eu/EIC/10XGR-HTSO-----B>
+                            <http://energy.referencedata.eu/EIC/10XHR-HEP-OPS--A>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A329>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A531>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A345>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A55Y>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001B54W>
+                            <http://energy.referencedata.eu/EIC/10XCS-CG-TSO---5>
+                            <http://energy.referencedata.eu/EIC/10XMK-MEPSO----M>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A361>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A38Y>
+                            <http://energy.referencedata.eu/EIC/10XPL-TSO------P>
+                            <http://energy.referencedata.eu/EIC/10XPT-REN------9>
+                            <http://energy.referencedata.eu/EIC/10XRO-TEL------2>
+                            <http://energy.referencedata.eu/EIC/10X1001A1001A418>
+                            <http://energy.referencedata.eu/EIC/10XSI-ELES-----1>
+                            <http://energy.referencedata.eu/EIC/10XSK-SEPS-GRIDB>
+                            <http://energy.referencedata.eu/EIC/10XTR-TEIAS----9>
+                            <http://energy.referencedata.eu/EIC/10XUA-WPS------K>
+                            <http://energy.referencedata.eu/EIC/10XRKS-KOSTT-007>
+                        ) ;
+        sh:name         "C:NC:CO:Contingency.EquipmentOperator:allowedValues" ;
+        sh:order        2 ;
+        sh:severity     sh:Violation .

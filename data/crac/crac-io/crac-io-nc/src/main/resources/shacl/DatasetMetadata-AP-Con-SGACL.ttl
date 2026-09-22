@@ -1,0 +1,1725 @@
+#Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  See the NOTICE file distributed with this work for additional information regarding copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHO WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
+BASE   <https://ap-con.cim4.eu/DatasetMetadata-Simple/3.0>
+PREFIX adms:    <http://www.w3.org/ns/adms#>
+PREFIX dcat:    <http://www.w3.org/ns/dcat#>
+PREFIX dcatcim: <https://cim4.eu/ns/dcatcim#>
+@prefix cim:     <https://cim.ucaiug.io/ns#> .
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dm:      <https://ap-con.cim4.eu/DatasetMetadata-Simple/3.0#>
+PREFIX eumd:    <https://cim4.eu/ns/Metadata-European#>
+PREFIX ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#>
+PREFIX md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sh:      <http://www.w3.org/ns/shacl#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+dm:Ontology  rdf:type         owl:Ontology;
+        dcterms:conformsTo    "urn:iso:std:iec:61970-401:draft:ed-1" , "urn:iso:std:iec:61970-501:draft:ed-2";
+        dcterms:description   "Describing constraints extracted from RDFS.";
+        dcterms:identifier    "9aa40e6d-b8f0-411b-8768-3b50b36eb382";
+        dcterms:issued        "2026-05-28T20:52:40.541662800"^^xsd:dateTime;
+        dcterms:license       "https://www.apache.org/licenses/LICENSE-2.0"@en;
+        dcterms:modified      "2026-05-28"^^xsd:date;
+        dcterms:publisher     "ENTSO-E"@en;
+        dcterms:rightsHolder  "ENTSO-E"@en;
+        dcterms:title         "Dataset metadata vocabulary"@en;
+        owl:versionIRI        <https://ap-con.cim4.eu/DatasetMetadata-Simple/3.0>;
+        owl:versionInfo       "3.0.1"@en;
+        dcat:keyword          "DM";
+        dcat:theme            "constraint"@en .
+
+cim:
+    a           owl:Ontology ;
+    owl:imports sh: ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "https://cim.ucaiug.io/ns#"^^xsd:anyURI ;
+        sh:prefix "cim" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+        sh:prefix "rdf" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "https://cim.ucaiug.io/ns/eu#"^^xsd:anyURI ;
+        sh:prefix "eu" ;
+  ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/ns/prov#"^^xsd:anyURI ;
+        sh:prefix "prov" ;
+  ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/ns/adms#"^^xsd:anyURI ;
+        sh:prefix "adms" ;
+  ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/ns/dcat#"^^xsd:anyURI ;
+        sh:prefix "dcat" ;
+  ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "https://cim4.eu/ns/dcatcim#"^^xsd:anyURI ;
+        sh:prefix "dcatcim" ;
+  ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ;
+        sh:prefix "dcterms" ;
+    ] .
+
+
+dm:reverseDifference-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:class        dcatcim:Statements ;
+        sh:message      "Blank node (compound datatype) violation. Either it is not a blank node (nested structure, compound datatype) or it is not the right class.";
+        sh:name         "reverseDifference-datatype";
+        sh:nodeKind     sh:BlankNode;
+        sh:order        1;
+        sh:path         ( dcatcim:reverseDifference rdf:type );
+        sh:severity     sh:Violation .
+
+dm:reverseDifference-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "reverseDifference-cardinality";
+        sh:order        1;
+        sh:path         dcatcim:reverseDifference;
+        sh:severity     sh:Violation .
+
+dm:predicate-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required attribute.";
+        sh:minCount     1;
+        sh:name         "predicate-cardinality";
+        sh:order        1;
+        sh:path         ( dcatcim:forwardDifference dcatcim:statement rdf:predicate );
+        sh:severity     sh:Violation .
+
+dm:object-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required attribute.";
+        sh:minCount     1;
+        sh:name         "object-cardinality";
+        sh:order        0;
+        sh:path         ( dcatcim:forwardDifference dcatcim:statement rdf:object );
+        sh:severity     sh:Violation .
+
+dm:subject-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required attribute.";
+        sh:minCount     1;
+        sh:name         "subject-cardinality";
+        sh:order        1;
+        sh:path         ( dcatcim:forwardDifference dcatcim:statement rdf:subject );
+        sh:severity     sh:Violation .
+
+dm:statement-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:class      rdf:Statement;
+        sh:message      "Blank node (compound datatype) violation. Either it is not a blank node (nested structure, compound datatype) or it is not the right class.";
+        sh:name         "statement-datatype";
+        sh:nodeKind     sh:BlankNode;
+        sh:order        0;
+        sh:path         ( dcatcim:forwardDifference dcatcim:statement rdf:type );
+        sh:severity     sh:Violation .
+
+dm:statement-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:message      "Cardinality violation. Lower bound shall be 1";
+        sh:minCount     1;
+        sh:name         "statement-cardinality";
+        sh:order        0;
+        sh:path         ( dcatcim:forwardDifference dcatcim:statement );
+        sh:severity     sh:Violation .
+
+dm:title-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "title-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        1;
+        sh:path         ( dcatcim:forwardDifference dcterms:title );
+        sh:severity     sh:Violation .
+
+dm:title-cardinality  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required attribute.";
+        sh:minCount     1;
+        sh:name         "title-cardinality";
+        sh:order        1;
+        sh:path         ( dcatcim:forwardDifference dcterms:title );
+        sh:severity     sh:Violation .
+
+dm:forwardDifference-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:class        dcatcim:Statements;
+        sh:message      "Blank node (compound datatype) violation. Either it is not a blank node (nested structure, compound datatype) or it is not the right class.";
+        sh:name         "forwardDifference-datatype";
+        sh:nodeKind     sh:BlankNode;
+        sh:order        0;
+        sh:path         ( dcatcim:forwardDifference rdf:type );
+        sh:severity     sh:Violation .
+
+dm:forwardDifference-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "forwardDifference-cardinality";
+        sh:order        0;
+        sh:path         dcatcim:forwardDifference;
+        sh:severity     sh:Violation .
+
+dm:DifferenceSet  rdf:type  sh:NodeShape;
+        sh:property     dm:alternativeVersionOf-cardinality , dm:temporalResolution-datatype , dm:temporalResolution-cardinality , dm:spatial-datatype , dm:spatial-cardinality , dm:previousVersion-cardinality , dm:description-datatype , dm:description-cardinality , dm:accessRights-datatype , dm:accessRights-cardinality , dm:generatedAtTime-datatype , dm:generatedAtTime-cardinality , dm:source-datatype , dm:versionNotes-datatype , dm:versionNotes-cardinality , dm:processType-datatype , dm:processType-cardinality , dm:preferredVersion-cardinality , dm:usedSettings-datatype , dm:endDate-datatype , dm:endDate-cardinality , dm:publisher-datatype , dm:publisher-cardinality , dm:accrualPeriodicity-datatype , dm:accrualPeriodicity-cardinality , dm:keyword-datatype , dm:wasGeneratedBy-datatype , dm:wasGeneratedBy-cardinality , dm:version-datatype , dm:version-cardinality , dm:isVersionOf-cardinality , dm:rightsHolder-datatype , dm:rightsHolder-cardinality , dm:conformsTo-datatype , dm:conformsTo-cardinality , dm:startDate-datatype , dm:startDate-cardinality , dm:license-datatype , dm:license-cardinality , dm:rights-datatype , dm:rights-cardinality , dm:applicationSoftware-datatype , dm:applicationSoftware-cardinality , dm:issued-datatype , dm:issued-cardinality , dm:type-datatype , dm:type-cardinality , dm:inSeries-cardinality , dm:nextVersion-cardinality , dm:identifier-datatype , dm:identifier-cardinality , dm:forwardDifference-cardinality , dm:forwardDifference-datatype , dm:title-cardinality , dm:title-datatype , dm:statement-cardinality , dm:statement-datatype , dm:subject-cardinality , dm:object-cardinality  , dm:predicate-cardinality  , dm:reverseDifference-cardinality , dm:reverseDifference-datatype;
+        sh:targetClass  dcatcim:DifferenceSet .
+
+dm:isReferencedBy-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        43;
+        sh:path         dcterms:isReferencedBy;
+        sh:severity     sh:Violation .
+
+dm:isReferencedBy-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:isReferencedBy-propertyInverse;
+        sh:targetSubjectsOf  dcterms:isReferencedBy .
+
+dm:seriesMember-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        42;
+        sh:path         dcat:seriesMember;
+        sh:severity     sh:Violation .
+
+dm:seriesMember-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:seriesMember-propertyInverse;
+        sh:targetSubjectsOf  dcat:seriesMember .
+
+dm:alternativeVersionOf-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "alternativeVersionOf-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        39;
+        sh:path         ( dcatcim:alternativeVersionOf rdf:type );
+        sh:severity     sh:Violation .
+
+dm:alternativeVersionOf-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:alternativeVersionOf-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:alternativeVersionOf-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "alternativeVersionOf-cardinality";
+        sh:order        39;
+        sh:path         dcatcim:alternativeVersionOf;
+        sh:severity     sh:Violation .
+
+dm:temporalResolution-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:duration;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "temporalResolution-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        38;
+        sh:path         dcat:temporalResolution;
+        sh:severity     sh:Violation .
+
+dm:temporalResolution-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "temporalResolution-cardinality";
+        sh:order        38;
+        sh:path         dcat:temporalResolution;
+        sh:severity     sh:Violation .
+
+dm:spatial-datatype  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "spatial-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        37;
+        sh:path         dcterms:spatial;
+        sh:severity     sh:Violation .
+
+dm:spatial-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "spatial-cardinality";
+        sh:order        37;
+        sh:path         dcterms:spatial;
+        sh:severity     sh:Violation .
+
+dm:previousVersion-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "previousVersion-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        36;
+        sh:path         ( dcat:previousVersion rdf:type );
+        sh:severity     sh:Violation .
+
+dm:previousVersion-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:previousVersion-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:previousVersion-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "previousVersion-cardinality";
+        sh:order        36;
+        sh:path         dcat:previousVersion;
+        sh:severity     sh:Violation .
+
+dm:description-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     rdf:langString;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "description-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        35;
+        sh:path         dcterms:description;
+        sh:severity     sh:Violation .
+
+dm:description-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "description-cardinality";
+        sh:order        35;
+        sh:path         dcterms:description;
+        sh:severity     sh:Violation .
+
+dm:accessRights-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "accessRights-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        34;
+        sh:path         dcterms:accessRights;
+        sh:severity     sh:Violation .
+
+dm:accessRights-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "accessRights-cardinality";
+        sh:order        34;
+        sh:path         dcterms:accessRights;
+        sh:severity     sh:Violation .
+
+dm:replaces-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "replaces-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        33;
+        sh:path         ( dcterms:replaces rdf:type );
+        sh:severity     sh:Violation .
+
+dm:replaces-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:replaces-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:generatedAtTime-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:dateTimeStamp;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "generatedAtTime-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        32;
+        sh:path         prov:generatedAtTime;
+        sh:severity     sh:Violation .
+
+dm:generatedAtTime-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     0;
+        sh:name         "generatedAtTime-cardinality";
+        sh:order        32;
+        sh:path         prov:generatedAtTime;
+        sh:severity     sh:Violation .
+
+dm:source-datatype  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "source-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        31;
+        sh:path         dcterms:source;
+        sh:severity     sh:Violation .
+
+dm:versionNotes-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     rdf:langString;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "versionNotes-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        30;
+        sh:path         adms:versionNotes;
+        sh:severity     sh:Violation .
+
+dm:versionNotes-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "versionNotes-cardinality";
+        sh:order        30;
+        sh:path         adms:versionNotes;
+        sh:severity     sh:Violation .
+
+dm:processType-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "processType-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        29;
+        sh:path         eumd:processType;
+        sh:severity     sh:Violation .
+
+dm:processType-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "processType-cardinality";
+        sh:order        29;
+        sh:path         eumd:processType;
+        sh:severity     sh:Violation .
+
+dm:hasAlternativeVersion-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        30;
+        sh:path         dcatcim:hasAlternativeVersion;
+        sh:severity     sh:Violation .
+
+dm:hasAlternativeVersion-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:hasAlternativeVersion-propertyInverse;
+        sh:targetSubjectsOf  dcatcim:hasAlternativeVersion .
+
+dm:references-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "references-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        27;
+        sh:path         ( dcterms:references rdf:type );
+        sh:severity     sh:Violation .
+
+dm:references-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:references-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:hasPart-valueType  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "hasPart-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        26;
+        sh:path         ( dcterms:hasPart rdf:type );
+        sh:severity     sh:Violation .
+
+dm:hasPart-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:hasPart-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:hasPreferredVersion-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        27;
+        sh:path         dcatcim:hasPreferredVersion;
+        sh:severity     sh:Violation .
+
+dm:hasPreferredVersion-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:hasPreferredVersion-propertyInverse;
+        sh:targetSubjectsOf  dcatcim:hasPreferredVersion .
+
+dm:isRequiredBy-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        26;
+        sh:path         dcterms:isRequiredBy;
+        sh:severity     sh:Violation .
+
+dm:isRequiredBy-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:isRequiredBy-propertyInverse;
+        sh:targetSubjectsOf  dcterms:isRequiredBy .
+
+dm:preferredVersion-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "preferredVersion-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        23;
+        sh:path         ( dcatcim:preferredVersion rdf:type );
+        sh:severity     sh:Violation .
+
+dm:preferredVersion-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:preferredVersion-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:preferredVersion-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "preferredVersion-cardinality";
+        sh:order        23;
+        sh:path         dcatcim:preferredVersion;
+        sh:severity     sh:Violation .
+
+dm:usedSettings-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "usedSettings-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        22;
+        sh:path         eumd:usedSettings;
+        sh:severity     sh:Violation .
+
+dm:endDate-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:dateTimeStamp;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "endDate-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        21;
+        sh:path         dcat:endDate;
+        sh:severity     sh:Violation .
+
+dm:endDate-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "endDate-cardinality";
+        sh:order        21;
+        sh:path         dcat:endDate;
+        sh:severity     sh:Violation .
+
+dm:publisher-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "publisher-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        20;
+        sh:path         dcterms:publisher;
+        sh:severity     sh:Violation .
+
+dm:publisher-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "publisher-cardinality";
+        sh:order        20;
+        sh:path         dcterms:publisher;
+        sh:severity     sh:Violation .
+
+dm:accrualPeriodicity-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:anyURI;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "accrualPeriodicity-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        19;
+        sh:path         dcterms:accrualPeriodicity;
+        sh:severity     sh:Violation .
+
+dm:accrualPeriodicity-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "accrualPeriodicity-cardinality";
+        sh:order        19;
+        sh:path         dcterms:accrualPeriodicity;
+        sh:severity     sh:Violation .
+
+dm:keyword-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "keyword-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        18;
+        sh:path         dcat:keyword;
+        sh:severity     sh:Violation .
+
+dm:wasGeneratedBy-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "wasGeneratedBy-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        17;
+        sh:path         prov:wasGeneratedBy;
+        sh:severity     sh:Violation .
+
+dm:wasGeneratedBy-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "wasGeneratedBy-cardinality";
+        sh:order        17;
+        sh:path         prov:wasGeneratedBy;
+        sh:severity     sh:Violation .
+
+dm:version-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "version-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        16;
+        sh:path         dcat:version;
+        sh:severity     sh:Violation .
+
+dm:version-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "version-cardinality";
+        sh:order        16;
+        sh:path         dcat:version;
+        sh:severity     sh:Violation .
+
+dm:isReplacedBy-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        17;
+        sh:path         dcterms:isReplacedBy;
+        sh:severity     sh:Violation .
+
+dm:isReplacedBy-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:isReplacedBy-propertyInverse;
+        sh:targetSubjectsOf  dcterms:isReplacedBy .
+
+dm:isVersionOf-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "isVersionOf-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        14;
+        sh:path         ( dcat:isVersionOf rdf:type );
+        sh:severity     sh:Violation .
+
+dm:isVersionOf-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:isVersionOf-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:isVersionOf-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Association with cardinality violation at the used direction.";
+        sh:minCount     1;
+        sh:name         "isVersionOf-cardinality";
+        sh:order        14;
+        sh:path         dcat:isVersionOf;
+        sh:severity     sh:Violation .
+
+dm:rightsHolder-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "rightsHolder-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        13;
+        sh:path         dcterms:rightsHolder;
+        sh:severity     sh:Violation .
+
+dm:rightsHolder-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "rightsHolder-cardinality";
+        sh:order        13;
+        sh:path         dcterms:rightsHolder;
+        sh:severity     sh:Violation .
+
+dm:conformsTo-datatype
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "conformsTo-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        12;
+        sh:path         dcterms:conformsTo;
+        sh:severity     sh:Violation .
+
+dm:conformsTo-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:message      "Cardinality violation. Lower bound shall be 1";
+        sh:minCount     1;
+        sh:name         "conformsTo-cardinality";
+        sh:order        12;
+        sh:path         dcterms:conformsTo;
+        sh:severity     sh:Violation .
+
+dm:startDate-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:dateTimeStamp;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "startDate-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        11;
+        sh:path         dcat:startDate;
+        sh:severity     sh:Violation .
+
+dm:startDate-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "startDate-cardinality";
+        sh:order        11;
+        sh:path         dcat:startDate;
+        sh:severity     sh:Violation .
+
+dm:isPartOf-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        12;
+        sh:path         dcterms:isPartOf;
+        sh:severity     sh:Violation .
+
+dm:isPartOf-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:isPartOf-propertyInverse;
+        sh:targetSubjectsOf  dcterms:isPartOf .
+
+dm:license-datatype  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "license-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        9;
+        sh:path         dcterms:license;
+        sh:severity     sh:Violation .
+
+dm:license-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "license-cardinality";
+        sh:order        9;
+        sh:path         dcterms:license;
+        sh:severity     sh:Violation .
+
+dm:requires-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "requires-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        8;
+        sh:path         ( dcterms:requires rdf:type );
+        sh:severity     sh:Violation .
+
+dm:requires-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:requires-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:rights-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "rights-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        7;
+        sh:path         dcterms:rights;
+        sh:severity     sh:Violation .
+
+dm:rights-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "rights-cardinality";
+        sh:order        7;
+        sh:path         dcterms:rights;
+        sh:severity     sh:Violation .
+
+dm:applicationSoftware-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "applicationSoftware-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        6;
+        sh:path         eumd:applicationSoftware;
+        sh:severity     sh:Violation .
+
+dm:applicationSoftware-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "applicationSoftware-cardinality";
+        sh:order        6;
+        sh:path         eumd:applicationSoftware;
+        sh:severity     sh:Violation .
+
+dm:issued-datatype  rdf:type  sh:PropertyShape;
+        sh:datatype     xsd:dateTime;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "issued-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        5;
+        sh:path         dcterms:issued;
+        sh:severity     sh:Violation .
+
+dm:issued-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "issued-cardinality";
+        sh:order        5;
+        sh:path         dcterms:issued;
+        sh:severity     sh:Violation .
+
+dm:type-datatype  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The property value is not a IRI.";
+        sh:name         "type-datatype";
+        sh:nodeKind     sh:IRI;
+        sh:order        4;
+        sh:path         dcterms:type;
+        sh:severity     sh:Violation .
+
+dm:type-cardinality  rdf:type  sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "type-cardinality";
+        sh:order        4;
+        sh:path         dcterms:type;
+        sh:severity     sh:Violation .
+
+dm:hasVersion-propertyInverse
+        rdf:type        sh:PropertyShape;
+        sh:description  "Inverse associations shall not be instantiated.";
+        sh:group        dm:InverseAssociationsGroup;
+        sh:maxCount     0;
+        sh:message      "Inverse association is present.";
+        sh:name         "InverseAssociationPresent";
+        sh:order        5;
+        sh:path         dcat:hasVersion;
+        sh:severity     sh:Violation .
+
+dm:hasVersion-inverseNodePresent
+        rdf:type             sh:NodeShape;
+        sh:property          dm:hasVersion-propertyInverse;
+        sh:targetSubjectsOf  dcat:hasVersion .
+
+dm:inSeries-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "inSeries-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        2;
+        sh:path         ( dcat:inSeries rdf:type );
+        sh:severity     sh:Violation .
+
+dm:inSeries-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:inSeries-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:inSeries-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "inSeries-cardinality";
+        sh:order        2;
+        sh:path         dcat:inSeries;
+        sh:severity     sh:Violation .
+
+dm:nextVersion-valueType
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the value of the association at the used direction.";
+        sh:group        dm:AssociationsGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet );
+        sh:message      "One of the following occurs: 1) The value is not IRI; 2) The value is not the right class.";
+        sh:name         "nextVersion-valueType";
+        sh:nodeKind     sh:IRI;
+        sh:order        1;
+        sh:path         ( dcat:nextVersion rdf:type );
+        sh:severity     sh:Violation .
+
+dm:nextVersion-valueTypeNodeShape
+        rdf:type        sh:NodeShape;
+        sh:property     dm:nextVersion-valueType;
+        sh:targetClass  dcatcim:DifferenceSet , dcat:Dataset .
+
+dm:nextVersion-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Cardinality violation. Upper bound shall be 1";
+        sh:name         "nextVersion-cardinality";
+        sh:order        1;
+        sh:path         dcat:nextVersion;
+        sh:severity     sh:Violation .
+
+dm:identifier-datatype
+        rdf:type        sh:PropertyShape;
+        sh:datatype     xsd:string;
+        sh:description  "This constraint validates the datatype of the property (attribute).";
+        sh:group        dm:DatatypesGroup;
+        sh:message      "The datatype is not literal or it violates the xsd datatype.";
+        sh:name         "identifier-datatype";
+        sh:nodeKind     sh:Literal;
+        sh:order        0;
+        sh:path         dcterms:identifier;
+        sh:severity     sh:Violation .
+
+dm:identifier-cardinality
+        rdf:type        sh:PropertyShape;
+        sh:description  "This constraint validates the cardinality of the property (attribute).";
+        sh:group        dm:CardinalityGroup;
+        sh:maxCount     1;
+        sh:message      "Missing required property (attribute).";
+        sh:minCount     1;
+        sh:name         "identifier-cardinality";
+        sh:order        0;
+        sh:path         dcterms:identifier;
+        sh:severity     sh:Violation .
+
+dm:Dataset  rdf:type    sh:NodeShape;
+        sh:property     dm:alternativeVersionOf-cardinality , dm:temporalResolution-datatype , dm:temporalResolution-cardinality , dm:spatial-datatype , dm:spatial-cardinality , dm:previousVersion-cardinality , dm:description-datatype , dm:description-cardinality , dm:accessRights-datatype , dm:accessRights-cardinality , dm:generatedAtTime-datatype , dm:generatedAtTime-cardinality , dm:source-datatype , dm:versionNotes-datatype , dm:versionNotes-cardinality , dm:processType-datatype , dm:processType-cardinality , dm:preferredVersion-cardinality , dm:usedSettings-datatype , dm:endDate-datatype , dm:endDate-cardinality , dm:publisher-datatype , dm:publisher-cardinality , dm:accrualPeriodicity-datatype , dm:accrualPeriodicity-cardinality , dm:keyword-datatype , dm:wasGeneratedBy-datatype , dm:wasGeneratedBy-cardinality , dm:version-datatype , dm:version-cardinality , dm:isVersionOf-cardinality , dm:rightsHolder-datatype , dm:rightsHolder-cardinality , dm:conformsTo-datatype , dm:conformsTo-cardinality , dm:startDate-datatype , dm:startDate-cardinality , dm:identifier-cardinality , dm:identifier-datatype , dm:nextVersion-cardinality , dm:inSeries-cardinality , dm:type-cardinality , dm:type-datatype , dm:issued-cardinality , dm:issued-datatype , dm:applicationSoftware-cardinality , dm:applicationSoftware-datatype , dm:rights-cardinality , dm:rights-datatype , dm:license-cardinality , dm:license-datatype;
+        sh:targetClass  dcat:Dataset .
+
+dm:AllowedClasses-property
+        rdf:type        sh:PropertyShape;
+        sh:description  "Checks if the dataset contains classes which are not defined in the profile to which this dataset conforms to.";
+        sh:group        dm:ProfileClassesGroup;
+        sh:in           ( dcat:Dataset dcatcim:DifferenceSet);
+        sh:message      "This class is not part of the profile to which this dataset conforms to.";
+        sh:name         "ClassNotInProfile";
+        sh:order        1;
+        sh:path         rdf:type;
+    sh:deactivated  true;
+        sh:severity     sh:Info .
+
+dm:AllowedClasses-node
+        rdf:type             sh:NodeShape;
+        sh:property          dm:AllowedClasses-property;
+        sh:targetSubjectsOf  rdf:type .
+
+dm:AssociationsGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Associations";
+        sh:order    2 .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup;
+        rdfs:label  "DatatypesIO";
+        sh:order    1 .
+
+dm:ProfileClassesGroup
+        rdf:type    sh:PropertyGroup;
+        rdfs:label  "ProfileClasses";
+        sh:order    1 .
+
+dm:InverseAssociationsGroup
+        rdf:type    sh:PropertyGroup;
+        rdfs:label  "InverseAssociations";
+        sh:order    1 .
+
+dm:DatatypesGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Datatypes";
+        sh:order    1 .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "CardinalityIO";
+        sh:order    0 .
+
+dm:CardinalityGroup  rdf:type  sh:PropertyGroup;
+        rdfs:label  "Cardinality";
+        sh:order    0 .
+
+
+dm:CardinalityGroupCustom  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityCustom" ;
+        sh:order    0 .
+
+
+dm:LanguageTagGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "LanguageTagGroup" ;
+        sh:order    0 .
+
+dm:conformsTo-cardinality
+        rdf:type               sh:PropertyShape ;
+        sh:deactivated  true .
+
+#dm:Dataset  rdf:type  sh:NodeShape ;
+#        sh:property     dm:spatial-NC-cardinality, dm:isVersionOf-NC-cardinality, dm:wasGeneratedBy-NC-cardinality, dm:accrualPeriodicity-NC-cardinality, dm:usedSettings-NC-cardinality, dm:accessRights-NC-cardinality, dm:conformsTo-NC-cardinality, dm:publisher-NC-cardinality, dm:references-NC-cardinality, dm:identifier-NC-cardinality, dm:issued-NC-cardinality, dm:title-NC-cardinality, dm:keyword-NC-cardinality, dm:version-NC-cardinality, dm:startDate-NC-cardinality,  dm:replaces-cardinality, dm:alternativeVersionAndPreferredVersion-dependency ;
+#        sh:targetClass  dcat:Dataset .
+
+dm:Dataset  rdf:type  sh:NodeShape ;
+        sh:property     dm:spatial-NC-cardinality, dm:accrualPeriodicity-NC-cardinality, dm:usedSettings-NC-cardinality, dm:accessRights-NC-cardinality, dm:conformsTo-NC-cardinality,  dm:requires-NC-cardinality, dm:issued-NC-cardinality, dm:keyword-NC-cardinality, dm:versionNotes.langTag-presence, dm:description.langTag-presence, dm:alternativeVersionAndPreferredVersion-dependency ;
+        sh:targetClass  dcat:Dataset , dcatcim:DifferenceSet.
+
+dm:DifferenceSet  rdf:type  sh:NodeShape ;
+        sh:property     dm:forwardReverse-dependency,dm:reverseDifferencePreviousVersion-dependency ;
+        sh:targetClass  dcatcim:DifferenceSet.
+
+
+dm:spatial-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:spatial-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "spatial-NC-cardinality" ;
+        sh:path         dcterms:spatial ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .
+
+
+dm:spatial-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2>)).
+        }""" .
+
+#dm:isVersionOf-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:isVersionOf-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "isVersionOf-NC-cardinality" ;
+#        sh:path         dcat:isVersionOf ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        2 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:isVersionOf-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+#dm:wasGeneratedBy-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:wasGeneratedBy-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "wasGeneratedBy-NC-cardinality" ;
+#        sh:path         prov:wasGeneratedBy ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        3 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:wasGeneratedBy-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+dm:accrualPeriodicity-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:accrualPeriodicity-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "accrualPeriodicity-NC-cardinality" ;
+        sh:path         prov:accrualPeriodicity ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        4 ;
+        sh:severity     sh:Violation .
+
+
+dm:accrualPeriodicity-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/ImpactAssessmentMatrix/2.3> , <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4> )).
+        }""" .
+
+dm:usedSettings-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:usedSettings-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "usedSettings-NC-cardinality" ;
+        sh:path         eumd:usedSettings ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        5 ;
+        sh:severity     sh:Violation .
+
+
+dm:usedSettings-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/SecurityAnalysisResult/2.4> )).
+        }""" .
+
+dm:accessRights-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:accessRights-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "accessRights-NC-cardinality" ;
+        sh:path         dcterms:accessRights ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        6 ;
+        sh:severity     sh:Violation .
+
+
+dm:accessRights-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+        }""" .
+
+dm:conformsTo-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:conformsTo-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "C:MD:ALL:Dataset.conformsTo:cardinality" ;
+        sh:path         rdf:type ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        7 ;
+        sh:severity     sh:Violation .
+
+
+dm:conformsTo-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+
+    #{
+    #  SELECT $this (count(?value) as ?v)
+    #  WHERE {
+    #  OPTIONAL {$this $PATH ?value } .
+    #  }
+    #  GROUP BY $this $PATH
+    #}
+    $this dcterms:spatial ?spatial .
+    OPTIONAL {$this dcterms:conformsTo ?conformsTo }.
+
+        #FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> ) && ?spatial!=<https://energy.referencedata.eu/Frame/BoundaryModel> && bound(?conformsTo)).
+    FILTER (?spatial!=<https://energy.referencedata.eu/Frame/BoundaryModel> && !bound(?conformsTo)).
+        }""" .
+
+#dm:publisher-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:publisher-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "publisher-NC-cardinality" ;
+#        sh:path         dcterms:publisher ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        8 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:publisher-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+dm:requires-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:requires-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "requires-NC-cardinality" ;
+        sh:path         dcterms:requires ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        9 ;
+        sh:severity     sh:Violation .
+
+
+dm:requires-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+        }""" .
+
+#dm:identifier-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:identifier-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "identifier-NC-cardinality" ;
+#        sh:path         dcterms:identifier ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        10 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:identifier-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+dm:issued-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:issued-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "issued-NC-cardinality" ;
+        sh:path         dcterms:issued ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        11 ;
+        sh:severity     sh:Violation .
+
+
+dm:issued-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+        }""" .
+
+#dm:title-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:title-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "title-NC-cardinality" ;
+#        sh:path         dcterms:title ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        12 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:title-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+dm:keyword-NC-cardinality
+        a               sh:PropertyShape ;
+        sh:sparql       dm:keyword-NC-cardinalitySparql ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:name         "keyword-NC-cardinality" ;
+        sh:path         dcat:keyword ;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        13 ;
+        sh:severity     sh:Violation .
+
+
+dm:keyword-NC-cardinalitySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Cardinality violation. Missing required property." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value ?v
+        WHERE {
+    $this dcterms:conformsTo ?conformsTo .
+    {
+      SELECT $this (count(?value) as ?v)
+      WHERE {
+      OPTIONAL {$this $PATH ?value } .
+      }
+      GROUP BY $this $PATH
+    }
+        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+        }""" .
+
+#dm:version-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:version-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "version-NC-cardinality" ;
+#        sh:path         dcat:version ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        14 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:version-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+#dm:startDate-NC-cardinality
+#        a               sh:PropertyShape ;
+#        sh:sparql       dm:startDate-NC-cardinalitySparql ;
+#        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+#        sh:name         "startDate-NC-cardinality" ;
+#        sh:path         dcat:startDate ;
+#        sh:group        dm:CardinalityGroupCustom ;
+#        sh:order        15 ;
+#        sh:severity     sh:Violation .
+#
+#
+#dm:startDate-NC-cardinalitySparql
+#    a         sh:SPARQLConstraint ;
+#    sh:message "Cardinality violation. Missing required property." ;
+#    sh:prefixes cim: ;
+#    sh:select """
+#        SELECT $this ?value ?v
+#        WHERE {
+#    $this dcterms:conformsTo ?conformsTo .
+#    {
+#      SELECT $this (count(?value) as ?v)
+#      WHERE {
+#      OPTIONAL {$this $PATH ?value } .
+#      }
+#      GROUP BY $this $PATH
+#    }
+#        FILTER (?v=0 && ?conformsTo IN (<https://ap.cim4.eu/AssessedElement/2.3> , <https://ap.cim4.eu/Contingency/2.3>, <https://ap.cim4.eu/AvailabilitySchedule/2.3>, <https://ap.cim4.eu/EquipmentReliability/2.3>, <https://ap.cim4.eu/ImpactAssessmentMatrix/2.3>, <https://ap.cim4.eu/MonitoringArea/2.3>, <https://ap.cim4.eu/PowerSchedule/2.3>, <https://ap.cim4.eu/RemedialAction/2.3>, <https://ap.cim4.eu/RemedialActionSchedule/2.3>, <https://ap.cim4.eu/SecurityAnalysisResult/2.4>, <https://ap.cim4.eu/SensitivityMatrix/2.3>, <https://ap.cim4.eu/StateInstructionSchedule/2.3>, <https://ap.cim4.eu/SteadyStateInstruction/2.3>, <https://ap.cim4.eu/SteadyStateHypothesisSchedule/1.0>, <https://ap.cim4.eu/PowerSystemProject/2.3>, <https://ap.cim4.eu/ObjectRegistry/2.2> )).
+#        }""" .
+
+dm:description.langTag-presence
+        a               sh:PropertyShape ;
+        sh:sparql       dm:description.langTag-presenceSparql ;
+        sh:description  "This constraint validates the presence of language tag with value en for the property (attribute)." ;
+        sh:name         "description.langTag-presence" ;
+        sh:path         dcterms:description;
+        sh:group        dm:LanguageTagGroup ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .
+
+
+dm:description.langTag-presenceSparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Language tag is not declared or it is not en." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+    $this $PATH ?value .
+
+        FILTER (lang(?value)!="en" ).
+        }""" .
+
+dm:versionNotes.langTag-presence
+        a               sh:PropertyShape ;
+        sh:sparql       dm:versionNotes.langTag-presenceSparql ;
+        sh:description  "This constraint validates the presence of language tag with value en for the property (attribute)." ;
+        sh:name         "versionNotes.langTag-presence" ;
+        sh:path         adms:versionNotes;
+        sh:group        dm:LanguageTagGroup ;
+        sh:order        2 ;
+        sh:severity     sh:Violation .
+
+
+dm:versionNotes.langTag-presenceSparql
+    a         sh:SPARQLConstraint ;
+    sh:message "Language tag is not declared.{?value}" ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+    $this $PATH ?value .
+
+        FILTER (lang(?value)!="en" ).
+        }""" .
+
+#dm:replaces-cardinality
+#        rdf:type        sh:PropertyShape;
+#        sh:description  "This constraint validates the cardinality of the association at the used direction.";
+#        sh:group        dm:CardinalityGroupCustom;
+#        sh:maxCount     1;
+#        sh:message      "Cardinality violation. Upper bound shall be 1";
+#        sh:name         "replaces-cardinality";
+#        sh:order        16;
+#        sh:path         dcterms:replaces;
+#        sh:severity     sh:Violation .
+
+dm:alternativeVersionAndPreferredVersion-dependency
+        a               sh:PropertyShape ;
+        sh:sparql       dm:alternativeVersionAndPreferredVersion-dependencySparql ;
+        sh:description  "This constraint validates if either of the properties dcatcim:alternativeVersionOf or dcatcim:preferredVersion is present, the other one is required. Either the two properties shall be present or none." ;
+        sh:name         "alternativeVersionAndPreferredVersion-dependency" ;
+        sh:path         rdf:type;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        17 ;
+        sh:severity     sh:Violation .
+
+
+dm:alternativeVersionAndPreferredVersion-dependencySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "One of the properties dcatcim:alternativeVersionOf or dcatcim:preferredVersion is not present." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+    BIND(EXISTS{$this dcatcim:alternativeVersionOf ?value} AS ?hasaltv).
+    BIND(EXISTS{$this dcatcim:preferredVersion ?value1} AS ?hasprefv).
+
+        FILTER ((?hasaltv=true && ?hasprefv=false) || (?hasaltv=false && ?hasprefv=true)).
+        }""" .
+
+
+
+dm:forwardReverse-dependency
+        a               sh:PropertyShape ;
+        sh:sparql       dm:forwardReverse-dependencySparql ;
+        sh:description  "This constraint validates if at least one of the properties dcatcim:forwardDifference, dcatcim:referseDifference is present." ;
+        sh:name         "forwardReverse-dependency" ;
+        sh:path         rdf:type;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        18 ;
+        sh:severity     sh:Violation .
+
+
+dm:forwardReverse-dependencySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "None of the properties dcatcim:forwardDifference, dcatcim:referseDifference is present." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+    BIND(EXISTS{$this dcatcim:forwardDifference ?value} AS ?hasaltv).
+    BIND(EXISTS{$this dcatcim:referseDifference ?value1} AS ?hasprefv).
+
+        FILTER ((?hasaltv=false && ?hasprefv=false) ).
+        }""" .
+
+dm:reverseDifferencePreviousVersion-dependency
+        a               sh:PropertyShape ;
+        sh:sparql       dm:reverseDifferencePreviousVersion-dependencySparql ;
+        sh:description  "If dcatcim:reverseDifference exists there must be a dcat:previousVersion." ;
+        sh:name         "reverseDifferencePreviousVersion-dependency" ;
+        sh:path         rdf:type;
+        sh:group        dm:CardinalityGroupCustom ;
+        sh:order        19 ;
+        sh:severity     sh:Violation .
+
+
+dm:reverseDifferencePreviousVersion-dependencySparql
+    a         sh:SPARQLConstraint ;
+    sh:message "dcatcim:reverseDifference exists but dcat:previousVersion is not present." ;
+    sh:prefixes cim: ;
+    sh:select """
+        SELECT $this ?value
+        WHERE {
+    BIND(EXISTS{$this dcatcim:reverseDifference ?value} AS ?hasrd).
+    BIND(EXISTS{$this dcat:previousVersion ?value1} AS ?haspv).
+
+        FILTER (?hasrd=true && ?haspv=false).
+        }""" .
