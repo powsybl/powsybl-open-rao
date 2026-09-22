@@ -142,8 +142,9 @@ public class CastorFullOptimization {
 
             OptimizationResult preventiveResult;
             if (Objects.isNull(crac.getPreventiveState())) {
+                ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Collections.emptySet(), raoParameters, Collections.emptySet());
                 preventiveResult = new OptimizationResultImpl(
-                    initialOutput,
+                    objectiveFunction.evaluate(initialOutput, RemedialActionActivationResultImpl.empty(initialOutput), reportNode),
                     initialOutput,
                     initialOutput,
                     new NetworkActionsResultImpl(Collections.emptyMap()),

@@ -460,7 +460,7 @@ class CastorFullOptimizationTest {
 
     @Test
     void testRaoWithNoPreventiveState() throws IOException {
-        setup("small-network-2P.uct", "small-crac-to-check-curative-optimization-if-preventive-secure.json");
+        setup("small-network-2P.uct", "small-crac-no-preventive-state.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
