@@ -12,22 +12,37 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.constants;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public enum NcKeyword {
-    ASSESSED_ELEMENT("AE"),
-    CONTINGENCY("CO"),
-    EQUIPMENT_RELIABILITY("ER"),
-    REMEDIAL_ACTION("RA"),
-    STEADY_STATE_INSTRUCTION("SSI"),
-    STEADY_STATE_HYPOTHESIS("SSH"),
-    CGMES("CGMES");
+    ASSESSED_ELEMENT("AE", "AssessedElement"),
+    CONTINGENCY("CO", "Contingency"),
+    EQUIPMENT_RELIABILITY("ER", "EquipmentReliability"),
+    REMEDIAL_ACTION("RA", "RemedialAction"),
+    STEADY_STATE_INSTRUCTION("SSI", "SteadyStateInstruction"),
+    STEADY_STATE_HYPOTHESIS("SSH", "SteadyStateHypothesis"),
+    CGMES("CGMES", "CGMES");
 
     private final String keyword;
+    private final String fullName;
 
-    NcKeyword(String keyword) {
+    NcKeyword(String keyword, String fullName) {
         this.keyword = keyword;
+        this.fullName = fullName;
     }
 
     @Override
     public String toString() {
         return keyword;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public static NcKeyword getNcKeyword(String keyword) {
+        for (NcKeyword ncKeyword : values()) {
+            if (ncKeyword.keyword.equals(keyword)) {
+                return ncKeyword;
+            }
+        }
+        return null;
     }
 }

@@ -40,6 +40,7 @@ import com.powsybl.triplestore.api.TripleStore;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -217,16 +218,16 @@ public class NcCrac {
             if (HeaderType.START_END_DATE.equals(headerType)) {
                 if (NcCracUtils.checkProfileKeyword(propertyBag, NcKeyword.STEADY_STATE_INSTRUCTION) && NcCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
                     String id = propertyBag.getId(queryObjectName);
-                    String overridedValue = propertyBag.get(queryFieldName);
-                    dataMap.put(id, overridedValue);
+                    String overriddenValue = propertyBag.get(queryFieldName);
+                    dataMap.put(id, overriddenValue);
                 }
             } else {
                 if (NcCracUtils.checkProfileKeyword(propertyBag, NcKeyword.STEADY_STATE_HYPOTHESIS)) {
                     OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get(NcConstants.SCENARIO_TIME));
                     if (importTimestamp.isEqual(scenarioTime)) {
                         String id = propertyBag.getId(queryObjectName);
-                        String overridedValue = propertyBag.get(queryFieldName);
-                        dataMap.put(id, overridedValue);
+                        String overriddenValue = propertyBag.get(queryFieldName);
+                        dataMap.put(id, overriddenValue);
                     }
                 }
             }
@@ -255,42 +256,37 @@ public class NcCrac {
             return new PropertyBags();
         }
 
+        Set<String> contextsToQuery = new HashSet<>(contexts);
         if (contexts.isEmpty()) {
-            return tripleStoreNcCrac.query(query);
+            contextsToQuery.addAll(tripleStoreNcCrac.contextNames());
         }
 
         PropertyBags multiContextsPropertyBags = new PropertyBags();
-        for (String context : contexts) {
+        for (String context : contextsToQuery) {
             String contextQuery = String.format(query, context);
             multiContextsPropertyBags.addAll(tripleStoreNcCrac.query(contextQuery));
         }
         return multiContextsPropertyBags;
     }
 
-    public void setForTimestamp(OffsetDateTime offsetDateTime) {
-        clearTimewiseIrrelevantContexts(offsetDateTime);
+    public void setForTimestampAndCheckHeaders(OffsetDateTime offsetDateTime) {
+        clearIrrelevantContexts(offsetDateTime);
         setOverridingData(offsetDateTime);
     }
 
-    private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
+    private void clearIrrelevantContexts(OffsetDateTime offsetDateTime) {
         getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
-                PropertyBag property = properties.get(0);
-                if (!checkTimeCoherence(property, offsetDateTime)) {
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(
-                        "[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s",
-                        contextName, offsetDateTime
-                    ));
+                PropertyBag property = properties.getFirst();
+                if (!HeaderChecker.checkHeader(property, contextName, offsetDateTime)) {
                     clearContext(contextName);
                     clearKeywordMap(contextName);
                 }
+            } else if (!keywordMap.getOrDefault(NcKeyword.CGMES.toString(), Set.of()).contains(contextName)) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("[NC Importer] File {} ignored because no proper header could be retrieved.", contextName);
+                clearContext(contextName);
+                clearKeywordMap(contextName);
             }
         });
-    }
-
-    private static boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
-        String startTime = header.getId(NcConstants.REQUEST_HEADER_START_DATE);
-        String endTime = header.getId(NcConstants.REQUEST_HEADER_END_DATE);
-        return NcCracUtils.isValidInterval(offsetDateTime, startTime, endTime);
     }
 }
