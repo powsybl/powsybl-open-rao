@@ -24,7 +24,8 @@ Feature: 7.1: Simple CT Actions
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the remedial action "counterTradingAction" is used in preventive
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
     Then the value of the objective function after PRA should be 20010.0
 
   @rao @counter-trading
@@ -36,8 +37,9 @@ Feature: 7.1: Simple CT Actions
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the remedial action "counterTradingAction_FRBE" is used in preventive
-    Then the remedial action "counterTradingAction_FRES" is used in preventive
+    Then the remedial action "counterTradingAction_FR" is used in preventive
+    Then the remedial action "counterTradingAction_BE" is used in preventive
+    Then the remedial action "counterTradingAction_ES" is used in preventive
     Then the generator "FFR1AA1 _generator" should have a targetP of -1050 MW after PRA
     Then the generator "BBE1AA1 _generator" should have a targetP of 600 MW after PRA
     Then the generator "EES1AA1 _generator" should have a targetP of 450 MW after PRA
@@ -51,7 +53,8 @@ Feature: 7.1: Simple CT Actions
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the remedial action "counterTradingAction" is used in preventive
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
     Then the generator "FFR1AA1 _generator" should have a targetP of 220 MW after PRA
     Then the generator "FFR2AA1 _generator" should have a targetP of 380 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
@@ -65,7 +68,8 @@ Feature: 7.1: Simple CT Actions
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the remedial action "counterTradingAction" is used in preventive
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
     Then the generator "FFR1AA1 _generator" should have a targetP of 300 MW after PRA
     Then the generator "FFR2AA1 _generator" should have a targetP of 300 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
@@ -80,7 +84,8 @@ Feature: 7.1: Simple CT Actions
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the remedial action "counterTradingAction" is used in preventive
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
     Then the generator "FFR1AA1 _generator" should have a targetP of 420 MW after PRA
     Then the generator "FFR2AA1 _generator" should have a targetP of 180 MW after PRA
     Then the value of the objective function after PRA should be 20010.0

@@ -274,8 +274,8 @@
   ],
   "counterTradeRangeActions": [
     {
-      "id": "counterTradingAction_FRBE",
-      "name": "counterTradingAction_FRBE",
+      "id": "counterTradingAction_FR",
+      "name": "counterTradingAction_FR",
       "operator": null,
       "activationCost": 10,
       "variationCosts": {
@@ -287,8 +287,8 @@
           "instant": "preventive"
         }
       ],
-      "exportingArea": "FR",
-      "importingArea": "BE",
+      "area": "FR",
+      "initialNetPosition": 0.0,
       "ranges": [
         {
           "rangeType": "absolute",
@@ -298,10 +298,10 @@
       ]
     },
     {
-      "id": "counterTradingAction_FRES",
-      "name": "counterTradingAction_FRES",
+      "id": "counterTradingAction_BE",
+      "name": "counterTradingAction_BE",
       "operator": null,
-      "activationCost": 10,
+      "activationCost": 5,
       "variationCosts": {
         "up": 50,
         "down": 50
@@ -311,8 +311,32 @@
           "instant": "preventive"
         }
       ],
-      "exportingArea": "FR",
-      "importingArea": "ES",
+      "area": "BE",
+      "initialNetPosition": 0.0,
+      "ranges": [
+        {
+          "rangeType": "absolute",
+          "min": -1000,
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "id": "counterTradingAction_ES",
+      "name": "counterTradingAction_ES",
+      "operator": null,
+      "activationCost": 5,
+      "variationCosts": {
+        "up": 50,
+        "down": 50
+      },
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive"
+        }
+      ],
+      "area": "ES",
+      "initialNetPosition": 0.0,
       "ranges": [
         {
           "rangeType": "absolute",
