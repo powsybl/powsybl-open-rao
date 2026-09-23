@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -26,14 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CounterTradingRangeActionCreatorTest {
 
     private static final String FR_AREA = "FR";
-    private static final String ES_AREA = "ES";
+    private static final String DE_AREA = "DE";
 
     @Test
     void importCounterTradingRangeActions() {
         CracCreationParameters cracCreationParameters = NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension();
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setConnectedAreas(List.of(
-                new NcCracCreationParameters.ConnectedArea(ES_AREA, List.of(new NcCracCreationParameters.BorderRange("relative", -500.0, 500.0)))
-        ));
 
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(
                 "/profiles/remedialactions/CountertradeRemedialActions.zip",
@@ -54,19 +50,19 @@ class CounterTradingRangeActionCreatorTest {
                 "remedial-action-11",
                 "RA11 COUNTERTRADING SWE",
                 4000,
-                3000,
+                -3000, // Initial net position = 0 - maxRegulatingDown = 3000
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.getFirst().getArea());
-        assertEquals(1, importedCountertradeActions.getFirst().getConnectedAreas().size());
-        assertEquals(ES_AREA, importedCountertradeActions.getFirst().getConnectedAreas().getFirst().getArea());
+        assertEquals(2, importedCountertradeActions.getFirst().getConnectedAreas().size());
+        assertEquals(DE_AREA, importedCountertradeActions.getFirst().getConnectedAreas().getFirst().getArea());
 
         NcCracCreationTestUtil.assertCounterTradeRangeActionsImported(
                 importedCountertradeActions.get(1),
                 "remedial-action-12",
                 "RA12 COUNTERTRADING BASELINE",
                 3500,
-                1500,
+                -1500,
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.get(1).getArea());
@@ -86,7 +82,7 @@ class CounterTradingRangeActionCreatorTest {
                 "remedial-action-14",
                 "RA14 COUNTERTRADING ONLY-DOWN",
                 5000,
-                1200,
+                -1200,
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.get(3).getArea());

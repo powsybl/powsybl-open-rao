@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
@@ -44,12 +43,12 @@ public class CounterTradingRangeActionCreator {
     /**
      * Area net positions, computed once from the Network (assumed to already carry a load flow result).
      */
-    private Map<EICode, Double> netPositions;
+    private final Map<EICode, Double> netPositions;
 
     /**
      * Country graph to compute connected areas.
      */
-    private CountryGraph countryGraph;
+    private final CountryGraph countryGraph;
 
     public CounterTradingRangeActionCreator(Crac crac,
                                             Network network,
@@ -73,32 +72,12 @@ public class CounterTradingRangeActionCreator {
 
         validateCountertradeRemedialAction(countertradeRemedialAction, remedialActionId);
 
-        // checks for the min and max range
-        double minRange;
-        if (Double.isNaN(countertradeRemedialAction.minEconomicP())) {
-            minRange = ncCracCreationParameters.getCounterTradingMinRange() != null
-                    ? ncCracCreationParameters.getCounterTradingMinRange()
-                    : NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
-            alterations.add("the minimum range was not set. It has been set to the minimal range value of " + minRange);
-        } else {
-            minRange = countertradeRemedialAction.minEconomicP();
-        }
-        double maxRange;
-        if (Double.isNaN(countertradeRemedialAction.maxEconomicP())) {
-            maxRange = ncCracCreationParameters.getCounterTradingMaxRange() != null
-                    ? ncCracCreationParameters.getCounterTradingMaxRange()
-                    : NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
-            alterations.add("the maximum range was not set. It has been set to the maximal range value of " + maxRange);
-        } else {
-            maxRange = countertradeRemedialAction.maxEconomicP();
-        }
-
         String area = getArea(countertradeRemedialAction, remedialActionId);
-
-        // Calculate connected areas
-        Set<String> connectedAreas = countryGraph.getNeighbors(Country.valueOf(area)).stream().map(Country::toString).collect(Collectors.toSet());
-
         double initialNetPosition = netPositions.getOrDefault(new EICode(Country.valueOf(area)), 0.);
+
+        // Checks for the min and max range
+        double minRange = getMinRange(countertradeRemedialAction, initialNetPosition, alterations);
+        double maxRange = getMaxRange(countertradeRemedialAction, initialNetPosition, alterations);
 
         CounterTradeRangeActionAdder adder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
@@ -107,27 +86,77 @@ public class CounterTradingRangeActionCreator {
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withArea(area)
-                .withConnectedAreas(connectedAreas)
                 .withInitialNetPosition(initialNetPosition);
 
-//        connectedAreas.forEach(connectedArea -> adder.newConnectedArea());
+        // Calculate connected areas
+        Set<String> connectedAreas = countryGraph.getNeighbors(Country.valueOf(area)).stream().map(Country::toString).collect(Collectors.toSet());
 
-        for (NcCracCreationParameters.ConnectedArea connectedArea : ncCracCreationParameters.getConnectedAreas()) {
-            adder = addConnectedArea(adder, connectedArea);
-        }
+        // Add connected areas to the CounterTradeRangeActionAdder
+        connectedAreas.forEach(connectedArea -> {
+            var connectedAreaAdder = adder.newConnectedArea().withArea(connectedArea);
+            connectedAreaAdder.add();
+        });
 
         return adder;
     }
 
-    private static CounterTradeRangeActionAdder addConnectedArea(CounterTradeRangeActionAdder adder, NcCracCreationParameters.ConnectedArea connectedArea) {
-        var connectedAreaAdder = adder.newConnectedArea().withArea(connectedArea.area());
-        connectedArea.borderRanges().forEach(borderRange -> connectedAreaAdder.newBorderRange()
-                .withMin(borderRange.borderRangeMin())
-                .withMax(borderRange.borderRangeMax())
-                .withRangeType("relative".equals(borderRange.rangeType()) ? RangeType.RELATIVE_TO_INITIAL_NETWORK : RangeType.ABSOLUTE)
-                .add());
+    /**
+     * Get the maximum range of a CountertradeRemedialAction, based on its bidding zone and initial net position.
+     * If maxRegulatingUp is provided -> use it with initial net position to compute the max range.
+     * If maxEconomicP is provided -> use it as the max range.
+     * If none of the above is provided -> use the default value from ncCracCreationParameters or NcConstants.
+     *
+     * @param countertradeRemedialAction        Native CountertradeRemedialAction
+     * @param initialNetPosition                Initial net position of the bidding zone
+     * @param alterations                       List to store alteration messages
+     * @return the maximum range value
+     */
+    private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, double initialNetPosition, List<String> alterations) {
 
-        return connectedAreaAdder.add();
+        if (!Double.isNaN(countertradeRemedialAction.maxRegulatingUp())) {
+            return initialNetPosition + countertradeRemedialAction.maxRegulatingUp();
+        }
+
+        if (!Double.isNaN(countertradeRemedialAction.maxEconomicP())) {
+            return countertradeRemedialAction.maxEconomicP();
+        }
+
+        // Fallback to the default value
+        double maxRange = ncCracCreationParameters.getCounterTradingMaxRange() != null
+                ? ncCracCreationParameters.getCounterTradingMaxRange()
+                : NcConstants.COUNTER_TRADING_RANGE_MAX_RANGE;
+        alterations.add("the maximum range was not provided. It has been set to the maximal range value of " + maxRange);
+        return maxRange;
+
+    }
+
+    /**
+     * Get the minimum range of a CountertradeRemedialAction, based on its bidding zone and initial net position.
+     * If maxRegulatingDown is provided -> use it with initial net position to compute the min range.
+     * If minEconomicP is provided -> use it as the min range.
+     * If none of the above is provided -> use the default value from ncCracCreationParameters or NcConstants.
+     *
+     * @param countertradeRemedialAction        Native CountertradeRemedialAction
+     * @param initialNetPosition                Initial net position of the bidding zone
+     * @param alterations                       List to store alteration messages
+     * @return the minimum range value
+     */
+    private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, double initialNetPosition, List<String> alterations) {
+
+        if (!Double.isNaN(countertradeRemedialAction.maxRegulatingDown())) {
+            return initialNetPosition - countertradeRemedialAction.maxRegulatingDown();
+        }
+
+        if (!Double.isNaN(countertradeRemedialAction.minEconomicP())) {
+            return countertradeRemedialAction.minEconomicP();
+        }
+
+        // Fallback to the default value
+        double minRange = ncCracCreationParameters.getCounterTradingMinRange() != null
+                ? ncCracCreationParameters.getCounterTradingMinRange()
+                : NcConstants.COUNTER_TRADING_RANGE_MIN_RANGE;
+        alterations.add("the minimum range was not provided. It has been set to the minimal range value of " + minRange);
+        return minRange;
     }
 
     /**
@@ -137,12 +166,12 @@ public class CounterTradingRangeActionCreator {
      * @param remedialActionId                  ID of the RemedialAction (RA id)
      * @return the area code of the counter trading remedial action
      */
-    private static String getArea(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId) {
+    private String getArea(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId) {
         String biddingZoneEic = NcCracUtils.getEicFromUrl(countertradeRemedialAction.biddingZone());
         if (biddingZoneEic == null) {
             throw new OpenRaoImportException(
                     ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported because the bidding zone code is null.",
+                    String.format("Remedial action %s will not be imported because the bidding zone is invalid.",
                             remedialActionId));
         }
 

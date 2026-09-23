@@ -98,7 +98,7 @@ public class NcRemedialActionsCreator {
 
         if (countertradeRemedialActions != null) {
             countertradeRemedialActions
-                    .forEach(ctra -> addCountertradeRemedialAction(ctra));
+                    .forEach(this::addCountertradeRemedialAction);
         }
 
     }
@@ -133,6 +133,7 @@ public class NcRemedialActionsCreator {
             if (countertradeRemedialAction.getTimeToImplementInSeconds() != null) {
                 counterTradeRangeActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
             }
+
             crac.getInstants(getInstantKind(countertradeRemedialAction))
                     .forEach(instant -> addOnInstantUsageRules(remedialActionId, counterTradeRangeActionAdder, instant));
             counterTradeRangeActionAdder.add();
