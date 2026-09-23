@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.BorderRangeAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 

@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+
 import java.util.List;
 
 /**
@@ -15,17 +17,17 @@ import java.util.List;
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the area on which the counter-trade is operated
-     */
-    String getArea();
-
-    /**
-     * Get the net position of the area before the counter-trade is applied
+     * Get initial net position
      */
     Double getInitialNetPosition();
 
     /**
-     * Get the areas connected
+     * Get the area
+     */
+    String getArea();
+
+    /**
+     * Get connected areas
      */
     List<ConnectedArea> getConnectedAreas();
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 
 /**

@@ -8,14 +8,13 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedArea;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
@@ -29,7 +28,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
     private String area;
     private Double initialNetPosition;
-    private final List<ConnectedArea> connectedAreas = new ArrayList<>();
+    private Set<String> connectedAreas;
 
     @Override
     protected String getTypeDescription() {
@@ -55,6 +54,12 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     @Override
     public ConnectedAreaAdder newConnectedArea() {
         return new ConnectedAreaAdderImpl(this);
+    }
+
+    @Override
+    public CounterTradeRangeActionAdder withConnectedAreas(Set<String> connectedAreas) {
+        this.connectedAreas = connectedAreas;
+        return this;
     }
 
     void addConnectedArea(ConnectedArea connectedArea) {

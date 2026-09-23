@@ -68,8 +68,8 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals("FR", counterTradeRangeAction.getArea());
         assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
         assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
-        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
-        assertEquals(1, counterTradeRangeAction.getConnectedAreas().get(0).getBorderRanges().size());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().stream().findFirst().orElseThrow().getArea());
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().stream().findFirst().orElseThrow().getBorderRanges().size());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -94,7 +94,7 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals("FR", counterTradeRangeAction.getArea());
-        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().stream().findFirst().orElseThrow().getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -120,7 +120,7 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(0, counterTradeRangeAction.getUsageRules().size());
         assertEquals("FR", counterTradeRangeAction.getArea());
-        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().stream().findFirst().orElseThrow().getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -141,7 +141,7 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals("FR", counterTradeRangeAction.getArea());
-        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().stream().findFirst().orElseThrow().getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }

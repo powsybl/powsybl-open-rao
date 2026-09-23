@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
@@ -28,7 +28,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     private final String area;
     private final Double initialNetPosition;
-    private final List<ConnectedArea> connectedAreas;
+    private final Set<String> connectedAreas;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
 
@@ -44,7 +44,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 Map<VariationDirection, Double> variationCosts,
                                 String area,
                                 Double initialNetPosition,
-                                List<ConnectedArea> connectedAreas) {
+                                Set<String> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
@@ -89,7 +89,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public List<ConnectedArea> getConnectedAreas() {
+    public Set<ConnectedArea> getConnectedAreas() {
         return connectedAreas;
     }
 

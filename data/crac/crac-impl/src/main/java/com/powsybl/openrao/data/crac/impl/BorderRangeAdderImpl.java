@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.BorderRangeAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 
 /**
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}

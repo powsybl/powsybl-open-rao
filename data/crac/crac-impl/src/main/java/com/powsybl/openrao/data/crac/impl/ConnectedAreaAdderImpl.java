@@ -9,8 +9,8 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.BorderRangeAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedArea;
-import com.powsybl.openrao.data.crac.api.rangeaction.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
 import java.util.ArrayList;

@@ -77,7 +77,7 @@ public class NcRemedialActionsCreator {
         this.linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction)
                 .aggregate(nativeCrac.getContingencyWithRemedialActions());
 
-        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, ncParameters);
+        this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, network, ncParameters);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
 
         this.gridStateAlterationRemedialActions = new HashSet<>(nativeCrac.getGridStateAlterationRemedialActions());
@@ -98,7 +98,7 @@ public class NcRemedialActionsCreator {
 
         if (countertradeRemedialActions != null) {
             countertradeRemedialActions
-                    .forEach(this::addCountertradeRemedialAction);
+                    .forEach(ctra -> addCountertradeRemedialAction(ctra));
         }
 
     }

@@ -8,6 +8,10 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.CountryGraph;
+import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -18,8 +22,12 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.objects.CountertradeRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import com.powsybl.openrao.data.refprog.referenceprogram.CountryNetPositionComputation;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
@@ -33,11 +41,23 @@ public class CounterTradingRangeActionCreator {
      * NC CRAC creation parameters.
      */
     private final NcCracCreationParameters ncCracCreationParameters;
+    /**
+     * Area net positions, computed once from the Network (assumed to already carry a load flow result).
+     */
+    private Map<EICode, Double> netPositions;
+
+    /**
+     * Country graph to compute connected areas.
+     */
+    private CountryGraph countryGraph;
 
     public CounterTradingRangeActionCreator(Crac crac,
+                                            Network network,
                                             NcCracCreationParameters ncCracCreationParameters) {
         this.crac = crac;
         this.ncCracCreationParameters = ncCracCreationParameters;
+        this.countryGraph = new CountryGraph(network);
+        this.netPositions = new CountryNetPositionComputation(network).getNetPositions();
     }
 
     /**
@@ -74,13 +94,23 @@ public class CounterTradingRangeActionCreator {
         }
 
         String area = getArea(countertradeRemedialAction, remedialActionId);
+
+        // Calculate connected areas
+        Set<String> connectedAreas = countryGraph.getNeighbors(Country.valueOf(area)).stream().map(Country::toString).collect(Collectors.toSet());
+
+        double initialNetPosition = netPositions.getOrDefault(new EICode(Country.valueOf(area)), 0.);
+
         CounterTradeRangeActionAdder adder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
+                .withName(countertradeRemedialAction.name())
                 .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.creator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withArea(area)
-                .withInitialNetPosition(0.); // TODO: Compute
+                .withConnectedAreas(connectedAreas)
+                .withInitialNetPosition(initialNetPosition);
+
+//        connectedAreas.forEach(connectedArea -> adder.newConnectedArea());
 
         for (NcCracCreationParameters.ConnectedArea connectedArea : ncCracCreationParameters.getConnectedAreas()) {
             adder = addConnectedArea(adder, connectedArea);
