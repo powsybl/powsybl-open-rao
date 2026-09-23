@@ -7,23 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.openrao.commons.AreaGraph;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CostCoreProblemFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MarginCoreProblemFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxLoopFlowFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinRelativeMarginFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MnecFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.RaUsageLimitsFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.UnoptimizedCnecFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 
@@ -168,6 +159,33 @@ public final class ProblemFillerHelper {
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
             ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState());
             problemFillers.add(continuousRangeActionGroupFiller);
+        }
+
+        // Counter-trade area balance filler
+        Map<State, Set<CounterTradeRangeAction>> counterTradeRangeActionsPerState =
+                input.optimizationPerimeter().getRangeActionsPerState().entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> entry.getValue().stream()
+                                        .filter(CounterTradeRangeAction.class::isInstance)
+                                        .map(CounterTradeRangeAction.class::cast)
+                                        .collect(Collectors.toSet())))
+                        .entrySet().stream()
+                        .filter(entry -> !entry.getValue().isEmpty())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (!counterTradeRangeActionsPerState.isEmpty()) {
+            String areaType = counterTradeRangeActionsPerState.values().stream()
+                    .flatMap(Set::stream)
+                    .findFirst()
+                    .map(ra -> input.network().getArea(ra.getArea()).getAreaType())
+                    .orElseThrow();
+
+            AreaGraph areaGraph = new AreaGraph(input.network(), areaType);
+
+            CounterTradeAreaBalanceFiller counterTradeAreaBalanceFiller =
+                    new CounterTradeAreaBalanceFiller(counterTradeRangeActionsPerState, areaGraph);
+            problemFillers.add(counterTradeAreaBalanceFiller);
         }
 
         // RA limitation

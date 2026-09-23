@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -623,6 +624,22 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getGeneratorStayingOnConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
         return solver.getConstraint(generatorStayingOnConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPVariable addCounterTradeBorderExchangeVariable(double lb, double ub, String area1, String area2, State state) {
+        return solver.makeNumVar(lb, ub, counterTradeBorderExchangeVariableId(area1, area2, state));
+    }
+
+    public OpenRaoMPVariable getCounterTradeBorderExchangeVariable(String area1, String area2, State state) {
+        return solver.getVariable(counterTradeBorderExchangeVariableId(area1, area2, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeAreaBalanceConstraint(CounterTradeRangeAction rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeAreaBalanceConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getCounterTradeAreaBalanceConstraint(CounterTradeRangeAction rangeAction, State state) {
+        return solver.getConstraint(counterTradeAreaBalanceConstraintId(rangeAction, state));
     }
 
     public double infinity() {

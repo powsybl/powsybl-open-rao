@@ -429,7 +429,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
-                if (ra.getId().equals(rangeAction.getId()) || ( !(ra instanceof CounterTradeRangeAction) && ( ra.getNetworkElements().equals(rangeAction.getNetworkElements())))) {
+                if (ra.getId().equals(rangeAction.getId()) || !(ra instanceof CounterTradeRangeAction) && (ra.getNetworkElements().equals(rangeAction.getNetworkElements()))) {
+                    // todo: maybe add also the equality in case the ra is CT and the getArea are the same?
                     rangeActions.add(ra);
                 }
             })

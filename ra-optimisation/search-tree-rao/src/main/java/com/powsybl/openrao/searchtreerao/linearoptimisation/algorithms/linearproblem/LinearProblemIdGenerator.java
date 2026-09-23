@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -56,6 +57,8 @@ public final class LinearProblemIdGenerator {
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String INJECTION_BALANCE = "injectionbalance";
+    private static final String COUNTERTRADE_BALANCE = "countertradebalance";
+    private static final String COUNTERTRADE_EXCHANGE = "countertradeexchange";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
@@ -98,6 +101,16 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), SET_POINT, VARIABLE_SUFFIX);
+    }
+
+    public static String counterTradeBorderExchangeVariableId(String area1, String area2, State state) {
+        // canonical ordering so both areas of a border resolve to the same id
+        String orderedIds = area1.compareTo(area2) < 0 ? area1 + "_" + area2 : area2 + "_" + area1;
+        return formatName(orderedIds, state.getId(), COUNTERTRADE_EXCHANGE, VARIABLE_SUFFIX);
+    }
+
+    public static String counterTradeAreaBalanceConstraintId(CounterTradeRangeAction rangeAction, State state) {
+        return formatName(COUNTERTRADE_BALANCE, state.getId(), rangeAction.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
