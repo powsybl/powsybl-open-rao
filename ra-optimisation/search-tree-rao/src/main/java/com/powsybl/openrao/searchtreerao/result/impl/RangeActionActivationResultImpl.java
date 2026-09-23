@@ -118,7 +118,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private String concatenateNetworkElementsIds(RangeAction<?> rangeAction) {
         if (rangeAction instanceof CounterTradeRangeAction counterTradeRangeAction) {
-            return counterTradeRangeAction.getExportingArea() + "+" + counterTradeRangeAction.getImportingArea();
+            return counterTradeRangeAction.getArea();
         } else {
             return rangeAction.getNetworkElements().stream().map(Identifiable::getId).sorted().collect(Collectors.joining("+"));
         }

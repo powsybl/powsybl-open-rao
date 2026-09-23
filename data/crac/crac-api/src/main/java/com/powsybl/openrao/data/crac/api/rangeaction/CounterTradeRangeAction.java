@@ -28,6 +28,11 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
     String getImportingArea();
 
     /**
+     * Get the area - (there will no mor be exporting and importing: just area)
+     */
+    String getArea();
+
+    /**
      * Set the Glsk
      */
     void setGlsk(ZonalData<SensitivityVariableSet> glsk);

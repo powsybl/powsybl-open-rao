@@ -165,11 +165,9 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                                          Set<String> glskIds) {
         CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
         var glsk = counterTradeRangeAction.getGlsk();
-        var exporting = glsk.get(counterTradeRangeAction.getExportingArea());
-        var importing = glsk.get(counterTradeRangeAction.getImportingArea());
+        var area = glsk.get(counterTradeRangeAction.getArea());
 
-        var positiveGlskMap = getPositiveGlskMap(importing);
-        positiveGlskMap.putAll(getNegativeGlskMap(exporting));
+        var positiveGlskMap = getPositiveGlskMap(area);
 
         if (!positiveGlskMap.isEmpty()) {
             List<WeightedSensitivityVariable> positiveGlsk = positiveGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
@@ -177,18 +175,15 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             sensitivityVariables.put(positiveGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.putIfAbsent(positiveGlskMapId, new SensitivityVariableSet(positiveGlskMapId, positiveGlsk));
             glskIds.add(positiveGlskMapId);
-
         }
 
-        var negativeGlskMap = getNegativeGlskMap(importing);
-        negativeGlskMap.putAll(getPositiveGlskMap(exporting));
+        var negativeGlskMap = getNegativeGlskMap(area);
         if (!negativeGlskMap.isEmpty()) {
             List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
             String negativeGlskMapId = handler.getNegativeGlskMapId();
             sensitivityVariables.put(negativeGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.putIfAbsent(negativeGlskMapId, new SensitivityVariableSet(negativeGlskMapId, negativeGlsk));
             glskIds.add(negativeGlskMapId);
-
         }
     }
 

@@ -30,6 +30,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     private final String exportingArea;
     private final String importingArea;
+    private final String area;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
     private Map<String, Map<String, Double>> glsk;
@@ -43,6 +44,20 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         this.initialSetpoint = initialSetpoint;
         this.exportingArea = exportingArea;
         this.importingArea = importingArea;
+        this.area = null;
+        this.glsk = null;
+    }
+
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
+                                Double activationCost, Map<VariationDirection, Double> variationCosts,
+                                String area) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
+        this.ranges = ranges;
+        this.initialSetpoint = initialSetpoint;
+        this.exportingArea = "null";
+        this.importingArea = "null";
+        this.area = area;
         this.glsk = null;
     }
 
@@ -83,11 +98,14 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
+    public String getArea() {
+        return area;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
-        Map<String, Double> exporting = glsk.get(exportingArea);
-        Map<String, Double> importing = glsk.get(importingArea);
-        exporting.forEach((key, value) -> applyCT(network, key, -setpoint * value));
-        importing.forEach((key, value) -> applyCT(network, key, setpoint * value));
+        Map<String, Double> currentArea = glsk.get(area);
+        currentArea.forEach((key, value) -> applyCT(network, key, setpoint * value));
     }
 
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
@@ -131,9 +149,16 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
-                && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
-                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        if (this.exportingArea != null && this.importingArea != null) {
+            return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
+                    && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
+                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        } else if (this.area != null) {
+            return this.area.equals(((CounterTradeRangeAction) o).getArea())
+                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -149,16 +174,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public void setGlsk(ZonalData<SensitivityVariableSet> zonalGlsk) {
         this.glsk = new HashMap<>();
-        this.glsk.put(getImportingArea(), new HashMap<>());
-        this.glsk.put(getExportingArea(), new HashMap<>());
+        this.glsk.put(getArea(), new HashMap<>());
 
-        zonalGlsk.getData(getImportingArea())
+        zonalGlsk.getData(getArea())
                  .getVariablesById()
-                 .forEach((id, variable) -> glsk.get(getImportingArea()).put(id, variable.getWeight()));
-        zonalGlsk.getData(getExportingArea())
-                 .getVariablesById()
-                 .forEach((id, variable) -> glsk.get(getExportingArea()).put(id, variable.getWeight()));
-
+                 .forEach((id, variable) -> glsk.get(getArea()).put(id, variable.getWeight()));
     }
 
     public Map<String, Map<String, Double>> getGlsk() {

@@ -25,6 +25,8 @@ public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<Co
         StandardRangeActionSerializer.serializeCommon(value, gen);
         gen.writeStringField(JsonSerializationConstants.EXPORTING_AREA, value.getExportingArea());
         gen.writeStringField(JsonSerializationConstants.IMPORTING_AREA, value.getImportingArea());
+        gen.writeStringField(JsonSerializationConstants.AREA, value.getArea());
+        gen.writeNumberField(JsonSerializationConstants.INITIAL_NET_POSITION, value.getInitialSetpoint());
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }

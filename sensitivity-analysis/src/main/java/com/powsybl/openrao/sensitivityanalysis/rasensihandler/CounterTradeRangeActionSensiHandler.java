@@ -47,18 +47,18 @@ public class CounterTradeRangeActionSensiHandler implements RangeActionSensiHand
         // Consistency is ok?
     }
 
-//    public Map<String, Float> getPositiveGlskMap() {
-//        // TODO: how to get GLSK from here?
-//        return counterTradeRangeAction.getGlsk().get(counterTradeRangeAction.getExportingArea()).entrySet()
-//                .stream().filter(e -> e.getValue() > 0)
-//                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
-//        //return Map.of("country", (float) 1.);
-//    }
+    //    public Map<String, Float> getPositiveGlskMap() {
+    //        // TODO: how to get GLSK from here?
+    //        return counterTradeRangeAction.getGlsk().get(counterTradeRangeAction.getExportingArea()).entrySet()
+    //                .stream().filter(e -> e.getValue() > 0)
+    //                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
+    //        //return Map.of("country", (float) 1.);
+    //    }
 
-//    public Map<String, Float> getNegativeGlskMap() {
-//        // TODO: how to get GLSK from here?
-//        return Map.of("country", (float) 1.);
-//    }
+    //    public Map<String, Float> getNegativeGlskMap() {
+    //        // TODO: how to get GLSK from here?
+    //        return Map.of("country", (float) 1.);
+    //    }
 
     private double getSumOfValues(Map<String, Float> glskMap) {
         return glskMap.values().stream()

@@ -16,5 +16,7 @@ public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<C
 
     CounterTradeRangeActionAdder withImportingArea(String importingArea);
 
+    CounterTradeRangeActionAdder withArea(String area);
+
     CounterTradeRangeAction add();
 }

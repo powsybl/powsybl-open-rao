@@ -46,6 +46,12 @@ public final class CounterTradeRangeActionArrayDeserializer {
             case JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
                 counterTradeRangeActionAdder.withImportingArea(jsonParser.nextTextValue());
                 break;
+            case JsonSerializationConstants.AREA, JsonSerializationConstants.COUNTRY_NAME:
+                counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
+                break;
+            case JsonSerializationConstants.INITIAL_NET_POSITION, JsonSerializationConstants.INITIAL_SETPOINT:
+                counterTradeRangeActionAdder.withInitialSetpoint((double) jsonParser.nextIntValue(0));
+                break;
             default:
                 throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
         }
