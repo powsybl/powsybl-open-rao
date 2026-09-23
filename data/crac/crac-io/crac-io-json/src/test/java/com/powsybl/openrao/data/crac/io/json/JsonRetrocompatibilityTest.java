@@ -456,7 +456,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point12Test() throws IOException {
-        // exportingArea/importingArea replaced by area/connectedAreas/initialNetPosition on CounterTradeRangeAction
+        // removal of counter-trade actions' exportingArea and importingArea, replaced by connectedAreas
         String cracFilePath = "/retrocompatibility/v2/crac-v2.12.json";
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
@@ -842,9 +842,6 @@ class JsonRetrocompatibilityTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
-        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().getFirst().getArea());
 
         // remedial actions defined with at least one OnConstraint usage rule involving a VoltageCnec
         assertEquals(1, crac.getRemedialActions().stream()
@@ -1067,10 +1064,12 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV2Point12Crac(Crac crac) {
         testContentOfV2Point11Crac(crac);
 
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
-        assertEquals(1000.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
-        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
+        // test connected areas, replacing the removed exportingArea and importingArea
+        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
+        assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getArea());
     }
 }

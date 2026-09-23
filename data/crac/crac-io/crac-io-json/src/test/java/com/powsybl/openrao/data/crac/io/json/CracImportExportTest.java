@@ -72,7 +72,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -147,7 +146,7 @@ class CracImportExportTest {
         CracCreationContext context = new JsonImport().importData(
             getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"),
             new CracCreationParameters(),
-            mock(Network.class)
+            Mockito.mock(Network.class)
         );
         assertNotNull(context);
         assertFalse(context.isCreationSuccessful());
@@ -293,11 +292,11 @@ class CracImportExportTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
-        assertEquals(1000., crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
-        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().getFirst().getArea());
-        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().getFirst().getBorderRanges().size());
+        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
+        assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getArea());
 
         // Check OnFlowConstraintInCountry usage rules
         Set<UsageRule> usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
@@ -622,13 +621,13 @@ class CracImportExportTest {
 
     @Test
     void testImportNotJsonFile() {
-        InputStream inputStream = mock(InputStream.class);
+        InputStream inputStream = Mockito.mock(InputStream.class);
         assertFalse(new JsonImport().exists("file.xml", inputStream));
     }
 
     @Test
     void testImportEmptyCrac() throws IOException {
-        Network network = mock(Network.class);
+        Network network = Mockito.mock(Network.class);
         Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
         assertNotNull(crac);
 

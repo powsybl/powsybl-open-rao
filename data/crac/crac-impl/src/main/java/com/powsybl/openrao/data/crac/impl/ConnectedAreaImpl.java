@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.StandardRange;
 
 import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
+ * @author Pedro Tobarra {@literal <pedro.tobarra at artelys.com>}
  */
 public class ConnectedAreaImpl implements ConnectedArea {
 
@@ -41,10 +41,11 @@ public class ConnectedAreaImpl implements ConnectedArea {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ConnectedArea otherConnectedArea)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return this.area.equals(otherConnectedArea.getArea()) && this.borderRanges.equals(otherConnectedArea.getBorderRanges());
+        ConnectedAreaImpl otherConnectedArea = (ConnectedAreaImpl) o;
+        return area.equals(otherConnectedArea.area) && borderRanges.equals(otherConnectedArea.borderRanges);
     }
 
     @Override

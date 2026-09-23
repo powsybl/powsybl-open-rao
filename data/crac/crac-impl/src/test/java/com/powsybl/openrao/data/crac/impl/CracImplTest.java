@@ -56,7 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -202,9 +201,9 @@ class CracImplTest {
 
     @Test
     void testAddPstRangeActionWithNoConflict() {
-        PstRangeAction rangeAction = mock(PstRangeAction.class);
+        PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         when(rangeAction.getId()).thenReturn("rangeAction");
-        State state = mock(State.class);
+        State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getPstRangeActions().size());
@@ -219,9 +218,9 @@ class CracImplTest {
 
     @Test
     void testAddHvdcRangeActionWithNoConflict() {
-        HvdcRangeAction rangeAction = mock(HvdcRangeAction.class);
+        HvdcRangeAction rangeAction = Mockito.mock(HvdcRangeAction.class);
         when(rangeAction.getId()).thenReturn("rangeAction");
-        State state = mock(State.class);
+        State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getHvdcRangeActions().size());
@@ -412,8 +411,8 @@ class CracImplTest {
 
     @Test
     void testGetStatesFromContingency() {
-        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(mock(ContingencyElement.class)));
-        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
+        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
         State curative1 = crac.addState(contingency1, curativeInstant);
@@ -426,14 +425,14 @@ class CracImplTest {
         assertTrue(crac.getStates(contingency1).containsAll(Set.of(curative1, outage1)));
         assertEquals(3, crac.getStates(contingency2).size());
         assertTrue(crac.getStates(contingency2).containsAll(Set.of(curative2, auto2, outage2)));
-        Contingency contingency3 = new Contingency("co3", "co3", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency3 = new Contingency("co3", "co3", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         assertTrue(crac.getStates(contingency3).isEmpty());
     }
 
     @Test
     void testGetStatesFromInstant() {
-        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(mock(ContingencyElement.class)));
-        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
+        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
         State curative1 = crac.addState(contingency1, curativeInstant);
@@ -453,7 +452,7 @@ class CracImplTest {
 
     @Test
     void testAddStateWithPreventiveError() {
-        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, preventiveInstant));
         assertEquals("Impossible to add a preventive state with a contingency.", exception.getMessage());
@@ -461,7 +460,7 @@ class CracImplTest {
 
     @Test
     void testAddSameStateTwice() {
-        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         State curative1 = crac.addState(contingency1, curativeInstant);
         State curative1bis = crac.addState(contingency1, curativeInstant);
@@ -470,7 +469,7 @@ class CracImplTest {
 
     @Test
     void testAddStateBeforecontingencyError() {
-        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(mock(ContingencyElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, curativeInstant));
         assertEquals("Please add co1 to crac first.", exception.getMessage());
     }
@@ -1054,7 +1053,7 @@ class CracImplTest {
         assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimitsPerInstant().get(preventiveInstant));
         assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimits(preventiveInstant));
         assertEquals(firstMap, crac.getRaUsageLimitsPerInstant());
-        Instant fakeInstant = mock(Instant.class);
+        Instant fakeInstant = Mockito.mock(Instant.class);
         when(fakeInstant.getId()).thenReturn("fake_instant");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newRaUsageLimits("fake_instant"));
         assertEquals("The instant fake_instant does not exist in the crac.", exception.getMessage());
@@ -1157,7 +1156,7 @@ class CracImplTest {
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
             .withArea("FR")
-            .newConnectedArea().withArea("DE").add()
+            .withInitialNetPosition(0d)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()

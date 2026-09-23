@@ -368,13 +368,20 @@
       "instant" : "curative",
       "contingencyId" : "contingency1Id"
     } ],
-    "area" : "FR",
-    "initialNetPosition" : 1000.0,
+    "area" : "BE",
+    "initialNetPosition" : 500.0,
     "connectedAreas" : [ {
-      "area" : "DE",
+      "area" : "FR",
       "borderRanges" : [ {
         "min" : -500.0,
         "max" : 500.0,
+        "rangeType" : "absolute"
+      } ]
+    }, {
+      "area" : "DE",
+      "borderRanges" : [ {
+        "min" : -1000.0,
+        "max" : 1000.0,
         "rangeType" : "absolute"
       } ]
     } ],

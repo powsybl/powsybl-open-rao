@@ -31,3 +31,4 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
      */
     List<ConnectedArea> getConnectedAreas();
 }
+

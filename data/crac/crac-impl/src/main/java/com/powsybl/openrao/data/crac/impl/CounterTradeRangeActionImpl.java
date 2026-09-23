@@ -10,8 +10,8 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
@@ -26,10 +26,10 @@ import java.util.Set;
  */
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
-    private final String area;
-    private final Double initialNetPosition;
-    private final Set<String> connectedAreas;
     private final List<StandardRange> ranges;
+    private final Double initialNetPosition;
+    private final String area;
+    private final List<ConnectedArea> connectedAreas;
     private final Double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id,
@@ -37,19 +37,18 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 String operator,
                                 String groupId,
                                 Set<UsageRule> usageRules,
-                                List<StandardRange> ranges,
+                                List<StandardRange> ranges, Double initialNetPosition,
                                 Double initialSetpoint,
                                 Integer speed,
                                 Double activationCost,
                                 Map<VariationDirection, Double> variationCosts,
                                 String area,
-                                Double initialNetPosition,
-                                Set<String> connectedAreas) {
+                                List<ConnectedArea> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
+        this.initialNetPosition = initialNetPosition;
         this.initialSetpoint = initialSetpoint;
         this.area = area;
-        this.initialNetPosition = initialNetPosition;
         this.connectedAreas = connectedAreas;
     }
 
@@ -89,7 +88,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public Set<ConnectedArea> getConnectedAreas() {
+    public List<ConnectedArea> getConnectedAreas() {
         return connectedAreas;
     }
 
@@ -115,9 +114,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        return this.area.equals(((CounterTradeRangeAction) o).getArea())
-                && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas())
-                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        return this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
+                && this.initialNetPosition.equals(((CounterTradeRangeAction) o).getInitialNetPosition())
+                && this.area.equals(((CounterTradeRangeAction) o).getArea())
+                && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
 
     @Override
@@ -126,7 +126,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
         }
-        hashCode += 31 * area.hashCode() + 63 * connectedAreas.hashCode();
+        for (ConnectedArea connectedArea : connectedAreas) {
+            hashCode += 31 * connectedArea.hashCode();
+        }
+        hashCode += 31 * area.hashCode();
+        hashCode += 31 * initialNetPosition.hashCode();
         return hashCode;
     }
 }

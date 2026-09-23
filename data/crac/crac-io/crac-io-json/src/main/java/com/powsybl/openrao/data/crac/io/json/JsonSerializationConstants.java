@@ -67,7 +67,7 @@ public final class JsonSerializationConstants {
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
     v2.11: removal of networkElementsNamePerId, renaming counter-trade actions' importingCountry to importingArea, and exportingCountry to exportingArea
-    v2.12: for counter-trade actions remove importingArea and exportingArea and add area, initialNetPosition and connectedAreas
+    v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area, initialNetPosition and connectedAreas
      */
 
     // headers
@@ -84,15 +84,14 @@ public final class JsonSerializationConstants {
     public static final String IMPORTING_NETWORK_ELEMENT_ID = "importingNetworkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
     public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
-    public static final String AREA = "area";
-    public static final String INITIAL_NET_POSITION = "initialNetPosition";
-    public static final String CONNECTED_AREAS = "connectedAreas";
-    public static final String BORDER_RANGES = "borderRanges";
-    // legacy CounterTradeRangeAction fields, read-only, kept for retrocompatibility with CRAC files older than version 2.12
     public static final String EXPORTING_COUNTRY = "exportingCountry";
     public static final String IMPORTING_COUNTRY = "importingCountry";
     public static final String EXPORTING_AREA = "exportingArea";
     public static final String IMPORTING_AREA = "importingArea";
+    public static final String CONNECTED_AREAS = "connectedAreas";
+    public static final String AREA = "area";
+    public static final String BORDER_RANGES = "borderRanges";
+    public static final String INITIAL_NET_POSITION = "initialNetPosition";
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
