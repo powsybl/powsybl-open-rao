@@ -40,11 +40,24 @@ public final class CounterTradeRangeActionArrayDeserializer {
             return;
         }
         switch (jsonParser.currentName()) {
-            case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withExportingArea(jsonParser.nextTextValue());
+            case JsonSerializationConstants.AREA:
+                counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
                 break;
-            case JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
-                counterTradeRangeActionAdder.withImportingArea(jsonParser.nextTextValue());
+            case JsonSerializationConstants.INITIAL_NET_POSITION:
+                jsonParser.nextToken();
+                counterTradeRangeActionAdder.withInitialNetPosition(jsonParser.getDoubleValue());
+                break;
+            case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY,
+                 JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
+                JsonSerializationConstants.logDeprecatedField(
+                    2, 12,
+                    "The exporting/importing area is now defined via connectedAreas and will not be read.",
+                    jsonParser, String.class, version
+                );
+                break;
+            case JsonSerializationConstants.CONNECTED_AREAS:
+                jsonParser.nextToken();
+                ConnectedAreaArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder);
                 break;
             default:
                 throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());

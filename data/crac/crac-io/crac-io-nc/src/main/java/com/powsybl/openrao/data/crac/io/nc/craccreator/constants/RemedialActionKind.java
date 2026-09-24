@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.constants;
 
+import java.util.Arrays;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -25,5 +27,12 @@ public enum RemedialActionKind {
     @Override
     public String toString() {
         return URL + this.name;
+    }
+
+    public static RemedialActionKind fromUrl(String kindUrl) {
+        return Arrays.stream(RemedialActionKind.values())
+                .filter(remedialActionKind -> remedialActionKind.toString().equals(kindUrl))
+                .findAny()
+                .orElseThrow();
     }
 }

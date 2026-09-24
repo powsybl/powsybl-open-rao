@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -32,7 +33,7 @@ class CounterTradeRangeActionAdderImplTest {
     private Crac crac;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
     }
@@ -46,10 +47,16 @@ class CounterTradeRangeActionAdderImplTest {
                 .withActivationCost(1000d)
                 .withVariationCost(10000d, VariationDirection.UP)
                 .withVariationCost(20000d, VariationDirection.DOWN)
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
+                .newConnectedArea().withArea("DE")
+                    .newBorderRange().withMin(-300).withMax(300).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .add();
 
         assertEquals("id1", counterTradeRangeAction.getId());
@@ -62,8 +69,11 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals("groupId1", counterTradeRangeAction.getGroupId().get());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
-        assertEquals("FR", counterTradeRangeAction.getExportingArea());
-        assertEquals("DE", counterTradeRangeAction.getImportingArea());
+        assertEquals("BE", counterTradeRangeAction.getArea());
+        assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
+        assertEquals(2, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(1).getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -73,8 +83,15 @@ class CounterTradeRangeActionAdderImplTest {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange()
+                        .withMin(-500)
+                        .withMax(500)
+                        .withRangeType(RangeType.ABSOLUTE)
+                        .add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -87,8 +104,10 @@ class CounterTradeRangeActionAdderImplTest {
         assertTrue(counterTradeRangeAction.getVariationCost(VariationDirection.DOWN).isEmpty());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
-        assertEquals("FR", counterTradeRangeAction.getExportingArea());
-        assertEquals("DE", counterTradeRangeAction.getImportingArea());
+        assertEquals("BE", counterTradeRangeAction.getArea());
+        assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().getFirst().getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -104,8 +123,11 @@ class CounterTradeRangeActionAdderImplTest {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -113,8 +135,10 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals("BE", counterTradeRangeAction.getOperator());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(0, counterTradeRangeAction.getUsageRules().size());
-        assertEquals("FR", counterTradeRangeAction.getExportingArea());
-        assertEquals("DE", counterTradeRangeAction.getImportingArea());
+        assertEquals("BE", counterTradeRangeAction.getArea());
+        assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().getFirst().getArea());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -124,18 +148,45 @@ class CounterTradeRangeActionAdderImplTest {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withGroupId("groupId1")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .add();
 
         assertEquals("id1", counterTradeRangeAction.getId());
         assertNull(counterTradeRangeAction.getOperator());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
-        assertEquals("FR", counterTradeRangeAction.getExportingArea());
-        assertEquals("DE", counterTradeRangeAction.getImportingArea());
+        assertEquals("BE", counterTradeRangeAction.getArea());
+        assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().getFirst().getArea());
+
+        assertEquals(1, crac.getRangeActions().size());
+    }
+
+    @Test
+    void testAddWithoutConnectedAreas() {
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+                .add();
+
+        assertEquals("id1", counterTradeRangeAction.getId());
+        assertEquals("BE", counterTradeRangeAction.getOperator());
+        assertEquals(1, counterTradeRangeAction.getRanges().size());
+        assertEquals(1, counterTradeRangeAction.getUsageRules().size());
+        assertEquals("BE", counterTradeRangeAction.getArea());
+        assertEquals(1000d, counterTradeRangeAction.getInitialNetPosition());
+        assertTrue(counterTradeRangeAction.getConnectedAreas().isEmpty());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -145,8 +196,11 @@ class CounterTradeRangeActionAdderImplTest {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withOperator("BE")
                 .withGroupId("groupId1")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
@@ -154,29 +208,33 @@ class CounterTradeRangeActionAdderImplTest {
     }
 
     @Test
-    void testNoExportingCountryFail() {
+    void testNoAreaFail() {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
-                .withGroupId("groupId1")
-                .withImportingArea("DE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add CounterTradeRangeAction without a exporting country. Please use withExportingArea() with a non null value", e.getMessage());
+        assertEquals("Cannot add CounterTradeRangeAction without a area. Please use withArea() with a non null value", e.getMessage());
     }
 
     @Test
-    void testNoImportingCountryFail() {
+    void testNoInitialNetPositionFail() {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
-                .withGroupId("groupId1")
-                .withExportingArea("FR")
+                .withArea("BE")
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add CounterTradeRangeAction without a importing country. Please use withImportingArea() with a non null value", e.getMessage());
+        assertEquals("Cannot add CounterTradeRangeAction without a initialNetPosition. Please use withInitialNetPosition() with a non null value", e.getMessage());
     }
 
     @Test
@@ -184,8 +242,11 @@ class CounterTradeRangeActionAdderImplTest {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
@@ -195,15 +256,21 @@ class CounterTradeRangeActionAdderImplTest {
     void testIdNotUnique() {
         crac.newCounterTradeRangeAction()
                 .withId("sameId")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId("sameId")
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withArea("BE")
+                .withInitialNetPosition(1000d)
+                .newConnectedArea().withArea("FR")
+                    .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                    .add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);

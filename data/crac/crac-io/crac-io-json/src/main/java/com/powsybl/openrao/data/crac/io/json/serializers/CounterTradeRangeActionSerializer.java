@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
@@ -23,9 +24,21 @@ public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<Co
     public void serialize(CounterTradeRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         StandardRangeActionSerializer.serializeCommon(value, gen);
-        gen.writeStringField(JsonSerializationConstants.EXPORTING_AREA, value.getExportingArea());
-        gen.writeStringField(JsonSerializationConstants.IMPORTING_AREA, value.getImportingArea());
+        gen.writeStringField(JsonSerializationConstants.AREA, value.getArea());
+        gen.writeNumberField(JsonSerializationConstants.INITIAL_NET_POSITION, value.getInitialNetPosition());
+        serializeConnectedAreas(value, gen);
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
+    }
+
+    private static void serializeConnectedAreas(CounterTradeRangeAction value, JsonGenerator gen) throws IOException {
+        if (value.getConnectedAreas().isEmpty()) {
+            return;
+        }
+        gen.writeArrayFieldStart(JsonSerializationConstants.CONNECTED_AREAS);
+        for (ConnectedArea connectedArea : value.getConnectedAreas()) {
+            gen.writeObject(connectedArea);
+        }
+        gen.writeEndArray();
     }
 }
