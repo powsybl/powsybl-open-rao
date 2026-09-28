@@ -9,6 +9,15 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.action.Action;
+import com.powsybl.action.AreaInterchangeTargetAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.RatioTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -16,6 +25,7 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.TrueCondition;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -27,12 +37,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
@@ -146,8 +158,87 @@ final class SystematicSensitivityAdapter {
                                                String sensitivityProvider,
                                                Set<State> statesWithRa,
                                                AppliedRemedialActions appliedRemedialActions) {
+        // Two paths:
+        // - fast path: if all the applied remedial actions can be simulated by the sensitivity provider as operator strategies,
+        //   a single sensitivity analysis is run for all the states with RA;
+        // - fallback: otherwise, the remedial actions are applied on a network variant and one sensitivity analysis is run
+        //   per state with RA.
+        Optional<Map<State, List<Action>>> actionsPerState = convertToOperatorStrategyActions(statesWithRa, appliedRemedialActions,
+            network, sensitivityComputationParameters.getLoadFlowParameters().isDc());
+        if (actionsPerState.isPresent()) {
+            TECHNICAL_LOGS.debug("Applied remedial actions are simulated as operator strategies in a single sensitivity analysis");
+            runWithRemedialActionsAsOperatorStrategies(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
+                sensitivityProvider, statesWithRa, actionsPerState.get());
+        } else {
+            TECHNICAL_LOGS.debug("Some applied remedial actions cannot be simulated as operator strategies: running one sensitivity analysis per state with RA");
+            runWithRemedialActionsAppliedOnNetwork(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
+                sensitivityProvider, statesWithRa, appliedRemedialActions);
+        }
+    }
+
+    /**
+     * Converts the remedial actions applied on each state into powsybl {@link Action}s, provided that ALL of them can be
+     * simulated as operator strategies by the sensitivity provider (OpenLoadFlow). Returns an empty optional as soon as a
+     * remedial action cannot be converted or yields an unsupported action.
+     */
+    static Optional<Map<State, List<Action>>> convertToOperatorStrategyActions(Set<State> statesWithRa,
+                                                                               AppliedRemedialActions appliedRemedialActions,
+                                                                               Network network,
+                                                                               boolean dc) {
+        Map<State, List<Action>> actionsPerState = new HashMap<>();
+        for (State state : statesWithRa) {
+            List<Action> actions;
+            try {
+                actions = appliedRemedialActions.toActions(state, network);
+            } catch (OpenRaoException | UnsupportedOperationException e) {
+                TECHNICAL_LOGS.debug("Remedial actions applied on state {} cannot be converted to actions: {}", state.getId(), e.getMessage());
+                return Optional.empty();
+            }
+            Optional<Action> unsupportedAction = actions.stream().filter(action -> !isSupportedByOperatorStrategies(action, dc)).findFirst();
+            if (unsupportedAction.isPresent()) {
+                TECHNICAL_LOGS.debug("Action {} of type {} applied on state {} is not supported by operator strategies in {} mode",
+                    unsupportedAction.get().getId(), unsupportedAction.get().getType(), state.getId(), dc ? "DC" : "AC");
+                return Optional.empty();
+            }
+            actionsPerState.put(state, actions);
+        }
+        return Optional.of(actionsPerState);
+    }
+
+    /**
+     * Tells whether the given action can be simulated as an operator strategy action by OpenLoadFlow sensitivity analysis:
+     * <ul>
+     *     <li>in DC mode, the Woodbury engine only supports PST tap, line/switch connection, generator and load actions;</li>
+     *     <li>in AC mode, ratio tap changer, shunt compensator, area interchange and HVDC actions (active power setpoint
+     *     change and/or AC emulation disabling) are supported too.</li>
+     * </ul>
+     */
+    static boolean isSupportedByOperatorStrategies(Action action, boolean dc) {
+        if (action instanceof PhaseTapChangerTapPositionAction || action instanceof TerminalsConnectionAction || action instanceof SwitchAction
+            || action instanceof GeneratorAction || action instanceof LoadAction) {
+            return true;
+        }
+        if (dc) {
+            return false;
+        }
+        if (action instanceof HvdcAction hvdcAction) {
+            boolean enablesAcEmulation = hvdcAction.isAcEmulationEnabled().orElse(false);
+            boolean disablesAcEmulation = hvdcAction.isAcEmulationEnabled().map(enabled -> !enabled).orElse(false);
+            // enabling AC emulation is not supported, and an action neither disabling it nor changing the setpoint has no effect
+            return !enablesAcEmulation && (disablesAcEmulation || hvdcAction.getActivePowerSetpoint().isPresent());
+        }
+        return action instanceof RatioTapChangerTapPositionAction || action instanceof ShuntCompensatorPositionAction || action instanceof AreaInterchangeTargetAction;
+    }
+
+    private static void runWithRemedialActionsAsOperatorStrategies(SystematicSensitivityResult result,
+                                                                   Network network,
+                                                                   CnecSensitivityProvider cnecSensitivityProvider,
+                                                                   SensitivityAnalysisParameters sensitivityComputationParameters,
+                                                                   String sensitivityProvider,
+                                                                   Set<State> statesWithRa,
+                                                                   Map<State, List<Action>> actionsPerState) {
         RunConfig config = configureWithRemedialActions(cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters, statesWithRa, appliedRemedialActions, network);
+            sensitivityComputationParameters, statesWithRa, actionsPerState);
         List<SensitivityFactor> factors = cnecSensitivityProvider.getContingencyFactors(network, config.params().getContingencies());
         try {
             SensitivityAnalysisResult sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
@@ -169,11 +260,66 @@ final class SystematicSensitivityAdapter {
         }
     }
 
+    /**
+     * Fallback path: the remedial actions of each state are applied on a temporary network variant, and one sensitivity
+     * analysis is run per state with RA.
+     */
+    private static void runWithRemedialActionsAppliedOnNetwork(SystematicSensitivityResult result,
+                                                               Network network,
+                                                               CnecSensitivityProvider cnecSensitivityProvider,
+                                                               SensitivityAnalysisParameters sensitivityComputationParameters,
+                                                               String sensitivityProvider,
+                                                               Set<State> statesWithRa,
+                                                               AppliedRemedialActions appliedRemedialActions) {
+        String workingVariantId = network.getVariantManager().getWorkingVariantId();
+        String variantForState = RandomizedString.getRandomizedString();
+        int counterForLogs = 1;
+        try {
+            for (State state : statesWithRa) {
+                Contingency contingency = state.getContingency().orElseThrow(() ->
+                    new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.")
+                );
+                TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size(), state.getId());
+
+                network.getVariantManager().cloneVariant(workingVariantId, variantForState, true);
+                network.getVariantManager().setWorkingVariant(variantForState);
+                appliedRemedialActions.applyOnNetwork(state, network);
+
+                List<Contingency> contingencyList = Collections.singletonList(contingency);
+                List<SensitivityFactor> factors = cnecSensitivityProvider.getContingencyFactors(network, contingencyList);
+                try {
+                    SensitivityAnalysisResult sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
+                        variantForState,
+                        factors,
+                        contingencyList,
+                        cnecSensitivityProvider.getVariableSets(),
+                        copy(sensitivityComputationParameters));
+                    result.completeData(sensiResult, state.getInstant().getOrder());
+                } catch (PowsyblException | OpenRaoException | CompletionException e) {
+                    TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
+                    SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
+                        factors,
+                        List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+                        contingencyList.stream().map(Contingency::getId).toList(),
+                        List.of(),
+                        List.of()
+                    );
+                    result.completeData(failedResult, state.getInstant().getOrder());
+                }
+                counterForLogs++;
+            }
+        } finally {
+            network.getVariantManager().setWorkingVariant(workingVariantId);
+            if (network.getVariantManager().getVariantIds().contains(variantForState)) {
+                network.getVariantManager().removeVariant(variantForState);
+            }
+        }
+    }
+
     private static RunConfig configureWithRemedialActions(List<SensitivityVariableSet> variableSets,
                                                           SensitivityAnalysisParameters sensitivityComputationParameters,
                                                           Set<State> statesWithRa,
-                                                          AppliedRemedialActions appliedRemedialActions,
-                                                          Network network) {
+                                                          Map<State, List<Action>> actionsPerState) {
         List<Contingency> contingencies = new ArrayList<>();
         Set<Action> actions = new LinkedHashSet<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
@@ -201,7 +347,7 @@ final class SystematicSensitivityAdapter {
                 .sorted(Comparator.comparingInt(state -> state.getInstant().getOrder()))
                 .toList();
             for (State state : orderedStates) {
-                List<Action> actionsForState = appliedRemedialActions.toActions(state, network);
+                List<Action> actionsForState = actionsPerState.getOrDefault(state, Collections.emptyList());
                 actions.addAll(actionsForState);
                 contingencyActionIds.addAll(actionsForState.stream().map(Action::getId).toList());
                 String operatorStrategyId = "OS-" + contingency.getId() + "-" + state.getInstant().getOrder();

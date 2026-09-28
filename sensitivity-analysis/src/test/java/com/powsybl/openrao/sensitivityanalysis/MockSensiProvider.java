@@ -14,6 +14,7 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityAnalysisRunParameters;
@@ -21,8 +22,6 @@ import com.powsybl.sensitivity.SensitivityFactorReader;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityResultWriter;
 import com.powsybl.sensitivity.SensitivityVariableType;
-
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,30 +59,39 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         if (capture != null) {
             capture.add(sensitivityAnalysisRunParameters.getSensitivityAnalysisParameters());
         }
-        return CompletableFuture.runAsync(() -> {
-            if (network.getNameOrId().equals("Mock_Exception")) {
-                throw new OpenRaoException("Mocked exception");
-            }
-            if (network.getNameOrId().equals("Second_Run_Exception")) {
-                counter++;
-                if (counter == 2) {
-                    throw new OpenRaoException("Mocked exception on second round");
-                }
-            }
-            TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
-            boolean hasSpecificOperatorStrategies = sensitivityAnalysisRunParameters.getOperatorStrategies().stream()
-                .anyMatch(os -> os.getContingencyContext().getContextType() == ContingencyContextType.SPECIFIC);
-            if ((pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) && !hasSpecificOperatorStrategies) {
-                // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), network, sensitivityAnalysisRunParameters.getOperatorStrategies());
-            } else {
-                // used for tests with already applied RangeActions in Curative states (via PST tap or operator strategies)
-                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), sensitivityAnalysisRunParameters.getOperatorStrategies());
-            }
-        }, sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
+        return CompletableFuture.runAsync(() -> writeResults(network, sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters),
+            sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
     }
 
-    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network, List<OperatorStrategy> operatorStrategies) {
+    private void writeResults(Network network,
+                              SensitivityFactorReader sensitivityFactorReader,
+                              SensitivityResultWriter sensitivityResultWriter,
+                              SensitivityAnalysisRunParameters sensitivityAnalysisRunParameters) {
+        if (network.getNameOrId().equals("Mock_Exception")) {
+            throw new OpenRaoException("Mocked exception");
+        }
+        if (network.getNameOrId().equals("Second_Run_Exception")) {
+            counter++;
+            if (counter == 2) {
+                throw new OpenRaoException("Mocked exception on second round");
+            }
+        }
+        TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
+        List<Contingency> contingencies = sensitivityAnalysisRunParameters.getContingencies();
+        List<OperatorStrategy> operatorStrategies = sensitivityAnalysisRunParameters.getOperatorStrategies();
+        boolean hasSpecificOperatorStrategies = operatorStrategies.stream()
+            .anyMatch(os -> os.getContingencyContext().getContextType() == ContingencyContextType.SPECIFIC);
+        if ((pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) && !hasSpecificOperatorStrategies) {
+            // used for most of the tests
+            writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies, network, operatorStrategies);
+        } else {
+            // used for tests with already applied RangeActions in Curative states (via PST tap or operator strategies)
+            writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies, operatorStrategies);
+        }
+    }
+
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies,
+                                                 Network network, List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -254,7 +262,8 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         }
     }
 
-    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
+    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies,
+                                                    List<OperatorStrategy> operatorStrategies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
