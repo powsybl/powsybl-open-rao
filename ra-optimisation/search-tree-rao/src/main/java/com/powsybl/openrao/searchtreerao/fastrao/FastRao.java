@@ -186,7 +186,6 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, getFlowUnit(parameters), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                //consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 raoResult = runFilteredRao(
@@ -245,14 +244,6 @@ public class FastRao implements RaoProvider {
             .forEach(variantsToRemove::add);
         variantsToRemove.forEach(variantManager::removeVariant);
         network.getVariantManager().setWorkingVariant(initialNetworkVariantId);
-    }
-
-    private static FlowCnec getWorstPreventiveCnec(ObjectiveFunctionResult ofResult, Crac crac) {
-        List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
-        return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
-            // If only MNECs are present previous list will be empty
-            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow(() -> new OpenRaoException("No flow cnecs found in preventive state"))
-        );
     }
 
     private static Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit, Double marginLimit) {
