@@ -178,3 +178,19 @@ Feature: 2.6.3: Max number of CRAs
     Then the worst margin is 79 A
     Then the margin on cnec "fr1_fr4_CO2 - curative" after CRA should be 79 A
     Then the execution details should be "Second preventive improved first preventive results"
+
+  @fast @rao @ac @contingency-scenarios @multi-curative
+  Scenario: 2.6.3.13: Maximum number of remedial actions in multi curative with no initial constraint
+    In this scenario, the CRAC has three curative instants. No remedial actions can be used in the second and third
+    curative instants, but there are no limits for the first curative batch. This tests ensures that the cumulative
+    behavior of the usage limits only starts at second curative.
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/2Nodes7Lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_13.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then 3 remedial actions are used after "CO:FR1-FR2-2" at "curative 1"
+    Then the remedial action "close:FR1-FR2-3" is used after "CO:FR1-FR2-2" at "curative 1"
+    Then the remedial action "close:FR1-FR2-4" is used after "CO:FR1-FR2-2" at "curative 1"
+    Then the remedial action "close:FR1-FR2-5" is used after "CO:FR1-FR2-2" at "curative 1"
+    Then 0 remedial actions are used after "CO:FR1-FR2-2" at "curative 2"
+    Then 0 remedial actions are used after "CO:FR1-FR2-2" at "curative 3"

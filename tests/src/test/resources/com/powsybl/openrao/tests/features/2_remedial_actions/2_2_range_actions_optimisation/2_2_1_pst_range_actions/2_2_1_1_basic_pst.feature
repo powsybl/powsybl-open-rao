@@ -24,7 +24,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 2.2.1.1.2: Trade-off between various constraints
   Same as 2.2.1.1.1, except that CNECs are defined on two additional network elements.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic2/SL_ep2us2case2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao

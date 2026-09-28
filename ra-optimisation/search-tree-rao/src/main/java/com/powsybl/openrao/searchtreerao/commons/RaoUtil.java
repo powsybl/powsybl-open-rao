@@ -8,14 +8,14 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -35,11 +35,9 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
@@ -61,6 +59,110 @@ public final class RaoUtil {
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
+        checkCurativeRaUsageLimit(raoInput.getCrac());
+    }
+
+    /**
+     * Generates a mapping of TSOs to their respective limit values for a given limit type, with values organized chronologically by instants.
+     * ex. {"BE": [1, 2, 3], "FR": [2, null, 3]}
+     */
+    public static Map<String, List<Integer>> dataPerTsoForLimit(Crac crac, String limitType, List<Instant> sortedCurativeInstants) {
+
+        // Collect for each TSO a list of limit values sorted by instant
+        Map<String, List<Integer>> dataPerTso = new HashMap<>();
+        for (Instant instant : sortedCurativeInstants) {
+            RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
+            if (raUsageLimits != null) {
+                getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                );
+            }
+
+            for (Map.Entry<String, List<Integer>> entry : dataPerTso.entrySet()) {
+                if (raUsageLimits == null || !getRaUsageLimitByLimitName(limitType, raUsageLimits).containsKey(entry.getKey())) {
+                    entry.getValue().add(null);
+                }
+            }
+        }
+
+        return dataPerTso;
+    }
+
+    private static Map<String, Integer> getRaUsageLimitByLimitName(String limitType, RaUsageLimits raUsageLimits) {
+        switch (limitType) {
+            case "maxRaPerTso":
+                return raUsageLimits.getMaxRaPerTso();
+            case "maxPstPerTso":
+                return raUsageLimits.getMaxPstPerTso();
+            case "maxTopoPerTso":
+                return raUsageLimits.getMaxTopoPerTso();
+            case "maxElementaryActionsPerTso":
+                return raUsageLimits.getMaxElementaryActionsPerTso();
+            case "maxRa":
+                return Collections.singletonMap(null, raUsageLimits.getMaxRa());
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * Check that remedial action usage limits are coherent.
+     * We do not allow null values for an instant if a limit was defined for a previous and following instant
+     * We do not allow a decrease in the limit value between two instants
+     * ex. if curative2 has no max-ra limit for TSO "FR" but curative1 and curative3 have a limit -> throw an error
+     */
+    public static void checkCurativeRaUsageLimit(Crac crac) {
+        List<String> raUsageLimitToCheck = List.of("maxRaPerTso", "maxTopoPerTso", "maxPstPerTso", "maxElementaryActionsPerTso", "maxRa");
+        List<Instant> sortedCurativeInstants = crac.getInstants(InstantKind.CURATIVE).stream().toList();
+
+        for (String limitType : raUsageLimitToCheck) {
+            Map<String, List<Integer>> dataPerTso = dataPerTsoForLimit(crac, limitType, sortedCurativeInstants);
+
+            for (String tso : dataPerTso.keySet()) {
+                List<Integer> values = dataPerTso.get(tso);
+                String tsoMessage = tso == null ? "" : String.format(" and TSO %s", tso);
+
+                Integer previousValue = null;
+                int previousIndex = -1;
+
+                for (int i = 0; i < values.size(); i++) {
+                    Integer value = values.get(i);
+
+                    if (value == null) {
+                        // A null after a non-null value is only invalid if another non-null follows it.
+                        if (previousValue != null) {
+                            for (int j = i + 1; j < values.size(); j++) {
+                                if (values.get(j) != null) {
+                                    throw new OpenRaoException(String.format(
+                                        "Incoherence found for limit '%s'%s: null value found between non-null values for instant %s.",
+                                        limitType,
+                                        tsoMessage,
+                                        sortedCurativeInstants.get(i).getId()
+                                    ));
+                                }
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (previousValue != null && value < previousValue) {
+                        throw new OpenRaoException(String.format(
+                            "Incoherence found for limit '%s'%s: the value decreased between instant %s (limit=%d) and instant %s (limit=%d).",
+                            limitType,
+                            tsoMessage,
+                            sortedCurativeInstants.get(previousIndex).getId(),
+                            previousValue,
+                            sortedCurativeInstants.get(i).getId(),
+                            value
+                        ));
+                    }
+
+                    previousValue = value;
+                    previousIndex = i;
+                }
+            }
+        }
+
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
@@ -147,20 +249,6 @@ public final class RaoUtil {
                     CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
-        }
-    }
-
-    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new OpenRaoException("Only conversions between MW and A are supported.");
         }
     }
 
@@ -260,11 +348,28 @@ public final class RaoUtil {
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
 
+    public static void applyContingency(Network network, State state) {
+        if (state.getContingency().isPresent()) {
+            Contingency contingency = state.getContingency().orElseThrow();
+            if (!contingency.isValid(network)) {
+                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+            }
+            contingency.toModification().apply(network, (ComputationManager) null);
+        }
+    }
+
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
             .map(FlowCnec::getId)
             .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
+    }
+
+    public static int getNumberOfConnectedComponent(Network network) {
+        return Math.toIntExact(StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
+            .map(Bus::getConnectedComponent)
+            .distinct()
+            .count());
     }
 
     // TODO: find a better place for this function

@@ -61,6 +61,8 @@ class GeneratorConstraintsTest {
             .withGeneratorId("generator")
             .withLeadTime(1.)
             .withLagTime(2.)
+            .withMinOffTime(3.)
+            .withMinOnTime(2.)
             .withUpwardPowerGradient(50.)
             .withDownwardPowerGradient(-100.)
             .withShutDownAllowed(true)
@@ -69,6 +71,8 @@ class GeneratorConstraintsTest {
         assertEquals("generator", generatorConstraints.getGeneratorId());
         assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
+        assertEquals(Optional.of(3.), generatorConstraints.getMinOffTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getMinOnTime());
         assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
         assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
         assertTrue(generatorConstraints.isShutDownAllowed());
@@ -97,6 +101,22 @@ class GeneratorConstraintsTest {
             () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(-1.).build()
         );
         assertEquals("The lag time of the generator must be positive.", exception.getMessage());
+    }
+
+    @Test
+    void testNegativeMinOffTime() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withMinOffTime(-1.).build()
+        );
+        assertEquals("The minimum off time of the generator must be positive.", exception.getMessage());
+    }
+
+    @Test
+    void testNegativeMinOnTime() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withMinOnTime(-1.).build()
+        );
+        assertEquals("The minimum on time of the generator must be positive.", exception.getMessage());
     }
 
     @Test

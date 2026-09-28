@@ -28,7 +28,7 @@ public final class RaoApiReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion, gitCommit);
+        BUSINESS_WARNS.warn("Running RAO using OpenRAO version {} from git commit {}.", openRaoVersion, gitCommit);
     }
 
     public static void reportNegativeMinimumObjectiveImprovement(final ReportNode parentNode, final double curativeRaoMinObjImprovement) {
@@ -39,7 +39,11 @@ public final class RaoApiReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+        BUSINESS_WARNS.warn(
+            "The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}",
+            curativeRaoMinObjImprovement,
+            -curativeRaoMinObjImprovement
+        );
     }
 
     public static void reportNegativeSensitivityFailureOvercost(final ReportNode parentNode, final double sensitivityFailureOvercost) {
@@ -50,7 +54,12 @@ public final class RaoApiReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+        BUSINESS_WARNS.warn(
+            "The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer " +
+                "to make the loadflow diverge. Thus, it will be set to + {}",
+            sensitivityFailureOvercost,
+            -sensitivityFailureOvercost
+        );
     }
 
     public static void reportNegativeMaxNumberOfBoundariesForSkippingActions(final ReportNode parentNode, final int maxNumberOfBoundariesForSkippingActions) {

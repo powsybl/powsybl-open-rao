@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl.utils;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;

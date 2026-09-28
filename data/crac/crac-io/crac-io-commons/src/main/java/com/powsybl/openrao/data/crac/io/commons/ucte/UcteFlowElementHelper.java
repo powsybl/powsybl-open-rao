@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoSides;

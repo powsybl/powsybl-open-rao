@@ -206,7 +206,11 @@ public final class IcsData {
         Map<String, CSVRecord> seriesPerType = timeseriesPerIdAndType.get(raId);
         Map<String, Double> weightPerNode = getWeightPerNode(raId);
 
-        cracToModify.getDataPerTimestamp().forEach((dateTime, crac) -> {
+        for (Map.Entry<OffsetDateTime, Crac> entry : cracToModify.getDataPerTimestamp().entrySet()) {
+
+            OffsetDateTime dateTime = entry.getKey();
+            Crac crac = entry.getValue();
+
             double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
                 .withId(raId + RD_SUFFIX)
@@ -234,7 +238,7 @@ public final class IcsData {
             }
 
             injectionRangeActionAdder.add();
-        });
+        }
     }
 
     /**

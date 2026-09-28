@@ -25,7 +25,6 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_COSTLY_MIN_MARG
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_LOOP_FLOW_PARAMETERS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_MNEC_PARAMETERS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCTION_SECTION;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RANGE_ACTIONS_OPTIMIZATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RELATIVE_MARGINS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
@@ -54,8 +53,7 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
             ST_MNEC_PARAMETERS_SECTION,
             ST_RELATIVE_MARGINS_SECTION,
             ST_LOOP_FLOW_PARAMETERS_SECTION,
-            ST_COSTLY_MIN_MARGIN_SECTION,
-            ST_PST_REGULATION_SECTION
+            ST_COSTLY_MIN_MARGIN_SECTION
         );
         boolean anySearchTreeParams = searchTreeParams.stream().map(platformConfig::getOptionalModuleConfig).anyMatch(Optional::isPresent);
         if (!anySearchTreeParams) {
@@ -72,7 +70,6 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
         SearchTreeRaoMnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
         SearchTreeRaoRelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
         SearchTreeRaoLoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
-        SearchTreeRaoPstRegulationParameters.load(platformConfig).ifPresent(parameters::setPstRegulationParameters);
         return parameters;
     }
 

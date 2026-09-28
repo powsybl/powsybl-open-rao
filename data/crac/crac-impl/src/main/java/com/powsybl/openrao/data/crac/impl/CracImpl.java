@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -515,41 +514,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return getVoltageCnec(cnecId);
         }
         return null;
-    }
-
-    /**
-     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
-     *
-     * @deprecated consider using getCnec() or getFlowCnec() instead
-     */
-    @Override
-    @Deprecated(since = "3.0.0")
-    public BranchCnec getBranchCnec(String id) {
-        return getFlowCnec(id);
-    }
-
-    /**
-     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    @Override
-    @Deprecated(since = "3.0.0")
-    public Set<BranchCnec> getBranchCnecs() {
-        return new HashSet<>(flowCnecs.values());
-    }
-
-    /**
-     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @deprecated consider using getCnecs() or getFlowCnecs() instead
-     */
-    @Override
-    @Deprecated(since = "3.0.0")
-    public Set<BranchCnec> getBranchCnecs(State state) {
-        return new HashSet<>(getFlowCnecs(state));
     }
 
     @Override

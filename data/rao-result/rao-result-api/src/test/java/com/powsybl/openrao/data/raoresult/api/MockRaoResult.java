@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -169,15 +168,5 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public void setExecutionDetails(String executionDetails) {
         //not used
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return false;
     }
 }

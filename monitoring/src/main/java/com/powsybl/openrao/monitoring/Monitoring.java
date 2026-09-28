@@ -48,7 +48,7 @@ import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
-import com.powsybl.openrao.util.AbstractNetworkPool;
+import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;

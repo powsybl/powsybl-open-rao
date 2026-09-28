@@ -25,9 +25,10 @@ public final class RaoParametersCommons {
         3.2.1: add pst-regulation-parameters
         3.3: remove objective function unit field
         3.4: add marmot-parameters
+        3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.4";
+    public static final String RAO_PARAMETERS_VERSION = "3.5";
 
     // header
     public static final String VERSION = "version";
@@ -73,6 +74,7 @@ public final class RaoParametersCommons {
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
     public static final String SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = "skip-actions-far-from-most-limiting-element";
     public static final String MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = "max-number-of-boundaries-for-skipping-actions";
+    public static final String ALLOW_ELECTRICAL_ISLAND_CREATION = "allow-electrical-island-creation";
 
     // Multi-threading parameters
     public static final String MULTI_THREADING = "multi-threading";
@@ -146,15 +148,12 @@ public final class RaoParametersCommons {
     public static final String MIN_RELATIVE_IMPROVEMENT_ON_MARGIN = "min-relative-improvement-on-margin";
     public static final String MARGIN_WINDOW_TO_CONSIDER = "margin-window-to-consider";
     public static final String NUMBER_OF_THREADS = "number-of-threads";
+    public static final String CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION = "curative-range-actions-synchronization";
+    public static final String CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION = "curative-topological-actions-synchronization";
 
     // -- Min Margins parameters
     public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
-
-    // -- PST regulation parameters
-    public static final String PST_REGULATION_PARAMETERS = "pst-regulation-parameters";
-    public static final String ST_PST_REGULATION_SECTION = "search-tree-pst-regulation-parameters";
-    public static final String PSTS_TO_REGULATE = "psts-to-regulate";
 }

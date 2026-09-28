@@ -20,9 +20,9 @@ import java.util.Set;
  */
 public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombinationFilter {
 
-    private final int maxRa;
+    private final Integer maxRa;
 
-    public MaximumNumberOfRemedialActionsFilter(int maxRa) {
+    public MaximumNumberOfRemedialActionsFilter(Integer maxRa) {
         this.maxRa = maxRa;
     }
 
@@ -40,6 +40,10 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
     public Set<NetworkActionCombination> filter(final Set<NetworkActionCombination> naCombinations,
                                                 final OptimizationResult optimizationResult,
                                                 final ReportNode reportNode) {
+        if (maxRa == null) {
+            return naCombinations;
+        }
+
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         for (NetworkActionCombination naCombination : naCombinations) {
             int naCombinationSize = naCombination.getNetworkActionSet().size();

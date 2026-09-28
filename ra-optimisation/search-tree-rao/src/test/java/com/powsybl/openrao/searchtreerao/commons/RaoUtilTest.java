@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
@@ -20,12 +22,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -33,6 +30,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -50,21 +48,17 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.checkCurativeRaUsageLimit;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -90,7 +84,7 @@ class RaoUtilTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
         variantId = network.getVariantManager().getWorkingVariantId();
-        raoInput = RaoInput.buildWithPreventiveState(network, crac)
+        raoInput = RaoInput.build(network, crac)
             .withNetworkVariantId(variantId)
             .build();
         raoParameters = new RaoParameters(ReportNode.NO_OP);
@@ -99,7 +93,7 @@ class RaoUtilTest {
     private void addGlskProvider() {
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/GlskCountry.xml"))
             .getZonalGlsks(network);
-        raoInput = RaoInput.buildWithPreventiveState(network, crac)
+        raoInput = RaoInput.build(network, crac)
             .withNetworkVariantId(variantId)
             .withGlskProvider(glskProvider)
             .build();
@@ -149,33 +143,6 @@ class RaoUtilTest {
         OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception2.getMessage());
 
-    }
-
-    @Test
-    void testGetBranchFlowUnitMultiplier() {
-        FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.ONE)).thenReturn(400.);
-        Mockito.when(cnec.getNominalVoltage(TwoSides.TWO)).thenReturn(200.);
-
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.PERCENT_IMAX));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.KILOVOLT, Unit.MEGAWATT));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.TAP));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.DEGREE, Unit.AMPERE));
-        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
     }
 
     @Test
@@ -535,5 +502,176 @@ class RaoUtilTest {
         // Cas AC -> AMPERE
         getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(false);
         assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(parameters));
+    }
+
+    @Test
+    void testGetNumberOfConnectedComponent() {
+        int numberOfComponents = RaoUtil.getNumberOfConnectedComponent(network);
+        assertEquals(1, numberOfComponents);
+        network.getGenerator("FFR1AA1 _generator").getTerminal().disconnect();
+        network.getGenerator("FFR2AA1 _generator").getTerminal().disconnect();
+
+        Action elementaryAction1 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction1")
+            .withNetworkElementId("DDE2AA1  NNL3AA1  1")
+            .withOpen(true)
+            .build();
+        Action elementaryAction2 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction2")
+            .withNetworkElementId("FFR2AA1  DDE3AA1  1")
+            .withOpen(true)
+            .build();
+        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
+        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
+        NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+        networkActionThatCreateAnIsland.apply(network);
+        assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
+    }
+
+    @Test
+    void testApplyContingencyWithInvalidContingency() {
+        crac.newContingency()
+            .withId("InvalidContingency")
+            .withContingencyElement("NonExistentElement", com.powsybl.contingency.ContingencyElementType.LINE)
+            .add();
+        State stateWithInvalidContingency = Mockito.mock(State.class);
+        when(stateWithInvalidContingency.getContingency()).thenReturn(Optional.of(crac.getContingency("InvalidContingency")));
+
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency)
+        );
+        assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideLimitDataForCheckRaUsageLimit")
+    void testCheckRaUsageLimit(String limitType, Map<String, Map<String, Integer>> usageLimitsByInstant, String expectedExceptionMessage) {
+        Crac crac = mock(Crac.class);
+        Instant instant1 = mock(Instant.class);
+        Instant instant2 = mock(Instant.class);
+        Instant instant3 = mock(Instant.class);
+        SortedSet<Instant> instants = new TreeSet<>();
+        instants.add(instant1);
+        instants.add(instant2);
+        instants.add(instant3);
+        RaUsageLimits usageLimits1 = new RaUsageLimits();
+        RaUsageLimits usageLimits2 = new RaUsageLimits();
+        RaUsageLimits usageLimits3 = new RaUsageLimits();
+
+        // Set data for the specified limit type
+        setUsageLimitsData(usageLimits1, usageLimitsByInstant.get("instant1"), limitType);
+        setUsageLimitsData(usageLimits2, usageLimitsByInstant.get("instant2"), limitType);
+        setUsageLimitsData(usageLimits3, usageLimitsByInstant.get("instant3"), limitType);
+
+        when(instant1.getId()).thenReturn("instant1");
+        when(instant2.getId()).thenReturn("instant2");
+        when(instant3.getId()).thenReturn("instant3");
+
+        when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(instants);
+        when(crac.getRaUsageLimits(instant1)).thenReturn(usageLimits1);
+        when(crac.getRaUsageLimits(instant2)).thenReturn(usageLimits2);
+        when(crac.getRaUsageLimits(instant3)).thenReturn(usageLimits3);
+
+        // Act & Assert
+        if (expectedExceptionMessage != null) {
+            Exception exception = assertThrows(OpenRaoException.class, () -> checkCurativeRaUsageLimit(crac));
+            assertEquals(expectedExceptionMessage, exception.getMessage());
+        } else {
+            assertDoesNotThrow(() -> checkCurativeRaUsageLimit(crac));
+        }
+    }
+
+    private static void setUsageLimitsData(RaUsageLimits usageLimits, Map<String, Integer> data, String limitType) {
+        switch (limitType) {
+            case "maxRaPerTso":
+                usageLimits.setMaxRaPerTso(data);
+                break;
+            case "maxPstPerTso":
+                usageLimits.setMaxPstPerTso(data);
+                break;
+            case "maxTopoPerTso":
+                usageLimits.setMaxTopoPerTso(data);
+                break;
+            case "maxElementaryActionsPerTso":
+                usageLimits.setMaxElementaryActionsPerTso(data);
+                break;
+            case "maxRa":
+                usageLimits.setMaxRa(data.get(null));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid limit type: " + limitType);
+        }
+
+    }
+
+    private static Stream<Arguments> provideLimitDataForCheckRaUsageLimit() {
+        Map<String, Map<String, Integer>> incorrectData = Map.of(
+            "instant1", Map.of("TSO1", 5, "TSO2", 10),
+            "instant2", Map.of("TSO2", 20), // TSO1 is missing (null implied)
+            "instant3", Map.of("TSO1", 25, "TSO2", 30)
+        );
+
+        return Stream.of(
+            // Test case: maxPstPerTso with valid data (no exception)
+            Arguments.of(
+                "maxPstPerTso",
+                Map.of(
+                    "instant1", Map.of("TSO1", 5, "TSO2", 10),
+                    "instant2", Map.of("TSO1", 15, "TSO2", 20),
+                    "instant3", Map.of("TSO1", 25, "TSO2", 30)
+                ),
+                null // No exception expected
+            ),
+
+            // Test case: missing first or last instant's limit
+            Arguments.of(
+                "maxPstPerTso",
+                Map.of(
+                    "instant1", Map.of("TSO1", 5),
+                    "instant2", Map.of("TSO1", 15, "TSO2", 20),
+                    "instant3", Map.of("TSO2", 30)
+                ),
+                null // No exception expected
+            ),
+
+            Arguments.of(
+                "maxRaPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxRaPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxPstPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxPstPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxTopoPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxTopoPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxElementaryActionsPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxElementaryActionsPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxRa",
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, null), "instant3", Collections.singletonMap(null, 3)),
+                "Incoherence found for limit 'maxRa': null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxRa",
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, 45), "instant3", Collections.singletonMap(null, 3)),
+                "Incoherence found for limit 'maxRa': the value decreased between instant instant2 (limit=45) and instant instant3 (limit=3)."
+            )
+        );
     }
 }

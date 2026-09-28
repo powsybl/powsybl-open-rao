@@ -92,7 +92,7 @@ public final class OnConstraintUsageRuleHelper {
                 nativeAssessedElementWithRemedialAction.assessedElement(),
                 new AssociationStatus(
                     false,
-                    "OnConstraint usage rule for remedial action %s with assessed element %s ignored because no CNEC was imported by Open RAO from this assessed element."
+                    "OnConstraint usage rule for remedial action %s with assessed element %s ignored because no CNEC was imported by OpenRAO from this assessed element."
                         .formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())
                 )
             );

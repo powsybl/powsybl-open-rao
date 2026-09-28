@@ -48,6 +48,9 @@ class MarmotReportsTest {
         assertEquals("[MARMOT] Proceeding to next iteration by adding 3 cnecs across 2 timestamps", traceReports.getFirst().getMessage());
         assertEquals("for timestamp 2026-06-10T11:50:30Z and virtual cost min-margin-violation-evaluator: cnec1(1.0),cnec2(2.0)", traceReports.getFirst().getChildren().get(0).getMessage());
         assertEquals("for timestamp 2026-06-10T18:00Z and virtual cost random-vc-name: cnec3", traceReports.getFirst().getChildren().get(1).getMessage());
-        assertEquals("[INFO] [MARMOT] Proceeding to next iteration by adding: for timestamp 2026-06-10T11:50:30Z and virtual cost min-margin-violation-evaluator cnec1(1.0),cnec2(2.0), for timestamp 2026-06-10T18:00Z and virtual cost random-vc-name cnec3,", technicalLogs.getFirst().toString());
+        assertEquals("[INFO] [MARMOT] Proceeding to next iteration by adding: for timestamp" +
+            " 2026-06-10T11:50:30Z and virtual cost min-margin-violation-evaluator cnec1(1.0),cnec2(2.0), " +
+            "for timestamp 2026-06-10T18:00Z and virtual cost random-vc-name cnec3,",
+            technicalLogs.getFirst().toString());
     }
 }

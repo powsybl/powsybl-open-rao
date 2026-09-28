@@ -13,7 +13,7 @@ Feature: 2.1.6: Island creation because of network actions
       -> a network action is applied in preventive, but combined with a contingency we get an island.
 
   @fast @rao @ac @max-min-margin
-  Scenario: 2.1.6.1: Simple case with two CNECs and 1 network action that create an island
+  Scenario: 2.1.6.1: Simple case with two CNECs and 1 network action that create an island - island creation allowed
     We have here a simple case where
     - one CNEC "DDE1AA1  DDE2AA1  1 - preventive" is overloaded
     - one CNEC "NNL2AA1  NNL3AA1  1 - preventive" that is not overloaded and will not be in the electrical island.
@@ -30,6 +30,16 @@ Feature: 2.1.6: Island creation because of network actions
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" after PRA should be 0 A on side 1
 
   @fast @rao @ac @max-min-margin
+  Scenario: 2.1.6.1.bis: Simple case with two CNECs and 1 network action that create an island - island creation not allowed
+    Same test as 2.1.6.1, but island creation is not allowed
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_1.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_1.json"
+    Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/RaoParameters_maxMargin_ampere_ac_island_creation_not_allowed.json"
+    When I launch rao
+    Then the initial flow on cnec "DDE1AA1  DDE2AA1  1 - preventive" should be -1203 A on side 1
+    Then 0 remedial actions are used in preventive
+
+  @fast @rao @ac @max-min-margin
   Scenario: 2.1.6.2: Simple case with one CNEC and 1 network action that creates an island
     Same case as 2.1.6.1, but only the CNEC "DDE1AA1  DDE2AA1  1 - preventive" is defined in the CRAC.
     The network action won't be applied, the sensitivity result status is set to FAILED because
@@ -43,7 +53,7 @@ Feature: 2.1.6: Island creation because of network actions
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 2.1.6.3: An island is created after a contingency
+  Scenario: 2.1.6.3: An island is created after a contingency - island creation allowed
     Same case as 2.1.6.1, but initially all the lines are closed.
     We lose the line DDE3AA1 FFR2AA1 1 because of a contingency. We look at the line "DDE1AA1  DDE2AA1  1"
     that becomes overloaded after the contingency and using the network action "open_DDE2AA1  NNL3AA1  1" "solves" the overload by creating an island.
@@ -58,9 +68,21 @@ Feature: 2.1.6: Island creation because of network actions
     Then the remedial action "open_DDE2AA1  NNL3AA1  1" is used after "CO_0001" at "curative"
     Then the margin on cnec "DDE1AA1  DDE2AA1  1 - curative" after CRA should be 1000 A
 
+  @fast @rao @ac @contingency-scenarios @max-min-margin
+  Scenario: 2.1.6.3.bis: An island is created after a contingency - island creation not allowed
+    Same test as 2.1.6.3, but island creation is not allowed
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_3.json"
+    Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/RaoParameters_maxMargin_ampere_ac_island_creation_not_allowed.json"
+    When I launch rao
+    Then the initial margin on cnec "DDE1AA1  DDE2AA1  1 - preventive" should be 518 A
+    Then the initial margin on cnec "DDE1AA1  DDE2AA1  1 - curative" should be -203 A
+    Then 0 remedial actions are used in preventive
+    Then 0 remedial actions are used after "CO_0001" at "curative"
+
   @fast @rao @ac @max-min-margin
-  Scenario: 2.1.6.4: An island is created but all the production is in this island
-  Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
+  Scenario: 2.1.6.4: An island is created but all the production is in this island - island creation allowed
+    Same network architecture as as 2.1.6.1 BUT all the production is in the island that is created by the RAO
     which makes the sensi computation fail (failed to distribute slack) -> the action is not used.
     If  "slackDistributionFailureBehavior" is set to "THROW"
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_4.uct"
@@ -75,9 +97,10 @@ Feature: 2.1.6: Island creation because of network actions
   Scenario: 2.1.6.5: An island is created in the curative perimeter because of a network action taken in preventive
     Same network as 2.1.6.3, in preventive the network action "open_FFR2AA1  DDE3AA1  1" is used to solve the overload on "FFR2AA1  FFR3AA1  1 - preventive"
     However applying this network action on top of the contingency on  DDE2AA1  NNL3AA1  1 creates an island.
+    Even if "allow-electrical-island-creation" is set to false, the island is still created.
     Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_2_1_6_3.uct"
     Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_6_5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "2_remedial_actions/2_1_network_actions_optimisation/RaoParameters_maxMargin_ampere_ac_island_creation_not_allowed.json"
     When I launch rao
     Then the initial margin on cnec "FFR2AA1  FFR3AA1  1 - preventive" should be -1007.99 A
     Then 1 remedial actions are used in preventive

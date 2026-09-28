@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
+import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.searchtreerao.reports.MostLimitingElementsReports;
 import com.powsybl.openrao.searchtreerao.reports.OptimizationSummaryReports;
 import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
@@ -31,7 +32,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -89,6 +90,7 @@ public class SearchTree {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
+    private Integer initialNumberOfConnectedComponent;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
@@ -105,6 +107,10 @@ public class SearchTree {
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
         this.bloomer = new SearchTreeBloomer(input, parameters);
+        this.initialNumberOfConnectedComponent = null;
+        if (!parameters.getNetworkActionParameters().isAllowElectricalIslandCreation()) {
+            this.initialNumberOfConnectedComponent = getNumberOfConnectedComponent(input.getNetwork());
+        }
     }
 
     public CompletableFuture<OptimizationResult> run() {
@@ -246,6 +252,7 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
         naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
         int numberOfCombinations = naCombinationsSorted.size();
 
@@ -386,7 +393,7 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) throws OpenRaoException {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
@@ -394,7 +401,9 @@ public class SearchTree {
             naCombination,
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
+            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf),
+            parameters.getNetworkActionParameters().isAllowElectricalIslandCreation(),
+            initialNumberOfConnectedComponent);
     }
 
     private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode) {
@@ -521,8 +530,14 @@ public class SearchTree {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
-                    .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
-                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
+                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState()))
+                .forEach(e -> e.getValue().stream()
+                    .filter(ra -> previousDepthRangeActionActivations.getActivatedRangeActions(e.getKey()).contains(ra))
+                    .forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(
+                        e.getKey(),
+                        ra,
+                        previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey())
+                    )));
         }
         return alreadyAppliedRa;
     }
