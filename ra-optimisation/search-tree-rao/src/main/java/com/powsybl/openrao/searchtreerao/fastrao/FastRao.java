@@ -31,6 +31,7 @@ import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -135,6 +136,9 @@ public class FastRao implements RaoProvider {
             return new FailedRaoResultImpl("Fast Rao does not support multi-curative optimization");
         }
 
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().setExecutionCondition(
+            SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+
         try {
             // Retrieve input data
             Crac crac = raoInput.getCrac();
@@ -182,6 +186,30 @@ public class FastRao implements RaoProvider {
             com.powsybl.openrao.data.crac.api.Instant lastInstant = raoInput.getCrac().getLastInstant();
             AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             int counter = 1;
+
+            Set<String> criticalContingencyCurativeIds = initialResult
+                .getMostLimitingElements(100).stream()
+                .filter(cnec -> initialResult.getMargin(cnec, Unit.MEGAWATT) < 0)
+                .filter(cnec -> cnec.getState().getInstant().isCurative())
+                .map(cnec -> cnec.getState().getContingency().orElseThrow().getId())
+                .collect(Collectors.toSet());
+            criticalContingencyCurativeIds.forEach(criticalContingencyCurativeId -> {
+                Set<FlowCnec> contingencyCnecs = crac.getFlowCnecs().stream()
+                    .filter(cnec -> {
+                        if (cnec.getState().getInstant().isPreventive()) {
+                            return true;
+                        }
+                        return cnec.getState().getContingency().orElseThrow().getId().equals(criticalContingencyCurativeId);
+                    }).collect(Collectors.toSet());
+                try {
+                    runFilteredRao(raoInput, parameters, targetEndInstant, contingencyCnecs, toolProvider, initialResult, initialRangeActionSetpointResult, networkPool, 0, reportNode);
+                    cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             do {
                 final ReportNode iterationReportNode = FastRaoReports.reportFastRaoIteration(reportNode, counter);
