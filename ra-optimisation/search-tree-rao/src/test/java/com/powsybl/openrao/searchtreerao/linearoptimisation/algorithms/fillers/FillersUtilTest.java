@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -18,9 +19,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -90,5 +95,27 @@ class FillersUtilTest {
         Mockito.when(flowResult.getFlow(cnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Double.NaN);
         Mockito.when(flowResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(3.0);
         assertEquals(Set.of(cnec2), FillersUtil.getFlowCnecsNotNaNFlow(cnecs, flowResult));
+    }
+
+    @Test
+    void testComputeTimestampDurationWithUnevenlySpreadTimestamps() {
+        List<OffsetDateTime> timestamps = List.of(
+            OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC)
+        );
+        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> FillersUtil.computeTimestampDuration(timestamps));
+        assertEquals("All timestamps are not evenly spread.", openRaoException.getMessage());
+
+    }
+
+    @Test
+    void testComputeTimestampDurationWithUnsortedTimestamps() {
+        List<OffsetDateTime> timestamps = List.of(
+            OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC)
+        );
+        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> FillersUtil.computeTimestampDuration(timestamps));
+        assertEquals("timestamp1 is expected to come before timestamp2", openRaoException.getMessage());
     }
 }

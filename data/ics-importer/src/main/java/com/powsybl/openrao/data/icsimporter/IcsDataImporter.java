@@ -152,7 +152,10 @@ public final class IcsDataImporter {
     }
 
     // Consistency check functions
-    private static boolean shouldBeImported(CSVRecord staticRecord, List<OffsetDateTime> sortedTimestampToRun, Map<String, Map<String, Double>> weightPerNodePerGsk, Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
+    private static boolean shouldBeImported(CSVRecord staticRecord,
+                                            List<OffsetDateTime> sortedTimestampToRun,
+                                            Map<String, Map<String, Double>> weightPerNodePerGsk,
+                                            Map<String, Map<String, CSVRecord>> timeseriesPerIdAndType) {
         String raId = staticRecord.get(RA_RD_ID);
 
         // Check static record mandatory fields : Preventive, curative, Generator Name, RD Description mode, UCT Node or GSK ID, Startup allowed and Shutdown allowed
@@ -264,7 +267,11 @@ public final class IcsDataImporter {
      * @return {@code true} if weightPerNodePerGsk has been modified : a node has been dropped.
      *         {@code false} otherwise.
      */
-    private static boolean dropInconsistentNodes(String raId, String gskId, Map<String, CSVRecord> seriesPerType, Map<String, Map<String, Double>> weightPerNodePerGsk, List<OffsetDateTime> dateTimes) {
+    private static boolean dropInconsistentNodes(String raId,
+                                                 String gskId,
+                                                 Map<String, CSVRecord> seriesPerType,
+                                                 Map<String, Map<String, Double>> weightPerNodePerGsk,
+                                                 List<OffsetDateTime> dateTimes) {
         Map<String, Double> sortedByWeight = weightPerNodePerGsk.get(gskId).entrySet().stream().sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -482,7 +489,14 @@ public final class IcsDataImporter {
         return true;
     }
 
-    private static boolean areGradientsRespected(CSVRecord staticRecord, double nextP0, double currentP0, double pMin, double nextPmin, double maxGradient, double minGradient, OffsetDateTime currentDateTime) {
+    private static boolean areGradientsRespected(CSVRecord staticRecord,
+                                                 double nextP0,
+                                                 double currentP0,
+                                                 double pMin,
+                                                 double nextPmin,
+                                                 double maxGradient,
+                                                 double minGradient,
+                                                 OffsetDateTime currentDateTime) {
         double diff = nextP0 - currentP0;
         // ON -> ON check
         if (currentP0 >= pMin && nextP0 >= nextPmin && (diff > maxGradient || diff < minGradient)) {
@@ -512,7 +526,8 @@ public final class IcsDataImporter {
             double onDiff = nextPmin - currentP0;
             if (onDiff > maxGradient || onDiff < minGradient) {
                 BUSINESS_WARNS.warn(
-                    "Redispatching action {} is not imported (hour {}): does not respect power gradients : min/max/diff = {} / {} / {}",
+                    "Redispatching action {} is not imported (hour {}): " +
+                        "does not respect power gradients : min/max/diff = {} / {} / {}",
                     staticRecord.get(0), currentDateTime.getHour(), minGradient, maxGradient, onDiff
                 );
                 return false;
@@ -524,7 +539,9 @@ public final class IcsDataImporter {
 
     private static boolean isPminRespected(CSVRecord staticRecord, double currentP0, double pMin, OffsetDateTime currentDateTime) {
         if (currentP0 > 0.0 && currentP0 < pMin) {
-            BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): does not respect Pmin : P0 is {} and Pmin at {} (generator must be either off or with its power greater or equal than its minimal value)",
+            BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): " +
+                    "does not respect Pmin : P0 is {} and Pmin at {} " +
+                    "(generator must be either off or with its power greater or equal than its minimal value)",
                     staticRecord.get(0), currentDateTime.getHour(), currentP0, pMin);
             return false;
         }
@@ -548,7 +565,10 @@ public final class IcsDataImporter {
             double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
             maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
             if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} is not imported (hour {}): RDP+ {} or RDP- {} is negative for datetime {}", seriesPerType.get(P0).get(RA_RD_ID), dateTime.getHour(), rdpPlus, rdpMinus, dateTime);
+                BUSINESS_WARNS.warn(
+                    "Redispatching action {} is not imported (hour {}): RDP+ {} or RDP- {} is negative for datetime {}",
+                    seriesPerType.get(P0).get(RA_RD_ID), dateTime.getHour(), rdpPlus, rdpMinus, dateTime
+                );
                 return false;
             }
         }

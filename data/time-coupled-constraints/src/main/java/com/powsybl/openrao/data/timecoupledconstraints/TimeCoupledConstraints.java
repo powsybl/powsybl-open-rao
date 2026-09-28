@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.timecoupledconstraints;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -16,15 +17,18 @@ import java.util.TreeSet;
  */
 public class TimeCoupledConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
+    private final Set<PstConstraints> pstConstraints;
     private final Set<AdjustmentConstraints> adjustmentConstraints;
 
     public TimeCoupledConstraints() {
-        this.generatorConstraints = new TreeSet<>(Comparator.comparing(GeneratorConstraints::getGeneratorId));
+        this.generatorConstraints = new HashSet<>();
+        this.pstConstraints = new HashSet<>();
         this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
-    public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints) {
+    public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints, Set<PstConstraints> pstConstraints) {
         this.generatorConstraints = generatorConstraints;
+        this.pstConstraints = pstConstraints;
         this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
@@ -38,6 +42,14 @@ public class TimeCoupledConstraints {
 
     public Set<GeneratorConstraints> getGeneratorConstraints() {
         return generatorConstraints;
+    }
+
+    public void addPstConstraints(PstConstraints pstConstraints) {
+        this.pstConstraints.add(pstConstraints);
+    }
+
+    public Set<PstConstraints> getPstConstraints() {
+        return pstConstraints;
     }
 
     public Set<AdjustmentConstraints> getAdjustmentConstraints() {

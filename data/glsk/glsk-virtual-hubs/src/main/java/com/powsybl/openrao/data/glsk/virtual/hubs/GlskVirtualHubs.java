@@ -9,8 +9,8 @@ package com.powsybl.openrao.data.glsk.virtual.hubs;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;

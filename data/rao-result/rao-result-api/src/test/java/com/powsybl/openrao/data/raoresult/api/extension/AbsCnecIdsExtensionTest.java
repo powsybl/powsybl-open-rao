@@ -24,11 +24,11 @@ class AbsCnecIdsExtensionTest {
             return "test";
         }
 
-        public TestExtension(Set<String> ids) {
+        TestExtension(Set<String> ids) {
             super(ids);
         }
 
-        public TestExtension() {
+        TestExtension() {
             super();
         }
     }

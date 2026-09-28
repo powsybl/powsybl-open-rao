@@ -66,6 +66,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the remedial action "RO_RA_00002_RD" is not used at timestamp "2019-01-08 03:30" in preventive
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
     Then the total cost for all timestamps is 6240
+    Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.2: Topological action and redispatching solve overload
@@ -97,6 +98,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 259.8 MW
     Then the functional cost for all timestamps is 520
     Then the total cost for all timestamps is 520
+    Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.3: PST and redispatching solve overload
@@ -126,6 +128,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.07 MW
     Then the functional cost for all timestamps is 1900
     Then the total cost for all timestamps is 1900
+    Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.4: Curative topological action taken into account
@@ -159,6 +162,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 276.83 MW
     Then the functional cost for all timestamps is 1780
     Then the total cost for all timestamps is 1780
+    Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.4.bis: Curative PST and preventive redispatching
@@ -193,6 +197,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 12.64 MW
     Then the functional cost for all timestamps is 1900
     Then the total cost for all timestamps is 1900
+    Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.5: 2 iterations of MARMOT via MNEC overloads
@@ -229,6 +234,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is -22.93 MW
     Then the functional cost for all timestamps is 3960
     Then the total cost for all timestamps is 26890.25
+    Then the time-coupled security status should be "UNSECURED"
 
     # TODO to be modified when check on generator constraint is performed at import
   @fast @rao @dc @redispatching @marmot @costly
@@ -245,4 +251,4 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 01:30 | 2Nodes_0130.uct |
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
-    Then its time coupled security status should be "UNSECURED"
+    Then the time-coupled security status should be "UNSECURED"

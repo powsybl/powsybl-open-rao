@@ -1,5 +1,5 @@
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "MIN_COST",
     "enforce-curative-security" : false
@@ -66,7 +66,7 @@
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "PL", "NL", "IT", "ES", "BA", "MK", "AT", "ME", "FR", "UA", "AL", "TR", "SK", "CH", "GR", "PT", "BE", "CZ", "HR", "SI", "RO", "RS", "DE", "BG", "HU" ],
             "componentMode" : "MAIN_CONNECTED",
-            "hvdcAcEmulation" : true,
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {

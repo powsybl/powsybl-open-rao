@@ -136,7 +136,11 @@ class FlowCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
                 () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, currentVersion));
-            assertEquals(String.format("Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)", fieldName, currentVersion, lastSupportedVersion), ex.getMessage());
+            assertEquals(
+                String.format(
+                    "Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)",
+                    fieldName, currentVersion, lastSupportedVersion), ex.getMessage()
+            );
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }

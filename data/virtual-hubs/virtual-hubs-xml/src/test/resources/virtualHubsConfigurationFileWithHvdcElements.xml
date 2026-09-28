@@ -23,7 +23,7 @@
           <converter node="BBBBB11B" station="Station 2" />
         </converterList>
         <lineList>
-          <line from="AAAAA11A" to="BBBBB11B" />
+          <line id="1" from="AAAAA11A" to="BBBBB11B" />
         </lineList>
       </pole>
       <pole id="2">
@@ -32,7 +32,7 @@
           <converter node="BBBBB21B" station="Station 2" />
         </converterList>
         <lineList>
-          <line from="AAAAA21A" to="BBBBB21B" />
+          <line id="2" from="AAAAA21A" to="BBBBB21B" />
         </lineList>
       </pole>
     </HVDC>

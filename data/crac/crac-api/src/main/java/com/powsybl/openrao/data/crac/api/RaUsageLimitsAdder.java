@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface RaUsageLimitsAdder {
 
-    RaUsageLimitsAdder withMaxRa(int maxRa);
+    RaUsageLimitsAdder withMaxRa(Integer maxRa);
 
     RaUsageLimitsAdder withMaxTopoPerTso(Map<String, Integer> maxTopoPerTso);
 

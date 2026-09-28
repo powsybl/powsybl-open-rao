@@ -76,8 +76,8 @@ class FastRaoReportsTest {
         when(objectiveFunctionParameters.getType()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
 
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 
@@ -100,8 +100,8 @@ class FastRaoReportsTest {
     @Test
     void testLogFastRaoIterationIntermediateResult() {
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 
@@ -123,8 +123,8 @@ class FastRaoReportsTest {
     @Test
     void testLogFastRaoFinalResult() {
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 

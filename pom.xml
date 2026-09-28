@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>26.1</version>
+        <version>29</version>
         <relativePath/>
     </parent>
 
@@ -15,7 +15,7 @@
     <version>7.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Open RAO</name>
+    <name>OpenRAO</name>
     <description>A toolbox based on the PowSyBl framework dedicated to power systems coordinated capacity calculation and security analysis projects</description>
     <url>https://powsybl.readthedocs.io/projects/openrao</url>
 
@@ -76,7 +76,6 @@
         <module>data</module>
         <module>distribution</module>
         <module>loopflow-computation</module>
-        <module>pst-regulation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
         <module>util</module>
@@ -259,11 +258,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-monitoring</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-pst-regulation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

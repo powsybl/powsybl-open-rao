@@ -33,7 +33,7 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
                                                 final OptimizationResult optimizationResult,
                                                 final ReportNode reportNode) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
-        naCombinations.stream().forEach(networkActionCombination -> {
+        naCombinations.forEach(networkActionCombination -> {
             // TODO: do the same for removePsts
             // we use a set of elementary actions in case some network actions share the same elementary action which should thus only be counted once
             Map<String, Set<Action>> elementaryActionsPerTso = new HashMap<>();

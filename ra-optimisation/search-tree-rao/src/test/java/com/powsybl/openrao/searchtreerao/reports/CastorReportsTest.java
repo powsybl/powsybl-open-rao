@@ -68,8 +68,8 @@ class CastorReportsTest {
     @Test
     void testLogCastorInitialSensitivityAnalysisResults() {
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 
@@ -92,8 +92,8 @@ class CastorReportsTest {
     @Test
     void testLogCastorSystematicSensitivityAnalysisAfterPraResults() {
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 
@@ -107,8 +107,14 @@ class CastorReportsTest {
                 numberOfLoggedLimitingElements
             );
             final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
-            assertEquals("Systematic sensitivity analysis after preventive remedial actions: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})", infoReports.getFirst().getMessage());
-            assertEquals("[INFO] Systematic sensitivity analysis after preventive remedial actions: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})", businessLogs.getFirst().toString());
+            assertEquals(
+                "Systematic sensitivity analysis after preventive remedial actions: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})",
+                infoReports.getFirst().getMessage()
+            );
+            assertEquals(
+                "[INFO] Systematic sensitivity analysis after preventive remedial actions: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})",
+                businessLogs.getFirst().toString()
+            );
             mostLimitingElementsReportsMockedStatic.verify(() -> MostLimitingElementsReports.reportBusinessMostLimitingElements(any(), any(), any(), any(), any(), anyInt()), times(1));
         }
     }
@@ -116,8 +122,8 @@ class CastorReportsTest {
     @Test
     void testLogCastorSystematicSensitivityAnalysisAfterCraResults() {
         try (
-            final MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
-            final MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
+            MockedStatic<MostLimitingElementsReports> mostLimitingElementsReportsMockedStatic = Mockito.mockStatic(MostLimitingElementsReports.class);
+            MockedStatic<RaoUtil> raoUtilMockedStatic = Mockito.mockStatic(RaoUtil.class)
         ) {
             raoUtilMockedStatic.when(() -> RaoUtil.getFlowUnit(raoParameters)).thenReturn(Unit.MEGAWATT);
 
@@ -131,8 +137,14 @@ class CastorReportsTest {
                 numberOfLoggedLimitingElements
             );
             final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
-            assertEquals("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})", infoReports.getFirst().getMessage());
-            assertEquals("[INFO] Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})", businessLogs.getFirst().toString());
+            assertEquals(
+                "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})",
+                infoReports.getFirst().getMessage()
+            );
+            assertEquals(
+                "[INFO] Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 7.0 (functional: 4.0, virtual: 3.0 {test2=2.0, test1=1.0})",
+                businessLogs.getFirst().toString()
+            );
             mostLimitingElementsReportsMockedStatic.verify(() -> MostLimitingElementsReports.reportBusinessMostLimitingElements(any(), any(), any(), any(), any(), anyInt()), times(1));
         }
     }

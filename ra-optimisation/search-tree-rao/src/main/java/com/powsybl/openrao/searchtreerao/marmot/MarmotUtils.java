@@ -137,7 +137,7 @@ public final class MarmotUtils {
                                                                                   final ReportNode reportNode) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> {
+        for (OffsetDateTime timestamp : timestamps) {
             RaoInput raoInput = raoInputs.getData(timestamp).orElseThrow();
             Crac crac = raoInput.getCrac();
             Set<NetworkAction> preventiveActions = preventiveNetworkActions.getData(timestamp).orElseThrow();
@@ -160,7 +160,7 @@ public final class MarmotUtils {
                 timestamp,
                 postOptimizationResult
             );
-        });
+        }
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 

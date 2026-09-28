@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -62,17 +61,6 @@ public final class CastorReports {
         return addedNode;
     }
 
-    public static ReportNode reportCastorOneStateOnly(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportCastorOneStateOnly")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("Starting Castor one state only");
-
-        return addedNode;
-    }
-
     public static void reportCastorInitialSensitivityAnalysisResults(final ReportNode parentNode,
                                                                      final ObjectiveFunction objectiveFunction,
                                                                      final RemedialActionActivationResult remedialActionActivationResult,
@@ -81,7 +69,16 @@ public final class CastorReports {
                                                                      final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorInitialSensitivityAnalysisResults";
         final String prefix = "Initial sensitivity analysis: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
@@ -92,7 +89,16 @@ public final class CastorReports {
                                                                                 final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorSystematicSensitivityAnalysisAfterPraResults";
         final String prefix = "Systematic sensitivity analysis after preventive remedial actions: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterCraResults(final ReportNode parentNode,
@@ -103,7 +109,16 @@ public final class CastorReports {
                                                                                 final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportCastorSystematicSensitivityAnalysisAfterCraResults";
         final String prefix = "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportIfMostLimitingElementIsFictional(final ReportNode parentNode,
@@ -140,7 +155,12 @@ public final class CastorReports {
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        ReportUtils.getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
+                        ReportUtils.getMostLimitingElementsAndMargins(
+                            contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
+                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            unit,
+                            relativePositiveMargins, 1
+                        )
                     )
                 );
         });
@@ -445,7 +465,11 @@ public final class CastorReports {
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
+        BUSINESS_LOGS.info(
+            "There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)",
+            targetEndInstant,
+            estimatedPreventiveRaoTimeInSeconds
+        );
     }
 
     public static void reportCostNotIncreasedDuringRao(final ReportNode parentNode) {
@@ -466,7 +490,7 @@ public final class CastorReports {
         BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
     }
 
-    public static void reportExceptionMessageAndStacktrace(final ReportNode parentNode, final RuntimeException exception) {
+    public static void reportExceptionMessageAndStacktrace(final ReportNode parentNode, final Exception exception) {
         final String exceptionMessage = exception.getMessage();
         final String stackTrace = ExceptionUtils.getStackTrace(exception);
         parentNode.newReportNode()
@@ -519,29 +543,6 @@ public final class CastorReports {
             .add();
 
         BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
-    }
-
-    public static void reportNoDefaultRegulationTerminalDefined(final ReportNode parentNode,
-                                                                final String twtId,
-                                                                final TwoSides limitingSide) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultRegulationTerminalDefined")
-            .withUntypedValue("twtId", twtId)
-            .withUntypedValue("limitingSide", limitingSide.toString())
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer {}, terminal on side {} will be used.", twtId, limitingSide);
-    }
-
-    public static void reportNoDefaultTargetDeadbandDefined(final ReportNode parentNode, final String twtId) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultTargetDeadbandDefined")
-            .withUntypedValue("twtId", twtId)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer {}, a value of 0.0 will be used.", twtId);
     }
 
     public static ReportNode reportOptimizingScenarioForContingency(final ReportNode parentNode, final String contingencyId) {

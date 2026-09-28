@@ -10,9 +10,9 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import org.jspecify.annotations.Nullable;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

@@ -39,12 +39,12 @@ Feature: 2.2.1.8: MIP range action optimisation and loopflows
     Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic91/CBCORA_alignedPsts.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
-    Then the worst margin is 1968 A
-    Then the margin on cnec "fr4_de1_N_opp - preventive" after PRA should be 1968 A
+    Then its security status should be "SECURED"
+    Then the worst margin is 506.07 A
+    Then the margin on cnec "fr4_de1_N_opp - preventive" after PRA should be 2844.95 A
     Then 2 remedial actions are used in preventive
-    Then the tap of PstRangeAction "pst_be" should be 7 in preventive
-    Then the tap of PstRangeAction "pst_fr" should be 7 in preventive
-    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 2032 A
+    Then the tap of PstRangeAction "pst_be" should be -1 in preventive
+    Then the tap of PstRangeAction "pst_fr" should be -1 in preventive
+    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 1155.05 A

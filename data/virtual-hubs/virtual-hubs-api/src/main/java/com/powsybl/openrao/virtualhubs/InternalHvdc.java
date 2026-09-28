@@ -13,8 +13,9 @@ import java.util.Objects;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-public record InternalHvdc(String eic, List<HvdcPole> poles) {
-    public InternalHvdc(final String eic, final List<HvdcPole> poles) {
+public record InternalHvdc(String eic, String code, List<HvdcPole> poles) {
+    public InternalHvdc(final String eic, final String code, final List<HvdcPole> poles) {
+        this.code = Objects.requireNonNull(code);
         this.eic = Objects.requireNonNull(eic);
         this.poles = Objects.requireNonNull(poles);
     }

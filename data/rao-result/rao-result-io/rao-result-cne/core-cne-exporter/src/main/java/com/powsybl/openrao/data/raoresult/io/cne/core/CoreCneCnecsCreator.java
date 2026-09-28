@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_PATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE;
@@ -319,7 +320,7 @@ public final class CoreCneCnecsCreator {
 
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
         // TODO : remove this when we go back to considering FRM in the exported threshold
-        double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double flowUnitMultiplier = getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
         double maxThreshold = cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
@@ -359,20 +360,6 @@ public final class CoreCneCnecsCreator {
             // no commercial flow
         }
         return measurements;
-    }
-
-    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new OpenRaoException("Only conversions between MW and A are supported.");
-        }
     }
 
     private TwoSides getMonitoredSide(FlowCnec cnec) {

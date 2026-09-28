@@ -35,7 +35,7 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
     }
 
     @Override
-    public RaUsageLimitsAdder withMaxRa(int maxRa) {
+    public RaUsageLimitsAdder withMaxRa(Integer maxRa) {
         raUsageLimits.setMaxRa(maxRa);
         return this;
     }
