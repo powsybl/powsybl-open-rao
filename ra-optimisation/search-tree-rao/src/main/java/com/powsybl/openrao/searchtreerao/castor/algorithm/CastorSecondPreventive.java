@@ -105,7 +105,7 @@ public class CastorSecondPreventive {
     }
 
     /**
-     * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
+     * This function decides if a 2nd preventive RAO should be run. It checks if a preventive perimeter exist first then the user parameter, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
     boolean shouldRunSecondPreventiveRao(OptimizationResult firstPreventiveResult,
