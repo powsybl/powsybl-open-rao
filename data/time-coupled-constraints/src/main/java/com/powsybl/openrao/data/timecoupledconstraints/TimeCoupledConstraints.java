@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.timecoupledconstraints;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 

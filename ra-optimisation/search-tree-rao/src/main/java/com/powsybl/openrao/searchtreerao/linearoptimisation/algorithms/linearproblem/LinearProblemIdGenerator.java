@@ -324,7 +324,8 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), UNIQUE_ADJUSTMENT_STATE, adjustmentId, CONSTRAINT_SUFFIX);
     }
 
-    public static String adjustmentStateTransitionVariableId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo, OffsetDateTime timestamp) {
+    public static String adjustmentStateTransitionVariableId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateFrom,
+                                                             LinearProblem.AdjustmentState adjustmentStateTo, OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), ADJUSTMENT_STATE_TRANSITION, adjustmentId, adjustmentStateFrom.toString(), adjustmentStateTo.toString(), VARIABLE_SUFFIX);
     }
 

@@ -141,7 +141,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
+            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp,
+                input, parameters, problemFillers, timeCoupledProblemFillers, parallelism);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -302,12 +303,16 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
     private static void updateLinearProblemBetweenMipIterations(LinearProblem linearProblem,
                                                                 TemporalData<List<ProblemFiller>> problemFillers,
+                                                                List<ProblemFiller> timeCoupledProblemFillers,
                                                                 TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(linearProblem, rangeActionActivationResults.getData(timestamp).orElseThrow()));
         });
+        // time-coupled fillers are updated after the per-timestamp ones, as they may rely on variables
+        // (e.g. PST taps) that are only created at the first MIP iteration; they do not use any set-point input
+        timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(linearProblem, null));
     }
 
     private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem,
@@ -435,6 +440,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                           TimeCoupledIteratingLinearOptimizerInput input,
                                                                                           IteratingLinearOptimizerParameters parameters,
                                                                                           TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                          List<ProblemFiller> timeCoupledProblemFillers,
                                                                                           int parallelism) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
@@ -450,7 +456,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, rangeActionActivationResults);
+            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, timeCoupledProblemFillers, rangeActionActivationResults);
 
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {

@@ -540,11 +540,13 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, adjustmentStateConstraintId(adjustmentId, adjustmentState, timestamp));
     }
 
-    public OpenRaoMPVariable addAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
+    public OpenRaoMPVariable addAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp,
+                                                                  LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
         return solver.makeBoolVar(adjustmentStateTransitionVariableId(adjustmentId, adjustmentStateFrom, adjustmentStateTo, timestamp));
     }
 
-    public OpenRaoMPVariable getAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
+    public OpenRaoMPVariable getAdjustmentStateTransitionVariable(String adjustmentId, OffsetDateTime timestamp,
+                                                                  LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo) {
         return solver.getVariable(adjustmentStateTransitionVariableId(adjustmentId, adjustmentStateFrom, adjustmentStateTo, timestamp));
     }
 
@@ -560,7 +562,8 @@ public final class LinearProblem {
         return solver.makeConstraint(0, 0, adjustmentStateToTransitionConstraintId(adjustmentId, adjustmentStateTo, timestamp));
     }
 
-    public OpenRaoMPConstraint addAdjustmentConstantRampConstraint(double lb, double ub, String adjustmentId, OffsetDateTime timestamp, LinearProblem.VariationDirectionExtension direction, LinearProblem.BoundExtension lbOrUb) {
+    public OpenRaoMPConstraint addAdjustmentConstantRampConstraint(double lb, double ub, String adjustmentId, OffsetDateTime timestamp,
+                                                                   LinearProblem.VariationDirectionExtension direction, LinearProblem.BoundExtension lbOrUb) {
         return solver.makeConstraint(lb, ub, adjustmentConstantRampConstraintId(adjustmentId, direction, lbOrUb, timestamp));
     }
 
