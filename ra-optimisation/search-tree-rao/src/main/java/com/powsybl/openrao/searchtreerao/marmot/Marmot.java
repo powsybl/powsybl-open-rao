@@ -517,11 +517,12 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                       final int parallelism,
                                                                       final ReportNode reportNode) {
         return MarmotUtils.smartMap(raoInputs, raoInput ->
-                runSingleTopologicalOptimization(
-                    raoInput,
-                    consideredCnecs,
-                    raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), reportNode
-                ),
+            runSingleTopologicalOptimization(
+                raoInput,
+                consideredCnecs,
+                raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), 
+                reportNode
+            ),
             parallelism
         );
     }
