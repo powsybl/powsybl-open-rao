@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.CountertradingRangeActions;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,6 +76,6 @@ class CountertradingRangeActionsCreator {
             parameters.getRaRange(country, instant),
             true,
             parameters.getRaCosts(country, instant),
-            Optional.of(100.));
+            parameters.getRaMinimumAdjustment(country, instant));
     }
 }

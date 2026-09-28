@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
@@ -22,7 +23,6 @@ import com.powsybl.openrao.data.crac.io.network.parameters.RangeActionCosts;
 import com.powsybl.openrao.data.crac.io.network.parameters.RedispatchingRangeActions;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -114,7 +114,7 @@ class RedispatchingCreator {
             parameters.getCombinationRange(combinationId, instant),
             false,
             parameters.getCombinationCosts(combinationId, instant),
-            Optional.of(50.));
+            parameters.getCombinationMinimumAdjustment(combinationId, instant));
 
         checkNumberOfActions();
     }
@@ -131,7 +131,7 @@ class RedispatchingCreator {
             parameters.getRaRange(generator, instant),
             false,
             parameters.getRaCosts(generator, instant),
-            Optional.of(50.));
+            parameters.getRaMinimumAdjustment(generator, instant));
 
         checkNumberOfActions();
     }
@@ -153,17 +153,20 @@ class RedispatchingCreator {
         double maxP = Math.max(initialP, parameters.getRaRange(load, instant).getMax().orElseThrow());
         RangeActionCosts costs = parameters.getRaCosts(load, instant);
         //TODO: remove minimum adjustment range and find a way to specify it in the InjectionRangeActions parameters.
-        crac.newInjectionRangeAction()
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
             .withId("RD_LOAD_" + load.getId() + "_" + instant.getId())
             .withNetworkElementAndKey(1.0, load.getId())
             .newRange()
                 .withMin(minP)
                 .withMax(maxP)
-                .add()
-            .newRange()
-                .withMin(50)
+                .add();
+        if (parameters.getRaMinimumAdjustment(load, instant).isPresent()) {
+            injectionRangeActionAdder.newRange()
+                .withMin(parameters.getRaMinimumAdjustment(load, instant).orElseThrow())
                 .withRangeType(RangeType.MINIMUM_ADJUSTMENT)
-                .add()
+                .add();
+        }
+        injectionRangeActionAdder
             .newOnInstantUsageRule().withInstant(instant.getId()).add()
             .withInitialSetpoint(initialP)
             .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
