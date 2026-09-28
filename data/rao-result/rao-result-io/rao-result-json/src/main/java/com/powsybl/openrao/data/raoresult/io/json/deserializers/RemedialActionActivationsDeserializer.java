@@ -21,6 +21,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ACTIVATED_REMEDIAL_ACTIONS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.CONTINGENCY_ID;
@@ -41,60 +45,96 @@ final class RemedialActionActivationsDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Instant instant = null;
             Contingency contingency = null;
+            Map<PstRangeAction, Integer> activatedPstRangeActions = new HashMap<>();
+            Map<StandardRangeAction<?>, Double> activatedStandardRangeActions = new HashMap<>();
+            Set<NetworkAction> activatedNetworkActions = new HashSet<>();
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                 switch (jsonParser.currentName()) {
                     case INSTANT -> instant = crac.getInstant(jsonParser.nextTextValue());
                     case CONTINGENCY_ID -> contingency = crac.getContingency(jsonParser.nextTextValue());
-                    case TIMESTAMP -> jsonParser.nextToken(); // TODO: use this when a CRAC can be defined on several timestamps
+                    case TIMESTAMP ->
+                        jsonParser.nextToken(); // TODO: use this when a CRAC can be defined on several timestamps
                     case ACTIVATED_REMEDIAL_ACTIONS -> {
-                        State state = contingency == null ? crac.getPreventiveState() : crac.getState(contingency, instant);
-                        if (state == null) {
-                            throw new JsonParseException(jsonParser, "Unknown state.");
-                        }
                         jsonParser.nextToken();
-                        deserializeActivatedRemedialActionsForState(jsonParser, state, raoResult, crac);
+                        deserializeActivatedRemedialActionsForState(jsonParser, crac, activatedPstRangeActions, activatedStandardRangeActions, activatedNetworkActions);
                     }
                     default ->
                         throw new JsonParseException(jsonParser, "Unexpected field in remedialActionActivations: " + jsonParser.currentName());
+                }
+            }
+            State state = contingency == null ? crac.getPreventiveState() : crac.getState(contingency, instant);
+            if (state == null) {
+                throw new JsonParseException(jsonParser, "Unknown state.");
+            }
+            activatedPstRangeActions.forEach(((pstRangeAction, tap) ->
+                raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction).addActivationForState(state, pstRangeAction.convertTapToAngle(tap))));
+            activatedStandardRangeActions.forEach(((standardRangeAction, setPoint) ->
+                raoResult.getAndCreateIfAbsentRangeActionResult(standardRangeAction).addActivationForState(state, setPoint)));
+            activatedNetworkActions.forEach(networkAction ->
+                raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(state));
+        }
+    }
+
+    private static void deserializeActivatedRemedialActionsForState(JsonParser jsonParser,
+                                                                    Crac crac,
+                                                                    Map<PstRangeAction, Integer> activatedPstRangeActions,
+                                                                    Map<StandardRangeAction<?>, Double> activatedStandardRangeActions,
+                                                                    Set<NetworkAction> activatedNetworkActions) throws IOException {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            RemedialAction<?> remedialAction = null;
+            Integer tap = null;
+            Double setPoint = null;
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                switch (jsonParser.currentName()) {
+                    case ID -> remedialAction = crac.getRemedialAction(jsonParser.nextTextValue());
+                    case SET_POINT -> {
+                        jsonParser.nextToken();
+                        setPoint = jsonParser.getDoubleValue();
+                    }
+                    case TAP -> {
+                        jsonParser.nextToken();
+                        tap = jsonParser.getIntValue();
+                    }
+                    default ->
+                        throw new JsonParseException(jsonParser, "Unexpected field in remedialActionActivations: " + jsonParser.currentName());
+                }
+            }
+            switch (remedialAction) {
+                case null -> throw new JsonParseException(jsonParser, "Missing or unknown remedial.");
+                case NetworkAction networkAction -> {
+                    checkNoTap(remedialAction, tap, jsonParser);
+                    checkNoSetPoint(remedialAction, setPoint, jsonParser);
+                    activatedNetworkActions.add(networkAction);
+                }
+                case PstRangeAction pstRangeAction -> {
+                    if (tap == null) {
+                        throw new JsonParseException(jsonParser, "Missing tap for PST range action '%s'.".formatted(remedialAction.getId()));
+                    }
+                    checkNoSetPoint(remedialAction, setPoint, jsonParser);
+                    activatedPstRangeActions.put(pstRangeAction, tap);
+                }
+                case StandardRangeAction<?> standardRangeAction -> {
+                    checkNoTap(remedialAction, tap, jsonParser);
+                    if (setPoint == null) {
+                        throw new JsonParseException(jsonParser, "Missing set-point for standard range action '%s'.".formatted(remedialAction.getId()));
+                    }
+                    activatedStandardRangeActions.put(standardRangeAction, setPoint);
+                }
+                default -> {
                 }
             }
         }
     }
 
-    private static void deserializeActivatedRemedialActionsForState(JsonParser jsonParser, State state, RaoResultImpl raoResult, Crac crac) throws IOException {
-        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            RemedialAction<?> remedialAction = null;
-            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                switch (jsonParser.currentName()) {
-                    case ID -> remedialAction = crac.getRemedialAction(jsonParser.nextTextValue());
-                    case SET_POINT -> {
-                        if (remedialAction == null) {
-                            throw new JsonParseException(jsonParser, "Set-point defined without remedialAction in remedialActionActivations.");
-                        } else if (remedialAction instanceof StandardRangeAction<?> standardRangeAction) {
-                            jsonParser.nextToken();
-                            raoResult.getAndCreateIfAbsentRangeActionResult(standardRangeAction).addActivationForState(state, jsonParser.getDoubleValue());
-                        } else {
-                            throw new JsonParseException(jsonParser, "Cannot define a set-point for remedial action '%s' because is not a standard range action.".formatted(remedialAction.getId()));
-                        }
-                    }
-                    case TAP -> {
-                        if (remedialAction == null) {
-                            throw new JsonParseException(jsonParser, "Tap defined without remedialAction in remedialActionActivations.");
-                        } else if (remedialAction instanceof PstRangeAction pstRangeAction) {
-                            jsonParser.nextToken();
-                            raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction)
-                                .addActivationForState(state, pstRangeAction.convertTapToAngle(jsonParser.getIntValue()));
-                        } else {
-                            throw new JsonParseException(jsonParser, "Cannot define a tap for remedial action '%s' because is not a PST range action.".formatted(remedialAction.getId()));
-                        }
-                    }
-                    default ->
-                        throw new JsonParseException(jsonParser, "Unexpected field in remedialActionActivations: " + jsonParser.currentName());
-                }
-            }
-            if (remedialAction instanceof NetworkAction networkAction) {
-                raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(state);
-            }
+    private static void checkNoTap(RemedialAction<?> remedialAction, Integer tap, JsonParser jsonParser) throws IOException {
+        if (tap != null) {
+            throw new JsonParseException(jsonParser, "Cannot define a tap for remedial action '%s' because is not a PST range action.".formatted(remedialAction.getId()));
+        }
+    }
+
+    private static void checkNoSetPoint(RemedialAction<?> remedialAction, Double setPoint, JsonParser jsonParser) throws IOException {
+        if (setPoint != null) {
+            throw new JsonParseException(jsonParser, "Cannot define a set-point for remedial action '%s' because is not a standard range action.".formatted(remedialAction.getId()));
         }
     }
 }
