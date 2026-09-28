@@ -100,7 +100,7 @@ final class RemedialActionActivationsDeserializer {
                 }
             }
             switch (remedialAction) {
-                case null -> throw new JsonParseException(jsonParser, "Missing or unknown remedial.");
+                case null -> throw new JsonParseException(jsonParser, "Missing or unknown remedial action.");
                 case NetworkAction networkAction -> {
                     checkNoTap(remedialAction, tap, jsonParser);
                     checkNoSetPoint(remedialAction, setPoint, jsonParser);
