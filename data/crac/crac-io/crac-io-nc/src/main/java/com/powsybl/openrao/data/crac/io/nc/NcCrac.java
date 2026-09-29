@@ -14,24 +14,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
-import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
-import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -43,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -145,6 +129,90 @@ public class NcCrac {
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
         return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag)
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+    }
+
+    /**
+     * Reads the CountertradeRemedialActions from the RA profile and completes them with the data of the SSI profile.
+     * <p>
+     * The CountertradeRemedialActions are retrieved as follows:
+     * <ol>
+     *     <li>Read the CountertradeRemedialActions from the RA profile.</li>
+     *     <li>Read the RemedialActionDependencies from the RA profile whose RemedialAction is one of these
+     *     CountertradeRemedialActions. Their {@code normalEnabled} field is already overridden by the SSI
+     *     {@code enabled} field, so disabled dependencies are ignored.</li>
+     *     <li>Read the RemedialActionGroups from the RA profile linked to a CountertradeRemedialAction through
+     *     these dependencies.</li>
+     *     <li>Read the CountertradeRemedialActions from the SSI profile.</li>
+     *     <li>Read the RemedialActionGroups from the SSI profile whose mRID matches one of the groups found in step 3.</li>
+     *     <li>Complete each CountertradeRemedialAction of the RA profile with its SSI data:
+     *         <ul>
+     *             <li>the values set on the CountertradeRemedialAction itself in the SSI profile (maximum regulating
+     *             up/down and availability override) replace the RA profile ones;</li>
+     *             <li>the values set on the linked RemedialActionGroup in the SSI profile (maximum regulating
+     *             up/down) are stored in separate fields, so that the creator can check their consistency with
+     *             the CountertradeRemedialAction ones.</li>
+     *         </ul>
+     *     </li>
+     * </ol>
+     *
+     * @return the CountertradeRemedialActions of the RA profile, completed with the SSI data
+     */
+    public Set<CountertradeRemedialAction> getCountertradeRemedialActions() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+        Set<String> countertradeIds = raProps.stream()
+            .map(raPb -> raPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION))
+            .collect(Collectors.toSet());
+
+        Map<String, String> groupIdByCountertradeId = new HashMap<>();
+        for (RemedialActionDependency dependency : getRemedialActionDependencies()) {
+            if (dependency.normalEnabled() && countertradeIds.contains(dependency.remedialAction()) && dependency.dependingRemedialActionGroup() != null) {
+                groupIdByCountertradeId.put(dependency.remedialAction(), dependency.dependingRemedialActionGroup());
+            }
+        }
+
+        Set<String> countertradeGroupIds = getRemedialActionGroups().stream()
+            .map(RemedialActionGroup::mrid)
+            .filter(groupIdByCountertradeId::containsValue)
+            .collect(Collectors.toSet());
+
+        Map<String, PropertyBag> ssiCountertradeById = new HashMap<>();
+        for (PropertyBag ssiPb : getPropertyBags(NcKeyword.STEADY_STATE_INSTRUCTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING)) {
+            ssiCountertradeById.put(ssiPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION), ssiPb);
+        }
+
+        Map<String, PropertyBag> ssiGroupById = new HashMap<>();
+        for (PropertyBag ssiPb : getPropertyBags(NcKeyword.STEADY_STATE_INSTRUCTION, NcConstants.REMEDIAL_ACTION_GROUP_OVERRIDING)) {
+            String groupId = ssiPb.getId(NcConstants.REQUEST_REMEDIAL_ACTION_GROUP);
+            if (countertradeGroupIds.contains(groupId)) {
+                ssiGroupById.put(groupId, ssiPb);
+            }
+        }
+
+        for (PropertyBag raPb : raProps) {
+            String id = raPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+
+            PropertyBag ssiCountertradePb = ssiCountertradeById.get(id);
+            if (ssiCountertradePb != null) {
+                copyIfPresent(ssiCountertradePb, raPb, NcConstants.MAX_REGULATING_UP, NcConstants.MAX_REGULATING_UP);
+                copyIfPresent(ssiCountertradePb, raPb, NcConstants.MAX_REGULATING_DOWN, NcConstants.MAX_REGULATING_DOWN);
+                copyIfPresent(ssiCountertradePb, raPb, NcConstants.OVERRIDE_AVAILABLE, NcConstants.NORMAL_AVAILABLE);
+            }
+
+            PropertyBag ssiGroupPb = ssiGroupById.get(groupIdByCountertradeId.get(id));
+            if (ssiGroupPb != null) {
+                copyIfPresent(ssiGroupPb, raPb, NcConstants.GROUP_MAX_REGULATING_UP, NcConstants.GROUP_MAX_REGULATING_UP);
+                copyIfPresent(ssiGroupPb, raPb, NcConstants.GROUP_MAX_REGULATING_DOWN, NcConstants.GROUP_MAX_REGULATING_DOWN);
+            }
+        }
+
+        return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag).convert(raProps);
+    }
+
+    private static void copyIfPresent(PropertyBag source, PropertyBag target, String sourceField, String targetField) {
+        String value = source.get(sourceField);
+        if (value != null) {
+            target.put(targetField, value);
+        }
     }
 
     public Set<TopologyAction> getTopologyActions() {
@@ -275,7 +343,7 @@ public class NcCrac {
     private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
         getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
-                PropertyBag property = properties.get(0);
+                PropertyBag property = properties.getFirst();
                 if (!checkTimeCoherence(property, offsetDateTime)) {
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(
                         "[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s",
