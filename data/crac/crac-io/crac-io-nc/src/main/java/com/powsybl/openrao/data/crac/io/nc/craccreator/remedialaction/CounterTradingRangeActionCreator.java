@@ -87,7 +87,7 @@ public class CounterTradingRangeActionCreator {
         CounterTradeRangeActionAdder adder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withName(countertradeRemedialAction.name())
-                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.creator()))
+                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withArea(area)
@@ -215,7 +215,7 @@ public class CounterTradingRangeActionCreator {
         }
 
         // Check for null conditions
-        String operatorUrl = countertradeRemedialAction.creator();
+        String operatorUrl = countertradeRemedialAction.operator();
         if (operatorUrl == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format("Remedial action %s will not be imported the counter trading remedial action has null operator code.", remedialActionId));
