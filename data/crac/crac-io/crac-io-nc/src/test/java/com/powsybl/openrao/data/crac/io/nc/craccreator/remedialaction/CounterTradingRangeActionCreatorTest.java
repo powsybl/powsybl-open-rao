@@ -49,8 +49,8 @@ class CounterTradingRangeActionCreatorTest {
                 importedCountertradeActions.getFirst(),
                 "remedial-action-11",
                 "RA11 COUNTERTRADING SWE",
-                4000,
-                -3000, // Initial net position = 0 - maxRegulatingDown = 3000
+                4000, // min(maxEconomicP = 4000, initial net position 0 + maxRegulatingUp 4000)
+                3000, // max(minEconomicP = 3000, initial net position 0 - maxRegulatingDown 3000)
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.getFirst().getArea());
@@ -62,7 +62,7 @@ class CounterTradingRangeActionCreatorTest {
                 "remedial-action-12",
                 "RA12 COUNTERTRADING BASELINE",
                 3500,
-                -1500,
+                1500,
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.get(1).getArea());
@@ -82,7 +82,7 @@ class CounterTradingRangeActionCreatorTest {
                 "remedial-action-14",
                 "RA14 COUNTERTRADING ONLY-DOWN",
                 5000,
-                -1200,
+                1200,
                 "RTE"
         );
         assertEquals(FR_AREA, importedCountertradeActions.get(3).getArea());
@@ -98,6 +98,13 @@ class CounterTradingRangeActionCreatorTest {
                 "remedial-action-16",
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action remedial-action-16 will not be imported because the bidding zone code XXXXX-XXX------X is invalid."
+        );
+        // min(maxEconomicP = 4000, 0 + maxRegulatingUp 1000) = 1000 < max(minEconomicP = 3000, 0 - maxRegulatingDown 500) = 3000
+        NcCracCreationTestUtil.assertRaNotImported(
+                cracCreationContext,
+                "remedial-action-19",
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                "Remedial action remedial-action-19 will not be imported because its range is empty: the min range 3000.0 is greater than the max range 1000.0."
         );
 
     }

@@ -298,9 +298,6 @@ SELECT *
             ?countertradeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
         }
         OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
-        }
-        OPTIONAL {
             ?countertradeRemedialAction nc:RemedialAction.penaltyFactor ?penaltyFactor .
         }
         OPTIONAL {
