@@ -13,32 +13,24 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
-public record CountertradeRemedialAction(String mrid, String name, String operator, String description, String kind, boolean normalAvailable,
-                                         String penaltyFactor, boolean isCrossBorderRelevant, boolean isManual,
-                                         String impactThresholdMargin, double maxRegulatingUp, double maxRegulatingDown,
-                                         double minEconomicP, double maxEconomicP,
-                                         String timeToImplement, String biddingZone, String gLSKStrategy, String shiftMethod) implements NativeRemedialAction {
+public record CountertradeRemedialAction(String mrid, String name, String operator, String kind, boolean normalAvailable,
+                                         boolean isManual, String timeToImplement, String biddingZone,
+                                         double maxRegulatingUp, double maxRegulatingDown,
+                                         double minEconomicP, double maxEconomicP) implements NativeRemedialAction {
     public static CountertradeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new CountertradeRemedialAction(
                 propertyBag.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION),
                 propertyBag.get(NcConstants.REMEDIAL_ACTION_NAME),
-                // The operator of a counter-trade remedial action is the creator of the RA profile (dcterms:creator)
                 propertyBag.get(NcConstants.CREATOR),
-                propertyBag.get(NcConstants.DESCRIPTION),
                 propertyBag.get(NcConstants.KIND),
                 Boolean.parseBoolean(propertyBag.get(NcConstants.NORMAL_AVAILABLE)),
-                propertyBag.get(NcConstants.PENALTY_FACTOR),
-                propertyBag.asBoolean(propertyBag.get(NcConstants.IS_CROSS_BORDER_RELEVANT), true),
                 propertyBag.asBoolean(propertyBag.get(NcConstants.IS_MANUAL), true),
-                propertyBag.get(NcConstants.IMPACT_THRESHOLD_MARGIN),
+                propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
+                propertyBag.get(NcConstants.BIDDING_ZONE),
                 propertyBag.asDouble(NcConstants.MAX_REGULATING_UP),
                 propertyBag.asDouble(NcConstants.MAX_REGULATING_DOWN),
                 propertyBag.asDouble(NcConstants.MIN_ECONOMIC_P),
-                propertyBag.asDouble(NcConstants.MAX_ECONOMIC_P),
-                propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
-                propertyBag.get(NcConstants.BIDDING_ZONE),
-                propertyBag.get(NcConstants.GLSK_STRATEGY),
-                propertyBag.get(NcConstants.SHIFT_METHOD)
+                propertyBag.asDouble(NcConstants.MAX_ECONOMIC_P)
         );
     }
 

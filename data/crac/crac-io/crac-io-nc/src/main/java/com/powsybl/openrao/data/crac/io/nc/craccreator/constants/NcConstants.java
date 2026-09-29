@@ -127,12 +127,6 @@ public final class NcConstants {
     public static final String MIN_ECONOMIC_P = "minEconomicP";
     public static final String BIDDING_ZONE = "biddingZone";
     public static final String CREATOR = "creator";
-    public static final String GLSK_STRATEGY = "gLSKStrategy";
-    public static final String SHIFT_METHOD = "shiftMethod";
-    public static final String PENALTY_FACTOR = "penaltyFactor";
-    public static final String IS_CROSS_BORDER_RELEVANT = "isCrossBorderRelevant";
-    public static final String IMPACT_THRESHOLD_MARGIN = "impactThresholdMargin";
-    public static final String DESCRIPTION = "description";
 
     public static final Double COUNTER_TRADING_RANGE_MIN_RANGE = -5000.0;
     public static final Double COUNTER_TRADING_RANGE_MAX_RANGE = 5000.0;

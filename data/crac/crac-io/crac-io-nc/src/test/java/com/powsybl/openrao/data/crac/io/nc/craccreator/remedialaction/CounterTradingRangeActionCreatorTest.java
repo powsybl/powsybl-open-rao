@@ -67,7 +67,7 @@ class CounterTradingRangeActionCreatorTest {
         assertRange(cracCreationContext, "ct-mixed-limits", 0, 1500);
         // Only SSI limits
         assertRange(cracCreationContext, "ct-ssi-only", 300, 800);
-        // Only economic limits (and no isCrossBorderRelevant)
+        // Only economic limits
         assertRange(cracCreationContext, "ct-economic-only", -2000, 3000);
         // SSI limit only for max
         assertRange(cracCreationContext, "ct-ssi-up-only", -4000, 1500);

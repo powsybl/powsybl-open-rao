@@ -284,9 +284,6 @@ SELECT *
             nc:RemedialAction.normalAvailable ?normalAvailable ;
             nc:RemedialAction.kind ?kind .
         OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.isCrossBorderRelevant ?isCrossBorderRelevant .
-        }
-        OPTIONAL {
             ?countertradeRemedialAction nc:PowerRemedialAction.BiddingZone ?biddingZone .
         }
         OPTIONAL {
@@ -296,16 +293,7 @@ SELECT *
             ?countertradeRemedialAction cim:IdentifiedObject.name ?name .
         }
         OPTIONAL {
-            ?countertradeRemedialAction cim:IdentifiedObject.description ?description .
-        }
-        OPTIONAL {
             ?countertradeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
-        }
-        OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.penaltyFactor ?penaltyFactor .
-        }
-        OPTIONAL {
-            ?countertradeRemedialAction nc:RemedialAction.impactThresholdMargin ?impactThresholdMargin .
         }
         OPTIONAL {
             ?countertradeRemedialAction nc:RemedialAction.isManual ?isManual .
@@ -315,12 +303,6 @@ SELECT *
         }
         OPTIONAL {
             ?countertradeRemedialAction nc:CountertradeRemedialAction.minEconomicP ?minEconomicP .
-        }
-        OPTIONAL {
-            ?countertradeRemedialAction nc:CountertradeRemedialAction.gLSKStrategy ?glskStrategy .
-        }
-        OPTIONAL {
-            ?countertradeRemedialAction nc:CountertradeRemedialAction.shiftMethod ?shiftMethod .
         }
     }
 }
