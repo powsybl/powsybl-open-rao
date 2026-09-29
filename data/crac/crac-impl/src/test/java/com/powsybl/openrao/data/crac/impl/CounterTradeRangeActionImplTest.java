@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
@@ -46,8 +47,6 @@ class CounterTradeRangeActionImplTest {
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
@@ -59,8 +58,6 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
@@ -74,8 +71,6 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
@@ -84,6 +79,8 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void testEquals() {
+        List<ConnectedArea> connectedAreasEs = List.of(new ConnectedAreaImpl("ES", List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE))));
+        List<ConnectedArea> connectedAreasNl = List.of(new ConnectedAreaImpl("NL", List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE))));
         CounterTradeRangeActionImpl ctFrEs1 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -96,8 +93,7 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES",
-            List.of());
+            connectedAreasEs);
         CounterTradeRangeActionImpl ctFrEs2 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -110,8 +106,7 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES",
-            List.of());
+            connectedAreasEs);
         CounterTradeRangeActionImpl ctFrEs3 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -124,8 +119,7 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES",
-            List.of());
+            connectedAreasEs);
         CounterTradeRangeActionImpl ctPtEs = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -138,8 +132,7 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "PT",
-            "ES",
-            List.of());
+            connectedAreasEs);
         CounterTradeRangeActionImpl ctFrNl = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -152,8 +145,7 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "NL",
-            List.of());
+            connectedAreasNl);
 
         assertEquals(ctFrEs1, ctFrEs1);
         assertEquals(ctFrEs1, ctFrEs2);

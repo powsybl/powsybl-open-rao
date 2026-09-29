@@ -27,8 +27,7 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
-    private String exportingArea;
-    private String importingArea;
+    private String area;
     private final List<ConnectedArea> connectedAreas = new ArrayList<>();
 
     @Override
@@ -41,14 +40,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
-    public CounterTradeRangeActionAdder withExportingArea(String exportingArea) {
-        this.exportingArea = exportingArea;
-        return this;
-    }
-
-    @Override
-    public CounterTradeRangeActionAdder withImportingArea(String importingArea) {
-        this.importingArea = importingArea;
+    public CounterTradeRangeActionAdder withArea(String area) {
+        this.area = area;
         return this;
     }
 
@@ -69,9 +62,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        // check exporting and importing country
-        assertAttributeNotNull(exportingArea, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingArea()");
-        assertAttributeNotNull(importingArea, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingArea()");
+        // check area
+        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -82,7 +74,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea, this.connectedAreas
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.area, this.connectedAreas
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
