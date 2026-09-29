@@ -96,7 +96,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            "ES",
+            List.of());
         CounterTradeRangeActionImpl ctFrEs2 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -109,7 +110,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            "ES",
+            List.of());
         CounterTradeRangeActionImpl ctFrEs3 = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -122,7 +124,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "ES");
+            "ES",
+            List.of());
         CounterTradeRangeActionImpl ctPtEs = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -135,7 +138,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "PT",
-            "ES");
+            "ES",
+            List.of());
         CounterTradeRangeActionImpl ctFrNl = new CounterTradeRangeActionImpl(
             "CT",
             "CT",
@@ -148,7 +152,8 @@ class CounterTradeRangeActionImplTest {
             null,
             null,
             "FR",
-            "NL");
+            "NL",
+            List.of());
 
         assertEquals(ctFrEs1, ctFrEs1);
         assertEquals(ctFrEs1, ctFrEs2);

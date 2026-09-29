@@ -8,9 +8,13 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -25,6 +29,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
     private String exportingArea;
     private String importingArea;
+    private final List<ConnectedArea> connectedAreas = new ArrayList<>();
 
     @Override
     protected String getTypeDescription() {
@@ -48,6 +53,15 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
+    public ConnectedAreaAdder newConnectedArea() {
+        return new ConnectedAreaAdderImpl(this);
+    }
+
+    void addConnectedArea(ConnectedArea connectedArea) {
+        connectedAreas.add(connectedArea);
+    }
+
+    @Override
     public CounterTradeRangeAction add() {
         checkId();
         checkAutoUsageRules();
@@ -68,7 +82,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea, this.connectedAreas
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;

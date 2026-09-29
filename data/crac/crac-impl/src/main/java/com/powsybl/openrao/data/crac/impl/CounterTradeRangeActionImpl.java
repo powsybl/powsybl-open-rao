@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -28,6 +29,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final String exportingArea;
     private final String importingArea;
     private final List<StandardRange> ranges;
+    private final List<ConnectedArea> connectedAreas;
     private final Double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id,
@@ -41,12 +43,14 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 Double activationCost,
                                 Map<VariationDirection, Double> variationCosts,
                                 String exportingArea,
-                                String importingArea) {
+                                String importingArea,
+                                List<ConnectedArea> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.exportingArea = exportingArea;
         this.importingArea = importingArea;
+        this.connectedAreas = connectedAreas;
     }
 
     @Override
@@ -85,6 +89,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
+    public List<ConnectedArea> getConnectedAreas() {
+        return connectedAreas;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new OpenRaoException("Can't apply a counter trade range action on a network");
     }
@@ -108,7 +117,8 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
         return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
                 && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
-                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
+                && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
 
     @Override
@@ -116,6 +126,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         int hashCode = super.hashCode();
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
+        }
+        for (ConnectedArea connectedArea : connectedAreas) {
+            hashCode += 31 * connectedArea.hashCode();
         }
         hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
         return hashCode;
