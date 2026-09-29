@@ -1389,6 +1389,7 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
         .withArea("FR")
+        .withInitialNetPosition(500d)
         .newConnectedArea()
             .withArea("ES")
             .newBorderRange()
@@ -1425,6 +1426,7 @@ exchanged between France and Spain.
         "instant" : "preventive"
     } ],
     "area" : "FR",
+    "initialNetPosition" : 500.0,
     "connectedAreas" : [ {
         "area" : "ES",
         "borderRanges" : [ {
@@ -1456,6 +1458,7 @@ exchanged between France and Spain.
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **area**: the area from which the counter-trade is defined  
+🔴 **initialNetPosition**: the initial net position of the area  
 ⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **borderRanges**: list of 1 to N Range, admissible power flows on the area's border  
@@ -1535,7 +1538,7 @@ Thus, if 1 remedial action was applied during the second curative instant, only 
 ## Changelog
 
 **v2.12**
-- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and `connectedAreas`.
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area`, `initialNetPosition` and `connectedAreas`.
 
 **v2.11**
 - Removed `networkElementsNamePerId`.

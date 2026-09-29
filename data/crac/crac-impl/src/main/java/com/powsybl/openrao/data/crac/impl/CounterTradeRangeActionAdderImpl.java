@@ -27,6 +27,7 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
+    private Double initialNetPosition;
     private String area;
     private final List<ConnectedArea> connectedAreas = new ArrayList<>();
 
@@ -37,6 +38,12 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
 
     CounterTradeRangeActionAdderImpl(CracImpl owner) {
         super(owner);
+    }
+
+    @Override
+    public CounterTradeRangeActionAdder withInitialNetPosition(Double initialNetPosition) {
+        this.initialNetPosition = initialNetPosition;
+        return this;
     }
 
     @Override
@@ -65,6 +72,9 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         // check area
         assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
 
+        // check initialNetPosition
+        assertAttributeNotNull(initialNetPosition, COUNTER_TRADE_RANGE_ACTION, "initialNetPosition", "withInitialNetPosition()");
+
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
 
@@ -74,7 +84,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.area, this.connectedAreas
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialNetPosition, this.initialSetpoint, speed, activationCost, variationCosts, this.area, this.connectedAreas
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;

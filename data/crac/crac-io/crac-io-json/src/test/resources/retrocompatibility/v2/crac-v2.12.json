@@ -369,6 +369,7 @@
       "contingencyId" : "contingency1Id"
     } ],
     "area" : "BE",
+    "initialNetPosition" : 500.0,
     "connectedAreas" : [ {
       "area" : "FR",
       "borderRanges" : [ {

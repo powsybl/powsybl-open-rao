@@ -27,6 +27,7 @@ import java.util.Set;
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
     private final List<StandardRange> ranges;
+    private final Double initialNetPosition;
     private final String area;
     private final List<ConnectedArea> connectedAreas;
     private final Double initialSetpoint;
@@ -36,7 +37,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 String operator,
                                 String groupId,
                                 Set<UsageRule> usageRules,
-                                List<StandardRange> ranges,
+                                List<StandardRange> ranges, Double initialNetPosition,
                                 Double initialSetpoint,
                                 Integer speed,
                                 Double activationCost,
@@ -45,6 +46,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 List<ConnectedArea> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
+        this.initialNetPosition = initialNetPosition;
         this.initialSetpoint = initialSetpoint;
         this.area = area;
         this.connectedAreas = connectedAreas;
@@ -81,6 +83,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
+    public Double getInitialNetPosition() {
+        return initialNetPosition;
+    }
+
+    @Override
     public List<ConnectedArea> getConnectedAreas() {
         return connectedAreas;
     }
@@ -108,6 +115,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
 
         return this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
+                && this.initialNetPosition.equals(((CounterTradeRangeAction) o).getInitialNetPosition())
                 && this.area.equals(((CounterTradeRangeAction) o).getArea())
                 && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
@@ -122,6 +130,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             hashCode += 31 * connectedArea.hashCode();
         }
         hashCode += 31 * area.hashCode();
+        hashCode += 31 * initialNetPosition.hashCode();
         return hashCode;
     }
 }

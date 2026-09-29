@@ -1156,6 +1156,7 @@ class CracImplTest {
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
             .withArea("FR")
+            .withInitialNetPosition(0d)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()
