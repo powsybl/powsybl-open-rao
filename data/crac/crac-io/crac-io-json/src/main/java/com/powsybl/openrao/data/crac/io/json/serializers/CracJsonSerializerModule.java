@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
+import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
@@ -55,6 +56,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
         this.addSerializer(CounterTradeRangeAction.class, new CounterTradeRangeActionSerializer());
+        this.addSerializer(ConnectedArea.class, new ConnectedAreaSerializer());
         this.addSerializer(OnInstant.class, new OnInstantSerializer());
         this.addSerializer(OnContingencyState.class, new OnStateSerializer());
         this.addSerializer(OnConstraint.class, new OnConstraintSerializer());

@@ -17,14 +17,9 @@ import java.util.List;
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the exporting area
+     * Get the area
      */
-    String getExportingArea();
-
-    /**
-     * Get the importing area
-     */
-    String getImportingArea();
+    String getArea();
 
     /**
      * Get connected areas

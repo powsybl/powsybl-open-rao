@@ -1373,7 +1373,8 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
+A CounterTradeRangeAction is an exchange between its area and one or more connected areas, each connected via a
+border with its own range of admissible power flows.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
@@ -1387,8 +1388,15 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withImportingArea("ES")
-        .withExportingArea("FR")
+        .withArea("FR")
+        .newConnectedArea()
+            .withArea("ES")
+            .newBorderRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMin(-1000)
+                .withMax(1000)
+                .add()
+            .add()
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1399,7 +1407,7 @@ It is a costly remedial action which is currently not handled by the RAO.
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
-exported from France to Spain.
+exchanged between France and Spain.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1416,8 +1424,15 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingArea" : "FR",
-    "importingArea" : "ES",
+    "area" : "FR",
+    "connectedAreas" : [ {
+        "area" : "ES",
+        "borderRanges" : [ {
+            "rangeType" : "absolute",
+            "min" : -1000.0,
+            "max" : 1000.0
+        } ]
+    } ],
     "ranges" : [ {
         "rangeType" : "absolute",
         "min" : 0.0,
@@ -1438,10 +1453,15 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exportingArea**  
-🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
+🔴 **area**: the area from which the counter-trade is defined  
+⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **borderRanges**: list of 1 to N Range, admissible power flows on the area's border  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
@@ -1513,6 +1533,9 @@ The maximum number of applicable remedial actions defined for the third curative
 Thus, if 1 remedial action was applied during the second curative instant, only 6 remedial actions can actually be applied during the second curative instant. 
 
 ## Changelog
+
+**v2.12**
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and `connectedAreas`.
 
 **v2.11**
 - Removed `networkElementsNamePerId`.
