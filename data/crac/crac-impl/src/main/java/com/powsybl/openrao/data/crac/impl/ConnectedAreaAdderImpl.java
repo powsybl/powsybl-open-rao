@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdde
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
@@ -53,7 +52,6 @@ class ConnectedAreaAdderImpl implements ConnectedAreaAdder {
     @Override
     public CounterTradeRangeActionAdder add() {
         assertAttributeNotNull(area, CLASS_NAME, "area", "withArea()");
-        assertAttributeNotEmpty(borderRanges, CLASS_NAME, "border range", "newBorderRange()");
 
         ConnectedArea connectedArea = new ConnectedAreaImpl(area, borderRanges);
 
