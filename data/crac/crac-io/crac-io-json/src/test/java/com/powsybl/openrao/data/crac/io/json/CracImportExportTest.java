@@ -293,6 +293,7 @@ class CracImportExportTest {
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
         assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
+        assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
         assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
         assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getArea());

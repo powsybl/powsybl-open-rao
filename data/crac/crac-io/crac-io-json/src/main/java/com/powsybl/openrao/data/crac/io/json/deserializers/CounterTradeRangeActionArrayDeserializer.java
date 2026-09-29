@@ -43,6 +43,10 @@ public final class CounterTradeRangeActionArrayDeserializer {
             case JsonSerializationConstants.AREA:
                 counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
                 break;
+            case JsonSerializationConstants.INITIAL_NET_POSITION:
+                jsonParser.nextToken();
+                counterTradeRangeActionAdder.withInitialNetPosition(jsonParser.getDoubleValue());
+                break;
             case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY,
                  JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
                 JsonSerializationConstants.logDeprecatedField(
