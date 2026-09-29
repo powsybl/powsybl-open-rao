@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
 package com.powsybl.openrao.data.crac.impl;
+
+import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
@@ -52,9 +54,9 @@ class ConnectedAreaBorderRangeAdderImpl implements ConnectedAreaBorderRangeAdder
 
     @Override
     public ConnectedAreaAdder add() {
-        AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
-        AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
-        AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
+        assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
+        assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
+        assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
         if (max == Double.MAX_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
             throw new OpenRaoException("ConnectedAreaBorderRange max value was not defined for absolute range.");
