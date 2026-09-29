@@ -12,9 +12,7 @@ import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,21 +20,11 @@ import java.util.Map;
  */
 public class NcCracCreationParameters extends AbstractExtension<CracCreationParameters> {
 
-    /**
-     * Configuration of an area connected to a counter-trading area, and the range of their border.
-     */
-    public record BorderRange(String rangeType, Double borderRangeMin, Double borderRangeMax) {
-    }
-
-    public record ConnectedArea(String area, List<BorderRange> borderRanges) {
-    }
-
     private CapacityCalculationRegion capacityCalculationRegionCode = null;
     private OffsetDateTime timestamp = null;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Double counterTradingMinRange = null;
     private Double counterTradingMaxRange = null;
-    private List<ConnectedArea> connectedAreas = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -63,10 +51,6 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
         return counterTradingMaxRange;
     }
 
-    public List<ConnectedArea> getConnectedAreas() {
-        return connectedAreas;
-    }
-
     public void setCapacityCalculationRegion(CapacityCalculationRegion capacityCalculationRegionCode) {
         this.capacityCalculationRegionCode = capacityCalculationRegionCode;
     }
@@ -85,9 +69,5 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
 
     public void setCounterTradingMaxRange(Double counterTradingMaxRange) {
         this.counterTradingMaxRange = counterTradingMaxRange;
-    }
-
-    public void setConnectedAreas(List<ConnectedArea> connectedAreas) {
-        this.connectedAreas = new ArrayList<>(connectedAreas);
     }
 }
