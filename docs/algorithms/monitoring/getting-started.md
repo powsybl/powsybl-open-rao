@@ -1,7 +1,7 @@
 # Introduction
 
 In the [OpenRAO JSON CRAC](../../input-data/crac/json.md), the user can define angle or/and voltage constraints on network elements.  
-These are constraints that ensure that the angle/voltage values on given network elements do not exceed a given threshold. 
+These are constraints that ensure that the angle/voltage values on the given network elements do not exceed a given threshold. 
 
 However, modelling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
 does not inherently support angle/voltage constraints.  
@@ -89,7 +89,7 @@ In the logs, the start and end of different steps are logged:
 Also, the following information is logged:
 - Applied remedial actions to relieve 'angle/voltage' constraints
 - At the end of each state monitoring, the list of remaining 'angle/voltage' constraints
-- At the end of the monitoring algorithm, the list of remaining 'angle/voltage constraints
+- At the end of the monitoring algorithm, the list of remaining 'angle/voltage' constraints
 
 **Example 1 - ANGLE Monitoring:**  
 In this example, a curative constraint (after contingency "Co-1") induces the implementation of a CRA, but this CRA is
