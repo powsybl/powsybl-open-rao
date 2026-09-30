@@ -2,8 +2,8 @@
 
 ```{toctree}
 :hidden:
+monitoring/getting-started.md
 monitoring/monitoring-algorithm.md
-castor/getting-started.md
 ```
 
 OpenRAO has a monitoring module that can be used apart from the RAO to monitor angles and/or voltages.
