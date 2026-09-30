@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -37,16 +36,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return initialResult.getSensitivityStatus();
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return initialResult.getSensitivityStatus(state);
     }
 
     @Override
@@ -77,31 +66,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return initialResult.getPtdfZonalSum(flowCnec, side);
-    }
-
-    @Override
-    public double getCost(Instant optimizedInstant) {
-        return initialResult.getCost();
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return initialResult.getFunctionalCost();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return initialResult.getVirtualCost();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return initialResult.getVirtualCost(virtualCostName);
     }
 
     @Override
@@ -167,15 +131,5 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
             setpointPerRa.put(ra, initialResult.getSetpoint(ra))
         );
         return setpointPerRa;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
     }
 }

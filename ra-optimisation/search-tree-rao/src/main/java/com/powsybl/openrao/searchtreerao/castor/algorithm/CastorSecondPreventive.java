@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -121,7 +122,8 @@ public class CastorSecondPreventive {
             return false;
         }
         if (getSecondPreventiveExecutionCondition(raoParameters).equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
-            && postFirstRaoResult.getCost(lastCurativeInstant) <= postFirstRaoResult.getCost(null)) {
+            && postFirstRaoResult.getExtension(CostResult.class).getCost(lastCurativeInstant)
+            <= postFirstRaoResult.getExtension(CostResult.class).getCost(null)) {
             CastorReports.reportCostNotIncreasedDuringRao(secondPreventiveReportNode);
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
@@ -154,7 +156,7 @@ public class CastorSecondPreventive {
      * Returns true if final cost (after PRAO + ARAO + CRAO) is worse than the cost at the end of the preventive perimeter
      */
     private static boolean isFinalCostWorseThanPreventive(double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult, Instant curativeInstant) {
-        return postFirstRaoResult.getCost(curativeInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
+        return postFirstRaoResult.getExtension(CostResult.class).getCost(curativeInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
     SecondPreventiveRaoResultsHolder runSecondPreventiveAndAutoRao(CastorContingencyScenarios castorContingencyScenarios,
@@ -267,8 +269,8 @@ public class CastorSecondPreventive {
     }
 
     record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
-                                             PrePerimeterResult postPraSensitivityAnalysisOutput,
-                                             AppliedRemedialActions appliedArasAndCras) {
+                                     PrePerimeterResult postPraSensitivityAnalysisOutput,
+                                     AppliedRemedialActions appliedArasAndCras) {
     }
 
     /**

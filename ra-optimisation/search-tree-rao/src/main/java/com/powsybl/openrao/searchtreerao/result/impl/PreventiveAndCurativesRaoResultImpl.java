@@ -17,13 +17,11 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.PostContingencyState;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -44,13 +42,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
@@ -289,38 +282,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         });
     }
 
-    @Override
-    public ComputationStatus getComputationStatus() {
-        if (initialResult.getComputationStatus() == FAILURE
-            || finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == FAILURE) {
-            return FAILURE;
-        }
-        Set<State> autoAndCurativeStatesWithFlowCnecs = crac.getFlowCnecs().stream()
-            .map(Cnec::getState)
-            .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
-            .collect(Collectors.toSet());
-        if (initialResult.getComputationStatus() == PARTIAL_FAILURE ||
-            finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
-            autoAndCurativeStatesWithFlowCnecs.stream().anyMatch(state ->
-                postContingencyResults.get(state) == null || postContingencyResults.get(state).optimizationResult().getSensitivityStatus(state) != DEFAULT)) {
-            return PARTIAL_FAILURE;
-        }
-        return DEFAULT;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        Instant instant = state.getInstant();
-        while (instant != null) {
-            OptimizationResult perimeterResult = getOptimizationResult(instant, state);
-            if (Objects.nonNull(perimeterResult)) {
-                return perimeterResult.getComputationStatus(state);
-            }
-            instant = crac.getInstantBefore(instant);
-        }
-        return FAILURE;
-    }
-
     public OptimizationResult getOptimizationResult(Instant optimizedInstant, State state) {
         if (optimizedInstant == null) {
             throw new OpenRaoException("No OptimizationResult for INITIAL optimization state");
@@ -340,49 +301,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             return postContingencyResults.get(state).optimizationResult();
         }
         throw new OpenRaoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
-    }
-
-    /**
-     * For a costly optimization, we want to sum the costs of the actions on all the perimeters.
-     * However, for other functional costs, we are only interested in the worst margin, so we need to max the costs on all the perimeters.
-     */
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
-        } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                //for costly we only care about the cost of preventive actions (for after PRA result)
-                return preventiveAndOutageOnlyResult.getFunctionalCost();
-            } else {
-                //for min margin, we care about the cost of all cnecs
-                return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().getFunctionalCost();
-            }
-        } else {
-            BinaryOperator<Double> operator;
-            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                operator = Double::sum;
-            } else {
-                operator = Math::max;
-            }
-            //initialize cost to preventive optimization cost
-            AtomicReference<Double> totalCost = new AtomicReference<>(preventiveAndOutageOnlyResult.getFunctionalCost());
-            //for states which come strictly before optimizedInstant, consider optimizationResult
-            postContingencyResults.entrySet().stream()
-                .filter(stateAndResult -> stateAndResult.getKey().getInstant().comesBefore(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().optimizationResult().getFunctionalCost())));
-            //for states which have same instant as optimizedInstant, consider prePerimeterResultForAllFollowingStates
-            postContingencyResults.entrySet().stream()
-                .filter(stateAndResult -> stateAndResult.getKey().getInstant().equals(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(),
-                    //for costly use optim result; for max min margin use prePerim result
-                    raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
-                        stateAndResult.getValue().optimizationResult().getFunctionalCost() :
-                        stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getFunctionalCost()))
-            );
-
-            return totalCost.get();
-        }
     }
 
     @Override
@@ -472,60 +390,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             ).findAny().orElseThrow(() -> new OpenRaoException("Contingency Results does not contain a result for every state"));
             optimizedStateForState.put(cnecState, optimizedState);
             return optimizedState;
-        }
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        AtomicReference<Double> s = new AtomicReference<>(0.);
-        getVirtualCostNames().forEach(name -> s.getAndUpdate(v -> v + this.getVirtualCost(optimizedInstant, name)));
-        return s.get();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        Set<String> virtualCostNames = new HashSet<>();
-        virtualCostNames.addAll(initialResult.getVirtualCostNames());
-        virtualCostNames.addAll(firstPreventivePerimeterResult.optimizationResult().getVirtualCostNames());
-        virtualCostNames.addAll(finalPreventivePerimeterResult.optimizationResult().getVirtualCostNames());
-        postContingencyResults.values()
-            .forEach(optimizationResult -> virtualCostNames.addAll(optimizationResult.optimizationResult().getVirtualCostNames()));
-
-        return virtualCostNames;
-    }
-
-    /**
-     * For MNECs and Loopflows, we want to sum the costs incurred by each overload.
-     * For min margin violation, we're only interested by the worst margin so we take the max of costs.
-     * For sensitivity failure we just want the cost once so we also take the max.
-     */
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        if (optimizedInstant == null) {
-            double virtualCost = initialResult.getVirtualCost(virtualCostName);
-            //The cost will be NaN for mnecs and loopflows for the initial result because we do not bother computing them because they are always 0 by definition.
-            return Double.isNaN(virtualCost) ? 0 : virtualCost;
-        } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
-            return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName);
-        } else {
-            BinaryOperator<Double> operator;
-            if ("min-margin-violation-evaluator".equals(virtualCostName) || "sensitivity-failure-cost".equals(virtualCostName)) {
-                operator = Math::max;
-            } else {
-                operator = Double::sum;
-            }
-            //initialize cost to preventive optimization cost
-            AtomicReference<Double> totalCost = new AtomicReference<>(preventiveAndOutageOnlyResult.getVirtualCost(virtualCostName));
-            //for states which come strictly before optimizedInstant, consider optimizationResult
-            postContingencyResults.entrySet().stream()
-                .filter(stateAndResult -> stateAndResult.getKey().getInstant().comesBefore(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().optimizationResult().getVirtualCost(virtualCostName))));
-            //for states which have same instant as optimizedInstant, consider prePerimeterResultForAllFollowingStates
-            postContingencyResults.entrySet().stream()
-                .filter(stateAndResult -> stateAndResult.getKey().getInstant().equals(optimizedInstant))
-                .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(), stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName))));
-
-            return totalCost.get();
         }
     }
 
@@ -659,15 +523,5 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
                 .max(Comparator.comparingInt(mapState -> mapState.getInstant().getOrder()))
                 .orElse(preventiveState);
         }
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
     }
 }

@@ -15,6 +15,7 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +46,9 @@ public final class JsonSchemaProvider {
     }
 
     public static Schema getSchema(Version version) {
-        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(version.majorVersion(), version.minorVersion()));
+        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(version.major(), version.minor()));
         if (schemaInputStream == null) {
-            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(version.majorVersion(), version.minorVersion()));
+            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(version.major(), version.minor()));
         }
         return getSchema(schemaInputStream);
     }

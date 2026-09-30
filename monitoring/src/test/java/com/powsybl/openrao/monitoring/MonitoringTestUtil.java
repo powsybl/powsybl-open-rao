@@ -1,8 +1,12 @@
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,5 +34,13 @@ public final class MonitoringTestUtil {
                     });
             }
         };
+    }
+
+    public static RaoResult readRaoResult(String resourcePath, Crac crac) {
+        try (InputStream is = VoltageMonitoringTest.class.getResourceAsStream(resourcePath)) {
+            return RaoResult.read(is, crac);
+        } catch (IOException e) {
+            throw new OpenRaoException("An error occurred while instantiating tests: " + e.getMessage());
+        }
     }
 }
