@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}

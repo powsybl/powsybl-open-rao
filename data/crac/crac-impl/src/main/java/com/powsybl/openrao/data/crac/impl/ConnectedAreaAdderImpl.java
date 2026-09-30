@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
-import com.powsybl.openrao.data.crac.api.range.ConnectedAreaAdder;
-import com.powsybl.openrao.data.crac.api.range.ConnectedAreaBorderRangeAdder;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaBorderRangeAdder;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
@@ -45,7 +45,7 @@ class ConnectedAreaAdderImpl implements ConnectedAreaAdder {
         return new ConnectedAreaBorderRangeAdderImpl(this);
     }
 
-    public void addBorderRange(StandardRange borderRange) {
+    void addBorderRange(StandardRange borderRange) {
         borderRanges.add(borderRange);
     }
 

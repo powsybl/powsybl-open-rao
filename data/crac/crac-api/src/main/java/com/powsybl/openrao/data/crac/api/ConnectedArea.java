@@ -5,18 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.api.range;
+package com.powsybl.openrao.data.crac.api;
+
+import com.powsybl.openrao.data.crac.api.range.StandardRange;
+import java.util.List;
 
 /**
  * @author Pedro Tobarra {@literal <pedro.tobarra at artelys.com>}
  */
-public interface ConnectedAreaBorderRangeAdder {
+public interface ConnectedArea {
+    String getArea();
 
-    ConnectedAreaBorderRangeAdder withMin(double minSetpoint);
-
-    ConnectedAreaBorderRangeAdder withMax(double maxSetpoint);
-
-    ConnectedAreaBorderRangeAdder withRangeType(RangeType rangeType);
-
-    ConnectedAreaAdder add();
+    List<StandardRange> getBorderRanges();
 }
