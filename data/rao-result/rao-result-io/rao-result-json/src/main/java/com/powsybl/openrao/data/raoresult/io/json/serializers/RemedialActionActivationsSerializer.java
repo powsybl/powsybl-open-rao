@@ -9,9 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -93,41 +91,7 @@ final class RemedialActionActivationsSerializer {
 
     private static List<State> sort(Set<State> states) {
         return states.stream()
-            .sorted(RemedialActionActivationsSerializer::compare)
+            .sorted(State::compareTo)
             .toList();
-    }
-
-    private static int compare(State state1, State state2) {
-        if (areTimestampsEqual(state1, state2)) {
-            return compareForSameTimestamp(state1, state2);
-        }
-        OffsetDateTime timestamp1 = state1.getTimestamp().orElseThrow(); // timestamp is necessarily present
-        OffsetDateTime timestamp2 = state2.getTimestamp().orElseThrow(); // timestamp is necessarily present
-        return timestamp1.compareTo(timestamp2);
-    }
-
-    private static boolean areTimestampsEqual(State state1, State state2) {
-        Optional<OffsetDateTime> timestamp1 = state1.getTimestamp();
-        Optional<OffsetDateTime> timestamp2 = state2.getTimestamp();
-        if (timestamp1.isPresent() && timestamp2.isPresent()) {
-            return timestamp1.get().equals(timestamp2.get());
-        } else if (timestamp1.isEmpty() && timestamp2.isEmpty()) {
-            return true;
-        }
-        throw new OpenRaoException("Cannot compare a timestamped state with a non-timestamped state");
-    }
-
-    private static int compareForSameTimestamp(State state1, State state2) {
-        Instant instant1 = state1.getInstant();
-        Instant instant2 = state2.getInstant();
-        if (instant1.equals(instant2)) {
-            Optional<Contingency> contingency1 = state1.getContingency();
-            Optional<Contingency> contingency2 = state2.getContingency();
-            if (contingency1.isPresent() && contingency2.isPresent()) {
-                return contingency1.get().getId().compareTo(contingency2.get().getId());
-            }
-            return 0;
-        }
-        return instant1.compareTo(instant2);
     }
 }
