@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 
 import java.util.List;
 

@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.openrao.data.crac.api.range.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
