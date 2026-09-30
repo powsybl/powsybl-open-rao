@@ -1,5 +1,5 @@
 
-# The monitoring algorithm
+# Monitoring algorithm
 
 > **Difference between voltage and angle monitoring**
 >
@@ -27,11 +27,11 @@ Assemble all the angle/voltage CNECs results in one overall result
 > Only angle/voltage CNECs defined on **the preventive state and the last curative instant** can be monitored!
 >
 > If a voltage/angle CNEC is defined on an intermediate instant (ex. auto or not final curative instant), the CNEC will not be monitored (a warning will be issued) and
-> will be ignored in the final augmented RAO result.
+> will be ignored in the final augmented RaoResult.
 
 To evaluate a monitoring state:
 1. Apply the contingency if the state is curative
-2. Apply all the optimal remedial actions from the initial RAO result
+2. Apply all the optimal remedial actions from the initial RaoResult
 3. Compute a loadflow
 4. If the loadflow converges: compute the angles/voltages and margins for all angle/voltage CNECs:
 - **Angle values** are the maximum phase difference between the 2 voltage levels

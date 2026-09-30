@@ -1,4 +1,6 @@
-# Introduction
+# Getting started with monitoring
+
+## Introduction
 
 In the [OpenRAO JSON CRAC](../../input-data/crac/json.md), the user can define angle or/and voltage constraints on network elements.  
 These are constraints that ensure that the angle/voltage values on the given network elements do not exceed a given threshold. 
@@ -10,34 +12,34 @@ The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitorin
 
 ![Monitoring](../../_static/img/monitoring.png){.forced-white-background}
 
-# Table of contents
+## Table of contents
 - [Monitoring input](#monitoring-input)
 - [Monitoring result](#monitoring-result)
 - [Java example](#java-example)
 - [Python example](#python-example)
 - [How to read the output logs](#how-to-read-the-output-logs)
 
-# Monitoring input
+## Monitoring input
 
-- The **CRAC** object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored.
-- The **network** to be monitored.
-- The **loadflow parameters** used for the load-flow computation.
+- The [CRAC](../../input-data/crac/json.md) object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored.
+- The [network](../../input-data/network.md) to be monitored.
+- The [loadflow parameters](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/parameters.html) used for the load-flow computation.
 - The [RaoResult](../../output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle/voltage values)
-- Optional: GSLK file for redispatching in case of **angle monitoring** (see [here](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk.html) for more information on GLSK files)
+- Optional: [GSLK file](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk.html) for redispatching in case of **angle monitoring**
 
-# Monitoring result
+## Monitoring result
 
-The method presented above generates a new [RAO result](../../output-data/rao-result.md)
+The method presented above generates a new [RaoResult](../../output-data/rao-result.md)
 object, which is equivalent to the initial one, augmented by the relevant results of the angle monitoring or voltage monitoring :
 - The [computation status](../../output-data/rao-result.md#computation-status) of the RAO is updated
 - The [activated network actions](../../output-data/rao-result.md#network-actions-results) are updated
 - The [angle](../../output-data/rao-result.md#angle) & [margin](../../output-data/rao-result.md#margin-1) values for angle CNECs are updated in case of angle monitoring
 - The [voltage](../../output-data/rao-result.md#voltage) & [margin](../../output-data/rao-result.md#margin-2) values for voltage CNECs are updated in case of voltage monitoring
 
-> See [angle CNECs results](../../output-data/rao-result.md#angle-cnecs-results) and [voltage CNECs results](../../output-data/rao-result.md#voltage-cnecs-results) sections of the RAO result documentation for more details.
+> See [angle CNECs results](../../output-data/rao-result.md#angle-cnecs-results) and [voltage CNECs results](../../output-data/rao-result.md#voltage-cnecs-results) sections of the RaoResult documentation for more details.
 
-# Java example
+## Java example
 
 ~~~java
 // Prepare the RAO input
@@ -61,7 +63,7 @@ MonitoringInput angleMonitoringInput = new MonitoringInput.MonitoringInputBuilde
 RaoResult raoResultWithVoltageAndAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);
 ~~~
 
-# Python example
+## Python example
 
 ```python
 import pypowsybl as pp
@@ -79,7 +81,7 @@ result_with_angle_monitoring = rao_runner.run_angle_monitoring(crac=crac, networ
 result_with_voltage_monitoring = rao_runner.run_voltage_monitoring(crac=crac, network=network, rao_result=rao_result, load_flow_parameters=load_flow_parameters, provider_str="OpenLoadFlow")
 ```
 
-# How to read the output logs
+## How to read the output logs
 
 In the logs, the start and end of different steps are logged:
 - Start and end of the 'angle/voltage' monitoring algorithm
