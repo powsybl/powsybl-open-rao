@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
@@ -29,9 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
@@ -44,7 +41,6 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     private final PrePerimeterResult finalResult;
     private final RaoResult filteredRaoResult;
     private final Crac crac;
-    private String executionDetails;
 
     public FastRaoResultImpl(PrePerimeterResult initialResult,
                              PrePerimeterResult afterPraResult,
@@ -58,7 +54,6 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         this.finalResult = finalResult;
         this.filteredRaoResult = filteredRaoResult;
         this.crac = crac;
-        executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
         excludeDuplicateCnecs();
     }
@@ -101,27 +96,6 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
 
     public RaoResult getFilteredRaoResult() {
         return filteredRaoResult;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == FAILURE) {
-            return FAILURE;
-        }
-        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
-                finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
-                afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
-                afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
-        ) {
-            return PARTIAL_FAILURE;
-        }
-        return DEFAULT;
-
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return getAppropriateResult(state.getInstant()).getComputationStatus(state);
     }
 
     public PrePerimeterResult getAppropriateResult(Instant optimizedInstant) {
@@ -252,15 +226,5 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return filteredRaoResult.getOptimizedSetPointsOnState(state);
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
     }
 }

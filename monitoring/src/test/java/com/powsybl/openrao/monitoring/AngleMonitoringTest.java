@@ -39,6 +39,7 @@ import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -440,10 +441,14 @@ class AngleMonitoringTest {
 
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
-        assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
         assertTrue(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        Metadata metadata = raoResultWithAngleMonitoring.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        // sensi failed because no curative FlowCNEC provided
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
 
     @Test

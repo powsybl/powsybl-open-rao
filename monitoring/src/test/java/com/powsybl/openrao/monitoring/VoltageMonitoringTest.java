@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
@@ -617,10 +618,14 @@ class VoltageMonitoringTest {
 
         assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
-        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        Metadata metadata = raoResultWithVoltageMonitoring.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        // sensi failed because no curative FlowCNEC provided
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
 
         VoltageResult voltageResult = raoResultWithVoltageMonitoring.getExtension(VoltageResult.class);
         assertNotNull(voltageResult);

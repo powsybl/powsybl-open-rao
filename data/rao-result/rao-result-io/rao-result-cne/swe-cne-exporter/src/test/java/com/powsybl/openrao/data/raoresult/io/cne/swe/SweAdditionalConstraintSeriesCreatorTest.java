@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.AdditionalConstraintSeries;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +46,15 @@ class SweAdditionalConstraintSeriesCreatorTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+    private Metadata metadata;
 
     @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.angleResult = Mockito.mock(AngleResult.class);
-        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        this.metadata = new Metadata();
+        Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
         autoInstant = Mockito.mock(Instant.class);
@@ -166,7 +169,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
     @Test
     void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfFailureTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
-        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        State preventiveState = Mockito.mock(State.class);
+        Mockito.when(preventiveState.isPreventive()).thenReturn(true);
+        metadata.setComputationStatus(preventiveState, ComputationStatus.FAILURE);
         setUpAngleCnecs(contingency);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
@@ -176,7 +181,6 @@ class SweAdditionalConstraintSeriesCreatorTest {
     @Test
     void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfNoAngleTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
-        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         setUpNanAngleCnecs(contingency);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
