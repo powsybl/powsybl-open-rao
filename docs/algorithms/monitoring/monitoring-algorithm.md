@@ -12,8 +12,8 @@ For each state that contains an angle/voltage CNEC:
 - Evaluate the state by computing angle/voltage values and margins (see [this section](#evaluation-of-a-monitoring-state))
 - If some **CNECs are constrained** and the state is **curative**, we try to solve the constraint by using the available network actions (see [this section](#solving-cnec-overshooting-constraint))
 - If any injection network actions are applied, create and apply the redispatching that shall compensate for the change of generation/load:
-    - The amount of power to re-dispatch is the net sum (generation - load) of power generations & loads affected by the RAs, before changing the set-points
-    - Exclude from the re-dispatching all the generators & loads that were modified by an injection network action, since they should not be affected
+    - The amount of power to redispatch is the net imbalance created by the injection network actions = the difference between the original and the new setpoints for the affected generators and loads.
+    - The power will be redispatched between the countries' generators and loads not modified by an injection network action.
 - Re-evaluate the state after applying those additional network actions
 
 Assemble all the angle/voltage CNECs results in one overall result
