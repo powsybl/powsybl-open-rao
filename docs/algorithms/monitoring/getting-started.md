@@ -11,15 +11,15 @@ The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitorin
 ![Monitoring](../../_static/img/monitoring.png){.forced-white-background}
 
 # Table of contents
-- [Monitoring input](#Monitoring-input)
-- [Monitoring result](#Monitoring-result)
-- [Java example](#Java-example)
+- [Monitoring input](#monitoring-input)
+- [Monitoring result](#monitoring-result)
+- [Java example](#java-example)
 - [Python example](#python-example)
-- [How to read the output logs](#How-to-read-the-output-logs)
+- [How to read the output logs](#how-to-read-the-output-logs)
 
 # Monitoring input
 
-- The **CRAC** object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../input-data/crac/json.md#angle-cnecs) to be monitored.
+- The **CRAC** object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored.
 - The **network** to be monitored.
 - The **loadflow parameters** used for the load-flow computation.
 - The [RaoResult](../../output-data/rao-result.md) object containing selected remedial actions (that shall
