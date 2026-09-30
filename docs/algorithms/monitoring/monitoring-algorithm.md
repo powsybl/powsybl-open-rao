@@ -34,11 +34,8 @@ To evaluate a monitoring state:
 2. Apply all the optimal remedial actions from the initial RaoResult
 3. Compute a loadflow
 4. If the loadflow converges: compute the angles/voltages and margins for all angle/voltage CNECs:
-- **Angle values** are the maximum phase difference between the 2 voltage levels
-  Angle in degrees = 180 / pi * (max(angle on buses of exporting voltage level) - min(angle on buses of importing voltage level))
+- **Angle value** in degrees = 180 / pi * (max(angle on buses of exporting voltage level) - min(angle on buses of importing voltage level))
 - **Voltage values** are the min and max voltages on the voltage level buses
-- Compare the angles and voltages to their thresholds.
-- Compute and save each CNEC security status (SECURE, HIGH_CONSTRAINT, LOW_CONSTRAINT, HIGH_AND_LOW_CONSTRAINTS, FAILURE)
 
 ![Monitoring algorithm details 1](../../_static/img/monitoring-algo-2.png){.forced-white-background}
 
