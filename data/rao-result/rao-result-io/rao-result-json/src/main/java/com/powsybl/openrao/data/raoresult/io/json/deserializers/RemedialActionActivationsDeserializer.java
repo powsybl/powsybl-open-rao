@@ -66,10 +66,10 @@ final class RemedialActionActivationsDeserializer {
             if (state == null) {
                 throw new JsonParseException(jsonParser, "Unknown state.");
             }
-            activatedPstRangeActions.forEach(((pstRangeAction, tap) ->
-                raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction).addActivationForState(state, pstRangeAction.convertTapToAngle(tap))));
-            activatedStandardRangeActions.forEach(((standardRangeAction, setPoint) ->
-                raoResult.getAndCreateIfAbsentRangeActionResult(standardRangeAction).addActivationForState(state, setPoint)));
+            activatedPstRangeActions.forEach((pstRangeAction, tap) ->
+                raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction).addActivationForState(state, pstRangeAction.convertTapToAngle(tap)));
+            activatedStandardRangeActions.forEach((standardRangeAction, setPoint) ->
+                raoResult.getAndCreateIfAbsentRangeActionResult(standardRangeAction).addActivationForState(state, setPoint));
             activatedNetworkActions.forEach(networkAction ->
                 raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(state));
         }
