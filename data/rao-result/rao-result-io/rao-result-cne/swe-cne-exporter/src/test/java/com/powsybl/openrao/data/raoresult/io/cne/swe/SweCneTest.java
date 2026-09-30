@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.CnecResult;
@@ -110,7 +111,11 @@ class SweCneTest {
         raoResultFailureWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
         AngleResult angleResultWithFailure = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResultFailureWithAngle.addExtension(AngleResult.class, angleResultWithFailure);
-        raoResultFailureWithAngle.setComputationStatus(ComputationStatus.FAILURE);
+
+        Metadata metadata = new Metadata();
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        metadata.setComputationStatus(curativeState, ComputationStatus.FAILURE);
+        raoResultFailureWithAngle.addExtension(Metadata.class, metadata);
 
         properties = new Properties();
         properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");

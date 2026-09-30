@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
@@ -117,12 +118,14 @@ class RaoResultRoundTripTest {
         // --------------------------
         // --- Computation status ---
         // --------------------------
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency1Id", outageInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", curativeInstant)));
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency1Id", outageInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", curativeInstant)));
 
         // --------------------------
         // --- test Costs results ---
@@ -528,7 +531,6 @@ class RaoResultRoundTripTest {
         raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).addActivationForState(crac.getPreventiveState(), 10.);
         raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).addActivationForState(autoState, 20.);
         raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).addActivationForState(curativeState, 30.);
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
         return raoResult;
     }

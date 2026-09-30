@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
@@ -38,9 +37,6 @@ class FailedRaoResultImplTest {
 
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 1");
 
-        assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
-        assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
-
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));
@@ -54,7 +50,6 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }
 
     @Test
@@ -70,6 +65,5 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
         Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
         assertEquals("This method should not be used, because the RAO failed: mocked error message 3", e.getMessage());
-        assertEquals("mocked error message 3", failedRaoResultImpl.getExecutionDetails());
     }
 }

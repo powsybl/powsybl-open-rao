@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -39,7 +40,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
@@ -47,7 +53,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -71,12 +83,14 @@ class RaoResultHelperTest {
     void setUp() {
         crac = mock(Crac.class);
         raoResult = mock(RaoResult.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.getExtension(Metadata.class)).thenReturn(new Metadata());
 
         preventiveInstant = mockInstant("preventive", InstantKind.PREVENTIVE);
         curativeInstant = mockInstant("curative", InstantKind.CURATIVE);
 
         State preventiveState = mockState(preventiveInstant);
+        when(preventiveState.isPreventive()).thenReturn(true);
+        when(crac.getPreventiveState()).thenReturn(preventiveState);
         State curativeState = mockState(curativeInstant);
 
         preventiveFlowCnecFr = mockFlowCnec("preventiveFlowFr", preventiveState, "FR");
@@ -233,7 +247,9 @@ class RaoResultHelperTest {
     @ParameterizedTest
     @MethodSource("raoParameters")
     void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        Metadata metadata = new Metadata();
+        metadata.setComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }
 

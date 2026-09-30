@@ -19,16 +19,12 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,17 +35,11 @@ import java.util.zip.ZipOutputStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> implements TimeCoupledRaoResult {
-    private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
-    private final ObjectiveFunctionResult finalGlobalObjectiveFunctionResult;
     private final TemporalData<? extends RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
 
-    public TimeCoupledRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult,
-                                    ObjectiveFunctionResult finalGlobalObjectiveFunctionResult,
-                                    TemporalData<? extends RaoResult> raoResultPerTimestamp) {
-        this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
-        this.finalGlobalObjectiveFunctionResult = finalGlobalObjectiveFunctionResult;
+    public TimeCoupledRaoResultImpl(TemporalData<? extends RaoResult> raoResultPerTimestamp) {
         this.raoResultPerTimestamp = raoResultPerTimestamp;
     }
 
@@ -66,16 +56,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
         RaoResultArchiveManager.exportAndZipResults(zipOutputStream, this, cracs, properties);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return MarmotUtils.getGlobalComputationStatus(raoResultPerTimestamp, RaoResult::getComputationStatus);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return MarmotUtils.getDataFromState(raoResultPerTimestamp, state).getComputationStatus(state);
     }
 
     @Override
@@ -161,27 +141,5 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return MarmotUtils.getDataFromState(raoResultPerTimestamp, state).getOptimizedSetPointsOnState(state);
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        List<String> executionDetails = new ArrayList<>();
-        getTimestamps().forEach(timestamp -> executionDetails.add(
-            timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + ": " + raoResultPerTimestamp.getData(timestamp).orElseThrow().getExecutionDetails()
-        ));
-        return String.join(" - ", executionDetails);
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        // nothing to do
-    }
-
-    private ObjectiveFunctionResult getRelevantResult(Instant instant) {
-        if (instant == null) {
-            return initialGlobalObjectiveFunctionResult;
-        } else {
-            return finalGlobalObjectiveFunctionResult;
-        }
     }
 }

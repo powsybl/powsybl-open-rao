@@ -16,9 +16,11 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
@@ -105,6 +107,15 @@ class MarmotTest {
         assertEquals(110., results.getExtension(CostResult.class).getCost(crac1.getLastInstant()));
         assertEquals(55., results.getIndividualRaoResult(timestamp1).getExtension(CostResult.class).getCost(crac1.getLastInstant()));
         assertEquals(55., results.getIndividualRaoResult(timestamp2).getExtension(CostResult.class).getCost(crac2.getLastInstant()));
+
+        // check metadata
+        Metadata metadata = results.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals("RAO went through independent topological optimizations and global time-coupled linear optimization.", metadata.getExecutionDetails().get());
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac1.getPreventiveState()));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac2.getPreventiveState()));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
