@@ -62,13 +62,13 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
- * RAO provider running a single global linear optimization of all the range actions of the CRAC
- * (preventive and curative).
+ * <b>LOUTRe (<i>Linear Optimizer Using Transformers and Redispatching</i>)</b> is a RAO provider running a single
+ * global linear optimization of all the range actions of the CRAC (preventive and curative).
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
-public class LinearRao implements RaoProvider {
+public class Loutre implements RaoProvider {
 
     static {
         try {
@@ -85,6 +85,7 @@ public class LinearRao implements RaoProvider {
 
     // Do not store any big object in this class as it is a static RaoProvider
     // Objects stored in memory will not be released at the end of the RAO run
+    // TODO: add support for topological actions before the call to the linear RAO
 
     @Override
     public String getName() {
@@ -223,7 +224,10 @@ public class LinearRao implements RaoProvider {
             return new FailedRaoResultImpl("Systematic sensitivity analysis after linear optimization failed");
         }
         LinearRaoReports.reportLinearRaoActivatedRangeActions(reportNode, linearResult.getRangeActionActivationResult());
-        LinearRaoReports.reportLinearRaoFinalResult(reportNode, finalResult, raoParameters, NUMBER_LOGGED_ELEMENTS_END_RAO);
+        // the final sensitivity analysis is run without activation: the cost of the range actions must be added back
+        ObjectiveFunctionResult finalObjectiveFunctionResult = objectiveFunction.evaluate(
+            finalResult, new RemedialActionActivationResultImpl(linearResult.getRangeActionActivationResult(), new NetworkActionsResultImpl(new HashMap<>())), reportNode);
+        LinearRaoReports.reportLinearRaoFinalResult(reportNode, finalObjectiveFunctionResult, finalResult, raoParameters, NUMBER_LOGGED_ELEMENTS_END_RAO);
 
         PostPerimeterResult postPerimeterResult = new PostPerimeterResult(optimizationResult, finalResult);
         Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();

@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Runs the test cases of {@code CastorFullOptimizationTest} whose CRACs contain no network action
- * with the {@link LinearRao} and checks that the results are the same as with Castor.
+ * with the {@link Loutre} and checks that the results are the same as with Castor.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class LinearRaoTest {
+class LoutreTest {
     private Crac crac;
     private RaoInput raoInput;
 
@@ -40,7 +40,7 @@ class LinearRaoTest {
 
     private RaoResult runLinearRao(String parametersFile) {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/" + parametersFile), ReportNode.NO_OP);
-        return new LinearRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
+        return new Loutre().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
     }
 
     @Test
@@ -79,7 +79,7 @@ class LinearRaoTest {
         setup("small-network-2P.uct", "small-crac-purely-virtual-curative.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
-        RaoResult raoResult = new LinearRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
+        RaoResult raoResult = new Loutre().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
         assertEquals(-13, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
     }
 }

@@ -13,10 +13,13 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -104,12 +107,13 @@ public final class LinearRaoReports {
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             variation = String.format("%d (delta: %+d)", result.getOptimizedTap(pstRangeAction, state), result.getTapVariation(pstRangeAction, state));
         } else {
-            variation = String.format("%.2f (delta: %+.2f)", result.getOptimizedSetpoint(rangeAction, state), result.getSetPointVariation(rangeAction, state));
+            variation = String.format("%s (delta: %s)", roundDouble(result.getOptimizedSetpoint(rangeAction, state)), roundDouble(result.getSetPointVariation(rangeAction, state)));
         }
         return String.format("%s@%s: %s", rangeAction.getId(), state.getId(), variation);
     }
 
     public static void reportLinearRaoFinalResult(final ReportNode parentNode,
+                                                  final ObjectiveFunctionResult objectiveFunctionResult,
                                                   final PrePerimeterResult sensitivityAnalysisResult,
                                                   final RaoParameters parameters,
                                                   final int numberLoggedElementsDuringRao) {
@@ -117,11 +121,15 @@ public final class LinearRaoReports {
             parentNode,
             "openrao.searchtreerao.reportLinearRaoFinalResult",
             "[LINEAR RAO] Final result: ",
-            sensitivityAnalysisResult,
+            objectiveFunctionResult,
             sensitivityAnalysisResult,
             sensitivityAnalysisResult,
             parameters,
             numberLoggedElementsDuringRao
         );
+    }
+
+    private static String roundDouble(final double value) {
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString();
     }
 }
