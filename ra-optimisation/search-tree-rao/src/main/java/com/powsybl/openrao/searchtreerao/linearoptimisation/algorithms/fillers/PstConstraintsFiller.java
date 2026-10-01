@@ -36,6 +36,7 @@ public class PstConstraintsFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<PstRangeAction>> pstRangeActionsPerTimestamp;
     private final double timestampDuration;
+    private boolean constraintsCreated = false;
 
     public PstConstraintsFiller(TemporalData<State> preventiveStates,
                                 TemporalData<Set<PstRangeAction>> pstRangeActionsPerTimestamp,
@@ -49,17 +50,23 @@ public class PstConstraintsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // the first MIP iteration is continuous: tap variables are only created by DiscretePstTapFiller
+        // in updateBetweenMipIteration, so the tap gradient constraints are created there too
+        constraintsCreated = false;
+    }
+
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        if (constraintsCreated) {
+            return;
+        }
         int numberOfTimestamps = timestamps.size();
         for (PstConstraints individualPstConstraints : pstConstraints) {
             for (int timestampIndex = 0; timestampIndex < numberOfTimestamps - 1; timestampIndex++) {
                 addTapGradientConstraint(linearProblem, individualPstConstraints, timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
             }
         }
-    }
-
-    @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do
+        constraintsCreated = true;
     }
 
     // Constraints
