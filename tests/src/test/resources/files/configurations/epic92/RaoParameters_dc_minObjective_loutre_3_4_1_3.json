@@ -17,6 +17,9 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "extensions" : {
+    "loutre-parameters" : {
+      "forced-network-actions" : [ "closeBeFr3", "closeBeFr4" ]
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 10000.0

@@ -1,7 +1,7 @@
 {
   "version" : "3.6",
   "objective-function" : {
-    "type" : "MIN_COST",
+    "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -17,6 +17,9 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "extensions" : {
+    "loutre-parameters" : {
+      "forced-network-actions" : [ "close_be1_be3_1" ]
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 10000.0
@@ -29,7 +32,7 @@
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
           "solver" : "CBC",
-          "relative-mip-gap" : 0.001,
+          "relative-mip-gap" : 1.0E-4,
           "solver-specific-parameters" : null
         }
       },
@@ -38,7 +41,7 @@
         "max-curative-search-tree-depth" : 5,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 0
+        "max-number-of-boundaries-for-skipping-actions" : 2
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",
@@ -105,10 +108,6 @@
       },
       "multi-threading" : {
         "available-cpus" : 1
-      },
-      "costly-min-margin-parameters" : {
-        "shifted-violation-penalty" : 1000.0,
-        "shifted-violation-threshold" : 0.0
       }
     }
   }

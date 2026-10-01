@@ -1,8 +1,7 @@
 {
   "version" : "3.6",
   "objective-function" : {
-    "type" : "MIN_COST",
-    "enforce-curative-security" : false
+    "type" : "MIN_COST"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -17,6 +16,9 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "extensions" : {
+    "loutre-parameters" : {
+      "forced-network-actions" : [ "closeBeFr2" ]
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 10000.0
@@ -27,6 +29,7 @@
         "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
+        "ra-range-shrinking" : "DISABLED",
         "linear-optimization-solver" : {
           "solver" : "CBC",
           "relative-mip-gap" : 0.001,
@@ -47,7 +50,7 @@
       "load-flow-and-sensitivity-computation" : {
         "load-flow-provider" : "OpenLoadFlow",
         "sensitivity-provider" : "OpenLoadFlow",
-        "sensitivity-failure-overcost" : 100000.0,
+        "sensitivity-failure-overcost" : 10000.0,
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
@@ -64,7 +67,7 @@
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
-            "countriesToBalance" : [ "PL", "NL", "IT", "ES", "BA", "MK", "AT", "ME", "FR", "UA", "AL", "TR", "SK", "CH", "GR", "PT", "BE", "CZ", "HR", "SI", "RO", "RS", "DE", "BG", "HU" ],
+            "countriesToBalance" : [ "GR", "BE", "SK", "TR", "CH", "RS", "PL", "UA", "BG", "ES", "ME", "CZ", "HR", "AL", "RO", "HU", "AT", "FR", "PT", "DE", "MK", "BA", "SI", "IT", "NL" ],
             "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
@@ -73,19 +76,27 @@
                 "slackBusSelectionMode" : "MOST_MESHED",
                 "slackBusesIds" : [ ],
                 "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
-                "voltageRemoteControl" : true,
                 "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
                 "loadPowerFactorConstant" : false,
                 "plausibleActivePowerLimit" : 10000.0,
+                "newtonRaphsonStoppingCriteriaType" : "UNIFORM_CRITERIA",
+                "maxActivePowerMismatch" : 0.01,
+                "maxReactivePowerMismatch" : 0.01,
+                "maxVoltageMismatch" : 1.0E-4,
+                "maxAngleMismatch" : 1.0E-5,
+                "maxRatioMismatch" : 1.0E-5,
+                "maxSusceptanceMismatch" : 1.0E-4,
                 "slackBusPMaxMismatch" : 1.0,
                 "voltagePerReactivePowerControl" : false,
                 "maxNewtonRaphsonIterations" : 30,
+                "maxOuterLoopIterations" : 20,
                 "newtonRaphsonConvEpsPerEq" : 1.0E-4,
                 "voltageInitModeOverride" : "NONE",
                 "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
                 "shuntVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
                 "minPlausibleTargetVoltage" : 0.8,
                 "maxPlausibleTargetVoltage" : 1.2,
+                "minNominalVoltageTargetVoltageCheck" : 20.0,
                 "minRealisticVoltage" : 0.5,
                 "maxRealisticVoltage" : 1.5,
                 "lowImpedanceThreshold" : 1.0E-8,
@@ -97,14 +108,32 @@
                 "debugDir" : null,
                 "incrementalTransformerRatioTapControlOuterLoopMaxTapShift" : 3,
                 "secondaryVoltageControl" : false,
-                "reactiveLimitsMaxPqPvSwitch" : 3
+                "reactiveLimitsMaxPqPvSwitch" : 3,
+                "phaseShifterControlMode" : "CONTINUOUS_WITH_DISCRETISATION",
+                "alwaysUpdateNetwork" : false,
+                "mostMeshedSlackBusSelectorMaxNominalVoltagePercentile" : 95.0,
+                "reportedFeatures" : [ ],
+                "slackBusCountryFilter" : [ ],
+                "actionableSwitchesIds" : [ ],
+                "asymmetrical" : false,
+                "reactivePowerDispatchMode" : "Q_EQUAL_PROPORTION",
+                "outerLoopNames" : null,
+                "useActiveLimits" : true,
+                "lineSearchStateVectorScalingMaxIteration" : 10,
+                "lineSearchStateVectorScalingStepFold" : 1.3333333333333333,
+                "maxVoltageChangeStateVectorScalingMaxDv" : 0.1,
+                "maxVoltageChangeStateVectorScalingMaxDphi" : 0.17453292519943295,
+                "linePerUnitMode" : "IMPEDANCE",
+                "useLoadModel" : false,
+                "dcApproximationType" : "IGNORE_R",
+                "simulateAutomationSystems" : false
               }
             }
           }
         }
       },
       "multi-threading" : {
-        "available-cpus" : 1
+        "available-cpus" : 4
       },
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,

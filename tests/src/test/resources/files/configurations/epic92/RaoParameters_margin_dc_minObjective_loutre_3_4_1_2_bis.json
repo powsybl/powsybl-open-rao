@@ -1,7 +1,7 @@
 {
   "version" : "3.6",
   "objective-function" : {
-    "type" : "MIN_COST",
+    "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -17,6 +17,9 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "extensions" : {
+    "loutre-parameters" : {
+      "forced-network-actions" : [ "closeBeFr2", "closeBeFr3" ]
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 10000.0

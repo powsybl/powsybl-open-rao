@@ -170,6 +170,7 @@ public class Loutre implements RaoProvider {
         network.getVariantManager().cloneVariant(originalVariantId, initialVariantId, true);
         network.getVariantManager().setWorkingVariant(initialVariantId);
         forcedNetworkActions.forEach(networkAction -> networkAction.apply(network));
+        LinearRaoReports.reportLinearRaoForcedNetworkActions(reportNode, forcedNetworkActions);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 
         // ----- STATES IN SCOPE -----
@@ -250,7 +251,7 @@ public class Loutre implements RaoProvider {
             .withLoopFlowParameters(searchTreeParameters.getLoopFlowParameters())
             .withLoopFlowParametersExtension(searchTreeParameters.getLoopFlowParametersExtension())
             .withUnoptimizedCnecParameters(searchTreeParameters.getUnoptimizedCnecParameters())
-            .withRaLimitationParameters(buildRaLimitationParameters(perimeter, searchTreeParameters))
+            .withRaLimitationParameters(buildRaLimitationParameters(perimeter, searchTreeParameters, forcedNetworkActions))
             .withSolverParameters(searchTreeParameters.getSolverParameters())
             .withMaxNumberOfIterations(searchTreeParameters.getMaxNumberOfIterations())
             .withRaRangeShrinking(searchTreeParameters.getTreeParameters().raRangeShrinking())
@@ -342,15 +343,33 @@ public class Loutre implements RaoProvider {
         return crac.getPreventiveState();
     }
 
-    private static RangeActionLimitationParameters buildRaLimitationParameters(OptimizationPerimeter perimeter, SearchTreeParameters parameters) {
+    /**
+     * Computes the remedial action limitation parameters. The forced network actions (all preventive) are already
+     * applied, so they are deducted from the limits of the preventive state.
+     */
+    private static RangeActionLimitationParameters buildRaLimitationParameters(OptimizationPerimeter perimeter, SearchTreeParameters parameters, Set<NetworkAction> forcedNetworkActions) {
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
         for (State state : perimeter.getRangeActionOptimizationStates()) {
             RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
             if (raUsageLimits != null) {
-                limitationParameters.setMaxRangeAction(state, raUsageLimits.getMaxRa());
+                Set<NetworkAction> appliedNetworkActions = state.isPreventive() ? forcedNetworkActions : Set.of();
+                Integer maxRa = raUsageLimits.getMaxRa();
+                if (maxRa != null) {
+                    maxRa = Math.max(0, maxRa - appliedNetworkActions.size());
+                }
+                Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
+                maxRaPerTso.replaceAll((tso, max) -> Math.max(0, max - (int) appliedNetworkActions.stream()
+                    .filter(na -> tso.equals(na.getOperator())).count()));
+                Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
+                maxElementaryActionsPerTso.replaceAll((tso, max) -> Math.max(0, max - appliedNetworkActions.stream()
+                    .filter(na -> tso.equals(na.getOperator()))
+                    .mapToInt(na -> na.getElementaryActions().size())
+                    .sum()));
+
+                limitationParameters.setMaxRangeAction(state, maxRa);
                 limitationParameters.setMaxPstPerTso(state, raUsageLimits.getMaxPstPerTso());
-                limitationParameters.setMaxRangeActionPerTso(state, raUsageLimits.getMaxRaPerTso());
-                limitationParameters.setMaxElementaryActionsPerTso(state, raUsageLimits.getMaxElementaryActionsPerTso());
+                limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
+                limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
             }
         }
         return limitationParameters;

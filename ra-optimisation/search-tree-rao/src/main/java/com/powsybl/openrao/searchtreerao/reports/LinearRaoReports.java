@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -20,6 +21,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResu
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -49,6 +51,21 @@ public final class LinearRaoReports {
             .add();
 
         BUSINESS_WARNS.warn("[LINEAR RAO] The CRAC contains {} network action(s) which will not be taken into account: only range actions are optimized", nbNetworkActions);
+    }
+
+    public static void reportLinearRaoForcedNetworkActions(final ReportNode parentNode, final Collection<NetworkAction> forcedNetworkActions) {
+        if (forcedNetworkActions.isEmpty()) {
+            return;
+        }
+        final String ids = forcedNetworkActions.stream().map(NetworkAction::getId).sorted().collect(Collectors.joining(", "));
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportLinearRaoForcedNetworkActions")
+            .withUntypedValue("nbNetworkActions", forcedNetworkActions.size())
+            .withUntypedValue("networkActionIds", ids)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("[LINEAR RAO] {} network action(s) applied before the initial sensitivity analysis: {}", forcedNetworkActions.size(), ids);
     }
 
     public static void reportLinearRaoInitialSensitivityAnalysisResults(final ReportNode parentNode,
