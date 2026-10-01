@@ -6,7 +6,7 @@
 Feature: 2.1.1: Security assessment without any remedial action
   This feature covers the computation of margins.
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.1.1.1
   No remedial action, several unsecure CNECs.
     Given network file is "common/TestCase12Nodes.uct"

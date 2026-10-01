@@ -203,7 +203,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 937 A on side 1
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 937 A on side 1
 
-  @fast @rao @dc @preventive-only @hvdc @max-min-margin
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin @linear-rao
   Scenario: 2.2.2.3.12: HVDC range action with one preventive CNEC, no impact on worst CNEC
     Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case12.json"

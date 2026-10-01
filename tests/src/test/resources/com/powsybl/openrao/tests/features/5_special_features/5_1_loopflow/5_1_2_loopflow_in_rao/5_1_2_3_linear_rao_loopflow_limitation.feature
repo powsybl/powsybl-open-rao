@@ -6,7 +6,7 @@
 Feature: 5.1.2.3: Linear RAO with loopflow limitation
   This feature covers "loop-flow-parameters"/"constraint-adjustment-coefficient" from the RaoParameters within linear RAO.
 
-  @fast @rao @dc @preventive-only @max-min-margin
+  @fast @rao @dc @preventive-only @max-min-margin @linear-rao
   Scenario: 5.1.2.3.1: linear RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"

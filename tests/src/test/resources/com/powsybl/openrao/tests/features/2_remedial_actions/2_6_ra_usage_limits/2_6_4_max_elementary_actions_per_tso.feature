@@ -7,7 +7,7 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
   This feature covers the parameter "ra-usage-limits-per-instant"/"max-elementary-actions-per-tso" defined in the CRAC.
   ## TODO: test also when defined in CracCreationParameters
 
-  @fast @rao @preventive-only @max-min-margin
+  @fast @rao @preventive-only @max-min-margin @linear-rao
   Scenario: 2.6.4.1: Limit taps on PST with a maximum number of 3 elementary actions
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst.json"
@@ -24,7 +24,7 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW on side 1
     Then the worst margin is 38 MW
 
-  @fast @rao @preventive-only @max-min-margin
+  @fast @rao @preventive-only @max-min-margin @linear-rao
   Scenario: 2.6.4.2: Limit taps on PST with a maximum number of 7 elementary actions
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-7-elementary-actions-pst.json"
@@ -133,7 +133,7 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
     Then the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative2"
     Then the tap of PstRangeAction "pst_be" should be -2 after "co1_fr1_fr3_1" at "curative2"
 
-  @fast @rao @preventive-only @max-min-margin
+  @fast @rao @preventive-only @max-min-margin @linear-rao
   Scenario: 2.6.4.8: Limit elementary actions for multiple TSOs
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-multiple-tsos.json"

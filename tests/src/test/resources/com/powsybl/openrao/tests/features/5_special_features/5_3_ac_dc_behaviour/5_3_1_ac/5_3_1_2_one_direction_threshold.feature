@@ -32,7 +32,7 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 779.0 A
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @linear-rao
   Scenario: 5.3.1.2.3: PST range action, direct CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_direct.json"
@@ -46,7 +46,7 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
     Then the remedial action "PST1" is used in preventive
     Then the tap of PstRangeAction "PST1" should be -16 in preventive
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @linear-rao
   Scenario: 5.3.1.2.4: PST range action, opposite CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_opposite.json"

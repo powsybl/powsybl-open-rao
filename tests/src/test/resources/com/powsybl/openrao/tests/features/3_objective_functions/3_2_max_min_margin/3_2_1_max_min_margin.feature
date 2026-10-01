@@ -19,7 +19,7 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 500.0 MW
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @dc @preventive-only @secure-flow
+  @fast @rao @dc @preventive-only @secure-flow @linear-rao
   Scenario: 3.2.1.0.b: use relevant number of decimals for margin and cost logging
   This test is used as a reference for positive margin stop criterion, for comparison with the tests with max margin stop criterion.
     Given network file is "common/TestCase12Nodes.uct"
