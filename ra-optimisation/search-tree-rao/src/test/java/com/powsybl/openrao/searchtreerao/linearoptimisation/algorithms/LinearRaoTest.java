@@ -1,0 +1,62 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
+
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+/**
+ * Runs the test cases of {@code CastorFullOptimizationTest} whose CRACs contain no network action
+ * with the {@link LinearRao} and checks that the results are the same as with Castor.
+ *
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
+class LinearRaoTest {
+    private Crac crac;
+    private RaoInput raoInput;
+
+    private void setup(String networkFile, String cracFile) throws IOException {
+        Network network = Network.read(networkFile, getClass().getResourceAsStream("/network/" + networkFile));
+        crac = Crac.read(cracFile, getClass().getResourceAsStream("/crac/" + cracFile), network);
+        raoInput = RaoInput.build(network, crac).build();
+    }
+
+    private RaoResult runLinearRao(String parametersFile) {
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/" + parametersFile), ReportNode.NO_OP);
+        return new LinearRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
+    }
+
+    @Test
+    void testRaoWithEmptyCrac() throws IOException {
+        setup("4Nodes.uct", "empty-crac.json");
+        RaoResult raoResult = runLinearRao("RaoParameters_2P_v2.json");
+        assertNotNull(raoResult);
+        // When no cnec is present, a default value of -1e9 is returned
+        assertEquals(-1e9, raoResult.getCost(null));
+    }
+
+    @Test
+    void purelyVirtualCurative() throws IOException {
+        setup("small-network-2P.uct", "small-crac-purely-virtual-curative.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
+        raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
+        RaoResult raoResult = new LinearRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
+        assertEquals(-12, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
+    }
+}

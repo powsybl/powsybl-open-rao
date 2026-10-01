@@ -111,6 +111,11 @@ public class RaoSteps {
         iLaunchRao(null);
     }
 
+    @When("I launch linear rao")
+    public void iLaunchLinearRao() {
+        launchRao(null, "LinearRao");
+    }
+
     @When("I launch rao with a time limit of {int} seconds")
     public void iLaunchRaoWithTimeLimit(int timeLimit) {
         launchRao(timeLimit);
