@@ -28,7 +28,7 @@ public final class RaoParametersCommons {
         3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.5";
+    public static final String RAO_PARAMETERS_VERSION = "3.6";
 
     // header
     public static final String VERSION = "version";
@@ -141,6 +141,10 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- Loutre Parameters
+    public static final String LOUTRE_PARAMETERS = "loutre-parameters";
+    public static final String FORCED_NETWORK_ACTIONS = "forced-network-actions";
 
     // -- Marmot Parameters
     public static final String MARMOT_PARAMETERS = "marmot-parameters";

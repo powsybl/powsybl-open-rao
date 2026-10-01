@@ -20,6 +20,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoutreParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -143,6 +144,9 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         fastRaoParameters.setMarginLimit(5);
         fastRaoParameters.setAddUnsecureCnecs(false);
         fastRaoParameters.setNumberOfCnecsToAdd(20);
+        // -- Loutre Parameters
+        parameters.addExtension(LoutreParameters.class, new LoutreParameters());
+        parameters.getExtension(LoutreParameters.class).setForcedNetworkActions(List.of("na1", "na2"));
         // -- Marmot Parameters
         parameters.addExtension(MarmotParameters.class, new MarmotParameters());
         MarmotParameters marmotParameters = parameters.getExtension(MarmotParameters.class);
