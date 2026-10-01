@@ -18,6 +18,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
@@ -78,32 +79,34 @@ public final class LinearRaoReports {
 
     public static void reportLinearRaoActivatedRangeActions(final ReportNode parentNode,
                                                             final RangeActionActivationResult result) {
-        result.getActivatedRangeActionsPerState().entrySet().stream()
+        final String variations = result.getActivatedRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparing(entry -> entry.getKey().getId()))
-            .forEach(entry -> entry.getValue().stream()
+            .flatMap(entry -> entry.getValue().stream()
                 .sorted(Comparator.comparing(RangeAction::getId))
-                .forEach(rangeAction -> reportActivatedRangeAction(parentNode, result, entry.getKey(), rangeAction)));
-    }
-
-    private static void reportActivatedRangeAction(final ReportNode parentNode,
-                                                   final RangeActionActivationResult result,
-                                                   final State state,
-                                                   final RangeAction<?> rangeAction) {
-        final String variation;
-        if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            variation = String.format("tap %d (variation: %+d)", result.getOptimizedTap(pstRangeAction, state), result.getTapVariation(pstRangeAction, state));
-        } else {
-            variation = String.format("setpoint %.2f (variation: %+.2f)", result.getOptimizedSetpoint(rangeAction, state), result.getSetPointVariation(rangeAction, state));
+                .map(rangeAction -> describeActivatedRangeAction(result, entry.getKey(), rangeAction)))
+            .collect(Collectors.joining(", "));
+        if (variations.isEmpty()) {
+            return;
         }
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportLinearRaoActivatedRangeAction")
-            .withUntypedValue("rangeActionId", rangeAction.getId())
-            .withUntypedValue("state", state.getId())
-            .withUntypedValue("variation", variation)
+            .withUntypedValue("variations", variations)
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("[LINEAR RAO] Range action {} activated at state {}: {}", rangeAction.getId(), state.getId(), variation);
+        BUSINESS_LOGS.info("[LINEAR RAO] Activated range actions: {}", variations);
+    }
+
+    private static String describeActivatedRangeAction(final RangeActionActivationResult result,
+                                                       final State state,
+                                                       final RangeAction<?> rangeAction) {
+        final String variation;
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            variation = String.format("%d (delta: %+d)", result.getOptimizedTap(pstRangeAction, state), result.getTapVariation(pstRangeAction, state));
+        } else {
+            variation = String.format("%.2f (delta: %+.2f)", result.getOptimizedSetpoint(rangeAction, state), result.getSetPointVariation(rangeAction, state));
+        }
+        return String.format("%s@%s: %s", rangeAction.getId(), state.getId(), variation);
     }
 
     public static void reportLinearRaoFinalResult(final ReportNode parentNode,
