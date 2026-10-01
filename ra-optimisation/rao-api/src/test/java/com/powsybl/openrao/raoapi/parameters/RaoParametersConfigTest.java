@@ -191,6 +191,7 @@ class RaoParametersConfigTest {
         assertEquals(32, parameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
         assertEquals(expectedCountries, parameters.getCountries());
+
     }
 
     @Test
