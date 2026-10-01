@@ -79,7 +79,9 @@ public final class JsonCracCreationParametersConstants {
         RaUsageLimits raUsageLimits = entry.getValue();
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(INSTANT, entry.getKey());
-        jsonGenerator.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
+        if (raUsageLimits.getMaxRa() != null) {
+            jsonGenerator.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
+        }
         jsonGenerator.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
         jsonGenerator.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
         jsonGenerator.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
