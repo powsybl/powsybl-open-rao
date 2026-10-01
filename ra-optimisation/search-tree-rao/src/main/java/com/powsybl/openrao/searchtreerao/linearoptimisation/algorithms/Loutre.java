@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -136,11 +137,21 @@ public class Loutre implements RaoProvider {
         Network network = raoInput.getNetwork();
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 
+        // ----- STATES IN SCOPE -----
+        Set<State> statesInScope = getStatesInScope(crac, raoInput.getPerimeter());
+        State mainOptimizationState = getMainOptimizationState(crac, raoInput.getPerimeter());
+        Set<FlowCnec> flowCnecsInScope = crac.getFlowCnecs().stream()
+            .filter(cnec -> statesInScope.contains(cnec.getState()))
+            .collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsInScope = statesInScope.stream()
+            .flatMap(state -> crac.getRangeActions(state).stream())
+            .collect(Collectors.toSet());
+
         // ----- INITIAL SENSI -----
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true);
+            crac, flowCnecsInScope, rangeActionsInScope, raoParameters, toolProvider, true);
         PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
-        if (crac.getFlowCnecs().isEmpty()) {
+        if (flowCnecsInScope.isEmpty()) {
             return new UnoptimizedRaoResultImpl(initialResult);
         }
         if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -161,7 +172,7 @@ public class Loutre implements RaoProvider {
         network.getVariantManager().cloneVariant(initialVariantId, LINEAR_RAO_VARIANT, true);
         network.getVariantManager().setWorkingVariant(LINEAR_RAO_VARIANT);
 
-        OptimizationPerimeter perimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, initialResult, reportNode)
+        OptimizationPerimeter perimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, initialResult, mainOptimizationState, statesInScope, reportNode)
             .copyWithFilteredAvailableHvdcRangeAction(network);
 
         Set<State> statesToOptimize = new HashSet<>(perimeter.getMonitoredStates());
@@ -262,6 +273,37 @@ public class Loutre implements RaoProvider {
         ObjectiveFunctionResult stateObjectiveFunctionResult = stateObjectiveFunction.evaluate(
             finalResult, new RemedialActionActivationResultImpl(linearResult.getRangeActionActivationResult(), noNetworkActions), reportNode);
         return new OptimizationResultImpl(stateObjectiveFunctionResult, finalResult, finalResult, noNetworkActions, linearResult.getRangeActionActivationResult());
+    }
+
+    /**
+     * Without perimeter (null or empty), all the states of the CRAC are considered. Otherwise, only the given states
+     * are, plus (if several states are given) the preventive state and the outage and auto states associated to the
+     * given curative states.
+     */
+    static Set<State> getStatesInScope(Crac crac, Set<State> perimeter) {
+        if (perimeter == null || perimeter.isEmpty()) {
+            return new HashSet<>(crac.getStates());
+        }
+        Set<State> states = new HashSet<>(perimeter);
+        if (perimeter.size() > 1) {
+            states.add(crac.getPreventiveState());
+            perimeter.stream()
+                .filter(state -> state.getContingency().isPresent())
+                .forEach(state -> crac.getStates(state.getContingency().get()).stream()
+                    .filter(other -> other.getInstant().comesBefore(state.getInstant()))
+                    .forEach(states::add));
+        }
+        return states;
+    }
+
+    /**
+     * The main optimization state is the preventive state, unless a single state is given in the perimeter.
+     */
+    static State getMainOptimizationState(Crac crac, Set<State> perimeter) {
+        if (perimeter != null && perimeter.size() == 1) {
+            return perimeter.iterator().next();
+        }
+        return crac.getPreventiveState();
     }
 
     private static RangeActionLimitationParameters buildRaLimitationParameters(OptimizationPerimeter perimeter, SearchTreeParameters parameters) {

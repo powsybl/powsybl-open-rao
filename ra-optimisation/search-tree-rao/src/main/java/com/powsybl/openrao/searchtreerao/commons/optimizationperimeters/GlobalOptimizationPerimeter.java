@@ -41,24 +41,38 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
                                                     final RaoParameters raoParameters,
                                                     final PrePerimeterResult prePerimeterResult,
                                                     final ReportNode reportNode) {
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        return build(crac, network, raoParameters, prePerimeterResult, crac.getPreventiveState(), crac.getStates(), reportNode);
+    }
+
+    /**
+     * Builds a global perimeter restricted to the given states: only the CNECs and the remedial actions of these states
+     * are considered, and the remedial actions of the main optimization state are the "preventive" ones.
+     */
+    public static GlobalOptimizationPerimeter build(final Crac crac,
+                                                    final Network network,
+                                                    final RaoParameters raoParameters,
+                                                    final PrePerimeterResult prePerimeterResult,
+                                                    final State mainOptimizationState,
+                                                    final Set<State> statesInScope,
+                                                    final ReportNode reportNode) {
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(cnec -> statesInScope.contains(cnec.getState())).collect(Collectors.toSet());
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         // add preventive network actions
-        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(crac.getPreventiveState()).stream()
-            .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
+        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(mainOptimizationState).stream()
+            .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, mainOptimizationState, prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
         Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
         // add preventive range actions
-        availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions(crac.getPreventiveState()).stream()
-            .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
+        availableRangeActions.put(mainOptimizationState, crac.getRangeActions(mainOptimizationState).stream()
+            .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, mainOptimizationState, prePerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult, reportNode))
             .collect(Collectors.toSet()));
 
         //add curative range actions
         crac.getStates().stream()
-            .filter(s -> s.getInstant().isCurative())
+            .filter(s -> s.getInstant().isCurative() && statesInScope.contains(s) && !s.equals(mainOptimizationState))
             .forEach(state -> {
                 Set<RangeAction<?>> availableRaForState = crac.getRangeActions(state).stream()
                     .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, state, prePerimeterResult, flowCnecs, network, raoParameters))
@@ -71,7 +85,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
         availableRangeActions.values().forEach(rangeActions -> removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult, reportNode));
 
-        return new GlobalOptimizationPerimeter(crac.getPreventiveState(),
+        return new GlobalOptimizationPerimeter(mainOptimizationState,
             flowCnecs,
             loopFlowCnecs,
             availableNetworkActions,
