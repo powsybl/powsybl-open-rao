@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Runs the test cases of {@code CastorFullOptimizationTest} whose CRACs contain no network action
@@ -52,11 +53,33 @@ class LinearRaoTest {
     }
 
     @Test
+    void preventiveOnlyPstOptimization() throws IOException {
+        // CRAC without network action, curative remedial action nor HVDC range action (US 4.3.1)
+        setup("TestCase12Nodes.uct", "SL_ep4us3.json");
+        RaoResult raoResult = runLinearRao("RaoParameters_posMargin_ampere.json");
+        assertNotNull(raoResult);
+        assertEquals(-143.83, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).isEmpty());
+        assertTrue(raoResult.getCost(crac.getLastInstant()) <= raoResult.getCost(null) + 1e-6);
+    }
+
+    @Test
+    void preventiveOnlyPstAndRedispatchingOptimization() throws IOException {
+        // CRAC without network action, curative remedial action nor HVDC range action, with a PST and a redispatching range action
+        setup("2Nodes2ParallelLinesPST_1000MW.uct", "crac-pst-rd-0030.json");
+        RaoResult raoResult = runLinearRao("RaoParameters_minCost_megawatt_dc_with_offset.json");
+        assertNotNull(raoResult);
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).isEmpty());
+        assertTrue(raoResult.getCost(crac.getLastInstant()) <= raoResult.getCost(crac.getInstant("preventive")) + 1e-6);
+        assertTrue(raoResult.getCost(crac.getLastInstant()) <= raoResult.getCost(null) + 1e-6);
+    }
+
+    @Test
     void purelyVirtualCurative() throws IOException {
         setup("small-network-2P.uct", "small-crac-purely-virtual-curative.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         RaoResult raoResult = new LinearRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
-        assertEquals(-12, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
+        assertEquals(-13, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
     }
 }

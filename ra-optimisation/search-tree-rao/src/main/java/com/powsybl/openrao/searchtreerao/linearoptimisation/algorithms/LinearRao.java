@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -35,6 +36,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.reports.LinearRaoReports;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
@@ -54,6 +57,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -225,10 +229,35 @@ public class LinearRao implements RaoProvider {
         Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
         perimeter.getRangeActionOptimizationStates().stream()
             .filter(state -> !state.isPreventive())
-            .forEach(state -> postContingencyResults.put(state, postPerimeterResult));
+            .forEach(state -> postContingencyResults.put(state, new PostPerimeterResult(
+                buildCurativeStateResult(state, perimeter, linearResult, finalResult, initialResult, raoParameters, stateTree, reportNode), finalResult)));
 
         return new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPerimeterResult, postPerimeterResult,
             postContingencyResults, crac, raoParameters, reportNode);
+    }
+
+    /**
+     * Builds the result of a curative state, whose cost only contains the cost of the range actions activated
+     * in this state (the cost of the preventive range actions is already accounted for in the preventive result).
+     */
+    private static OptimizationResult buildCurativeStateResult(State state,
+                                                               OptimizationPerimeter perimeter,
+                                                               LinearOptimizationResult linearResult,
+                                                               PrePerimeterResult finalResult,
+                                                               PrePerimeterResult initialResult,
+                                                               RaoParameters raoParameters,
+                                                               StateTree stateTree,
+                                                               ReportNode reportNode) {
+        Set<FlowCnec> flowCnecs = raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
+            perimeter.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getState().equals(state)).collect(Collectors.toSet()) :
+            perimeter.getFlowCnecs();
+        Set<FlowCnec> loopFlowCnecs = perimeter.getLoopFlowCnecs().stream().filter(flowCnecs::contains).collect(Collectors.toSet());
+        ObjectiveFunction stateObjectiveFunction = ObjectiveFunction.build(
+            flowCnecs, loopFlowCnecs, initialResult, initialResult, stateTree.getOperatorsNotSharingCras(), raoParameters, Set.of(state));
+        NetworkActionsResult noNetworkActions = new NetworkActionsResultImpl(new HashMap<>());
+        ObjectiveFunctionResult stateObjectiveFunctionResult = stateObjectiveFunction.evaluate(
+            finalResult, new RemedialActionActivationResultImpl(linearResult.getRangeActionActivationResult(), noNetworkActions), reportNode);
+        return new OptimizationResultImpl(stateObjectiveFunctionResult, finalResult, finalResult, noNetworkActions, linearResult.getRangeActionActivationResult());
     }
 
     private static RangeActionLimitationParameters buildRaLimitationParameters(OptimizationPerimeter perimeter, SearchTreeParameters parameters) {
