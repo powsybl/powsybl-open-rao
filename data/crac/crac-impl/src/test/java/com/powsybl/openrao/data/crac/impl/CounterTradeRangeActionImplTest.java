@@ -9,9 +9,9 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
@@ -47,6 +47,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+                .withArea("FR")
+                .withInitialNetPosition(0d)
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
@@ -58,6 +60,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
+                .withArea("FR")
+                .withInitialNetPosition(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
@@ -71,6 +75,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
+                .withArea("FR")
+                .withInitialNetPosition(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
