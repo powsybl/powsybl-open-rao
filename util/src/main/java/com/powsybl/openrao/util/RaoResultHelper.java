@@ -25,13 +25,19 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
@@ -44,16 +50,20 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -130,46 +140,61 @@ public final class RaoResultHelper {
             );
         }
         if (parameters.contains(PhysicalParameter.FLOW)) {
+            FlowResult flowResult = raoResult.getExtension(FlowResult.class);
             // use the same flow unit as the one use for the LF
             // some FlowCNECs shall not be taken into account for the security assessment:
             // - MNECs
             // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
             // - outage CNECs that were duplicated from auto CNECs
-            for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
-                    Optional<Double> minMargin = safeGetDouble(raoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
-                    if (minMargin.isPresent()) {
-                        if (minMargin.get() < 0) {
-                            return false;
+            if (flowResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No FlowResult extension found in the RaoResult. Impossible to compute flow security status.");
+            } else {
+                for (FlowCnec flowCnec : crac.getFlowCnecs()) {
+                    if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
+                        Optional<Double> minMargin = safeGetDouble(flowResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
+                        if (minMargin.isPresent()) {
+                            if (minMargin.get() < 0) {
+                                return false;
+                            }
+                        } else {
+                            // no flow value available: assume it is secure
+                            throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                         }
-                    } else {
-                        // no flow value available: assume it is secure
-                        throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
                     }
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.ANGLE)) {
-            for (AngleCnec angleCnec : crac.getAngleCnecs()) {
-                Optional<Double> minDegreeMargin = safeGetDouble(raoResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
-                if (minDegreeMargin.isPresent()) {
-                    if (minDegreeMargin.get() < 0) {
-                        return false;
+            AngleResult angleResult = raoResult.getExtension(AngleResult.class);
+            if (angleResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No AngleResult extension found in the RaoResult. Impossible to compute angle security status.");
+            } else {
+                for (AngleCnec angleCnec : crac.getAngleCnecs()) {
+                    Optional<Double> minDegreeMargin = safeGetDouble(angleResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
+                    if (minDegreeMargin.isPresent()) {
+                        if (minDegreeMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
                     }
-                } else {
-                    throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
                 }
             }
         }
         if (parameters.contains(PhysicalParameter.VOLTAGE)) {
-            for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
-                Optional<Double> minKiloVoltMargin = safeGetDouble(raoResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
-                if (minKiloVoltMargin.isPresent()) {
-                    if (minKiloVoltMargin.get() < 0) {
-                        return false;
+            VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
+            if (voltageResult == null) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.");
+            } else {
+                for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
+                    Optional<Double> minKiloVoltMargin = safeGetDouble(voltageResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
+                    if (minKiloVoltMargin.isPresent()) {
+                        if (minKiloVoltMargin.get() < 0) {
+                            return false;
+                        }
+                    } else {
+                        throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
                     }
-                } else {
-                    throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
                 }
             }
         }
@@ -191,7 +216,6 @@ public final class RaoResultHelper {
      * @param raoParameters         The set of parameters used for the initial RAO computation.
      * @param reportNode            The report node that logs the workflow and stores information related to the analysis progress.
      * @return The updated RAO result instance containing all applied remedial actions.
-     *
      * @apiNote Preventive remedial actions are not supported yet because {@link AppliedRemedialActions}
      * is only defined for post-outage remedial actions.
      */
@@ -252,78 +276,35 @@ public final class RaoResultHelper {
                 new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
                     .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(), preventiveResult, new AppliedRemedialActions(), reportNode);
 
-            final Map<State, PostPerimeterResult> postMergingContingencyResults = new HashMap<>();
+            final Map<State, PostPerimeterResult> postMergingContingencyResults = new ConcurrentHashMap<>();
 
             final List<Instant> postOutageInstants = crac.getSortedInstants().stream()
                 .filter(instant -> instant.isAuto() || instant.isCurative())
                 .toList();
 
-            for (final Contingency contingency : crac.getContingencies()) {
-                final AppliedRemedialActions allAppliedRemedialActions = new AppliedRemedialActions();
-
-                network.getVariantManager().cloneVariant(variantName, contingency.getId());
-                network.getVariantManager().setWorkingVariant(contingency.getId());
-
-                PrePerimeterResult contingencyPrePerimeterResult = preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates();
-
-                for (final Instant instant : postOutageInstants) {
-                    final State state = crac.getState(contingency, instant);
-                    if (state != null) {
-                        final RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(contingencyPrePerimeterResult);
-                        allAppliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                        raoResult.getActivatedRangeActionsDuringState(state).forEach(
-                            rangeAction -> {
-                                final double optimizedSetPointOnState = raoResult.getOptimizedSetPointOnState(state, rangeAction);
-                                allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizedSetPointOnState);
-                                rangeActionActivationResult.putResult(rangeAction, state, optimizedSetPointOnState);
-                            }
-                        );
-                        appliedRemedialAction.getAppliedNetworkActions(state).forEach(
-                            networkAction -> allAppliedRemedialActions.addAppliedNetworkAction(state, networkAction)
-                        );
-                        appliedRemedialAction.getAppliedRangeActions(state).forEach(
-                            (rangeAction, setPoint) -> {
-                                allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, setPoint);
-                                rangeActionActivationResult.putResult(rangeAction, state, setPoint);
-                            }
-                        );
-
-                        final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                            crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
-                        );
-
-                        final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                            network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode
-                        );
-
-                        final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
-                            statePrePerimeterResult,
-                            statePrePerimeterResult,
-                            statePrePerimeterResult,
-                            new NetworkActionsResultImpl(Map.of(state, allAppliedRemedialActions.getAppliedNetworkActions(state))),
-                            rangeActionActivationResult
-                        );
-                        final Set<FlowCnec> statePostPerimeterFlowCnecs = crac.getFlowCnecs().stream()
-                            .filter(cnec -> !cnec.getState().getInstant().comesBefore(instant))
-                            .filter(cnec -> cnec.getState().getContingency().orElseThrow().equals(contingency))
-                            .collect(Collectors.toSet());
-
-                        final PostPerimeterResult statePostPerimeterResult =
-                            new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
-                                .runBasedOnInitialPreviousAndOptimizationResults(
-                                    network,
-                                    initialFlowResult,
-                                    contingencyPrePerimeterResult,
-                                    Set.of(),
-                                    stateOptimizationResult,
-                                    allAppliedRemedialActions,
-                                    reportNode
-                                );
-                        postMergingContingencyResults.put(state, statePostPerimeterResult);
-
-                        contingencyPrePerimeterResult = statePrePerimeterResult;
+            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getAvailableCPUs(raoParameters), true)) {
+                List<ForkJoinTask<Object>> tasks = crac.getContingencies()
+                    .stream()
+                    .map(contingency -> networkPool.submit(() -> buildContingencyScenario(
+                        raoResult,
+                        crac,
+                        networkPool,
+                        contingency,
+                        appliedRemedialAction,
+                        postOutageInstants, initialFlowResult, preventivePostPerimeterResult, postMergingContingencyResults, toolProvider, raoParameters,
+                        reportNode
+                    )))
+                    .toList();
+                for (ForkJoinTask<Object> task : tasks) {
+                    try {
+                        task.get();
+                    } catch (ExecutionException e) {
+                        throw new OpenRaoException(e);
                     }
                 }
+                networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
 
             final StateTree stateTree = new StateTree(crac, reportNode);
@@ -335,6 +316,15 @@ public final class RaoResultHelper {
                 crac,
                 raoParameters,
                 reportNode
+            );
+
+            // add extensions
+            mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
+                initialFlowResult,
+                preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                postMergingContingencyResults,
+                crac,
+                RaoUtil.getFlowUnit(raoParameters))
             );
 
             String executionDetails = null;
@@ -350,12 +340,93 @@ public final class RaoResultHelper {
                 executionDetails
             );
             cleanNetworkVariants(network, initialVariant, initialVariants);
+
             return mergedRaoResult;
         } catch (OpenRaoException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("An error occurred during merging, returning original RAO Result. Error was: {}", e.getMessage());
             cleanNetworkVariants(network, initialVariant, initialVariants);
             return raoResult;
         }
+    }
+
+    private static Object buildContingencyScenario(RaoResult raoResult,
+                                                   Crac crac,
+                                                   AbstractNetworkPool networkPool,
+                                                   Contingency contingency,
+                                                   AppliedRemedialActions appliedRemedialAction,
+                                                   List<Instant> postOutageInstants,
+                                                   PrePerimeterResult initialFlowResult,
+                                                   PostPerimeterResult preventivePostPerimeterResult,
+                                                   Map<State, PostPerimeterResult> postMergingContingencyResults,
+                                                   ToolProvider toolProvider,
+                                                   RaoParameters raoParameters,
+                                                   ReportNode reportNode) throws InterruptedException {
+        Network network = networkPool.getAvailableNetwork();
+        final AppliedRemedialActions allAppliedRemedialActions = new AppliedRemedialActions();
+
+        PrePerimeterResult contingencyPrePerimeterResult = preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates();
+
+        for (final Instant instant : postOutageInstants) {
+            final State state = crac.getState(contingency, instant);
+            if (state != null) {
+                final RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(contingencyPrePerimeterResult);
+                allAppliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                raoResult.getActivatedRangeActionsDuringState(state).forEach(
+                    rangeAction -> {
+                        final double optimizedSetPointOnState = raoResult.getOptimizedSetPointOnState(state, rangeAction);
+                        allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizedSetPointOnState);
+                        rangeActionActivationResult.putResult(rangeAction, state, optimizedSetPointOnState);
+                    }
+                );
+                appliedRemedialAction.getAppliedNetworkActions(state).forEach(
+                    networkAction -> allAppliedRemedialActions.addAppliedNetworkAction(state, networkAction)
+                );
+                appliedRemedialAction.getAppliedRangeActions(state).forEach(
+                    (rangeAction, setPoint) -> {
+                        allAppliedRemedialActions.addAppliedRangeAction(state, rangeAction, setPoint);
+                        rangeActionActivationResult.putResult(rangeAction, state, setPoint);
+                    }
+                );
+
+                final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                    crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
+                );
+
+                final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
+                    network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode
+                );
+
+                final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
+                    statePrePerimeterResult,
+                    statePrePerimeterResult,
+                    statePrePerimeterResult,
+                    new NetworkActionsResultImpl(Map.of(state, allAppliedRemedialActions.getAppliedNetworkActions(state))),
+                    rangeActionActivationResult
+                );
+                final Set<FlowCnec> statePostPerimeterFlowCnecs = crac.getFlowCnecs().stream()
+                    .filter(cnec -> !cnec.getState().getInstant().comesBefore(instant))
+                    .filter(cnec -> cnec.getState().getContingency().orElseThrow().equals(contingency))
+                    .collect(Collectors.toSet());
+
+                final PostPerimeterResult statePostPerimeterResult =
+                    new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
+                        .runBasedOnInitialPreviousAndOptimizationResults(
+                            network,
+                            initialFlowResult,
+                            contingencyPrePerimeterResult,
+                            Set.of(),
+                            stateOptimizationResult,
+                            allAppliedRemedialActions,
+                            reportNode
+                        );
+                postMergingContingencyResults.put(state, statePostPerimeterResult);
+
+                contingencyPrePerimeterResult = statePrePerimeterResult;
+            }
+        }
+
+        networkPool.releaseUsedNetwork(network, true);
+        return null;
     }
 
     private static void cleanNetworkVariants(Network network, String initialVariant, Set<String> initialVariants) {

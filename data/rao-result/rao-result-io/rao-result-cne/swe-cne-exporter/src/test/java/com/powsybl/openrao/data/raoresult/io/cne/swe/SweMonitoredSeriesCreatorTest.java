@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CnecCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MeasurementCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MonitoredSeriesCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -54,6 +55,7 @@ class SweMonitoredSeriesCreatorTest {
     private SweCneHelper sweCneHelper;
     private Crac crac;
     private RaoResult raoResult;
+    private FlowResult flowResult;
     private CimCracCreationContext cracCreationContext;
     private Network network;
     private Map<String, Branch<?>> networkBranches;
@@ -62,6 +64,7 @@ class SweMonitoredSeriesCreatorTest {
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
+        this.flowResult = Mockito.mock(FlowResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
         this.network = Mockito.mock(Network.class);
@@ -226,8 +229,9 @@ class SweMonitoredSeriesCreatorTest {
         }
         FlowCnec flowCnec = crac.getFlowCnec(cnecId);
         Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
-        Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.AMPERE)).thenReturn(flow);
-        Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.TWO, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(flowResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.AMPERE)).thenReturn(flow);
+        Mockito.when(flowResult.getFlow(instant, flowCnec, TwoSides.TWO, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
         Mockito.when(flowCnec.getUpperBound(TwoSides.ONE, Unit.AMPERE)).thenReturn(Optional.of(1000.));
         Mockito.when(flowCnec.getUpperBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(1100.));
         Mockito.when(flowCnec.computeMargin(flow, TwoSides.ONE, Unit.AMPERE)).thenReturn(1000 - flow);

@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CnecCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MeasurementCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MonitoredSeriesCreationContext;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
@@ -117,7 +118,8 @@ public class SweMonitoredSeriesCreator {
         double threshold = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (TwoSides side : cnec.getMonitoredSides()) {
-            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
+            FlowResult flowResult = sweCneHelper.getRaoResult().getExtension(FlowResult.class);
+            double flowOnSide = flowResult == null ? Double.NaN : flowResult.getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }

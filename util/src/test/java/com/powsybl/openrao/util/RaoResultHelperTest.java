@@ -26,7 +26,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -51,6 +54,7 @@ import java.util.stream.Stream;
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -78,11 +82,20 @@ class RaoResultHelperTest {
     private PstRangeAction pstRangeActionBe;
     private FlowCnec curativeFlowCnecBe;
     private RaoResult raoResult;
+    private FlowResult flowResult;
+    private AngleResult angleResult;
+    private VoltageResult voltageResult;
 
     @BeforeEach
     void setUp() {
         crac = mock(Crac.class);
         raoResult = mock(RaoResult.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+        flowResult = mock(FlowResult.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+        angleResult = mock(AngleResult.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+        voltageResult = mock(VoltageResult.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+        when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
+        when(raoResult.getExtension(AngleResult.class)).thenReturn(angleResult);
+        when(raoResult.getExtension(VoltageResult.class)).thenReturn(voltageResult);
         when(raoResult.getExtension(Metadata.class)).thenReturn(new Metadata());
 
         preventiveInstant = mockInstant("preventive", InstantKind.PREVENTIVE);
@@ -237,11 +250,11 @@ class RaoResultHelperTest {
 
     private void mockMargins(double margin) {
         // Flow
-        doReturn(margin).when(raoResult).getMargin(any(), any(FlowCnec.class), any());
+        doReturn(margin).when(flowResult).getMargin(any(), any(FlowCnec.class), any());
         // Angle
-        doReturn(margin).when(raoResult).getMargin(any(), any(AngleCnec.class), eq(Unit.DEGREE));
+        doReturn(margin).when(angleResult).getMargin(any(), any(AngleCnec.class), eq(Unit.DEGREE));
         // Voltage
-        doReturn(margin).when(raoResult).getMargin(any(), any(VoltageCnec.class), eq(Unit.KILOVOLT));
+        doReturn(margin).when(voltageResult).getMargin(any(), any(VoltageCnec.class), eq(Unit.KILOVOLT));
     }
 
     @ParameterizedTest
@@ -289,12 +302,15 @@ class RaoResultHelperTest {
         assertTrue(originalRaoResult.isActivated(curativeState, curativeTopologicalAction2));
         assertEquals(4, originalRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
 
-        assertEquals(-1552.62, originalRaoResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(385.43, originalRaoResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        FlowResult originalFlowResult = originalRaoResult.getExtension(FlowResult.class);
+        assertNotNull(originalFlowResult);
 
-        assertEquals(-1560.32, originalRaoResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(387.34, originalRaoResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(385.43, originalRaoResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(-1552.62, originalFlowResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, originalFlowResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, originalFlowResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, originalFlowResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, originalFlowResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
 
         // ensure that RAO Result is not modified if AppliedRemedialActions is empty
         RaoResult raoResultCopy = RaoResultHelper.addAppliedRemedialActions(
@@ -316,12 +332,15 @@ class RaoResultHelperTest {
         assertTrue(raoResultCopy.isActivated(curativeState, curativeTopologicalAction2));
         assertEquals(4, raoResultCopy.getOptimizedTapOnState(curativeState, pstRangeAction));
 
-        assertEquals(-1552.62, raoResultCopy.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(385.43, raoResultCopy.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        FlowResult newFlowResult = raoResultCopy.getExtension(FlowResult.class);
+        assertNotNull(newFlowResult);
 
-        assertEquals(-1560.32, raoResultCopy.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(387.34, raoResultCopy.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(385.43, raoResultCopy.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(-1552.62, newFlowResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, newFlowResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, newFlowResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, newFlowResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, newFlowResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
 
         // add new remedial actions and check changes
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -349,12 +368,15 @@ class RaoResultHelperTest {
         assertTrue(mergedRaoResult.isActivated(curativeState, curativeTopologicalAction2));
         assertEquals(12, mergedRaoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
 
-        assertEquals(-1552.62, mergedRaoResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(385.43, mergedRaoResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        FlowResult mergedFlowResult = mergedRaoResult.getExtension(FlowResult.class);
+        assertNotNull(mergedFlowResult);
 
-        assertEquals(-1560.32, mergedRaoResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(387.34, mergedRaoResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
-        assertEquals(1154.94, mergedRaoResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(-1552.62, mergedFlowResult.getFlow(null, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(385.43, mergedFlowResult.getFlow(cracPreventiveInstant, preventiveFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+
+        assertEquals(-1560.32, mergedFlowResult.getFlow(null, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(387.34, mergedFlowResult.getFlow(cracPreventiveInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
+        assertEquals(1154.94, mergedFlowResult.getFlow(cracCurativeInstant, curativeFlowCnec, TwoSides.ONE, Unit.MEGAWATT), tolerance);
     }
 
     private static RaoParameters setUpDcRaoParameters() {
