@@ -166,7 +166,7 @@ public class Leaf implements OptimizationResult {
             network.getVariantManager().setWorkingVariant(tmpVariant);
 
             // Apply contingency and number of connected component
-            applyContingency(network, optimizationPerimeter.getMainOptimizationState());
+            applyContingency(network, optimizationPerimeter.getMainOptimizationState(), true);
 
             newNbOfComponent = getNumberOfConnectedComponent(network);
 
