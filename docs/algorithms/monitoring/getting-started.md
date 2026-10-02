@@ -3,12 +3,13 @@
 ## Introduction
 
 In the [OpenRAO JSON CRAC](../../input-data/crac/json.md), the user can define angle or/and voltage constraints on network elements.  
-These are constraints that ensure that the angle/voltage values on the given network elements do not exceed a given threshold. 
 
 However, modelling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
 does not inherently support angle/voltage constraints.  
 
 The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring) module allows monitoring angle/voltage values **after a RAO has been run.**
+The module checks the angle/voltage values and margins on the given network elements and for some CNECs additional remedial actions 
+can be applied to try and reduce the overloading. 
 
 ![Monitoring](../../_static/img/monitoring.png){.forced-white-background}
 
@@ -22,16 +23,16 @@ The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitorin
 ## Monitoring input
 
 - The [CRAC](../../input-data/crac/json.md) object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored.
-- The [network](../../input-data/network.md) to be monitored.
-- The [loadflow parameters](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/parameters.html) used for the load-flow computation.
+- The [network](../../input-data/network.md) to be monitored
+- The [loadflow parameters](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/parameters.html) used for the load-flow computation
 - The [RaoResult](../../output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle/voltage values)
-- Optional: [GSLK file](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk.html) for redispatching in case of **angle monitoring**
+- Optional: [GLSK file](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk.html) for redispatching in case of **angle monitoring**
 
 ## Monitoring result
 
 The method presented above generates a new [RaoResult](../../output-data/rao-result.md)
-object, which is equivalent to the initial one, augmented by the relevant results of the angle monitoring or voltage monitoring :
+object, which is equivalent to the initial one, augmented by the relevant results of the angle monitoring or voltage monitoring:
 - The [computation status](../../output-data/rao-result.md#computation-status) of the RAO is updated
 - The [activated network actions](../../output-data/rao-result.md#network-actions-results) are updated
 - The [angle](../../output-data/rao-result.md#angle) & [margin](../../output-data/rao-result.md#margin-1) values for angle CNECs are updated in case of angle monitoring

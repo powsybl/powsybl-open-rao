@@ -3,20 +3,20 @@
 
 > **Difference between voltage and angle monitoring**
 >
-> **Angle constraint** can only be solved using "injection" network actions** (i.e. network action with an elementary action that is a LoadAction or a GeneratorAction with a predefined setpoint) 
+> **Angle constraint** can only be solved using "injection" network actions (i.e. network action with an elementary action that is a LoadAction or a GeneratorAction with a predefined setpoint) 
 > whereas for a voltage constraint, all network actions are allowed.
 
-The monitoring algorithm essentially works like this:
+The monitoring algorithm essentially works as described below:
 
-For each state that contains an angle/voltage CNEC:
-- Evaluate the state by computing angle/voltage values and margins (see [this section](#evaluation-of-a-monitoring-state))
-- If some **CNECs are constrained** and the state is **curative**, we try to solve the constraint by using the available network actions (see [this section](#solving-cnec-overshooting-constraint))
-- If any injection network actions are applied, create and apply the redispatching that shall compensate for the change of generation/load:
+- For each state that contains an angle/voltage CNEC:
+1. Evaluate the state by computing angle/voltage values and margins (see [this section](#evaluation-of-a-monitoring-state))
+2. If some **CNECs are constrained** and the state is **curative**, we try to solve the constraint by using the available network actions (see [this section](#solving-cnec-overshooting-constraint))
+3. If any injection network actions are applied, create and apply the redispatching that shall compensate for the change of generation/load:
     - The amount of power to redispatch is the net imbalance created by the injection network actions = the difference between the original and the new setpoints for the affected generators and loads.
     - The power will be redispatched between the countries' generators and loads not modified by an injection network action.
-- Re-evaluate the state after applying those additional network actions
+4. Re-evaluate the state after applying those additional network actions
 
-Assemble all the angle/voltage CNECs results in one overall result
+- Assemble all the angle/voltage CNECs results in one overall result
 
 ![Monitoring algorithm](../../_static/img/monitoring-algo.png){.forced-white-background}
 
@@ -41,11 +41,12 @@ To evaluate a monitoring state:
 
 ## Solving CNEC overshooting constraint
 
-> ⚠️ **If the state is preventive, do not apply any actions.** This could create inconsistencies with the other states.
+> ⚠️ **If the state is preventive, we cannot apply any actions.** This could create inconsistencies with the other states.
 >
 > ⚠️ **Only network actions can be used.** The monitoring module is not an optimization module, so it cannot determine which setpoint to apply for a range action.
 
-Identify and apply all the network actions that can be applied to solve the constrained CNEC
+Identify and apply all the network actions that can be applied to solve the constrained CNEC:
+- A network action is considered available if it has an usage rule [OnConstraint](../../input-data/crac/json.md#remedial-actions-and-usages-rules) defined on the constrained CNEC.
 - If it is an **angle CNEC**, only injection network actions are allowed
 - If it is a **voltage CNEC**, all network actions are allowed
 
