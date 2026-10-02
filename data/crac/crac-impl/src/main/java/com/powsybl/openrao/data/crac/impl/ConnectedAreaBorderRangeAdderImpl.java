@@ -29,7 +29,8 @@ class ConnectedAreaBorderRangeAdderImpl implements ConnectedAreaBorderRangeAdder
 
     ConnectedAreaBorderRangeAdderImpl(ConnectedAreaAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;
-        this.min = Double.MIN_VALUE;
+        // min and max are optional: an undefined limit is not constrained
+        this.min = -Double.MAX_VALUE;
         this.max = Double.MAX_VALUE;
         this.rangeType = RangeType.ABSOLUTE;
     }
@@ -54,16 +55,8 @@ class ConnectedAreaBorderRangeAdderImpl implements ConnectedAreaBorderRangeAdder
 
     @Override
     public ConnectedAreaAdder add() {
-        assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
-        assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
         assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
-        if (max == Double.MAX_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
-            throw new OpenRaoException("ConnectedAreaBorderRange max value was not defined for absolute range.");
-        }
-        if (min == Double.MIN_VALUE && rangeType.equals(RangeType.ABSOLUTE)) {
-            throw new OpenRaoException("ConnectedAreaBorderRange min value was not defined for absolute range.");
-        }
         if (max < min) {
             throw new OpenRaoException("Max value of ConnectedAreaBorderRange must be equal or greater than min value.");
         }
