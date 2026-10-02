@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 
 /**
@@ -17,6 +18,8 @@ public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<C
     CounterTradeRangeActionAdder withInitialNetPosition(Double initialNetPosition);
 
     CounterTradeRangeActionAdder withArea(String area);
+
+    CounterTradeRangeActionAdder withConnectedAreas(Network network);
 
     ConnectedAreaAdder newConnectedArea();
 

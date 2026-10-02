@@ -127,7 +127,7 @@ class CracImportExportTest {
         assertTrue(context.isCreationSuccessful());
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
-        assertEquals(2, logsList.size());
+        assertEquals(3, logsList.size());
         assertEquals(
             "If the injection range action is used to represent a redispatching remedial action : " +
                 "two different injection actions in the crac can not be defined on the same network element : generator1Id",
@@ -137,6 +137,10 @@ class CracImportExportTest {
             "If the injection range action is used to represent a redispatching remedial action : " +
                 "two different injection actions in the crac can not be defined on the same network element : generator2Id",
             logsList.get(1).getFormattedMessage()
+        );
+        assertEquals(
+            "The initial net position of CounterTradeRangeAction counterTradeRange1Id is not defined before CRAC version 2.12, 0.0 is used as a placeholder",
+            logsList.get(2).getFormattedMessage()
         );
 
     }
@@ -294,9 +298,10 @@ class CracImportExportTest {
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
         assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
         assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
-        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
+        // only FR is defined, so DE is not added although it shares a border with BE in the network
+        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
         assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getArea());
+        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
         Set<UsageRule> usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();

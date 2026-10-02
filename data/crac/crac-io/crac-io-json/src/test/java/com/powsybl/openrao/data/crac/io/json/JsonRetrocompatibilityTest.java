@@ -36,6 +36,7 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
@@ -48,6 +49,8 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -462,6 +465,28 @@ class JsonRetrocompatibilityTest {
 
         Crac crac = Crac.read(cracFilePath, cracFile, network);
         testContentOfV2Point12Crac(crac);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "/retrocompatibility/v1/crac-v1.9.json", "/retrocompatibility/v2/crac-v2.0.json", "/retrocompatibility/v2/crac-v2.1.json",
+        "/retrocompatibility/v2/crac-v2.2.json", "/retrocompatibility/v2/crac-v2.3.json", "/retrocompatibility/v2/crac-v2.4.json",
+        "/retrocompatibility/v2/crac-v2.5.json", "/retrocompatibility/v2/crac-v2.6.json", "/retrocompatibility/v2/crac-v2.7.json",
+        "/retrocompatibility/v2/crac-v2.8.json", "/retrocompatibility/v2/crac-v2.9.json", "/retrocompatibility/v2/crac-v2.10.json",
+        "/retrocompatibility/v2/crac-v2.11.json"
+    })
+    void importCounterTradeRangeActionBeforeV2Point12Test(String cracFilePath) throws IOException {
+        // exporting area becomes the area, importing area becomes a connected area and initial net position is set to 0
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        CounterTradeRangeAction counterTradeRangeAction = crac.getCounterTradeRangeAction("counterTradeRange1Id");
+        assertEquals("FR", counterTradeRangeAction.getArea());
+        assertEquals(0.0, counterTradeRangeAction.getInitialNetPosition());
+        // only the importing area DE is a connected area, BE is not added although it shares a border with FR in the network
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertTrue(counterTradeRangeAction.getConnectedAreas().get(0).getBorderRanges().isEmpty());
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -1067,6 +1092,7 @@ class JsonRetrocompatibilityTest {
         // test connected areas, replacing the removed exportingArea and importingArea
         assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
         assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
+        // FR and DE are defined in the CRAC, so they are kept with their border ranges instead of being deduced from the network
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
         assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
