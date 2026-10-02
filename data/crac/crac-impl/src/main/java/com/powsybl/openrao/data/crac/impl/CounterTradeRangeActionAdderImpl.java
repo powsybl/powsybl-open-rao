@@ -106,7 +106,9 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             }
         } else if (!connectedAreas.isEmpty()) {
             // without a network, the connected areas cannot be checked to share a border with the area
-            throw new OpenRaoException(String.format("Cannot check that the connected areas of CounterTradeRangeAction %s share a border with area %s without a network. Please use withConnectedAreas()", id, area));
+            throw new OpenRaoException(String.format(
+                "Cannot check that the connected areas of CounterTradeRangeAction %s share a border with area %s without a network. Please use withConnectedAreas()",
+                id, area));
         }
 
         // check initialNetPosition
@@ -121,7 +123,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialNetPosition, this.initialSetpoint, speed, activationCost, variationCosts, this.area, allConnectedAreas
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialNetPosition, this.initialSetpoint,
+            speed, activationCost, variationCosts, this.area, allConnectedAreas
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;

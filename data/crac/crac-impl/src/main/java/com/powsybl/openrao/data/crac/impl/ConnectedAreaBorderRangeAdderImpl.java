@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
-
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaBorderRangeAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
+
+import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Pedro Tobarra {@literal <pedro.tobarra at artelys.com>}
