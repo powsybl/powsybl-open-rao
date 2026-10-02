@@ -1376,6 +1376,9 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 A CounterTradeRangeAction is an exchange between its area and one or more connected areas, each connected via a
 border with optional ranges of admissible power flows.
 
+If border ranges are provided, the optimizer would consider them, otherwise it won't. The optimizer would try to find a solution which won't violate the
+exchange limits we have defined on a particular border.
+
 It is a costly remedial action which is currently not handled by the RAO.
 
 ::::{tabs}
@@ -1414,8 +1417,7 @@ Connected areas can be defined with `newConnectedArea()`, optionally with border
 the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
 area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
 network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
-The min and max of a border range are optional, whatever its range type: an undefined limit does not constrain the power
-flow on the border.
+The min and max of a border range are optional, whatever its range type.
 :::
 :::{group-tab} JSON file
 ~~~json
