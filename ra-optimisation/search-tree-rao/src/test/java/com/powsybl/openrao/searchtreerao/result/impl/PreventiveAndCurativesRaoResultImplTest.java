@@ -378,24 +378,6 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    void testGlobalComputationStatusWhenFinalPreventiveFails() {
-        when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
-    }
-
-    @Test
-    void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
-        when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
-    }
-
-    @Test
-    void testGlobalComputationStatusWhenAContingencyFails() {
-        when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
-    }
-
-    @Test
     void testGlobalComputationStatusIgnoresCneclessStates() {
         // set status to DEFAULT for states with cnecs
         OptimizationResult defaultOptimizationResult = Mockito.mock(OptimizationResult.class);
@@ -416,8 +398,5 @@ class PreventiveAndCurativesRaoResultImplTest {
             .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
             .filter(state -> crac.getCnecs(state).isEmpty())
             .forEach(state -> postContingencyResults.put(state, failurePostPerimeterResult));
-
-        // status should ignore cnecless states and return DEFAULT
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 }

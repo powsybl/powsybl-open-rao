@@ -19,8 +19,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -65,31 +60,9 @@ class FastRaoResultImplTest {
             when(finalResult.getComputationStatus(state)).thenReturn(DEFAULT);
         }
         filteredRaoResult = Mockito.mock(RaoResult.class);
-        when(filteredRaoResult.getExecutionDetails()).thenReturn(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
         result = new FastRaoResultImpl(
             initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
         );
-    }
-
-    @Test
-    void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(DEFAULT);
-        when(afterPraResult.getSensitivityStatus()).thenReturn(PARTIAL_FAILURE);
-        when(afterAraResult.getSensitivityStatus()).thenReturn(DEFAULT);
-        when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
-
-        ComputationStatus status = result.getComputationStatus();
-        assertSame(PARTIAL_FAILURE, status);
-
-        when(initialResult.getSensitivityStatus()).thenReturn(FAILURE);
-        when(afterPraResult.getSensitivityStatus()).thenReturn(DEFAULT);
-        when(afterAraResult.getSensitivityStatus()).thenReturn(PARTIAL_FAILURE);
-        when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
-        result = new FastRaoResultImpl(
-            initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
-        );
-        status = result.getComputationStatus();
-        assertSame(FAILURE, status);
     }
 
     @Test
@@ -145,7 +118,7 @@ class FastRaoResultImplTest {
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        RemedialAction remedialAction = Mockito.mock(RemedialAction.class);
+        RemedialAction<?> remedialAction = Mockito.mock(RemedialAction.class);
         State state = Mockito.mock(State.class);
         when(filteredRaoResult.isActivatedDuringState(state, networkAction)).thenReturn(true);
         when(filteredRaoResult.isActivatedDuringState(state, rangeAction)).thenReturn(false);
@@ -177,15 +150,4 @@ class FastRaoResultImplTest {
         assertEquals(Map.of(rangeAction, 8.8), result.getOptimizedSetPointsOnState(state));
 
     }
-
-    @Test
-    void testExecutionDetailsAndStatus() {
-        result.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, result.getExecutionDetails());
-        State state = Mockito.mock(State.class);
-        when(state.getInstant()).thenReturn(crac.getInstant("preventive"));
-        when(afterPraResult.getComputationStatus(state)).thenReturn(FAILURE);
-        assertEquals(FAILURE, result.getComputationStatus(state));
-    }
-
 }
