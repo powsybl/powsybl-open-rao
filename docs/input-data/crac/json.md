@@ -1374,7 +1374,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 ### Counter-Trade Range Action
 
 A CounterTradeRangeAction is an exchange between its area and one or more connected areas, each connected via a
-border with its own range of admissible power flows.
+border with optional ranges of admissible power flows.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
@@ -1398,6 +1398,7 @@ It is a costly remedial action which is currently not handled by the RAO.
                 .withMax(1000)
                 .add()
             .add()
+        .withConnectedAreas(network)
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1409,6 +1410,11 @@ It is a costly remedial action which is currently not handled by the RAO.
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
 exchanged between France and Spain.
+exchanged between France and Spain.  
+Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. They must share a border with
+the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
+area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
+network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1459,9 +1465,9 @@ exchanged between France and Spain.
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **area**: the area from which the counter-trade is defined  
 🔴 **initialNetPosition**: the initial net position of the area  
-⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade  
+⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined or empty, all the areas sharing a border with the area in the network are used as connected areas, without border ranges  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
@@ -1538,7 +1544,10 @@ Thus, if 1 remedial action was applied during the second curative instant, only 
 ## Changelog
 
 **v2.12**
-- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area`, `initialNetPosition` and `connectedAreas`.
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and `initialNetPosition`, and the optional `connectedAreas`.
+  When importing an older CRAC, the exporting area is used as the `area`, the importing area becomes a connected area
+  (without border ranges, and it must share a border with the exporting area in the network) and the `initialNetPosition`
+  is set to 0 as a placeholder (a warning is logged).
 
 **v2.11**
 - Removed `networkElementsNamePerId`.

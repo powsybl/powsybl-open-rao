@@ -67,7 +67,7 @@ public final class JsonSerializationConstants {
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
     v2.11: removal of networkElementsNamePerId, renaming counter-trade actions' importingCountry to importingArea, and exportingCountry to exportingArea
-    v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area, initialNetPosition and connectedAreas
+    v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area and initialNetPosition, and the optional connectedAreas
      */
 
     // headers
