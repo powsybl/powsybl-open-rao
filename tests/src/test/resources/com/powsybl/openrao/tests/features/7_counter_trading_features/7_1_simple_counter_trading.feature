@@ -2,6 +2,7 @@ Feature: 7.1: Simple CT Actions
   This features covers the CT Actions for proportional GLSK in the case where:
   - the actions doesn't saturate any generator
   - there is no other action on any generator
+  Scenario 7.1.7 is the exception: it saturates a generator and states the expected result once saturation is modelled.
 
   @rao @counter-trading
   Scenario: 7.1.1: Preventive search tree RAO REDISPATCH
@@ -88,4 +89,19 @@ Feature: 7.1: Simple CT Actions
     Then the remedial action "counterTradingActionBE" is used in preventive
     Then the generator "FFR1AA1 _generator" should have a targetP of 420 MW after PRA
     Then the generator "FFR2AA1 _generator" should have a targetP of 180 MW after PRA
+    Then the value of the objective function after PRA should be 20010.0
+
+  @rao @counter-trading @dont-run
+  Scenario: 7.1.7: Preventive search tree RAO with 2 areas and 2 generators in an area, one of them saturating
+    Given network file is "counter-trading/2NodesFR1NodeBE_saturationFR2.uct"
+    Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
+    Given configuration file is "counter-trading/rao-parameters-ct.json"
+    Given ucte glsk file is "counter-trading/glsk_2nodes_fr_1node_be.xml"
+    When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
+    Then the generator "FFR1AA1 _generator" should have a targetP of 500 MW after PRA
+    Then the generator "FFR2AA1 _generator" should have a targetP of 0 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
