@@ -14,24 +14,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
-import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
-import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -145,6 +128,44 @@ public class NcCrac {
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
         return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag)
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+    }
+
+    public Set<CountertradeRemedialAction> getCountertradeRemedialActions() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+        PropertyBags ssiProps = getPropertyBags(NcKeyword.STEADY_STATE_INSTRUCTION, NcConstants.COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING);
+
+        Map<String, PropertyBag> ssiById = new HashMap<>();
+        for (PropertyBag ssiPb : ssiProps) {
+            String id = ssiPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+            if (id != null) {
+                ssiById.put(id, ssiPb);
+            }
+        }
+
+        for (PropertyBag raPb : raProps) {
+            String id = raPb.getId(NcConstants.COUNTERTRADE_REMEDIAL_ACTION);
+            PropertyBag ssiPb = ssiById.get(id);
+            if (ssiPb == null) {
+                continue;
+            }
+
+            String maxUp = ssiPb.get(NcConstants.MAX_REGULATING_UP);
+            if (maxUp != null) {
+                raPb.put(NcConstants.MAX_REGULATING_UP, maxUp);
+            }
+
+            String maxDown = ssiPb.get(NcConstants.MAX_REGULATING_DOWN);
+            if (maxDown != null) {
+                raPb.put(NcConstants.MAX_REGULATING_DOWN, maxDown);
+            }
+
+            String available = ssiPb.get(NcConstants.OVERRIDE_AVAILABLE);
+            if (available != null) {
+                raPb.put(NcConstants.NORMAL_AVAILABLE, available);
+            }
+        }
+
+        return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag).convert(raProps);
     }
 
     public Set<TopologyAction> getTopologyActions() {
@@ -275,7 +296,7 @@ public class NcCrac {
     private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
         getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
-                PropertyBag property = properties.get(0);
+                PropertyBag property = properties.getFirst();
                 if (!checkTimeCoherence(property, offsetDateTime)) {
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(
                         "[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s",
