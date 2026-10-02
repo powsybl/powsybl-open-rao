@@ -1409,12 +1409,13 @@ It is a costly remedial action which is currently not handled by the RAO.
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
-exchanged between France and Spain.
 exchanged between France and Spain.  
 Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. They must share a border with
 the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
 area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
 network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
+The min and max of a border range are optional, whatever its range type: an undefined limit does not constrain the power
+flow on the border.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1469,8 +1470,8 @@ network given with `withConnectedAreas(network)` are used as connected areas, wi
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **min**: optional whatever the range type, if not defined the power flow on the border is not bounded from below  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **max**: optional whatever the range type, if not defined the power flow on the border is not bounded from above  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
