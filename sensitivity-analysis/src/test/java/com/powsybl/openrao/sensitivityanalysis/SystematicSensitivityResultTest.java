@@ -456,4 +456,22 @@ class SystematicSensitivityResultTest {
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
 
+    @Test
+    void testCompleteDataWithMissingOperatorStrategyState() {
+        setUpWith12Nodes();
+        List<SensitivityFactor> factors = rangeActionSensitivityProvider.getAllFactors(network);
+        // the provider reports the contingency "Contingency FR1 FR3" but none of the two operator strategy states
+        SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(factors,
+            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("Contingency FR1 FR3"), SensitivityAnalysisResult.Status.SUCCESS)),
+            List.of("Contingency FR1 FR3", "Contingency FR1 FR2"), List.of("os1", "os2"), List.of());
+        Map<SensitivityState, Integer> instantOrderByState = Map.of(
+            new SensitivityState("Contingency FR1 FR3", "os1"), outageInstantOrder,
+            new SensitivityState("Contingency FR1 FR2", "os2"), outageInstantOrder);
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOrderByState);
+
+        // falls back on the contingency status, and on FAILURE when there is none
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID))));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getState("Contingency FR1 FR2", crac.getInstant(CURATIVE_INSTANT_ID))));
+    }
 }

@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -21,6 +25,10 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -203,5 +211,31 @@ class AppliedRemedialActionsTest {
         originalAra = new AppliedRemedialActions();
         assertTrue(originalAra.isEmpty(network));
         assertFalse(copyAra.isEmpty(network));
+    }
+
+    @Test
+    void testToActions() {
+        NetworkAction switchPair = crac.newNetworkAction()
+            .withId("switch-pair")
+            .newSwitchPair().withSwitchToOpen("NNL3AA11 NNL3AA12 1").withSwitchToClose("NNL3AA13 NNL3AA14 1").add()
+            .add();
+        State state = crac.getState("Contingency FR1 FR3", curativeInstant);
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedNetworkAction(state, networkAction);
+        appliedRemedialActions.addAppliedNetworkAction(state, switchPair);
+        appliedRemedialActions.addAppliedRangeAction(state, pstRangeAction, 3.2);
+
+        List<Action> actions = appliedRemedialActions.toActions(state, network);
+        assertEquals(4, actions.size());
+        assertEquals(1, actions.stream().filter(TerminalsConnectionAction.class::isInstance).count());
+        assertEquals(1, actions.stream().filter(PhaseTapChangerTapPositionAction.class::isInstance).count());
+        // the switch pair is decomposed into its two switch actions
+        List<SwitchAction> switchActions = actions.stream().filter(SwitchAction.class::isInstance).map(SwitchAction.class::cast).toList();
+        assertEquals(2, switchActions.size());
+        assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), switchActions.stream().map(SwitchAction::getSwitchId).collect(Collectors.toSet()));
+        assertTrue(switchActions.stream().filter(a -> a.getSwitchId().equals("NNL3AA11 NNL3AA12 1")).allMatch(SwitchAction::isOpen));
+        assertTrue(switchActions.stream().filter(a -> a.getSwitchId().equals("NNL3AA13 NNL3AA14 1")).noneMatch(SwitchAction::isOpen));
+
+        assertTrue(appliedRemedialActions.toActions(crac.getState("Contingency FR1 FR2", curativeInstant), network).isEmpty());
     }
 }
