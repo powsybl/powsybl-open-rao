@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -22,10 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,6 +84,17 @@ class PstRangeActionImplTest {
 
         assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         assertEquals(12, pstRa.getCurrentTapPosition(network));
+    }
+
+    @Test
+    void toActions() {
+        PstRangeAction pstRa = pstRangeActionAdder.add();
+        List<Action> actions = pstRa.toActions(network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getStep(12).getAlpha(), network);
+        assertEquals(1, actions.size());
+        PhaseTapChangerTapPositionAction action = (PhaseTapChangerTapPositionAction) actions.get(0);
+        assertEquals(networkElementId, action.getTransformerId());
+        assertEquals(12, action.getTapPosition());
+        assertFalse(action.isRelativeValue());
     }
 
     @Test

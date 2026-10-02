@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -127,15 +129,24 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
     @Override
     public void apply(Network network, double targetAngle) {
+        toAction(targetAngle)
+            .toModification()
+            .apply(network, true, ReportNode.NO_OP);
+    }
+
+    PhaseTapChangerTapPositionAction toAction(double targetAngle) {
         int tap = convertAngleToTap(targetAngle);
-        new PhaseTapChangerTapPositionActionBuilder()
-            .withId("id")
+        return new PhaseTapChangerTapPositionActionBuilder()
+            .withId(networkElement.getId() + "_" + tap)
             .withNetworkElementId(networkElement.getId())
             .withTapPosition(tap)
             .withRelativeValue(false)
-            .build()
-            .toModification()
-            .apply(network, true, ReportNode.NO_OP);
+            .build();
+    }
+
+    @Override
+    public List<Action> toActions(double targetAngle, Network network) {
+        return List.of(toAction(targetAngle));
     }
 
     @Override
