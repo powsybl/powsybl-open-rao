@@ -217,7 +217,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(List.of("Some ANGLE Cnecs are not secure:",
+        assertEquals(List.of("Some ANGLE CNECs are not secure:",
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
         ), angleMonitoringResult.printConstraints());
 
@@ -239,7 +239,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(List.of("Some ANGLE Cnecs are not secure:",
+        assertEquals(List.of("Some ANGLE CNECs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
     }
@@ -258,7 +258,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(List.of("Some ANGLE Cnecs are not secure:",
+        assertEquals(List.of("Some ANGLE CNECs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
     }
@@ -277,7 +277,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
         assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE CNECs are secure."));
     }
 
     @Test
@@ -323,7 +323,7 @@ class AngleMonitoringTest {
         assertEquals(5.22, angleValue, ANGLE_TOLERANCE);
         assertEquals(
             List.of(
-                "Some ANGLE Cnecs are not secure:",
+                "Some ANGLE CNECs are not secure:",
                 "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) " +
                     "at state Co-1 - curative has an angle of 5.22°."
             ),

@@ -22,7 +22,9 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -61,7 +63,6 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.computeLoadFlow;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -187,6 +188,11 @@ public class Monitoring {
         // II) Monitor curative states
         Set<State> contingencyStates = crac.getCnecs(physicalParameter).stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
 
+        if (contingencyStates.isEmpty()) {
+            BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
+            return monitoringResult;
+        }
+
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(
             inputNetwork,
             inputNetwork.getVariantManager().getWorkingVariantId(),
@@ -208,6 +214,7 @@ public class Monitoring {
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException | OpenRaoException e) {
             Thread.currentThread().interrupt();
+            BUSINESS_LOGS.error(e.getMessage());
             monitoringResult.setStatusToFailure();
         }
 
@@ -263,26 +270,26 @@ public class Monitoring {
 
         Set<Cnec> consideredCnecs = crac.getCnecs(physicalParameter, state);
         if (consideredCnecs.isEmpty()) {
-            BUSINESS_WARNS.warn("No {} Cnecs in state '{}' defined.", physicalParameter, state);
+            BUSINESS_WARNS.warn("No {} CNECs in state '{}' defined.", physicalParameter, state);
             return new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
         }
 
         // Compute loadflow
-        boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters.getLoadFlowParameters());
+        boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
         if (!lfSuccess) {
-            String failureReason = String.format("Load-flow computation failed at state %s. Skipping this state.", state);
+            String failureReason = String.format("Load flow computation failed at state %s. Skipping this state.", state);
             return makeFailedMonitoringResultForStateWithNaNCnecRsults(crac, physicalParameter, state, failureReason);
         }
 
         // Get overloaded CNECs
-        Set<Cnec> overloadedCnecs = consideredCnecs.stream().filter(cnec -> cnec.computeMargin(network, unit) >= 0).collect(Collectors.toSet());
+        Set<Cnec> overloadedCnecs = consideredCnecs.stream().filter(cnec -> cnec.computeMargin(network, unit) < 0).collect(Collectors.toSet());
 
         Set<NetworkAction> networkActionsToApply = new HashSet<>();
 
         if (state.isPreventive()) {
             // CNECs in preventive can only be reported as overloaded, overload cannot be solved.
             if (!overloadedCnecs.isEmpty()) {
-                BUSINESS_WARNS.warn("{} {} Cnec are constrained in preventive state but it cannot be secured.", overloadedCnecs.size(), physicalParameter);
+                BUSINESS_WARNS.warn("{} {} CNEC(s) are constrained in preventive state but it cannot be secured.", overloadedCnecs.size(), physicalParameter);
             }
         } else {
             // Get all network actions associated with overloaded CNECs that can be used to solve the overload
@@ -291,17 +298,23 @@ public class Monitoring {
             });
 
             if (!networkActionsToApply.isEmpty()) {
+                // Re-balance the network if injection actions are going to be applied
+                // TODO: keep this condition to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
+                if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
+                    // Get power to be redispatched and network elements to be excluded
+                    EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
+                    Set<String> networkElementsToBeExcluded = new HashSet<>();
+                    networkActionsToApply.forEach(networkAction ->
+                        networkAction.getElementaryActions().forEach(ea -> storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
+                        ));
+                    redispatchNetworkActions(network, powerToBeRedispatched, networkElementsToBeExcluded, scalableZonalData);
+                }
+
                 // Apply all the actions on the network
                 networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
 
-                // Re-balance the network after if injection actions were applied
-                // TODO: keep this condition to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
-                if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
-                    redispatchNetworkActions(network, networkActionsToApply, scalableZonalData);
-                }
-
                 // recompute load flow
-                lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters.getLoadFlowParameters());
+                lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
                 if (!lfSuccess) {
                     String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
                     return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
@@ -335,14 +348,7 @@ public class Monitoring {
             monitoringResultStatus);
     }
 
-    private void redispatchNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
-        // Get power to be redispatched and network elements to be excluded
-        EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
-        Set<String> networkElementsToBeExcluded = new HashSet<>();
-        networkActionsToApply.forEach(networkAction ->
-            networkAction.getElementaryActions().forEach(ea -> storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
-            ));
-
+    private void redispatchNetworkActions(Network network, EnumMap<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded, ZonalData<Scalable> scalableZonalData) {
         // Apply redispatch actions per country
         powerToBeRedispatched.forEach((country, powerToRedispatch) -> {
             BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", powerToRedispatch, country);
@@ -379,8 +385,8 @@ public class Monitoring {
             if (!availableNetworkActions.isEmpty()) {
                 Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
                 // only keep network actions that only have elementary actions that are injection action
-                availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
-                    .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId(), glskCountries)));
+                availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
+                    .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId(), glskCountries))).collect(Collectors.toSet());
             }
         }
 
@@ -465,6 +471,16 @@ public class Monitoring {
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
         return glskCountries;
+    }
+
+    public static boolean computeLoadFlow(Network network, String loadFlowProvider, LoadFlowRunParameters loadFlowRunParameters) {
+        TECHNICAL_LOGS.info("Load flow computation [start]");
+        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowRunParameters);
+        if (loadFlowResult.isFailed()) {
+            BUSINESS_WARNS.warn("Load flow error.");
+        }
+        TECHNICAL_LOGS.info("Load flow computation [end]");
+        return loadFlowResult.isFullyConverged();
     }
 
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {

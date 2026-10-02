@@ -83,9 +83,9 @@ public class MonitoringResult {
             .forEach(cnecResult -> constraints.add(cnecResult.print()));
 
         if (constraints.isEmpty()) {
-            return List.of(String.format("All %s Cnecs are secure.", physicalParameter));
+            return List.of(String.format("All %s CNECs are secure.", physicalParameter));
         } else {
-            constraints.add(0, String.format("Some %s Cnecs are not secure:", physicalParameter));
+            constraints.add(0, String.format("Some %s CNECs are not secure:", physicalParameter));
         }
         return constraints;
     }
