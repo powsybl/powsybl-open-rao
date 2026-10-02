@@ -176,24 +176,16 @@ public class CastorFullOptimization {
                 CastorReports.reportSystematicSensitivityAnalysisAfterPraFailed(postPraSensiAnalysisReportNode);
                 RaoResult raoResult = new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed");
                 raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
-                    initialOutput,
-                    preventiveResult,
-                    preCurativeSensitivityAnalysisOutput,
-                    costOptimization,
-                    crac.getPreventiveInstant()
-                ));
+                    initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, costOptimization, crac.getPreventiveInstant()));
                 raoResult.addExtension(FlowResult.class,
                     CastorFlowResultExtensionHelper.convertToExtension(initialOutput, preCurativeSensitivityAnalysisOutput, crac, flowUnit));
-                    initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, costOptimization, crac.getPreventiveInstant()));
                 CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, "Systematic sensitivity analysis after preventive remedial actions failed");
                 return CompletableFuture.completedFuture(raoResult);
             }
             CastorReports.reportCastorSystematicSensitivityAnalysisAfterPraResults(optimizationReportNode,
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                 new RemedialActionActivationResultImpl(preventiveResult, preventiveResult),
-                preCurativeSensitivityAnalysisOutput,
-                raoParameters,
-                NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+                preCurativeSensitivityAnalysisOutput, raoParameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
             if (stateTree.getContingencyScenarios().isEmpty()) {
                 return generateRaoResultWithPrasOnly(preventivePerimeterOptimReportNode, preventiveResult, stateTree, initialOutput,
@@ -228,14 +220,7 @@ public class CastorFullOptimization {
 
             final ReportNode secondPreventivePerimeterOptimReportNode = CastorReports.reportSecondPreventivePerimeterOptimization(optimizationReportNode);
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
-                stateTree,
-                initialOutput,
-                postPreventiveResult,
-                postContingencyResults,
-                crac,
-                raoParameters,
-                secondPreventivePerimeterOptimReportNode
-            );
+                stateTree, initialOutput, postPreventiveResult, postContingencyResults, crac, raoParameters, secondPreventivePerimeterOptimReportNode);
 
             CostResult postFirstRaoCostResult = CastorCostResultExtensionHelper.convertToExtension(
                 initialOutput,
