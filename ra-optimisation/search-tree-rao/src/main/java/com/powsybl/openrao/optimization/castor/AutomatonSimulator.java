@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.optimization.searchtree.castor;
+package com.powsybl.openrao.optimization.castor;
 
 import com.powsybl.action.HvdcAction;
 import com.powsybl.commons.report.ReportNode;

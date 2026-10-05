@@ -34,7 +34,7 @@
         <!-- compile -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-optimization-commons</artifactId>
+            <artifactId>open-rao-optimization-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
