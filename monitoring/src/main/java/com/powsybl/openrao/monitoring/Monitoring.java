@@ -461,14 +461,16 @@ public class Monitoring {
         return true;
     }
 
-    private Identifiable<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
+    private Injection<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
         if (ea instanceof GeneratorAction generatorAction) {
-            return network.getIdentifiable(generatorAction.getGeneratorId());
+            return (Injection<?>) network.getIdentifiable(generatorAction.getGeneratorId());
         }
         if (ea instanceof LoadAction loadAction) {
-            return network.getIdentifiable(loadAction.getLoadId());
+            return (Injection<?>) network.getIdentifiable(loadAction.getLoadId());
         }
-        return null;
+        else {
+            throw new OpenRaoException(String.format("Elementary action {} is not a generator or load action", ea.getId()));
+        }
     }
 
     private void storeEnergyToRedispatchAndNetworkElementsToExclude(Action ea,
@@ -477,8 +479,8 @@ public class Monitoring {
                                                                     Map<Country, Double> powerToBeRedispatched) {
 
         // We only keep valid injection network action so we should not get nullPointerException
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        Country country = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
+        Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        Country country = ne.getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
 
         if (ne.getType().equals(IdentifiableType.GENERATOR)) {
             powerToBeRedispatched.merge(
