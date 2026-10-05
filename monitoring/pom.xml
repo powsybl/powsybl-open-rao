@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-rao-search-tree</artifactId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

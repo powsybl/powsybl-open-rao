@@ -1,0 +1,210 @@
+{
+  "version" : "1.17",
+  "id" : "/network/3Nodes",
+  "caseDate" : "2026-10-05T10:54:30.594+02:00",
+  "forecastDistance" : 0,
+  "sourceFormat" : "UCTE",
+  "minimumValidationLevel" : "STEADY_STATE_HYPOTHESIS",
+  "substations" : [ {
+    "id" : "FFR1AA",
+    "country" : "FR",
+    "voltageLevels" : [ {
+      "id" : "FFR1AA1",
+      "nominalV" : 380.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "FFR1AA1 ",
+          "properties" : [ {
+            "name" : "geographicalName",
+            "value" : "FR1"
+          } ]
+        } ]
+      },
+      "generators" : [ {
+        "id" : "FFR1AA1 _generator",
+        "energySource" : "OTHER",
+        "minP" : -9000.0,
+        "maxP" : 9000.0,
+        "voltageRegulatorOn" : true,
+        "targetP" : 0.0,
+        "targetV" : 400.0,
+        "targetQ" : 0.0,
+        "bus" : "FFR1AA1 ",
+        "connectableBus" : "FFR1AA1 ",
+        "minMaxReactiveLimits" : {
+          "minQ" : -9000.0,
+          "maxQ" : 9000.0
+        }
+      } ],
+      "loads" : [ {
+        "id" : "FFR1AA1 _load",
+        "loadType" : "UNDEFINED",
+        "p0" : -1000.0,
+        "q0" : 0.0,
+        "bus" : "FFR1AA1 ",
+        "connectableBus" : "FFR1AA1 "
+      } ]
+    } ]
+  }, {
+    "id" : "FFR2AA",
+    "country" : "FR",
+    "voltageLevels" : [ {
+      "id" : "FFR2AA1",
+      "nominalV" : 380.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "FFR2AA1 ",
+          "properties" : [ {
+            "name" : "geographicalName",
+            "value" : "FR2"
+          } ]
+        } ]
+      },
+      "generators" : [ {
+        "id" : "FFR2AA1 _generator",
+        "energySource" : "OTHER",
+        "minP" : -9000.0,
+        "maxP" : 9000.0,
+        "voltageRegulatorOn" : true,
+        "targetP" : 0.0,
+        "targetV" : 400.0,
+        "targetQ" : 0.0,
+        "bus" : "FFR2AA1 ",
+        "connectableBus" : "FFR2AA1 ",
+        "minMaxReactiveLimits" : {
+          "minQ" : -9000.0,
+          "maxQ" : 9000.0
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "FFR3AA",
+    "country" : "FR",
+    "voltageLevels" : [ {
+      "id" : "FFR3AA1",
+      "nominalV" : 380.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "FFR3AA1 ",
+          "properties" : [ {
+            "name" : "geographicalName",
+            "value" : "FR3"
+          } ]
+        } ]
+      },
+      "generators" : [ {
+        "id" : "FFR3AA1 _generator",
+        "energySource" : "OTHER",
+        "minP" : -9000.0,
+        "maxP" : 9000.0,
+        "voltageRegulatorOn" : true,
+        "targetP" : 0.0,
+        "targetV" : 400.0,
+        "targetQ" : 0.0,
+        "bus" : "FFR3AA1 ",
+        "connectableBus" : "FFR3AA1 ",
+        "minMaxReactiveLimits" : {
+          "minQ" : -9000.0,
+          "maxQ" : 9000.0
+        }
+      } ],
+      "loads" : [ {
+        "id" : "FFR3AA1 _load",
+        "loadType" : "UNDEFINED",
+        "p0" : 1000.0,
+        "q0" : 0.0,
+        "bus" : "FFR3AA1 ",
+        "connectableBus" : "FFR3AA1 "
+      } ]
+    } ]
+  } ],
+  "lines" : [ {
+    "id" : "FFR1AA1  FFR2AA1  1",
+    "r" : 0.0,
+    "x" : 10.0,
+    "voltageLevelId1" : "FFR1AA1",
+    "bus1" : "FFR1AA1 ",
+    "connectableBus1" : "FFR1AA1 ",
+    "voltageLevelId2" : "FFR2AA1",
+    "bus2" : "FFR2AA1 ",
+    "connectableBus2" : "FFR2AA1 ",
+    "selectedOperationalLimitsGroupIds1" : [ "DEFAULT" ],
+    "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ]
+  }, {
+    "id" : "FFR1AA1  FFR3AA1  1",
+    "r" : 0.0,
+    "x" : 10.0,
+    "voltageLevelId1" : "FFR1AA1",
+    "bus1" : "FFR1AA1 ",
+    "connectableBus1" : "FFR1AA1 ",
+    "voltageLevelId2" : "FFR3AA1",
+    "bus2" : "FFR3AA1 ",
+    "connectableBus2" : "FFR3AA1 ",
+    "selectedOperationalLimitsGroupIds1" : [ "DEFAULT" ],
+    "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ]
+  }, {
+    "id" : "FFR2AA1  FFR3AA1  1",
+    "r" : 0.0,
+    "x" : 10.0,
+    "voltageLevelId1" : "FFR2AA1",
+    "bus1" : "FFR2AA1 ",
+    "connectableBus1" : "FFR2AA1 ",
+    "voltageLevelId2" : "FFR3AA1",
+    "bus2" : "FFR3AA1 ",
+    "connectableBus2" : "FFR3AA1 ",
+    "selectedOperationalLimitsGroupIds1" : [ "DEFAULT" ],
+    "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ]
+  } ],
+  "areas" : [ {
+    "id" : "FR",
+    "areaType" : "ControlArea",
+    "voltageLevelRef" : {
+      "id" : "FFR1AA1"
+    },
+    "voltageLevelRef" : {
+      "id" : "FFR2AA1"
+    },
+    "voltageLevelRef" : {
+      "id" : "FFR3AA1"
+    }
+  } ]
+}

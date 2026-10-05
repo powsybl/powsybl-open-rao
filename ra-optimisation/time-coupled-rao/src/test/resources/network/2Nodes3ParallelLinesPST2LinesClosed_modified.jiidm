@@ -1,0 +1,259 @@
+{
+  "version" : "1.17",
+  "id" : "/network/2Nodes3ParallelLinesPST2LinesClosed",
+  "caseDate" : "2026-10-05T10:54:30.511+02:00",
+  "forecastDistance" : 0,
+  "sourceFormat" : "UCTE",
+  "minimumValidationLevel" : "STEADY_STATE_HYPOTHESIS",
+  "substations" : [ {
+    "id" : "BBE1AA",
+    "country" : "BE",
+    "voltageLevels" : [ {
+      "id" : "BBE1AA1",
+      "nominalV" : 380.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "BBE1AA1 ",
+          "properties" : [ {
+            "name" : "geographicalName",
+            "value" : "BE1"
+          } ]
+        }, {
+          "id" : "FFR1AA1 ",
+          "properties" : [ {
+            "name" : "geographicalName",
+            "value" : "FR1"
+          } ]
+        } ]
+      },
+      "generators" : [ {
+        "id" : "BBE1AA1 _generator",
+        "energySource" : "OTHER",
+        "minP" : -9000.0,
+        "maxP" : 9000.0,
+        "voltageRegulatorOn" : true,
+        "targetP" : 1000.0,
+        "targetV" : 400.0,
+        "targetQ" : 0.0,
+        "bus" : "BBE1AA1 ",
+        "connectableBus" : "BBE1AA1 ",
+        "minMaxReactiveLimits" : {
+          "minQ" : -9000.0,
+          "maxQ" : 9000.0
+        }
+      }, {
+        "id" : "FFR1AA1 _generator",
+        "energySource" : "OTHER",
+        "minP" : -9000.0,
+        "maxP" : 9000.0,
+        "voltageRegulatorOn" : true,
+        "targetP" : 0.0,
+        "targetV" : 400.0,
+        "targetQ" : 0.0,
+        "bus" : "FFR1AA1 ",
+        "connectableBus" : "FFR1AA1 ",
+        "minMaxReactiveLimits" : {
+          "minQ" : -9000.0,
+          "maxQ" : 9000.0
+        }
+      } ],
+      "loads" : [ {
+        "id" : "FFR1AA1 _load",
+        "loadType" : "UNDEFINED",
+        "p0" : 1000.0,
+        "q0" : 0.0,
+        "bus" : "FFR1AA1 ",
+        "connectableBus" : "FFR1AA1 "
+      } ]
+    } ],
+    "twoWindingsTransformers" : [ {
+      "id" : "BBE1AA1  FFR1AA1  3",
+      "r" : 0.0,
+      "x" : 10.0,
+      "ratedU1" : 400.0,
+      "ratedU2" : 400.0,
+      "voltageLevelId1" : "BBE1AA1",
+      "bus1" : "FFR1AA1 ",
+      "connectableBus1" : "FFR1AA1 ",
+      "voltageLevelId2" : "BBE1AA1",
+      "bus2" : "BBE1AA1 ",
+      "connectableBus2" : "BBE1AA1 ",
+      "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+      "properties" : [ {
+        "name" : "nomimalPower",
+        "value" : "1000.0"
+      }, {
+        "name" : "elementName",
+        "value" : "PST"
+      } ],
+      "phaseTapChanger" : {
+        "regulating" : false,
+        "lowTapPosition" : -16,
+        "tapPosition" : 0,
+        "loadTapChangingCapabilities" : true,
+        "regulationMode" : "CURRENT_LIMITER",
+        "steps" : [ {
+          "rho" : 1.0,
+          "alpha" : -6.2276423729910535
+        }, {
+          "rho" : 1.0,
+          "alpha" : -5.839110508104064
+        }, {
+          "rho" : 1.0,
+          "alpha" : -5.4504442277066305
+        }, {
+          "rho" : 1.0,
+          "alpha" : -5.061652408895631
+        }, {
+          "rho" : 1.0,
+          "alpha" : -4.672743946063913
+        }, {
+          "rho" : 1.0,
+          "alpha" : -4.283727749689918
+        }, {
+          "rho" : 1.0,
+          "alpha" : -3.894612745121778
+        }, {
+          "rho" : 1.0,
+          "alpha" : -3.505407871356285
+        }, {
+          "rho" : 1.0,
+          "alpha" : -3.1161220798131644
+        }, {
+          "rho" : 1.0,
+          "alpha" : -2.7267643331050597
+        }, {
+          "rho" : 1.0,
+          "alpha" : -2.337343603803646
+        }, {
+          "rho" : 1.0,
+          "alpha" : -1.9478688732023104
+        }, {
+          "rho" : 1.0,
+          "alpha" : -1.5583491300758083
+        }, {
+          "rho" : 1.0,
+          "alpha" : -1.1687933694373345
+        }, {
+          "rho" : 1.0,
+          "alpha" : -0.7792105912934298
+        }, {
+          "rho" : 1.0,
+          "alpha" : -0.3896097993971608
+        }, {
+          "rho" : 1.0,
+          "alpha" : 0.0
+        }, {
+          "rho" : 1.0,
+          "alpha" : 0.3896097993971608
+        }, {
+          "rho" : 1.0,
+          "alpha" : 0.7792105912934298
+        }, {
+          "rho" : 1.0,
+          "alpha" : 1.1687933694373345
+        }, {
+          "rho" : 1.0,
+          "alpha" : 1.5583491300758083
+        }, {
+          "rho" : 1.0,
+          "alpha" : 1.9478688732023104
+        }, {
+          "rho" : 1.0,
+          "alpha" : 2.337343603803646
+        }, {
+          "rho" : 1.0,
+          "alpha" : 2.7267643331050597
+        }, {
+          "rho" : 1.0,
+          "alpha" : 3.1161220798131644
+        }, {
+          "rho" : 1.0,
+          "alpha" : 3.505407871356285
+        }, {
+          "rho" : 1.0,
+          "alpha" : 3.894612745121778
+        }, {
+          "rho" : 1.0,
+          "alpha" : 4.283727749689918
+        }, {
+          "rho" : 1.0,
+          "alpha" : 4.672743946063913
+        }, {
+          "rho" : 1.0,
+          "alpha" : 5.061652408895631
+        }, {
+          "rho" : 1.0,
+          "alpha" : 5.4504442277066305
+        }, {
+          "rho" : 1.0,
+          "alpha" : 5.839110508104064
+        }, {
+          "rho" : 1.0,
+          "alpha" : 6.2276423729910535
+        } ]
+      },
+      "operationalLimitsGroups2" : [ {
+        "id" : "DEFAULT",
+        "currentLimits" : {
+          "permanentLimit" : 5000.0
+        }
+      } ]
+    } ]
+  } ],
+  "lines" : [ {
+    "id" : "BBE1AA1  FFR1AA1  1",
+    "r" : 0.0,
+    "x" : 10.0,
+    "voltageLevelId1" : "BBE1AA1",
+    "bus1" : "BBE1AA1 ",
+    "connectableBus1" : "BBE1AA1 ",
+    "voltageLevelId2" : "BBE1AA1",
+    "bus2" : "FFR1AA1 ",
+    "connectableBus2" : "FFR1AA1 ",
+    "selectedOperationalLimitsGroupIds1" : [ "DEFAULT" ],
+    "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ]
+  }, {
+    "id" : "BBE1AA1  FFR1AA1  2",
+    "r" : 0.0,
+    "x" : 10.0,
+    "voltageLevelId1" : "BBE1AA1",
+    "connectableBus1" : "BBE1AA1 ",
+    "voltageLevelId2" : "BBE1AA1",
+    "connectableBus2" : "FFR1AA1 ",
+    "selectedOperationalLimitsGroupIds1" : [ "DEFAULT" ],
+    "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
+    "operationalLimitsGroups1" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ],
+    "operationalLimitsGroups2" : [ {
+      "id" : "DEFAULT",
+      "currentLimits" : {
+        "permanentLimit" : 5000.0
+      }
+    } ]
+  } ],
+  "areas" : [ {
+    "id" : "BE",
+    "areaType" : "ControlArea",
+    "voltageLevelRef" : {
+      "id" : "BBE1AA1"
+    }
+  } ]
+}

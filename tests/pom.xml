@@ -193,22 +193,22 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-linear</artifactId>
+            <artifactId>open-rao-linear-rao</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-search-tree</artifactId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-fast</artifactId>
+            <artifactId>open-rao-fast-rao</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-time-coupled</artifactId>
+            <artifactId>open-rao-time-coupled-rao</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -18,10 +18,10 @@
     <modules>
         <module>rao-api</module>
         <module>rao-optimization-commons</module>
-        <module>rao-linear</module>
-        <module>rao-search-tree</module>
-        <module>rao-fast</module>
-        <module>rao-time-coupled</module>
+        <module>linear-rao</module>
+        <module>search-tree-rao</module>
+        <module>fast-rao</module>
+        <module>time-coupled-rao</module>
     </modules>
 
 </project>

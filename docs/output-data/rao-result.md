@@ -20,7 +20,7 @@ A RaoResult object is returned by OpenRAO's main optimisation method:
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)
 ~~~
 
-Where RaoProvider is the chosen implementation of the RAO, such as [CASTOR](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/rao-search-tree/src/main/java/com/powsybl/openrao/searchtreerao/castor/algorithm/Castor.java).
+Where RaoProvider is the chosen implementation of the RAO, such as [CASTOR](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/main/java/com/powsybl/openrao/searchtreerao/castor/algorithm/Castor.java).
 
 ## Exporting and importing a JSON file
 
