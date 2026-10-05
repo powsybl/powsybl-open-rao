@@ -8,11 +8,15 @@
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -22,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,13 +36,34 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MonitoringTest {
 
+    // Create a test class to test function in abstract monitor
+    private class MonitoringTestClass extends AbstractMonitoring {
+        MonitoringTestClass(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+            super(loadFlowProvider, loadFlowParameters);
+        }
+
+        MonitoringTestClass(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
+            super(loadFlowProvider, loadFlowParameters, computationManager);
+        }
+
+        @Override
+        protected Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData) {
+            return Set.of();
+        }
+
+        @Override
+        protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
+            // not needed in test
+        }
+    }
+
     @Test
     void testRunMonitoringOnMultiCurative() throws IOException {
         // The last curative instant defined in the crac is curative 3
         // 3 voltage CNECs are defined one in preventive, one in curative 1 and one in curative 3.
         // preventive => ok, curative 3 => ok but curative 1 => ignored. We only monitor final curative instant + preventive.
 
-        Monitoring monitoring = new Monitoring("OpenLoadFlow", new LoadFlowParameters());
+        Monitoring monitoring = new MonitoringTestClass("OpenLoadFlow", new LoadFlowParameters());
 
         Network network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);
