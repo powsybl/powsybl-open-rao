@@ -30,11 +30,11 @@
             <artifactId>open-rao-rao-result-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-rao-optimization-commons</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-optimization-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
@@ -62,12 +62,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-json</artifactId>
             <scope>test</scope>
         </dependency>

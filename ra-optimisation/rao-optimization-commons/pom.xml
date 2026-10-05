@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>open-rao-rao-optimization-commons</artifactId>
+    <artifactId>open-rao-optimization-commons</artifactId>
     <packaging>jar</packaging>
     <name>Open RAO optimization commons</name>
     <description>Results API and common classes shared by the RAO optimization modules</description>
