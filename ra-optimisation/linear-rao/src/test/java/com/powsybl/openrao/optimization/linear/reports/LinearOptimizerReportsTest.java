@@ -10,7 +10,6 @@ package com.powsybl.openrao.optimization.linear.reports;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.openrao.optimization.commons.reports.ReportsTestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

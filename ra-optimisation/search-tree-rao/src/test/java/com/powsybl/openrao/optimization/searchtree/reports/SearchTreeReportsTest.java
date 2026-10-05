@@ -13,7 +13,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.optimization.commons.reports.SearchTreeReportResourceBundle;
+import com.powsybl.openrao.optimization.commons.reports.OptimizationCommonReportResourceBundle;
 import com.powsybl.openrao.optimization.searchtree.algorithms.Leaf;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,7 +126,7 @@ class SearchTreeReportsTest {
     void testReportNodeInFrench() {
 
         ReportNode reportNodeFr = ReportNode.newRootReportNode()
-            .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
+            .withResourceBundles(TestReportResourceBundle.BASE_NAME, OptimizationCommonReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .withLocale(Locale.FRANCE)
             .build();

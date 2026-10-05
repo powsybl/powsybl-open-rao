@@ -30,7 +30,6 @@ import com.powsybl.openrao.optimization.commons.ToolProvider;
 import com.powsybl.openrao.optimization.commons.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.optimization.commons.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.optimization.commons.reports.CommonReports;
-import com.powsybl.openrao.optimization.commons.reports.FastRaoReports;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
@@ -45,6 +44,7 @@ import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivatio
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.UnoptimizedRaoResultImpl;
+import com.powsybl.openrao.optimization.fastrao.reports.FastRaoReports;
 import com.powsybl.openrao.optimization.searchtree.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
