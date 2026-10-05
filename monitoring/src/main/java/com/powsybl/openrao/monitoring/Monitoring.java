@@ -73,7 +73,7 @@ public class Monitoring {
 
     private final String loadFlowProvider;
     private final LoadFlowRunParameters loadFlowRunParameters;
-    Map<PhysicalParameter, Unit> parameterToUnitMap = new HashMap<>();
+    Map<PhysicalParameter, Unit> parameterToUnitMap = new EnumMap<>(PhysicalParameter.class);
 
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
@@ -223,6 +223,12 @@ public class Monitoring {
         return monitoringResult;
     }
 
+    /**
+     * Optimizes one contingency state by applying the contingency to a cloned network,
+     * applying optimal remedial actions, and monitoring the state to return the monitoring results.
+     * The cloned network is sourced from a pool of available networks and is released back to the
+     * pool once processing is complete.
+     */
     private MonitoringResult optimizeOneContingencyState(AbstractNetworkPool networkPool,
                                                          State state,
                                                          Crac crac,
@@ -254,13 +260,19 @@ public class Monitoring {
         }
     }
 
+    /**
+     * Monitors the given state. This involves evaluating the load flow, analyzing the CNECs, detecting overloads,
+     * applying network actions if necessary (if the state is curative), and generating a monitoring result that summarizes the
+     * findings.
+     */
     private MonitoringResult monitorState(State state, Crac crac, Network network, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData) {
         Unit unit = parameterToUnitMap.get(physicalParameter);
         Set<CnecResult> cnecResults = new HashSet<>();
 
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
 
-        if (!state.isPreventive() && !state.getInstant().equals(crac.getLastInstant())) {
+        // Check state validity
+        if (!(state.isPreventive() || state.getInstant().equals(crac.getLastInstant()))) {
             TECHNICAL_LOGS.warn(String.format(
                 "State %s is not valid. Monitoring is only allowed on preventive state or curative states defined on the last curative instant %s.",
                 state.getId(), crac.getLastInstant()
@@ -287,38 +299,16 @@ public class Monitoring {
         Set<NetworkAction> networkActionsToApply = new HashSet<>();
 
         if (state.isPreventive()) {
-            // CNECs in preventive can only be reported as overloaded, overload cannot be solved.
             if (!overloadedCnecs.isEmpty()) {
                 BUSINESS_WARNS.warn("{} {} CNEC(s) are constrained in preventive state but it cannot be secured.", overloadedCnecs.size(), physicalParameter);
             }
         } else {
-            // Get all network actions associated with overloaded CNECs that can be used to solve the overload
-            overloadedCnecs.forEach(cnec -> {
-                networkActionsToApply.addAll(getValidNetworkActionsAssociatedToCnec(network, crac, cnec, physicalParameter, scalableZonalData));
-            });
-
-            if (!networkActionsToApply.isEmpty()) {
-                // Re-balance the network if injection actions are going to be applied
-                // TODO: keep this condition to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
-                if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
-                    // Get power to be redispatched and network elements to be excluded
-                    EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
-                    Set<String> networkElementsToBeExcluded = new HashSet<>();
-                    networkActionsToApply.forEach(networkAction ->
-                        networkAction.getElementaryActions().forEach(ea -> storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
-                        ));
-                    redispatchNetworkActions(network, powerToBeRedispatched, networkElementsToBeExcluded, scalableZonalData);
-                }
-
-                // Apply all the actions on the network
-                networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
-
-                // recompute load flow
-                lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
-                if (!lfSuccess) {
-                    String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
-                    return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
-                }
+            MonitoringResult curativeResult = handleCurativeState(
+                state, crac, network, physicalParameter, scalableZonalData,
+                overloadedCnecs, networkActionsToApply, cnecResults
+            );
+            if (curativeResult != null) {
+                return curativeResult;
             }
         }
 
@@ -328,13 +318,7 @@ public class Monitoring {
         );
 
         // Combine all CnecResult into a MonitoringResult
-        Cnec.SecurityStatus monitoringResultStatus = Cnec.SecurityStatus.SECURE;
-        if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getMargin() < 0)) {
-            monitoringResultStatus = MonitoringResult.combineStatuses(
-                cnecResults.stream()
-                    .map(CnecResult::getCnecSecurityStatus)
-                    .toArray(Cnec.SecurityStatus[]::new));
-        }
+        Cnec.SecurityStatus monitoringResultStatus = computeMonitoringResultStatus(cnecResults);
 
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [end]", physicalParameter, state);
         return new MonitoringResult(physicalParameter,
@@ -346,6 +330,61 @@ public class Monitoring {
                     .collect(Collectors.toSet())
             ),
             monitoringResultStatus);
+    }
+
+    private MonitoringResult handleCurativeState(State state, Crac crac, Network network,
+                                                 PhysicalParameter physicalParameter,
+                                                 ZonalData<Scalable> scalableZonalData,
+                                                 Set<Cnec> overloadedCnecs,
+                                                 Set<NetworkAction> networkActionsToApply,
+                                                 Set<CnecResult> cnecResults) {
+        // Get all network actions associated with overloaded CNECs that can be used to solve the overload
+        overloadedCnecs.forEach(cnec -> {
+            networkActionsToApply.addAll(getValidNetworkActionsAssociatedToCnec(network, crac, cnec, physicalParameter, scalableZonalData));
+        });
+
+        if (!networkActionsToApply.isEmpty()) {
+            // Re-balance the network if injection actions are going to be applied
+            // TODO: keep this condition to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
+            if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
+                rebalanceNetworkForAngleMonitoring(network, networkActionsToApply, scalableZonalData);
+            }
+
+            // Apply all the actions on the network
+            networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
+
+            // recompute load flow
+            boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
+            if (!lfSuccess) {
+                String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
+                return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private void rebalanceNetworkForAngleMonitoring(Network network,
+                                                    Set<NetworkAction> networkActionsToApply,
+                                                    ZonalData<Scalable> scalableZonalData) {
+        // Get power to be redispatched and network elements to be excluded
+        EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
+        Set<String> networkElementsToBeExcluded = new HashSet<>();
+        networkActionsToApply.forEach(networkAction ->
+            networkAction.getElementaryActions().forEach(ea ->
+                storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
+            ));
+        redispatchNetworkActions(network, powerToBeRedispatched, networkElementsToBeExcluded, scalableZonalData);
+    }
+
+    private Cnec.SecurityStatus computeMonitoringResultStatus(Set<CnecResult> cnecResults) {
+        if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getMargin() < 0)) {
+            return MonitoringResult.combineStatuses(
+                cnecResults.stream()
+                    .map(CnecResult::getCnecSecurityStatus)
+                    .toArray(Cnec.SecurityStatus[]::new));
+        }
+        return Cnec.SecurityStatus.SECURE;
     }
 
     private void redispatchNetworkActions(Network network, EnumMap<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded, ZonalData<Scalable> scalableZonalData) {
@@ -363,7 +402,7 @@ public class Monitoring {
         });
     }
 
-    //TODO: put in common in raoUtil after raoResult refactoring
+    //TODO: put in common with applyRemedialActions function in raoUtil after result refactoring
     private void applyOptimalRemedialActions(State state, Network network, RaoResult raoResult) {
         raoResult.getActivatedNetworkActionsDuringState(state)
             .forEach(networkAction -> networkAction.apply(network));
@@ -381,41 +420,14 @@ public class Monitoring {
                         .anyMatch(onConstraint -> onConstraint.getCnec().equals(cnec)))
                 .collect(Collectors.toSet());
 
-        if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
-            if (!availableNetworkActions.isEmpty()) {
-                Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
-                // only keep network actions that only have elementary actions that are injection action
-                availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
-                    .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId(), glskCountries))).collect(Collectors.toSet());
-            }
+        // For angle monitoring, we only keep network actions that only have elementary actions that are injection action
+        if (physicalParameter.equals(PhysicalParameter.ANGLE) && !availableNetworkActions.isEmpty()) {
+            Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
+            availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
+                .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId(), glskCountries))).collect(Collectors.toSet());
         }
 
         return availableNetworkActions;
-    }
-
-    private void storeEnergyToRedispatchAndNetworkElementsToExclude(Action ea,
-                                         Network network,
-                                         Set<String> networkElementsToBeExcluded,
-                                         Map<Country, Double> powerToBeRedispatched) {
-
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        Country country = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
-
-        if (ne.getType().equals(IdentifiableType.GENERATOR)) {
-            powerToBeRedispatched.merge(
-                country,
-                ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(),
-                Double::sum
-            );
-            networkElementsToBeExcluded.add(ne.getId());
-        } else if (ne.getType().equals(IdentifiableType.LOAD)) {
-            powerToBeRedispatched.merge(
-                country,
-                -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(),
-                Double::sum
-            );
-            networkElementsToBeExcluded.add(ne.getId());
-        }
     }
 
     private boolean isValidInjectionAction(Action ea,
@@ -460,6 +472,32 @@ public class Monitoring {
         return null;
     }
 
+    private void storeEnergyToRedispatchAndNetworkElementsToExclude(Action ea,
+                                                                    Network network,
+                                                                    Set<String> networkElementsToBeExcluded,
+                                                                    Map<Country, Double> powerToBeRedispatched) {
+
+        // We only keep valid injection network action so we should not get nullPointerException
+        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        Country country = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
+
+        if (ne.getType().equals(IdentifiableType.GENERATOR)) {
+            powerToBeRedispatched.merge(
+                country,
+                ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(),
+                Double::sum
+            );
+            networkElementsToBeExcluded.add(ne.getId());
+        } else if (ne.getType().equals(IdentifiableType.LOAD)) {
+            powerToBeRedispatched.merge(
+                country,
+                -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(),
+                Double::sum
+            );
+            networkElementsToBeExcluded.add(ne.getId());
+        }
+    }
+
     private static Set<Country> getCountriesFromGlsk(ZonalData<Scalable> scalableZonalData) {
         Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
         if (Objects.isNull(scalableZonalData)) {
@@ -473,6 +511,7 @@ public class Monitoring {
         return glskCountries;
     }
 
+    // Need loadFlowRunParameters specifically to be able to change load flow computationManager
     public static boolean computeLoadFlow(Network network, String loadFlowProvider, LoadFlowRunParameters loadFlowRunParameters) {
         TECHNICAL_LOGS.info("Load flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowRunParameters);
