@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.optimization.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
 import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;

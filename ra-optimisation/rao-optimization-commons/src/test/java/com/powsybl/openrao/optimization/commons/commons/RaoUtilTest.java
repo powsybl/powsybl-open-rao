@@ -1,0 +1,678 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.optimization.commons.commons;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
+import com.powsybl.openrao.optimization.commons.RaoUtil;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.optimization.commons.reports.ReportsTestUtils;
+import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
+import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.optimization.commons.RaoUtil.checkCurativeRaUsageLimit;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
+class RaoUtilTest {
+    private static final double DOUBLE_TOLERANCE = 0.1;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final String AUTO_INSTANT_ID = "auto";
+
+    private RaoParameters raoParameters;
+    private RaoInput raoInput;
+    private Network network;
+    private Crac crac;
+    private String variantId;
+
+    @BeforeEach
+    void setUp() {
+        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CommonCracCreation.createWithPreventivePstRange();
+        variantId = network.getVariantManager().getWorkingVariantId();
+        raoInput = RaoInput.build(network, crac)
+            .withNetworkVariantId(variantId)
+            .build();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
+    }
+
+    private void addGlskProvider() {
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/GlskCountry.xml"))
+            .getZonalGlsks(network);
+        raoInput = RaoInput.build(network, crac)
+            .withNetworkVariantId(variantId)
+            .withGlskProvider(glskProvider)
+            .build();
+    }
+
+    @Test
+    void testExceptionForGlskOnRelativeMargin() {
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires glsks", exception.getMessage());
+    }
+
+    @Test
+    void testExceptionForNoRelativeMarginParametersOnRelativeMargin() {
+        addGlskProvider();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
+    }
+
+    @Test
+    void testExceptionForEmptyBoundariesOnRelativeMargin() {
+        addGlskProvider();
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>());
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
+    }
+
+    @Test
+    void testCostlyModeWithoutMinMarginsParameters() {
+        // No search tree parameters exception
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception.getMessage());
+
+        // No costly min margin extension
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
+        searchTreeParameters.getLoopFlowParameters().orElseThrow().setConstraintAdjustmentCoefficient(3.);
+        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception2.getMessage());
+
+    }
+
+    @Test
+    void testGetLargestCnecThreshold() {
+        FlowCnec cnecA = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecB = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecC = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecD = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnecA.isOptimized()).thenReturn(true);
+        Mockito.when(cnecB.isOptimized()).thenReturn(true);
+        Mockito.when(cnecC.isOptimized()).thenReturn(true);
+        Mockito.when(cnecD.isOptimized()).thenReturn(false);
+        Mockito.when(cnecA.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnecA.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnecC.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecC.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecD.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecD.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE)));
+
+        assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecB), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecC), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecC), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecD), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testIsOnFlowConstraintAvailable() {
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = crac.getState("Contingency FR1 FR3", curativeInstant);
+
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        FlowResult flowResult = mock(FlowResult.class);
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+
+        RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
+            .newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).add()
+            .add();
+
+        // Asserts that the method returns True when given an empty set
+        assertTrue(RaoUtil.canRemedialActionBeUsed(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
+            .newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).add()
+            .add();
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        assertFalse(RaoUtil.canRemedialActionBeUsed(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
+        assertTrue(RaoUtil.canRemedialActionBeUsed(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        assertTrue(RaoUtil.canRemedialActionBeUsed(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        optimizedState = crac.getPreventiveState();
+        assertFalse(RaoUtil.canRemedialActionBeUsed(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.canRemedialActionBeUsed(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that a preventive remedial action with forced usage rule cannot be available
+        RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
+            .newTerminalsConnectionAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .add();
+        assertTrue(RaoUtil.canRemedialActionBeUsed(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that a remedial action with no usage rule cannot be available
+        NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
+        when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
+        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
+        assertFalse(RaoUtil.canRemedialActionBeUsed(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // mock AUTO state for the next assertions
+        NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
+        when(automatonRa.getName()).thenReturn("fake automaton");
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        when(onInstant.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
+        OnConstraint<FlowCnec> onFlowConstraint = Mockito.mock(OnConstraint.class);
+        State automatonState = Mockito.mock(State.class);
+        when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
+        when(automatonState.getId()).thenReturn("fake automaton state");
+
+        // remedial action with OnInstant Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
+        assertTrue(RaoUtil.canRemedialActionBeUsed(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.canRemedialActionBeUsed(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // remedial action with OnFlowConstraint Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
+        assertFalse(RaoUtil.canRemedialActionBeUsed(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.canRemedialActionBeUsed(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+    }
+
+    @Test
+    void testIsOnFlowConstraintInCountryAvailable() {
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = Mockito.mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+
+        FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
+        PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
+
+        RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
+            .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).add()
+            .add();
+
+        RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
+            .newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).add()
+            .add();
+
+        RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
+            .newSwitchAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).add()
+            .add();
+
+        when(flowResult.getMargin(any(), any())).thenReturn(100.);
+
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(10.);
+        assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
+        assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
+        assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
+
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-10.);
+        assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
+        assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, true);
+        assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
+
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(0.);
+        assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
+        assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, true);
+        assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
+
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(150.);
+        when(flowResult.getMargin(eq(cnecFrDe), any())).thenReturn(0.);
+        assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
+        assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
+        assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
+
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
+        assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
+        assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
+        assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
+    }
+
+    @Test
+    void testIsOnFlowConstraintInCountryAvailableWithContingency() {
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = Mockito.mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
+
+        FlowCnec cnecCont1 = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        FlowCnec cnecCont2 = crac.getFlowCnec("cnec2stateCurativeContingency2");
+        PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
+
+        RemedialAction<?> na = crac.newNetworkAction().withId("na1")
+            .newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).add()
+            .add();
+
+        // cnecCont1 is after same contingency as usage rule, not cnecCont2
+        // So the RA should only be available when cnecCont1 has a negative margin
+        when(flowResult.getMargin(any(), any())).thenReturn(100.);
+
+        when(flowResult.getMargin(eq(cnecCont1), any())).thenReturn(-10.);
+        when(flowResult.getMargin(eq(cnecCont2), any())).thenReturn(10.);
+        assertIsOnFlowInCountryAvailable(na, optimizedState, flowResult, true);
+
+        when(flowResult.getMargin(eq(cnecCont1), any())).thenReturn(10.);
+        when(flowResult.getMargin(eq(cnecCont2), any())).thenReturn(-10.);
+        assertIsOnFlowInCountryAvailable(na, optimizedState, flowResult, false);
+    }
+
+    private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
+        assertEquals(
+            available,
+            RaoUtil.canRemedialActionBeUsed(
+                ra,
+                optimizedState,
+                flowResult,
+                ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState),
+                network,
+                raoParameters
+            )
+        );
+    }
+
+    @Test
+    void testElementaryActionsLimitWithNonDiscretePsts() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        raoInput.getCrac().newRaUsageLimits(PREVENTIVE_INSTANT_ID).withMaxElementaryActionPerTso(Map.of("TSO", 2)).add();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
+    }
+
+    @Test
+    void testGetLastAvailableRangeActionOnSameNetworkElementWithOutageState() {
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(crac.getPreventiveState());
+        State outageState = Mockito.mock(State.class);
+        Mockito.when(outageState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
+        Mockito.when(outageState.getInstant()).thenReturn(crac.getInstant(InstantKind.OUTAGE));
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, crac.getRangeActions().iterator().next(), outageState)
+        );
+        assertEquals("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.", exception.getMessage());
+    }
+
+    @Test
+    void testGetLastAvailableRangeActionOnSameNetworkElementMultiCurative() {
+        Contingency contingency = crac.getContingency("Contingency FR1 FR3");
+
+        Instant curative1Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative1Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+
+        State curativeState1 = Mockito.mock(State.class);
+        Mockito.when(curativeState1.getInstant()).thenReturn(curative1Instant);
+        Mockito.when(curativeState1.getContingency()).thenReturn(Optional.of(contingency));
+
+        Instant curative2Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative2Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curative2Instant.isCurative()).thenReturn(true);
+
+        State curativeState2 = Mockito.mock(State.class);
+        Mockito.when(curativeState2.getInstant()).thenReturn(curative2Instant);
+        Mockito.when(curativeState2.getContingency()).thenReturn(Optional.of(contingency));
+
+        Instant curative3Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative3Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curative3Instant.isCurative()).thenReturn(true);
+
+        State curativeState3 = Mockito.mock(State.class);
+        Mockito.when(curativeState3.getInstant()).thenReturn(curative3Instant);
+        Mockito.when(curativeState3.getContingency()).thenReturn(Optional.of(contingency));
+
+        Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
+        Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
+
+        NetworkElement pst = Mockito.mock(NetworkElement.class);
+        Mockito.when(pst.getId()).thenReturn("pst");
+
+        RangeAction<?> rangeAction1 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction1.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction1.getId()).thenReturn("range-action-1");
+
+        RangeAction<?> rangeAction2 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
+
+        NetworkElement anotherNetworkElement = Mockito.mock(NetworkElement.class);
+        Mockito.when(anotherNetworkElement.getId()).thenReturn("another-network-element");
+
+        RangeAction<?> rangeAction3 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction3.getNetworkElements()).thenReturn(Set.of(pst, anotherNetworkElement));
+        Mockito.when(rangeAction3.getId()).thenReturn("range-action-3");
+
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1, rangeAction3), curativeState2, Set.of(rangeAction3)));
+
+        // rangeAction3 from curativeState2 is not chosen besause Set.of(pst, anotherNetworkElement) != Set.of(pst)
+        assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
+    }
+
+    @Test
+    void checkWarningThresholdInMwWithAc() {
+        ListAppender<ILoggingEvent> listAppender = ReportsTestUtils.getBusinessWarns();
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
+
+        Crac cracWIthTresholdInMwWithAc = new CracImplFactory().create("SimpleCracId", "SimpleCracName")
+            .newInstant("prev", InstantKind.PREVENTIVE);
+
+        cracWIthTresholdInMwWithAc.newFlowCnec()
+            .withId("cnecOneMwThresholdOneAmpThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+        cracWIthTresholdInMwWithAc.newFlowCnec()
+            .withId("cnecOneAmpThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+        cracWIthTresholdInMwWithAc.newFlowCnec()
+            .withId("cnecOneMwThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+
+        RaoInput raoInputThresholdInMwWithAc = Mockito.mock(RaoInput.class);
+        when(raoInputThresholdInMwWithAc.getCrac()).thenReturn(cracWIthTresholdInMwWithAc);
+        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInputThresholdInMwWithAc, ReportNode.NO_OP);
+
+        String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. " +
+            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        assertEquals(2, logsList.size());
+        assertEquals(expectedMsg1, logsList.getFirst().getFormattedMessage());
+        assertEquals(expectedMsg2, logsList.get(1).getFormattedMessage());
+        assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
+    }
+
+    @Test
+    void testCheckHvdcAcEmulationParameters() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setHvdcAcEmulation(false);
+
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        when(raoInput.getNetwork()).thenReturn(Mockito.mock(Network.class));
+        HvdcLine line1 = Mockito.mock(HvdcLine.class);
+        when(raoInput.getNetwork().getHvdcLineStream()).thenReturn(Stream.of(line1));
+        when(line1.getExtension(HvdcAngleDroopActivePowerControl.class)).thenReturn(Mockito.mock(HvdcAngleDroopActivePowerControl.class));
+        when(line1.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()).thenReturn(true);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkHvdcAcEmulationParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.", exception.getMessage());
+
+    }
+
+    @Test
+    void testGetFlowUnit() {
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+
+        // Cas DC -> MEGAWATT
+        getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(true);
+        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(parameters));
+
+        // Cas AC -> AMPERE
+        getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(parameters));
+    }
+
+    @Test
+    void testGetNumberOfConnectedComponent() {
+        int numberOfComponents = RaoUtil.getNumberOfConnectedComponent(network);
+        assertEquals(1, numberOfComponents);
+        network.getGenerator("FFR1AA1 _generator").getTerminal().disconnect();
+        network.getGenerator("FFR2AA1 _generator").getTerminal().disconnect();
+
+        Action elementaryAction1 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction1")
+            .withNetworkElementId("DDE2AA1  NNL3AA1  1")
+            .withOpen(true)
+            .build();
+        Action elementaryAction2 = new TerminalsConnectionActionBuilder()
+            .withId("elementaryAction2")
+            .withNetworkElementId("FFR2AA1  DDE3AA1  1")
+            .withOpen(true)
+            .build();
+        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
+        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
+        NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+        networkActionThatCreateAnIsland.apply(network);
+        assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
+    }
+
+    @Test
+    void testApplyContingencyWithInvalidContingency() {
+        crac.newContingency()
+            .withId("InvalidContingency")
+            .withContingencyElement("NonExistentElement", com.powsybl.contingency.ContingencyElementType.LINE)
+            .add();
+        State stateWithInvalidContingency = Mockito.mock(State.class);
+        when(stateWithInvalidContingency.getContingency()).thenReturn(Optional.of(crac.getContingency("InvalidContingency")));
+
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency)
+        );
+        assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideLimitDataForCheckRaUsageLimit")
+    void testCheckRaUsageLimit(String limitType, Map<String, Map<String, Integer>> usageLimitsByInstant, String expectedExceptionMessage) {
+        Crac crac = mock(Crac.class);
+        Instant instant1 = mock(Instant.class);
+        Instant instant2 = mock(Instant.class);
+        Instant instant3 = mock(Instant.class);
+        SortedSet<Instant> instants = new TreeSet<>();
+        instants.add(instant1);
+        instants.add(instant2);
+        instants.add(instant3);
+        RaUsageLimits usageLimits1 = new RaUsageLimits();
+        RaUsageLimits usageLimits2 = new RaUsageLimits();
+        RaUsageLimits usageLimits3 = new RaUsageLimits();
+
+        // Set data for the specified limit type
+        setUsageLimitsData(usageLimits1, usageLimitsByInstant.get("instant1"), limitType);
+        setUsageLimitsData(usageLimits2, usageLimitsByInstant.get("instant2"), limitType);
+        setUsageLimitsData(usageLimits3, usageLimitsByInstant.get("instant3"), limitType);
+
+        when(instant1.getId()).thenReturn("instant1");
+        when(instant2.getId()).thenReturn("instant2");
+        when(instant3.getId()).thenReturn("instant3");
+
+        when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(instants);
+        when(crac.getRaUsageLimits(instant1)).thenReturn(usageLimits1);
+        when(crac.getRaUsageLimits(instant2)).thenReturn(usageLimits2);
+        when(crac.getRaUsageLimits(instant3)).thenReturn(usageLimits3);
+
+        // Act & Assert
+        if (expectedExceptionMessage != null) {
+            Exception exception = assertThrows(OpenRaoException.class, () -> checkCurativeRaUsageLimit(crac));
+            assertEquals(expectedExceptionMessage, exception.getMessage());
+        } else {
+            assertDoesNotThrow(() -> checkCurativeRaUsageLimit(crac));
+        }
+    }
+
+    private static void setUsageLimitsData(RaUsageLimits usageLimits, Map<String, Integer> data, String limitType) {
+        switch (limitType) {
+            case "maxRaPerTso":
+                usageLimits.setMaxRaPerTso(data);
+                break;
+            case "maxPstPerTso":
+                usageLimits.setMaxPstPerTso(data);
+                break;
+            case "maxTopoPerTso":
+                usageLimits.setMaxTopoPerTso(data);
+                break;
+            case "maxElementaryActionsPerTso":
+                usageLimits.setMaxElementaryActionsPerTso(data);
+                break;
+            case "maxRa":
+                usageLimits.setMaxRa(data.get(null));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid limit type: " + limitType);
+        }
+
+    }
+
+    private static Stream<Arguments> provideLimitDataForCheckRaUsageLimit() {
+        Map<String, Map<String, Integer>> incorrectData = Map.of(
+            "instant1", Map.of("TSO1", 5, "TSO2", 10),
+            "instant2", Map.of("TSO2", 20), // TSO1 is missing (null implied)
+            "instant3", Map.of("TSO1", 25, "TSO2", 30)
+        );
+
+        return Stream.of(
+            // Test case: maxPstPerTso with valid data (no exception)
+            Arguments.of(
+                "maxPstPerTso",
+                Map.of(
+                    "instant1", Map.of("TSO1", 5, "TSO2", 10),
+                    "instant2", Map.of("TSO1", 15, "TSO2", 20),
+                    "instant3", Map.of("TSO1", 25, "TSO2", 30)
+                ),
+                null // No exception expected
+            ),
+
+            // Test case: missing first or last instant's limit
+            Arguments.of(
+                "maxPstPerTso",
+                Map.of(
+                    "instant1", Map.of("TSO1", 5),
+                    "instant2", Map.of("TSO1", 15, "TSO2", 20),
+                    "instant3", Map.of("TSO2", 30)
+                ),
+                null // No exception expected
+            ),
+
+            Arguments.of(
+                "maxRaPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxRaPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxPstPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxPstPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxTopoPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxTopoPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxElementaryActionsPerTso",
+                incorrectData,
+                "Incoherence found for limit 'maxElementaryActionsPerTso' and TSO TSO1: null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxRa",
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, null), "instant3", Collections.singletonMap(null, 3)),
+                "Incoherence found for limit 'maxRa': null value found between non-null values for instant instant2."
+            ),
+
+            Arguments.of(
+                "maxRa",
+                Map.of("instant1", Collections.singletonMap(null, 1), "instant2", Collections.singletonMap(null, 45), "instant3", Collections.singletonMap(null, 3)),
+                "Incoherence found for limit 'maxRa': the value decreased between instant instant2 (limit=45) and instant instant3 (limit=3)."
+            )
+        );
+    }
+}

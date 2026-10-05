@@ -18,7 +18,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
+import com.powsybl.openrao.optimization.searchtree.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
