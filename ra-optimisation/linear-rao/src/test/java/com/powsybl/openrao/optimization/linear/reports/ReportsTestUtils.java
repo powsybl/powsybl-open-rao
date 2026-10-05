@@ -13,6 +13,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.optimization.commons.reports.OptimizationCommonReportResourceBundle;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public final class ReportsTestUtils {
 
     public static ReportNode getTestRootNode() {
         return ReportNode.newRootReportNode()
-            .withResourceBundles(TestReportResourceBundle.BASE_NAME, LinearRaoReportResourceBundle.BASE_NAME)
+            .withResourceBundles(TestReportResourceBundle.BASE_NAME, OptimizationCommonReportResourceBundle.BASE_NAME, LinearRaoReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .withLocale(Locale.ENGLISH)
             .build();

@@ -29,7 +29,7 @@ public final class ReportsTestUtils {
 
     public static ReportNode getTestRootNode() {
         return ReportNode.newRootReportNode()
-            .withResourceBundles(TestReportResourceBundle.BASE_NAME, OptimizationCommonReportResourceBundle.BASE_NAME)
+            .withResourceBundles(TestReportResourceBundle.BASE_NAME, OptimizationCommonReportResourceBundle.BASE_NAME, SearchTreeRaoReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test.rootnode")
             .withLocale(Locale.ENGLISH)
             .build();
