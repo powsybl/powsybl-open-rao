@@ -54,6 +54,9 @@ public class Perimeter {
     }
 
     void addOtherState(State state) {
+        if (state == null) {
+            return;
+        }
         boolean isRaOptimizationState = checkStateConsistency(state);
         if (!isRaOptimizationState) {
             cnecStates.add(state);
