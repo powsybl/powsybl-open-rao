@@ -14,6 +14,12 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.optimization.commons.RaoUtil;
+import com.powsybl.openrao.optimization.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.optimization.commons.parameters.TreeParameters;
+import com.powsybl.openrao.optimization.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
+import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -27,12 +33,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
-import com.powsybl.openrao.optimization.commons.RaoUtil;
-import com.powsybl.openrao.optimization.commons.parameters.NetworkActionParameters;
-import com.powsybl.openrao.optimization.commons.parameters.TreeParameters;
-import com.powsybl.openrao.optimization.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
-import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
 import java.util.Map;

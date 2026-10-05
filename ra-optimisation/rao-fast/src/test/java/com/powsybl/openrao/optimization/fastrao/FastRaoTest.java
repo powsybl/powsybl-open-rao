@@ -15,13 +15,13 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.optimization.commons.result.impl.FailedRaoResultImpl;
+import com.powsybl.openrao.optimization.commons.result.impl.FastRaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.optimization.commons.result.impl.FailedRaoResultImpl;
-import com.powsybl.openrao.optimization.commons.result.impl.FastRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

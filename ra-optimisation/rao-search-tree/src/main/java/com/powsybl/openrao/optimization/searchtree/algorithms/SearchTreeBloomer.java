@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.optimization.commons.NetworkActionCombination;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
-import com.powsybl.openrao.optimization.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.optimization.commons.searchtree.parameters.SearchTreeParameters;
+import com.powsybl.openrao.optimization.searchtree.inputs.SearchTreeInput;
 
 import java.util.ArrayList;
 import java.util.HashMap;

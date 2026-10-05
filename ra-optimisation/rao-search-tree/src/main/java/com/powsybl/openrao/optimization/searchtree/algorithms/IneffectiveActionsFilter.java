@@ -13,8 +13,8 @@ import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.optimization.commons.NetworkActionCombination;
-import com.powsybl.openrao.optimization.searchtree.reports.SearchTreeReports;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
+import com.powsybl.openrao.optimization.searchtree.reports.SearchTreeReports;
 
 import java.util.HashSet;
 import java.util.List;

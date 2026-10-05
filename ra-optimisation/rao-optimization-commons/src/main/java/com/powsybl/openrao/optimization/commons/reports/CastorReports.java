@@ -13,8 +13,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.optimization.commons.castor.algorithm.Perimeter;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
@@ -23,6 +21,8 @@ import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Comparator;

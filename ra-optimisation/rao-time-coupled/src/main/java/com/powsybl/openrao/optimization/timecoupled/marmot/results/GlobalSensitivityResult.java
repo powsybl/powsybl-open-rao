@@ -14,8 +14,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 import com.powsybl.openrao.optimization.commons.result.api.SensitivityResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.HashSet;

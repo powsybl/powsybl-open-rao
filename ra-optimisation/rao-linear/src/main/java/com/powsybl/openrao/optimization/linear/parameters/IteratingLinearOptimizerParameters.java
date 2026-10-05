@@ -9,6 +9,8 @@ package com.powsybl.openrao.optimization.linear.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.optimization.commons.parameters.RangeActionLimitationParameters;
+import com.powsybl.openrao.optimization.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -19,8 +21,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
-import com.powsybl.openrao.optimization.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.optimization.commons.parameters.UnoptimizedCnecParameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

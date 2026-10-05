@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.optimization.linear.algorithms.linearproblem;
 
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.optimization.linear.algorithms.ProblemFillerHelper;
 import com.powsybl.openrao.optimization.linear.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 import java.util.ArrayList;
 import java.util.List;

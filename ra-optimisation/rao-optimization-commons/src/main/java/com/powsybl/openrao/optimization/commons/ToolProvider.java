@@ -23,11 +23,11 @@ import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
+import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
-import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -40,9 +40,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.optimization.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static com.powsybl.openrao.optimization.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

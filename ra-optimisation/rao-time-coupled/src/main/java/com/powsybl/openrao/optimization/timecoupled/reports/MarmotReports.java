@@ -8,9 +8,10 @@
 package com.powsybl.openrao.optimization.timecoupled.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.optimization.timecoupled.marmot.Marmot;
+import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.optimization.commons.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.Marmot;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.time.OffsetDateTime;
 import java.util.List;

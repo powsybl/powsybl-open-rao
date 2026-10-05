@@ -26,7 +26,6 @@ import com.powsybl.openrao.data.crac.impl.PostContingencyState;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.castor.algorithm.Perimeter;
 import com.powsybl.openrao.optimization.commons.castor.algorithm.StateTree;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
@@ -35,6 +34,7 @@ import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResu
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Collections;
 import java.util.Comparator;

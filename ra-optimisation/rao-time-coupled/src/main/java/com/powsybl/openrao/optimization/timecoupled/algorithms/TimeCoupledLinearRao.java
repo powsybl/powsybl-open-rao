@@ -18,29 +18,12 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.optimization.commons.RaoUtil;
 import com.powsybl.openrao.optimization.commons.ToolProvider;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
-import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
-import com.powsybl.openrao.optimization.timecoupled.marmot.TimeCoupledIteratingLinearOptimizer;
-import com.powsybl.openrao.optimization.timecoupled.marmot.TimeCoupledIteratingLinearOptimizerInput;
-import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalFlowResult;
-import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.optimization.timecoupled.marmot.results.TimeCoupledRaoResultImpl;
-import com.powsybl.openrao.optimization.timecoupled.reports.TimeCoupledLinearRaoReports;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.LinearProblemStatus;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
@@ -51,6 +34,23 @@ import com.powsybl.openrao.optimization.commons.result.impl.NetworkActionsResult
 import com.powsybl.openrao.optimization.commons.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
+import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
+import com.powsybl.openrao.optimization.timecoupled.marmot.TimeCoupledIteratingLinearOptimizer;
+import com.powsybl.openrao.optimization.timecoupled.marmot.TimeCoupledIteratingLinearOptimizerInput;
+import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalFlowResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.optimization.timecoupled.reports.TimeCoupledLinearRaoReports;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -62,9 +62,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.optimization.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
-import static com.powsybl.openrao.optimization.commons.RaoUtil.getFlowUnit;
 
 /**
  * Time-coupled RAO provider running a single global linear optimization of all the range actions

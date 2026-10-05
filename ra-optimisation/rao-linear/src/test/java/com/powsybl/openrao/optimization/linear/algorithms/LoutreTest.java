@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.optimization.linear.algorithms.Loutre;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

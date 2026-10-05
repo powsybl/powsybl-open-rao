@@ -13,14 +13,14 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.optimization.commons.RaoUtil;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.optimization.commons.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.optimization.commons.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;

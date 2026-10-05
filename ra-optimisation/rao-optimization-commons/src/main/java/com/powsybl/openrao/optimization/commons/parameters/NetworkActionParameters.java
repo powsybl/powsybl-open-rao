@@ -10,11 +10,11 @@ package com.powsybl.openrao.optimization.commons.parameters;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.optimization.commons.NetworkActionCombination;
+import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
-import com.powsybl.openrao.optimization.commons.NetworkActionCombination;
-import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 
 import java.util.ArrayList;
 import java.util.HashSet;

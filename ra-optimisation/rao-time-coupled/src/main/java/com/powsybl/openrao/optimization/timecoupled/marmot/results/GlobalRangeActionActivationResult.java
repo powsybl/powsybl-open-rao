@@ -11,8 +11,8 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;

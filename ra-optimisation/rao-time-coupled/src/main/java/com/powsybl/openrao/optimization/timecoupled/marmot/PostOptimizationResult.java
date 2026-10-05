@@ -20,14 +20,14 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Map;
 import java.util.Set;

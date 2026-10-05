@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.optimization.commons.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.optimization.searchtree.algorithms.Leaf;
 import com.powsybl.openrao.optimization.searchtree.algorithms.SearchTree;
-import com.powsybl.openrao.optimization.commons.searchtree.parameters.SearchTreeParameters;
 
 import java.util.Locale;
 import java.util.Objects;

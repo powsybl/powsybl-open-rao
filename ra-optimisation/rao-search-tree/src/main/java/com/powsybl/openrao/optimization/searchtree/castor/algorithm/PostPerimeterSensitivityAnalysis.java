@@ -15,9 +15,9 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.SensitivityComputer;
 import com.powsybl.openrao.optimization.commons.ToolProvider;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.AbstractMultiPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;
@@ -30,6 +30,7 @@ import com.powsybl.openrao.optimization.commons.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;

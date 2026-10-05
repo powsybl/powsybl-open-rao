@@ -8,10 +8,10 @@
 package com.powsybl.openrao.optimization.commons.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;

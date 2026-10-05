@@ -13,12 +13,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoProvider;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.optimization.commons.RaoUtil;
 import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.optimization.commons.result.impl.FailedRaoResultImpl;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;

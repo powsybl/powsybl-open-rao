@@ -23,14 +23,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.optimization.commons.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.optimization.commons.ToolProvider;
-import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.optimization.timecoupled.reports.MarmotReports;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
@@ -38,6 +32,12 @@ import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivat
 import com.powsybl.openrao.optimization.commons.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.optimization.timecoupled.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.optimization.timecoupled.reports.MarmotReports;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.ByteArrayInputStream;

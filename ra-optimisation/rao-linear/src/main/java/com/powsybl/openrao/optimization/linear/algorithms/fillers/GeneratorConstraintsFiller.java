@@ -18,13 +18,13 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPConstraint;
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.api.SensitivityResult;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.OpenRaoMPVariable;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 
 import java.time.OffsetDateTime;
 import java.util.Comparator;

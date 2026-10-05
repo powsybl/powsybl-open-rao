@@ -25,25 +25,25 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.reports.CommonReports;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.powsybl.openrao.optimization.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.optimization.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
-import static com.powsybl.openrao.optimization.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
-import static com.powsybl.openrao.optimization.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static java.lang.String.format;
 
 /**

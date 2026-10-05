@@ -16,17 +16,18 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.optimization.commons.ToolProvider;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.ContingencyScenario;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.Perimeter;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.optimization.commons.castor.algorithm.StateTree;
+import com.powsybl.openrao.optimization.commons.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.AbstractOptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.parameters.TreeParameters;
 import com.powsybl.openrao.optimization.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.optimization.commons.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.optimization.commons.reports.CastorReports;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;
@@ -44,9 +45,12 @@ import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivatio
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.SkippedOptimizationResultImpl;
+import com.powsybl.openrao.optimization.commons.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.optimization.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.optimization.searchtree.inputs.SearchTreeInput;
-import com.powsybl.openrao.optimization.commons.searchtree.parameters.SearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashMap;
@@ -64,10 +68,10 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
-import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 import static com.powsybl.openrao.optimization.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 import static com.powsybl.openrao.optimization.commons.RaoUtil.applyRemedialActions;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

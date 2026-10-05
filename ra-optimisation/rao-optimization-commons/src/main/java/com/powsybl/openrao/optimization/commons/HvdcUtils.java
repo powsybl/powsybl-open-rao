@@ -29,10 +29,10 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdde
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
+import com.powsybl.openrao.optimization.commons.reports.CastorReports;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.optimization.commons.reports.CastorReports;
 
 import java.util.HashMap;
 import java.util.Map;

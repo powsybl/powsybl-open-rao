@@ -10,6 +10,7 @@ package com.powsybl.openrao.optimization.timecoupled.reports;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.openrao.optimization.commons.reports.ReportsTestUtils;
 import com.powsybl.openrao.optimization.timecoupled.marmot.Marmot;
 import org.junit.jupiter.api.Test;
 

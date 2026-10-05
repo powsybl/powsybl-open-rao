@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.optimization.commons.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -34,7 +35,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.optimization.commons.result.impl.FailedRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;

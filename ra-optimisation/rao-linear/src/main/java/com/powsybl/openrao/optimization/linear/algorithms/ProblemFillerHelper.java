@@ -10,7 +10,6 @@ package com.powsybl.openrao.optimization.linear.algorithms;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.optimization.linear.algorithms.fillers.ContinuousRangeActionGroupFiller;
 import com.powsybl.openrao.optimization.linear.algorithms.fillers.CostCoreProblemFiller;
@@ -26,6 +25,7 @@ import com.powsybl.openrao.optimization.linear.algorithms.fillers.RaUsageLimitsF
 import com.powsybl.openrao.optimization.linear.algorithms.fillers.UnoptimizedCnecFiller;
 import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;

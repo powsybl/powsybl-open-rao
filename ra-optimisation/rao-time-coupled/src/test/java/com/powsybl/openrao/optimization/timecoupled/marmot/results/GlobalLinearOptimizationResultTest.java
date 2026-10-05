@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.optimization.timecoupled.marmot.TestsUtils;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.LinearProblemStatus;
@@ -24,6 +23,7 @@ import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResu
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.api.SensitivityResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.TestsUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

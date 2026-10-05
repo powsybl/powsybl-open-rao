@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.optimization.linear.algorithms.fillers;
 
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.api.SensitivityResult;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}

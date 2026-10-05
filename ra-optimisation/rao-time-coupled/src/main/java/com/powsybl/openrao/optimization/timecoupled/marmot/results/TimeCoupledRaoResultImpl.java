@@ -22,8 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;

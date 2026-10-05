@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
+import com.powsybl.openrao.optimization.timecoupled.marmot.MarmotUtils;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;

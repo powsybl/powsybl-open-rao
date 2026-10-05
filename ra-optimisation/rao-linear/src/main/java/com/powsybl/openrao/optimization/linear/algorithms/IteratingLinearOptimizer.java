@@ -15,15 +15,10 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.optimization.commons.SensitivityComputer;
 import com.powsybl.openrao.optimization.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
-import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.optimization.linear.reports.LinearOptimizerReports;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.LinearProblemStatus;
@@ -32,9 +27,14 @@ import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResu
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.optimization.commons.result.api.SensitivityResult;
 import com.powsybl.openrao.optimization.commons.result.impl.IteratingLinearOptimizationResultImpl;
-import com.powsybl.openrao.optimization.linear.LinearProblemResult;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.optimization.linear.LinearProblemResult;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.optimization.linear.inputs.IteratingLinearOptimizerInput;
+import com.powsybl.openrao.optimization.linear.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.optimization.linear.reports.LinearOptimizerReports;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -43,9 +43,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static com.powsybl.openrao.optimization.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
 import static com.powsybl.openrao.optimization.commons.HvdcUtils.isAcEmulationDeactivationAction;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

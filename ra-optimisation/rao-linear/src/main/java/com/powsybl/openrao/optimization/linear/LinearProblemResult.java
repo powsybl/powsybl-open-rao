@@ -10,9 +10,9 @@ package com.powsybl.openrao.optimization.linear;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.optimization.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.optimization.commons.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.optimization.commons.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.optimization.linear.algorithms.linearproblem.LinearProblem;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

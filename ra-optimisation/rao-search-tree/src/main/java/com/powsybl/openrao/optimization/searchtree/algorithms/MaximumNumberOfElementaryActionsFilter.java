@@ -10,8 +10,8 @@ package com.powsybl.openrao.optimization.searchtree.algorithms;
 import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.optimization.commons.NetworkActionCombination;
-import com.powsybl.openrao.optimization.searchtree.reports.SearchTreeReports;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
+import com.powsybl.openrao.optimization.searchtree.reports.SearchTreeReports;
 
 import java.util.HashMap;
 import java.util.HashSet;
