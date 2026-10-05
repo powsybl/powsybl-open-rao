@@ -642,6 +642,38 @@ public final class LinearProblem {
         return solver.getConstraint(counterTradeAreaBalanceConstraintId(rangeAction, state));
     }
 
+    public OpenRaoMPVariable addCounterTradeDirectionBinary(String areaId, State state) {
+        return solver.makeBoolVar(counterTradeDirectionBinaryVariableId(areaId, state));
+    }
+
+    public OpenRaoMPVariable getCounterTradeDirectionBinary(String areaId, State state) {
+        return solver.getVariable(counterTradeDirectionBinaryVariableId(areaId, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeSetpointDecompositionConstraint(String areaId, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeSetpointDecompositionConstraintId(areaId, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeExclusivityConstraint(double ub, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(-infinity(), ub, counterTradeExclusivityConstraintId(areaId, state, variation));
+    }
+
+    public OpenRaoMPVariable addCounterTradeGeneratorDispatchVariable(double ub, String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeNumVar(0.0, ub, counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPVariable addCounterTradeGeneratorSaturationBinary(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeBoolVar(counterTradeGeneratorSaturationBinaryVariableId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeGeneratorSaturationLinkConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(0, infinity(), counterTradeGeneratorSaturationLinkConstraintId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeGeneratorOrderConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(-infinity(), 0, counterTradeGeneratorOrderConstraintId(generatorId, areaId, state, variation));
+    }
+
     public double infinity() {
         return solver.infinity();
     }

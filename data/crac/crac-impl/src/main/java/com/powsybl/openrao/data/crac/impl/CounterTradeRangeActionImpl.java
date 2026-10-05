@@ -12,6 +12,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
+import com.powsybl.openrao.commons.GeneratorOrderingComputer;
+import com.powsybl.openrao.commons.GlskGeneratorAllocation;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
@@ -34,6 +37,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
     private Map<String, Map<String, Double>> glsk;
+    private CounterTradeGeneratorOrdering generatorOrdering;
 
     CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
                                 List<StandardRange> ranges, Double initialSetpoint, Integer speed,
@@ -104,8 +108,14 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     @Override
     public void apply(Network network, double setpoint) {
-        Map<String, Double> currentArea = glsk.get(area);
-        currentArea.forEach((key, value) -> applyCT(network, key, setpoint * value));
+        boolean upward = setpoint >= 0;
+        List<GlskGeneratorAllocation> order = upward ? generatorOrdering.upwardOrder() : generatorOrdering.downwardOrder();
+
+        Map<String, Double> dispatch = GeneratorOrderingComputer.computeDispatchQuantity(
+            order, GeneratorOrderingComputer.stageAllocation(order, Math.abs(setpoint)));
+
+        double sign = upward ? 1.0 : -1.0;
+        dispatch.forEach((generatorId, p) -> applyCT(network, generatorId, sign * p));
     }
 
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
@@ -183,5 +193,15 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     public Map<String, Map<String, Double>> getGlsk() {
         return glsk;
+    }
+
+    public void computeGeneratorOrdering(Network network) {
+        String areaId = getArea();
+        Map<String, Double> weights = getGlsk().get(areaId);
+        this.generatorOrdering = GeneratorOrderingComputer.compute(weights, network);
+    }
+
+    public CounterTradeGeneratorOrdering getGeneratorOrdering() {
+        return generatorOrdering;
     }
 }

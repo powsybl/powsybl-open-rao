@@ -123,31 +123,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         }
     }
 
-    public Map<String, Map<String, Double>> getGlsk(Network network) {
-        Map<String, Map<String, Double>> allGlsks =
-                network.getAreaStream().collect(Collectors.toMap(Identifiable::getId, area -> new HashMap<>()));
-
-        network.getGeneratorStream()
-               .filter(g -> g.getTerminal().isConnected())
-               .forEach(generator -> generator.getTerminal()
-                                              .getVoltageLevel()
-                                              .getAreasStream()
-                                              .forEach(area -> allGlsks.get(area.getId())
-                                                                       .put(generator.getId(),
-                                                                            generator.getTargetP())));
-
-        allGlsks.forEach((area, glsk) -> {
-            double glskSum = glsk.values().stream().mapToDouble(factor -> factor).sum();
-            if (glskSum == 0.0) {
-                glsk.forEach((key, value) -> glsk.put(key, 1.0 / glsk.size()));
-            } else {
-                glsk.forEach((key, value) -> glsk.put(key, value / glskSum));
-            }
-        });
-        // TODO: do the same for the loads, with negative sign? Remove it all?
-        return allGlsks;
-    }
-
     private Map<String, Float> getPositiveGlskMap(Map<String, Double> glsk) {
         return glsk.entrySet()
                 .stream().filter(e -> e.getValue() > 0)
@@ -166,6 +141,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
         var glsk = counterTradeRangeAction.getGlsk();
         var area = glsk.get(counterTradeRangeAction.getArea());
+        counterTradeRangeAction.computeGeneratorOrdering(network);
 
         var positiveGlskMap = getPositiveGlskMap(area);
 
