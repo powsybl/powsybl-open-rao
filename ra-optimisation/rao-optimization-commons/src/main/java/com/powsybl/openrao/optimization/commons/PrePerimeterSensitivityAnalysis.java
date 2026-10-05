@@ -25,6 +25,8 @@ import com.powsybl.openrao.optimization.commons.result.impl.RemedialActionActiva
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -83,7 +85,7 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
             initialFlowResult,
             operatorsNotSharingCras,
             raoParameters,
-            Set.of(crac.getPreventiveState())
+            Objects.isNull(crac.getPreventiveState()) ? Collections.emptySet() : Set.of(crac.getPreventiveState())
         );
 
         return runAndGetResult(network, objectiveFunction, reportNode);

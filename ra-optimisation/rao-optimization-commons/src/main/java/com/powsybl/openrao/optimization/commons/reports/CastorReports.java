@@ -491,7 +491,7 @@ public final class CastorReports {
     }
 
     public static void reportExceptionMessageAndStacktrace(final ReportNode parentNode, final Exception exception) {
-        final String exceptionMessage = exception.getMessage();
+        final String exceptionMessage = Objects.isNull(exception.getMessage()) ? "" : exception.getMessage();
         final String stackTrace = ExceptionUtils.getStackTrace(exception);
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportExceptionMessageAndStacktrace")
