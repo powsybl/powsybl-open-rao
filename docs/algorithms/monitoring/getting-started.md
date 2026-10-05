@@ -36,7 +36,7 @@ object, which is equivalent to the initial one, augmented by the relevant result
 - The [computation status](../../output-data/rao-result.md#computation-status) of the RAO is updated
 - The [activated network actions](../../output-data/rao-result.md#network-actions-results) are updated
 - The [angle](../../output-data/rao-result.md#angle) & [margin](../../output-data/rao-result.md#margin-1) values for angle CNECs are updated in case of angle monitoring
-- The [voltage](../../output-data/rao-result.md#voltage) & [margin](../../output-data/rao-result.md#margin-2) values for voltage CNECs are updated in case of voltage monitoring
+- The [voltage](../../output-data/rao-result.md#voltage) & [margin](../../output-data/rao-result.md#id3) values for voltage CNECs are updated in case of voltage monitoring
 
 > See [angle CNECs results](../../output-data/rao-result.md#angle-cnecs-results) and [voltage CNECs results](../../output-data/rao-result.md#voltage-cnecs-results) sections of the RaoResult documentation for more details.
 
