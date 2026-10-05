@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.optimization.searchtree.castor.algorithm;
+package com.powsybl.openrao.optimization.searchtree.castor;
 
 import com.powsybl.openrao.optimization.commons.parameters.TreeParameters;
 import com.powsybl.openrao.optimization.commons.result.api.ObjectiveFunctionResult;

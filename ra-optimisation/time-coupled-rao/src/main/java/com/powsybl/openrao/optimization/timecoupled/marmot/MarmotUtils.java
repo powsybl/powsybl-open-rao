@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.optimization.commons.ToolProvider;
-import com.powsybl.openrao.optimization.commons.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.optimization.commons.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.optimization.commons.result.api.FlowResult;
 import com.powsybl.openrao.optimization.commons.result.api.NetworkActionsResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;

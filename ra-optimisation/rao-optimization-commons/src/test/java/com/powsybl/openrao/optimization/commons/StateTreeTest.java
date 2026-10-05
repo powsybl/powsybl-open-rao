@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.optimization.commons.castor.algorithm;
+package com.powsybl.openrao.optimization.commons;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;

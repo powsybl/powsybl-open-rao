@@ -24,7 +24,7 @@ import java.util.Set;
 
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.openrao.optimization.searchtree.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
+import static com.powsybl.openrao.optimization.searchtree.castor.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}

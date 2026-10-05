@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.optimization.searchtree.castor.algorithm;
+package com.powsybl.openrao.optimization.searchtree.castor;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
@@ -23,7 +23,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.optimization.commons.castor.algorithm.StateTree;
+import com.powsybl.openrao.optimization.commons.StateTree;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.optimization.commons.result.impl.PostPerimeterResult;

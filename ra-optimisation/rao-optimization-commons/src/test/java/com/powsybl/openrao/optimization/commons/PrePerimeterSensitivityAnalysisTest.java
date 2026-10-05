@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.optimization.commons.castor.algorithm;
+package com.powsybl.openrao.optimization.commons;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -17,8 +17,6 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
-import com.powsybl.openrao.optimization.commons.AbsolutePtdfSumsComputation;
-import com.powsybl.openrao.optimization.commons.ToolProvider;
 import com.powsybl.openrao.optimization.commons.result.api.OptimizationResult;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;

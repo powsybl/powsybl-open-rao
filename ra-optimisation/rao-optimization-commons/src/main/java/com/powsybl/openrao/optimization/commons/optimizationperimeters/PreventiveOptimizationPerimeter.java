@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.optimization.commons.RaoUtil;
-import com.powsybl.openrao.optimization.commons.castor.algorithm.Perimeter;
+import com.powsybl.openrao.optimization.commons.Perimeter;
 import com.powsybl.openrao.optimization.commons.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
