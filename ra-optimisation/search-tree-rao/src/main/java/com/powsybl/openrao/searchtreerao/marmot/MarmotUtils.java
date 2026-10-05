@@ -228,7 +228,7 @@ public final class MarmotUtils {
         return lazyNetworks;
     }
 
-    public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
+    public static TemporalData<RaoInput> merge(TemporalData<Network> networks, TemporalData<Crac> cracs) {
         Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
         for (OffsetDateTime timestamp : networks.getTimestamps()) {
             raoInputs.put(timestamp, RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build());
@@ -239,6 +239,10 @@ public final class MarmotUtils {
 
     public static <N extends Network> void releaseAllWithoutOverwrite(TemporalData<N> networks) {
         networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetworkWithoutOverwrite);
+    }
+
+    public static <N extends Network> void releaseAllWithOverwrite(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
     }
 
     public static <N extends Network> void closeAll(TemporalData<N> networks) {
