@@ -12,7 +12,7 @@
     <artifactId>open-rao-linear-rao</artifactId>
     <packaging>jar</packaging>
     <name>Open RAO linear optimization</name>
-    <description>Linear optimization algorithms and LOUTRe RAO implementation</description>
+    <description>Linear optimization algorithms</description>
 
     <build>
         <plugins>

@@ -1,5 +1,5 @@
 {
-  "version" : "3.6",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : true
@@ -40,9 +40,6 @@
       "number-of-threads" : 1515,
       "curative-range-actions-synchronization" : true,
       "curative-topological-actions-synchronization" : true
-    },
-    "loutre-parameters" : {
-      "forced-network-actions" : [ "na1", "na2" ]
     },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {

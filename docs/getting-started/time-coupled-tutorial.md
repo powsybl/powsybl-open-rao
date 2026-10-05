@@ -245,7 +245,7 @@ expenses for the remedial actions among all timestamps.
 
 ```json
 {
-  "version": "3.6",
+  "version": "3.5",
   "objective-function": {
     "type": "MIN_COST",
     "enforce-curative-security": false
