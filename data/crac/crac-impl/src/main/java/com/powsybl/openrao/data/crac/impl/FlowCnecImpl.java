@@ -94,36 +94,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
-
-        if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
-            throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
-        }
-        if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
-            Set<BranchThreshold> limitingThresholds = thresholds.stream()
-                .filter(Threshold::limitsByMin)
-                .filter(branchThreshold -> branchThreshold.getSide().equals(side))
-                .collect(Collectors.toSet());
-
-            if (!limitingThresholds.isEmpty()) {
-                double lowerBound = Double.NEGATIVE_INFINITY;
-                for (BranchThreshold threshold : limitingThresholds) {
-                    double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
-                    Unit initialUnit = threshold.getUnit();
-                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
-                        initialUnit = Unit.AMPERE;
-                    }
-                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                    currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
-                    if (currentBound > lowerBound) {
-                        lowerBound = currentBound;
-                    }
-                }
-                bounds.setLowerBound(lowerBound, side, requestedUnit);
-            } else {
-                bounds.setLowerBound(null, side, requestedUnit);
-            }
-        }
-        return Optional.ofNullable(bounds.getLowerBound(side, requestedUnit));
+        var ub = this.getUpperBound(side, requestedUnit);
+        return ub.map(aDouble -> aDouble * -1);
     }
 
     @Override
