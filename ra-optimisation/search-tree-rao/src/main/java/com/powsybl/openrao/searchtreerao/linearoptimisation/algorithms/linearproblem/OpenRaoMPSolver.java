@@ -16,6 +16,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -179,6 +180,7 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
+        mpSolver.write("/tmp/mip_rao_" + LocalDateTime.now() + ".mps");
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
@@ -233,7 +235,6 @@ public class OpenRaoMPSolver {
         MPVariable[] variables = new MPVariable[hintValues.size()];
         int counter = 0;
         for (Map.Entry<OpenRaoMPVariable, Double> entry : hintValues.entrySet()) {
-            System.out.println(entry.getKey().getMPVariable().name() + " : " + entry.getValue());
             variables[counter] = entry.getKey().getMPVariable();
             values[counter] = entry.getValue();
             counter++;

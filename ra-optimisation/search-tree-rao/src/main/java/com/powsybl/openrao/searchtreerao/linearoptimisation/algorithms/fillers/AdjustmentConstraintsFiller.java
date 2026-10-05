@@ -52,7 +52,6 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
     private final List<OffsetDateTime> timestamps;
     private final double timestampDuration;
     private final IteratingLinearOptimizerParameters parameters;
-    private int iteration = 0;
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
     private static final double DEFAULT_P_MAX = 10000.0;
@@ -147,18 +146,22 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
         }
         // for psts, remove cost of being far from initial setpoint
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            if (APPROXIMATED_INTEGERS == parameters.getRangeActionParametersExtension().getPstModel()) {
-                OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
-                linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
-                OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
-                linearProblem.getObjective().setCoefficient(tapVariationDownward, 0.);
-                if (nextTimestamp == timestamps.getLast()) {
-                    OpenRaoMPVariable lastTapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), UPWARD);
-                    linearProblem.getObjective().setCoefficient(lastTapVariationUpward, 0.);
-                    OpenRaoMPVariable lastTapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), DOWNWARD);
-                    linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
+            try {
+                if (APPROXIMATED_INTEGERS == parameters.getRangeActionParametersExtension().getPstModel()) {
+                    OpenRaoMPVariable tapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), UPWARD);
+                    linearProblem.getObjective().setCoefficient(tapVariationUpward, 0.);
+                    OpenRaoMPVariable tapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(timestamp).orElseThrow(), DOWNWARD);
+                    linearProblem.getObjective().setCoefficient(tapVariationDownward, 0.);
+                    if (nextTimestamp == timestamps.getLast()) {
+                        OpenRaoMPVariable lastTapVariationUpward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), UPWARD);
+                        linearProblem.getObjective().setCoefficient(lastTapVariationUpward, 0.);
+                        OpenRaoMPVariable lastTapVariationDownward = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, preventiveStates.getData(nextTimestamp).orElseThrow(), DOWNWARD);
+                        linearProblem.getObjective().setCoefficient(lastTapVariationDownward, 0.);
 
+                    }
                 }
+            } catch (Exception e) {
+                //do nothing, first iteration doesnt have taps
             }
         }
         // instead penalize number of adjustments
@@ -490,6 +493,22 @@ public class AdjustmentConstraintsFiller implements ProblemFiller {
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do
+        int numberOfTimestamps = rangeActionsPerTimestamp.getTimestamps().size();
+        for (AdjustmentConstraints individualAdjustmentConstraints : adjustmentConstraints) {
+            String rangeActionId = individualAdjustmentConstraints.getRangeActionId();
+            Optional<TemporalData<RangeAction<?>>> rangeActions = getRangeActions(rangeActionId);
+            if (rangeActions.isPresent()) {
+                for (int timestampIndex = 0; timestampIndex < numberOfTimestamps; timestampIndex++) {
+                    OffsetDateTime timestamp = timestamps.get(timestampIndex);
+
+                    // Constraints involving state transition variables, defined on indexes [0, numberOfTimestamps - 2]
+                    if (timestampIndex < numberOfTimestamps - 1) {
+                        OffsetDateTime nextTimestamp = timestamps.get(timestampIndex + 1);
+                        // Change objective function
+                        changeObjectiveFunctionCoefficients(linearProblem, rangeActionId, timestamp, nextTimestamp, rangeActions.orElseThrow().getData(timestamp).orElseThrow());
+                    }
+                }
+            }
+        }
     }
 }
