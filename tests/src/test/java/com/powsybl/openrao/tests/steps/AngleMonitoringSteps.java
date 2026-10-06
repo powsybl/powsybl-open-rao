@@ -15,11 +15,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -29,12 +27,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -115,17 +110,11 @@ public class AngleMonitoringSteps {
             } else {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
+            AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(cnecId);
 
-            Set<CnecResult> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
-                    && angleResult.getCnec().getName().equals(cnecName)
-                    && angleResult.getCnec().getState().equals(state))
-                    .collect(Collectors.toSet());
-            assertNotNull(angleResults);
-            assertEquals(1, angleResults.size());
-            AngleCnec angleCnec = (AngleCnec) angleResults.iterator().next().getCnec();
-            AngleCnecValue angleValue = (AngleCnecValue) angleResults.iterator().next().getValue();
+            Double angle = CommonTestData.getRaoResult().getAngle(instant, angleCnec, Unit.DEGREE);
 
-            assertEquals(expectedAngle, angleValue.value(), DOUBLE_TOLERANCE);
+            assertEquals(expectedAngle, angle, DOUBLE_TOLERANCE);
 
             if (expectedCnec.get("LowerBound") != null) {
                 Optional<Double> lowerBound = angleCnec.getLowerBound(Unit.DEGREE);
