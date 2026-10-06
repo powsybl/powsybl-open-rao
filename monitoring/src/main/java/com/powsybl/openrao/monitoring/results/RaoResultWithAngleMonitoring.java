@@ -14,12 +14,14 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -72,7 +74,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
                     + angleCnec.getState().getInstant().getId()
             );
         }
-        return angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+
+        Set<CnecResult> cnecResults = angleMonitoringResult.getCnecResults();
+        return cnecResults.stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
 
     }
 
@@ -81,7 +85,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
-            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
+
+            return ((AngleCnecResult) angleCnecResultOpt.get()).getAngle();
         } else {
             return Double.NaN;
         }
