@@ -35,7 +35,7 @@ class CounterTradeRangeActionImplTest {
     private Crac crac;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);

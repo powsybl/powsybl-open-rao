@@ -97,7 +97,7 @@ class CracImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         crac = new CracImpl("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)

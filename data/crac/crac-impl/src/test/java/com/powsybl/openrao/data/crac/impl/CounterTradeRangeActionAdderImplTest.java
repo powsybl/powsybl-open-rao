@@ -37,7 +37,7 @@ class CounterTradeRangeActionAdderImplTest {
     private Network network;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
