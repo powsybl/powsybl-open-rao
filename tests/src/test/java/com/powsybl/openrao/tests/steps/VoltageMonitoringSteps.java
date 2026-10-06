@@ -14,8 +14,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
