@@ -16,8 +16,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -99,17 +99,9 @@ public class AngleMonitoringSteps {
         assertEquals(expectedCnecs.size(), CommonTestData.getMonitoringResult().getCnecResults().size());
         for (Map<String, String> expectedCnec : expectedCnecs) {
             String cnecId = expectedCnec.get("AngleCnecId");
-            String cnecName = expectedCnec.get("Name");
-            String contingency = expectedCnec.get("Contingency");
             Instant instant = CommonTestData.getCrac().getInstant(expectedCnec.get("Instant").toLowerCase());
             Double expectedAngle = Double.parseDouble(expectedCnec.get("Angle"));
 
-            State state;
-            if (instant.isPreventive()) {
-                state = CommonTestData.getCrac().getPreventiveState();
-            } else {
-                state = CommonTestData.getCrac().getState(contingency, instant);
-            }
             AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(cnecId);
 
             Double angle = CommonTestData.getRaoResult().getAngle(instant, angleCnec, Unit.DEGREE);

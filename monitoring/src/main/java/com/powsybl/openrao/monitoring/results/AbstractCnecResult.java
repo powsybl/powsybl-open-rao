@@ -47,5 +47,4 @@ public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResul
 
     protected abstract void computeMargin();
 
-
 }
