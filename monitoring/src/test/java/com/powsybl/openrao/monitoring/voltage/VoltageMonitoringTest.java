@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.monitoring;
+package com.powsybl.openrao.monitoring.voltage;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -28,10 +28,10 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.MonitoringInput;
+import com.powsybl.openrao.monitoring.MonitoringTestUtil;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.voltage.VoltageCnecResult;
-import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -585,7 +585,7 @@ class VoltageMonitoringTest {
     @Test
     void testWithRaoResultUpdate() {
         setUpCracFactory("network.xiidm");
-        VoltageCnec vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
+        addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);

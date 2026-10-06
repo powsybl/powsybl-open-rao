@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.monitoring;
+package com.powsybl.openrao.monitoring.angle;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.ComputationManager;
@@ -35,8 +35,8 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
-import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
+import com.powsybl.openrao.monitoring.MonitoringInput;
+import com.powsybl.openrao.monitoring.MonitoringTestUtil;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
