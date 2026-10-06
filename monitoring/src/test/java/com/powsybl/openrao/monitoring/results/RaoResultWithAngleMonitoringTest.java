@@ -12,9 +12,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -41,7 +40,7 @@ public class RaoResultWithAngleMonitoringTest {
 
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         MonitoringResult angleMonitoringResult = Mockito.mock(MonitoringResult.class);
-        CnecResult cnecResult = new CnecResult(angleCnec, Unit.DEGREE, new AngleCnecValue(10.0), 10, Cnec.SecurityStatus.SECURE);
+        AngleCnecResult cnecResult = new AngleCnecResult(angleCnec, Unit.DEGREE, 10);
         when(angleMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
 
         RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
