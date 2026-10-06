@@ -16,7 +16,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class VoltageCnecResult extends CnecResult<VoltageCnec> {
+public class VoltageCnecResult extends AbstractCnecResult<VoltageCnec> {
     private Double minVoltage;
     private Double maxVoltage;
 
@@ -48,7 +48,6 @@ public class VoltageCnecResult extends CnecResult<VoltageCnec> {
             MeasurementRounding.roundValueBasedOnMargin(minVoltage, margin, 2).doubleValue(),
             MeasurementRounding.roundValueBasedOnMargin(maxVoltage, margin, 2).doubleValue());
     }
-
 
     @Override
     protected void computeValue(Network network) {

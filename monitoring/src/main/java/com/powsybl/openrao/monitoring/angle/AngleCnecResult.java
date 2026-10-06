@@ -14,13 +14,13 @@ import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleCnecResult extends CnecResult<AngleCnec> {
+public class AngleCnecResult extends AbstractCnecResult<AngleCnec> {
 
     private Double angle;
 
