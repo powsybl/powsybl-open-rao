@@ -45,6 +45,7 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.Instant;
@@ -221,6 +222,13 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
         // TODO: 6. [ ] Run on curative only
         // TODO: 7. [ ] Add loopflows
         // TODO: 8. [ ] Add RA usage limits and decrement them from previous results
+        if (raoInput.getCrac().getFlowCnecs().isEmpty()) {
+            Crac crac = raoInput.getCrac();
+            PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(
+                crac, crac.getFlowCnecs(), crac.getRangeActions(), parameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters), true
+            ).runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
+            return CompletableFuture.completedFuture(new UnoptimizedRaoResultImpl(initialResult));
+        }
         OffsetDateTime timestamp = raoInput.getCrac().getTimestamp().orElse(OffsetDateTime.now());
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
         raoInputs.put(timestamp, raoInput);
