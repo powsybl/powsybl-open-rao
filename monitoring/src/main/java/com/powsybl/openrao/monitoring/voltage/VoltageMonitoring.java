@@ -83,6 +83,7 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     @Override
     protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
+        // TODO: keep this to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
         TECHNICAL_LOGS.warn("The network is not rebalanced after applying network actions in voltage monitoring");
     }
 
@@ -98,7 +99,7 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     @Override
     protected VoltageCnecResult makeFailedCnecResult(VoltageCnec cnec) {
-        return new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN, Double.NaN);
+        return new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN);
     }
 
 }

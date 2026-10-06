@@ -28,7 +28,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
-import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 
@@ -121,7 +120,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     @Override
     protected AngleCnecResult makeFailedCnecResult(AngleCnec cnec) {
-        return new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN, Double.NaN);
+        return new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN);
     }
 
     // Helper functions
