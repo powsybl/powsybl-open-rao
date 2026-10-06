@@ -23,6 +23,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
