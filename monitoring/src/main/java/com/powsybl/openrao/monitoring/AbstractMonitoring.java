@@ -22,10 +22,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
@@ -51,7 +48,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency
  *
  * This class contains everything that is common between voltage and angle monitoring.
  */
-public abstract class AbstractMonitoring implements Monitoring {
+public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     private final String loadFlowProvider;
     private final LoadFlowRunParameters loadFlowRunParameters;
@@ -109,7 +106,7 @@ public abstract class AbstractMonitoring implements Monitoring {
         if (Objects.nonNull(preventiveState)) {
             applyOptimalRemedialActions(preventiveState, inputNetwork, raoResult);
             MonitoringResult preventiveStateMonitoringResult = monitorState(preventiveState, crac, inputNetwork, physicalParameter, scalableZonalData);
-            preventiveStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+            preventiveStateMonitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
             monitoringResult.combine(preventiveStateMonitoringResult);
         }
 
@@ -147,7 +144,7 @@ public abstract class AbstractMonitoring implements Monitoring {
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
-        monitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+        monitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
         return monitoringResult;
     }
 
@@ -180,8 +177,7 @@ public abstract class AbstractMonitoring implements Monitoring {
             MonitoringResult currentStateMonitoringResult = monitorState(
                 state, crac, networkClone, physicalParameter, scalableZonalData
             );
-
-            currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+            currentStateMonitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
             return currentStateMonitoringResult;
         } finally {
             networkPool.releaseUsedNetwork(networkClone);
@@ -208,7 +204,7 @@ public abstract class AbstractMonitoring implements Monitoring {
             return new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
         }
 
-        Set<Cnec> consideredCnecs = crac.getCnecs(physicalParameter, state);
+        Set<I> consideredCnecs = getCnecs(crac, state);
         if (consideredCnecs.isEmpty()) {
             BUSINESS_WARNS.warn("No {} CNECs in state '{}' defined.", physicalParameter, state);
             return new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
@@ -221,10 +217,11 @@ public abstract class AbstractMonitoring implements Monitoring {
             return makeFailedMonitoringResultForStateWithNaNCnecRsults(crac, physicalParameter, state, failureReason);
         }
 
-        //
+        // Fill monitoringResult
+        consideredCnecs.forEach(cnec -> cnecResults.add(computeCnecResult(cnec, network, unit)));
 
         // Get overloaded CNECs
-        Set<Cnec> overloadedCnecs = consideredCnecs.stream().filter(cnec -> cnec.computeMargin(network, unit) < 0).collect(Collectors.toSet());
+        Set<Cnec> overloadedCnecs = cnecResults.stream().filter(cnecResult -> cnecResult.getMargin() < 0).map(CnecResult::getCnec).collect(Collectors.toSet());
 
         Set<NetworkAction> networkActionsToApply = new HashSet<>();
 
@@ -242,9 +239,10 @@ public abstract class AbstractMonitoring implements Monitoring {
             }
         }
 
+        // TODO: only if remedial actions were applied
         // Evaluate all the voltage/angle CNECs
         consideredCnecs.forEach(cnec ->
-            cnecResults.add(new CnecResult(cnec, unit, cnec.computeValue(network, unit), cnec.computeMargin(network, unit), cnec.computeSecurityStatus(network, unit)))
+            cnecResults.add(computeCnecResult(cnec, network, unit))
         );
 
         // Combine all CnecResult into a MonitoringResult
@@ -329,12 +327,13 @@ public abstract class AbstractMonitoring implements Monitoring {
                                              Set<NetworkAction> networkActionsToApply,
                                              ZonalData<Scalable> scalableZonalData);
 
+    protected abstract CnecResult computeCnecResult(I cnec, Network network, Unit unit);
+
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
-        CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        crac.getCnecs(state).stream()
+        getCnecs(crac, state).stream()
             .filter(cnec -> cnec.getPhysicalParameter() == physicalParameter)
-            .forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+            .forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec)));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
     }
 
@@ -342,5 +341,13 @@ public abstract class AbstractMonitoring implements Monitoring {
         BUSINESS_WARNS.warn(failureReason);
         return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
     }
+
+    protected abstract Set<I> getCnecs(Crac crac);
+
+    protected Set<I> getCnecs(Crac crac, State state) {
+        return getCnecs(crac).stream().filter(cnec -> state.equals(cnec.getState())).collect(Collectors.toSet());
+    }
+
+    protected abstract CnecResult<I> makeFailedCnecResult(I cnec);
 
 }

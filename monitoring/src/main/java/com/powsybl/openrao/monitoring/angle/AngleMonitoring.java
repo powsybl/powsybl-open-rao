@@ -18,7 +18,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
@@ -26,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
+import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 
@@ -38,7 +41,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 /**
  *
  */
-public class AngleMonitoring extends AbstractMonitoring {
+public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     public AngleMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
@@ -104,6 +107,21 @@ public class AngleMonitoring extends AbstractMonitoring {
                 storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
             ));
         redispatchNetworkActions(network, powerToBeRedispatched, networkElementsToBeExcluded, scalableZonalData);
+    }
+
+    @Override
+    protected AngleCnecResult computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
+        return new AngleCnecResult(angleCnec, unit, network);
+    }
+
+    @Override
+    protected Set<AngleCnec> getCnecs(Crac crac) {
+        return crac.getAngleCnecs();
+    }
+
+    @Override
+    protected AngleCnecResult makeFailedCnecResult(AngleCnec cnec) {
+        return new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN, Double.NaN);
     }
 
     // Helper functions

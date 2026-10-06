@@ -13,8 +13,10 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -31,7 +33,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class VoltageMonitoring extends AbstractMonitoring {
+public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     public VoltageMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
@@ -83,4 +85,20 @@ public class VoltageMonitoring extends AbstractMonitoring {
     protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
         TECHNICAL_LOGS.warn("The network is not rebalanced after applying network actions in voltage monitoring");
     }
+
+    @Override
+    protected VoltageCnecResult computeCnecResult(VoltageCnec cnec, Network network, Unit unit) {
+        return new VoltageCnecResult(cnec, unit, network);
+    }
+
+    @Override
+    protected Set<VoltageCnec> getCnecs(Crac crac) {
+        return crac.getVoltageCnecs();
+    }
+
+    @Override
+    protected VoltageCnecResult makeFailedCnecResult(VoltageCnec cnec) {
+        return new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN, Double.NaN);
+    }
+
 }
