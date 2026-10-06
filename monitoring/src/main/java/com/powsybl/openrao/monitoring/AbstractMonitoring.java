@@ -232,18 +232,13 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         } else {
             MonitoringResult curativeResult = handleCurativeState(
                 state, crac, network, physicalParameter, scalableZonalData,
-                overloadedCnecs, networkActionsToApply, cnecResults
+                overloadedCnecs, networkActionsToApply, cnecResults, consideredCnecs, unit
             );
+
             if (curativeResult != null) {
                 return curativeResult;
             }
         }
-
-        // TODO: only if remedial actions were applied
-        // Evaluate all the voltage/angle CNECs
-        consideredCnecs.forEach(cnec ->
-            cnecResults.add(computeCnecResult(cnec, network, unit))
-        );
 
         // Combine all CnecResult into a MonitoringResult
         Cnec.SecurityStatus monitoringResultStatus = computeMonitoringResultStatus(cnecResults);
@@ -265,7 +260,10 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
                                                  ZonalData<Scalable> scalableZonalData,
                                                  Set<Cnec> overloadedCnecs,
                                                  Set<NetworkAction> networkActionsToApply,
-                                                 Set<CnecResult> cnecResults) {
+                                                 Set<CnecResult> cnecResults,
+                                                 Set<I> consideredCnecs,
+                                                 Unit unit
+    ) {
         // Get all network actions associated with overloaded CNECs that can be used to solve the overload
         overloadedCnecs.forEach(cnec -> {
             networkActionsToApply.addAll(getValidNetworkActionsAssociatedToCnec(network, crac, cnec, physicalParameter, scalableZonalData));
@@ -273,7 +271,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
         if (!networkActionsToApply.isEmpty()) {
             // Re-balance the network if injection actions are going to be applied
-            // TODO: keep this condition to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
             rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
             // Apply all the actions on the network
@@ -285,6 +282,12 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
                 String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
                 return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
             }
+
+            cnecResults.clear();
+            consideredCnecs.forEach(cnec ->
+                cnecResults.add(computeCnecResult(cnec, network, unit))
+            );
+
             return null;
         }
         return null;
