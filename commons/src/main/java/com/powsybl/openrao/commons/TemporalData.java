@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -32,6 +33,8 @@ public interface TemporalData<T> {
     <U> TemporalData<U> map(Function<T, U> function);
 
     <U> TemporalData<U> mapMultiThreading(Function<T, U> function, int parallelism);
+
+    <U> Set<U> flatMap(Function<T, Set<U>> function);
 
     void clear();
 }

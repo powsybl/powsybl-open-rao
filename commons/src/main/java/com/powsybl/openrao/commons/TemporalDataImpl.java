@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -73,6 +74,14 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
                 executor.shutdown();
             }
         }
+    }
+
+    public <U> Set<U> flatMap(Function<T, Set<U>> function) {
+        return dataPerTimestamp.values()
+            .stream()
+            .map(function)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
     }
 
     public void clear() {

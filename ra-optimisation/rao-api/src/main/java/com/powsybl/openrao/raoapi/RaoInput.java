@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -17,8 +16,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
