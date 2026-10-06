@@ -14,6 +14,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -33,10 +35,13 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.marmot.TimeCoupledIteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.marmot.TimeCoupledIteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -47,6 +52,7 @@ import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -164,8 +170,39 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
         GlobalLinearOptimizationResult optimizationResult = TimeCoupledIteratingLinearOptimizer.optimize(optimizerInputs, linearOptimizerParameters, 1, reportNode);
 
         // convert optimization result to RAO Result
-        // TODO: @Claude convert optimizationResult to a TimeCoupledRaoResult -> take inspiration in Marmot
-        return null;
+        // TODO: remove dependency to MARMOT code
+        TemporalData<Set<NetworkAction>> preventiveNetworkActions = new TemporalDataImpl<>();
+        TemporalData<AppliedRemedialActions> curativeNetworkActions = new TemporalDataImpl<>();
+        TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
+        timestamps.forEach(timestamp -> {
+            preventiveNetworkActions.put(timestamp, new HashSet<>()); // network actions are not optimized
+            curativeNetworkActions.put(timestamp, new AppliedRemedialActions());
+            consideredCnecs.put(timestamp, cracs.getData(timestamp).orElseThrow().getFlowCnecs());
+        });
+        GlobalLinearOptimizationResult initialOptimizationResult = new GlobalLinearOptimizationResult(
+            initialFlowResults.map(PrePerimeterResult::getFlowResult),
+            initialFlowResults.map(PrePerimeterResult::getSensitivityResult),
+            initialFlowResults.map(RangeActionActivationResultImpl::new),
+            new TemporalDataImpl<>(),
+            globalObjectiveFunction,
+            LinearProblemStatus.OPTIMAL,
+            reportNode
+        );
+        TimeCoupledRaoResultImpl result = new TimeCoupledRaoResultImpl(
+            initialOptimizationResult,
+            optimizationResult,
+            MarmotUtils.getPostOptimizationResults(
+                raoInput.getRaoInputs(),
+                initialFlowResults,
+                optimizationResult,
+                preventiveNetworkActions,
+                curativeNetworkActions,
+                consideredCnecs,
+                raoParameters,
+                reportNode
+            )
+        );
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override
@@ -239,20 +276,5 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
             .withToolProvider(toolProvider)
             .withOutageInstant(raoInput.getCrac().getOutageInstant())
             .build();
-    }
-
-    private static ObjectiveFunction buildObjectiveFunction(TemporalData<Crac> cracs,
-                                                            TemporalData<PrePerimeterResult> initialFlowResults,
-                                                            RaoParameters raoParameters) {
-        GlobalFlowResult globalInitialFlowResult = new GlobalFlowResult(initialFlowResults);
-        return ObjectiveFunction.build(
-            cracs.flatMap(Crac::getFlowCnecs),
-            new HashSet<>(), // FIXME: no loop flows for now
-            globalInitialFlowResult,
-            globalInitialFlowResult, // always building from preventive so prePerimeter = initial -> FIXME
-            cracs.flatMap(Crac::findOperatorsNotSharingCras),
-            raoParameters,
-            cracs.flatMap(Crac::getStates)
-        );
     }
 }
