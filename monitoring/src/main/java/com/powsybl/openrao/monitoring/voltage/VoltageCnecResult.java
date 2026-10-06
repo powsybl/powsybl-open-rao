@@ -26,40 +26,38 @@ import java.util.stream.Collectors;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class VoltageCnecResult extends CnecResult<VoltageCnec> {
-    private VoltageCnec voltageCnec;
-    private double minVoltage;
-    private double maxVoltage;
+    private Double minVoltage;
+    private Double maxVoltage;
 
-    VoltageCnecResult(VoltageCnec voltageCnec, Unit unit, Network network) {
+    public VoltageCnecResult(VoltageCnec voltageCnec, Unit unit, Network network) {
         super(voltageCnec, unit, network);
-        this.voltageCnec = this.cnec;
     }
 
-    VoltageCnecResult(VoltageCnec voltageCnec, Unit unit, double margin, double minVoltage, double maxVoltage) {
-        super(voltageCnec, unit, margin);
-        this.voltageCnec = this.cnec;
+    public VoltageCnecResult(VoltageCnec voltageCnec, Unit unit, Double minVoltage, Double maxVoltage) {
+        super(voltageCnec, unit);
         this.minVoltage = minVoltage;
         this.maxVoltage = maxVoltage;
+        computeMargin();
     }
 
     @Override
     public String print() {
         return String.format("Network element %s at state %s has a min voltage of %s kV and a max voltage of %s kV.",
-            voltageCnec.getNetworkElement().getId(),
-            voltageCnec.getState().getId(),
+            cnec.getNetworkElement().getId(),
+            cnec.getState().getId(),
             MeasurementRounding.roundValueBasedOnMargin(minVoltage, margin, 2).doubleValue(),
             MeasurementRounding.roundValueBasedOnMargin(maxVoltage, margin, 2).doubleValue());
     }
 
 
     @Override
-    public void computeValue(Network network) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageCnec.getNetworkElement().getId());
+    protected void computeValue(Network network) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(cnec.getNetworkElement().getId());
         if (voltageLevel == null) {
-            throw new OpenRaoException("Voltage level is missing on network element " + voltageCnec.getNetworkElement().getId());
+            throw new OpenRaoException("Voltage level is missing on network element " + cnec.getNetworkElement().getId());
         }
         Set<Double> voltages = new HashSet<>();
-        BusbarSection busbarSection = network.getBusbarSection(voltageCnec.getNetworkElement().getId());
+        BusbarSection busbarSection = network.getBusbarSection(cnec.getNetworkElement().getId());
         if (busbarSection != null) {
             Double busBarVoltages = busbarSection.getV();
             voltages.add(busBarVoltages);
@@ -71,20 +69,23 @@ public class VoltageCnecResult extends CnecResult<VoltageCnec> {
     }
 
     @Override
-    public void computeMargin(Network network) {
-        double marginLowerBound = minVoltage - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
+    protected void computeMargin() {
+        double marginLowerBound = minVoltage - cnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginUpperBound = cnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
         this.margin = Math.min(marginLowerBound, marginUpperBound);
     }
 
     @Override
     public Cnec.SecurityStatus getCnecSecurityStatus() {
+        if (minVoltage.isNaN() || maxVoltage.isNaN()) {
+            return Cnec.SecurityStatus.FAILURE;
+        }
         if (margin < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
 
-            double marginLowerBound = minVoltage - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-            double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
+            double marginLowerBound = minVoltage - cnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+            double marginUpperBound = cnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
 
             if (marginUpperBound < 0) {
                 highVoltageConstraints = true;

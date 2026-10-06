@@ -22,40 +22,43 @@ import com.powsybl.openrao.monitoring.results.CnecResult;
  */
 public class AngleCnecResult extends CnecResult<AngleCnec> {
 
-    private static AngleCnec angleCnec;
-    private double angle;
+    private Double angle;
 
     public AngleCnecResult(AngleCnec angleCnec, Unit unit, Network network) {
         super(angleCnec, unit, network);
     }
 
-    public AngleCnecResult(AngleCnec angleCnec, Unit unit, double margin, double angle) {
-        super(angleCnec, unit, margin);
+    public AngleCnecResult(AngleCnec angleCnec, Unit unit, double angle) {
+        super(angleCnec, unit);
         this.angle = angle;
+        computeMargin();
     }
 
     @Override
     public AngleCnec getCnec() {
-        return angleCnec;
+        return cnec;
     }
 
     @Override
-    public void computeMargin(Network network) {
-        double marginOnLowerBound = angle - angleCnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = angleCnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
+    protected void computeMargin() {
+        double marginOnLowerBound = angle - cnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = cnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
         this.margin = Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
     @Override
     public Cnec.SecurityStatus getCnecSecurityStatus() {
+        if (angle.isNaN()) {
+            return Cnec.SecurityStatus.FAILURE;
+        }
         if (margin < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
-            if (angleCnec.getThresholds().stream()
+            if (cnec.getThresholds().stream()
                 .anyMatch(threshold -> threshold.limitsByMax() && angle > threshold.max().orElseThrow())) {
                 highVoltageConstraints = true;
             }
-            if (angleCnec.getThresholds().stream()
+            if (cnec.getThresholds().stream()
                 .anyMatch(threshold -> threshold.limitsByMin() && angle < threshold.min().orElseThrow())) {
                 lowVoltageConstraints = true;
             }
@@ -72,24 +75,24 @@ public class AngleCnecResult extends CnecResult<AngleCnec> {
     }
 
     @Override
-    public void computeValue(Network network) {
-        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(angleCnec.getExportingNetworkElement().getId(), network);
-        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(angleCnec.getImportingNetworkElement().getId(), network);
+    protected void computeValue(Network network) {
+        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(cnec.getExportingNetworkElement().getId(), network);
+        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(cnec.getImportingNetworkElement().getId(), network);
         this.angle = exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
             - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
     }
 
-    public double getAngle() {
+    public Double getAngle() {
         return angle;
     }
 
     @Override
     public String print() {
         return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %s°.",
-            angleCnec.getId(),
-            angleCnec.getImportingNetworkElement().getId(),
-            angleCnec.getExportingNetworkElement().getId(),
-            angleCnec.getState().getId(),
+            cnec.getId(),
+            cnec.getImportingNetworkElement().getId(),
+            cnec.getExportingNetworkElement().getId(),
+            cnec.getState().getId(),
             MeasurementRounding.roundValueBasedOnMargin(angle, margin, 2).doubleValue());
     }
 

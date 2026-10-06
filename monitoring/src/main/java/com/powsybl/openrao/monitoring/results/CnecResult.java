@@ -21,14 +21,13 @@ public abstract class CnecResult<I extends Cnec<?>> {
     protected CnecResult(I cnec, Unit unit, Network network) {
         this.cnec = cnec;
         this.unit = unit;
-        computeMargin(network);
         computeValue(network);
+        computeMargin();
     }
 
-    protected CnecResult(I cnec, Unit unit, double margin) {
+    protected CnecResult(I cnec, Unit unit) {
         this.cnec = cnec;
         this.unit = unit;
-        this.margin = margin;
     }
 
     public I getCnec() {
@@ -49,9 +48,9 @@ public abstract class CnecResult<I extends Cnec<?>> {
 
     public abstract String print();
     
-    public abstract void computeValue(Network network);
-    
-    public abstract void computeMargin(Network network);
+    protected abstract void computeValue(Network network);
+
+    protected abstract void computeMargin();
 
     public abstract Cnec.SecurityStatus getCnecSecurityStatus();
 
