@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -181,111 +180,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public PhysicalParameter getPhysicalParameter() {
-        return PhysicalParameter.FLOW;
-    }
-
-    @Override
-    public FlowCnecValue computeValue(Network network, Unit unit) {
-        if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
-            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
-        }
-        Branch<?> branch = network.getBranch(getNetworkElement().getId());
-        if (getMonitoredSides().size() == 2) {
-            return new FlowCnecValue(getFlow(branch, TwoSides.ONE, unit), getFlow(branch, TwoSides.TWO, unit));
-        } else {
-            TwoSides monitoredSide = getMonitoredSides().iterator().next();
-            double power = getFlow(branch, monitoredSide, unit);
-            if (monitoredSide.equals(TwoSides.ONE)) {
-                return new FlowCnecValue(power, Double.NaN);
-            } else {
-                return new FlowCnecValue(Double.NaN, power);
-            }
-        }
-    }
-
-    private double getFlow(Branch<?> branch, TwoSides side, Unit unit) {
-        double activeFlow = branch.getTerminal(side).getP();
-        double intensity = branch.getTerminal(side).getI();
-        if (unit.equals(Unit.AMPERE)) {
-            // In case flows are negative, we shall replace this value by its opposite
-            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE) : Math.signum(activeFlow) * intensity;
-        } else if (!unit.equals(Unit.MEGAWATT)) {
-            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
-        }
-        return activeFlow;
-    }
-
-    @Override
-    public double computeMargin(Network network, Unit unit) {
-        if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
-            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
-        }
-        FlowCnecValue flowCnecValue = computeValue(network, unit);
-        return getMinimumMarginBetweenTwoSides(unit, flowCnecValue);
-    }
-
-    private double computeMargin(FlowCnecValue flowCnecValue, Unit unit) {
-        return getMinimumMarginBetweenTwoSides(unit, flowCnecValue);
-    }
-
-    private double getMinimumMarginBetweenTwoSides(Unit unit, FlowCnecValue flowCnecValue) {
-        if (getMonitoredSides().size() == 2) {
-            double marginSide1 = computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
-            double marginSide2 = computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
-            return Math.min(marginSide1, marginSide2);
-        } else {
-            TwoSides monitoredSide = getMonitoredSides().iterator().next();
-            if (monitoredSide.equals(TwoSides.ONE)) {
-                return computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
-            } else {
-                return computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
-            }
-        }
-    }
-
-    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        FlowCnecValue flowCnecValue = computeValue(network, unit);
-
-        if (computeMargin(flowCnecValue, unit) < 0) {
-            boolean highVoltageConstraints = false;
-            boolean lowVoltageConstraints = false;
-
-            if (getMonitoredSides().contains(TwoSides.ONE)) {
-                double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side1Value();
-
-                if (marginUpperBoundSideOne < 0) {
-                    highVoltageConstraints = true;
-                }
-                if (marginLowerBoundSideOne < 0) {
-                    lowVoltageConstraints = true;
-                }
-            }
-            if (getMonitoredSides().contains(TwoSides.TWO)) {
-                double marginLowerBoundSideTwo = flowCnecValue.side2Value() - getLowerBound(TwoSides.TWO, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideTwo = getUpperBound(TwoSides.TWO, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
-                if (marginUpperBoundSideTwo < 0) {
-                    highVoltageConstraints = true;
-                }
-                if (marginLowerBoundSideTwo < 0) {
-                    lowVoltageConstraints = true;
-                }
-            }
-
-            if (highVoltageConstraints && lowVoltageConstraints) {
-                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
-            } else if (highVoltageConstraints) {
-                return SecurityStatus.HIGH_CONSTRAINT;
-            } else {
-                return SecurityStatus.LOW_CONSTRAINT;
-            }
-        } else {
-            return SecurityStatus.SECURE;
-        }
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -302,4 +196,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         return super.hashCode();
     }
 
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.FLOW;
+    }
 }
