@@ -588,7 +588,8 @@ public class Marmot implements TimeCoupledRaoProvider {
                 PrePerimeterResult sensitivityAnalysisResult = MarmotUtils.runInitialSensitivityAnalysis(
                     raoInput,
                     raoParameters.getData(timestamp).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    false
                 );
                 MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResult;
