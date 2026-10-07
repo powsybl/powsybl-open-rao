@@ -242,6 +242,48 @@ class AngleMonitoringTest {
     }
 
     @Test
+    void testCurativeStateOnlyWithNoGlskAndNoRa() {
+        // No GLSK file but no RA applied either -> no error thrown
+        setUpCracFactory("network.xiidm");
+        mockCurativeStates();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac)
+            .withNetwork(network)
+            .withRaoResult(raoResult)
+            .withPhysicalParameter(PhysicalParameter.ANGLE)
+            .build();
+        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(List.of("Some ANGLE CNECs are not secure:",
+                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
+            angleMonitoringResult.printConstraints());
+    }
+
+    @Test
+    void testCurativeStateOnlyWithNoGlskButWithRa() {
+        // No GLSK file but an action could be applied -> error thrown in one curative state monitoring thread -> status = FAILURE and the RA is not applied
+        setUpCracFactory("network.xiidm");
+        mockCurativeStates();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Open L1 - 2")
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac)
+            .withNetwork(network)
+            .withRaoResult(raoResult)
+            .withPhysicalParameter(PhysicalParameter.ANGLE)
+            .build();
+        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."),
+            angleMonitoringResult.printConstraints());
+    }
+
+    @Test
     void testCurativeStateOnlyWithAvailableTopoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
