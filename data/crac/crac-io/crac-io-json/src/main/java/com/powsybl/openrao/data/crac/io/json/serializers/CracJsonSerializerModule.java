@@ -17,6 +17,7 @@ import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -55,6 +56,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
         this.addSerializer(CounterTradeRangeAction.class, new CounterTradeRangeActionSerializer());
+        this.addSerializer(ConnectedArea.class, new ConnectedAreaSerializer());
         this.addSerializer(OnInstant.class, new OnInstantSerializer());
         this.addSerializer(OnContingencyState.class, new OnStateSerializer());
         this.addSerializer(OnConstraint.class, new OnConstraintSerializer());

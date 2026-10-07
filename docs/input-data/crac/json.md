@@ -1373,9 +1373,23 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
+A CounterTradeRangeAction is an exchange between its area and one or more connected areas, each connected via a
+border with optional ranges of admissible power flows.
+
+If border ranges are provided, the optimizer would consider them, otherwise it won't. The optimizer would try to find a solution which won't violate the
+exchange limits we have defined on a particular border.
 
 It is a costly remedial action which is currently not handled by the RAO.
+
+The `initialNetPosition` is the net position of the area in the initial situation, i.e. the sum of its exchanges through
+all its borders (positive when the area exports). For instance, if France exports 100 MW to Spain in the base case and
+the counter-trade increases this exchange by 100 MW, the initial net position of France is +100 MW, the set-point is
++100 MW and the final net position is +200 MW.
+
+The set-point of the counter-trade range action is the variation of the net position of its area with respect to
+`initialNetPosition`, whereas a border range bounds the power exchanged between the area and a connected area. For
+instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both borders change but
+the net position of France, and thus the set-point, does not.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -1387,8 +1401,17 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withImportingArea("ES")
-        .withExportingArea("FR")
+        .withArea("FR")
+        .withInitialNetPosition(500d)
+        .newConnectedArea()
+            .withArea("ES")
+            .newBorderRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMin(-1000)
+                .withMax(1000)
+                .add()
+            .add()
+        .withConnectedAreas(network)
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1399,7 +1422,12 @@ It is a costly remedial action which is currently not handled by the RAO.
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
-exported from France to Spain.
+exchanged between France and Spain.  
+Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. They must share a border with
+the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
+area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
+network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
+The min and max of a border range are optional, whatever its range type.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1416,8 +1444,16 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingArea" : "FR",
-    "importingArea" : "ES",
+    "area" : "FR",
+    "initialNetPosition" : 500.0,
+    "connectedAreas" : [ {
+        "area" : "ES",
+        "borderRanges" : [ {
+            "rangeType" : "absolute",
+            "min" : -1000.0,
+            "max" : 1000.0
+        } ]
+    } ],
     "ranges" : [ {
         "rangeType" : "absolute",
         "min" : 0.0,
@@ -1438,10 +1474,16 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exportingArea**  
-🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
+🔴 **area**: the area from which the counter-trade is defined  
+🔴 **initialNetPosition**: the net position of the area in the initial situation, i.e. the sum of its exchanges through all its borders (positive when the area exports)  
+⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined or empty, all the areas sharing a border with the area in the network are used as connected areas, without border ranges  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **min**: optional whatever the range type, if not defined the power flow on the border is not bounded from below  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **max**: optional whatever the range type, if not defined the power flow on the border is not bounded from above  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
@@ -1513,6 +1555,12 @@ The maximum number of applicable remedial actions defined for the third curative
 Thus, if 1 remedial action was applied during the second curative instant, only 6 remedial actions can actually be applied during the second curative instant. 
 
 ## Changelog
+
+**v2.12**
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and `initialNetPosition`, and the optional `connectedAreas`.
+  When importing an older CRAC, the exporting area is used as the `area`, the importing area becomes a connected area
+  (without border ranges, and it must share a border with the exporting area in the network) and the `initialNetPosition`
+  is set to 0 as a placeholder (a warning is logged).
 
 **v2.11**
 - Removed `networkElementsNamePerId`.
