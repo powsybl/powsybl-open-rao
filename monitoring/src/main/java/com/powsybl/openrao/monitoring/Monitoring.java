@@ -16,7 +16,6 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
@@ -439,8 +438,8 @@ public class Monitoring {
             return false;
         }
 
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
+        Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        Optional<Substation> substation = ne.getTerminal().getVoltageLevel().getSubstation();
 
         if (substation.isEmpty()) {
             BUSINESS_WARNS.warn("Remedial action {} is ignored : it has an elementary action that doesn't have a substation.", naId);
@@ -467,8 +466,7 @@ public class Monitoring {
         }
         if (ea instanceof LoadAction loadAction) {
             return (Injection<?>) network.getIdentifiable(loadAction.getLoadId());
-        }
-        else {
+        } else {
             throw new OpenRaoException(String.format("Elementary action {} is not a generator or load action", ea.getId()));
         }
     }
