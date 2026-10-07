@@ -23,6 +23,7 @@ import static java.lang.String.format;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class RaoInput {
+    
     public static final class RaoInputBuilder {
         private static final String REQUIRED_ARGUMENT_MESSAGE = "%s is mandatory when building RAO input.";
 
