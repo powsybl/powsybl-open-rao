@@ -190,6 +190,16 @@ public class AngleCnecMonitoringResultTest {
     }
 
     @Test
+    void testComputeSecurityStatusHighAndLowConstraint() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(50.).add()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(200.).withMax(500.).add()
+            .add();
+        AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, 100);
+        assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, angleCnecResult.getCnecSecurityStatus());
+    }
+
+    @Test
     void testConstructor() {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
