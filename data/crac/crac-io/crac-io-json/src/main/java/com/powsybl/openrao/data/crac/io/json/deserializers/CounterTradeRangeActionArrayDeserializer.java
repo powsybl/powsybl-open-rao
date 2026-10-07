@@ -33,6 +33,8 @@ public final class CounterTradeRangeActionArrayDeserializer {
             if (isBeforeV2Point12(version)) {
                 // before v2.12, the exporting area is the area and the importing area is a connected area
                 // the initial net position did not exist so a placeholder value is used
+                // TODO: compute the initial net position from the network with a loadflow, as done for the
+                //  initial tap/set-point of other range actions, so that it no longer needs to be provided in the JSON CRAC
                 counterTradeRangeActionAdder.withInitialNetPosition(0.0);
             }
 

@@ -84,6 +84,29 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         // check area
         assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
 
+        List<ConnectedArea> allConnectedAreas = computeConnectedAreas();
+
+        // check initialNetPosition
+        assertAttributeNotNull(initialNetPosition, COUNTER_TRADE_RANGE_ACTION, "initialNetPosition", "withInitialNetPosition()");
+
+        // check ranges
+        assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
+
+        // check usage rules
+        if (usageRules.isEmpty()) {
+            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        }
+
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialNetPosition, this.initialSetpoint,
+            speed, activationCost, variationCosts, this.area, allConnectedAreas
+        );
+        getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
+        return counterTradeRangeAction;
+
+    }
+
+    private List<ConnectedArea> computeConnectedAreas() {
         // connected areas defined with newConnectedArea() are kept as they are, with their border ranges
         List<ConnectedArea> allConnectedAreas = new ArrayList<>(connectedAreas);
         if (countryGraph != null) {
@@ -110,25 +133,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
                 "Cannot check that the connected areas of CounterTradeRangeAction %s share a border with area %s without a network. Please use withConnectedAreas()",
                 id, area));
         }
-
-        // check initialNetPosition
-        assertAttributeNotNull(initialNetPosition, COUNTER_TRADE_RANGE_ACTION, "initialNetPosition", "withInitialNetPosition()");
-
-        // check ranges
-        assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
-
-        // check usage rules
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
-        }
-
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialNetPosition, this.initialSetpoint,
-            speed, activationCost, variationCosts, this.area, allConnectedAreas
-        );
-        getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
-        return counterTradeRangeAction;
-
+        return allConnectedAreas;
     }
 
 }
