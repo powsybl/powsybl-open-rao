@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.MeasurementRounding;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -41,8 +42,8 @@ public class AngleCnecResult extends AbstractCnecResult<AngleCnec> {
 
     @Override
     protected void computeMargin() {
-        double marginOnLowerBound = angle - cnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = cnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
+        double marginOnLowerBound = angle - cnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = cnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - angle;
         this.margin = Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
@@ -101,5 +102,11 @@ public class AngleCnecResult extends AbstractCnecResult<AngleCnec> {
             return network.getBusBreakerView().getBus(elementId).getVoltageLevel();
         }
         return network.getVoltageLevel(elementId);
+    }
+
+    protected void checkUnit() {
+        if (unit != Unit.DEGREE) {
+            throw new OpenRaoException("An angleCnecMonitoringResult must be in DEGREE");
+        }
     }
 }

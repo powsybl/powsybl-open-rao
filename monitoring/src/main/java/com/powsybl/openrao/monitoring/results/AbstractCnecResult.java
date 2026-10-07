@@ -22,6 +22,7 @@ public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResul
     protected AbstractCnecResult(I cnec, Unit unit, Network network) {
         this.cnec = cnec;
         this.unit = unit;
+        checkUnit();
         computeValue(network);
         computeMargin();
     }
@@ -29,6 +30,7 @@ public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResul
     protected AbstractCnecResult(I cnec, Unit unit) {
         this.cnec = cnec;
         this.unit = unit;
+        checkUnit();
     }
 
     public I getCnec() {
@@ -46,5 +48,7 @@ public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResul
     protected abstract void computeValue(Network network);
 
     protected abstract void computeMargin();
+
+    protected abstract void checkUnit();
 
 }

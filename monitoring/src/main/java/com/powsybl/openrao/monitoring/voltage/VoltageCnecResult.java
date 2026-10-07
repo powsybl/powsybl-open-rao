@@ -113,4 +113,10 @@ public class VoltageCnecResult extends AbstractCnecResult<VoltageCnec> {
         return maxVoltage;
     }
 
+    protected void checkUnit() {
+        if (unit != Unit.KILOVOLT) {
+            throw new OpenRaoException("A voltageCnecMonitoringResult must be in KILOVOLT");
+        }
+    }
+
 }
