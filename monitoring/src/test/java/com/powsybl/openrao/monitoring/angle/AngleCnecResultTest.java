@@ -51,6 +51,7 @@ public class AngleCnecResultTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized(false);
     }
+
     @Test
     void testComputeValue() {
 
@@ -170,7 +171,6 @@ public class AngleCnecResultTest {
         assertEquals(-300, angleCnecResult4.getMargin(), DOUBLE_TOLERANCE);
     }
 
-
     @Test
     void testComputeSecurityStatus() {
         AngleCnec cnec = initPreventiveCnecAdder()
@@ -179,7 +179,6 @@ public class AngleCnecResultTest {
         Network networkMockWithBusAngleWithinThresholds = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
         Network networkMockWithBusAngleLowerThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", -300., "importingNetworkElement", 0.);
         Network networkMockWithBusAngleHigherThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", 1300., "importingNetworkElement", 0.);
-
 
         AngleCnecResult angleCnecResultWithBusAngleWithinThresholds = new AngleCnecResult(cnec, Unit.DEGREE, networkMockWithBusAngleWithinThresholds);
         AngleCnecResult angleCnecResultWithBusAngleLowerThanThresholds = new AngleCnecResult(cnec, Unit.DEGREE, networkMockWithBusAngleLowerThanThresholds);
