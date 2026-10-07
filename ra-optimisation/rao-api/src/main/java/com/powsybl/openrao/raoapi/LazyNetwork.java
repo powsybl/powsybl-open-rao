@@ -95,17 +95,17 @@ public class LazyNetwork implements Network, AutoCloseable {
     private static final String EXPORT_FORMAT = "JIIDM"; // TODO: change to BIIDM, not stabilized for the moment (04/2026)
     private static final String EXPORT_EXTENSION = ".jiidm"; // TODO: change to .biidm, not stabilized for the moment (04/2026)
 
-    private final String networkPath;
+    private String networkPath;
     private boolean isLoaded;
-    private boolean isInTempDir;
     private Network network;
+    private boolean isOverwritten;
 
     // TODO: create private attributes exportAtClosing and deleteAtClosing (both default to false) -> to configure properly at different points of the code
 
     public LazyNetwork(String networkPath) {
         this.networkPath = networkPath;
         this.isLoaded = false;
-        this.isInTempDir = false;
+        this.isOverwritten = false;
     }
 
     public LazyNetwork(Network network) {
@@ -113,7 +113,7 @@ public class LazyNetwork implements Network, AutoCloseable {
         network.write(EXPORT_FORMAT, new Properties(), Path.of(networkName));
         this.networkPath = networkName;
         this.isLoaded = false;
-        this.isInTempDir = true;
+        this.isOverwritten = true;
     }
 
     private void load() {
@@ -127,7 +127,7 @@ public class LazyNetwork implements Network, AutoCloseable {
     public void close() throws Exception {
         network = null;
         isLoaded = false;
-        if (isInTempDir) {
+        if (isOverwritten) {
             boolean fileIsDeleted = new File(networkPath).delete();
             if (!fileIsDeleted) {
                 BUSINESS_WARNS.debug("File created from {} could not be deleted.", networkPath);
@@ -143,6 +143,10 @@ public class LazyNetwork implements Network, AutoCloseable {
         if (isLoaded) {
             // TODO do we want to write systematically ? augmentation temps de calcul?
             if (overwrite) {
+                if (!isOverwritten) {
+                    this.networkPath = TEMP_DIR + UUID.randomUUID() + EXPORT_EXTENSION;
+                    this.isOverwritten = true;
+                }
                 // Save modifications on network before releasing
                 network.write(EXPORT_FORMAT, new Properties(), Path.of(networkPath)); // FIXME: why not work with non-jiidm files
             }
