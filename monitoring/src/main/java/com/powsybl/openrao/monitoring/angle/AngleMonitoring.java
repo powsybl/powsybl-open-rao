@@ -135,8 +135,8 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
             return false;
         }
 
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
+        Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        Optional<Substation> substation = ne.getTerminal().getVoltageLevel().getSubstation();
 
         if (substation.isEmpty()) {
             BUSINESS_WARNS.warn("Remedial action {} is ignored : it has an elementary action that doesn't have a substation.", naId);
@@ -157,14 +157,15 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         return true;
     }
 
-    private Identifiable<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
+    private Injection<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
         if (ea instanceof GeneratorAction generatorAction) {
-            return network.getIdentifiable(generatorAction.getGeneratorId());
+            return (Injection<?>) network.getIdentifiable(generatorAction.getGeneratorId());
         }
         if (ea instanceof LoadAction loadAction) {
-            return network.getIdentifiable(loadAction.getLoadId());
+            return (Injection<?>) network.getIdentifiable(loadAction.getLoadId());
+        } else {
+            throw new OpenRaoException(String.format("Elementary action %s is not a generator or load action", ea.getId()));
         }
-        return null;
     }
 
     private void storeEnergyToRedispatchAndNetworkElementsToExclude(Action ea,
