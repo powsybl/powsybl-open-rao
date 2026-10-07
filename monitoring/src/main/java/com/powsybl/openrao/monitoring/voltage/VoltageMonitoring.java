@@ -88,8 +88,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
-    protected VoltageCnecResult computeCnecResult(VoltageCnec cnec, Network network, Unit unit) {
-        return new VoltageCnecResult(cnec, unit, network);
+    protected VoltageCnecMonitoringResult computeCnecResult(VoltageCnec cnec, Network network, Unit unit) {
+        return new VoltageCnecMonitoringResult(cnec, unit, network);
     }
 
     @Override
@@ -98,8 +98,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
-    protected VoltageCnecResult makeFailedCnecResult(VoltageCnec cnec) {
-        return new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN);
+    protected VoltageCnecMonitoringResult makeFailedCnecResult(VoltageCnec cnec) {
+        return new VoltageCnecMonitoringResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN);
     }
 
 }

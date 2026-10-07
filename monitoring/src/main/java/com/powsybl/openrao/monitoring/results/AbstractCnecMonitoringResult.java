@@ -14,12 +14,12 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 
-public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResult<I> {
+public abstract class AbstractCnecMonitoringResult<I extends Cnec<?>> implements CnecMonitoringResult<I> {
     protected final I cnec;
     protected final Unit unit;
     protected double margin;
 
-    protected AbstractCnecResult(I cnec, Unit unit, Network network) {
+    protected AbstractCnecMonitoringResult(I cnec, Unit unit, Network network) {
         this.cnec = cnec;
         this.unit = unit;
         checkUnit();
@@ -27,7 +27,7 @@ public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResul
         computeMargin();
     }
 
-    protected AbstractCnecResult(I cnec, Unit unit) {
+    protected AbstractCnecMonitoringResult(I cnec, Unit unit) {
         this.cnec = cnec;
         this.unit = unit;
         checkUnit();

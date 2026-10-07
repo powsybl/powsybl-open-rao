@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.voltage.VoltageCnecResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -29,7 +29,7 @@ public class RaoResultWithVoltageMonitoringTest {
 
     @Test
     void testGetCnecResult() {
-        // We have a preventive voltage CNEC. We should allow getCnecResult to return a CnecResult only if optimizationInstant is preventive.
+        // We have a preventive voltage CNEC. We should allow getCnecResult to return a CnecMonitoringResult only if optimizationInstant is preventive.
 
         VoltageCnec voltageCnec = Mockito.mock(VoltageCnec.class);
         when(voltageCnec.getId()).thenReturn("voltage");
@@ -41,7 +41,7 @@ public class RaoResultWithVoltageMonitoringTest {
 
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         MonitoringResult voltageMonitoringResult = Mockito.mock(MonitoringResult.class);
-        VoltageCnecResult cnecResult = new VoltageCnecResult(voltageCnec, Unit.KILOVOLT, -20., 20.);
+        VoltageCnecMonitoringResult cnecResult = new VoltageCnecMonitoringResult(voltageCnec, Unit.KILOVOLT, -20., 20.);
 
         when(voltageMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
 

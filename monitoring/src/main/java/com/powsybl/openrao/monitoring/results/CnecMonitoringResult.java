@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public interface CnecResult<I extends Cnec<?>> {
+public interface CnecMonitoringResult<I extends Cnec<?>> {
     I getCnec();
 
     default String getId() {

@@ -15,21 +15,21 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
+import com.powsybl.openrao.monitoring.results.AbstractCnecMonitoringResult;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleCnecResult extends AbstractCnecResult<AngleCnec> {
+public class AngleCnecMonitoringResult extends AbstractCnecMonitoringResult<AngleCnec> {
 
     private Double angle;
 
-    public AngleCnecResult(AngleCnec angleCnec, Unit unit, Network network) {
+    public AngleCnecMonitoringResult(AngleCnec angleCnec, Unit unit, Network network) {
         super(angleCnec, unit, network);
     }
 
-    public AngleCnecResult(AngleCnec angleCnec, Unit unit, double angle) {
+    public AngleCnecMonitoringResult(AngleCnec angleCnec, Unit unit, double angle) {
         super(angleCnec, unit);
         this.angle = angle;
         computeMargin();

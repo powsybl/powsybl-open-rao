@@ -109,8 +109,8 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
-    protected AngleCnecResult computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
-        return new AngleCnecResult(angleCnec, unit, network);
+    protected AngleCnecMonitoringResult computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
+        return new AngleCnecMonitoringResult(angleCnec, unit, network);
     }
 
     @Override
@@ -119,8 +119,8 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
-    protected AngleCnecResult makeFailedCnecResult(AngleCnec cnec) {
-        return new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN);
+    protected AngleCnecMonitoringResult makeFailedCnecResult(AngleCnec cnec) {
+        return new AngleCnecMonitoringResult(cnec, Unit.DEGREE, Double.NaN);
     }
 
     // Helper functions
