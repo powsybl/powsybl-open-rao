@@ -98,12 +98,12 @@ public class NcRemedialActionsCreator {
 
         if (countertradeRemedialActions != null) {
             countertradeRemedialActions
-                    .forEach(this::addCountertradeRemedialAction);
+                    .forEach(this::addCountertradeRangeAction);
         }
 
     }
 
-    private void addCountertradeRemedialAction(CountertradeRemedialAction countertradeRemedialAction) {
+    private void addCountertradeRangeAction(CountertradeRemedialAction countertradeRemedialAction) {
         String remedialActionId = countertradeRemedialAction.mrid();
         RemedialActionKind kind = RemedialActionKind.fromUrl(countertradeRemedialAction.kind());
 
@@ -457,6 +457,8 @@ public class NcRemedialActionsCreator {
     private Set<String> createRemedialActionGroups() {
         Set<String> standaloneRasImplicatedIntoAGroup = new HashSet<>();
         Map<String, Set<RemedialActionDependency>> remedialActionDependenciesByGroup = elementaryActionsHelper.getNativeRemedialActionDependencyPerNativeRemedialActionGroup();
+        // CountertradeRemedialActions only use RemedialActionGroups to retrieve their SSI limits, they are not merged into network actions
+        Set<String> countertradeRemedialActionIds = countertradeRemedialActions.stream().map(CountertradeRemedialAction::mrid).collect(Collectors.toSet());
         for (RemedialActionGroup remedialActionGroup : elementaryActionsHelper.getRemedialActionGroupsPropertyBags()) {
             String groupName = remedialActionGroup.name() == null ? remedialActionGroup.mrid() : remedialActionGroup.name();
             try {
@@ -464,6 +466,7 @@ public class NcRemedialActionsCreator {
                         .getOrDefault(remedialActionGroup.mrid(), Set.of())
                         .stream()
                         .filter(RemedialActionDependency::normalEnabled)
+                        .filter(remedialActionDependency -> !countertradeRemedialActionIds.contains(remedialActionDependency.remedialAction()))
                         .collect(Collectors.toSet());
                 if (!dependingEnabledRemedialActions.isEmpty()) {
                     RemedialActionDependency refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();

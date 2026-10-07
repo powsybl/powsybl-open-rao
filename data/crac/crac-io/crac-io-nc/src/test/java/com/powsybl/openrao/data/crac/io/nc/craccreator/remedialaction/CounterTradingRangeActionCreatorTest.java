@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertRaNotImported;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -57,7 +58,7 @@ class CounterTradingRangeActionCreatorTest {
     void importCounterTradeRangeActionsWithValidRanges() {
         NcCracCreationContext cracCreationContext = importCrac();
 
-        assertEquals(10, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
+        assertEquals(12, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
 
         // Economic limits are the tightest on both sides
         assertRange(cracCreationContext, "ct-economic-limits", -1000, 1000);
@@ -73,10 +74,19 @@ class CounterTradingRangeActionCreatorTest {
         assertRange(cracCreationContext, "ct-ssi-up-only", -4000, 1500);
         // Outdated SSI profile is ignored: the action stays available and uses economic limits only
         assertRange(cracCreationContext, "ct-outdated-ssi", -2000, 2000);
-        // SSI limits from the RemedialActionGroup
+        // SSI limits from the RemedialActionGroup linked through a RemedialActionDependency
         assertRange(cracCreationContext, "ct-group-limits", -400, 1200);
+        // Same RemedialActionGroup shared by another CountertradeRemedialAction, economic limit is the tightest for max
+        assertRange(cracCreationContext, "ct-shared-group-limits", -400, 1000);
+        // RemedialActionDependency not enabled: the RemedialActionGroup SSI limits are ignored
+        assertRange(cracCreationContext, "ct-disabled-group-dependency", -3000, 3000);
         // Same SSI limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRange(cracCreationContext, "ct-ctra-and-group-limits", -1000, 1500);
+
+        // RemedialActionGroups only made of CountertradeRemedialActions are not imported as network actions
+        assertNull(cracCreationContext.getRemedialActionCreationContext("ct-group"));
+        assertNull(cracCreationContext.getRemedialActionCreationContext("ct-same-limits-group"));
+        assertNull(cracCreationContext.getRemedialActionCreationContext("ct-different-limits-group"));
 
         ElementaryCreationContext notAlteredContext = cracCreationContext.getRemedialActionCreationContext("ct-mixed-limits");
         assertTrue(notAlteredContext.isImported());

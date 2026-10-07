@@ -90,6 +90,7 @@ public final class NcConstants {
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String COUNTERTRADE_REMEDIAL_ACTION = "countertradeRemedialAction";
     public static final String COUNTERTRADE_REMEDIAL_ACTION_OVERRIDING = "countertradeRemedialActionOverriding";
+    public static final String REMEDIAL_ACTION_GROUP_OVERRIDING = "remedialActionGroupOverriding";
     public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";

@@ -639,27 +639,35 @@ SELECT *
             dcat:startDate ?startDate ;
             dcat:endDate ?endDate ;
             dcat:keyword ?keyword .
-        {
-            ?countertradeRemedialAction
-                rdf:type nc:CountertradeRemedialAction .
-            ?countertradeRemedialAction nc:RemedialAction.available ?available .
-            OPTIONAL {
-                ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingUp ?countertradeRemedialActionMaxRegulatingUp .
-            }
-            OPTIONAL {
-                ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingDown ?countertradeRemedialActionMaxRegulatingDown .
-            }
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction ;
+            nc:RemedialAction.available ?available .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingUp ?countertradeRemedialActionMaxRegulatingUp .
         }
-        UNION
-        {
-            ?countertradeRemedialAction
-                rdf:type nc:RemedialActionGroup .
-            OPTIONAL {
-                ?countertradeRemedialAction nc:RemedialActionGroup.maxRegulatingUp ?remedialActionGroupMaxRegulatingUp .
-            }
-            OPTIONAL {
-                ?countertradeRemedialAction nc:RemedialActionGroup.maxRegulatingDown ?remedialActionGroupMaxRegulatingDown .
-            }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingDown ?countertradeRemedialActionMaxRegulatingDown .
+        }
+    }
+}
+
+# query: remedialActionGroupOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?remedialActionGroup
+            rdf:type nc:RemedialActionGroup .
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingUp ?remedialActionGroupMaxRegulatingUp .
+        }
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingDown ?remedialActionGroupMaxRegulatingDown .
         }
     }
 }
