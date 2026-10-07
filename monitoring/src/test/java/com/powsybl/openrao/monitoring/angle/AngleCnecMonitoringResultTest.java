@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class AngleCnecResultTest {
+public class AngleCnecMonitoringResultTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
@@ -61,8 +61,8 @@ public class AngleCnecResultTest {
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 900., "importingNetworkElement", 100.);
 
-        AngleCnecResult angleCnecResult1 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock1);
-        AngleCnecResult angleCnecResult2 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock2);
+        AngleCnecMonitoringResult angleCnecResult1 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock1);
+        AngleCnecMonitoringResult angleCnecResult2 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock2);
 
         assertEquals(-300., angleCnecResult1.getAngle(), DOUBLE_TOLERANCE);
         assertEquals(800., angleCnecResult2.getAngle(), DOUBLE_TOLERANCE);
@@ -79,7 +79,7 @@ public class AngleCnecResultTest {
             .add();
         Network networkMock = mockBusAngleInNetwork("BBE1AA1", 0., "BBE2AA1", 300.);
 
-        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, networkMock);
+        AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock);
 
         assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResult.getCnecSecurityStatus());
     }
@@ -94,7 +94,7 @@ public class AngleCnecResultTest {
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
         Network networkMock = mockBusAngleInNetwork("BBE1AA1", 1200., "BBE2AA1", 300.);
-        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, networkMock);
+        AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock);
 
         assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResult.getCnecSecurityStatus());
     }
@@ -114,11 +114,11 @@ public class AngleCnecResultTest {
 
         // margin
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
-        AngleCnecResult angleCnecResult1 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock1);
+        AngleCnecMonitoringResult angleCnecResult1 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock1);
         assertEquals(800., angleCnecResult1.getMargin(), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
-        AngleCnecResult angleCnecResult2 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock2);
+        AngleCnecMonitoringResult angleCnecResult2 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock2);
 
         assertEquals(200., angleCnecResult2.getMargin(), DOUBLE_TOLERANCE);
 
@@ -138,11 +138,11 @@ public class AngleCnecResultTest {
         assertEquals(-50., cnec.getLowerBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
 
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
-        AngleCnecResult angleCnecResult1 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock1);
+        AngleCnecMonitoringResult angleCnecResult1 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock1);
         assertEquals(-200, angleCnecResult1.getMargin(), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 200.);
-        AngleCnecResult angleCnecResult2 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock2);
+        AngleCnecMonitoringResult angleCnecResult2 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock2);
         assertEquals(-150., angleCnecResult2.getMargin(), DOUBLE_TOLERANCE);
 
     }
@@ -155,19 +155,19 @@ public class AngleCnecResultTest {
             .add();
 
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
-        AngleCnecResult angleCnecResult1 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock1);
+        AngleCnecMonitoringResult angleCnecResult1 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock1);
         assertEquals(-100, angleCnecResult1.getMargin(), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 300.);
-        AngleCnecResult angleCnecResult2 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock2);
+        AngleCnecMonitoringResult angleCnecResult2 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock2);
         assertEquals(200, angleCnecResult2.getMargin(), DOUBLE_TOLERANCE);
 
         Network networkMock3 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", -100.);
-        AngleCnecResult angleCnecResult3 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock3);
+        AngleCnecMonitoringResult angleCnecResult3 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock3);
         assertEquals(100, angleCnecResult3.getMargin(), DOUBLE_TOLERANCE);
 
         Network networkMock4 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", -500.);
-        AngleCnecResult angleCnecResult4 = new AngleCnecResult(cnec, Unit.DEGREE, networkMock4);
+        AngleCnecMonitoringResult angleCnecResult4 = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock4);
         assertEquals(-300, angleCnecResult4.getMargin(), DOUBLE_TOLERANCE);
     }
 
@@ -180,9 +180,9 @@ public class AngleCnecResultTest {
         Network networkMockWithBusAngleLowerThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", -300., "importingNetworkElement", 0.);
         Network networkMockWithBusAngleHigherThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", 1300., "importingNetworkElement", 0.);
 
-        AngleCnecResult angleCnecResultWithBusAngleWithinThresholds = new AngleCnecResult(cnec, Unit.DEGREE, networkMockWithBusAngleWithinThresholds);
-        AngleCnecResult angleCnecResultWithBusAngleLowerThanThresholds = new AngleCnecResult(cnec, Unit.DEGREE, networkMockWithBusAngleLowerThanThresholds);
-        AngleCnecResult angleCnecResultWithBusAngleHigherThanThresholds = new AngleCnecResult(cnec, Unit.DEGREE, networkMockWithBusAngleHigherThanThresholds);
+        AngleCnecMonitoringResult angleCnecResultWithBusAngleWithinThresholds = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMockWithBusAngleWithinThresholds);
+        AngleCnecMonitoringResult angleCnecResultWithBusAngleLowerThanThresholds = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMockWithBusAngleLowerThanThresholds);
+        AngleCnecMonitoringResult angleCnecResultWithBusAngleHigherThanThresholds = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMockWithBusAngleHigherThanThresholds);
 
         assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResultWithBusAngleWithinThresholds.getCnecSecurityStatus());
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleCnecResultWithBusAngleLowerThanThresholds.getCnecSecurityStatus());
@@ -194,12 +194,12 @@ public class AngleCnecResultTest {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
             .add();
-        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, 100);
+        AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, 100);
         assertEquals(100., angleCnecResult.getAngle());
         assertEquals(300., angleCnecResult.getMargin());
         assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResult.getCnecSecurityStatus());
 
-        angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN);
+        angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, Double.NaN);
         assertEquals(Double.NaN, angleCnecResult.getAngle());
         assertEquals(Double.NaN, angleCnecResult.getMargin());
         assertEquals(Cnec.SecurityStatus.FAILURE, angleCnecResult.getCnecSecurityStatus());
@@ -210,7 +210,7 @@ public class AngleCnecResultTest {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
             .add();
-        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, 100);
+        AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, 100);
         assertEquals(
             "AngleCnec angle-cnec (with importing network element importingNetworkElement and exporting " +
                 "network element exportingNetworkElement) at state preventive has an angle of 100.0°.",
@@ -223,7 +223,7 @@ public class AngleCnecResultTest {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
             .add();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new AngleCnecResult(cnec, Unit.KILOVOLT, 100));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new AngleCnecMonitoringResult(cnec, Unit.KILOVOLT, 100));
         assertEquals("An angleCnecMonitoringResult must be in DEGREE", exception.getMessage());
     }
 

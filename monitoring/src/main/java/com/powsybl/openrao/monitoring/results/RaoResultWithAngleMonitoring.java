@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
-import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -63,7 +63,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         return angleMonitoringResult.getStatus();
     }
 
-    Optional<CnecResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
+    Optional<CnecMonitoringResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
         if (angleCnec.getState().getInstant() != optimizationInstant) {
             throw new OpenRaoException(
                 "Unexpected optimization instant for angle monitoring result: "
@@ -73,18 +73,18 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             );
         }
 
-        Set<CnecResult> cnecResults = angleMonitoringResult.getCnecResults();
-        return cnecResults.stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        Set<CnecMonitoringResult> cnecMonitoringResults = angleMonitoringResult.getCnecResults();
+        return cnecMonitoringResults.stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
 
     }
 
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        Optional<CnecMonitoringResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
 
-            return ((AngleCnecResult) angleCnecResultOpt.get()).getAngle();
+            return ((AngleCnecMonitoringResult) angleCnecResultOpt.get()).getAngle();
         } else {
             return Double.NaN;
         }
@@ -93,8 +93,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
-        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
+        Optional<CnecMonitoringResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        return angleCnecResultOpt.map(CnecMonitoringResult::getMargin).orElse(Double.NaN);
     }
 
     @Override

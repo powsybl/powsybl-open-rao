@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 public class MonitoringResult {
 
     private PhysicalParameter physicalParameter;
-    private Set<CnecResult> cnecResults;
+    private Set<CnecMonitoringResult> cnecMonitoringResults;
     private Map<State, Set<RemedialAction>> appliedRas;
     private SecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecMonitoringResult> cnecMonitoringResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
-        this.cnecResults = cnecResults;
+        this.cnecMonitoringResults = cnecMonitoringResults;
         this.appliedRas = appliedRas;
         this.status = status;
     }
@@ -45,8 +45,8 @@ public class MonitoringResult {
         return physicalParameter;
     }
 
-    public Set<CnecResult> getCnecResults() {
-        return cnecResults;
+    public Set<CnecMonitoringResult> getCnecResults() {
+        return cnecMonitoringResults;
     }
 
     public Map<State, Set<RemedialAction>> getAppliedRas() {
@@ -77,9 +77,9 @@ public class MonitoringResult {
             return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters.");
         }
         List<String> constraints = new ArrayList<>();
-        cnecResults.stream()
+        cnecMonitoringResults.stream()
             .filter(cr -> cr.getMargin() < 0)
-            .sorted(Comparator.comparing(CnecResult::getId))
+            .sorted(Comparator.comparing(CnecMonitoringResult::getId))
             .forEach(cnecResult -> constraints.add(cnecResult.print()));
 
         if (constraints.isEmpty()) {
@@ -93,10 +93,10 @@ public class MonitoringResult {
     // Add synchronized in the signature to make the function blocking
     // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
     public synchronized void combine(MonitoringResult monitoringResult) {
-        Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
-        Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
-        thisCnecResults.addAll(otherCnecResults);
-        this.cnecResults = thisCnecResults;
+        Set<CnecMonitoringResult> thisCnecMonitoringResults = new HashSet<>(this.getCnecResults());
+        Set<CnecMonitoringResult> otherCnecMonitoringResults = monitoringResult.getCnecResults();
+        thisCnecMonitoringResults.addAll(otherCnecMonitoringResults);
+        this.cnecMonitoringResults = thisCnecMonitoringResults;
 
         Map<State, Set<RemedialAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
         Map<State, Set<RemedialAction>> otherAppliedRas = monitoringResult.getAppliedRas();

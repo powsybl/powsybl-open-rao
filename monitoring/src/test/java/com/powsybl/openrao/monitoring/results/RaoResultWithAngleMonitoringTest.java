@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -29,7 +29,7 @@ public class RaoResultWithAngleMonitoringTest {
 
     @Test
     void testGetCnecResult() {
-        // We have a preventive angle CNEC. We should allow getCnecResult to return a CnecResult only if optimizationInstant is preventive.
+        // We have a preventive angle CNEC. We should allow getCnecResult to return a CnecMonitoringResult only if optimizationInstant is preventive.
         AngleCnec angleCnec = Mockito.mock(AngleCnec.class);
         when(angleCnec.getId()).thenReturn("angle");
         Instant cnecInstant = Mockito.mock(Instant.class);
@@ -40,7 +40,7 @@ public class RaoResultWithAngleMonitoringTest {
 
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         MonitoringResult angleMonitoringResult = Mockito.mock(MonitoringResult.class);
-        AngleCnecResult cnecResult = new AngleCnecResult(angleCnec, Unit.DEGREE, 10);
+        AngleCnecMonitoringResult cnecResult = new AngleCnecMonitoringResult(angleCnec, Unit.DEGREE, 10);
         when(angleMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
 
         RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
