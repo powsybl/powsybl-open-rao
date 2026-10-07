@@ -8,6 +8,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -123,6 +124,9 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
+        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
+            throw new OpenRaoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
+        }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 

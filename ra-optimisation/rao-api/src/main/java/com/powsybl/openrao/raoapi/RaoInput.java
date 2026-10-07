@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.raoapi;
 
-import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -24,7 +22,7 @@ import static java.lang.String.format;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public final class RaoInput extends AbstractExtendable<RaoInput> implements Extendable<RaoInput> {
+public final class RaoInput {
     public static final class RaoInputBuilder {
         private static final String REQUIRED_ARGUMENT_MESSAGE = "%s is mandatory when building RAO input.";
 
