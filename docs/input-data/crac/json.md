@@ -1381,6 +1381,16 @@ exchange limits we have defined on a particular border.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
+The `initialNetPosition` is the net position of the area in the initial situation, i.e. the sum of its exchanges through
+all its borders (positive when the area exports). For instance, if France exports 100 MW to Spain in the base case and
+the counter-trade increases this exchange by 100 MW, the initial net position of France is +100 MW, the set-point is
++100 MW and the final net position is +200 MW.
+
+The set-point of the counter-trade range action is the variation of the net position of its area with respect to
+`initialNetPosition`, whereas a border range bounds the power exchanged between the area and a connected area. For
+instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both borders change but
+the net position of France, and thus the set-point, does not.
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
@@ -1467,7 +1477,7 @@ The min and max of a border range are optional, whatever its range type.
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **area**: the area from which the counter-trade is defined  
-🔴 **initialNetPosition**: the initial net position of the area  
+🔴 **initialNetPosition**: the net position of the area in the initial situation, i.e. the sum of its exchanges through all its borders (positive when the area exports)  
 ⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined or empty, all the areas sharing a border with the area in the network are used as connected areas, without border ranges  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
