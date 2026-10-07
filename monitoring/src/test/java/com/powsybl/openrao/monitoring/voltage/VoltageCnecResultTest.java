@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring.voltage;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -144,6 +145,59 @@ public class VoltageCnecResultTest {
         assertEquals(-300, voltageCnecResult4.getMargin(), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void testConstructor() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        VoltageCnecResult voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, 100., 200.);
+        assertEquals(300., voltageCnecResult.getMargin());
+        voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN);
+        assertEquals(Double.NaN, voltageCnecResult.getMargin());
+        voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, 0., Double.NaN);
+        assertEquals(Double.NaN, voltageCnecResult.getMargin());
+        voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, 0.);
+        assertEquals(Double.NaN, voltageCnecResult.getMargin());
+    }
+
+    @Test
+    void testPrint() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        VoltageCnecResult voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, 100., 200.);
+        assertEquals("Network element networkElement at state preventive has a min voltage of 100.0 kV and a max voltage of 200.0 kV.", voltageCnecResult.print());
+    }
+
+    @Test
+    void testFailureSecurityStatus() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        VoltageCnecResult voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, Double.NaN, Double.NaN);
+        assertEquals(Cnec.SecurityStatus.FAILURE, voltageCnecResult.getCnecSecurityStatus());
+    }
+
+    @Test
+    void testHighAndLowConstraintSecurityStatus() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        VoltageCnecResult voltageCnecResult = new VoltageCnecResult(cnec, Unit.KILOVOLT, -300., 600.);
+        assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageCnecResult.getCnecSecurityStatus());
+    }
+
+    @Test
+    void testMissingVoltageLevel() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        Network networkMock = Mockito.mock(Network.class);
+        Mockito.when(networkMock.getVoltageLevel(Mockito.anyString())).thenReturn(null);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new VoltageCnecResult(cnec, Unit.KILOVOLT, networkMock));
+        assertEquals("Voltage level is missing on network element networkElement", exception.getMessage());
+    }
+
     private static Network mockBusVoltagesInNetwork(String elementId, double voltage) {
         Network network = Mockito.mock(Network.class);
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
@@ -153,4 +207,5 @@ public class VoltageCnecResultTest {
         Mockito.when(busbarSection.getV()).thenReturn(voltage);
         return network;
     }
+
 }
