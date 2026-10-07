@@ -198,6 +198,15 @@ public class VoltageCnecResultTest {
         assertEquals("Voltage level is missing on network element networkElement", exception.getMessage());
     }
 
+    @Test
+    void testCheckUnit() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
+            .add();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new VoltageCnecResult(cnec, Unit.DEGREE, 100., 100.));
+        assertEquals("A voltageCnecMonitoringResult must be in KILOVOLT", exception.getMessage());
+    }
+
     private static Network mockBusVoltagesInNetwork(String elementId, double voltage) {
         Network network = Mockito.mock(Network.class);
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);

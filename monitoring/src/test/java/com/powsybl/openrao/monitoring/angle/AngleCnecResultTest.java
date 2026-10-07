@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring.angle;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -23,8 +24,7 @@ import org.mockito.Mockito;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -187,6 +187,44 @@ public class AngleCnecResultTest {
         assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResultWithBusAngleWithinThresholds.getCnecSecurityStatus());
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleCnecResultWithBusAngleLowerThanThresholds.getCnecSecurityStatus());
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, angleCnecResultWithBusAngleHigherThanThresholds.getCnecSecurityStatus());
+    }
+
+    @Test
+    void testConstructor() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
+            .add();
+        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, 100);
+        assertEquals(100., angleCnecResult.getAngle());
+        assertEquals(300., angleCnecResult.getMargin());
+        assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResult.getCnecSecurityStatus());
+
+        angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, Double.NaN);
+        assertEquals(Double.NaN, angleCnecResult.getAngle());
+        assertEquals(Double.NaN, angleCnecResult.getMargin());
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleCnecResult.getCnecSecurityStatus());
+    }
+
+    @Test
+    void testPrint() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
+            .add();
+        AngleCnecResult angleCnecResult = new AngleCnecResult(cnec, Unit.DEGREE, 100);
+        assertEquals(
+            "AngleCnec angle-cnec (with importing network element importingNetworkElement and exporting " +
+                "network element exportingNetworkElement) at state preventive has an angle of 100.0°.",
+            angleCnecResult.print()
+        );
+    }
+
+    @Test
+    void testCheckUnit() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
+            .add();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new AngleCnecResult(cnec, Unit.KILOVOLT, 100));
+        assertEquals("An angleCnecMonitoringResult must be in DEGREE", exception.getMessage());
     }
 
     private static Network mockBusAngleInNetwork(String exportingElement, double expAngle, String importingElement, double impAngle) {
