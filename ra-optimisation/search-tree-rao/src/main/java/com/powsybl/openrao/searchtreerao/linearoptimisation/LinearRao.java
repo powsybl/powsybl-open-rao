@@ -220,14 +220,13 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
             .withRaRangeShrinking(ENABLED.equals(openRaoSearchTreeParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking())
                 || ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(openRaoSearchTreeParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking()))
             .withSolverParameters(openRaoSearchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
-            .withMaxMinRelativeMarginParameters(raoParameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
             .withRaLimitationParameters(getRaLimitationParameters(optimizationPerimeters, cracs))
             .withMinMarginParameters(openRaoSearchTreeParameters.getMinMarginsParameters().orElse(new SearchTreeRaoCostlyMinMarginParameters()));
         raoParameters.getMnecParameters().ifPresent(parameters::withMnecParameters);
         openRaoSearchTreeParameters.getMnecParameters().ifPresent(parameters::withMnecParametersExtension);
         raoParameters.getLoopFlowParameters().ifPresent(parameters::withLoopFlowParameters);
         openRaoSearchTreeParameters.getLoopFlowParameters().ifPresent(parameters::withLoopFlowParametersExtension);
-        return parameters.build();
+        openRaoSearchTreeParameters.getRelativeMarginsParameters().ifPresent(parameters::withMaxMinRelativeMarginParameters);        return parameters.build();
     }
 
     private static RangeActionLimitationParameters getRaLimitationParameters(TemporalData<OptimizationPerimeter> optimizationPerimeters, TemporalData<Crac> cracs) {
