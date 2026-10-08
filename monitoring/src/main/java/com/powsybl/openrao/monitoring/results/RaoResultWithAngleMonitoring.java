@@ -73,8 +73,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             );
         }
 
-        Set<CnecMonitoringResult> cnecMonitoringResults = angleMonitoringResult.getCnecResults();
-        return cnecMonitoringResults.stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        return angleMonitoringResult.getCnecResult(angleCnec.getId());
 
     }
 
