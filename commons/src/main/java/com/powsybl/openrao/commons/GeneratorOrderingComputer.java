@@ -4,10 +4,11 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 
 public final class GeneratorOrderingComputer {
 
-    private GeneratorOrderingComputer() {}
+    private GeneratorOrderingComputer() { }
 
     public static CounterTradeGeneratorOrdering compute(Map<String, Double> glskWeights, Network network) {
         Set<String> zeroWeightIds = new HashSet<>();
@@ -106,5 +107,20 @@ public final class GeneratorOrderingComputer {
         return x; // any leftover means the setpoint exceeds total capacity
     }
 
-    private record RawAllocation(String generatorId, double weight, double availableCapacity, double saturationRatio) {}
+    public static double[] stageSensitivities(List<GlskGeneratorAllocation> order,
+                                              ToDoubleFunction<String> sensitivityOfGenerator) {
+        int n = order.size();
+        double[] sigma = new double[n];
+        double weightedSum = 0.0; // sum_{i>=h} lambda_i * s_i
+        double suffixWeight = 0.0; // S_h
+        for (int h = n - 1; h >= 0; h--) {
+            GlskGeneratorAllocation a = order.get(h);
+            weightedSum += a.weight() * sensitivityOfGenerator.applyAsDouble(a.generatorId());
+            suffixWeight += a.weight();
+            sigma[h] = weightedSum / suffixWeight;
+        }
+        return sigma;
+    }
+
+    private record RawAllocation(String generatorId, double weight, double availableCapacity, double saturationRatio) { }
 }

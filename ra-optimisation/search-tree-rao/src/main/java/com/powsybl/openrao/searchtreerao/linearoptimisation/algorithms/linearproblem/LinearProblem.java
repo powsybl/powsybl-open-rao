@@ -662,6 +662,10 @@ public final class LinearProblem {
         return solver.makeNumVar(0.0, ub, counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
     }
 
+    public OpenRaoMPVariable getCounterTradeGeneratorDispatchVariable(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.getVariable(counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    }
+
     public OpenRaoMPVariable addCounterTradeGeneratorSaturationBinary(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
         return solver.makeBoolVar(counterTradeGeneratorSaturationBinaryVariableId(generatorId, areaId, state, variation));
     }

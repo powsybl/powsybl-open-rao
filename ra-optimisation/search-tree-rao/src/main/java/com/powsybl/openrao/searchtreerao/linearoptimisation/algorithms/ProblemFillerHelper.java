@@ -184,7 +184,13 @@ public final class ProblemFillerHelper {
             AreaGraph areaGraph = new AreaGraph(input.network(), areaType);
 
             CounterTradeAreaBalanceFiller counterTradeAreaBalanceFiller =
-                    new CounterTradeAreaBalanceFiller(counterTradeRangeActionsPerState, areaGraph);
+                    new CounterTradeAreaBalanceFiller(
+                            input.optimizationPerimeter(),
+                            counterTradeRangeActionsPerState,
+                            areaGraph,
+                            parameters.getRangeActionParametersExtension(),
+                            parameters.getFlowUnit(),
+                            timestamp);
             problemFillers.add(counterTradeAreaBalanceFiller);
         }
 

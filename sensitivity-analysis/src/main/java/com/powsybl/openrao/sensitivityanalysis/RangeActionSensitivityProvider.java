@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -111,7 +110,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
                 createCounterTradeGlsks(network, counterTradeRangeAction, sensitivityVariables, glskIds);
-                //TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
@@ -141,7 +139,12 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
         var glsk = counterTradeRangeAction.getGlsk();
         var area = glsk.get(counterTradeRangeAction.getArea());
-        counterTradeRangeAction.computeGeneratorOrdering(network);
+        if (counterTradeRangeAction.getGeneratorOrdering() == null) {
+            counterTradeRangeAction.computeGeneratorOrdering(network);
+        }
+
+        counterTradeRangeAction.getGeneratorOrdering().upwardOrder().forEach(allocation ->
+                sensitivityVariables.put(allocation.generatorId(), SensitivityVariableType.INJECTION_ACTIVE_POWER));
 
         var positiveGlskMap = getPositiveGlskMap(area);
 

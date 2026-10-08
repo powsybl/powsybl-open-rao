@@ -203,6 +203,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                               TwoSides side,
                                               OpenRaoMPConstraint flowConstraint,
                                               RangeActionActivationResult rangeActionActivationResult) {
+        if (rangeAction instanceof CounterTradeRangeAction) {
+            return; // handled by CounterTradeAreaBalanceFiller through the stage variables
+        }
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
         if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
