@@ -286,7 +286,6 @@ class AngleMonitoringTest {
         assertEquals(-4.714, angleMonitoringResult.getCnecResult(acCur1.getId()).get().getMargin(), 0.001);
     }
 
-
     @Test
     void testCurativeStateOnlyWithNoGlskButWithTopoRa() {
         // No GLSK file but a topo RA is available -> no error should be thrown because no injection RA is available so we don't need a file GLSK !
