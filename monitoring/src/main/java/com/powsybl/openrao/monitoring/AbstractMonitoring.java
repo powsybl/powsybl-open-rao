@@ -264,33 +264,39 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
                                                  Set<I> consideredCnecs,
                                                  Unit unit
     ) {
-        // Get all network actions associated with overloaded CNECs that can be used to solve the overload
-        overloadedCnecs.forEach(cnec -> {
-            networkActionsToApply.addAll(getValidNetworkActionsAssociatedToCnec(network, crac, cnec, physicalParameter, scalableZonalData));
-        });
+        try {
+            // Get all network actions associated with overloaded CNECs that can be used to solve the overload
+            overloadedCnecs.forEach(cnec -> {
+                networkActionsToApply.addAll(getValidNetworkActionsAssociatedToCnec(network, crac, cnec, physicalParameter, scalableZonalData));
+            });
 
-        if (!networkActionsToApply.isEmpty()) {
-            // Re-balance the network if injection actions are going to be applied
-            rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
+            if (!networkActionsToApply.isEmpty()) {
+                // Re-balance the network if injection actions are going to be applied
+                rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
-            // Apply all the actions on the network
-            networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
+                // Apply all the actions on the network
+                networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
 
-            // recompute load flow
-            boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
-            if (!lfSuccess) {
-                String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
-                return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
+                // recompute load flow
+                boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
+                if (!lfSuccess) {
+                    String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
+                    return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
+                }
+
+                cnecMonitoringResults.clear();
+                consideredCnecs.forEach(cnec ->
+                    cnecMonitoringResults.add(computeCnecResult(cnec, network, unit))
+                );
+
+                return null;
             }
-
-            cnecMonitoringResults.clear();
-            consideredCnecs.forEach(cnec ->
-                cnecMonitoringResults.add(computeCnecResult(cnec, network, unit))
-            );
-
             return null;
+        } catch (Exception e) {
+            String failureReason = String.format("unable to apply remedial actions at state %s", state);
+            return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
         }
-        return null;
+
     }
 
     private Cnec.SecurityStatus computeMonitoringResultStatus(Set<CnecMonitoringResult> cnecMonitoringResults) {

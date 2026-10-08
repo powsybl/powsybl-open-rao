@@ -85,12 +85,14 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
                         .filter(OnConstraint.class::isInstance)
                         .map(OnConstraint.class::cast)
                         .anyMatch(onConstraint -> onConstraint.getCnec().equals(cnec)))
+                .filter(networkAction -> networkAction.getElementaryActions().stream()
+                    .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId())))
                 .collect(Collectors.toSet());
 
         if (!availableNetworkActions.isEmpty()) {
             Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
             availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
-                .allMatch(ea -> isValidInjectionAction(ea, network, networkAction.getId(), glskCountries))).collect(Collectors.toSet());
+                .allMatch(ea -> checkWithGlsk(glskCountries, getCountryFromInjectionAction(ea, network), networkAction.getId()))).collect(Collectors.toSet());
         }
 
         return availableNetworkActions;
@@ -127,8 +129,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     private boolean isValidInjectionAction(Action ea,
                                            Network network,
-                                           String naId,
-                                           Set<Country> glskCountries) {
+                                           String naId) {
 
         if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
             BUSINESS_WARNS.warn("Remedial action {} is ignored : it has an elementary action that's not an injection setpoint.", naId);
@@ -149,11 +150,14 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
             return false;
         }
 
-        if (!glskCountries.contains(country.get())) {
+        return true;
+    }
+
+    private boolean checkWithGlsk(Set<Country> glskCountries, Country country, String naId) {
+        if (!glskCountries.contains(country)) {
             BUSINESS_WARNS.warn("Remedial action {} is ignored : it has an elementary action on a country that's not defined in the GLSK.", naId);
             return false;
         }
-
         return true;
     }
 
@@ -192,6 +196,11 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
             );
             networkElementsToBeExcluded.add(ne.getId());
         }
+    }
+
+    private Country getCountryFromInjectionAction(Action ea, Network network) {
+        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        return ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
     }
 
     private static Set<Country> getCountriesFromGlsk(ZonalData<Scalable> scalableZonalData) {
