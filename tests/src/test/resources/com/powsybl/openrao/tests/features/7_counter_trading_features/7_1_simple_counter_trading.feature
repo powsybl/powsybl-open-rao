@@ -91,7 +91,7 @@ Feature: 7.1: Simple CT Actions
     Then the generator "FFR2AA1 _generator" should have a targetP of 180 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.1.7: Preventive search tree RAO with 2 areas and 2 generators in an area, one of them saturating
     Given network file is "counter-trading/2NodesFR1NodeBE_saturationFR2.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
@@ -102,6 +102,22 @@ Feature: 7.1: Simple CT Actions
     Then its security status should be "SECURED"
     Then the remedial action "counterTradingActionFR" is used in preventive
     Then the remedial action "counterTradingActionBE" is used in preventive
-    Then the generator "FFR1AA1 _generator" should have a targetP of 500 MW after PRA
+    Then the generator "FFR1AA1 _generator" should have a targetP of 600 MW after PRA
     Then the generator "FFR2AA1 _generator" should have a targetP of 0 MW after PRA
+    Then the value of the objective function after PRA should be 20010.0
+
+
+  @rao @counter-trading
+  Scenario: 7.1.8: Preventive search tree RAO with 2 areas and 2 generators in an area, one of them saturating
+    Given network file is "counter-trading/2NodesFR1NodeBE_saturationFR2_0.uct"
+    Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
+    Given configuration file is "counter-trading/rao-parameters-ct.json"
+    Given ucte glsk file is "counter-trading/glsk_2nodes_fr_1node_be.xml"
+    When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then the remedial action "counterTradingActionFR" is used in preventive
+    Then the remedial action "counterTradingActionBE" is used in preventive
+    Then the generator "FFR1AA1 _generator" should have a targetP of 350 MW after PRA
+    Then the generator "FFR2AA1 _generator" should have a targetP of 250 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
