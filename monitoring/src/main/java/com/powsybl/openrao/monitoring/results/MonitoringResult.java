@@ -44,6 +44,7 @@ public class MonitoringResult {
     public Optional<CnecMonitoringResult> getCnecResult(String id) {
         return cnecMonitoringResults.stream().filter(cr -> cr.getId().equals(id)).findFirst();
     }
+
     public Map<State, Set<RemedialAction>> getAppliedRas() {
         return appliedRas;
     }
