@@ -167,6 +167,16 @@ class AngleMonitoringTest {
         angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
+    private void runAngleMonitoring() {
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac)
+            .withNetwork(network)
+            .withRaoResult(raoResult)
+            .withPhysicalParameter(PhysicalParameter.ANGLE)
+            .build();
+        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
+    }
+
     private RaoResult runAngleMonitoringAndUpdateRaoResult(ZonalData<Scalable> scalableZonalData) {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
@@ -242,6 +252,60 @@ class AngleMonitoringTest {
     }
 
     @Test
+    void testCurativeStateOnlyWithNoGlskAndNoRa() {
+        // No GLSK file but no RA applied either -> no error thrown
+        setUpCracFactory("network.xiidm");
+        mockCurativeStates();
+        runAngleMonitoring();
+
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(List.of("Some ANGLE CNECs are not secure:",
+                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
+            angleMonitoringResult.printConstraints());
+    }
+
+    @Test
+    void testCurativeStateOnlyWithNoGlskButWithInjectionRa() {
+        // No GLSK file but an injection RA is available -> an error should be thrown -> interrupt the curative state monitoring
+        // we should return status = FAILURE, no network actions applied and angle CNEC result = angle from initial loadflow.
+        setUpCracFactory("network.xiidm");
+        mockCurativeStates();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+        runAngleMonitoring();
+
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."),
+            angleMonitoringResult.printConstraints());
+        assertEquals(1, angleMonitoringResult.getCnecResults().size());
+        assertEquals(-4.714, angleMonitoringResult.getCnecResult(acCur1.getId()).get().getMargin(), 0.001);
+    }
+
+    @Test
+    void testCurativeStateOnlyWithNoGlskButWithTopoRa() {
+        // No GLSK file but a topo RA is available -> no error should be thrown because no injection RA is available so we don't need a file GLSK !
+        setUpCracFactory("network.xiidm");
+        mockCurativeStates();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Open L1 - 2")
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+        runAngleMonitoring();
+
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(1, angleMonitoringResult.getCnecResults().size());
+        assertEquals(-4.714, angleMonitoringResult.getCnecResult(acCur1.getId()).get().getMargin(), 0.001);
+
+    }
+
+    @Test
     void testCurativeStateOnlyWithAvailableTopoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
@@ -258,6 +322,9 @@ class AngleMonitoringTest {
         assertEquals(List.of("Some ANGLE CNECs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
+        assertEquals(1, angleMonitoringResult.getCnecResults().size());
+        assertEquals(-4.714, angleMonitoringResult.getCnecResult(acCur1.getId()).get().getMargin(), 0.001);
+
     }
 
     @Test
