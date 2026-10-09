@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -20,7 +19,6 @@ import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.management.monitor.Monitor;
 import java.util.Map;
 import java.util.Set;
 
