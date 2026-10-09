@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -37,7 +38,7 @@ class MonitoringTest {
         // 3 voltage CNECs are defined one in preventive, one in curative 1 and one in curative 3.
         // preventive => ok, curative 3 => ok but curative 1 => ignored. We only monitor final curative instant + preventive.
 
-        Monitoring monitoring = new Monitoring("OpenLoadFlow", new LoadFlowParameters());
+        VoltageMonitoring monitoring = new VoltageMonitoring("OpenLoadFlow", new LoadFlowParameters());
 
         Network network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);

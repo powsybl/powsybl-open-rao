@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.monitoring;
+package com.powsybl.openrao.monitoring.voltage;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -21,16 +21,16 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.MonitoringInput;
+import com.powsybl.openrao.monitoring.MonitoringTestUtil;
+import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -141,19 +141,23 @@ class VoltageMonitoringTest {
     private void runVoltageMonitoring() {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        voltageMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
+        voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
     @Test
     void testOneSecurePreventiveCnec() {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", null, 500.);
         runVoltageMonitoring();
-        VoltageCnecValue voltageCnecValue = (VoltageCnecValue) voltageMonitoringResult.getCnecResults().stream()
+        Double voltageCnecMinVoltage = voltageMonitoringResult.getCnecResults().stream()
             .filter(cnec -> cnec.getId().equals("vc"))
-            .map(CnecResult::getValue)
-            .findFirst().get();
-        assertEquals(400., voltageCnecValue.minValue(), VOLTAGE_TOLERANCE);
-        assertEquals(400., voltageCnecValue.maxValue(), VOLTAGE_TOLERANCE);
+            .map(VoltageCnecMonitoringResult.class::cast)
+            .findFirst().get().getMinVoltage();
+        Double voltageCnecMaxVoltage = voltageMonitoringResult.getCnecResults().stream()
+            .filter(cnec -> cnec.getId().equals("vc"))
+            .map(VoltageCnecMonitoringResult.class::cast)
+            .findFirst().get().getMaxVoltage();
+        assertEquals(400., voltageCnecMinVoltage, VOLTAGE_TOLERANCE);
+        assertEquals(400., voltageCnecMaxVoltage, VOLTAGE_TOLERANCE);
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("All VOLTAGE CNECs are secure."), voltageMonitoringResult.printConstraints());
@@ -557,25 +561,23 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(2, voltageMonitoringResult.getCnecResults().size());
 
-        Optional<CnecResult> vcCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vc")).findFirst();
-        CnecValue vcCnecOptCnecValue = vcCnecOpt.get().getValue();
+        Optional<CnecMonitoringResult> vcCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vc")).findFirst();
+        VoltageCnecMonitoringResult vcCnecOptCnec = (VoltageCnecMonitoringResult) vcCnecOpt.get();
         Cnec.SecurityStatus vcCnecOptSecurityStatus = vcCnecOpt.get().getCnecSecurityStatus();
         double vcMargin = vcCnecOpt.get().getMargin();
 
-        assertTrue(vcCnecOptCnecValue instanceof VoltageCnecValue);
-        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).minValue());
-        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).maxValue());
+        assertEquals(Double.NaN, vcCnecOptCnec.getMinVoltage());
+        assertEquals(Double.NaN, vcCnecOptCnec.getMaxVoltage());
         assertEquals(Cnec.SecurityStatus.FAILURE, vcCnecOptSecurityStatus);
         assertEquals(Double.NaN, vcMargin);
 
-        Optional<CnecResult> vcPrevCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vcPrev")).findFirst();
-        CnecValue vcPrevCnecOptCnecValue = vcPrevCnecOpt.get().getValue();
+        Optional<CnecMonitoringResult> vcPrevCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vcPrev")).findFirst();
+        VoltageCnecMonitoringResult vcPrevCnecOptCnec = (VoltageCnecMonitoringResult) vcPrevCnecOpt.get();
         Cnec.SecurityStatus vcPrevCnecOptSecurityStatus = vcPrevCnecOpt.get().getCnecSecurityStatus();
         double vcPrevMargin = vcPrevCnecOpt.get().getMargin();
 
-        assertTrue(vcPrevCnecOptCnecValue instanceof VoltageCnecValue);
-        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).minValue(), 0.01);
-        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).maxValue(), 0.01);
+        assertEquals(400., vcPrevCnecOptCnec.getMinVoltage(), 0.01);
+        assertEquals(400., vcPrevCnecOptCnec.getMaxVoltage(), 0.01);
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, vcPrevCnecOptSecurityStatus);
         assertEquals(-1.0, vcPrevMargin, 0.01);
     }
@@ -583,7 +585,7 @@ class VoltageMonitoringTest {
     @Test
     void testWithRaoResultUpdate() {
         setUpCracFactory("network.xiidm");
-        VoltageCnec vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
+        addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
@@ -598,7 +600,7 @@ class VoltageMonitoringTest {
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
+        RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
@@ -634,7 +636,7 @@ class VoltageMonitoringTest {
         final CountDownLatch latch = new CountDownLatch(3);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
-        final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
+        final RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
 
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
@@ -655,7 +657,7 @@ class VoltageMonitoringTest {
         assertTrue(isSecure(raoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW));
 
         MonitoringInput monitoringInput = MonitoringInput.buildWithVoltage(network, crac, raoResult).build();
-        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult(
+        RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult(
             "OpenLoadFlow",
             LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
             1,

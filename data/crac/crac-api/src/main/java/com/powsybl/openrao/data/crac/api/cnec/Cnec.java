@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.api.cnec;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
@@ -54,27 +53,6 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * It defines the physical value that will be monitored/optimized for this {@code Cnec}.
      */
     PhysicalParameter getPhysicalParameter();
-
-    /**
-     * @param network the network object used to look for actual result of the Cnec
-     * @param unit the unit object used to look for the kind of the {@link Cnec} and the kind of the {@link CnecValue}
-     * @return a CnecValue  as result of the {@link Cnec} depending on the cnec kind
-     */
-    CnecValue computeValue(Network network, Unit unit);
-
-    /**
-     * @param network the network object used to look for actual result of the Cnec
-     * @param unit the unit object used to look for the kind of the {@link Cnec}
-     * @return a double as the worst margin of a @{@link CnecValue} relatively to the @{@link Cnec} thresholds
-     */
-    double computeMargin(Network network, Unit unit);
-
-    /**
-     * @param network the network object used to look for actual result of the Cnec
-     * @param unit the unit object used to look for the kind of the {@link Cnec}
-     * Returns a {@link SecurityStatus} describing the {@link Cnec} result compared to the thresholds
-     */
-    SecurityStatus computeSecurityStatus(Network network, Unit unit);
 
     /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
