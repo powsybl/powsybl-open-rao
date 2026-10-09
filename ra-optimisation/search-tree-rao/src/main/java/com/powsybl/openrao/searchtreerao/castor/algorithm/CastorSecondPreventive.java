@@ -85,8 +85,13 @@ public class CastorSecondPreventive {
     private final ReportNode secondPreventiveReportNode;
 
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
+    private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT_WORK = "SecondPreventiveScenarioWork";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
+
+    private ToolProvider workingToolProvider;
+    private PrePerimeterResult workingInitialOutput;
+    private RaoParameters workingRaoParameters;
 
     public CastorSecondPreventive(final Crac crac,
                                   final RaoParameters raoParameters,
@@ -102,6 +107,19 @@ public class CastorSecondPreventive {
         this.toolProvider = toolProvider;
         this.targetEndInstant = targetEndInstant;
         this.secondPreventiveReportNode = secondPreventiveReportNode;
+        this.workingToolProvider = toolProvider;
+        this.workingRaoParameters = raoParameters;
+    }
+
+    public void setWorkingToolProvider(ToolProvider workingToolProvider) {
+        this.workingToolProvider = workingToolProvider;
+        if (workingToolProvider != null) {
+            this.workingRaoParameters = workingToolProvider.getRaoParameters();
+        }
+    }
+
+    public void setWorkingInitialOutput(PrePerimeterResult workingInitialOutput) {
+        this.workingInitialOutput = workingInitialOutput;
     }
 
     /**
@@ -371,27 +389,33 @@ public class CastorSecondPreventive {
                                                                             OptimizationResult firstPreventiveResult,
                                                                             AppliedRemedialActions appliedCras) {
 
+        String prevVariant = network.getVariantManager().getWorkingVariantId();
+        if (workingToolProvider != toolProvider) {
+            network.getVariantManager().cloneVariant(prevVariant, SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT_WORK, true);
+            network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT_WORK);
+        }
+
         OptimizationPerimeter optPerimeter;
         State preventiveState = crac.getPreventiveState();
 
-        optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, secondPreventiveReportNode);
+        optPerimeter = GlobalOptimizationPerimeter.build(crac, network, workingRaoParameters, prePerimeterResult, secondPreventiveReportNode);
 
         SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(secondPreventiveReportNode)
-            .withConstantParametersOverAllRao(raoParameters, crac)
-            .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
+            .withConstantParametersOverAllRao(workingRaoParameters, crac)
+            .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(workingRaoParameters))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(workingRaoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
 
         if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network).isEmpty()) {
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
-                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
-                    ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
+                workingRaoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                    ? workingRaoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
                     : new LoadFlowAndSensitivityParameters(secondPreventiveReportNode);
             searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
         }
 
         SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
 
-        if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters) && !firstPreventiveResult.getActivatedNetworkActions().isEmpty()) {
+        if (getSecondPreventiveHintFromFirstPreventiveRao(workingRaoParameters) && !firstPreventiveResult.getActivatedNetworkActions().isEmpty()) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
             TECHNICAL_LOGS.debug("Providing hint for 2nd preventive RAO from 1st preventive: {}", firstPreventiveResult.getActivatedNetworkActions());
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
@@ -400,28 +424,75 @@ public class CastorSecondPreventive {
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
         statesToOptimize.add(optPerimeter.getMainOptimizationState());
 
+        // give the DC search DC references (initial + pre-perimeter) instead of AC ones
+        PrePerimeterResult searchInitialOutput = initialOutput;
+        PrePerimeterResult searchPrePerimeterResult = prePerimeterResult;
+        if (workingToolProvider != toolProvider && workingInitialOutput != null) {
+            PrePerimeterResult dcPrePerimeterResult = new PrePerimeterSensitivityAnalysis(
+                    crac,
+                    crac.getFlowCnecs(),
+                    crac.getRangeActions(),
+                    workingRaoParameters,
+                    workingToolProvider,
+                    true
+                    )
+                    .runBasedOnInitialResults(network, workingInitialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras, secondPreventiveReportNode);
+            if (dcPrePerimeterResult.getSensitivityStatus() != ComputationStatus.FAILURE) {
+                searchInitialOutput = workingInitialOutput;
+                searchPrePerimeterResult = dcPrePerimeterResult;
+            }
+        }
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
             optPerimeter.getFlowCnecs(),
             optPerimeter.getLoopFlowCnecs(),
-            initialOutput,
-            prePerimeterResult,
+            searchInitialOutput,
+            searchPrePerimeterResult,
             new HashSet<>(),
-            raoParameters,
+            workingRaoParameters,
             statesToOptimize
         );
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
-            .withInitialFlowResult(initialOutput)
-            .withPrePerimeterResult(prePerimeterResult)
+            .withInitialFlowResult(searchInitialOutput)
+            .withPrePerimeterResult(searchPrePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) // no remedial action applied
             .withObjectiveFunction(objectiveFunction)
-            .withToolProvider(toolProvider)
+            .withToolProvider(workingToolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true, secondPreventiveReportNode).run().join();
+        OptimizationResult decidedResult = new SearchTree(searchTreeInput, searchTreeParameters, true, secondPreventiveReportNode).run().join();
+        OptimizationResult result;
+        if (workingToolProvider == toolProvider) {
+            result = decidedResult;
+        } else {
+            network.getVariantManager().setWorkingVariant(prevVariant);
+            network.getVariantManager().removeVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT_WORK);
+
+            // the search above ran on DC sensitivities for performance; recompute the decided RA combination in AC before reporting it
+            ObjectiveFunction baseObjectiveFunction = ObjectiveFunction.build(
+                    optPerimeter.getFlowCnecs(),
+                    optPerimeter.getLoopFlowCnecs(),
+                    initialOutput,
+                    prePerimeterResult,
+                    new HashSet<>(),
+                    raoParameters,
+                    statesToOptimize);
+            SearchTreeInput acSearchTreeInput = SearchTreeInput.create()
+                    .withNetwork(network)
+                    .withOptimizationPerimeter(optPerimeter)
+                    .withInitialFlowResult(initialOutput)
+                    .withPrePerimeterResult(prePerimeterResult)
+                    .withPreOptimizationAppliedNetworkActions(appliedCras)
+                    .withObjectiveFunction(baseObjectiveFunction)
+                    .withToolProvider(toolProvider)
+                    .withOutageInstant(crac.getOutageInstant())
+                    .build();
+            result = new SearchTree(acSearchTreeInput, searchTreeParameters, true, secondPreventiveReportNode)
+                    .optimizeDecidedNetworkActionCombination(decidedResult, secondPreventiveReportNode);
+        }
 
         // apply PRAs
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);

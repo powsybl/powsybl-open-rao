@@ -37,7 +37,9 @@ import java.util.stream.Collectors;
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -225,6 +227,46 @@ public final class CastorReports {
             .add();
 
         TECHNICAL_LOGS.info("Curative state {} has been optimized.", stateId);
+    }
+
+    public static void reportCurativeStateDcSecureButAcMarginViolation(final ReportNode parentNode,
+                                                                       final String stateId,
+                                                                       final int activatedNetworkActionCount) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportCurativeStateDcSecureButAcMarginViolation")
+            .withUntypedValue(STATE_ID, stateId)
+            .withUntypedValue("networkActionCount", activatedNetworkActionCount)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn(
+            "Curative state {}: DC search reported perimeter secure with {} network action(s), but the AC recompute shows a margin violation; searching deeper in DC.",
+            stateId, activatedNetworkActionCount);
+    }
+
+    public static void reportCurativeStateExhaustiveDcSearchStillInsecureInAc(final ReportNode parentNode, final String stateId) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportCurativeStateExhaustiveDcSearchStillInsecureInAc")
+            .withUntypedValue(STATE_ID, stateId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("Curative state {}: exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search.", stateId);
+    }
+
+    public static void reportCurativeStateNoSecureCombinationFoundInAc(final ReportNode parentNode, final String stateId, final double cost) {
+        final String costFormatted = ReportUtils.formatDoubleBasedOnMargin(cost, -cost);
+
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportCurativeStateNoSecureCombinationFoundInAc")
+            .withUntypedValue(STATE_ID, stateId)
+            .withUntypedValue("cost", costFormatted)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn(
+            "Curative state {}: could not find any network action combination that is secure in AC; using the best result found (cost = {}).",
+            stateId, costFormatted);
     }
 
     public static ReportNode reportPreventivePerimeterOptimization(final ReportNode parentNode) {
