@@ -271,16 +271,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             });
 
             if (!networkActionsToApply.isEmpty()) {
-                // MAke sure that the network will be balanced if injection actions are going to be applied -> for the load flow to converge.
-                // Ex. if we have to decrease the power of a generator, we need to re-balance the network by increasing the power elsewhere in the country.
-                // Do this here because we need the setpoint of the injection elements in the network BEFORE applying the network actions
-                rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
-                // Apply all the actions on the network
-                networkActionsToApply.forEach(networkAction -> {
-                    BUSINESS_LOGS.info("Applying network action {} on state {}.", networkAction.getId(), state);
-                    networkAction.apply(network);
-                });
+                applyNetworkActions(network, networkActionsToApply, scalableZonalData, state);
 
                 // recompute load flow
                 boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
@@ -337,9 +329,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     protected abstract Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData);
 
-    protected abstract void rebalanceNetwork(Network network,
-                                             Set<NetworkAction> networkActionsToApply,
-                                             ZonalData<Scalable> scalableZonalData);
+    protected abstract void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state);
 
     protected abstract CnecMonitoringResult computeCnecResult(I cnec, Network network, Unit unit);
 

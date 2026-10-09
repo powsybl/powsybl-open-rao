@@ -20,6 +20,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -38,7 +39,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LO
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
- *
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
@@ -106,6 +108,36 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
+    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {
+        // Make sure that the network will be balanced if injection actions are going to be applied -> for the load flow to converge.
+        // Ex. if we have to decrease the power of a generator, we need to re-balance the network by increasing the power elsewhere in the country.
+        // Do this here because we need the setpoint of the injection elements in the network BEFORE applying the network actions
+        rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
+
+        // Apply all the actions on the network
+        networkActionsToApply.forEach(networkAction -> {
+            BUSINESS_LOGS.info("Applying network action {} on state {}.", networkAction.getId(), state);
+            networkAction.apply(network);
+        });
+    }
+
+    @Override
+    protected AngleCnecMonitoringResult computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
+        return new AngleCnecMonitoringResult(angleCnec, unit, network);
+    }
+
+    @Override
+    protected Set<AngleCnec> getCnecs(Crac crac) {
+        return crac.getAngleCnecs();
+    }
+
+    @Override
+    protected AngleCnecMonitoringResult makeFailedCnecResult(AngleCnec cnec) {
+        return new AngleCnecMonitoringResult(cnec, Unit.DEGREE, Double.NaN);
+    }
+
+    // Helper functions
+
     protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
         // Get power to be redispatched and network elements to be excluded
         EnumMap<Country, Double> powerToBeRedispatchedPerCountry = new EnumMap<>(Country.class);
@@ -128,23 +160,6 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
             BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", powerToRedispatch, country);
         });
     }
-
-    @Override
-    protected AngleCnecMonitoringResult computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
-        return new AngleCnecMonitoringResult(angleCnec, unit, network);
-    }
-
-    @Override
-    protected Set<AngleCnec> getCnecs(Crac crac) {
-        return crac.getAngleCnecs();
-    }
-
-    @Override
-    protected AngleCnecMonitoringResult makeFailedCnecResult(AngleCnec cnec) {
-        return new AngleCnecMonitoringResult(cnec, Unit.DEGREE, Double.NaN);
-    }
-
-    // Helper functions
 
     private boolean isValidInjectionAction(Action ea,
                                            Network network,
