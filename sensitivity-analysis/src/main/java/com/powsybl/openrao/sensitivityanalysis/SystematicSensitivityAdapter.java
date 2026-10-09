@@ -41,7 +41,8 @@ final class SystematicSensitivityAdapter {
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
                                                       ComputationManager computationManager) {
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis [start] in %s",
+                sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
         SensitivityAnalysisResult result;
         try {
             final List<SensitivityFactor> allFactors = cnecSensitivityProvider.getAllFactors(network); // This must be done before getting variable sets
