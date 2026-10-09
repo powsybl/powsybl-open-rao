@@ -42,6 +42,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
+    Map<Injection<?>, Double> setpointPerNetworkElement = new HashMap<>();
+
     public AngleMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
     }
@@ -91,8 +93,13 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
         if (!availableNetworkActions.isEmpty()) {
             Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
+            setpointPerNetworkElement = new HashMap<>();
+
             availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
-                .allMatch(ea -> checkWithGlsk(glskCountries, getCountryFromInjectionAction(ea, network), networkAction.getId()))).collect(Collectors.toSet());
+                .allMatch(ea ->
+                    checkWithGlsk(glskCountries, getCountryFromInjectionAction(ea, network), networkAction.getId()) &&
+                        checkNetworkActionsCoherence(ea, network, setpointPerNetworkElement)
+                )).collect(Collectors.toSet());
         }
 
         return availableNetworkActions;
@@ -101,13 +108,25 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     @Override
     protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
         // Get power to be redispatched and network elements to be excluded
-        EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
-        Set<String> networkElementsToBeExcluded = new HashSet<>();
-        networkActionsToApply.forEach(networkAction ->
-            networkAction.getElementaryActions().forEach(ea ->
-                storeEnergyToRedispatchAndNetworkElementsToExclude(ea, network, networkElementsToBeExcluded, powerToBeRedispatched)
-            ));
-        redispatchNetworkActions(network, powerToBeRedispatched, networkElementsToBeExcluded, scalableZonalData);
+        EnumMap<Country, Double> powerToBeRedispatchedPerCountry = new EnumMap<>(Country.class);
+        Set<String> networkElementsToBeExcluded = setpointPerNetworkElement.keySet().stream().map(Injection::getId).collect(Collectors.toSet());
+        setpointPerNetworkElement.forEach((injectionElement, setPoint) -> {
+            Country country = injectionElement.getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
+            powerToBeRedispatchedPerCountry.merge(country, getPowerToRedispatch(injectionElement, setPoint), Double::sum);
+        });
+
+        // Apply "redispatch" actions per country
+        powerToBeRedispatchedPerCountry.forEach((country, powerToRedispatch) -> {
+            BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", powerToRedispatch, country);
+            // Necessarily exist because we check beforehand if the country is in the GLSK
+            List<Scalable> countryScalables = scalableZonalData.getDataPerZone().entrySet().stream().filter(entry -> country.equals(new CountryEICode(entry.getKey()).getCountry()))
+                .map(Map.Entry::getValue).toList();
+            if (countryScalables.size() > 1) {
+                throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryScalables.size(), country));
+            }
+            new RedispatchAction(powerToRedispatch, networkElementsToBeExcluded, countryScalables.get(0)).apply(network);
+            BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", powerToRedispatch, country);
+        });
     }
 
     @Override
@@ -161,6 +180,22 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         return true;
     }
 
+    /**
+     * Check if the setpoint of the given elementary action is coherent with the setpoints of the other elementary actions targeting the same network element.
+     */
+    private boolean checkNetworkActionsCoherence(Action ea, Network network, Map<Injection<?>, Double> setpointPerNetworkElement) {
+        Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        String networkElementId = ne.getId();
+        double setPoint = getSetPointValue(ea);
+        Double previousSetPoint = setpointPerNetworkElement.putIfAbsent(ne, setPoint);
+        if (previousSetPoint != null && Double.compare(previousSetPoint, setPoint) != 0) {
+            String errorMsg = String.format("Two elementary actions target the same element '%s' with different setpoints: %s and %s", networkElementId, previousSetPoint, setPoint);
+            BUSINESS_LOGS.error(errorMsg);
+            throw new OpenRaoException(errorMsg);
+        }
+        return true;
+    }
+
     private Injection<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
         if (ea instanceof GeneratorAction generatorAction) {
             return (Injection<?>) network.getIdentifiable(generatorAction.getGeneratorId());
@@ -172,35 +207,29 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         }
     }
 
-    private void storeEnergyToRedispatchAndNetworkElementsToExclude(Action ea,
-                                                                    Network network,
-                                                                    Set<String> networkElementsToBeExcluded,
-                                                                    Map<Country, Double> powerToBeRedispatched) {
+    private double getPowerToRedispatch(Injection<?> ne, Double setpoint) {
+        return switch (ne.getType()) {
+            case GENERATOR -> ((Generator) ne).getTargetP() - setpoint;
+            case LOAD -> -((Load) ne).getP0() + setpoint;
+            default -> throw new OpenRaoException(String.format(
+                "Network element %s of type %s is not a generator or load", ne.getId(), ne.getType()
+            ));
+        };
+    }
 
-        // We only keep valid injection network action so we should not get nullPointerException
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        Country country = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
-
-        if (ne.getType().equals(IdentifiableType.GENERATOR)) {
-            powerToBeRedispatched.merge(
-                country,
-                ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(),
-                Double::sum
-            );
-            networkElementsToBeExcluded.add(ne.getId());
-        } else if (ne.getType().equals(IdentifiableType.LOAD)) {
-            powerToBeRedispatched.merge(
-                country,
-                -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(),
-                Double::sum
-            );
-            networkElementsToBeExcluded.add(ne.getId());
+    private double getSetPointValue(Action ea) {
+        if (ea instanceof GeneratorAction generatorAction) {
+            return generatorAction.getActivePowerValue().getAsDouble();
         }
+        if (ea instanceof LoadAction loadAction) {
+            return loadAction.getActivePowerValue().getAsDouble();
+        }
+        throw new OpenRaoException(String.format("Elementary action %s is not a generator or load action", ea.getId()));
     }
 
     private Country getCountryFromInjectionAction(Action ea, Network network) {
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        return ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
+        Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        return ne.getTerminal().getVoltageLevel().getSubstation().get().getCountry().get();
     }
 
     private static Set<Country> getCountriesFromGlsk(ZonalData<Scalable> scalableZonalData) {
@@ -214,21 +243,6 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
         return glskCountries;
-    }
-
-    private void redispatchNetworkActions(Network network, EnumMap<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded, ZonalData<Scalable> scalableZonalData) {
-        // Apply redispatch actions per country
-        powerToBeRedispatched.forEach((country, powerToRedispatch) -> {
-            BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", powerToRedispatch, country);
-            // Necessarily exist because we check beforehand if the country is in the GLSK
-            List<Scalable> countryScalables = scalableZonalData.getDataPerZone().entrySet().stream().filter(entry -> country.equals(new CountryEICode(entry.getKey()).getCountry()))
-                .map(Map.Entry::getValue).toList();
-            if (countryScalables.size() > 1) {
-                throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryScalables.size(), country));
-            }
-            new RedispatchAction(powerToRedispatch, networkElementsToBeExcluded, countryScalables.get(0)).apply(network);
-            BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", powerToRedispatch, country);
-        });
     }
 
 }

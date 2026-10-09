@@ -271,7 +271,9 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             });
 
             if (!networkActionsToApply.isEmpty()) {
-                // Re-balance the network if injection actions are going to be applied
+                // MAke sure that the network will be balanced if injection actions are going to be applied -> for the load flow to converge.
+                // Ex. if we have to decrease the power of a generator, we need to re-balance the network by increasing the power elsewhere in the country.
+                // Do this here because we need the setpoint of the injection elements in the network BEFORE applying the network actions
                 rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
                 // Apply all the actions on the network
