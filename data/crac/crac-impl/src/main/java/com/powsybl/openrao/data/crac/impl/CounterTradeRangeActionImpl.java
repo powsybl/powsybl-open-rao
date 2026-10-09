@@ -10,8 +10,10 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.commons.GeneratorOrderingComputer;
 import com.powsybl.openrao.commons.GlskGeneratorAllocation;
@@ -189,6 +191,38 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         zonalGlsk.getData(getArea())
                  .getVariablesById()
                  .forEach((id, variable) -> glsk.get(getArea()).put(id, variable.getWeight()));
+    }
+
+    @Override
+    public void setGlsk(Network network) {
+        this.glsk = new HashMap<>();
+        String areaId = getArea();
+        this.glsk.put(getArea(), new HashMap<>());
+        this.glsk.put(areaId, computeProportionalShares(network, areaId));
+    }
+
+    private static double pseudoTargetP(Generator generator) {
+        return Math.max(1e-5, Math.abs(generator.getTargetP()));
+    }
+
+    private static Map<String, Double> computeProportionalShares(Network network, String areaId) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(areaId);
+        Area area = network.getArea(areaId);
+        if (area == null) {
+            throw new IllegalArgumentException("Area " + areaId + " not present");
+        }
+        List<Generator> generators = area.getVoltageLevelStream()
+                .flatMap(VoltageLevel::getGeneratorStream)
+                .filter(g -> g.getTerminal().isConnected()
+                        && g.getTerminal().getBusView().getBus() != null
+                        && g.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
+                .toList();
+        double totalP = generators.stream().mapToDouble(CounterTradeRangeActionImpl::pseudoTargetP).sum();
+
+        Map<String, Double> shares = new LinkedHashMap<>();
+        generators.forEach(g -> shares.put(g.getId(), pseudoTargetP(g) / totalP));
+        return shares;
     }
 
     public Map<String, Map<String, Double>> getGlsk() {

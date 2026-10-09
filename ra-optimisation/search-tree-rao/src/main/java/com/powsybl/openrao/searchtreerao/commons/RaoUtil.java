@@ -61,9 +61,11 @@ public final class RaoUtil {
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
         checkCurativeRaUsageLimit(raoInput.getCrac());
-
-        checkCounterTradingPreconditions(raoInput);
-        updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
+        if (raoInput.getGlskProvider() == null) {
+            updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getNetwork()); // proportional to generators
+        } else {
+            updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
+        }
     }
 
     /**

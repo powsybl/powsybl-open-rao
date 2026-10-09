@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -21,7 +22,10 @@ public final class CounterTradingUtils {
 
     public static void updateCounterTradeRangeActionGlsks(Crac crac, ZonalData<SensitivityVariableSet> glsk) {
         crac.getCounterTradeRangeActions().forEach(action -> action.setGlsk(glsk));
+    }
 
+    public static void updateCounterTradeRangeActionGlsks(Crac crac, Network network) {
+        crac.getCounterTradeRangeActions().forEach(action -> action.setGlsk(network));
     }
 
 }

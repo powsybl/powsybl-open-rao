@@ -39,6 +39,8 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
      */
     void setGlsk(ZonalData<SensitivityVariableSet> glsk);
 
+    void setGlsk(Network network);
+
     /**
      * Get the Glsk
      */
