@@ -89,6 +89,7 @@ Examples of rao parameters with business and implementation specific parameters
         "load-flow-provider" : "OpenLoadFlow",
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-over-cost" : 0.0,
+        "optimize-in-dc" : false,
         "sensitivity-parameters" : {
           "version" : "1.3",
           "load-flow-parameters" : {
@@ -198,6 +199,7 @@ rao-not-optimized-cnecs:
 search-tree-load-flow-and-sensitivity-computation:
   load-flow-provider: OpenLoadFlow
   sensitivity-provider: OpenLoadFlow
+  optimize-in-dc: false
 
 load-flow-default-parameters:
   voltageInitMode: DC_VALUES

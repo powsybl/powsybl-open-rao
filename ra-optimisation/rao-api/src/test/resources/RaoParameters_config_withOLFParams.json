@@ -50,6 +50,7 @@
         "load-flow-provider" : "OpenLoadFlow",
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-overcost" : 2.0,
+        "optimize-in-dc" : false,
         "sensitivity-parameters" : {
           "version" : "1.3",
           "load-flow-parameters" : {
