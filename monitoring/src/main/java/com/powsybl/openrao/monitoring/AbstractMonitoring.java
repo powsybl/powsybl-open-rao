@@ -275,12 +275,15 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
                 rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
                 // Apply all the actions on the network
-                networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
+                networkActionsToApply.forEach(networkAction -> {
+                    BUSINESS_LOGS.info("Applying network action {} on state {}.", networkAction.getId(), state);
+                    networkAction.apply(network);
+                });
 
                 // recompute load flow
                 boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
                 if (!lfSuccess) {
-                    String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
+                    String failureReason = String.format("Load flow computation failed at state %s after applying RAs. Skipping this state.", state);
                     return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
                 }
 
@@ -293,7 +296,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             }
             return null;
         } catch (Exception e) {
-            String failureReason = String.format("unable to apply remedial actions at state %s", state);
+            String failureReason = String.format("Unable to apply remedial actions at state %s", state.getId());
             return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
         }
 
