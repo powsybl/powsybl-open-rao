@@ -102,6 +102,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // LoadFlow and sensitivity parameters
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
         // Extensions
         // -- LoopFlow parameters
         com.powsybl.openrao.raoapi.parameters.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters();
