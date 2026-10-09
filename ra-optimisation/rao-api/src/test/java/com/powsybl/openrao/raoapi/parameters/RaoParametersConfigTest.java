@@ -174,11 +174,13 @@ class RaoParametersConfigTest {
         loadFlowModuleConfig.setStringProperty("load-flow-provider", "Bonjour");
         loadFlowModuleConfig.setStringProperty("sensitivity-provider", "Au revoir");
         loadFlowModuleConfig.setStringProperty("sensitivity-failure-overcost", Objects.toString(32));
+        loadFlowModuleConfig.setStringProperty("optimize-in-dc", "true");
         RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         LoadFlowAndSensitivityParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         assertEquals("Bonjour", paramsExt.getLoadFlowProvider());
         assertEquals("Au revoir", paramsExt.getSensitivityProvider());
         assertEquals(32, paramsExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        assertTrue(paramsExt.getOptimizeInDc());
     }
 
     @Test
