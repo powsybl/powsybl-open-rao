@@ -41,6 +41,9 @@ import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -48,11 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -512,22 +511,72 @@ class AngleMonitoringTest {
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
-    @Test
-    void testNoZonalDataInputForAngleMonitoring() {
+    private static List<Arguments> sameElementSetpointCases() {
+        return List.of(
+            Arguments.of(50.0, 50.0, false),
+            Arguments.of(50.0, 500.0, true)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("sameElementSetpointCases")
+    void testTwoNetworkActionsOnSameElement(double firstSetpoint, double secondSetpoint, boolean shouldThrow) {
         setUpCracFactory("network.xiidm");
         mockCurativeStatesSecure();
-        naL1Cur = crac.newNetworkAction()
-            .withId("Injection L1 - 2")
-            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+
+        crac.newNetworkAction()
+            .withId("Injection L1 - 1")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(firstSetpoint).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
             .add();
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
-            .withCrac(crac)
-            .withNetwork(network)
-            .withRaoResult(raoResult)
-            .withPhysicalParameter(PhysicalParameter.ANGLE)
-            .build();
-        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
-        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+
+        crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(secondSetpoint).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+
+        ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
+
+        AngleMonitoring angleMonitoring = new AngleMonitoring("OpenLoadFlow", loadFlowParameters);
+
+        if (shouldThrow) {
+            OpenRaoException e = assertThrows(OpenRaoException.class, () ->
+                angleMonitoring.getValidNetworkActionsAssociatedToCnec(
+                    network, crac, crac.getAngleCnec("acCur1"), PhysicalParameter.ANGLE, scalableZonalData
+                )
+            );
+            assertEquals(
+                "Two elementary actions target the same element 'LD2' with different setpoints: " + secondSetpoint + " and " + firstSetpoint,
+                e.getMessage()
+            );
+        } else {
+            assertDoesNotThrow(() ->
+                angleMonitoring.getValidNetworkActionsAssociatedToCnec(
+                    network, crac, crac.getAngleCnec("acCur1"), PhysicalParameter.ANGLE, scalableZonalData
+                )
+            );
+        }
     }
+
+    @Test
+    void testOneInjectionActionCountryNotInGlsk() {
+        setUpCracFactory("network.xiidm");
+        mockCurativeStatesSecure();
+        crac.newNetworkAction()
+            .withId("Injection L1 - 1")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(0.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+        ZonalData<Scalable> scalableZonalData = Mockito.mock(ZonalData.class);
+        Map<String, Scalable> data = Map.of("10Y1001A1001A39I", Mockito.mock(Scalable.class));
+        when(scalableZonalData.getDataPerZone()).thenReturn(data);
+        AngleMonitoring angleMonitoring = new AngleMonitoring("OpenLoadFlow", loadFlowParameters);
+        Set<NetworkAction> networkActions = angleMonitoring.getValidNetworkActionsAssociatedToCnec(
+            network, crac, crac.getAngleCnec("acCur1"), PhysicalParameter.ANGLE, scalableZonalData
+        );
+        // Network action "Injection L1 - 1" is filtered
+        assertEquals(0, networkActions.size());
+    }
+
 }

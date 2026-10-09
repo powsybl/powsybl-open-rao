@@ -148,5 +148,12 @@ public class AngleMonitoringSteps {
         NetworkAction networkAction = CommonTestData.getCrac().getNetworkAction(networkActionId);
         assertTrue(monitoringResult.getAppliedRas(state).contains(networkAction));
     }
+
+    @Then("{int} network actions are used after {string} at {string} during monitoring")
+    public void countNetworkActionAppliedForMonitoring(int expectedCount, String contingencyId, String instantId) {
+        MonitoringResult monitoringResult = CommonTestData.getMonitoringResult();
+        State state = CommonTestData.getCrac().getState(contingencyId, CommonTestData.getCrac().getInstant(instantId));
+        assertEquals(expectedCount, monitoringResult.getAppliedRas(state).size());
+    }
 }
 

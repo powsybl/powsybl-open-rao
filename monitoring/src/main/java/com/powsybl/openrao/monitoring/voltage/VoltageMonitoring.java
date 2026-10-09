@@ -15,6 +15,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -28,10 +29,11 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
@@ -82,9 +84,12 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
-    protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
-        // TODO: keep this to match old code but it seems problematic why wouldn't we rebalance the network after an injection network action in voltage monitoring ?
-        TECHNICAL_LOGS.warn("The network is not rebalanced after applying network actions in voltage monitoring");
+    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {
+        // Apply all the actions on the network
+        networkActionsToApply.forEach(networkAction -> {
+            BUSINESS_LOGS.info("Applying network action {} on state {}.", networkAction.getId(), state);
+            networkAction.apply(network);
+        });
     }
 
     @Override

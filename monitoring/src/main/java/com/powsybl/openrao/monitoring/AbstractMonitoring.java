@@ -271,16 +271,13 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             });
 
             if (!networkActionsToApply.isEmpty()) {
-                // Re-balance the network if injection actions are going to be applied
-                rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
 
-                // Apply all the actions on the network
-                networkActionsToApply.forEach(networkAction -> networkAction.apply(network));
+                applyNetworkActions(network, networkActionsToApply, scalableZonalData, state);
 
                 // recompute load flow
                 boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
                 if (!lfSuccess) {
-                    String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
+                    String failureReason = String.format("Load flow computation failed at state %s after applying RAs. Skipping this state.", state);
                     return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
                 }
 
@@ -293,7 +290,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             }
             return null;
         } catch (Exception e) {
-            String failureReason = String.format("unable to apply remedial actions at state %s", state);
+            String failureReason = String.format("Unable to apply remedial actions at state %s", state.getId());
             return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
         }
 
@@ -332,9 +329,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     protected abstract Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData);
 
-    protected abstract void rebalanceNetwork(Network network,
-                                             Set<NetworkAction> networkActionsToApply,
-                                             ZonalData<Scalable> scalableZonalData);
+    protected abstract void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state);
 
     protected abstract CnecMonitoringResult computeCnecResult(I cnec, Network network, Unit unit);
 
