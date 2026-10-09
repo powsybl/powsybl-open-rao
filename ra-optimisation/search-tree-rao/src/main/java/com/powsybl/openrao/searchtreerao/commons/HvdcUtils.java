@@ -264,7 +264,7 @@ public final class HvdcUtils {
         network.getVariantManager().setWorkingVariant(tmpVariant);
 
         // Apply contingency and compute load-flow
-        applyContingency(network, state);
+        applyContingency(network, state, true);
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines

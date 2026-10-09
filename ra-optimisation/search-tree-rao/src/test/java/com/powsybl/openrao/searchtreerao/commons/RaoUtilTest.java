@@ -540,7 +540,7 @@ class RaoUtilTest {
 
         OpenRaoException exception = assertThrows(
             OpenRaoException.class,
-            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency)
+            () -> RaoUtil.applyContingency(network, stateWithInvalidContingency, true)
         );
         assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
 
