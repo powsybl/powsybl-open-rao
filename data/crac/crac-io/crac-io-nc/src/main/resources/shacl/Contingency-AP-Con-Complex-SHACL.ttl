@@ -1,0 +1,112 @@
+#Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  See the NOTICE file distributed with this work for additional information regarding copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHO WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
+@base          <https://ap-con.cim4.eu/Contingency-Complex/2.3> .
+@prefix coc:  <https://ap-con.cim4.eu/Contingency-Complex/2.3#> .
+@prefix cim:     <https://cim.ucaiug.io/ns#> .
+@prefix cim16:   <http://iec.ch/TC57/2013/CIM-schema-cim16#> .
+@prefix cim17:   <http://iec.ch/TC57/CIM100#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ido:     <https://ap-con.cim4.eu/NC-IdentifiedObject/2.3#> .
+@prefix nc:      <https://cim4.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+coc:Ontology  rdf:type         owl:Ontology ;
+        dcterms:conformsTo        "urn:iso:std:iec:61970-501:draft:ed-2" , "urn:iso:std:iec:61970-600-2:ed-1" , "urn:iso:std:iec:61970-301:ed-7:amd1" , "file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap" ;
+        dcterms:creator           "ENTSO-E CIM EG"@en ;
+        dcterms:description       "The custom constraints for the Contingency profile."@en ;
+        dcterms:identifier        "91e7e323-f35f-40fd-bf03-55fc6dd05e9c" ;
+        dcterms:issued            "2026-05-28T12:09:21Z"^^xsd:dateTime ;
+        dcterms:language          "en-GB" ;
+        dcterms:modified          "2026-05-28"^^xsd:date ;
+        dcterms:publisher         "ENTSO-E"@en ;
+        dcterms:rights            "Copyright"@en ;
+        dcterms:rightsHolder      "ENTSO-E"@en ;
+        dcterms:title             "Contingency profile custom constraints"@en ;
+        owl:versionIRI        <https://ap-con.cim4.eu/Contingency-Complex/2.3> ;
+    dcterms:license        "https://www.apache.org/licenses/LICENSE-2.0" ;
+        owl:versionInfo       "2.3.1"@en ;
+        dcat:landingPage      "https://www.entsoe.eu/digital/cim/cim-for-grid-models-exchange/" ;
+        dcat:theme            "constraints"@en .
+
+cim:
+    a           owl:Ontology ;
+    owl:imports sh: ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "https://cim.ucaiug.io/ns#"^^xsd:anyURI ;
+        sh:prefix "cim" ;
+    ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/2013/CIM-schema-cim16#"^^xsd:anyURI ;
+        sh:prefix "cim16" ;
+    ] ;
+  sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "https://cim4.eu/ns/nc#"^^xsd:anyURI ;
+        sh:prefix "nc" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+        sh:prefix "rdf" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/CIM100#"^^xsd:anyURI ;
+        sh:prefix "cim17" ;
+    ] .
+
+
+coc:COgroup
+        a           sh:PropertyGroup ;
+        rdfs:label  "ContingencyGroup" ;
+        sh:order    0 .
+
+coc:Contingency  a          sh:NodeShape ;
+        sh:property      coc:Contingency.ContingencyElement-outOfRangeAndExceptional;
+        sh:targetClass  nc:OutOfRangeContingency, nc:ExceptionalContingency .
+
+coc:Contingency.ContingencyElement-outOfRangeAndExceptional
+        a               sh:PropertyShape ;
+        sh:description  "The multiplicity of the association end Contingency.ContingencyElement is restricted to 2..* for both OutOfRangeContingency and ExceptionalContingency" ;
+        sh:message      "Less than 2 contingency elements provided for either OutOfRangeContingency or ExceptionalContingency." ;
+        sh:path         [sh:inversePath  cim:ContingencyElement.Contingency] ;
+        sh:group        coc:COgroup ;
+    sh:minCount     2 ;
+        sh:name         "C:NC:CO:Contingency.ContingencyElement:outOfRangeAndExceptional" ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .
+
+
+coc:ContingencyEquipment  a          sh:NodeShape ;
+        sh:property      coc:ContingencyEquipment.contingentStatus-allowedValues, coc:ContingencyElement.Equipment-allowedClasses;
+        sh:targetClass  cim:ContingencyEquipment .
+
+
+
+coc:ContingencyEquipment.contingentStatus-allowedValues
+        a               sh:PropertyShape ;
+        sh:description  "The allowed value for the ContingencyEquipment.contingentStatus is ContingencyEquipmentStatusKind.outOfService." ;
+        sh:message      "ContingencyEquipment.contingentStatus is not ContingencyEquipmentStatusKind.outOfService." ;
+        sh:path         cim:ContingencyEquipment.contingentStatus ;
+        sh:group        coc:COgroup ;
+    sh:in         (cim:ContingencyEquipmentStatusKind.outOfService) ;
+        sh:name         "C:NC:CO:ContingencyEquipment.contingentStatus:allowedValues" ;
+        sh:order        2 ;
+        sh:severity     sh:Violation .
+
+coc:ContingencyElement.Equipment-allowedClasses
+        a               sh:PropertyShape ;
+        sh:description  "The following classes shall be supported and referenced by the association end ContingencyElement.Equipment to fulfil the requirements by the CSAm: RotatingMachine, PowerElectronicConnection, PowerTransformer, ACLineSegment, FACTSEquipment, ShuntCompensator, SeriesCompensator, ACDCconverter, DCConductingEquipment, DCLineSegment, cim:DCBusbar (optional), DCChopper (optional), NonConformLoad, ConformLoad, Breaker. A warning is triggered if any other classes are used." ;
+        sh:message      "ContingencyEquipment.Equipment does not reference supported class type for contingency." ;
+        sh:path         (cim:ContingencyEquipment.Equipment rdf:type) ;
+        sh:group        coc:COgroup ;
+    sh:in         (cim:SynchronousMachine cim17:SynchronousMachine cim16:SynchronousMachine cim:AsynchronousMachine cim17:AsynchronousMachine cim16:AsynchronousMachine cim:PowerElectronicConnection cim17:PowerElectronicConnection cim:PowerTransformer cim17:PowerTransformer cim16:PowerTransformer cim:ACLineSegment cim17:ACLineSegment cim16:ACLineSegment nc:ThyristorControlledSeriesCompensator nc:ModularStaticSynchronousSeriesCompensator nc:StaticSynchronousSeriesCompensator nc:StaticSynchronousCompensator nc:StaticVarCompensator cim:LinearShuntCompensator cim17:LinearShuntCompensator cim16:LinearShuntCompensator cim:NonlinearShuntCompensator cim17:NonlinearShuntCompensator cim16:NonlinearShuntCompensator cim:SeriesCompensator cim17:SeriesCompensator cim16:SeriesCompensator cim:CsConverter cim17:CsConverter cim16:CsConverter cim:VsConverter  cim17:VsConverter cim16:VsConverter cim:DCLineSegment cim17:DCLineSegment cim16:DCLineSegment cim:DCBusbar cim17:DCBusbar cim16:DCBusbar cim:DCChopper cim17:DCChopper cim16:DCChopper cim:NonConformLoad cim17:NonConformLoad cim16:NonConformLoad cim:ConformLoad cim17:ConformLoad cim16:ConformLoad cim:Breaker cim17:Breaker cim16:Breaker) ;
+        sh:name         "C:NC:CO:ContingencyElement.Equipment:allowedClasses" ;
+        sh:order        3 ;
+        sh:severity     sh:Warning .
