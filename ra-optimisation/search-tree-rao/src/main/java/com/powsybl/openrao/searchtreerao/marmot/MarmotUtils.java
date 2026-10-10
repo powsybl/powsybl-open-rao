@@ -183,6 +183,10 @@ public final class MarmotUtils {
     }
 
     public static <T> T getDataFromState(TemporalData<T> temporalData, State state) {
+        if (state.getTimestamp().isEmpty() && temporalData.getTimestamps().size() == 1) {
+            // single-timestamp case where the CRAC has no timestamp
+            return temporalData.getData(temporalData.getTimestamps().get(0)).orElseThrow();
+        }
         return temporalData.getData(state.getTimestamp().orElseThrow()).orElseThrow();
     }
 
