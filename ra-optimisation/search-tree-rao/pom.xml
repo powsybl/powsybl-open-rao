@@ -11,11 +11,35 @@
 
     <artifactId>open-rao-search-tree-rao</artifactId>
     <packaging>jar</packaging>
-    <name>Modular search tree RAO implementation</name>
-    <description>Implementation of search tree remedial action optimisation with modular approach</description>
+    <name>Open RAO search tree</name>
+    <description>Search tree algorithms and CASTOR RAO implementation</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <!-- compile -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-linear-rao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-optimization-commons</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
@@ -31,6 +55,14 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-optimization-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-linear-rao</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

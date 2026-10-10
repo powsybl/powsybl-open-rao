@@ -25,7 +25,7 @@
             <artifactId>json-schema-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-commons</artifactId>
         </dependency>
 

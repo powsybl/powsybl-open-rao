@@ -20,7 +20,7 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-api</artifactId>
         </dependency>
         <dependency>

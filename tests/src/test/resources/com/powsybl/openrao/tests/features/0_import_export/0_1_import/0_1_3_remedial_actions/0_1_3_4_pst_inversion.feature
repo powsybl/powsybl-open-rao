@@ -6,7 +6,7 @@
 Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   # This feature covers
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @linear-rao
   Scenario: 0.1.3.4.1: Inverted PstRangeAction in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic90/SL_ep90us3case1.json"

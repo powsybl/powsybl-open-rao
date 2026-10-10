@@ -25,7 +25,7 @@
             <artifactId>open-rao-rao-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-time-coupled-constraints</artifactId>
         </dependency>
         <dependency>

@@ -252,7 +252,7 @@ Feature: 2.4.1: Activate remedial actions only after a specific constraint
     Then the margin on cnec "FFR1AA1  FFR2AA1  3 - co_fr1_fr2_2 - curative" after CRA should be -221.78 A
     Then its security status should be "UNSECURED"
 
-  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
+  @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @linear-rao
   Scenario: 2.4.1.16: OnFlowConstraint with overload on other curative state
   2 contingency scenarios but only 1 onConstraint usage rule defined.
   Because of second preventive optimization, tap is limited at position -3

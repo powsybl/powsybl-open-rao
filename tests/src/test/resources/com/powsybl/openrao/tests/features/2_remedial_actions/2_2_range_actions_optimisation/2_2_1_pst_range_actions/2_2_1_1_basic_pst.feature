@@ -6,7 +6,7 @@
 Feature: 2.2.1.1: Optimize PST tap within given ranges
   This feature covers the computation of margins in a basic RAO with range actions.
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.2.1.1.1: Optimization monitoring only the PST
   Basic case, the only RA is a PST range action - the CNECs are only defined for one network element.
     Given network file is "common/TestCase12Nodes.uct"
@@ -21,7 +21,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.2.1.1.2: Trade-off between various constraints
   Same as 2.2.1.1.1, except that CNECs are defined on two additional network elements.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
@@ -36,7 +36,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.2.1.1.3: Unsecure solution
   Same as 2.2.1.1.2, except that the CNEC thresholds are more restrictive.
     Given network file is "common/TestCase12Nodes.uct"
@@ -51,7 +51,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 2 in preventive
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.2.1.1.4: Range intersection for one PST
   Same as the previous cases, except that the max value of the absolute range of the RA is restricted from 16 to 3,
     and a relativeToInitialNetwork range is added (0 to 10).
@@ -67,7 +67,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 3 in preventive
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @linear-rao
   Scenario: 2.2.1.1.5: Handle 2 PSTs
   Two preventive range actions are available (on two different PSTs).
     Given network file is "common/TestCase12Nodes2PSTs.uct"

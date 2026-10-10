@@ -24,7 +24,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {

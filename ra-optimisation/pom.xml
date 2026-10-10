@@ -17,7 +17,11 @@
 
     <modules>
         <module>rao-api</module>
+        <module>rao-optimization-commons</module>
+        <module>linear-rao</module>
         <module>search-tree-rao</module>
+        <module>fast-rao</module>
+        <module>time-coupled-rao</module>
     </modules>
 
 </project>
