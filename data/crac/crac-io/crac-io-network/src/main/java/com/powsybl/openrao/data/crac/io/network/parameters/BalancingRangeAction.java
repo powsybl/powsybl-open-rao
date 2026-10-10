@@ -22,7 +22,7 @@ import java.util.function.Function;
  */
 public class BalancingRangeAction {
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate = (injection, instant, c) -> true;
-    private Function<Instant, InjectionRangeActionCosts> raCostsProvider = instant -> new InjectionRangeActionCosts(0, 0, 0);
+    private Function<Instant, RangeActionCosts> raCostsProvider = instant -> new RangeActionCosts(0, 0, 0);
     private Function<Instant, MinAndMax<Double>> raRangeProvider = instant -> new MinAndMax<>(0., 0.);
 
     BalancingRangeAction() {
@@ -43,11 +43,11 @@ public class BalancingRangeAction {
     /**
      * Set the function that indicates the costs of balancing.
      */
-    public void setRaCostsProvider(Function<Instant, InjectionRangeActionCosts> raCostsProvider) {
+    public void setRaCostsProvider(Function<Instant, RangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;
     }
 
-    public InjectionRangeActionCosts getRaCosts(Instant instant) {
+    public RangeActionCosts getRaCosts(Instant instant) {
         return raCostsProvider.apply(instant);
     }
 

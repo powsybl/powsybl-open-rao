@@ -15,16 +15,13 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -75,28 +72,9 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
             OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             OpenRaoMPVariable variationBinaryVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state);
 
-            double minSetPoint;
-            double maxSetPoint;
+            Double maxVariation = getMaxVariation(linearProblem, rangeAction, state);
 
-            Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
-
-            if (lastAvailableRangeAction == null) {
-                // if state is equal to masterState,
-                // or if rangeAction is not available for a previous state
-                // then, rangeAction could not have been activated in a previous instant
-
-                double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-                minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
-                maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
-            } else {
-                // range action have been activated in a previous instant
-                // getRangeActionSetpointVariable from previous instant
-                List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
-                minSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
-                maxSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
-            }
-
-            activationConstraint.setCoefficient(variationBinaryVariable, maxSetPoint - minSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
+            activationConstraint.setCoefficient(variationBinaryVariable, maxVariation + RANGE_ACTION_SETPOINT_EPSILON);
             activationConstraint.setCoefficient(upwardVariationVariable, -1.0);
             activationConstraint.setCoefficient(downwardVariationVariable, -1.0);
         }

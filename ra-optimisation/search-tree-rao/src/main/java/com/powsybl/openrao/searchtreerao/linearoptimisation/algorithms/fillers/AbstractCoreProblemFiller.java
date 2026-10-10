@@ -36,14 +36,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getHvdcSensitivityThreshold;
@@ -208,7 +201,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                               RangeActionActivationResult rangeActionActivationResult) {
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
-        if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
+        if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))
+            || rangeAction.getId().contains("BALANCING")) {
+            // TODO we're skipping BALANCING RA in an ugly way in order to prevent the RAO from considering it to reduce overloads
+            // TODO consider setting a soft constraint on injectionbalance (with a virtual cost)
             // don't consider this RA's impact on this CNEC
             return;
         }
@@ -351,7 +347,81 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
+            if (injectionRangeAction.getRanges().stream().anyMatch(range -> range.getRangeType() == RangeType.MINIMUM_ADJUSTMENT)) {
+                addMinAdjustmentConstraint(linearProblem, injectionRangeAction, state);
+            }
         }
+    }
+
+    /**
+     * These ensure we only go up or go down
+     * isVarUp >= varUp * 1/(maxReachableSetPoint[r] - minReachableSetPoint[r])
+     * isVarDown >= varDown * 1/(maxReachableSetPoint[r] - minReachableSetPoint[r])
+     * isVarUp + isVarDown <= 1
+     * This ensures we change by at least minAdjustment
+     * varUp + varDown >= minAdjustment
+     */
+    private void addMinAdjustmentConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state) {
+        Double maxVariation = getMaxVariation(linearProblem, rangeAction, state);
+
+        // isUpVariation
+        OpenRaoMPVariable isVariationUpVariable = linearProblem.addIsVariationInDirectionVariable(
+            rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable variationUpVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPConstraint isVariationUpConstraint = linearProblem.addIsVariationInDirectionConstraint(
+            0., linearProblem.infinity(), rangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        isVariationUpConstraint.setCoefficient(variationUpVariable, -1.0);
+        isVariationUpConstraint.setCoefficient(isVariationUpVariable, maxVariation + RANGE_ACTION_SETPOINT_EPSILON);
+
+        // isDownVariation
+        OpenRaoMPVariable isVariationDownVariable = linearProblem.addIsVariationInDirectionVariable(
+            rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable variationDownVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint isVariationDownConstraint = linearProblem.addIsVariationInDirectionConstraint(
+            0., linearProblem.infinity(), rangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        isVariationDownConstraint.setCoefficient(variationDownVariable, -1.0);
+        isVariationDownConstraint.setCoefficient(isVariationDownVariable, maxVariation + RANGE_ACTION_SETPOINT_EPSILON);
+
+        // isUpVariation + isDownVariation <= 1
+        OpenRaoMPConstraint isVariationUpAndDownConstraint = linearProblem.addUpOrDownVariationConstraint(rangeAction, state);
+        isVariationUpAndDownConstraint.setCoefficient(isVariationUpVariable, 1);
+        isVariationUpAndDownConstraint.setCoefficient(isVariationDownVariable, 1);
+        isVariationUpAndDownConstraint.setUb(1);
+
+        // varUp + varDown >= minAdjustment * isVariation
+        double minAdjustment = rangeAction.getRanges().stream()
+            .filter(range -> range.getRangeType().equals(RangeType.MINIMUM_ADJUSTMENT))
+            .mapToDouble(StandardRange::getMin)
+            .max().orElseThrow();
+        OpenRaoMPConstraint minimumAdjustmentConstraint = linearProblem.addMinAdjustmentConstraint(0.0, linearProblem.infinity(), rangeAction, state);
+        minimumAdjustmentConstraint.setCoefficient(variationUpVariable, 1.0);
+        minimumAdjustmentConstraint.setCoefficient(variationDownVariable, 1.0);
+        minimumAdjustmentConstraint.setCoefficient(isVariationUpVariable, -minAdjustment);
+        minimumAdjustmentConstraint.setCoefficient(isVariationDownVariable, -minAdjustment);
+    }
+
+    protected Double getMaxVariation(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        double minSetPoint;
+        double maxSetPoint;
+
+        Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
+        if (lastAvailableRangeAction == null) {
+            // if state is equal to masterState,
+            // or if rangeAction is not available for a previous state
+            // then, rangeAction could not have been activated in a previous instant
+
+            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+            minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
+            maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
+        } else {
+            // range action have been activated in a previous instant
+            // getRangeActionSetpointVariable from previous instant
+            List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
+            minSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
+            maxSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
+        }
+
+        return maxSetPoint - minSetPoint;
     }
 
     protected static List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {
@@ -412,6 +482,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                     case RELATIVE_TO_PREVIOUS_INSTANT -> {
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
                         maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
+                    }
+                    case MINIMUM_ADJUSTMENT -> {
+                        // do nothing
                     }
                     default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }

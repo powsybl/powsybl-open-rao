@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
@@ -77,6 +78,9 @@ class PstRangeActionsCreator {
             range -> pstAdder.newTapRange().withRangeType(range.rangeType())
                 .withMinTap(range.min()).withMaxTap(range.max())
                 .add());
+        pstAdder.withActivationCost(parameters.getRaCosts(twt, instant).activationCost())
+                .withVariationCost(parameters.getRaCosts(twt, instant).upVariationCost(), VariationDirection.UP)
+                .withVariationCost(parameters.getRaCosts(twt, instant).downVariationCost(), VariationDirection.DOWN);
 
         pstAdder.add();
     }

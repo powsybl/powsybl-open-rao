@@ -5,7 +5,8 @@
     "absolute",
     "relativeToPreviousInstant",
     "relativeToInitialNetwork",
-    "relativeToPreviousTimeStep"
+    "relativeToPreviousTimeStep",
+    "minimumAdjustment"
   ],
   "additionalProperties": false
 }

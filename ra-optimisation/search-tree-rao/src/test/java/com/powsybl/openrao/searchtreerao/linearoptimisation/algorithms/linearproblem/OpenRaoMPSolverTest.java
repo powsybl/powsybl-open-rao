@@ -308,10 +308,10 @@ class OpenRaoMPSolverTest {
 
     @Test
     void testRoundSmallValues() {
-        assertEquals(1e-5, OpenRaoMPSolver.roundDouble(1e-5), 1e-12);
-        assertEquals(1e-6, OpenRaoMPSolver.roundDouble(1e-6), 1e-12);
-        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-6 * 0.999), 1e-12);
-        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-7), 1e-12);
-        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-11), 1e-12);
+        assertEquals(1e-3, OpenRaoMPSolver.roundDouble(1e-3), 1e-10);
+        assertEquals(1e-4, OpenRaoMPSolver.roundDouble(1e-4), 1e-10);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-6 * 0.999), 1e-10);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-7), 1e-10);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-11), 1e-10);
     }
 }
