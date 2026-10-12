@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.monitoring.voltage;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
@@ -14,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -39,6 +43,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -551,5 +556,17 @@ class VoltageMonitoringTest {
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
         assertTrue(isSecure(importedRaoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+    }
+
+    @Test
+    void testApplyNetworkAction() {
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        new VoltageMonitoring("FakeProvider", new LoadFlowParameters()).applyNetworkActions(network, Set.of(), null, Mockito.mock(State.class));
+        listAppender.stop();
+        List<ILoggingEvent> logsList = listAppender.list;
+        assert logsList.getLast().toString().equals("[WARN] No actions can be applied in voltage monitoring");
     }
 }
