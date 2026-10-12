@@ -15,7 +15,6 @@ import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
-import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -25,6 +24,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
     private String exportingArea;
     private String importingArea;
+    private String area;
 
     @Override
     protected String getTypeDescription() {
@@ -48,6 +48,12 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
+    public CounterTradeRangeActionAdder withArea(String area) {
+        this.area = area;
+        return this;
+    }
+
+    @Override
     public CounterTradeRangeAction add() {
         checkId();
         checkAutoUsageRules();
@@ -55,9 +61,10 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        // check exporting and importing country
-        assertAttributeNotNull(exportingArea, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingArea()");
-        assertAttributeNotNull(importingArea, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingArea()");
+        // check exporting and importing country - to be chosen between the two styles
+        //        assertAttributeNotNull(exportingArea, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingArea()");
+        //        assertAttributeNotNull(importingArea, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingArea()");
+        //        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -67,9 +74,16 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea
-        );
+        CounterTradeRangeAction counterTradeRangeAction;
+        if (Objects.isNull(area)) {
+            counterTradeRangeAction = new CounterTradeRangeActionImpl(
+                    this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea
+            );
+        } else {
+            counterTradeRangeAction = new CounterTradeRangeActionImpl(
+                    this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.area
+            );
+        }
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

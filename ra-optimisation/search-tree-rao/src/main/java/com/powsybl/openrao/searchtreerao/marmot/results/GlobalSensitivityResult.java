@@ -59,4 +59,9 @@ public class GlobalSensitivityResult extends AbstractGlobalResult<SensitivityRes
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return MarmotUtils.getDataFromState(resultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return MarmotUtils.getDataFromState(resultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, variableId, unit);
+    }
 }
