@@ -112,7 +112,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         // Make sure that the network will be balanced if injection actions are going to be applied -> for the load flow to converge.
         // Ex. if we have to decrease the power of a generator, we need to re-balance the network by increasing the power elsewhere in the country.
         // Do this here because we need the setpoint of the injection elements in the network BEFORE applying the network actions
-        rebalanceNetwork(network, networkActionsToApply, scalableZonalData);
+        rebalanceNetwork(network, scalableZonalData);
 
         // Apply all the actions on the network
         networkActionsToApply.forEach(networkAction -> {
@@ -138,7 +138,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     // Helper functions
 
-    protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
+    protected void rebalanceNetwork(Network network, ZonalData<Scalable> scalableZonalData) {
         // Get power to be redispatched and network elements to be excluded
         EnumMap<Country, Double> powerToBeRedispatchedPerCountry = new EnumMap<>(Country.class);
         Set<String> networkElementsToBeExcluded = setpointPerNetworkElement.keySet().stream().map(Injection::getId).collect(Collectors.toSet());
