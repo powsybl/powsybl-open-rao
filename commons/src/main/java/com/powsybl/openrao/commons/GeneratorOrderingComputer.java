@@ -24,12 +24,12 @@ public final class GeneratorOrderingComputer {
         List<RawAllocation> downwardRaw = new ArrayList<>();
 
         glskWeights.forEach((generatorId, weight) -> {
-                    if (weight <= tolerance) {
-                        zeroWeightIds.add(generatorId);
-                    } else {
-                        nonZeroWeights.put(generatorId, weight);
-                    }
-                });
+            if (weight <= tolerance) {
+                zeroWeightIds.add(generatorId);
+            } else {
+                nonZeroWeights.put(generatorId, weight);
+            }
+        });
         double keptTotal = nonZeroWeights.values().stream().mapToDouble(Double::doubleValue).sum();
         nonZeroWeights.replaceAll((id, w) -> w / keptTotal);
 

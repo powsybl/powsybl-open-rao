@@ -148,7 +148,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
 
         List<GlskGeneratorAllocation> orderUp = counterTradeGeneratorOrdering.upwardOrder();
-        List<GlskGeneratorAllocation> orderDown = counterTradeRangeAction.getGeneratorOrdering().upwardOrder();
+        List<GlskGeneratorAllocation> orderDown = counterTradeRangeAction.getGeneratorOrdering().downwardOrder();
         int lastUp = counterTradeRangeAction.getGeneratorOrdering().upwardLastStage();
         int lastDown = counterTradeRangeAction.getGeneratorOrdering().downwardLastStage();
 
