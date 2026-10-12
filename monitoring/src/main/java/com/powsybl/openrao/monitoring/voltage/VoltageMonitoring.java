@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
@@ -27,9 +26,8 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -74,23 +72,12 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     @Override
     protected Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData) {
-        return crac.getNetworkActions().stream()
-            .filter(networkAction ->
-                networkAction.getUsageRules().stream()
-                    .filter(OnConstraint.class::isInstance)
-                    .map(OnConstraint.class::cast)
-                    .anyMatch(onConstraint -> onConstraint.getCnec().equals(cnec)))
-            .collect(Collectors.toSet());
+        BUSINESS_WARNS.warn("No actions can be applied in voltage monitoring");
+        return Set.of();
     }
 
     @Override
-    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {
-        // Apply all the actions on the network
-        networkActionsToApply.forEach(networkAction -> {
-            BUSINESS_LOGS.info("Applying network action {} on state {}.", networkAction.getId(), state);
-            networkAction.apply(network);
-        });
-    }
+    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {}
 
     @Override
     protected VoltageCnecMonitoringResult computeCnecResult(VoltageCnec cnec, Network network, Unit unit) {

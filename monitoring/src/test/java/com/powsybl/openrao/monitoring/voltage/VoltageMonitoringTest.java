@@ -405,26 +405,10 @@ class VoltageMonitoringTest {
 
         assertEquals(Cnec.SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
-    }
-
-    @Test
-    void testDivergentLoadFlowAfterApplicationOfRemedialAction() {
-        setUpCracFactory("network2.xiidm");
-
-        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
-
-        String networkActionName = "Open L2 - 1";
-        crac.newNetworkAction()
-            .withId(networkActionName)
-            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
-            .add();
-
-        runVoltageMonitoring();
-
-        assertEquals(Cnec.SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
-        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
+        assertEquals(1, voltageMonitoringResult.getCnecResults().size());
+        assertEquals(Double.NaN, voltageMonitoringResult.getCnecResult("vcPrev").get().getMargin());
+        assertEquals(Double.NaN, ((VoltageCnecMonitoringResult) voltageMonitoringResult.getCnecResult("vcPrev").get()).getMaxVoltage());
+        assertEquals(Double.NaN, ((VoltageCnecMonitoringResult) voltageMonitoringResult.getCnecResult("vcPrev").get()).getMinVoltage());
     }
 
     @Test
@@ -453,96 +437,6 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
         assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
-    }
-
-    @Test
-    void testUnsecureInitialSituationWithRemedialActionThatDoNotSolveVC() {
-        setUpCracFactory("network.xiidm");
-        vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
-        crac.newNetworkAction()
-            .withId("Open L1 - 1")
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).add()
-            .add();
-
-        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
-        String networkActionName = "Open L1 - 2";
-        RemedialAction<?> networkAction = crac.newNetworkAction()
-            .withId(networkActionName)
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
-            .add();
-
-        runVoltageMonitoring();
-
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
-        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
-    }
-
-    @Test
-    void testUnsecureInitialSituationWithRemedialActionThatDoNotSolveVCBis() {
-        setUpCracFactory("network.xiidm");
-        vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 440., 450.);
-        crac.newNetworkAction()
-            .withId("Open L1 - 1")
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).add()
-            .add();
-
-        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 440., 450.);
-        String networkActionName = "Open L1 - 2";
-        RemedialAction<?> networkAction = crac.newNetworkAction()
-            .withId(networkActionName)
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
-            .add();
-
-        runVoltageMonitoring();
-
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
-        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-    }
-
-    @Test
-    void testUnsecureInitialSituationWithRemedialActionThatSolveVC() {
-        setUpCracFactory("network3.xiidm");
-
-        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 385., 400.);
-        String networkActionName = "Close L1 - 1";
-        RemedialAction<?> networkAction = crac.newNetworkAction()
-            .withId(networkActionName)
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
-            .add();
-
-        runVoltageMonitoring();
-
-        assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
-    }
-
-    @Test
-    void testUnsecureInitialSituationWithRemedialActionThatSolveVCBis() {
-        setUpCracFactory("network3.xiidm");
-
-        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 340., 350.);
-        String networkActionName = "Close L1 - 1";
-        RemedialAction<?> networkAction = crac.newNetworkAction()
-            .withId(networkActionName)
-            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
-            .add();
-
-        runVoltageMonitoring();
-
-        assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
 
     @Test
@@ -583,35 +477,23 @@ class VoltageMonitoringTest {
     }
 
     @Test
-    void testWithRaoResultUpdate() {
-        setUpCracFactory("network.xiidm");
-        addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
+    void testUnsecureInitialSituationWithRemedialActionThatCanSolveVC() {
+        // Check that the network action is not applied even though it could solve the voltage constraint
+        setUpCracFactory("network3.xiidm");
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
-
-        NetworkAction networkAction = crac.newNetworkAction()
-            .withId("Open L1 - 1")
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
+        VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 385., 400.);
+        String networkActionName = "Close L1 - 1";
+        RemedialAction<?> networkAction = crac.newNetworkAction()
+            .withId(networkActionName)
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        runVoltageMonitoring();
 
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
-            .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
-
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
-        assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
-        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
+        assertEquals(Set.of(), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
 
     @Test
@@ -622,24 +504,18 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         final VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
 
-        crac.newNetworkAction()
-            .withId("Open L1 - 1")
-            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
-            .add();
-
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         final AtomicInteger referenceValue = new AtomicInteger(2);
-        final CountDownLatch latch = new CountDownLatch(3);
+        final CountDownLatch latch = new CountDownLatch(2);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
         final RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
 
-        // Loadflow is expected to be run 3 times: 2+3=5
-        assertEquals(5, referenceValue.get());
+        // Loadflow is expected to be run 2 times: 2+2=4. Once to evaluate preventive state and another time to evaluate curative state
+        assertEquals(4, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
         assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
