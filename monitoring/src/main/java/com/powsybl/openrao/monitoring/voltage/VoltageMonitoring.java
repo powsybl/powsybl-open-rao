@@ -77,7 +77,9 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
-    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {}
+    protected void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state) {
+        BUSINESS_WARNS.warn("No actions can be applied in voltage monitoring");
+    }
 
     @Override
     protected VoltageCnecMonitoringResult computeCnecResult(VoltageCnec cnec, Network network, Unit unit) {

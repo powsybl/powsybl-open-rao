@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -484,7 +483,7 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 385., 400.);
         String networkActionName = "Close L1 - 1";
-        RemedialAction<?> networkAction = crac.newNetworkAction()
+        crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
@@ -502,7 +501,7 @@ class VoltageMonitoringTest {
         addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
-        final VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
+        addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
 
