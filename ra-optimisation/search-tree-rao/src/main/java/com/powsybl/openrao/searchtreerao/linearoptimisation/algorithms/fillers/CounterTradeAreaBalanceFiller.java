@@ -92,20 +92,22 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         OpenRaoMPConstraint decomposition = linearProblem.addCounterTradeSetpointDecompositionConstraint(areaId, state);
         decomposition.setCoefficient(ctVar, 1.0);
 
-        addDirectionalDispatch(linearProblem, areaId, state, ordering.upwardOrder(),
+        addDirectionalDispatch(linearProblem, areaId, state, ordering.upwardOrder(), ordering.upwardLastStage(),
                 LinearProblem.VariationDirectionExtension.UPWARD, decomposition, delta);
-        addDirectionalDispatch(linearProblem, areaId, state, ordering.downwardOrder(),
+        addDirectionalDispatch(linearProblem, areaId, state, ordering.downwardOrder(), ordering.downwardLastStage(),
                 LinearProblem.VariationDirectionExtension.DOWNWARD, decomposition, delta);
     }
 
     private void addDirectionalDispatch(LinearProblem linearProblem, String areaId, State state,
-                                        List<GlskGeneratorAllocation> allocations,
+                                        List<GlskGeneratorAllocation> order, int lastStage,
                                         LinearProblem.VariationDirectionExtension direction,
                                         OpenRaoMPConstraint decomposition, OpenRaoMPVariable delta) {
 
         boolean up = direction == LinearProblem.VariationDirectionExtension.UPWARD;
-        double totalM = allocations.stream().mapToDouble(GlskGeneratorAllocation::cumulativeAllocation).sum();
-
+        double totalM = 0.0; // sum of m_h over the stages that can be reached
+        for (int h = 0; h <= lastStage; h++) {
+            totalM += order.get(h).cumulativeAllocation();
+        }
         // UP:   sum(x_up)   - M_up * delta       <= 0
         // DOWN: sum(x_down) + M_down * delta     <= M_down
         OpenRaoMPConstraint exclusivity = linearProblem.addCounterTradeExclusivityConstraint(
@@ -114,29 +116,31 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
         OpenRaoMPVariable previousY = null;
 
-        for (GlskGeneratorAllocation allocation : allocations) {
+        for (int h = 0; h <= lastStage; h++) {
+            GlskGeneratorAllocation allocation = order.get(h);
             String generatorId = allocation.generatorId();
             double mh = allocation.cumulativeAllocation();
 
             OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(mh, generatorId, areaId, state, direction);
-            OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, areaId, state, direction);
-
-            // x - m_h * y >= 0
-            OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, areaId, state, direction);
-
-            link.setCoefficient(x, 1.0);
-            link.setCoefficient(y, -mh);
-
-            // x - m_h y_{h-1} <=0
-            if (previousY != null) {
-                OpenRaoMPConstraint order = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, areaId, state, direction);
-                order.setCoefficient(x, 1.0);
-                order.setCoefficient(previousY, -mh);
-            }
-            previousY = y;
 
             exclusivity.setCoefficient(x, 1.0);
             decomposition.setCoefficient(x, up ? -1.0 : 1.0);
+
+            // x - m_h y_{h-1} <=0
+            if (previousY != null) {
+                OpenRaoMPConstraint orderCtr = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, areaId, state, direction);
+                orderCtr.setCoefficient(x, 1.0);
+                orderCtr.setCoefficient(previousY, -mh);
+            }
+            if (h < lastStage) {
+                OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, areaId, state, direction);
+                // x - m_h * y >= 0
+                OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, areaId, state, direction);
+                link.setCoefficient(x, 1.0);
+                link.setCoefficient(y, -mh);
+                previousY = y;
+            }
+
         }
     }
 
@@ -153,10 +157,10 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
                         CounterTradeGeneratorOrdering ordering = ra.getGeneratorOrdering();
                         double currentSetpoint = activationResult.getOptimizedSetpoint(ra, state);
                         addDirectionImpact(linearProblem, sensitivityResult, ra, state, cnec, side, flowConstraint,
-                                ordering.upwardOrder(), LinearProblem.VariationDirectionExtension.UPWARD,
+                                ordering.upwardOrder(), ordering.upwardLastStage(), LinearProblem.VariationDirectionExtension.UPWARD,
                                 1.0, Math.max(currentSetpoint, 0.0));
                         addDirectionImpact(linearProblem, sensitivityResult, ra, state, cnec, side, flowConstraint,
-                                ordering.downwardOrder(), LinearProblem.VariationDirectionExtension.DOWNWARD,
+                                ordering.downwardOrder(), ordering.downwardLastStage(), LinearProblem.VariationDirectionExtension.DOWNWARD,
                                 -1.0, Math.max(-currentSetpoint, 0.0));
                     }
                 }
@@ -166,15 +170,23 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
     private void addDirectionImpact(LinearProblem linearProblem, SensitivityResult sensitivityResult,
                                     CounterTradeRangeAction ra, State state, FlowCnec cnec, TwoSides side,
-                                    OpenRaoMPConstraint flowConstraint, List<GlskGeneratorAllocation> order,
+                                    OpenRaoMPConstraint flowConstraint, List<GlskGeneratorAllocation> order, int lastStage,
                                     LinearProblem.VariationDirectionExtension direction,
                                     double directionSign, double currentMagnitude) {
 
-        double[] sigma = GeneratorOrderingComputer.stageSensitivities(order,
-                generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit));
+        String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
+        double tailWeight = 0.0;
+        for (int i = lastStage; i < order.size(); i++) {
+            tailWeight += order.get(i).weight();
+        }
+        double tailSensitivity = tailWeight * sensitivityResult.getSensitivityValue(cnec, side, tailId, unit);
+
+        double[] sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
+                generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
+                tailSensitivity);
         Map<String, Double> xCurrent = GeneratorOrderingComputer.stageAllocation(order, currentMagnitude);
 
-        for (int h = 0; h < order.size(); h++) {
+        for (int h = 0; h <= lastStage; h++) {
             double sensitivity = directionSign * sigma[h];
             if (Math.abs(sensitivity) < getCounterTradeRaSensitivityThreshold(rangeActionParametersExtension)) {
                 continue;

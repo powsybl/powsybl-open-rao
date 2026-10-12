@@ -48,5 +48,5 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
 
     CounterTradeGeneratorOrdering getGeneratorOrdering();
 
-    void computeGeneratorOrdering(Network network);
+    void computeGeneratorOrdering(Network network, double tolerance);
 }

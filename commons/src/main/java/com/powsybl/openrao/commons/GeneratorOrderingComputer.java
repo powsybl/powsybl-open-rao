@@ -6,23 +6,37 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 import java.util.function.ToDoubleFunction;
 
+import static java.lang.Math.max;
+
 public final class GeneratorOrderingComputer {
 
     private GeneratorOrderingComputer() { }
 
-    public static CounterTradeGeneratorOrdering compute(Map<String, Double> glskWeights, Network network) {
+    public static CounterTradeGeneratorOrdering compute(
+            Map<String, Double> glskWeights,
+            Network network,
+            double tolerance,
+            double maxDownwardMagnitude,
+            double maxUpwardMagnitude) {
         Set<String> zeroWeightIds = new HashSet<>();
+        Map<String, Double> nonZeroWeights = new HashMap<>();
         List<RawAllocation> upwardRaw = new ArrayList<>();
         List<RawAllocation> downwardRaw = new ArrayList<>();
 
         glskWeights.forEach((generatorId, weight) -> {
-            if (weight <= 0) { // use a tolerance instead..
-                zeroWeightIds.add(generatorId);
-                return;
-            }
+                    if (weight <= tolerance) {
+                        zeroWeightIds.add(generatorId);
+                    } else {
+                        nonZeroWeights.put(generatorId, weight);
+                    }
+                });
+        double keptTotal = nonZeroWeights.values().stream().mapToDouble(Double::doubleValue).sum();
+        nonZeroWeights.replaceAll((id, w) -> w / keptTotal);
+
+        nonZeroWeights.forEach((generatorId, weight) -> {
             Generator generator = network.getGenerator(generatorId);
-            double upCapacity = generator.getMaxP() - generator.getTargetP();
-            double downCapacity = generator.getTargetP() - generator.getMinP();
+            double upCapacity = max(generator.getMaxP() - generator.getTargetP(), 0);
+            double downCapacity = max(generator.getTargetP() - generator.getMinP(), 0);
             upwardRaw.add(new RawAllocation(generatorId, weight, upCapacity, upCapacity / weight));
             downwardRaw.add(new RawAllocation(generatorId, weight, downCapacity, downCapacity / weight));
         });
@@ -33,10 +47,16 @@ public final class GeneratorOrderingComputer {
 
         upwardRaw.sort(bySaturationThenId);
         downwardRaw.sort(bySaturationThenId);
+        List<GlskGeneratorAllocation> upward = withCumulativeAllocation(upwardRaw);
+        List<GlskGeneratorAllocation> downward = withCumulativeAllocation(downwardRaw);
+        int upwardLastStage = lastReachableStage(upward, max(0, maxUpwardMagnitude));
+        int downwardLastStage = lastReachableStage(downward, max(0, -maxDownwardMagnitude));
 
         return new CounterTradeGeneratorOrdering(
                 withCumulativeAllocation(upwardRaw),
                 withCumulativeAllocation(downwardRaw),
+                upwardLastStage,
+                downwardLastStage,
                 zeroWeightIds);
     }
 
@@ -120,6 +140,39 @@ public final class GeneratorOrderingComputer {
             sigma[h] = weightedSum / suffixWeight;
         }
         return sigma;
+    }
+
+    public static double[] stageSensitivities(List<GlskGeneratorAllocation> order, int lastStage,
+                                              ToDoubleFunction<String> individualSensitivity,
+                                              double tailWeightedSensitivity) {
+        double[] sigma = new double[lastStage + 1];
+        double suffixWeight = 0.0;
+        for (int i = lastStage; i < order.size(); i++) {
+            suffixWeight += order.get(i).weight();
+        }
+        double weightedSum = tailWeightedSensitivity; // sum_{i>=K} lambda_i * s_i
+        if (suffixWeight == 0) { // todo: verify if this happens
+            suffixWeight = 1;
+        }
+        sigma[lastStage] = weightedSum / suffixWeight;
+        for (int h = lastStage - 1; h >= 0; h--) {
+            GlskGeneratorAllocation a = order.get(h);
+            weightedSum += a.weight() * individualSensitivity.applyAsDouble(a.generatorId());
+            suffixWeight += a.weight();
+            sigma[h] = weightedSum / suffixWeight;
+        }
+        return sigma;
+    }
+
+    public static int lastReachableStage(List<GlskGeneratorAllocation> order, double maxMagnitude) {
+        double cumulative = 0.0;
+        for (int k = 0; k < order.size(); k++) {
+            cumulative += order.get(k).cumulativeAllocation();
+            if (cumulative >= maxMagnitude) {
+                return k;
+            }
+        }
+        return order.size() - 1;
     }
 
     private record RawAllocation(String generatorId, double weight, double availableCapacity, double saturationRatio) { }

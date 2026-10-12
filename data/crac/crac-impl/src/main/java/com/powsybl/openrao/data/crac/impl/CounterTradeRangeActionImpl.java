@@ -10,10 +10,7 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.commons.GeneratorOrderingComputer;
 import com.powsybl.openrao.commons.GlskGeneratorAllocation;
@@ -204,6 +201,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private static double pseudoTargetP(Generator generator) {
         return Math.max(1e-5, Math.abs(generator.getTargetP()));
     }
+//    static Map<String, String> CODES_BY_COUNTRY = Map.ofEntries(Map.entry("ES", "10YES-REE------0"), Map.entry("FR", "10YFR-RTE------C"), Map.entry("PT", "10YPT-REN------W"));
+//    static Map<String, String> COUNTRY_BY_CODE = Map.ofEntries(Map.entry("10YES-REE------0", "ES"), Map.entry("10YFR-RTE------C", "FR"), Map.entry("10YPT-REN------W", "PT"));
+
 
     private static Map<String, Double> computeProportionalShares(Network network, String areaId) {
         Objects.requireNonNull(network);
@@ -229,10 +229,16 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         return glsk;
     }
 
-    public void computeGeneratorOrdering(Network network) {
+    public void computeGeneratorOrdering(Network network, double tolerance) {
         String areaId = getArea();
         Map<String, Double> weights = getGlsk().get(areaId);
-        this.generatorOrdering = GeneratorOrderingComputer.compute(weights, network);
+        this.generatorOrdering = GeneratorOrderingComputer.compute(
+                weights,
+                network,
+                tolerance,
+                getMinAdmissibleSetpoint(0),
+                getMaxAdmissibleSetpoint(0)
+        );
     }
 
     public CounterTradeGeneratorOrdering getGeneratorOrdering() {
