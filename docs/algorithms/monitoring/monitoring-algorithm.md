@@ -10,7 +10,7 @@ The monitoring algorithm essentially works as described below for each state tha
 
 - Evaluate the state by computing angle/voltage values and margins (see [this section](#evaluation-of-a-monitoring-state))
 
-- For angle monitoring specificially: if some **Angle CNECs are constrained** and the state is **curative**, we try to solve the constraint by using the available network actions (see [this section](#solving-cnec-overshooting-constraint))
+- For angle monitoring specificially: if some **Angle CNECs are constrained** and the state is **curative**, we try to solve the constraint by using the available network actions (see [this section](#solving-angle-cnec-overshooting-constraint))
 
 - Assemble all the angle/voltage CNECs results in one overall result
 
