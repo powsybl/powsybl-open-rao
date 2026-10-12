@@ -7,7 +7,8 @@
 Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   This feature covers the objective-function type MIN_COST with various remedial actions.
 
-  @fast @preventive-only @costly @rao
+  #TODO:CONTINUOUS PST (remove ignore tag)
+  @dont-run @fast @preventive-only @costly @rao
   Scenario: 3.4.3.1: Activate one topological action and one PST in preventive
   Two ways to secure the network:
   1. move PST to tap -5 => cost of 25

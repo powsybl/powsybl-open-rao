@@ -26,7 +26,7 @@ import java.util.function.BiFunction;
  */
 public class CountertradingRangeActions extends AbstractCountriesFilter {
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate = (injection, instant, c) -> true;
-    private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
+    private BiFunction<Country, Instant, RangeActionCosts> raCostsProvider = (country, instant) -> new RangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
     private ZonalData<SensitivityVariableSet> glsks = null;
 
@@ -49,11 +49,11 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
     /**
      * Set the function that indicates the costs of counter-trading with a given country.
      */
-    public void setRaCostsProvider(BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider) {
+    public void setRaCostsProvider(BiFunction<Country, Instant, RangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;
     }
 
-    public InjectionRangeActionCosts getRaCosts(Country country, Instant instant) {
+    public RangeActionCosts getRaCosts(Country country, Instant instant) {
         return raCostsProvider.apply(country, instant);
     }
 

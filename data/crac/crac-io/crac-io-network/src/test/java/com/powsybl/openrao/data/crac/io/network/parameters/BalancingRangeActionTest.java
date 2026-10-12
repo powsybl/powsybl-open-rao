@@ -44,16 +44,16 @@ class BalancingRangeActionTest extends AbstractTest {
 
     @Test
     void testCosts() {
-        InjectionRangeActionCosts zero = new InjectionRangeActionCosts(0, 0, 0);
+        RangeActionCosts zero = new RangeActionCosts(0, 0, 0);
 
         assertEquals(zero, parameters.getRaCosts(prevInstant));
         assertEquals(zero, parameters.getRaCosts(cur1Instant));
 
         parameters.setRaCostsProvider(instant ->
-            new InjectionRangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
+            new RangeActionCosts(10 + (instant.isPreventive() ? 10 : 0), 1, 1));
 
-        assertEquals(new InjectionRangeActionCosts(20, 1, 1), parameters.getRaCosts(prevInstant));
-        assertEquals(new InjectionRangeActionCosts(10, 1, 1), parameters.getRaCosts(cur1Instant));
+        assertEquals(new RangeActionCosts(20, 1, 1), parameters.getRaCosts(prevInstant));
+        assertEquals(new RangeActionCosts(10, 1, 1), parameters.getRaCosts(cur1Instant));
     }
 
     @Test

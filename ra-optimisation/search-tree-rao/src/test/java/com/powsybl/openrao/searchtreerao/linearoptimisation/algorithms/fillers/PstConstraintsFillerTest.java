@@ -129,6 +129,8 @@ class PstConstraintsFillerTest {
             .withInitialRangeActionActivationResult(new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(initialSetpoints)))
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
+        // first run is continuous, need to call update to have tap variables and gradient constraints
+        linearProblem.updateBetweenMipIteration(new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(initialSetpoints)));
     }
 
     private void setUpLinearProblemWithPstConstraints(List<String> cracFileNames, Set<PstConstraints> pstConstraints) throws IOException {

@@ -48,6 +48,12 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-open-loadflow</artifactId>
         </dependency>
+        <!-- Only used for RodaParameters. TODO move this to a RaoParameters extension -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-roda</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- test -->
         <dependency>
