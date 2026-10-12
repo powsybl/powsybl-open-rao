@@ -24,19 +24,21 @@ public final class GeneratorOrderingComputer {
         List<RawAllocation> downwardRaw = new ArrayList<>();
 
         glskWeights.forEach((generatorId, weight) -> {
-            if (weight <= tolerance) {
-                zeroWeightIds.add(generatorId);
-            } else {
-                nonZeroWeights.put(generatorId, weight);
-            }
-        });
+                    if (weight <= tolerance ||
+                            Double.isNaN(network.getGenerator(generatorId).getTargetP()) ||
+                            !hasUsableActivePowerRange(network.getGenerator(generatorId))) {
+                        zeroWeightIds.add(generatorId);
+                    } else {
+                        nonZeroWeights.put(generatorId, weight);
+                    }
+                });
         double keptTotal = nonZeroWeights.values().stream().mapToDouble(Double::doubleValue).sum();
         nonZeroWeights.replaceAll((id, w) -> w / keptTotal);
 
         nonZeroWeights.forEach((generatorId, weight) -> {
             Generator generator = network.getGenerator(generatorId);
-            double upCapacity = max(generator.getMaxP() - generator.getTargetP(), 0);
-            double downCapacity = max(generator.getTargetP() - generator.getMinP(), 0);
+            double upCapacity = Math.clamp(generator.getMaxP() - generator.getTargetP(), 0, maxUpwardMagnitude);
+            double downCapacity = Math.clamp(generator.getTargetP() - generator.getMinP(), 0, -maxDownwardMagnitude);
             upwardRaw.add(new RawAllocation(generatorId, weight, upCapacity, upCapacity / weight));
             downwardRaw.add(new RawAllocation(generatorId, weight, downCapacity, downCapacity / weight));
         });
@@ -58,6 +60,11 @@ public final class GeneratorOrderingComputer {
                 upwardLastStage,
                 downwardLastStage,
                 zeroWeightIds);
+    }
+
+    private static boolean hasUsableActivePowerRange(Generator generator) {
+        return generator.getTargetP() >= generator.getMinP()
+                && generator.getMaxP() >= generator.getTargetP();
     }
 
     /** m_k = S_k * (v_k / lambda_k) - S_k * T_k, with T_k = sum_{h=0}^{k-1} m_h / S_h accumulated in one pass. */
