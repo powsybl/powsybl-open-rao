@@ -111,6 +111,7 @@ public interface Crac extends Identifiable<Crac> {
      * @return crac
      */
     Crac newPreventiveState();
+
     /**
      * Get instant based on Id
      * If the ID is null, this will return a null instant
