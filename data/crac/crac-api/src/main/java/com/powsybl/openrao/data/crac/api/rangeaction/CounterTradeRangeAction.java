@@ -19,11 +19,6 @@ import java.util.List;
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get initial net position
-     */
-    Double getInitialNetPosition();
-
-    /**
      * Get the area
      */
     String getArea();

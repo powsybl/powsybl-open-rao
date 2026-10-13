@@ -476,13 +476,12 @@ class JsonRetrocompatibilityTest {
         "/retrocompatibility/v2/crac-v2.11.json"
     })
     void importCounterTradeRangeActionBeforeV2Point12Test(String cracFilePath) throws IOException {
-        // exporting area becomes the area, importing area becomes a connected area and initial net position is set to 0
+        // exporting area becomes the area and importing area becomes a connected area
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
         Crac crac = Crac.read(cracFilePath, cracFile, network);
         CounterTradeRangeAction counterTradeRangeAction = crac.getCounterTradeRangeAction("counterTradeRange1Id");
         assertEquals("FR", counterTradeRangeAction.getArea());
-        assertEquals(0.0, counterTradeRangeAction.getInitialNetPosition());
         // only the importing area DE is a connected area, BE is not added although it shares a border with FR in the network
         assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
         assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
@@ -1091,7 +1090,6 @@ class JsonRetrocompatibilityTest {
 
         // test connected areas, replacing the removed exportingArea and importingArea
         assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
-        assertEquals(500.0, crac.getCounterTradeRangeAction("counterTradeRange1Id").getInitialNetPosition());
         // FR and DE are defined in the CRAC, so they are kept with their border ranges instead of being deduced from the network
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
         assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());

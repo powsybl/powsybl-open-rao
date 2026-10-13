@@ -12,13 +12,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-
-import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -30,22 +27,13 @@ public final class CounterTradeRangeActionArrayDeserializer {
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Network network) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction().withConnectedAreas(network);
-            if (isBeforeV2Point12(version)) {
-                // before v2.12, the exporting area is the area and the importing area is a connected area
-                // the initial net position did not exist so a placeholder value is used
-                // TODO: compute the initial net position from the network with a loadflow, as done for the
-                //  initial tap/set-point of other range actions, so that it no longer needs to be provided in the JSON CRAC
-                counterTradeRangeActionAdder.withInitialNetPosition(0.0);
-            }
-
             while (!jsonParser.nextToken().isStructEnd()) {
                 addElement(counterTradeRangeActionAdder, jsonParser, version);
             }
+            // TODO: compute the initial set-point, i.e. the initial net position of the area, from the network
+            //  with a loadflow, as done for the initial set-point of other range actions
             counterTradeRangeActionAdder.withInitialSetpoint(0.0);
-            CounterTradeRangeAction counterTradeRangeAction = counterTradeRangeActionAdder.add();
-            if (isBeforeV2Point12(version)) {
-                LOGGER.warn("The initial net position of CounterTradeRangeAction {} is not defined before CRAC version 2.12, 0.0 is used as a placeholder", counterTradeRangeAction.getId());
-            }
+            counterTradeRangeActionAdder.add();
         }
     }
 
@@ -67,10 +55,6 @@ public final class CounterTradeRangeActionArrayDeserializer {
         switch (jsonParser.currentName()) {
             case JsonSerializationConstants.AREA:
                 counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
-                break;
-            case JsonSerializationConstants.INITIAL_NET_POSITION:
-                jsonParser.nextToken();
-                counterTradeRangeActionAdder.withInitialNetPosition(jsonParser.getDoubleValue());
                 break;
             case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY:
                 checkFieldRemovedInV2Point12(jsonParser, version);

@@ -36,9 +36,6 @@
     "area": {
       "type": "string"
     },
-    "initialNetPosition": {
-      "type": "number"
-    },
     "connectedAreas": {
       "type": "array",
       "items": {
@@ -80,7 +77,6 @@
   "required": [
     "id",
     "area",
-    "initialNetPosition",
     "ranges"
   ]
 }

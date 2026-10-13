@@ -1381,15 +1381,18 @@ exchange limits we have defined on a particular border.
 
 It is a costly remedial action which is currently not handled by the RAO.
 
-The `initialNetPosition` is the net position of the area in the initial situation, i.e. the sum of its exchanges through
-all its borders (positive when the area exports). For instance, if France exports 100 MW to Spain in the base case and
-the counter-trade increases this exchange by 100 MW, the initial net position of France is +100 MW, the set-point is
-+100 MW and the final net position is +200 MW.
+The set-point of the counter-trade range action is the net position of its area, i.e. the sum of its exchanges through
+all its borders (positive when the area exports), and its initial set-point is the net position of the area in the
+initial network. As for other range actions, the variation of the net position with respect to the initial network can
+be bounded with ranges of type RELATIVE_TO_INITIAL_NETWORK. For instance, if France exports 100 MW to Spain in the base
+case and the counter-trade increases this exchange by 100 MW, the initial set-point is +100 MW and the set-point is
++200 MW.
 
-The set-point of the counter-trade range action is the variation of the net position of its area with respect to
-`initialNetPosition`, whereas a border range bounds the power exchanged between the area and a connected area. For
-instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both borders change but
-the net position of France, and thus the set-point, does not.
+Whereas the set-point is the net position of the area, a border range bounds the power exchanged between the area and a
+connected area. For instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both
+borders change but the net position of France, and thus the set-point, does not.
+
+When importing a JSON CRAC, the initial set-point is not yet computed from the network and is set to 0.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -1402,7 +1405,6 @@ the net position of France, and thus the set-point, does not.
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
         .withArea("FR")
-        .withInitialNetPosition(500d)
         .newConnectedArea()
             .withArea("ES")
             .newBorderRange()
@@ -1445,7 +1447,6 @@ The min and max of a border range are optional, whatever its range type.
         "instant" : "preventive"
     } ],
     "area" : "FR",
-    "initialNetPosition" : 500.0,
     "connectedAreas" : [ {
         "area" : "ES",
         "borderRanges" : [ {
@@ -1477,7 +1478,6 @@ The min and max of a border range are optional, whatever its range type.
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **area**: the area from which the counter-trade is defined  
-🔴 **initialNetPosition**: the net position of the area in the initial situation, i.e. the sum of its exchanges through all its borders (positive when the area exports)  
 ⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined or empty, all the areas sharing a border with the area in the network are used as connected areas, without border ranges  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
@@ -1557,10 +1557,9 @@ Thus, if 1 remedial action was applied during the second curative instant, only 
 ## Changelog
 
 **v2.12**
-- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and `initialNetPosition`, and the optional `connectedAreas`.
-  When importing an older CRAC, the exporting area is used as the `area`, the importing area becomes a connected area
-  (without border ranges, and it must share a border with the exporting area in the network) and the `initialNetPosition`
-  is set to 0 as a placeholder (a warning is logged).
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and the optional `connectedAreas`.
+  When importing an older CRAC, the exporting area is used as the `area` and the importing area becomes a connected area
+  (without border ranges, and it must share a border with the exporting area in the network).
 
 **v2.11**
 - Removed `networkElementsNamePerId`.

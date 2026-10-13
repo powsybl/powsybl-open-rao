@@ -48,7 +48,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .withArea("FR")
-                .withInitialNetPosition(0d)
+                .withInitialSetpoint(0d)
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
@@ -61,12 +61,27 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
                 .withArea("FR")
-                .withInitialNetPosition(0d)
+                .withInitialSetpoint(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals(-1000, counterTradeRangeAction.getMinAdmissibleSetpoint(0.0), 1e-3);
         assertEquals(400, counterTradeRangeAction.getMaxAdmissibleSetpoint(0.0), 1e-3);
+    }
+
+    @Test
+    void getMinMaxAdmissibleSetpointRelativeToInitialNetworkTest() {
+        // the initial set-point is the initial net position of the area, relative ranges are resolved against it
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
+                .withId("counterTradeRangeActionId")
+                .newRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMin(-50).withMax(50).add()
+                .withArea("FR")
+                .withInitialSetpoint(100d)
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+                .add();
+
+        assertEquals(50, counterTradeRangeAction.getMinAdmissibleSetpoint(0.0), 1e-3);
+        assertEquals(150, counterTradeRangeAction.getMaxAdmissibleSetpoint(0.0), 1e-3);
     }
 
     @Test
@@ -76,7 +91,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
                 .withArea("FR")
-                .withInitialNetPosition(0d)
+                .withInitialSetpoint(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
@@ -95,7 +110,6 @@ class CounterTradeRangeActionImplTest {
             Set.of(),
             List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
             0.0,
-            0.0,
             null,
             null,
             null,
@@ -108,7 +122,6 @@ class CounterTradeRangeActionImplTest {
             null,
             Set.of(),
             List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
-            0.0,
             0.0,
             null,
             null,
@@ -123,7 +136,6 @@ class CounterTradeRangeActionImplTest {
             Set.of(),
             List.of(new StandardRangeImpl(-2000.0, 2000.0, RangeType.ABSOLUTE)),
             0.0,
-            0.0,
             null,
             null,
             null,
@@ -137,7 +149,6 @@ class CounterTradeRangeActionImplTest {
             Set.of(),
             List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
             0.0,
-            0.0,
             null,
             null,
             null,
@@ -150,7 +161,6 @@ class CounterTradeRangeActionImplTest {
             null,
             Set.of(),
             List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
-            0.0,
             0.0,
             null,
             null,
