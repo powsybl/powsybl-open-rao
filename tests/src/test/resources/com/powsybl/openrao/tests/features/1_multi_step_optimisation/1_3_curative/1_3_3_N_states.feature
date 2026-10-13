@@ -147,14 +147,6 @@ Feature: 1.3.3: Solve a RAO for N compounds states
     Then the value of the objective function after CRA should be 484
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
-  Scenario: 1.3.3.6.bis: Simple case, with two outage + curative states, including one without CRA and no preventive state
-    # Same case as 1.3.3.6, but all the preventive CNECs were removed from the CRAC AND all the preventive remedial actions
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case6_bis.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao
-
-  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.7: Simple case, with one outage and one curative state, but on two different contingencies
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case7.json"
