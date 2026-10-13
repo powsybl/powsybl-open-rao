@@ -24,6 +24,7 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
     private final Contingencies contingencies = new Contingencies();
     private final CriticalElements criticalElements;
     private final PstRangeActions pstRangeActions = new PstRangeActions();
+    private final HvdcRangeActions hvdcRangeActions = new HvdcRangeActions();
     private final RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
     private final CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();
     private final BalancingRangeAction balancingRangeAction = new BalancingRangeAction();
@@ -81,6 +82,10 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
 
     public PstRangeActions getPstRangeActions() {
         return pstRangeActions;
+    }
+
+    public HvdcRangeActions getHvdcRangeActions() {
+        return hvdcRangeActions;
     }
 
     public RedispatchingRangeActions getRedispatchingRangeActions() {

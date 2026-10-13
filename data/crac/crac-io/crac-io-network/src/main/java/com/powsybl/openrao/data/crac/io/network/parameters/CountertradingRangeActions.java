@@ -28,6 +28,7 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
     private TriFunction<Injection<?>, Instant, NetworkCracCreationContext, Boolean> injectionPredicate = (injection, instant, c) -> true;
     private BiFunction<Country, Instant, RangeActionCosts> raCostsProvider = (country, instant) -> new RangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
+    private BiFunction<Country, Instant, Optional<Double>> raMinimumAdjustmentProvider = (country, instant) -> Optional.empty();
     private ZonalData<SensitivityVariableSet> glsks = null;
 
     CountertradingRangeActions() {
@@ -79,4 +80,17 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
     public MinAndMax<Double> getRaRange(Country country, Instant instant) {
         return raRangeProvider.apply(country, instant);
     }
+
+    /**
+     * Set the function that indicates the minimum adjustment in MW of counter-trading with given country.
+     * By default, minimum adjustment is set to zero.
+     */
+    public void setRaMinimumAdjustmentProvider(BiFunction<Country, Instant, Optional<Double>> raMinimumAdjustmentProvider) {
+        this.raMinimumAdjustmentProvider = raMinimumAdjustmentProvider;
+    }
+
+    public Optional<Double> getRaMinimumAdjustment(Country country, Instant instant) {
+        return raMinimumAdjustmentProvider.apply(country, instant);
+    }
+
 }
