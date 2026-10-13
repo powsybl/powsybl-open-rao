@@ -1429,7 +1429,7 @@ Connected areas can be defined with `newConnectedArea()`, optionally with border
 the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
 area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
 network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
-The min and max of a border range are optional, whatever its range type.
+A border range must define at least one of its min and max, whatever its range type. An undefined limit is not constrained.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1482,8 +1482,8 @@ The min and max of a border range are optional, whatever its range type.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **min**: optional whatever the range type, if not defined the power flow on the border is not bounded from below  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **max**: optional whatever the range type, if not defined the power flow on the border is not bounded from above  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined, whatever the range type. If not defined, the power flow on the border is not bounded from below  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined, whatever the range type. If not defined, the power flow on the border is not bounded from above  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  

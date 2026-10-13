@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaBorderRangeAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -253,6 +255,38 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(Double.MAX_VALUE, borderRanges.get(0).getMax());
         assertEquals(-Double.MAX_VALUE, borderRanges.get(1).getMin());
         assertEquals(500., borderRanges.get(1).getMax());
+    }
+
+    @Test
+    void testConnectedAreaWithoutAreaIdFail() {
+        ConnectedAreaAdder connectedAreaAdder = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .withAreaId("BE")
+                .newConnectedArea();
+        Exception e = assertThrows(OpenRaoException.class, connectedAreaAdder::add);
+        assertEquals("Cannot add ConnectedArea without a area. Please use withAreaId() with a non null value", e.getMessage());
+    }
+
+    @Test
+    void testBorderRangeWithoutMinAndMaxFail() {
+        ConnectedAreaBorderRangeAdder borderRangeAdder = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .withAreaId("BE")
+                .newConnectedArea().withAreaId("FR")
+                    .newBorderRange().withRangeType(RangeType.ABSOLUTE);
+        Exception e = assertThrows(OpenRaoException.class, borderRangeAdder::add);
+        assertEquals("ConnectedAreaBorderRange must have at least a min or a max value. Please use withMin() or withMax()", e.getMessage());
+    }
+
+    @Test
+    void testBorderRangeWithMaxLowerThanMinFail() {
+        ConnectedAreaBorderRangeAdder borderRangeAdder = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .withAreaId("BE")
+                .newConnectedArea().withAreaId("FR")
+                    .newBorderRange().withMin(500).withMax(-500).withRangeType(RangeType.ABSOLUTE);
+        Exception e = assertThrows(OpenRaoException.class, borderRangeAdder::add);
+        assertEquals("Max value of ConnectedAreaBorderRange must be equal or greater than min value.", e.getMessage());
     }
 
     @Test
