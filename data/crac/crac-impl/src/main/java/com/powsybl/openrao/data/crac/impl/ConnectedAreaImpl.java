@@ -23,7 +23,7 @@ public class ConnectedAreaImpl implements ConnectedArea {
 
     ConnectedAreaImpl(String area, List<StandardRange> borderRanges) {
         this.area = area;
-        this.borderRanges = borderRanges;
+        this.borderRanges = List.copyOf(borderRanges);
     }
 
     @Override

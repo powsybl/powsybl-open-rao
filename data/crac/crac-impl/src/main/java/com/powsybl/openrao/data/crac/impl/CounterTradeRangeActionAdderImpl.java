@@ -89,7 +89,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
             this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint,
-            speed, activationCost, variationCosts, this.area, allConnectedAreas
+            speed, activationCost, variationCosts, this.area, List.copyOf(allConnectedAreas)
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
