@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;

@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -242,20 +241,5 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        // TODO: this assumes that MARMOT is always used in costly optimization mode -> either impose or fix
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost() > 1e-6;
-        } else {
-            return singleTimestampObjectiveFunctionResult.getVirtualCost() > 1e-6;
-        }
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return this.isSecure(crac.getLastInstant(), u);
     }
 }

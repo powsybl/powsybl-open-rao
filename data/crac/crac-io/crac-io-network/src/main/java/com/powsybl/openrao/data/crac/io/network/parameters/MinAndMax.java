@@ -8,10 +8,10 @@
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
-import org.jspecify.annotations.Nullable;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

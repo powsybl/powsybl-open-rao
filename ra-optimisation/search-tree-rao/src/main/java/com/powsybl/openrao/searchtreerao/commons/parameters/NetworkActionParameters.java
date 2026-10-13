@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 
@@ -22,9 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getPredefinedCombinations;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.isSkipActionsFarFromMostLimitingElement;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -38,17 +37,20 @@ public class NetworkActionParameters {
 
     private final boolean skipNetworkActionFarFromMostLimitingElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
+    private final boolean allowElectricalIslandCreation;
 
     public NetworkActionParameters(List<NetworkActionCombination> predefinedCombinations,
                                    double absoluteNetworkActionMinimumImpactThreshold,
                                    double relativeNetworkActionMinimumImpactThreshold,
                                    boolean skipNetworkActionFarFromMostLimitingElements,
-                                   int maxNumberOfBoundariesForSkippingNetworkActions) {
+                                   int maxNumberOfBoundariesForSkippingNetworkActions,
+                                   boolean islandCreationAllowed) {
         this.predefinedCombinations = predefinedCombinations;
         this.absoluteNetworkActionMinimumImpactThreshold = absoluteNetworkActionMinimumImpactThreshold;
         this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
         this.skipNetworkActionFarFromMostLimitingElements = skipNetworkActionFarFromMostLimitingElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
+        this.allowElectricalIslandCreation = islandCreationAllowed;
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations() {
@@ -71,13 +73,19 @@ public class NetworkActionParameters {
         return maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
+    public boolean isAllowElectricalIslandCreation() {
+        return allowElectricalIslandCreation;
+    }
+
     public static NetworkActionParameters buildFromRaoParameters(final RaoParameters raoParameters, final Crac crac, final ReportNode reportNode) {
         TopoOptimizationParameters topoOptimizationParameters = raoParameters.getTopoOptimizationParameters();
         return new NetworkActionParameters(computePredefinedCombinations(crac, raoParameters, reportNode),
                 topoOptimizationParameters.getAbsoluteMinImpactThreshold(),
                 topoOptimizationParameters.getRelativeMinImpactThreshold(),
                 isSkipActionsFarFromMostLimitingElement(raoParameters),
-                getMaxNumberOfBoundariesForSkippingActions(raoParameters));
+                getMaxNumberOfBoundariesForSkippingActions(raoParameters),
+                SearchTreeRaoTopoOptimizationParameters.isAllowElectricalIslandCreation(raoParameters)
+        );
     }
 
     public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {

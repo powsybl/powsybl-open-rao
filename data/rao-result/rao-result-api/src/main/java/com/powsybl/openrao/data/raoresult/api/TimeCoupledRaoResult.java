@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -78,22 +77,6 @@ public interface TimeCoupledRaoResult extends RaoResult {
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
-
-    /**
-     * Indicates whether the all the CNECs of a given type at a given instant of a given timestamp are secure.
-     *
-     * @param optimizedInstant The instant to assess
-     * @param timestamp        The timestamp to assess
-     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
-     */
-    boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u);
-
-    boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u);
-
-    default boolean isSecure(OffsetDateTime timestamp) {
-        return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
-    }
 
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 

@@ -658,7 +658,7 @@ public class RemedialActionSeriesCreator {
             ));
             return false;
         }
-        // A38 not handled by Open RAO.
+        // A38 not handled by OpenRAO.
         if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
                 createdRemedialActionId,

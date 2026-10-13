@@ -35,7 +35,16 @@ public final class FastRaoReports {
                                                                       final int numberOfLoggedLimitingElements) {
         final String messageTemplate = "openrao.searchtreerao.reportFastRaoInitialSensitivityAnalysisResults";
         final String prefix = "[FAST RAO] Initial sensitivity analysis: ";
-        CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        CommonReports.reportSensitivityAnalysisResults(
+            parentNode,
+            messageTemplate,
+            prefix,
+            objectiveFunction,
+            remedialActionActivationResult,
+            sensitivityAnalysisResult,
+            raoParameters,
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportFastRaoIterationIntermediateResult(final ReportNode parentNode,
@@ -45,7 +54,16 @@ public final class FastRaoReports {
                                                                 final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportFastRaoIterationIntermediateResult";
         final String prefix = String.format("[FAST RAO] Iteration %d: sensitivity analysis: ", iterationCounter);
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportFastRaoFinalResult(final ReportNode parentNode,
@@ -54,7 +72,16 @@ public final class FastRaoReports {
                                                 final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportFastRaoFinalResult";
         final String prefix = "[FAST RAO] Final Result: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(
+            parentNode,
+            messageTemplate,
+            prefix,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            sensitivityAnalysisResult,
+            parameters,
+            numberLoggedElementsDuringRao
+        );
     }
 
     public static void reportMissingFastRaoParametersExtension(final ReportNode parentNode) {

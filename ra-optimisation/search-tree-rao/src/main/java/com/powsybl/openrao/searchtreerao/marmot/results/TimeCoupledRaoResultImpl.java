@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -87,16 +86,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).getVirtualCost(optimizedInstant, virtualCostName);
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(optimizedInstant, u);
-    }
-
-    @Override
-    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
     }
 
     @Override
@@ -237,16 +226,6 @@ public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> impl
     @Override
     public void setExecutionDetails(String executionDetails) {
         // nothing to do
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.");
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return raoResultPerTimestamp.map(raoResult -> raoResult.isSecure(u)).getDataPerTimestamp().values().stream().allMatch(bool -> bool);
     }
 
     private ObjectiveFunctionResult getRelevantResult(Instant instant) {

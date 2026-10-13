@@ -84,11 +84,71 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void testEquals() {
-        CounterTradeRangeActionImpl ctFrEs1 = new CounterTradeRangeActionImpl("CT", "CT", "FR", null, Set.of(), List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)), 0.0, null, null, null, "FR", "ES");
-        CounterTradeRangeActionImpl ctFrEs2 = new CounterTradeRangeActionImpl("CT", "CT", "FR", null, Set.of(), List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)), 0.0, null, null, null, "FR", "ES");
-        CounterTradeRangeActionImpl ctFrEs3 = new CounterTradeRangeActionImpl("CT", "CT", "FR", null, Set.of(), List.of(new StandardRangeImpl(-2000.0, 2000.0, RangeType.ABSOLUTE)), 0.0, null, null, null, "FR", "ES");
-        CounterTradeRangeActionImpl ctPtEs = new CounterTradeRangeActionImpl("CT", "CT", "PT", null, Set.of(), List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)), 0.0, null, null, null, "PT", "ES");
-        CounterTradeRangeActionImpl ctFrNl = new CounterTradeRangeActionImpl("CT", "CT", "FR", null, Set.of(), List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)), 0.0, null, null, null, "FR", "NL");
+        CounterTradeRangeActionImpl ctFrEs1 = new CounterTradeRangeActionImpl(
+            "CT",
+            "CT",
+            "FR",
+            null,
+            Set.of(),
+            List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
+            0.0,
+            null,
+            null,
+            null,
+            "FR",
+            "ES");
+        CounterTradeRangeActionImpl ctFrEs2 = new CounterTradeRangeActionImpl(
+            "CT",
+            "CT",
+            "FR",
+            null,
+            Set.of(),
+            List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
+            0.0,
+            null,
+            null,
+            null,
+            "FR",
+            "ES");
+        CounterTradeRangeActionImpl ctFrEs3 = new CounterTradeRangeActionImpl(
+            "CT",
+            "CT",
+            "FR",
+            null,
+            Set.of(),
+            List.of(new StandardRangeImpl(-2000.0, 2000.0, RangeType.ABSOLUTE)),
+            0.0,
+            null,
+            null,
+            null,
+            "FR",
+            "ES");
+        CounterTradeRangeActionImpl ctPtEs = new CounterTradeRangeActionImpl(
+            "CT",
+            "CT",
+            "PT",
+            null,
+            Set.of(),
+            List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
+            0.0,
+            null,
+            null,
+            null,
+            "PT",
+            "ES");
+        CounterTradeRangeActionImpl ctFrNl = new CounterTradeRangeActionImpl(
+            "CT",
+            "CT",
+            "FR",
+            null,
+            Set.of(),
+            List.of(new StandardRangeImpl(-1000.0, 1000.0, RangeType.ABSOLUTE)),
+            0.0,
+            null,
+            null,
+            null,
+            "FR",
+            "NL");
 
         assertEquals(ctFrEs1, ctFrEs1);
         assertEquals(ctFrEs1, ctFrEs2);

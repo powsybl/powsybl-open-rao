@@ -87,7 +87,6 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
-        // missing key should only occur in PST regulation
         elementaryResultMap.computeIfAbsent(rangeAction, k -> new ElementaryResult(getInitialSetPoint(rangeAction))).put(state, setpoint);
         memoizedPreviousState = new HashMap<>();
     }

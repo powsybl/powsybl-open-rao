@@ -143,7 +143,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(5);
@@ -167,7 +175,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(5);
@@ -191,7 +207,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec3, cnec5, cnec1));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(5);
@@ -215,7 +239,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec5, cnec3, cnec1));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(5);
@@ -239,7 +271,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 1);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.MEGAWATT,
+            1
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -255,7 +295,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -271,7 +319,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            null,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -287,7 +343,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -303,7 +367,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(statePreventive),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -319,7 +391,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(statePreventive, stateCo1Curative),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(3);
@@ -339,7 +419,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec3, cnec5, cnec1));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(stateCo2Curative),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(1);
@@ -355,7 +443,15 @@ class MostLimitingElementsReportsTest {
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec5, cnec3, cnec1));
         final ListAppender<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs();
 
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, objectiveFunctionResult, flowResult, Set.of(stateCo2Curative, stateCo1Auto), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(
+            reportNode,
+            objectiveFunctionResult,
+            flowResult,
+            Set.of(stateCo2Curative, stateCo1Auto),
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY).getFirst().getChildren();
         Assertions.assertThat(traceReports).hasSize(2);
@@ -409,7 +505,16 @@ class MostLimitingElementsReportsTest {
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1));
         businessLogs = ReportsTestUtils.getBusinessLogs();
 
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(
+            reportNode,
+            preventivePerimeter,
+            basecaseOptimResult,
+            contingencyScenarios,
+            contingencyOptimizationResults,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
         assertAbsoluteMW(infoReports, businessLogs);
@@ -421,7 +526,16 @@ class MostLimitingElementsReportsTest {
         businessLogs = ReportsTestUtils.getBusinessLogs();
         reportNode = ReportsTestUtils.getTestRootNode();
 
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.MEGAWATT, 5);
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(
+            reportNode,
+            preventivePerimeter,
+            basecaseOptimResult,
+            contingencyScenarios,
+            contingencyOptimizationResults,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.MEGAWATT,
+            5
+        );
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
         assertRelativeMW(infoReports, businessLogs);
@@ -433,7 +547,16 @@ class MostLimitingElementsReportsTest {
         businessLogs = ReportsTestUtils.getBusinessLogs();
         reportNode = ReportsTestUtils.getTestRootNode();
 
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(
+            reportNode,
+            preventivePerimeter,
+            basecaseOptimResult,
+            contingencyScenarios,
+            contingencyOptimizationResults,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
         assertAbsoluteA(infoReports, businessLogs);
@@ -445,7 +568,16 @@ class MostLimitingElementsReportsTest {
         businessLogs = ReportsTestUtils.getBusinessLogs();
         reportNode = ReportsTestUtils.getTestRootNode();
 
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, Unit.AMPERE, 5);
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(
+            reportNode,
+            preventivePerimeter,
+            basecaseOptimResult,
+            contingencyScenarios,
+            contingencyOptimizationResults,
+            ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN,
+            Unit.AMPERE,
+            5
+        );
 
         infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY).getFirst().getChildren();
         assertRelativeA(infoReports, businessLogs);

@@ -56,7 +56,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
-        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions), reportNode);
+        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(
+            globalFlowResult,
+            new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions),
+            reportNode
+        );
         this.status = status;
     }
 

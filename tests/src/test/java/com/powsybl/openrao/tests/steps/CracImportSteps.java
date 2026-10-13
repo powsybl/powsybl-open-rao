@@ -27,7 +27,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -285,13 +284,13 @@ public class CracImportSteps {
     public void theFlowCnecsShouldHaveTheFollowingThresholds(DataTable arg1) {
         List<Map<String, String>> expectedThresholds = arg1.asMaps(String.class, String.class);
         for (Map<String, String> expectedThreshold : expectedThresholds) {
-            BranchCnec<?> branchCnec = crac.getFlowCnec(expectedThreshold.get("CnecId"));
-            assertNotNull(branchCnec);
+            FlowCnec flowCnec = crac.getFlowCnec(expectedThreshold.get("CnecId"));
+            assertNotNull(flowCnec);
             Unit expectedUnit = Unit.valueOf(expectedThreshold.get("Unit"));
             TwoSides side = TwoSides.valueOf(expectedThreshold.get("Side"));
             Optional<Double> min = Optional.ofNullable(expectedThreshold.get("Min").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Min")));
             Optional<Double> max = Optional.ofNullable(expectedThreshold.get("Max").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Max")));
-            assertTrue(branchCnec.getThresholds().stream().anyMatch(threshold -> matchThreshold(threshold, expectedUnit, side, min, max)));
+            assertTrue(flowCnec.getThresholds().stream().anyMatch(threshold -> matchThreshold(threshold, expectedUnit, side, min, max)));
         }
     }
 

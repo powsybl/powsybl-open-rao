@@ -16,15 +16,18 @@ import java.util.TreeSet;
  */
 public class TimeCoupledConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
+    private final Set<PstConstraints> pstConstraints;
     private final Set<AdjustmentConstraints> adjustmentConstraints;
 
     public TimeCoupledConstraints() {
         this.generatorConstraints = new TreeSet<>(Comparator.comparing(GeneratorConstraints::getGeneratorId));
+        this.pstConstraints = new TreeSet<>(Comparator.comparing(PstConstraints::getPstId));
         this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
-    public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints) {
+    public TimeCoupledConstraints(Set<GeneratorConstraints> generatorConstraints, Set<PstConstraints> pstConstraints) {
         this.generatorConstraints = generatorConstraints;
+        this.pstConstraints = pstConstraints;
         this.adjustmentConstraints = new TreeSet<>(Comparator.comparing(AdjustmentConstraints::getRangeActionId));
     }
 
@@ -42,5 +45,13 @@ public class TimeCoupledConstraints {
 
     public Set<AdjustmentConstraints> getAdjustmentConstraints() {
         return adjustmentConstraints;
+    }
+
+    public void addPstConstraints(PstConstraints pstConstraints) {
+        this.pstConstraints.add(pstConstraints);
+    }
+
+    public Set<PstConstraints> getPstConstraints() {
+        return pstConstraints;
     }
 }

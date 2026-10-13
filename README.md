@@ -1,4 +1,4 @@
-# Open RAO
+# OpenRAO
 
 [![Actions Status](https://github.com/powsybl/powsybl-open-rao/actions/workflows/build_and_test.yml/badge.svg?branch=main)](https://github.com/powsybl/powsybl-open-rao/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Aopen-rao&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Aopen-rao&metric=coverage)
@@ -8,12 +8,12 @@
 [![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-open-rao.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-open-rao)
 [![ReadTheDocsStatus](https://readthedocs.org/projects/powsybl-openrao/badge/?version=stable)](https://powsybl.readthedocs.io/projects/openrao/en/stable/?badge=stable)
 
-Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial
+OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial
 actions optimisation, part of the Linux Foundation Energy.
 
-**powsybl-open-rao** repository contains the main features of Open RAO.
+**powsybl-open-rao** repository contains the main features of OpenRAO.
 
-For detailed information about Open RAO toolbox, please refer to
+For detailed information about OpenRAO toolbox, please refer to
 the [detailed documentation](https://powsybl.readthedocs.io/projects/openrao/en/stable/index.html).
 
 This project and everyone participating in it is governed by
@@ -35,9 +35,9 @@ In order to build **powsybl-open-rao**, you need the following environment avail
 
 ### Installing
 
-Open RAO needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces
+OpenRAO needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces
 of **powsybl-core** which documentation is available [here](https://powsybl.readthedocs.io/projects/powsybl-core). Note
-that for obvious reasons, included performances, reliability and transparency, Open RAO
+that for obvious reasons, included performances, reliability and transparency, OpenRAO
 uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own
 implementation.
 

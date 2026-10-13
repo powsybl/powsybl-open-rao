@@ -9,11 +9,11 @@ package com.powsybl.openrao.data.crac.io.json;
 
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
-import com.networknt.schema.Error;
 import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.io.IOException;

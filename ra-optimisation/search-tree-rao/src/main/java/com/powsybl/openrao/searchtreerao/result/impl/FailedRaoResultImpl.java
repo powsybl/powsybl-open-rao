@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -165,15 +164,5 @@ public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implement
     @Override
     public String getExecutionDetails() {
         return this.failureReason;
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException(exceptionMessage);
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        throw new OpenRaoException(exceptionMessage);
     }
 }

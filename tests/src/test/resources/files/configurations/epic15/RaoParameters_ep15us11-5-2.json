@@ -1,5 +1,5 @@
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "SECURE_FLOW"
   },
@@ -65,7 +65,7 @@
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "UA", "CZ", "ES", "CH", "RS", "ME", "TR", "BA", "RO", "GR", "IT", "DE", "HU", "SI", "MK", "NL", "BE", "HR", "AL", "FR", "AT", "BG", "SK", "PT", "PL" ],
             "componentMode" : "MAIN_CONNECTED",
-            "hvdcAcEmulation" : true,
+            "hvdcAcEmulation" : false,
             "dcPowerFactor" : 1.0,
             "extensions" : {
               "open-load-flow-parameters" : {

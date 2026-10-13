@@ -99,12 +99,27 @@ public final class OptimizationSummaryReports {
             final Map<String, Double> initialVirtualCostDetailed = ReportUtils.getVirtualCostDetailed(preOptimObjectiveFunctionResult);
             final double margin = -(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost());
             if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin));
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ",
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin),
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin)
+                );
             } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin), initialVirtualCostDetailed);
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ",
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin),
+                    ReportUtils.formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    initialVirtualCostDetailed
+                );
             }
         }
         logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            ReportUtils.formatDoubleBasedOnMargin(finalObjective.getCost(), -finalObjective.getCost()), ReportUtils.formatDoubleBasedOnMargin(finalObjective.getFunctionalCost(), -finalObjective.getCost()), ReportUtils.formatDoubleBasedOnMargin(finalObjective.getVirtualCost(), -finalObjective.getCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+            ReportUtils.formatDoubleBasedOnMargin(
+                finalObjective.getCost(),
+                -finalObjective.getCost()),
+            ReportUtils.formatDoubleBasedOnMargin(finalObjective.getFunctionalCost(), -finalObjective.getCost()),
+            ReportUtils.formatDoubleBasedOnMargin(finalObjective.getVirtualCost(), -finalObjective.getCost()),
+            finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed
+        );
     }
 }

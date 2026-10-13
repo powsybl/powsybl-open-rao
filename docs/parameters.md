@@ -36,7 +36,7 @@ Examples of rao parameters with business and implementation specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "enforce-curative-security" : true
@@ -75,7 +75,8 @@ Examples of rao parameters with business and implementation specific parameters
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation" : true
       },
       "multi-threading" : {
         "available-cpus" : 4

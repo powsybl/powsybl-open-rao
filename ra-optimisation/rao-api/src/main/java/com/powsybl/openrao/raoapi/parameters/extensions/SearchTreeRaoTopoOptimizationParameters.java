@@ -17,12 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_CURATIVE_SEARCH_TREE_DEPTH;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_PREVENTIVE_SEARCH_TREE_DEPTH;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PREDEFINED_COMBINATIONS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * Topological actions optimization parameters for RAO
@@ -36,12 +31,14 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
+    private static final boolean DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION = true;
     // Attributes
     private int maxPreventiveSearchTreeDepth;
     private int maxCurativeSearchTreeDepth;
     private List<List<String>> predefinedCombinations;
     private boolean skipActionsFarFromMostLimitingElement;
     private int maxNumberOfBoundariesForSkippingActions;
+    private boolean allowElectricalIslandCreation;
     private final ReportNode reportNode;
 
     public SearchTreeRaoTopoOptimizationParameters(final ReportNode reportNode) {
@@ -50,6 +47,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
         this.predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
         this.skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
         this.maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
+        this.allowElectricalIslandCreation = DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION;
         this.reportNode = reportNode;
     }
 
@@ -78,6 +76,10 @@ public class SearchTreeRaoTopoOptimizationParameters {
         }
     }
 
+    public void setAllowElectricalIslandCreation(boolean allowElectricalIslandCreation) {
+        this.allowElectricalIslandCreation = allowElectricalIslandCreation;
+    }
+
     public int getMaxPreventiveSearchTreeDepth() {
         return maxPreventiveSearchTreeDepth;
     }
@@ -92,6 +94,10 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     public int getMaxNumberOfBoundariesForSkippingActions() {
         return maxNumberOfBoundariesForSkippingActions;
+    }
+
+    public boolean getAllowElectricalIslandCreation() {
+        return allowElectricalIslandCreation;
     }
 
     public List<List<String>> getPredefinedCombinations() {
@@ -110,6 +116,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
                     ));
                     parameters.setSkipActionsFarFromMostLimitingElement(config.getBooleanProperty(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT));
                     parameters.setMaxNumberOfBoundariesForSkippingActions(config.getIntProperty(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS, DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS));
+                    parameters.setAllowElectricalIslandCreation(config.getBooleanProperty(ALLOW_ELECTRICAL_ISLAND_CREATION, DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION));
                 });
         return parameters;
     }
@@ -147,5 +154,12 @@ public class SearchTreeRaoTopoOptimizationParameters {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
         }
         return DEFAULT_PREDEFINED_COMBINATIONS;
+    }
+
+    public static boolean isAllowElectricalIslandCreation(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getAllowElectricalIslandCreation();
+        }
+        return DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION;
     }
 }

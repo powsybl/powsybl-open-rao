@@ -91,7 +91,9 @@ class TimeCoupledRaoTest {
     @Test
     void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
-        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find("GlobalRAOptimizer", List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig, ReportNode.NO_OP);
+        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find(
+            "GlobalRAOptimizer",
+            List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
     }
 

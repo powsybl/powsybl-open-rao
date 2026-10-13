@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.io.IOException;
@@ -35,11 +36,13 @@ public final class JsonTimeCoupledConstraints {
     public static final String TYPE = "type";
     public static final String DESCRIPTION = "OpenRAO Time-Coupled Constraints";
     public static final String VERSION = "version";
-    public static final String CURRENT_VERSION = "1.0";
+    public static final String CURRENT_VERSION = "1.1";
 
     /**
      * CHANGELOG v1
      * ------------
+     * 1.0 : generator-constraints (leadTime, lagTime, upwardPowerGradient, downwardPowerGradient, shutDownAllowed, startUpAllowed).
+     * 1.1 : add pst-constraints (upwardTapGradient, downwardTapGradient) + add minOffTime and minOnTime for generator-constraints.
      */
 
     // Generator constraints
@@ -48,10 +51,19 @@ public final class JsonTimeCoupledConstraints {
     public static final String GENERATOR_ID = "generatorId";
     public static final String LEAD_TIME = "leadTime";
     public static final String LAG_TIME = "lagTime";
+    public static final String MIN_OFF_TIME = "minOffTime";
+    public static final String MIN_ON_TIME = "minOnTime";
     public static final String UPWARD_POWER_GRADIENT = "upwardPowerGradient";
     public static final String DOWNWARD_POWER_GRADIENT = "downwardPowerGradient";
     public static final String SHUTDOWN_ALLOWED = "shutDownAllowed";
     public static final String STARTUP_ALLOWED = "startUpAllowed";
+
+    // Pst constraints
+
+    public static final String PST_CONSTRAINTS = "pstConstraints";
+    public static final String PST_ID = "pstId";
+    public static final String UPWARD_TAP_GRADIENT = "upwardTapGradient";
+    public static final String DOWNWARD_TAP_GRADIENT = "downwardTapGradient";
 
     // IO
 
@@ -61,6 +73,7 @@ public final class JsonTimeCoupledConstraints {
         SimpleModule module = new SimpleModule();
         module.addSerializer(TimeCoupledConstraints.class, new TimeCoupledConstraintsSerializer(TimeCoupledConstraints.class));
         module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
+        module.addSerializer(PstConstraints.class, new PstConstraintsSerializer(PstConstraints.class));
         objectMapper.registerModule(module);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
         writer.writeValue(outputStream, timeCoupledConstraints);
@@ -71,6 +84,7 @@ public final class JsonTimeCoupledConstraints {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TimeCoupledConstraints.class, new TimeCoupledConstraintsDeserializer(TimeCoupledConstraints.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
+        module.addDeserializer(PstConstraints.class, new PstConstraintsDeserializer(PstConstraints.class));
         objectMapper.registerModule(module);
         try {
             return objectMapper.readValue(inputStream, TimeCoupledConstraints.class);

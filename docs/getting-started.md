@@ -5,7 +5,7 @@
 getting-started/tutorial.md
 getting-started/time-coupled-tutorial.md
 ```
-Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation, part of the Linux Foundation Energy.
+OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation, part of the Linux Foundation Energy.
 
 ## Useful links
 

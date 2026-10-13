@@ -46,6 +46,12 @@ class MaximumNumberOfRemedialActionsFilterTest {
         MaximumNumberOfRemedialActionsFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
 
+        // maxRa = null
+        naFilter = new MaximumNumberOfRemedialActionsFilter(null);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
+
+        assertEquals(8, filteredNaCombination.size());
+
         // filter - max 4 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(4);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);

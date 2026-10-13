@@ -42,8 +42,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -635,7 +635,10 @@ class MarmotTest {
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).toList();
         assertTrue(logMessages.contains("pstBeFr2 variation of -9.00 taps at state preventive - 202605110030 (0.00 -> -9.00)"));
         assertTrue(logMessages.contains("pstBeFr2 variation of -4.00 taps at state preventive - 202605110130 (0.00 -> -4.00)"));
-        assertTrue(logMessages.contains("[MARMOT] The global MIP was infeasible, possibly due to time-coupled constraints that are incoherent/inconsistent or that cannot be met. Rolling back to initial situation."));
+        assertTrue(logMessages.contains("[MARMOT] The global MIP was infeasible, " +
+            "possibly due to time-coupled constraints that are incoherent/inconsistent " +
+            "or that cannot be met. Rolling back to initial situation.")
+        );
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, TimeCoupledRaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {

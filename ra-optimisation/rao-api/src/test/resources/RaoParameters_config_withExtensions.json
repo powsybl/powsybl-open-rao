@@ -1,5 +1,5 @@
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : false
@@ -54,7 +54,8 @@
         "max-curative-search-tree-depth" : 3,
         "predefined-combinations" : [ [ "na1", "na2" ], [ "na3", "na4", "na5" ] ],
         "skip-actions-far-from-most-limiting-element" : true,
-        "max-number-of-boundaries-for-skipping-actions" : 3
+        "max-number-of-boundaries-for-skipping-actions" : 3,
+        "allow-electrical-island-creation" : true
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
@@ -204,12 +205,6 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
         "shifted-violation-threshold" : 0.0
-      },
-      "pst-regulation-parameters" : {
-        "psts-to-regulate" : {
-          "pst-1" : "network-element-1",
-          "pst-2" : "network-element-2"
-        }
       }
     }
   }

@@ -105,8 +105,18 @@ class VirtualCostReportsTest {
         final List<ReportNode> childrenReportNodes = reportNode.getChildren();
         assertEquals(1, childrenReportNodes.size());
         assertEquals(1, technicalLogs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", childrenReportNodes.getFirst().getMessage());
-        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", technicalLogs.getFirst().toString());
+        assertEquals(
+            "Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: " +
+                "flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, " +
+                "element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            childrenReportNodes.getFirst().getMessage()
+        );
+        assertEquals(
+            "[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: " +
+                "flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, " +
+                "element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            technicalLogs.getFirst().toString()
+        );
     }
 
     @Test
@@ -128,8 +138,18 @@ class VirtualCostReportsTest {
         assertEquals(2, businessLogs.size());
         assertEquals("Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", childrenReportNodes.get(0).getMessage());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", businessLogs.get(0).toString());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", childrenReportNodes.get(1).getMessage());
-        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", businessLogs.get(1).toString());
+        assertEquals(
+            "Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, " +
+                "threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, " +
+                "CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            childrenReportNodes.get(1).getMessage()
+        );
+        assertEquals(
+            "[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, " +
+                "threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, " +
+                "CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"",
+            businessLogs.get(1).toString()
+        );
     }
 
     @Test

@@ -103,7 +103,7 @@ class OnContingencyStateUsageRuleHelperTest {
                 "contingency-4", new AssociationStatus(false, "OnContingencyState usage rule for remedial action " +
                     "remedial-action with contingency contingency-4 ignored because only included combinationConstraintKinds are supported."),
                 "contingency-5", new AssociationStatus(false, "OnContingencyState usage rule for remedial action " +
-                    "remedial-action with contingency contingency-5 ignored because this contingency does not exist or was not imported by Open RAO."),
+                    "remedial-action with contingency contingency-5 ignored because this contingency does not exist or was not imported by OpenRAO."),
                 "contingency-6", new AssociationStatus(false, "OnContingencyState usage rule for remedial action " +
                     "remedial-action with contingency contingency-6 ignored because this contingency has several conflictual links to the remedial action.")
             ),

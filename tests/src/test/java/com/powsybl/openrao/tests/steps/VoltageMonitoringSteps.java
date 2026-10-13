@@ -21,6 +21,7 @@ import io.cucumber.java.en.When;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -53,7 +54,15 @@ public class VoltageMonitoringSteps {
     @Then("the voltage monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.VOLTAGE));
+        assertEquals(
+            isSecure(
+                CommonTestData.getRaoResult(),
+                CommonTestData.getCrac(),
+                CommonTestData.getRaoParameters(),
+                PhysicalParameter.VOLTAGE
+            ),
+            "secure".equalsIgnoreCase(expectedStatus)
+        );
     }
 
     @Then("the min voltage of CNEC {string} should be {double} kV at {string}")

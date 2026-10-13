@@ -215,7 +215,7 @@ public class SystematicSensitivityResult {
             activePowerCoefficient = 1;
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
             side = TwoSides.TWO;
-            activePowerCoefficient = -1; // Open RAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
+            activePowerCoefficient = -1; // OpenRAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
         }
 
         if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {

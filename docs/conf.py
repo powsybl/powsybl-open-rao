@@ -22,7 +22,7 @@ print(f'appended {source_path}')
 
 # -- Project information -----------------------------------------------------
 
-project = 'PowSyBl Open RAO'
+project = 'PowSyBl OpenRAO'
 copyright = f'2024-{datetime.now().year}, RTE (http://www.rte-france.com)'
 
 
@@ -66,8 +66,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = "furo"
 
-html_title = 'Open RAO'
-html_short_title = 'Open RAO'
+html_title = 'OpenRAO'
+html_short_title = 'OpenRAO'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"

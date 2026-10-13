@@ -13,7 +13,7 @@
     <artifactId>open-rao-monitoring</artifactId>
     <packaging>jar</packaging>
     <name>Monitoring</name>
-    <description>Common monitoring algorithm for voltage and angle of Open RAO</description>
+    <description>Common monitoring algorithm for voltage and angle of OpenRAO</description>
 
     <dependencies>
         <!-- Compile dependencies -->
@@ -28,6 +28,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -100,11 +104,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
