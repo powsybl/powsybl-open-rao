@@ -160,6 +160,14 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             }
             nextToken = jsonParser.nextToken();
         }
+
+        // Systematically create a preventive state if it was not created previously.
+        // Even if we have no preventive CNEC or any remedial action available in preventive
+        // we still need a preventive state to properly create the state tree
+        if (crac.getPreventiveState() == null) {
+            crac.newPreventiveState();
+        }
+
         return crac;
     }
 

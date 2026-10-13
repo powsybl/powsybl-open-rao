@@ -227,6 +227,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public CracImpl newPreventiveState() {
+        addPreventiveState();
+        return this;
+    }
+
+    @Override
     public Instant getInstant(String instantId) {
         if (!instants.containsKey(instantId)) {
             throw new OpenRaoException(String.format("Instant '%s' has not been defined", instantId));

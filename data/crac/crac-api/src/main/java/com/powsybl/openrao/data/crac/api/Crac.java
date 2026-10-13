@@ -106,6 +106,12 @@ public interface Crac extends Identifiable<Crac> {
     Crac newInstant(String instantId, InstantKind instantKind);
 
     /**
+     * Add a preventive state
+     *
+     * @return crac
+     */
+    Crac newPreventiveState();
+    /**
      * Get instant based on Id
      * If the ID is null, this will return a null instant
      */
