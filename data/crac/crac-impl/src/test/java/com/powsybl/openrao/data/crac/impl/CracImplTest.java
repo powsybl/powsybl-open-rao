@@ -1332,4 +1332,12 @@ class CracImplTest {
         crac2 = CommonCracCreation.createWithCurativePstRange();
         assertEquals(Set.of("operator2"), crac2.findOperatorsNotSharingCras());
     }
+
+    @Test
+    void testNewPreventiveState() {
+        crac = new CracImpl("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newPreventiveState();
+        assertNotNull(crac.getPreventiveState());
+    }
 }
