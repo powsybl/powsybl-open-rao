@@ -245,7 +245,6 @@ public final class ExhaustiveCracCreation {
         crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
             .withName("counterTradeRange1Name")
             .withAreaId("BE")
-            .withConnectedAreas(createAssociatedNetwork())
             .newConnectedArea().withAreaId("FR")
                 .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
                 .add()

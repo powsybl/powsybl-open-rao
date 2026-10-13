@@ -1413,7 +1413,6 @@ When importing a JSON CRAC, the initial set-point is not yet computed from the n
                 .withMax(1000)
                 .add()
             .add()
-        .withConnectedAreas(network)
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1425,10 +1424,11 @@ When importing a JSON CRAC, the initial set-point is not yet computed from the n
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
 exchanged between France and Spain.  
-Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. They must share a border with
-the counter-trade area in the network given with `withConnectedAreas(network)`, which is mandatory as soon as a connected
-area is defined. If no connected area is defined, all the areas sharing a border with the counter-trade area in the
-network given with `withConnectedAreas(network)` are used as connected areas, without border ranges.  
+Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. The adder does not use the
+network: with the Java API, the connected areas are not checked against the network, and no connected area is added if
+none is defined (unlike the JSON import, see below). The areas sharing a border with the counter-trade area in the
+network can be computed with `IidmCounterTradeHelper`, which can also check that the connected areas of a counter-trade
+range action share a border with its area.  
 A border range must define at least one of its min and max, whatever its range type. An undefined limit is not constrained.
 :::
 :::{group-tab} JSON file
@@ -1477,8 +1477,8 @@ A border range must define at least one of its min and max, whatever its range t
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
-🔴 **area**: the area from which the counter-trade is defined  
-⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined or empty, all the areas sharing a border with the area in the network are used as connected areas, without border ranges  
+🔴 **area**: the area from which the counter-trade is defined, as a country code (e.g. FR)  
+⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network. If this field is not defined, all the areas sharing a border with the area in the network are used as connected areas, without border ranges. If it is an empty list, the counter-trade has no connected area  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  

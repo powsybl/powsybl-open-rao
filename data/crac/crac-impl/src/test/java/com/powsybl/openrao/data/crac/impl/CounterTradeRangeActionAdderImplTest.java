@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaBorderRangeAdder;
@@ -36,13 +35,11 @@ class CounterTradeRangeActionAdderImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
-    private Network network;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
     }
 
     @Test
@@ -56,9 +53,10 @@ class CounterTradeRangeActionAdderImplTest {
                 .withVariationCost(20000d, VariationDirection.DOWN)
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
+                .newConnectedArea().withAreaId("FR").add()
+                .newConnectedArea().withAreaId("NL").add()
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withConnectedAreas(network)
                 .add();
 
         assertEquals("id1", counterTradeRangeAction.getId());
@@ -87,7 +85,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -102,8 +99,6 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals("BE", counterTradeRangeAction.getAreaId());
         assertEquals(1000d, counterTradeRangeAction.getInitialSetpoint());
-        assertEquals(2, counterTradeRangeAction.getConnectedAreas().size());
-        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -121,7 +116,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -131,8 +125,6 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(0, counterTradeRangeAction.getUsageRules().size());
         assertEquals("BE", counterTradeRangeAction.getAreaId());
         assertEquals(1000d, counterTradeRangeAction.getInitialSetpoint());
-        assertEquals(2, counterTradeRangeAction.getConnectedAreas().size());
-        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -146,7 +138,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withInitialSetpoint(1000d)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withConnectedAreas(network)
                 .add();
 
         assertEquals("id1", counterTradeRangeAction.getId());
@@ -155,8 +146,6 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals("BE", counterTradeRangeAction.getAreaId());
         assertEquals(1000d, counterTradeRangeAction.getInitialSetpoint());
-        assertEquals(2, counterTradeRangeAction.getConnectedAreas().size());
-        assertEquals("FR", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -184,19 +173,6 @@ class CounterTradeRangeActionAdderImplTest {
     }
 
     @Test
-    void testConnectedAreaWithoutNetworkFail() {
-        CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
-                .withId("id1")
-                .withAreaId("BE")
-                .withInitialSetpoint(1000d)
-                .newConnectedArea().withAreaId("FR").add()
-                .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
-        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot check that the connected areas of CounterTradeRangeAction id1 share a border with area BE without a network. Please use withConnectedAreas()", e.getMessage());
-    }
-
-    @Test
     void testAddWithDefinedConnectedAreas() {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
@@ -205,12 +181,10 @@ class CounterTradeRangeActionAdderImplTest {
                 .newConnectedArea().withAreaId("NL")
                     .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
                     .add()
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
-        // FR also shares a border with BE but is not added since connected areas were defined
         assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
         assertEquals("NL", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
         assertEquals(1, counterTradeRangeAction.getConnectedAreas().get(0).getBorderRanges().size());
@@ -221,26 +195,11 @@ class CounterTradeRangeActionAdderImplTest {
     }
 
     @Test
-    void testConnectedAreaWithoutCommonBorderFail() {
-        CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
-                .withId("id1")
-                .withAreaId("BE")
-                .withInitialSetpoint(1000d)
-                .newConnectedArea().withAreaId("DE").add()
-                .withConnectedAreas(network)
-                .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
-        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Connected area DE of CounterTradeRangeAction id1 does not share a border with area BE", e.getMessage());
-    }
-
-    @Test
     void testAddBorderRangesWithoutMinOrMax() {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newConnectedArea().withAreaId("FR")
                     .newBorderRange().withMin(-500).withRangeType(RangeType.ABSOLUTE).add()
                     .newBorderRange().withMax(500).withRangeType(RangeType.ABSOLUTE).add()
@@ -296,7 +255,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
@@ -309,7 +267,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
@@ -323,7 +280,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
@@ -335,7 +291,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withId("sameId")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -343,7 +298,6 @@ class CounterTradeRangeActionAdderImplTest {
                 .withId("sameId")
                 .withAreaId("BE")
                 .withInitialSetpoint(1000d)
-                .withConnectedAreas(network)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);

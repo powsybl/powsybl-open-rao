@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -53,6 +54,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
@@ -170,6 +173,51 @@ class CracImportExportTest {
         Crac crac = ExhaustiveCracCreation.create();
         Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
         checkContent(importedCrac);
+    }
+
+    @Test
+    void importCounterTradeRangeActionWithoutConnectedAreasTest() {
+        Crac crac = ExhaustiveCracCreation.create();
+        crac.newCounterTradeRangeAction().withId("counterTradeRange2Id")
+            .withAreaId("BE")
+            .newRange().withMin(-500).withMax(500).add()
+            .add();
+
+        Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+
+        // without connected areas in the JSON, all the areas sharing a border with BE in the network are used
+        List<ConnectedArea> connectedAreas = importedCrac.getCounterTradeRangeAction("counterTradeRange2Id").getConnectedAreas();
+        assertEquals(List.of("DE", "FR"), connectedAreas.stream().map(ConnectedArea::getAreaId).toList());
+        assertTrue(connectedAreas.stream().allMatch(connectedArea -> connectedArea.getBorderRanges().isEmpty()));
+    }
+
+    @Test
+    void importCounterTradeRangeActionWithEmptyConnectedAreasTest() throws IOException {
+        // an empty list of connected areas is kept as it is: the areas sharing a border with BE in the network are not added
+        Crac crac = Crac.read("cracCounterTradeWithEmptyConnectedAreas.json",
+            getClass().getResourceAsStream("/cracCounterTradeWithEmptyConnectedAreas.json"), ExhaustiveCracCreation.createAssociatedNetwork());
+        assertTrue(crac.getCounterTradeRangeAction("counterTradeRangeId").getConnectedAreas().isEmpty());
+    }
+
+    @Test
+    void importCounterTradeRangeActionWithConnectedAreaWithoutCommonBorderTest() throws IOException {
+        Crac crac = ExhaustiveCracCreation.create();
+        crac.newCounterTradeRangeAction().withId("counterTradeRange2Id")
+            .withAreaId("BE")
+            .newConnectedArea().withAreaId("NL").add()
+            .newRange().withMin(-500).withMax(500).add()
+            .add();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        crac.write("JSON", outputStream);
+
+        try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+            CracCreationContext context = new JsonImport().importData(inputStream, new CracCreationParameters(), ExhaustiveCracCreation.createAssociatedNetwork());
+            assertFalse(context.isCreationSuccessful());
+            assertEquals(List.of(
+                "[ERROR] Connected area NL of CounterTradeRangeAction counterTradeRange2Id does not share a border with area BE in the network"),
+                context.getCreationReport().getReport()
+            );
+        }
     }
 
     private void checkContent(Crac crac) {
