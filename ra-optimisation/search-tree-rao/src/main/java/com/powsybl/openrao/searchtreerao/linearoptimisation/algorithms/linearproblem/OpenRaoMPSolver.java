@@ -176,6 +176,7 @@ public class OpenRaoMPSolver {
             mpSolver.enableOutput();
         }
         mpSolver.enableOutput();
+        mpSolver.write("/tmp/" + System.currentTimeMillis() + ".mps");
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
