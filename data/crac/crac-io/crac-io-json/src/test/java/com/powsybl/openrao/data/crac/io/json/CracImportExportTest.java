@@ -292,10 +292,10 @@ class CracImportExportTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
+        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getAreaId());
         // only FR is defined, so DE is not added although it shares a border with BE in the network
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getAreaId());
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules

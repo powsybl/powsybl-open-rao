@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdde
  */
 public interface ConnectedAreaAdder {
 
-    ConnectedAreaAdder withArea(String area);
+    ConnectedAreaAdder withAreaId(String areaId);
 
     ConnectedAreaBorderRangeAdder newBorderRange();
 

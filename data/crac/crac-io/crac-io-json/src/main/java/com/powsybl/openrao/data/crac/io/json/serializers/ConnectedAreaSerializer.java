@@ -23,7 +23,7 @@ public class ConnectedAreaSerializer extends AbstractJsonSerializer<ConnectedAre
     @Override
     public void serialize(ConnectedArea value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(JsonSerializationConstants.AREA, value.getArea());
+        gen.writeStringField(JsonSerializationConstants.AREA, value.getAreaId());
         gen.writeArrayFieldStart(JsonSerializationConstants.BORDER_RANGES);
         for (StandardRange borderRange : value.getBorderRanges()) {
             gen.writeObject(borderRange);

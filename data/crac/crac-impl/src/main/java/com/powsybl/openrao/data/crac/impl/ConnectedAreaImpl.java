@@ -27,7 +27,7 @@ public class ConnectedAreaImpl implements ConnectedArea {
     }
 
     @Override
-    public String getArea() {
+    public String getAreaId() {
         return area;
     }
 

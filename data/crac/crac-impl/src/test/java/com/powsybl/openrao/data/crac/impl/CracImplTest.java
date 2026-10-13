@@ -1155,7 +1155,7 @@ class CracImplTest {
         // ra10 : preventive only, counter trade
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
-            .withArea("FR")
+            .withAreaId("FR")
             .withInitialSetpoint(0d)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()

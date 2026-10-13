@@ -47,7 +47,7 @@ class CounterTradeRangeActionImplTest {
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withArea("FR")
+                .withAreaId("FR")
                 .withInitialSetpoint(0d)
                 .add();
         Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
@@ -60,7 +60,7 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withArea("FR")
+                .withAreaId("FR")
                 .withInitialSetpoint(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -75,7 +75,7 @@ class CounterTradeRangeActionImplTest {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("counterTradeRangeActionId")
                 .newRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMin(-50).withMax(50).add()
-                .withArea("FR")
+                .withAreaId("FR")
                 .withInitialSetpoint(100d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -90,7 +90,7 @@ class CounterTradeRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .withArea("FR")
+                .withAreaId("FR")
                 .withInitialSetpoint(0d)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();

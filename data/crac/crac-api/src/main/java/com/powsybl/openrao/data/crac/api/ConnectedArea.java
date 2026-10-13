@@ -14,7 +14,7 @@ import java.util.List;
  * @author Pedro Tobarra {@literal <pedro.tobarra at artelys.com>}
  */
 public interface ConnectedArea {
-    String getArea();
+    String getAreaId();
 
     List<StandardRange> getBorderRanges();
 }

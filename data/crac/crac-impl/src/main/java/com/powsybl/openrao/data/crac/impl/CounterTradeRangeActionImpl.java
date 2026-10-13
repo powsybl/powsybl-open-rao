@@ -76,7 +76,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public String getArea() {
+    public String getAreaId() {
         return area;
     }
 
@@ -108,7 +108,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
 
         return this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
-                && this.area.equals(((CounterTradeRangeAction) o).getArea())
+                && this.area.equals(((CounterTradeRangeAction) o).getAreaId())
                 && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
 

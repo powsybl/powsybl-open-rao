@@ -54,15 +54,15 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
         switch (jsonParser.currentName()) {
             case JsonSerializationConstants.AREA:
-                counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
+                counterTradeRangeActionAdder.withAreaId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.EXPORTING_AREA, JsonSerializationConstants.EXPORTING_COUNTRY:
                 checkFieldRemovedInV2Point12(jsonParser, version);
-                counterTradeRangeActionAdder.withArea(jsonParser.nextTextValue());
+                counterTradeRangeActionAdder.withAreaId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.IMPORTING_AREA, JsonSerializationConstants.IMPORTING_COUNTRY:
                 checkFieldRemovedInV2Point12(jsonParser, version);
-                counterTradeRangeActionAdder.newConnectedArea().withArea(jsonParser.nextTextValue()).add();
+                counterTradeRangeActionAdder.newConnectedArea().withAreaId(jsonParser.nextTextValue()).add();
                 break;
             case JsonSerializationConstants.CONNECTED_AREAS:
                 jsonParser.nextToken();

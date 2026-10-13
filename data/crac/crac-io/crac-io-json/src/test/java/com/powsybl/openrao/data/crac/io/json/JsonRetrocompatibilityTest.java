@@ -481,10 +481,10 @@ class JsonRetrocompatibilityTest {
 
         Crac crac = Crac.read(cracFilePath, cracFile, network);
         CounterTradeRangeAction counterTradeRangeAction = crac.getCounterTradeRangeAction("counterTradeRange1Id");
-        assertEquals("FR", counterTradeRangeAction.getArea());
+        assertEquals("FR", counterTradeRangeAction.getAreaId());
         // only the importing area DE is a connected area, BE is not added although it shares a border with FR in the network
         assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
-        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getArea());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
         assertTrue(counterTradeRangeAction.getConnectedAreas().get(0).getBorderRanges().isEmpty());
     }
 
@@ -1089,11 +1089,11 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point11Crac(crac);
 
         // test connected areas, replacing the removed exportingArea and importingArea
-        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getArea());
+        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getAreaId());
         // FR and DE are defined in the CRAC, so they are kept with their border ranges instead of being deduced from the network
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getArea());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getAreaId());
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getArea());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getAreaId());
     }
 }

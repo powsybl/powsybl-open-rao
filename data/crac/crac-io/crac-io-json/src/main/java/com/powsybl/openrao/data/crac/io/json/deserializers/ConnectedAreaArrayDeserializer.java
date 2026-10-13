@@ -30,7 +30,7 @@ public final class ConnectedAreaArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.AREA:
-                        adder.withArea(jsonParser.nextTextValue());
+                        adder.withAreaId(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.BORDER_RANGES:
                         jsonParser.nextToken();

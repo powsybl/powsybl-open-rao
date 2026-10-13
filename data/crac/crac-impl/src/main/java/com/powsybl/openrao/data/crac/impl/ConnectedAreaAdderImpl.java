@@ -35,8 +35,8 @@ class ConnectedAreaAdderImpl implements ConnectedAreaAdder {
     }
 
     @Override
-    public ConnectedAreaAdder withArea(String area) {
-        this.area = area;
+    public ConnectedAreaAdder withAreaId(String areaId) {
+        this.area = areaId;
         return this;
     }
 
@@ -51,7 +51,7 @@ class ConnectedAreaAdderImpl implements ConnectedAreaAdder {
 
     @Override
     public CounterTradeRangeActionAdder add() {
-        assertAttributeNotNull(area, CLASS_NAME, "area", "withArea()");
+        assertAttributeNotNull(area, CLASS_NAME, "area", "withAreaId()");
 
         ConnectedArea connectedArea = new ConnectedAreaImpl(area, borderRanges);
 

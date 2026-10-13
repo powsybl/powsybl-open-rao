@@ -46,8 +46,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
-    public CounterTradeRangeActionAdder withArea(String area) {
-        this.area = area;
+    public CounterTradeRangeActionAdder withAreaId(String areaId) {
+        this.area = areaId;
         return this;
     }
 
@@ -75,7 +75,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         // check area
-        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
+        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withAreaId()");
 
         List<ConnectedArea> allConnectedAreas = computeConnectedAreas();
 
@@ -105,8 +105,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
 
             // check that each connected area defined with newConnectedArea() shares a border with the area
             for (ConnectedArea connectedArea : connectedAreas) {
-                if (!neighbors.contains(connectedArea.getArea())) {
-                    throw new OpenRaoException(String.format("Connected area %s of CounterTradeRangeAction %s does not share a border with area %s", connectedArea.getArea(), id, area));
+                if (!neighbors.contains(connectedArea.getAreaId())) {
+                    throw new OpenRaoException(String.format("Connected area %s of CounterTradeRangeAction %s does not share a border with area %s", connectedArea.getAreaId(), id, area));
                 }
             }
 

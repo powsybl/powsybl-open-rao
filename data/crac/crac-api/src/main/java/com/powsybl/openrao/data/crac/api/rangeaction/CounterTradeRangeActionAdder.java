@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
  */
 public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<CounterTradeRangeActionAdder> {
 
-    CounterTradeRangeActionAdder withArea(String area);
+    CounterTradeRangeActionAdder withAreaId(String areaId);
 
     CounterTradeRangeActionAdder withConnectedAreas(Network network);
 
