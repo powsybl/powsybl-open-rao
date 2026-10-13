@@ -589,7 +589,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
         Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
         Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
-        Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        Set<String> statesToRemove = flowCnecsToRemove.stream().filter(cnec -> !cnec.getState().isPreventive()).map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         flowCnecsToRemove.forEach(flowCnecToRemove ->
             flowCnecs.remove(flowCnecToRemove.getId())
         );
