@@ -13,11 +13,15 @@ import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class IneffectiveActionsFilterTests {
+    private static final OffsetDateTime TIMESTAMP = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+
     @Test
     void testFilter() {
         // Following actions have no impact on network
@@ -53,7 +59,7 @@ class IneffectiveActionsFilterTests {
         // combination 1 should be filtered out because it has no impact on network
         // combination 3 should be kept because it has impact on network
         // combination 2 should be filtered out because it has the exact same impact as combination 3 but is more expensive
-        IneffectiveActionsFilter ineffectiveActionsFilter = new IneffectiveActionsFilter(NETWORK);
+        IneffectiveActionsFilter ineffectiveActionsFilter = new IneffectiveActionsFilter(new TemporalDataImpl<>(Map.of(TIMESTAMP, NETWORK)));
         assertEquals(Set.of(networkActionCombination3), ineffectiveActionsFilter.filter(
             Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3), null, ReportNode.NO_OP));
     }
