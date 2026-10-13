@@ -218,31 +218,12 @@ public final class MarmotUtils {
         }
     }
 
-    // Use releaseNetwork : we don't want to delete networks.
-    public static TemporalData<LazyNetwork> cloneNetworks(TemporalData<Network> networks) {
-        TemporalData<LazyNetwork> lazyNetworks = new TemporalDataImpl<>();
-        networks.getDataPerTimestamp().forEach((timestamp, network) -> {
-            lazyNetworks.put(timestamp, new LazyNetwork(network));
-            MarmotUtils.releaseNetworkWithoutOverwrite(network);
-        });
-        return lazyNetworks;
-    }
-
-    public static TemporalData<RaoInput> merge(TemporalData<LazyNetwork> networks, TemporalData<Crac> cracs) {
-        Map<OffsetDateTime, RaoInput> raoInputs = new HashMap<>();
-        for (OffsetDateTime timestamp : networks.getTimestamps()) {
-            raoInputs.put(timestamp, RaoInput.build(networks.getData(timestamp).orElseThrow(), cracs.getData(timestamp).orElseThrow()).build());
-            MarmotUtils.releaseNetworkWithoutOverwrite(networks.getData(timestamp).orElseThrow());
-        }
-        return new TemporalDataImpl<>(raoInputs);
-    }
-
     public static <N extends Network> void releaseAllWithoutOverwrite(TemporalData<N> networks) {
         networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetworkWithoutOverwrite);
     }
 
-    public static <N extends Network> void closeAll(TemporalData<N> networks) {
-        networks.getDataPerTimestamp().values().forEach(MarmotUtils::closeNetwork);
+    public static <N extends Network> void releaseAllWithOverwrite(TemporalData<N> networks) {
+        networks.getDataPerTimestamp().values().forEach(MarmotUtils::releaseNetwork);
     }
 
     public static <N extends Network> void releaseNetwork(N network) {
