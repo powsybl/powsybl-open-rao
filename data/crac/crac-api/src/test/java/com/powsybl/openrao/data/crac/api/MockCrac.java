@@ -88,6 +88,11 @@ public final class MockCrac implements Crac {
     }
 
     @Override
+    public Crac newPreventiveState() {
+        return null;
+    }
+
+    @Override
     public Instant getInstant(String instantId) {
         return null;
     }
