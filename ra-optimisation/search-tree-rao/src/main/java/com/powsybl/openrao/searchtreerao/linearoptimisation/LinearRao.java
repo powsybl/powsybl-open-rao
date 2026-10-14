@@ -84,9 +84,9 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
         // TODO: 1. [X] Extract the linear code from MARMOT
         // TODO: 2. [ ] Allow refine inputs like in the search-tree
         // TODO: 3. [ ] Pass the different pre-perimeter results in an extension of the RaoInput
-        // TODO: 4. [ ] Run on preventive and outage only
-        // TODO: 5. [ ] Run on preventive only
-        // TODO: 6. [ ] Run on curative only
+        // TODO: 4. [X] Run on preventive and outage only
+        // TODO: 5. [X] Run on preventive only
+        // TODO: 6. [X] Run on curative only
         // TODO: 7. [X] Add loopflows
         // TODO: 8. [ ] Add RA usage limits and decrement them from previous results
         List<OffsetDateTime> timestamps = raoInput.getRaoInputs().getTimestamps();
@@ -103,12 +103,13 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
 
         // create optimization perimeters
         TemporalData<OptimizationPerimeter> optimizationPerimeters = TemporalData.map(
-            networks, cracs, initialFlowResults,
-            (network, crac, initialFlowResult) -> GlobalOptimizationPerimeter.build(
-                crac,
-                network,
-                raoParameters,
+            raoInput.getRaoInputs(), initialFlowResults,
+            (inidividualRaoInput, initialFlowResult) -> LinearRaoUtils.getOptimizationPerimeter(
+                inidividualRaoInput.getPerimeter(),
+                inidividualRaoInput.getCrac(),
+                inidividualRaoInput.getNetwork(),
                 initialFlowResult,
+                raoParameters,
                 reportNode
             )
         );
