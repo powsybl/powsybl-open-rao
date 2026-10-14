@@ -172,6 +172,10 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
                 reportNode
             )
         );
+
+        timestamps.forEach(timestamp -> result.getIndividualRaoResult(timestamp)
+            .setExecutionDetails("RAO went through linear optimization")
+        );
         return CompletableFuture.completedFuture(result);
     }
 
