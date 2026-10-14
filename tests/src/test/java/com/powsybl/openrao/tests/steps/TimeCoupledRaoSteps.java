@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -279,7 +280,19 @@ public final class TimeCoupledRaoSteps {
                 .withMessageTemplate("test.rootnode")
                 .build()
         );
-        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
+
+        String raoImplementation;
+        try {
+            final Properties configProperties = new Properties();
+            final InputStream inputStream = TimeCoupledRaoSteps.class.getClassLoader().getResourceAsStream("steps-config.properties");
+            configProperties.load(inputStream);
+            raoImplementation = (String) configProperties.get("time-coupled-rao-implementation");
+        } catch (final IOException e) {
+            throw new OpenRaoException("Unable to load steps-config.properties", e);
+        }
+
+        timeCoupledRaoResult = TimeCoupledRao.find(raoImplementation, CommonTestData.getReportNode())
+            .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
     }
 
     @When("I export marmot results to {string}")

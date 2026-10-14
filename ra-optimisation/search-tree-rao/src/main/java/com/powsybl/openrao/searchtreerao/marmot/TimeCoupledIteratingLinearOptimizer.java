@@ -232,12 +232,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
             .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
 
         List<ProblemFiller> problemFillers = new ArrayList<>();
-        problemFillers.add(new GeneratorConstraintsFiller(
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
-            preventiveStates,
-            preventiveInjectionRangeActions,
-            input.timeCoupledConstraints().getGeneratorConstraints()
-        ));
+        // time-coupled generator constraints only make sense with at least two timestamps
+        if (input.iteratingLinearOptimizerInputs().getTimestamps().size() > 1) {
+            problemFillers.add(new GeneratorConstraintsFiller(
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
+                preventiveStates,
+                preventiveInjectionRangeActions,
+                input.timeCoupledConstraints().getGeneratorConstraints()
+            ));
+        }
 
         Set<PstConstraints> pstConstraints = input.timeCoupledConstraints().getPstConstraints();
         if (!pstConstraints.isEmpty()) {

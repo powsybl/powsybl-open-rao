@@ -7,10 +7,14 @@
 
 package com.powsybl.openrao.commons;
 
+import org.apache.commons.lang3.function.TriFunction;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -33,5 +37,64 @@ public interface TemporalData<T> {
 
     <U> TemporalData<U> mapMultiThreading(Function<T, U> function, int parallelism);
 
+    <U> Set<U> flatMap(Function<T, Set<U>> function);
+
     void clear();
+
+    static <A, B> TemporalData<B> map(TemporalData<A> td, Function<A, B> function) {
+        return td.map(function);
+    }
+
+    static <A, B, C> TemporalData<C> map(TemporalData<A> td1, TemporalData<B> td2, BiFunction<A, B, C> function) {
+        List<OffsetDateTime> timestamps = td1.getTimestamps();
+        if (!timestamps.equals(td2.getTimestamps())) {
+            throw new OpenRaoException("Temporal data do not share the same timestamps pool.");
+        }
+        TemporalData<C> result = new TemporalDataImpl<>();
+        timestamps.forEach(timestamp -> result.put(timestamp, function.apply(
+            td1.getData(timestamp).orElseThrow(),
+            td2.getData(timestamp).orElseThrow()
+        )));
+        return result;
+    }
+
+    static <A, B, C, D> TemporalData<D> map(TemporalData<A> td1, TemporalData<B> td2, TemporalData<C> td3, TriFunction<A, B, C, D> function) {
+        List<OffsetDateTime> timestamps = td1.getTimestamps();
+        if (!timestamps.equals(td2.getTimestamps()) || !timestamps.equals(td3.getTimestamps())) {
+            throw new OpenRaoException("Temporal data do not share the same timestamps pool.");
+        }
+        TemporalData<D> result = new TemporalDataImpl<>();
+        timestamps.forEach(timestamp -> result.put(timestamp, function.apply(
+            td1.getData(timestamp).orElseThrow(),
+            td2.getData(timestamp).orElseThrow(),
+            td3.getData(timestamp).orElseThrow()
+        )));
+        return result;
+    }
+
+    static <A, B, C, D, E> TemporalData<E> map(TemporalData<A> td1,
+                                               TemporalData<B> td2,
+                                               TemporalData<C> td3,
+                                               TemporalData<D> td4,
+                                               QuadFunction<A, B, C, D, E> function) {
+        List<OffsetDateTime> timestamps = td1.getTimestamps();
+        if (!timestamps.equals(td2.getTimestamps())
+            || !timestamps.equals(td3.getTimestamps())
+            || !timestamps.equals(td4.getTimestamps())) {
+            throw new OpenRaoException("Temporal data do not share the same timestamps pool.");
+        }
+        TemporalData<E> result = new TemporalDataImpl<>();
+        timestamps.forEach(timestamp -> result.put(timestamp, function.apply(
+            td1.getData(timestamp).orElseThrow(),
+            td2.getData(timestamp).orElseThrow(),
+            td3.getData(timestamp).orElseThrow(),
+            td4.getData(timestamp).orElseThrow()
+        )));
+        return result;
+    }
+
+    @FunctionalInterface
+    interface QuadFunction<T, U, V, W, R> {
+        R apply(T t, U u, V v, W w);
+    }
 }
