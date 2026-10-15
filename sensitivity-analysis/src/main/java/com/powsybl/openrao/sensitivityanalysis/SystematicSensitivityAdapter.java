@@ -41,7 +41,7 @@ final class SystematicSensitivityAdapter {
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
                                                       ComputationManager computationManager) {
-        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis [start] in %s",
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis (%s) [start]",
                 sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
         SensitivityAnalysisResult result;
         try {
