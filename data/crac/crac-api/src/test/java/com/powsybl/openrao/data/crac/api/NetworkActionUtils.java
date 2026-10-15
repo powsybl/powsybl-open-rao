@@ -51,8 +51,18 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public String getSwitchToOpenId() {
+            return switchToOpen.getId();
+        }
+
+        @Override
         public NetworkElement getSwitchToClose() {
             return switchToClose;
+        }
+
+        @Override
+        public String getSwitchToCloseId() {
+            return switchToClose.getId();
         }
 
         @Override

@@ -655,8 +655,8 @@ public class CracImportSteps {
                     String close = networkElementId.split("/")[1];
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
                         elementaryAction instanceof SwitchPair switchPair
-                            && switchPair.getSwitchToOpen().getId().equals(open)
-                            && switchPair.getSwitchToClose().getId().equals(close)));
+                            && switchPair.getSwitchToOpenId().equals(open)
+                            && switchPair.getSwitchToCloseId().equals(close)));
                     break;
                 default:
                     throw new IllegalArgumentException(String.format("Unknown elementary network action type: %s", expectedNetworkAction.get("ElementaryActionType")));

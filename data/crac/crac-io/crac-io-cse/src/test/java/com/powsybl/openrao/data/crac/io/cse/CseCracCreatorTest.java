@@ -526,15 +526,15 @@ class CseCracCreatorTest {
         assertEquals(1, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().iterator().next() instanceof SwitchPair);
         SwitchPair switchPair = (SwitchPair) ra1.getElementaryActions().iterator().next();
-        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToOpen().getId());
-        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToClose().getId());
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToOpenId());
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToCloseId());
 
         NetworkAction ra2 = importedCrac.getNetworkAction("RA2");
         assertEquals(1, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().iterator().next() instanceof SwitchPair);
         switchPair = (SwitchPair) ra2.getElementaryActions().iterator().next();
-        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToOpen().getId());
-        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToClose().getId());
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToOpenId());
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToCloseId());
     }
 
     @Test

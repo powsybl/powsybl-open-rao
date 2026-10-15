@@ -48,10 +48,8 @@ class SwitchPairAdderImplTest {
             .add();
 
         SwitchPair switchPair = (SwitchPair) networkAction.getElementaryActions().iterator().next();
-        assertEquals("open-id", switchPair.getSwitchToOpen().getId());
-        assertEquals("open-name", switchPair.getSwitchToOpen().getName());
-        assertEquals("close-id", switchPair.getSwitchToClose().getId());
-        assertEquals("close-name", switchPair.getSwitchToClose().getName());
+        assertEquals("open-id", switchPair.getSwitchToOpenId());
+        assertEquals("close-id", switchPair.getSwitchToCloseId());
 
         assertEquals(Set.of("open-id", "close-id"), networkAction.getNetworkElementsIds());
 
@@ -70,10 +68,8 @@ class SwitchPairAdderImplTest {
             .add();
 
         SwitchPair switchPair = (SwitchPair) networkAction.getElementaryActions().iterator().next();
-        assertEquals("open-id", switchPair.getSwitchToOpen().getId());
-        assertEquals("open-id", switchPair.getSwitchToOpen().getName());
-        assertEquals("close-id", switchPair.getSwitchToClose().getId());
-        assertEquals("close-id", switchPair.getSwitchToClose().getName());
+        assertEquals("open-id", switchPair.getSwitchToOpenId());
+        assertEquals("close-id", switchPair.getSwitchToCloseId());
     }
 
     @Test
