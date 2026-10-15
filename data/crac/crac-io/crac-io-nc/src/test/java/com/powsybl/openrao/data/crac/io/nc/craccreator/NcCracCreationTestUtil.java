@@ -363,7 +363,7 @@ public final class NcCracCreationTestUtil {
                                                     String expectedOperator) {
         assertEquals(expectedId, pstRangeAction.getId());
         assertEquals(expectedName, pstRangeAction.getName());
-        assertEquals(expectedPstId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(expectedPstId, pstRangeAction.getNetworkElementId());
         assertEquals(expectedOperator, pstRangeAction.getOperator());
         if (expectedMinTap == null && expectedMaxTap == null) {
             return;

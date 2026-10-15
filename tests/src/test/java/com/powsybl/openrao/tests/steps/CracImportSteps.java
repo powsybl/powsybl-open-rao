@@ -21,7 +21,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
@@ -250,7 +249,7 @@ public class CracImportSteps {
             FlowCnec flowCnec = cnecs.stream()
                 .filter(cnec -> cnec.getName()
                     .equals(cnecName))
-                .filter(cnec -> cnec.getNetworkElement().getId()
+                .filter(cnec -> cnec.getNetworkElementId()
                     .equals(networkElementId))
                 .filter(cnec -> cnec.isOptimized() == optimized)
                 .filter(cnec -> cnec.isMonitored() == monitored)
@@ -457,7 +456,7 @@ public class CracImportSteps {
             PstRangeAction pstRangeAction = crac.getPstRangeAction(id);
             assertNotNull(pstRangeAction);
             assertEquals(expectedPst.get("PstRangeActionName"), pstRangeAction.getName());
-            assertEquals(expectedPst.get("NetworkElementId"), pstRangeAction.getNetworkElement().getId());
+            assertEquals(expectedPst.get("NetworkElementId"), pstRangeAction.getNetworkElementId());
             assertEquals(Integer.parseInt(expectedPst.get("InitialTap")), pstRangeAction.getInitialTap());
             int minTap = Collections.min(pstRangeAction.getTapToAngleConversionMap().keySet());
             int maxTap = Collections.max(pstRangeAction.getTapToAngleConversionMap().keySet());
@@ -503,7 +502,7 @@ public class CracImportSteps {
             HvdcRangeAction rangeAction = crac.getHvdcRangeAction(id);
             assertNotNull(rangeAction);
             assertEquals(expectedRA.get("HvdcRangeActionName"), rangeAction.getName());
-            assertEquals(expectedRA.get("NetworkElementId"), rangeAction.getNetworkElement().getId());
+            assertEquals(expectedRA.get("NetworkElementId"), rangeAction.getNetworkElementId());
             String groupId = rangeAction.getGroupId().isPresent() ? rangeAction.getGroupId().get() : "null";
             assertEquals(expectedRA.get("GroupId"), groupId);
             assertEquals(Double.parseDouble(expectedRA.get("InitialSetpoint")), rangeAction.getInitialSetpoint(), DOUBLE_TOLERANCE);

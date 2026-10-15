@@ -119,7 +119,7 @@ class NetworkCracCreatorTest {
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue1, double thresholdValue2) {
         FlowCnec cnec = crac.getFlowCnec(id);
         assertNotNull(cnec);
-        assertEquals(neId, cnec.getNetworkElement().getId());
+        assertEquals(neId, cnec.getNetworkElementId());
         assertEquals(instantKind, cnec.getState().getInstant().getKind());
         for (BranchThreshold t : cnec.getThresholds()) {
             double expectedValue = t.getSide().equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
@@ -183,7 +183,7 @@ class NetworkCracCreatorTest {
         assertEquals(2, crac.getPstRangeActions().size());
         PstRangeAction pst = crac.getPstRangeAction("PST_RA_BBE2AA1  BBE3AA1  1_curative");
         assertNotNull(pst);
-        assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElementId());
         assertEquals(0, pst.getInitialTap());
         assertEquals(new IidmPstHelper("BBE2AA1  BBE3AA1  1", network).getTapToAngleConversionMap(), pst.getTapToAngleConversionMap());
         assertEquals(2, pst.getRanges().size());

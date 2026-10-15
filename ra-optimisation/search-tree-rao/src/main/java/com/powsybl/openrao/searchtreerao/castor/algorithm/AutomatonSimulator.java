@@ -603,7 +603,7 @@ public final class AutomatonSimulator {
         }
 
         activePowerSetpoints.forEach((ra, activePowerSetpoint) -> {
-            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElement().getId(), activePowerSetpoint, simulationReportNode);
+            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElementId(), activePowerSetpoint, simulationReportNode);
         });
 
         if (activePowerSetpoints.isEmpty()) {

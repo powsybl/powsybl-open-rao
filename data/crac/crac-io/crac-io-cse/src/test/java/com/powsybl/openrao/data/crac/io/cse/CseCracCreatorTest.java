@@ -496,7 +496,7 @@ class CseCracCreatorTest {
         assertFalse(pstContext.isAltered());
         assertEquals("BBE2AA1  BBE3AA1  1", pstContext.getNativeNetworkElementId());
         PstRangeAction pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElementId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());
@@ -512,7 +512,7 @@ class CseCracCreatorTest {
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  1", pstContext.getNativeNetworkElementId());
         pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElementId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());

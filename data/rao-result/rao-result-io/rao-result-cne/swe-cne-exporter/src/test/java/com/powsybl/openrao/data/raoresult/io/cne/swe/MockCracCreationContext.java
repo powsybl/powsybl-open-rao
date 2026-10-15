@@ -139,7 +139,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         private NativeBranch getNativeBranch(FlowCnec flowCnec) {
-            String[] split = flowCnec.getNetworkElement().getId().split("[ ]+");
+            String[] split = flowCnec.getNetworkElementId().split("[ ]+");
             String from = split[0];
             String to = split[1];
             String suffix = split[2];
