@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
@@ -419,15 +418,15 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static Optional<InjectionRangeAction> getInjectionRangeActionOfGenerator(String generatorId, Set<InjectionRangeAction> allInjectionRangeActions) {
         return allInjectionRangeActions.stream()
-            .filter(injectionRangeAction -> injectionRangeAction.getNetworkElements().stream().map(NetworkElement::getId).anyMatch(generatorId::equals))
+            .filter(injectionRangeAction -> injectionRangeAction.getNetworkElementsIds().stream().anyMatch(generatorId::equals))
             .min(Comparator.comparing(Identifiable::getId));
     }
 
     private static double getDistributionKey(String generatorId, InjectionRangeAction injectionRangeAction) {
-        NetworkElement networkElement = injectionRangeAction.getNetworkElements().stream()
-            .filter(element -> element.getId().equals(generatorId))
+        String networkElementId = injectionRangeAction.getNetworkElementsIds().stream()
+            .filter(element -> element.equals(generatorId))
             .findFirst().orElseThrow();
-        return injectionRangeAction.getInjectionDistributionKeys().get(networkElement);
+        return injectionRangeAction.getDistributionKeys().get(networkElementId);
     }
 
     private double getMinP(String generatorId, OffsetDateTime timestamp) {
@@ -475,15 +474,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         }
     }
 
-    private static Set<String> getActivableGeneratorIds(InjectionRangeAction injectionRangeAction) {
-        return injectionRangeAction.getNetworkElements().stream()
-            .map(NetworkElement::getId)
-            .collect(Collectors.toSet());
-    }
-
     private static Set<String> getActivableGeneratorIds(Set<InjectionRangeAction> injectionRangeActions) {
         return injectionRangeActions.stream()
-            .flatMap(injectionRangeAction -> getActivableGeneratorIds(injectionRangeAction).stream())
+            .map(InjectionRangeAction::getNetworkElementsIds)
+            .flatMap(Set::stream)
             .collect(Collectors.toSet());
     }
 

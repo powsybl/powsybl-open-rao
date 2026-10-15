@@ -9,12 +9,10 @@ package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,11 +32,9 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
     private void serializeInjectionDistributionKeys(InjectionRangeAction value, JsonGenerator gen) throws IOException {
         gen.writeFieldName(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS);
         gen.writeStartObject();
-        List<NetworkElement> sortedNetworkElementList = value.getInjectionDistributionKeys().keySet().stream()
-                .sorted(Comparator.comparing(NetworkElement::getId))
-                .toList();
-        for (NetworkElement networkElement : sortedNetworkElementList) {
-            gen.writeNumberField(networkElement.getId(), value.getInjectionDistributionKeys().get(networkElement));
+        List<String> sortedNetworkElementList = value.getDistributionKeys().keySet().stream().toList();
+        for (String networkElementId : sortedNetworkElementList) {
+            gen.writeNumberField(networkElementId, value.getDistributionKeys().get(networkElementId));
         }
         gen.writeEndObject();
     }

@@ -347,7 +347,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
 
         if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
+            double totalShiftKey = injectionRangeAction.getDistributionKeys().values().stream().mapToDouble(v -> v).sum();
             OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
@@ -430,7 +430,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
-                if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
+                if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds())) {
                     rangeActions.add(ra);
                 }
             })
