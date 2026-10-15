@@ -52,7 +52,7 @@ class TerminalsConnectionActionAdderImplTest {
         assertTrue(terminalsConnectionAction.isOpen());
 
         // check that network element has been added in CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertEquals(1, ((CracImpl) crac).getNetworkElementsIds().size());
         assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
     }
 

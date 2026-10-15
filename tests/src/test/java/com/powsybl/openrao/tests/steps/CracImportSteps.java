@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -570,14 +569,14 @@ public class CracImportSteps {
         assertNotNull(ira);
 
         List<Map<String, String>> expectedInjectionAndKeys = arg2.asMaps(String.class, String.class);
-        assertEquals(expectedInjectionAndKeys.size(), ira.getInjectionDistributionKeys().size());
+        assertEquals(expectedInjectionAndKeys.size(), ira.getDistributionKeys().size());
 
         for (Map<String, String> expectedInjectionAndKey : expectedInjectionAndKeys) {
             String expectedInjectionId = expectedInjectionAndKey.get("InjectionId");
             String expectedKey = expectedInjectionAndKey.get("Key");
 
-            Map.Entry<NetworkElement, Double> correspondingEntry = ira.getInjectionDistributionKeys().entrySet().stream()
-                .filter(e -> e.getKey().getId().equals(expectedInjectionId))
+            Map.Entry<String, Double> correspondingEntry = ira.getDistributionKeys().entrySet().stream()
+                .filter(e -> e.getKey().equals(expectedInjectionId))
                 .findAny().orElse(null);
 
             assertNotNull(correspondingEntry);

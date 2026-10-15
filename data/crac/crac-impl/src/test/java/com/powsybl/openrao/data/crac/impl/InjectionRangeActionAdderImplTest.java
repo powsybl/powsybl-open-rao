@@ -72,9 +72,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(1, injectionRangeAction.getRanges().size());
         assertEquals(1, injectionRangeAction.getUsageRules().size());
 
-        assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
-        assertEquals(1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
-        assertEquals(-1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+        assertEquals(2, injectionRangeAction.getDistributionKeys().size());
+        assertEquals(1., injectionRangeAction.getDistributionKeys().get(injectionId1), 1e-6);
+        assertEquals(-1., injectionRangeAction.getDistributionKeys().get(injectionId2), 1e-6);
         assertEquals(10.0, injectionRangeAction.getInitialSetpoint());
 
         assertEquals(2, crac.getNetworkElements().size());
@@ -126,9 +126,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(1, injectionRangeAction.getRanges().size());
         assertEquals(1, injectionRangeAction.getUsageRules().size());
 
-        assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
-        assertEquals(5., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
-        assertEquals(-1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+        assertEquals(2, injectionRangeAction.getDistributionKeys().size());
+        assertEquals(5., injectionRangeAction.getDistributionKeys().get(injectionId1), 1e-6);
+        assertEquals(-1., injectionRangeAction.getDistributionKeys().get(injectionId2), 1e-6);
 
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(injectionId1));
@@ -154,7 +154,7 @@ class InjectionRangeActionAdderImplTest {
         assertTrue(injectionRangeAction.getGroupId().isEmpty());
         assertEquals(1, injectionRangeAction.getRanges().size());
         assertEquals(1, injectionRangeAction.getUsageRules().size());
-        assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
+        assertEquals(2, injectionRangeAction.getDistributionKeys().size());
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(2, crac.getNetworkElements().size());
@@ -178,8 +178,8 @@ class InjectionRangeActionAdderImplTest {
         assertEquals("groupId1", injectionRangeAction1.getGroupId().get());
         assertEquals(1, injectionRangeAction1.getRanges().size());
         assertEquals(1, injectionRangeAction1.getUsageRules().size());
-        assertEquals(1, injectionRangeAction1.getInjectionDistributionKeys().size());
-        assertEquals(1., injectionRangeAction1.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
+        assertEquals(1, injectionRangeAction1.getDistributionKeys().size());
+        assertEquals(1., injectionRangeAction1.getDistributionKeys().get(injectionId1), 1e-6);
 
         InjectionRangeAction injectionRangeAction2 = crac.newInjectionRangeAction()
             .withId("id2")
@@ -197,8 +197,8 @@ class InjectionRangeActionAdderImplTest {
         assertEquals("groupId2", injectionRangeAction2.getGroupId().get());
         assertEquals(1, injectionRangeAction2.getRanges().size());
         assertEquals(1, injectionRangeAction2.getUsageRules().size());
-        assertEquals(1, injectionRangeAction2.getInjectionDistributionKeys().size());
-        assertEquals(1., injectionRangeAction2.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+        assertEquals(1, injectionRangeAction2.getDistributionKeys().size());
+        assertEquals(1., injectionRangeAction2.getDistributionKeys().get(injectionId2), 1e-6);
 
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(injectionId1));
@@ -243,7 +243,7 @@ class InjectionRangeActionAdderImplTest {
         assertEquals("BE", injectionRangeAction.getOperator());
         assertEquals(1, injectionRangeAction.getRanges().size());
         assertEquals(0, injectionRangeAction.getUsageRules().size());
-        assertEquals(1, injectionRangeAction.getInjectionDistributionKeys().size());
+        assertEquals(1, injectionRangeAction.getDistributionKeys().size());
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(1, crac.getNetworkElements().size());
@@ -264,7 +264,7 @@ class InjectionRangeActionAdderImplTest {
         assertNull(injectionRangeAction.getOperator());
         assertEquals(1, injectionRangeAction.getRanges().size());
         assertEquals(1, injectionRangeAction.getUsageRules().size());
-        assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
+        assertEquals(2, injectionRangeAction.getDistributionKeys().size());
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(2, crac.getNetworkElements().size());

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -216,24 +215,16 @@ class LinearProblemResultTest {
 
         PstRangeAction pst = Mockito.mock(PstRangeAction.class);
         Mockito.when(pst.getId()).thenReturn("pst");
-        NetworkElement pst1NE = Mockito.mock(NetworkElement.class);
-        Mockito.when(pst1NE.getId()).thenReturn("pst1NE");
-        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(pst1NE));
+        Mockito.when(pst1.getNetworkElementsIds()).thenReturn(Set.of("pst1NE"));
         InjectionRangeAction injection = Mockito.mock(InjectionRangeAction.class);
         Mockito.when(injection.getId()).thenReturn("injection");
-        NetworkElement injectionNE = Mockito.mock(NetworkElement.class);
-        Mockito.when(injectionNE.getId()).thenReturn("injectionNE");
-        Mockito.when(injection.getNetworkElements()).thenReturn(Set.of(injectionNE));
+        Mockito.when(injection.getNetworkElementsIds()).thenReturn(Set.of("injectionNE"));
         HvdcRangeAction hvdc = Mockito.mock(HvdcRangeAction.class);
         Mockito.when(hvdc.getId()).thenReturn("hvdc");
-        NetworkElement hvdcNE = Mockito.mock(NetworkElement.class);
-        Mockito.when(hvdcNE.getId()).thenReturn("hvdcNE");
-        Mockito.when(hvdc.getNetworkElements()).thenReturn(Set.of(hvdcNE));
+        Mockito.when(hvdc.getNetworkElementsIds()).thenReturn(Set.of("hvdcNE"));
         CounterTradeRangeAction counterTrade = Mockito.mock(CounterTradeRangeAction.class);
         Mockito.when(counterTrade.getId()).thenReturn("counterTrade");
-        NetworkElement counterTradeNE = Mockito.mock(NetworkElement.class);
-        Mockito.when(counterTradeNE.getId()).thenReturn("counterTradeNE");
-        Mockito.when(counterTrade.getNetworkElements()).thenReturn(Set.of(counterTradeNE));
+        Mockito.when(counterTrade.getNetworkElementsIds()).thenReturn(Set.of("counterTradeNE"));
 
         linearProblem = Mockito.mock(LinearProblem.class);
         rangeActionsPerState = Map.of(

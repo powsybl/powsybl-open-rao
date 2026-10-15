@@ -27,7 +27,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -238,9 +237,7 @@ public final class NcCracCreationTestUtil {
         assertTrue(ncElementaryCreationContext.isImported());
         assertEquals(isAltered, ncElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getNetworkAction(id));
-        Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream()
-            .map(NetworkElement::getId)
-            .collect(Collectors.toSet());
+        Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElementsIds();
         assertEquals(networkElements, actualNetworkElements);
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
         assertEquals(expectedOperator, cracCreationContext.getCrac().getNetworkAction(id).getOperator());

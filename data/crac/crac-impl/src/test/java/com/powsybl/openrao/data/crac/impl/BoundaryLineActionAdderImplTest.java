@@ -50,7 +50,7 @@ class BoundaryLineActionAdderImplTest {
         assertEquals(100., boundaryLineAction.getActivePowerValue().getAsDouble(), 1e-3);
 
         // check that network element have been added to CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertEquals(1, ((CracImpl) crac).getNetworkElementsIds().size());
         assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
     }
 

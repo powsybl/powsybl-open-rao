@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -84,7 +83,7 @@ class IteratingLinearOptimizerTest {
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         when(rangeAction.getId()).thenReturn("ra");
-        when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(rangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
         optimizedState = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);

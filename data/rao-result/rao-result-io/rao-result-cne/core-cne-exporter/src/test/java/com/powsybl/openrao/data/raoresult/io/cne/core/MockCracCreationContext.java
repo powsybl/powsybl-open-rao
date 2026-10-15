@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.raoresult.io.cne.core;
 
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationReport;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -57,9 +56,9 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void createRemedialActionCreationContext(final Crac crac, final InjectionRangeAction injectionRangeAction) {
         final String[] splitIds = injectionRangeAction.getId().split(" \\+ ");
-        final String[] splitElementNames = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream()
+        final String[] splitElementNames = injectionRangeAction.getDistributionKeys().entrySet().stream()
             .sorted(Map.Entry.comparingByValue())
-            .map(es -> es.getKey().getId().replace("_generator", ""))
+            .map(es -> es.getKey().replace("_generator", ""))
             .toArray(String[]::new);
         final ImportStatus importStatus = crac.getRangeAction(injectionRangeAction.getId()) != null || crac.getNetworkAction(injectionRangeAction.getId()) != null
             ? ImportStatus.IMPORTED
@@ -254,16 +253,16 @@ public class MockCracCreationContext implements UcteCracCreationContext {
     }
 
     public static class MockRemedialActionCreationContext implements PstRangeActionCreationContext {
-        private final RemedialAction remedialAction;
+        private final RemedialAction<?> remedialAction;
         private final boolean isImported;
         boolean isInverted;
         String nativeNetworkElementId;
 
-        public MockRemedialActionCreationContext(RemedialAction remedialAction, Crac crac) {
+        public MockRemedialActionCreationContext(RemedialAction<?> remedialAction, Crac crac) {
             this.remedialAction = remedialAction;
             this.isImported = crac.getRangeAction(remedialAction.getId()) != null || crac.getNetworkAction(remedialAction.getId()) != null;
             this.isInverted = false;
-            this.nativeNetworkElementId = ((NetworkElement) remedialAction.getNetworkElements().iterator().next()).getId();
+            this.nativeNetworkElementId = remedialAction.getNetworkElementsIds().iterator().next();
         }
 
         @Override

@@ -195,7 +195,7 @@ class FbConstraintCracCreatorTest {
 
         // TOPO PRA
         NetworkAction topoPra = crac.getNetworkAction("RA_FR_0001");
-        assertEquals(2, topoPra.getNetworkElements().size());
+        assertEquals(2, topoPra.getNetworkElementsIds().size());
         assertEquals("PRA_TOPO_FR", topoPra.getName());
         assertEquals("FR", topoPra.getOperator());
         assertEquals(1, topoPra.getUsageRules().size());
@@ -206,7 +206,7 @@ class FbConstraintCracCreatorTest {
 
         // TOPO CRA
         NetworkAction topoCra = crac.getNetworkAction("RA_FR_0002");
-        assertEquals(1, topoCra.getNetworkElements().size());
+        assertEquals(1, topoCra.getNetworkElementsIds().size());
         assertEquals("CRA_TOPO_FR", topoCra.getName());
         assertEquals("FR", topoCra.getOperator());
         assertEquals(2, topoCra.getUsageRules().size());

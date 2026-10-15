@@ -51,7 +51,7 @@ class PhaseTapChangerTapPositionActionAdderImplTest {
         assertEquals(0, phaseTapChangerTapPositionAction.getTapPosition(), 1e-3);
 
         // check that network element has been created in CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertEquals(1, ((CracImpl) crac).getNetworkElementsIds().size());
         assertNotNull(((CracImpl) crac).getNetworkElement("pstNetworkElementId"));
     }
 

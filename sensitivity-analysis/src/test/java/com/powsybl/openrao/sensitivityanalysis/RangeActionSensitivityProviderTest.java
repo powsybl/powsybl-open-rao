@@ -17,7 +17,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -276,10 +275,8 @@ class RangeActionSensitivityProviderTest {
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
-        NetworkElement line = Mockito.mock(NetworkElement.class);
-        Mockito.when(line.getId()).thenReturn("BBE1AA11 BBE2AA11 1");
         RangeAction<?> mockHvdcRangeAction = Mockito.mock(RangeAction.class);
-        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
+        Mockito.when(mockHvdcRangeAction.getNetworkElementsIds()).thenReturn(Set.of("BBE1AA11 BBE2AA11 1"));
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 

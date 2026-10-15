@@ -182,15 +182,9 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
-        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
-            .filter(e -> e.getKey().getId().equals("BBE2AA12_generator"))
-            .findAny().orElseThrow()
-            .getValue(), 1e-3);
-        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
-            .filter(e -> e.getKey().getId().equals("FFR3AA12_generator"))
-            .findAny().orElseThrow()
-            .getValue(), 1e-3);
+        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().size());
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().get("BBE2AA12_generator"), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().get("FFR3AA12_generator"), 1e-3);
     }
 
     @Test
@@ -314,9 +308,9 @@ class CseCracCreatorTest {
         ElementaryCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
-        assertEquals(2, na.getNetworkElements().size());
-        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR3AA1 _generator")));
-        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR2AA1 _generator")));
+        assertEquals(2, na.getNetworkElementsIds().size());
+        assertTrue(na.getNetworkElementsIds().contains("FFR3AA1 _generator"));
+        assertTrue(na.getNetworkElementsIds().contains("FFR2AA1 _generator"));
     }
 
     @Test
