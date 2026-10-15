@@ -2,7 +2,7 @@
 
 ## Rao parameters
 
-RAO parameters to tune the RAO (not implementation specific).
+This section describes the RAO parameters used to tune the RAO (not implementation specific).
 These parameters are configured through the top-level fields of the RaoParameters file;
 the name used to identify each parameter group in the JSON file is given in parentheses in the description of the corresponding section below.
 

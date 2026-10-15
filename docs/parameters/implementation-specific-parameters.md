@@ -2,8 +2,8 @@
 
 ## Rao parameters Extensions
 
-Used to configure RAO implementation specific parameters.
-These extensions are configured through the `extensions` field of the [RaoParameters](business-parameters.md) file;
+The extensions are used to configure RAO implementation specific parameters.
+They are configured through the `extensions` field of the [RaoParameters](business-parameters.md) file;
 each extension is identified in the JSON file by the name given in backticks in its section description below.
 
 ### OpenRAO Search Tree Parameters extension
