@@ -292,7 +292,7 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
         softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds()).hasSize(2);
-        softAssertions.assertThat(secondRA.getInjectionDistributionKeysIds())
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds())
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
         softAssertions.assertAll();
 

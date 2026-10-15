@@ -50,7 +50,7 @@ class ShuntCompensatorPositionActionAdderImplTest {
         assertEquals(3, shuntCompensatorPositionAction.getSectionCount());
 
         // check that network element have been added to CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElementsIds().size());
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
         assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
     }
 
