@@ -39,6 +39,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private static final double EPSILON = 1e-3;
 
     private final NetworkElement networkElement;
+    private final String networkElementId;
     private final List<TapRange> ranges;
     private final int initialTapPosition;
     private final Map<Integer, Double> tapToAngleConversionMap;
@@ -60,6 +61,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
                        Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.networkElement = networkElement;
+        this.networkElementId = networkElement.getId();
         this.ranges = ranges;
         this.initialTapPosition = initialTap;
         this.tapToAngleConversionMap = tapToAngleConversionMap;
@@ -71,6 +73,16 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
+    }
+
+    @Override
+    public String getNetworkElementId() {
+        return networkElementId;
+    }
+
+    @Override
+    public Set<String> getNetworkElementsIds() {
+        return Set.of(networkElementId);
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Group of simple elementary remedial actions.
@@ -84,6 +85,11 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return this.networkElements;
+    }
+
+    @Override
+    public Set<String> getNetworkElementsIds() {
+        return this.networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
     }
 
     @Override

@@ -30,13 +30,24 @@ public interface FlowCnec extends Cnec<FlowCnec> {
 
     /**
      * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.
+     *
+     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getNetworkElement();
+
+    /**
+     * Getter of the network element on which the {@code Cnec} is defined.
+     */
+    String getNetworkElementId();
 
     /**
      * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code FlowCnec}
      * should ideally meet.
+     *
+     * @deprecated since 7.4.0, use {@link #getUpperBound(TwoSides, Unit)} and/or {@link #getLowerBound(TwoSides, Unit)} instead.
      */
+    @Deprecated(since = "7.4.0")
     Set<BranchThreshold> getThresholds();
 
     /**

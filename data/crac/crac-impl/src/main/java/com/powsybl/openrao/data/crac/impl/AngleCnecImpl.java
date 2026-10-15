@@ -52,8 +52,18 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     @Override
+    public String getExportingNetworkElementId() {
+        return exportingNetworkElement.getId();
+    }
+
+    @Override
     public NetworkElement getImportingNetworkElement() {
         return importingNetworkElement;
+    }
+
+    @Override
+    public String getImportingNetworkElementId() {
+        return importingNetworkElement.getId();
     }
 
     @Override

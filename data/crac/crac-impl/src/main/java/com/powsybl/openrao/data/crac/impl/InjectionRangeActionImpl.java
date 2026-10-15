@@ -50,6 +50,11 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
+    public Set<String> getNetworkElementsIds() {
+        return this.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+    }
+
+    @Override
     public Map<NetworkElement, Double> getInjectionDistributionKeys() {
         return injectionDistributionKeys;
     }

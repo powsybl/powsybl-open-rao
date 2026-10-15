@@ -119,6 +119,11 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public Set<String> getNetworkElementsIds() {
+            return null;
+        }
+
+        @Override
         public OnContingencyStateAdderToRemedialAction<NetworkAction> newOnStateUsageRule() {
             return null;
         }

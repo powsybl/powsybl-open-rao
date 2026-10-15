@@ -51,6 +51,11 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     }
 
     @Override
+    public String getNetworkElementId() {
+        return networkElement.getId();
+    }
+
+    @Override
     public List<StandardRange> getRanges() {
         return ranges;
     }
@@ -58,6 +63,11 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
+    }
+
+    @Override
+    public Set<String> getNetworkElementsIds() {
+        return Collections.singleton(networkElement.getId());
     }
 
     @Override

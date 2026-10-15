@@ -9,12 +9,14 @@ package com.powsybl.openrao.data.crac.api.cnec;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.CountryLocation;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +36,16 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
 
     /**
      * Getter of the set of {@link NetworkElement}s on which the {@code Cnec} is defined.
+     *
+     * @deprecated since 7.4.0, use {@link #getNetworkElementsIds()} instead
      */
+    @Deprecated(since = "7.4.0")
     Set<NetworkElement> getNetworkElements();
+
+    /**
+     * Getter of the set of network elements on which the {@code Cnec} is defined.
+     */
+    Set<String> getNetworkElementsIds();
 
     /**
      * Getter of the {@link State} on which the {@code Cnec} is defined.
@@ -109,9 +119,23 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * belong to two countries.
      */
     default Set<Country> getLocation(Network network) {
-        Set<Country> locations = new HashSet<>();
-        getNetworkElements().forEach(networkElement -> locations.addAll(networkElement.getLocation(network)));
-        return locations;
+        switch (this) {
+            case AngleCnec angleCnec -> {
+                Set<Country> locations = new HashSet<>();
+                locations.addAll(CountryLocation.getLocation(network, angleCnec.getExportingNetworkElementId()));
+                locations.addAll(CountryLocation.getLocation(network, angleCnec.getImportingNetworkElementId()));
+                return locations;
+            }
+            case FlowCnec flowCnec -> {
+                return CountryLocation.getLocation(network, flowCnec.getNetworkElementId());
+            }
+            case VoltageCnec voltageCnec -> {
+                return CountryLocation.getLocation(network, voltageCnec.getNetworkElementId());
+            }
+            default -> {
+                return Collections.emptySet();
+            }
+        }
     }
 
     /**

@@ -26,18 +26,37 @@ public interface AngleCnec extends Cnec<AngleCnec> {
 
     /**
      * Getter of the {@link NetworkElement} of the exporting end of the branch.
+     *
+     * @deprecated since 7.4.0. Use {@link #getExportingNetworkElementId()} instead.
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getExportingNetworkElement();
 
     /**
-     * Getter of the {@link NetworkElement} of the importing end of the branch.
+     * Getter of the network element of the exporting end of the branch.
      */
+    String getExportingNetworkElementId();
+
+    /**
+     * Getter of the {@link NetworkElement} of the importing end of the branch.
+     *
+     * @deprecated since 7.4.0. Use {@link #getImportingNetworkElementId()} instead.
+     */
+    @Deprecated(since = "7.4.0")
     NetworkElement getImportingNetworkElement();
+
+    /**
+     * Getter of thenetwork element of the importing end of the branch.
+     */
+    String getImportingNetworkElementId();
 
     /**
      * Getter of the {@link Threshold}s that the {@link PhysicalParameter} of this {@code AngleCnec}
      * should ideally meet.
+     *
+     * @deprecated since 7.4.0, use {@link #getUpperBound(Unit)} and/or {@link #getLowerBound(Unit)} instead.
      */
+    @Deprecated(since = "7.4.0")
     Set<Threshold> getThresholds();
 
     /**

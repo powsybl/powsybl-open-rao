@@ -50,6 +50,11 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
+    public String getNetworkElementId() {
+        return getNetworkElement().getId();
+    }
+
+    @Override
     public Set<Threshold> getThresholds() {
         return thresholds;
     }

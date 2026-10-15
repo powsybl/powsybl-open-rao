@@ -67,6 +67,11 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
+    public String getNetworkElementId() {
+        return getNetworkElement().getId();
+    }
+
+    @Override
     public double computeMargin(double actualValue, TwoSides side, Unit unit) {
         double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;

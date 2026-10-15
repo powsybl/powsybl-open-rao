@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -53,6 +54,11 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public final Set<NetworkElement> getNetworkElements() {
         return networkElements;
+    }
+
+    @Override
+    public final Set<String> getNetworkElementsIds() {
+        return networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
     }
 
     @Override
