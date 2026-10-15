@@ -133,7 +133,7 @@ public final class NcCracCreationTestUtil {
                                            String expectedBorder) {
         assertEquals(expectedCnecIdAndName, cnec.getId());
         assertEquals(expectedCnecIdAndName, cnec.getName());
-        assertEquals(expectedNetworkElementsIds, cnec.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()));
+        assertEquals(expectedNetworkElementsIds, cnec.getNetworkElementsIds());
         assertEquals(expectedInstant, cnec.getState().getInstant().getId());
         if (expectedContingencyId == null) {
             assertFalse(cnec.getState().getContingency().isPresent());
@@ -195,8 +195,8 @@ public final class NcCracCreationTestUtil {
             expectedOperator,
             expectedBorder
         );
-        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
-        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
+        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElementId());
+        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElementId());
 
         Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));

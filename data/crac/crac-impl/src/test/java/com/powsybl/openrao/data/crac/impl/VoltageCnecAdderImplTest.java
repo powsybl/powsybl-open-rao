@@ -87,7 +87,7 @@ class VoltageCnecAdderImplTest {
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
-        assertEquals("neName1", cnec1.getNetworkElement().getName());
+        assertEquals("neId1", cnec1.getNetworkElementId());
         assertEquals(1000.0, cnec1.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
 
@@ -97,7 +97,7 @@ class VoltageCnecAdderImplTest {
         assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
-        assertEquals("neId2", cnec2.getNetworkElement().getName());
+        assertEquals("neId2", cnec2.getNetworkElementId());
         assertEquals(500.0, cnec2.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(Unit.KILOVOLT).isPresent());
 

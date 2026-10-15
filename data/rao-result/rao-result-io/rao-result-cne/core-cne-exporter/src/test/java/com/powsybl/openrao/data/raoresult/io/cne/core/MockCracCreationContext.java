@@ -84,7 +84,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
-                creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
+                creationContext.getFlowCnec().getNetworkElementsIds().equals(flowCnec.getNetworkElementsIds())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
         ).toList();
         if (cnecsWithSameNe.isEmpty()) {
@@ -163,7 +163,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
                         FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().get().getId(), instant)).stream()
-                            .filter(flowCnec1 -> flowCnec1.getNetworkElements().equals(flowCnec.getNetworkElements()))
+                            .filter(flowCnec1 -> flowCnec1.getNetworkElementsIds().equals(flowCnec.getNetworkElementsIds()))
                             .findFirst()
                             .orElse(flowCnec);
                         map.put(instant.getId(), otherBranchCnec.getId());
@@ -173,7 +173,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         private NativeBranch getNativeBranch(FlowCnec flowCnec) {
-            String[] split = flowCnec.getNetworkElement().getId().split("[ ]+");
+            String[] split = flowCnec.getNetworkElementId().split("[ ]+");
             String from = split[0];
             String to = split[1];
             String suffix = split[2];

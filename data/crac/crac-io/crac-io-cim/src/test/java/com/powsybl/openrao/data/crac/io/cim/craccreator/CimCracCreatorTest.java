@@ -266,8 +266,8 @@ class CimCracCreatorTest {
         assertTrue(angleCnecCreationContext.isImported());
         assertNotNull(importedCrac.getAngleCnec(id));
         Set<String> importedAngleCnecNetworkElements = new HashSet<>();
-        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getImportingNetworkElement().toString());
-        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElement().toString());
+        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getImportingNetworkElementId());
+        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElementId());
         assertEquals(networkElementIds, importedAngleCnecNetworkElements);
         assertEquals(contingencyId, angleCnecCreationContext.getContingencyId());
         assertEquals(1, importedCrac.getAngleCnec(id).getThresholds().size());
@@ -302,7 +302,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
         assertNotNull(importedCrac.getPstRangeAction(id));
-        String actualNetworkElement = importedCrac.getPstRangeAction(id).getNetworkElement().toString();
+        String actualNetworkElement = importedCrac.getPstRangeAction(id).getNetworkElementId();
         assertEquals(networkElement, actualNetworkElement);
     }
 
@@ -327,9 +327,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
         assertNotNull(importedCrac.getNetworkAction(id));
-        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElements().stream()
-            .map(NetworkElement::getId)
-            .collect(Collectors.toSet());
+        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElementsIds();
         assertEquals(networkElements, actualNetworkElements);
     }
 

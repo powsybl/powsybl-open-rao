@@ -88,8 +88,8 @@ class AngleCnecAdderImplTest {
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
-        assertEquals("eneName1", cnec1.getExportingNetworkElement().getName());
-        assertEquals("ineName1", cnec1.getImportingNetworkElement().getName());
+        assertEquals("eneId1", cnec1.getExportingNetworkElementId());
+        assertEquals("ineId1", cnec1.getImportingNetworkElementId());
         assertEquals(1000.0, cnec1.getUpperBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
 
@@ -99,8 +99,8 @@ class AngleCnecAdderImplTest {
         assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
-        assertEquals("eneId2", cnec2.getExportingNetworkElement().getName());
-        assertEquals("ineId2", cnec2.getImportingNetworkElement().getName());
+        assertEquals("eneId2", cnec2.getExportingNetworkElementId());
+        assertEquals("ineId2", cnec2.getImportingNetworkElementId());
         assertEquals(500.0, cnec2.getUpperBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(Unit.DEGREE).isPresent());
     }

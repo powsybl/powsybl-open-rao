@@ -594,8 +594,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeAngleCnecs(Set<String> angleCnecsIds) {
         Set<AngleCnec> angleCnecsToRemove = angleCnecsIds.stream().map(angleCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = angleCnecsToRemove.stream().map(Cnec::getNetworkElements)
-            .flatMap(Set::stream).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = angleCnecsToRemove.stream().map(Cnec::getNetworkElementsIds)
+            .flatMap(Set::stream).collect(Collectors.toSet());
         Set<String> statesToRemove = angleCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         angleCnecsToRemove.forEach(angleCnecToRemove ->
             angleCnecs.remove(angleCnecToRemove.getId())
@@ -612,7 +612,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeVoltageCnecs(Set<String> voltageCnecsIds) {
         Set<VoltageCnec> voltageCnecsToRemove = voltageCnecsIds.stream().map(voltageCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = voltageCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = voltageCnecsToRemove.stream().map(VoltageCnec::getNetworkElementId).collect(Collectors.toSet());
         Set<String> statesToRemove = voltageCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         voltageCnecsToRemove.forEach(voltageCnecToRemove ->
             voltageCnecs.remove(voltageCnecToRemove.getId())

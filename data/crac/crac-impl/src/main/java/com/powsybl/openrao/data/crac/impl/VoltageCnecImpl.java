@@ -46,12 +46,12 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
 
     @Override
     public NetworkElement getNetworkElement() {
-        return getNetworkElements().iterator().next();
+        return networkElements.iterator().next();
     }
 
     @Override
     public String getNetworkElementId() {
-        return getNetworkElement().getId();
+        return networkElements.iterator().next().getId();
     }
 
     @Override
@@ -106,12 +106,12 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public VoltageCnecValue computeValue(Network network, Unit unit) {
         unit.checkPhysicalParameter(getPhysicalParameter());
-        VoltageLevel voltageLevel = network.getVoltageLevel(getNetworkElement().getId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(getNetworkElementId());
         if (voltageLevel == null) {
-            throw new OpenRaoException("Voltage level is missing on network element " + getNetworkElement().getId());
+            throw new OpenRaoException("Voltage level is missing on network element " + getNetworkElementId());
         }
         Set<Double> voltages = new HashSet<>();
-        BusbarSection busbarSection = network.getBusbarSection(getNetworkElement().getId());
+        BusbarSection busbarSection = network.getBusbarSection(getNetworkElementId());
         if (busbarSection != null) {
             Double busBarVoltages = busbarSection.getV();
             voltages.add(busBarVoltages);

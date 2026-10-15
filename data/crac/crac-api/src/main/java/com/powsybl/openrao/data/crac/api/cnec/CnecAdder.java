@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.IdentifiableAdder;
  */
 public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> {
 
+    @Deprecated(since = "7.4.0")
     J withNetworkElement(String networkElementId, String networkElementName);
 
     J withNetworkElement(String networkElementId);

@@ -16,10 +16,12 @@ public interface AngleCnecAdder extends CnecAdder<AngleCnecAdder> {
 
     AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId);
 
+    @Deprecated(since = "7.4.0")
     AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId, String exportingNetworkElementName);
 
     AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId);
 
+    @Deprecated(since = "7.4.0")
     AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName);
 
     AngleThresholdAdder newThreshold();

@@ -108,7 +108,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         }
         AbstractCnec<?> cnec = (AbstractCnec<?>) o;
         return super.equals(cnec)
-            && networkElements.equals(cnec.getNetworkElements())
+            && getNetworkElementsIds().equals(cnec.getNetworkElementsIds())
             && state.equals(cnec.getState())
             && optimized == cnec.isOptimized()
             && monitored == cnec.isMonitored()
@@ -118,7 +118,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + networkElements.hashCode();
+        result = 31 * result + getNetworkElementsIds().hashCode();
         result = 31 * result + state.hashCode();
         result = 31 * result + Double.hashCode(reliabilityMargin);
         return result;

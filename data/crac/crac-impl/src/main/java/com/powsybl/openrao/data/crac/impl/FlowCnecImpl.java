@@ -63,12 +63,12 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public NetworkElement getNetworkElement() {
-        return getNetworkElements().iterator().next();
+        return networkElements.iterator().next();
     }
 
     @Override
     public String getNetworkElementId() {
-        return getNetworkElement().getId();
+        return networkElements.iterator().next().getId();
     }
 
     @Override

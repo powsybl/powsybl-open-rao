@@ -339,9 +339,9 @@ public class CracImportSteps {
                     .equals(cnecId))
                 .filter(cnec -> cnec.getName()
                     .equals(cnecName))
-                .filter(cnec -> cnec.getImportingNetworkElement().getId()
+                .filter(cnec -> cnec.getImportingNetworkElementId()
                     .equals(importingElementId))
-                .filter(cnec -> cnec.getExportingNetworkElement().getId()
+                .filter(cnec -> cnec.getExportingNetworkElementId()
                     .equals(exportingElementId))
                 .filter(cnec -> cnec.isOptimized() == optimized)
                 .filter(cnec -> cnec.isMonitored() == monitored)
@@ -349,7 +349,7 @@ public class CracImportSteps {
                 .findFirst()
                 .orElseThrow(Exception::new);
 
-            Set<String> angleCnecsNetworkElementIds = angleCnec.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet());
+            Set<String> angleCnecsNetworkElementIds = angleCnec.getNetworkElementsIds();
             assert angleCnecsNetworkElementIds.containsAll(Set.of(importingElementId, exportingElementId))
                 && Set.of(importingElementId, exportingElementId).containsAll(angleCnecsNetworkElementIds);
 
@@ -386,7 +386,7 @@ public class CracImportSteps {
             Double max = expectedCnec.get("Max").equals("null") ? null : Double.valueOf(expectedCnec.get("Max"));
 
             VoltageCnec voltageCnec = crac.getVoltageCnec(cnecId);
-            assertEquals(networkElementId, voltageCnec.getNetworkElement().getId());
+            assertEquals(networkElementId, voltageCnec.getNetworkElementId());
             if (instant.isPreventive()) {
                 assertEquals(crac.getPreventiveState(), voltageCnec.getState());
                 assertNull(contingencyName);
