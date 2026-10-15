@@ -179,6 +179,18 @@ Example:
 :::
 ::::
 
+The different possible execution details are:
+- **The RAO only went through first preventive**: only the first preventive optimisation was run (no second preventive); this is the default situation
+- **First preventive fell back to initial situation**: the first preventive RAO did not improve the situation, so the initial situation (no remedial action applied) was kept
+- **Second preventive improved first preventive results**: the second preventive RAO gave better or similar results than the first one (cost-wise), so its results were kept
+- **Second preventive fell back to first preventive results**: the second preventive RAO did not improve on the first one, so the first preventive results were kept
+- **Second preventive fell back to initial situation**: the second preventive RAO did not improve the situation, so the initial situation was kept
+- **<specific failure reason>**: when the RAO fails, the field contains a message describing the cause of the failure
+
+If the RAO went through angle or voltage [monitoring](../algorithms/monitoring.md), said monitoring(s) are appended to the execution details from the first flow RAO.
+
+For [MARMOT](../algorithms/marmot.md), one detail per timestamp is given as `<timestamp>: <detail>`, separated by ` - `; the default value is "RAO went through independent topological optimization and global time-coupled linear optimization"
+
 ### Objective function cost results
 
 Contains information about the reached objective function value, seperated into functional and virtual costs:
