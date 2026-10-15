@@ -231,7 +231,7 @@ class CracImportExportTest {
         // ----------------------
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertNotNull(angleCnec);
-        assertEquals("eneId", angleCnec.getImportingNetworkElementId());
+        assertEquals("eneId", angleCnec.getExportingNetworkElementId());
         assertEquals("ineId", angleCnec.getImportingNetworkElementId());
         assertEquals(curativeInstant, angleCnec.getState().getInstant());
         assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());

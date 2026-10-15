@@ -312,7 +312,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         expectedCreatedIds.forEach(createdId -> assertNotNull(importedCrac.getHvdcRangeAction(createdId)));
         Set<String> actualNetworkElements = new HashSet<>();
-        expectedCreatedIds.forEach(createdId -> actualNetworkElements.add(importedCrac.getHvdcRangeAction(createdId).getNetworkElement().toString()));
+        expectedCreatedIds.forEach(createdId -> actualNetworkElements.add(importedCrac.getHvdcRangeAction(createdId).getNetworkElementId()));
         assertEquals(actualNetworkElements, expectedNetworkElements);
         Set<String> actualOperators = new HashSet<>();
         expectedCreatedIds.forEach(createdId -> actualOperators.add(importedCrac.getHvdcRangeAction(createdId).getOperator()));

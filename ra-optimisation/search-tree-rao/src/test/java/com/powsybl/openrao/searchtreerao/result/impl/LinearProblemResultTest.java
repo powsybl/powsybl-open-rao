@@ -10,7 +10,11 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.*;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -63,24 +67,16 @@ class LinearProblemResultTest {
 
         pst1 = Mockito.mock(PstRangeAction.class);
         Mockito.when(pst1.getId()).thenReturn("pst1");
-        NetworkElement pst1NE = Mockito.mock(NetworkElement.class);
-        Mockito.when(pst1NE.getId()).thenReturn("pst1NE");
-        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(pst1NE));
+        Mockito.when(pst1.getNetworkElementsIds()).thenReturn(Set.of("pst1NE"));
         pst2 = Mockito.mock(PstRangeAction.class);
         Mockito.when(pst2.getId()).thenReturn("pst2");
-        NetworkElement pst2NE = Mockito.mock(NetworkElement.class);
-        Mockito.when(pst2NE.getId()).thenReturn("pst2NE");
-        Mockito.when(pst2.getNetworkElements()).thenReturn(Set.of(pst2NE));
+        Mockito.when(pst2.getNetworkElementsIds()).thenReturn(Set.of("pst2NE"));
         ra3 = Mockito.mock(RangeAction.class);
         Mockito.when(ra3.getId()).thenReturn("ra3");
-        NetworkElement ra3NE = Mockito.mock(NetworkElement.class);
-        Mockito.when(ra3NE.getId()).thenReturn("ra3NE");
-        Mockito.when(ra3.getNetworkElements()).thenReturn(Set.of(ra3NE));
+        Mockito.when(ra3.getNetworkElementsIds()).thenReturn(Set.of("ra3NE"));
         ra4 = Mockito.mock(RangeAction.class);
         Mockito.when(ra4.getId()).thenReturn("ra4");
-        NetworkElement ra4NE = Mockito.mock(NetworkElement.class);
-        Mockito.when(ra4NE.getId()).thenReturn("ra4NE");
-        Mockito.when(ra4.getNetworkElements()).thenReturn(Set.of(ra4NE));
+        Mockito.when(ra4.getNetworkElementsIds()).thenReturn(Set.of("ra4NE"));
 
         linearProblem = Mockito.mock(LinearProblem.class);
         rangeActionsPerState = Map.of(

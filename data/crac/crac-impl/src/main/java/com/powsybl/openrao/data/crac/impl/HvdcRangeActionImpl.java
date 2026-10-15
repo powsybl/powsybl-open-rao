@@ -131,7 +131,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
             return false;
         }
 
-        return this.networkElement.equals(((HvdcRangeAction) o).getNetworkElement())
+        return this.getNetworkElementId().equals(((HvdcRangeAction) o).getNetworkElementId())
                 && this.ranges.equals(((HvdcRangeAction) o).getRanges());
 
     }

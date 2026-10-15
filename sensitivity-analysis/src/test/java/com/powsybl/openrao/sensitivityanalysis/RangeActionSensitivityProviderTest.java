@@ -229,10 +229,8 @@ class RangeActionSensitivityProviderTest {
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
-        NetworkElement hvdc = Mockito.mock(NetworkElement.class);
-        Mockito.when(hvdc.getId()).thenReturn("BBE2AA11 FFR3AA11 1");
         HvdcRangeAction mockHvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
-        Mockito.when(mockHvdcRangeAction.getNetworkElement()).thenReturn(hvdc);
+        Mockito.when(mockHvdcRangeAction.getNetworkElementId()).thenReturn("BBE2AA11 FFR3AA11 1");
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 

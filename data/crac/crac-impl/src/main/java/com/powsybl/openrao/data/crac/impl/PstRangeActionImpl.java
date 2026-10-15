@@ -259,7 +259,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             return false;
         }
 
-        return this.networkElement.equals(((PstRangeAction) o).getNetworkElement())
+        return this.getNetworkElementId().equals(((PstRangeAction) o).getNetworkElementId())
             && this.ranges.equals(((PstRangeAction) o).getRanges())
             && this.tapToAngleConversionMap.equals(((PstRangeAction) o).getTapToAngleConversionMap())
             && this.initialTapPosition == ((PstRangeAction) o).getInitialTap();
