@@ -56,7 +56,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void createRemedialActionCreationContext(final Crac crac, final InjectionRangeAction injectionRangeAction) {
         final String[] splitIds = injectionRangeAction.getId().split(" \\+ ");
-        final String[] splitElementNames = injectionRangeAction.getDistributionKeys().entrySet().stream()
+        final String[] splitElementNames = injectionRangeAction.getInjectionDistributionKeysIds().entrySet().stream()
             .sorted(Map.Entry.comparingByValue())
             .map(es -> es.getKey().replace("_generator", ""))
             .toArray(String[]::new);

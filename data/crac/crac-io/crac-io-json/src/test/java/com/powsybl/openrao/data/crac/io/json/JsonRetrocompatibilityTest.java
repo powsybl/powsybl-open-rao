@@ -678,7 +678,7 @@ class JsonRetrocompatibilityTest {
         assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
         assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
         assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
-        Map<String, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getDistributionKeys();
+        Map<String, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeysIds();
         assertEquals(2, networkElementAndKeys.size());
         assertEquals(1., networkElementAndKeys.get("generator1Id"), 1e-3);
         assertEquals(-1., networkElementAndKeys.get("generator2Id"), 1e-3);

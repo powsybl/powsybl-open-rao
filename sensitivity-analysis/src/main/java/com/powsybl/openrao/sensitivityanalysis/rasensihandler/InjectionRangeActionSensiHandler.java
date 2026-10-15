@@ -49,7 +49,7 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
 
     @Override
     public void checkConsistency(Network network) {
-        injectionRangeAction.getDistributionKeys().forEach((k, v) -> {
+        injectionRangeAction.getInjectionDistributionKeysIds().forEach((k, v) -> {
             Identifiable<?> identifiable = network.getIdentifiable(k);
             if (!(identifiable instanceof Generator || identifiable instanceof Load)) {
                 throw new OpenRaoException(String.format("Unable to create sensitivity variable for InjectionRangeAction %s, on element %s", injectionRangeAction.getId(), k));
@@ -58,13 +58,13 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     }
 
     public Map<String, Float> getPositiveGlskMap() {
-        return injectionRangeAction.getDistributionKeys().entrySet()
+        return injectionRangeAction.getInjectionDistributionKeysIds().entrySet()
                 .stream().filter(e -> e.getValue() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
     }
 
     public Map<String, Float> getNegativeGlskMap() {
-        return injectionRangeAction.getDistributionKeys().entrySet()
+        return injectionRangeAction.getInjectionDistributionKeysIds().entrySet()
                 .stream().filter(e -> e.getValue() < 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> -e.getValue().floatValue()));
     }

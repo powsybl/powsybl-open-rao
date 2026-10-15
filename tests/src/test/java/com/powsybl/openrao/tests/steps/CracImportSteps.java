@@ -569,13 +569,13 @@ public class CracImportSteps {
         assertNotNull(ira);
 
         List<Map<String, String>> expectedInjectionAndKeys = arg2.asMaps(String.class, String.class);
-        assertEquals(expectedInjectionAndKeys.size(), ira.getDistributionKeys().size());
+        assertEquals(expectedInjectionAndKeys.size(), ira.getInjectionDistributionKeysIds().size());
 
         for (Map<String, String> expectedInjectionAndKey : expectedInjectionAndKeys) {
             String expectedInjectionId = expectedInjectionAndKey.get("InjectionId");
             String expectedKey = expectedInjectionAndKey.get("Key");
 
-            Map.Entry<String, Double> correspondingEntry = ira.getDistributionKeys().entrySet().stream()
+            Map.Entry<String, Double> correspondingEntry = ira.getInjectionDistributionKeysIds().entrySet().stream()
                 .filter(e -> e.getKey().equals(expectedInjectionId))
                 .findAny().orElse(null);
 

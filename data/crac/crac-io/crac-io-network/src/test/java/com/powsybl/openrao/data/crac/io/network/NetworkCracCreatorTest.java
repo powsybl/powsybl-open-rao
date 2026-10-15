@@ -84,7 +84,7 @@ class NetworkCracCreatorTest {
     Map<String, Double> getKeys(String raId) {
         InjectionRangeAction ra = crac.getInjectionRangeAction(raId);
         assertNotNull(ra);
-        return ra.getDistributionKeys();
+        return ra.getInjectionDistributionKeysIds();
     }
 
     @Test
@@ -240,9 +240,9 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_GEN_BBE1AA1 _generator_preventive");
         assertNotNull(ra);
-        assertEquals(1, ra.getDistributionKeys().size());
-        assertEquals(1.0, ra.getDistributionKeys().values().iterator().next());
-        assertEquals("BBE1AA1 _generator", ra.getDistributionKeys().keySet().iterator().next());
+        assertEquals(1, ra.getInjectionDistributionKeysIds().size());
+        assertEquals(1.0, ra.getInjectionDistributionKeysIds().values().iterator().next());
+        assertEquals("BBE1AA1 _generator", ra.getInjectionDistributionKeysIds().keySet().iterator().next());
         assertEquals(-9000., ra.getRanges().getFirst().getMin());
         assertEquals(9000., ra.getRanges().getFirst().getMax());
         assertEquals(1500., ra.getInitialSetpoint());
@@ -271,7 +271,7 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_COMBI_combi1_preventive");
         assertNotNull(ra);
-        assertEquals(2, ra.getDistributionKeys().size());
+        assertEquals(2, ra.getInjectionDistributionKeysIds().size());
         assertEquals(Map.of("FFR1AA1 _generator", 3000. / 5500., "DDE1AA1 _generator", 2500. / 5500.), getKeys("RD_COMBI_combi1_preventive"));
         assertEquals(1000., ra.getRanges().getFirst().getMin());
         assertEquals(5500., ra.getRanges().getFirst().getMax());
@@ -282,7 +282,7 @@ class NetworkCracCreatorTest {
 
         ra = crac.getInjectionRangeAction("RD_COMBI_combi3_preventive");
         assertNotNull(ra);
-        assertEquals(2, ra.getDistributionKeys().size());
+        assertEquals(2, ra.getInjectionDistributionKeysIds().size());
         assertEquals(Map.of("FFR3AA1 _load", -3., "DDE2AA1 _generator", 4.), getKeys("RD_COMBI_combi3_preventive"));
         assertEquals(500., ra.getRanges().getFirst().getMin());
         assertEquals(1500., ra.getRanges().getFirst().getMax());
@@ -302,9 +302,9 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_LOAD_NNL3AA1 _load_preventive");
         assertNotNull(ra);
-        assertEquals(1, ra.getDistributionKeys().size());
-        assertEquals(1.0, ra.getDistributionKeys().values().iterator().next());
-        assertEquals("NNL3AA1 _load", ra.getDistributionKeys().keySet().iterator().next());
+        assertEquals(1, ra.getInjectionDistributionKeysIds().size());
+        assertEquals(1.0, ra.getInjectionDistributionKeysIds().values().iterator().next());
+        assertEquals("NNL3AA1 _load", ra.getInjectionDistributionKeysIds().keySet().iterator().next());
         assertEquals(-100., ra.getRanges().getFirst().getMin());
         assertEquals(2500., ra.getRanges().getFirst().getMax());
         assertEquals(2500., ra.getInitialSetpoint());

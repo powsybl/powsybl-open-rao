@@ -426,7 +426,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         String networkElementId = injectionRangeAction.getNetworkElementsIds().stream()
             .filter(element -> element.equals(generatorId))
             .findFirst().orElseThrow();
-        return injectionRangeAction.getDistributionKeys().get(networkElementId);
+        return injectionRangeAction.getInjectionDistributionKeysIds().get(networkElementId);
     }
 
     private double getMinP(String generatorId, OffsetDateTime timestamp) {

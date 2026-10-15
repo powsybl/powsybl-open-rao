@@ -32,9 +32,9 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
     private void serializeInjectionDistributionKeys(InjectionRangeAction value, JsonGenerator gen) throws IOException {
         gen.writeFieldName(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS);
         gen.writeStartObject();
-        List<String> sortedNetworkElementList = value.getDistributionKeys().keySet().stream().toList();
+        List<String> sortedNetworkElementList = value.getInjectionDistributionKeysIds().keySet().stream().toList();
         for (String networkElementId : sortedNetworkElementList) {
-            gen.writeNumberField(networkElementId, value.getDistributionKeys().get(networkElementId));
+            gen.writeNumberField(networkElementId, value.getInjectionDistributionKeysIds().get(networkElementId));
         }
         gen.writeEndObject();
     }

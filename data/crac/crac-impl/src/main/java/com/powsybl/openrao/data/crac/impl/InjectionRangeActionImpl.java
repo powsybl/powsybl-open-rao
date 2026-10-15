@@ -60,7 +60,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
-    public Map<String, Double> getDistributionKeys() {
+    public Map<String, Double> getInjectionDistributionKeysIds() {
         return injectionDistributionKeys.entrySet().stream().collect(Collectors.toMap(
             entry -> entry.getKey().getId(),
             Map.Entry::getValue
@@ -155,7 +155,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         if (!super.equals(o)) {
             return false;
         }
-        return this.getDistributionKeys().equals(((InjectionRangeAction) o).getDistributionKeys())
+        return this.getInjectionDistributionKeysIds().equals(((InjectionRangeAction) o).getInjectionDistributionKeysIds())
             && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 

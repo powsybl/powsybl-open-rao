@@ -182,9 +182,9 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().size());
-        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().get("BBE2AA12_generator"), 1e-3);
-        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getDistributionKeys().get("FFR3AA12_generator"), 1e-3);
+        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().size());
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().get("BBE2AA12_generator"), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().get("FFR3AA12_generator"), 1e-3);
     }
 
     @Test

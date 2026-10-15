@@ -570,12 +570,12 @@ public final class TimeCoupledRaoSteps {
             .stream()
             .filter(InjectionRangeAction.class::isInstance)
             .map(InjectionRangeAction.class::cast)
-            .filter(injection -> injection.getDistributionKeys().keySet().stream().anyMatch(networkElement -> networkElement.equals(networkElementId)))
+            .filter(injection -> injection.getInjectionDistributionKeysIds().keySet().stream().anyMatch(networkElement -> networkElement.equals(networkElementId)))
             .findFirst();
         assertTrue(injectionRangeAction.isPresent());
         assertEquals(
             expectedPower,
-            timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getDistributionKeys().get(networkElementId),
+            timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeysIds().get(networkElementId),
             TOLERANCE_REDISPATCHING_VALUE
         );
     }

@@ -347,7 +347,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
 
         if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-            double totalShiftKey = injectionRangeAction.getDistributionKeys().values().stream().mapToDouble(v -> v).sum();
+            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeysIds().values().stream().mapToDouble(v -> v).sum();
             OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
