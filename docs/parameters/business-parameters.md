@@ -2,7 +2,9 @@
 
 ## Rao parameters
 
-RAO parameters to tune the RAO (not implementation specific).
+This section describes the RAO parameters used to tune the RAO (not implementation specific).
+These parameters are configured through the top-level fields of the RaoParameters file;
+the name used to identify each parameter group in the JSON file is given in parentheses in the description of the corresponding section below.
 
 ### Objective function parameters
 
@@ -111,7 +113,8 @@ optimisation of specific CNECs in specific conditions.
   This parameter should be set to true for CORE CC.
 
 ### Loop-flow optional parameter
-Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
+
+Adding a LoopFlowParameters (top-level JSON field `loop-flow-parameters` of the RaoParameters file) will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are not implementation specific. 
 See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
@@ -139,7 +142,7 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
 
 ### MNEC optional parameter
 
-Adding a MnecParameters to RaoParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
+Adding a MnecParameters (top-level JSON field `mnec-parameters` of the RaoParameters file) will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are not implementation specific.
 
@@ -157,7 +160,7 @@ The following parameters tune some of these constraints, the one which are not i
   the thresholds in the CRAC only.
 
 ### Relative margins optional parameter
-Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
+Adding a RelativeMarginsParameters (top-level JSON field `relative-margins-parameters` of the RaoParameters file) is mandatory when [objective function is relative](#type).  
 The following parameters tune some constraints, the one which are not implementation specific.
 See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
