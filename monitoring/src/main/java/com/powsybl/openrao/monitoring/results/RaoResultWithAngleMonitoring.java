@@ -63,7 +63,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         return angleMonitoringResult.getStatus();
     }
 
-    Optional<CnecMonitoringResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
+    Optional<CnecMonitoringResult<?>> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
         if (angleCnec.getState().getInstant() != optimizationInstant) {
             throw new OpenRaoException(
                 "Unexpected optimization instant for angle monitoring result: "
@@ -80,7 +80,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecMonitoringResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        Optional<CnecMonitoringResult<?>> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
 
             return ((AngleCnecMonitoringResult) angleCnecResultOpt.get()).getAngle();
@@ -92,14 +92,14 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecMonitoringResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        Optional<CnecMonitoringResult<?>> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         return angleCnecResultOpt.map(CnecMonitoringResult::getMargin).orElse(Double.NaN);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> angleMonitoringRas = angleMonitoringResult.getAppliedRas(state);
+        Set<RemedialAction<?>> angleMonitoringRas = angleMonitoringResult.getAppliedRas(state);
         Set<NetworkAction> angleMonitoringNetworkActions = angleMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(angleMonitoringNetworkActions);
         return concatenatedActions;

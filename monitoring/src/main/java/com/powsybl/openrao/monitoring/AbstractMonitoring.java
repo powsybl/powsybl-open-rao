@@ -191,7 +191,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
      */
     private MonitoringResult monitorState(State state, Crac crac, Network network, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData) {
         Unit unit = parameterToUnitMap.get(physicalParameter);
-        Set<CnecMonitoringResult> cnecMonitoringResults = new HashSet<>();
+        Set<CnecMonitoringResult<?>> cnecMonitoringResults = new HashSet<>();
 
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
 
@@ -260,7 +260,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
                                                  ZonalData<Scalable> scalableZonalData,
                                                  Set<Cnec> overloadedCnecs,
                                                  Set<NetworkAction> networkActionsToApply,
-                                                 Set<CnecMonitoringResult> cnecMonitoringResults,
+                                                 Set<CnecMonitoringResult<?>> cnecMonitoringResults,
                                                  Set<I> consideredCnecs,
                                                  Unit unit
     ) {
@@ -296,7 +296,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     }
 
-    private Cnec.SecurityStatus computeMonitoringResultStatus(Set<CnecMonitoringResult> cnecMonitoringResults) {
+    private Cnec.SecurityStatus computeMonitoringResultStatus(Set<CnecMonitoringResult<?>> cnecMonitoringResults) {
         if (cnecMonitoringResults.stream().anyMatch(cnecResult -> cnecResult.getMargin() < 0)) {
             return MonitoringResult.combineStatuses(
                 cnecMonitoringResults.stream()
@@ -331,17 +331,17 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     protected abstract void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state);
 
-    protected abstract CnecMonitoringResult computeCnecResult(I cnec, Network network, Unit unit);
+    protected abstract CnecMonitoringResult<I> computeCnecResult(I cnec, Network network, Unit unit);
 
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {
-        Set<CnecMonitoringResult> cnecMonitoringResults = new HashSet<>();
+        Set<CnecMonitoringResult<?>> cnecMonitoringResults = new HashSet<>();
         getCnecs(crac, state).stream()
             .filter(cnec -> cnec.getPhysicalParameter() == physicalParameter)
             .forEach(cnec -> cnecMonitoringResults.add(makeFailedCnecResult(cnec)));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
     }
 
-    private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecMonitoringResult> cnecMonitoringResults) {
+    private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecMonitoringResult<?>> cnecMonitoringResults) {
         BUSINESS_WARNS.warn(failureReason);
         return new MonitoringResult(physicalParameter, cnecMonitoringResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
     }

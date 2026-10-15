@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 public class MonitoringResult {
 
     private PhysicalParameter physicalParameter;
-    private Set<CnecMonitoringResult> cnecMonitoringResults;
-    private Map<State, Set<RemedialAction>> appliedRas;
+    private Set<CnecMonitoringResult<?>> cnecMonitoringResults;
+    private Map<State, Set<RemedialAction<?>>> appliedRas;
     private SecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecMonitoringResult> cnecMonitoringResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecMonitoringResult<?>> cnecMonitoringResults, Map<State, Set<RemedialAction<?>>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecMonitoringResults = cnecMonitoringResults;
         this.appliedRas = appliedRas;
@@ -37,19 +37,19 @@ public class MonitoringResult {
         return physicalParameter;
     }
 
-    public Set<CnecMonitoringResult> getCnecResults() {
+    public Set<CnecMonitoringResult<?>> getCnecResults() {
         return cnecMonitoringResults;
     }
 
-    public Optional<CnecMonitoringResult> getCnecResult(String id) {
+    public Optional<CnecMonitoringResult<?>> getCnecResult(String id) {
         return cnecMonitoringResults.stream().filter(cr -> cr.getId().equals(id)).findFirst();
     }
 
-    public Map<State, Set<RemedialAction>> getAppliedRas() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
         return appliedRas;
     }
 
-    public Set<RemedialAction> getAppliedRas(State state) {
+    public Set<RemedialAction<?>> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -89,13 +89,13 @@ public class MonitoringResult {
     // Add synchronized in the signature to make the function blocking
     // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
     public synchronized void combine(MonitoringResult monitoringResult) {
-        Set<CnecMonitoringResult> thisCnecMonitoringResults = new HashSet<>(this.getCnecResults());
-        Set<CnecMonitoringResult> otherCnecMonitoringResults = monitoringResult.getCnecResults();
+        Set<CnecMonitoringResult<?>> thisCnecMonitoringResults = new HashSet<>(this.getCnecResults());
+        Set<CnecMonitoringResult<?>> otherCnecMonitoringResults = monitoringResult.getCnecResults();
         thisCnecMonitoringResults.addAll(otherCnecMonitoringResults);
         this.cnecMonitoringResults = thisCnecMonitoringResults;
 
-        Map<State, Set<RemedialAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
-        Map<State, Set<RemedialAction>> otherAppliedRas = monitoringResult.getAppliedRas();
+        Map<State, Set<RemedialAction<?>>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
+        Map<State, Set<RemedialAction<?>>> otherAppliedRas = monitoringResult.getAppliedRas();
         thisAppliedRas.putAll(otherAppliedRas);
         this.appliedRas = thisAppliedRas;
 

@@ -63,7 +63,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecMonitoringResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecMonitoringResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecMonitoringResult) voltageCnecResultOpt.get()).getMinVoltage();
         } else {
@@ -74,7 +74,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecMonitoringResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecMonitoringResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecMonitoringResult) voltageCnecResultOpt.get()).getMaxVoltage();
         } else {
@@ -82,7 +82,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
-    Optional<CnecMonitoringResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
+    Optional<CnecMonitoringResult<?>> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
         if (voltageCnec.getState().getInstant() != optimizationInstant) {
             throw new OpenRaoException(
                 "Unexpected optimization instant for voltage monitoring result: "
@@ -91,21 +91,21 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
                     + voltageCnec.getState().getInstant().getId()
             );
         }
-        Set<CnecMonitoringResult> voltageCnecMonitoringResults = voltageMonitoringResult.getCnecResults();
+        Set<CnecMonitoringResult<?>> voltageCnecMonitoringResults = voltageMonitoringResult.getCnecResults();
         return voltageCnecMonitoringResults.stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
     }
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecMonitoringResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecMonitoringResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         return voltageCnecResultOpt.map(CnecMonitoringResult::getMargin).orElse(Double.NaN);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
+        Set<RemedialAction<?>> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
         Set<NetworkAction> voltageMonitoringNetworkActions = voltageMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(voltageMonitoringNetworkActions);
         return concatenatedActions;
