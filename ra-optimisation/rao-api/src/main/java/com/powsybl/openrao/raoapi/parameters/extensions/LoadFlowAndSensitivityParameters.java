@@ -32,7 +32,7 @@ public class LoadFlowAndSensitivityParameters {
     private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
-    private static final boolean DEFAULT_OPTIMIZE_IN_DC = Boolean.getBoolean("openrao.optimize-in-dc");
+    private static final boolean DEFAULT_OPTIMIZE_IN_DC = false;
 
     private String loadFlowProvider;
     private String sensitivityProvider;
