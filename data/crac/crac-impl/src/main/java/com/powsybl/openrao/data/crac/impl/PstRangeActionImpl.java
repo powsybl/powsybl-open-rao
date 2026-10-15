@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -38,7 +37,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     // Note : Ranges of type RELATIVE_TO_PREVIOUS_TIME_STEP are not taken into account
     private static final double EPSILON = 1e-3;
 
-    private final NetworkElement networkElement;
     private final String networkElementId;
     private final List<TapRange> ranges;
     private final int initialTapPosition;
@@ -52,7 +50,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
                        String operator,
                        Set<UsageRule> usageRules,
                        List<TapRange> ranges,
-                       NetworkElement networkElement,
+                       String networkElementId,
                        String groupId,
                        int initialTap,
                        Map<Integer, Double> tapToAngleConversionMap,
@@ -60,19 +58,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
                        Double activationCost,
                        Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
-        this.networkElement = networkElement;
-        this.networkElementId = networkElement.getId();
+        this.networkElementId = networkElementId;
         this.ranges = ranges;
         this.initialTapPosition = initialTap;
         this.tapToAngleConversionMap = tapToAngleConversionMap;
         this.lowTapPosition = Collections.min(tapToAngleConversionMap.keySet());
         this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
         this.smallestAngleStep = computeSmallestAngleStep();
-    }
-
-    @Override
-    public NetworkElement getNetworkElement() {
-        return networkElement;
     }
 
     @Override
@@ -114,11 +106,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         return smallestAngleStep;
     }
 
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement);
-    }
-
     /**
      * Min angle value allowed by all ranges and the physical limitations of the PST itself
      */
@@ -142,7 +129,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         int tap = convertAngleToTap(targetAngle);
         new PhaseTapChangerTapPositionActionBuilder()
             .withId("id")
-            .withNetworkElementId(networkElement.getId())
+            .withNetworkElementId(networkElementId)
             .withTapPosition(tap)
             .withRelativeValue(false)
             .build()
@@ -194,7 +181,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
             throw new OpenRaoException(String.format(Locale.ENGLISH,
                 "Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps",
-                angle, minAngle, maxAngle, networkElement.getId()
+                angle, minAngle, maxAngle, networkElementId
             ));
         }
     }
@@ -236,13 +223,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     }
 
     private PhaseTapChanger getPhaseTapChanger(Network network) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElementId);
         if (transformer == null) {
-            throw new OpenRaoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
+            throw new OpenRaoException(String.format("PST %s does not exist in the current network", networkElementId));
         }
         PhaseTapChanger phaseTapChangerFromNetwork = transformer.getPhaseTapChanger();
         if (phaseTapChangerFromNetwork == null) {
-            throw new OpenRaoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElement.getId()));
+            throw new OpenRaoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElementId));
         }
         return phaseTapChangerFromNetwork;
     }
@@ -272,7 +259,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             hashCode += 31 * range.hashCode();
         }
         hashCode += 31 * initialTapPosition;
-        hashCode += 31 * networkElement.hashCode();
+        hashCode += 31 * networkElementId.hashCode();
         return hashCode;
     }
 }

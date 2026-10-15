@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.api.cnec;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.Optional;
@@ -25,25 +24,9 @@ import java.util.Set;
 public interface AngleCnec extends Cnec<AngleCnec> {
 
     /**
-     * Getter of the {@link NetworkElement} of the exporting end of the branch.
-     *
-     * @deprecated since 7.4.0. Use {@link #getExportingNetworkElementId()} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getExportingNetworkElement();
-
-    /**
      * Getter of the network element of the exporting end of the branch.
      */
     String getExportingNetworkElementId();
-
-    /**
-     * Getter of the {@link NetworkElement} of the importing end of the branch.
-     *
-     * @deprecated since 7.4.0. Use {@link #getImportingNetworkElementId()} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getImportingNetworkElement();
 
     /**
      * Getter of thenetwork element of the importing end of the branch.

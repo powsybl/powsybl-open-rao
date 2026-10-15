@@ -97,8 +97,8 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         State state = getState();
 
         AngleCnec cnec = new AngleCnecImpl(id, name,
-            owner.getNetworkElement(exportingNetworkElementId),
-            owner.getNetworkElement(importingNetworkElementId),
+            exportingNetworkElementId,
+            importingNetworkElementId,
             operator, border, state, optimized, monitored,
             thresholds, reliabilityMargin);
 

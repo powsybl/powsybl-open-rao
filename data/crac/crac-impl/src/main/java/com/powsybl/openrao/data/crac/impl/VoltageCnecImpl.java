@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
@@ -32,7 +31,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
 
     VoltageCnecImpl(String id,
                     String name,
-                    NetworkElement networkElement,
+                    String networkElementId,
                     String operator,
                     String border,
                     State state,
@@ -40,18 +39,13 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     boolean monitored,
                     Set<Threshold> thresholds,
                     double reliabilityMargin) {
-        super(id, name, Set.of(networkElement), operator, border, state, optimized, monitored, reliabilityMargin);
+        super(id, name, Set.of(networkElementId), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
     }
 
     @Override
-    public NetworkElement getNetworkElement() {
-        return networkElements.iterator().next();
-    }
-
-    @Override
     public String getNetworkElementId() {
-        return networkElements.iterator().next().getId();
+        return networkElementsIds.iterator().next();
     }
 
     @Override

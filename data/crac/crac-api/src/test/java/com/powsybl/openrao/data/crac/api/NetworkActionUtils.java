@@ -12,7 +12,6 @@ import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -37,32 +36,22 @@ public final class NetworkActionUtils {
 
     public static class SwitchPairImplTest implements SwitchPair {
 
-        private final NetworkElement switchToOpen;
-        private final NetworkElement switchToClose;
+        private final String switchToOpen;
+        private final String switchToClose;
 
-        public SwitchPairImplTest(NetworkElement switchToOpen, NetworkElement switchToClose) {
+        public SwitchPairImplTest(String switchToOpen, String switchToClose) {
             this.switchToOpen = switchToOpen;
             this.switchToClose = switchToClose;
         }
 
         @Override
-        public NetworkElement getSwitchToOpen() {
+        public String getSwitchToOpenId() {
             return switchToOpen;
         }
 
         @Override
-        public String getSwitchToOpenId() {
-            return switchToOpen.getId();
-        }
-
-        @Override
-        public NetworkElement getSwitchToClose() {
-            return switchToClose;
-        }
-
-        @Override
         public String getSwitchToCloseId() {
-            return switchToClose.getId();
+            return switchToClose;
         }
 
         @Override
@@ -120,11 +109,6 @@ public final class NetworkActionUtils {
 
         @Override
         public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
-            return null;
-        }
-
-        @Override
-        public Set<NetworkElement> getNetworkElements() {
             return null;
         }
 
@@ -195,78 +179,12 @@ public final class NetworkActionUtils {
 
     }
 
-    public static class NetworkElementImplTest implements NetworkElement {
-
-        private final String id;
-
-        public NetworkElementImplTest(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public Set<Country> getLocation(Network network) {
-            return null;
-        }
-
-        @Override
-        public <E extends Extension<NetworkElement>> void addExtension(Class<? super E> aClass, E e) {
-            //not used
-        }
-
-        @Override
-        public <E extends Extension<NetworkElement>> E getExtension(Class<? super E> aClass) {
-            return null;
-        }
-
-        @Override
-        public <E extends Extension<NetworkElement>> E getExtensionByName(String s) {
-            return null;
-        }
-
-        @Override
-        public <E extends Extension<NetworkElement>> boolean removeExtension(Class<E> aClass) {
-            return false;
-        }
-
-        @Override
-        public <E extends Extension<NetworkElement>> Collection<E> getExtensions() {
-            return null;
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (object instanceof NetworkElement networkElement) {
-                return getId().equals(networkElement.getId());
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return 0;
-        }
-    }
-
-    public static NetworkElement createNetworkElement(String networkElementId) {
-        return new NetworkElementImplTest(networkElementId);
-    }
-
     public static NetworkAction createSwitchAction(String networkElementId, ActionType actionType) {
         return new NetworkActionImplTest(new SwitchActionBuilder().withId("id").withNetworkElementId(networkElementId).withOpen(actionType == ActionType.OPEN).build());
     }
 
     public static NetworkAction createSwitchPair(String switchToOpenId, String switchToCloseId) {
-        return new NetworkActionImplTest(new SwitchPairImplTest(createNetworkElement(switchToOpenId), createNetworkElement(switchToCloseId)));
+        return new NetworkActionImplTest(new SwitchPairImplTest(switchToOpenId, switchToCloseId));
     }
 
     public static NetworkAction createPhaseTapChangerTapPositionAction(String pstId, int setpoint) {

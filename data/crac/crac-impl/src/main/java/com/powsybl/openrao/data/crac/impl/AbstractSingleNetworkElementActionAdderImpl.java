@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.Action;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
@@ -39,8 +38,8 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
     public NetworkActionAdder add() {
         assertAttributeNotNull(networkElementId, getActionName(), "network element", "withNetworkElement()");
         assertSpecificAttributes();
-        NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
-        ownerAdder.addElementaryAction(buildAction(), networkElement);
+        this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
+        ownerAdder.addElementaryAction(buildAction(), networkElementId);
         return ownerAdder;
     }
 

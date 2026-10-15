@@ -61,15 +61,6 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network
      * elements must not be duplicated inside a remedial action and there is no defined order for network elements.
-     *
-     * @deprecated since 7.4.0, use {@link #getNetworkElementsIds()} instead
-     */
-    @Deprecated(since = "7.4.0")
-    Set<NetworkElement> getNetworkElements();
-
-    /**
-     * Gather all the network elements present in the remedial action. It returns a set because network
-     * elements must not be duplicated inside a remedial action and there is no defined order for network elements.
      */
     Set<String> getNetworkElementsIds();
 

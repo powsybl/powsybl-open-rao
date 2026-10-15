@@ -11,14 +11,12 @@ import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Group of simple elementary remedial actions.
@@ -30,13 +28,13 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     private static final double EPSILON = 0.1;
     private final Set<Action> elementaryActions;
-    private final Set<NetworkElement> networkElements;
+    private final Set<String> networkElementsIds;
 
     public NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
-                             Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<NetworkElement> networkElements) {
+                             Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<String> networkElementsIds) {
         super(id, name, operator, usageRules, speed, activationCost);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
-        this.networkElements = new HashSet<>(networkElements);
+        this.networkElementsIds = new HashSet<>(networkElementsIds);
     }
 
     @Override
@@ -83,13 +81,8 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     }
 
     @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return this.networkElements;
-    }
-
-    @Override
     public Set<String> getNetworkElementsIds() {
-        return this.networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        return networkElementsIds;
     }
 
     @Override
@@ -119,7 +112,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
             networkAction.getElementaryActions(),
             networkAction.getSpeed().orElse(null),
             networkAction.getActivationCost().orElse(null),
-            networkAction.getNetworkElements()
+            networkAction.getNetworkElementsIds()
         );
     }
 

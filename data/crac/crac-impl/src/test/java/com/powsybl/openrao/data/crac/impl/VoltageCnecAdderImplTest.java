@@ -114,9 +114,9 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId2") // same as cnec2
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.0).add()
             .add();
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neId1"));
-        assertNotNull(crac.getNetworkElement("neId2"));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement("neId1"));
+        assertTrue(crac.hasNetworkElement("neId2"));
 
         // Verify states were created
         assertEquals(2, crac.getStates().size());

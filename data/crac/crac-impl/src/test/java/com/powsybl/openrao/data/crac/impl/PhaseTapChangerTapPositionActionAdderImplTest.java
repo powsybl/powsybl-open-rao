@@ -17,8 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,8 +51,8 @@ class PhaseTapChangerTapPositionActionAdderImplTest {
         assertEquals(0, phaseTapChangerTapPositionAction.getTapPosition(), 1e-3);
 
         // check that network element has been created in CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
-        assertNotNull(((CracImpl) crac).getNetworkElement("pstNetworkElementId"));
+        assertEquals(1, ((CracImpl) crac).getNetworkElementIds().size());
+        assertTrue(((CracImpl) crac).hasNetworkElement("pstNetworkElementId"));
     }
 
     @Test

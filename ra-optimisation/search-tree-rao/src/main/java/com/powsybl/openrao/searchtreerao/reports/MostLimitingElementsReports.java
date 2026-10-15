@@ -212,7 +212,7 @@ public final class MostLimitingElementsReports {
             final double roundedCnecMargin = roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue();
             final TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction, unit);
             final String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            final String cnecNetworkElementName = cnec.getNetworkElement().getName();
+            final String cnecNetworkElementName = cnec.getNetworkElementId();
             final String cnecStateId = cnec.getState().getId();
             final String cnecId = cnec.getId();
 
@@ -273,7 +273,7 @@ public final class MostLimitingElementsReports {
             final int limitingElementIndex = i + 1;
             final String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             final double roundedCnecMargin = roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue();
-            final String cnecNetworkElementName = cnec.getNetworkElement().getName();
+            final String cnecNetworkElementName = cnec.getNetworkElementId();
             final String cnecStateId = cnec.getState().getId();
             final String cnecId = cnec.getId();
 
