@@ -101,6 +101,9 @@ public class LinearRao implements RaoProvider, TimeCoupledRaoProvider {
             (network, crac, toolProvider) -> LinearRaoUtils.runInitialSensitivityAnalysis(network, crac, toolProvider, raoParameters, reportNode)
         );
 
+        // TODO: compute pre-perimeter results
+        // TODO: compute pre-optimization results
+
         // create optimization perimeters
         TemporalData<OptimizationPerimeter> optimizationPerimeters = TemporalData.map(
             raoInput.getRaoInputs(), initialFlowResults,
