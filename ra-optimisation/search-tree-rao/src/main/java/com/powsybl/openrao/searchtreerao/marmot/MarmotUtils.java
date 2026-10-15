@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -42,6 +43,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -154,7 +156,7 @@ public final class MarmotUtils {
             );
 
             CriticalCnecsResult criticalCnecsResult = new CriticalCnecsResult();
-            criticalCnecsResult.setCriticalCnecIds(consideredCnecs.getData(timestamp).orElseThrow().stream().map(FlowCnec::getId).collect(Collectors.toSet()));
+            criticalCnecsResult.setCriticalCnecIds(consideredCnecs.getData(timestamp).orElseThrow().stream().map(Identifiable::getId).collect(Collectors.toSet()));
             postOptimizationResult.addExtension(CriticalCnecsResult.class, criticalCnecsResult);
             postOptimizationResults.put(
                 timestamp,
@@ -228,31 +230,19 @@ public final class MarmotUtils {
 
     public static <N extends Network> void releaseNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
-            try {
-                lazyNetwork.release();
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
+            lazyNetwork.release();
         }
     }
 
     public static <N extends Network> void releaseNetworkWithoutOverwrite(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
-            try {
-                lazyNetwork.releaseWithOverwrite(false);
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
+            lazyNetwork.releaseWithOverwrite(false);
         }
     }
 
     public static <N extends Network> void closeNetwork(N network) {
         if (network instanceof LazyNetwork lazyNetwork) {
-            try {
-                lazyNetwork.close();
-            } catch (Exception e) {
-                throw new OpenRaoException(e);
-            }
+            lazyNetwork.close();
         }
     }
 
@@ -266,7 +256,7 @@ public final class MarmotUtils {
             try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
                 return JsonRaoParameters.read(inputStream, reportNode);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new OpenRaoException(e);
         }
     }

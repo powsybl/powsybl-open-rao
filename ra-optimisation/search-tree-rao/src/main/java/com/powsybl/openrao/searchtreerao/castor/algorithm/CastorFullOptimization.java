@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -321,7 +322,7 @@ public class CastorFullOptimization {
             }
 
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode);
-        } catch (Exception e) {
+        } catch (OpenRaoException e) {
             CastorReports.reportExceptionMessageAndStacktrace(optimizationReportNode, e);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         } finally {

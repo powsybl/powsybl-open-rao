@@ -82,11 +82,13 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             rangeActionParameters,
             false,
-            false);
+            false,
+            PstModel.APPROXIMATED_INTEGERS);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
             state,
-            pstRangeActions);
+            pstRangeActions,
+            PstModel.APPROXIMATED_INTEGERS);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

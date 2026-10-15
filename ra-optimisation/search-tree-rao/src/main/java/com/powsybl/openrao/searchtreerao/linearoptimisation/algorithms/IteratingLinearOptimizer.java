@@ -198,9 +198,9 @@ public final class IteratingLinearOptimizer {
                                                                             final IteratingLinearOptimizerParameters parameters) {
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.APPROXIMATED_INTEGERS)) {
+        if (!getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.CONTINUOUS)) {
 
-            // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
+            // if the PST approximation is APPROXIMATED_INTEGERS or HYBRID, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
             // be more accurate in the neighboring of the previous solution
 

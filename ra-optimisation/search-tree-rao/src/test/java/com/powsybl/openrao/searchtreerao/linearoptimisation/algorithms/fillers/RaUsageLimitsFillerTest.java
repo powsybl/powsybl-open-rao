@@ -551,7 +551,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             new RangeActionsOptimizationParameters(),
             false,
-            true);
+            true,
+            PstModel.APPROXIMATED_INTEGERS);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -985,7 +986,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             new RangeActionsOptimizationParameters(),
             false,
-            true
+            true,
+            PstModel.APPROXIMATED_INTEGERS
         );
 
         linearProblem = new LinearProblemBuilder()
@@ -1073,7 +1075,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             new RangeActionsOptimizationParameters(),
             false,
-            true
+            true,
+            PstModel.APPROXIMATED_INTEGERS
         );
 
         linearProblem = new LinearProblemBuilder()

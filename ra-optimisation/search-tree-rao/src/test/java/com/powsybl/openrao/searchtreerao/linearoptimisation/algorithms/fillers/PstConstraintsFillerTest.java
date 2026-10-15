@@ -91,11 +91,17 @@ class PstConstraintsFillerTest {
     }
 
     private void createCoreProblemFillers() {
-        raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
+        for (Map.Entry<OffsetDateTime, RaoInput> entry : raoInputs.getDataPerTimestamp().entrySet()) {
+            OffsetDateTime timestamp = entry.getKey();
+            RaoInput raoInput = entry.getValue();
             Crac crac = raoInput.getCrac();
             State preventiveState = crac.getPreventiveState();
             OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
-                preventiveState, crac.getFlowCnecs(), Set.of(), crac.getNetworkActions(preventiveState), crac.getRangeActions(preventiveState)
+                preventiveState,
+                crac.getFlowCnecs(),
+                Set.of(),
+                crac.getNetworkActions(preventiveState),
+                crac.getRangeActions(preventiveState)
             );
             RangeActionsOptimizationParameters rangeActionsOptimizationParameters = raoParameters.getRangeActionsOptimizationParameters();
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(initialSetpoints);
@@ -108,9 +114,17 @@ class PstConstraintsFillerTest {
             linearProblemBuilder.withProblemFiller(marginCoreProblemFiller);
             Map<State, Set<PstRangeAction>> pstRangeActions = Map.of(preventiveState, crac.getPstRangeActions());
             // create the tap variables
-            DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActions, rangeActionSetpointResult, rangeActionsOptimizationParameters, false, false);
+            DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
+                optimizationPerimeter,
+                pstRangeActions,
+                rangeActionSetpointResult,
+                rangeActionsOptimizationParameters,
+                false,
+                false,
+                SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS
+            );
             linearProblemBuilder.withProblemFiller(discretePstTapFiller);
-        });
+        }
     }
 
     private void createPstConstraintsFiller(Set<PstConstraints> pstConstraints) {

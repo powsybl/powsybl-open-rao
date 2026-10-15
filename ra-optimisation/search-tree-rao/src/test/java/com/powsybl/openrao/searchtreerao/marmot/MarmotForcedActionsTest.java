@@ -44,7 +44,7 @@ class MarmotForcedActionsTest {
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         String variantId = network.getVariantManager().getWorkingVariantId();
         raoInput = new TemporalDataImpl<>(
-            Map.of(OffsetDateTime.now(), RaoInput.buildWithPreventiveState(network, crac)
+            Map.of(OffsetDateTime.now(), RaoInput.build(network, crac)
                 .withNetworkVariantId(variantId)
                 .build()));
     }
