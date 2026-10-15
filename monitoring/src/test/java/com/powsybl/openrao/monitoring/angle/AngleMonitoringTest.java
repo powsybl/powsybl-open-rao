@@ -85,7 +85,7 @@ class AngleMonitoringTest {
     private Instant curativeInstant;
 
     @BeforeEach
-    public void generalSetUp() {
+     void generalSetUp() {
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
         raoResult = Mockito.mock(RaoResult.class);
@@ -426,7 +426,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        Optional<CnecMonitoringResult> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
+        Optional<CnecMonitoringResult<?>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
         Double acCur1CnecValue = ((AngleCnecMonitoringResult) acCur1CnecOpt.get()).getAngle();
         Cnec.SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
         double acCur1Margin = acCur1CnecOpt.get().getMargin();
@@ -435,7 +435,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.SECURE, acCur1SecurityStatus);
         assertEquals(0.28, acCur1Margin, 0.01);
 
-        Optional<CnecMonitoringResult> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
+        Optional<CnecMonitoringResult<?>> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
         Double acCur2CnecValue = ((AngleCnecMonitoringResult) acCur2CnecOpt.get()).getAngle();
         Cnec.SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
         double acCur2Margin = acCur2CnecOpt.get().getMargin();
@@ -468,7 +468,7 @@ class AngleMonitoringTest {
             .build();
         RaoResult raoResultWithAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
 
-        assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
+        assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getAngle(crac.getPreventiveInstant(), acCur1, Unit.DEGREE));
         assertEquals(2.22, raoResultWithAngleMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
@@ -541,9 +541,10 @@ class AngleMonitoringTest {
         AngleMonitoring angleMonitoring = new AngleMonitoring("OpenLoadFlow", loadFlowParameters);
 
         if (shouldThrow) {
+            AngleCnec angleCnec = crac.getAngleCnec("acCur1");
             OpenRaoException e = assertThrows(OpenRaoException.class, () ->
                 angleMonitoring.getValidNetworkActionsAssociatedToCnec(
-                    network, crac, crac.getAngleCnec("acCur1"), PhysicalParameter.ANGLE, scalableZonalData
+                    network, crac, angleCnec, PhysicalParameter.ANGLE, scalableZonalData
                 )
             );
             assertEquals(
