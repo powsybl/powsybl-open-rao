@@ -52,27 +52,14 @@ public class AngleCnecMonitoringResult extends AbstractCnecMonitoringResult<Angl
         if (angle.isNaN()) {
             return Cnec.SecurityStatus.FAILURE;
         }
-        if (margin < 0) {
-            boolean highAngleVoltageConstraints = false;
-            boolean lowAngleVoltageConstraints = false;
-            if (cnec.getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && angle > threshold.max().orElseThrow())) {
-                highAngleVoltageConstraints = true;
-            }
-            if (cnec.getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && angle < threshold.min().orElseThrow())) {
-                lowAngleVoltageConstraints = true;
-            }
-            if (highAngleVoltageConstraints && lowAngleVoltageConstraints) {
-                return Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
-            } else if (highAngleVoltageConstraints) {
-                return Cnec.SecurityStatus.HIGH_CONSTRAINT;
-            } else {
-                return Cnec.SecurityStatus.LOW_CONSTRAINT;
-            }
-        } else {
+        if (margin >= 0) {
             return Cnec.SecurityStatus.SECURE;
         }
+        boolean highAngleConstraints = cnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMax() && angle > threshold.max().orElseThrow());
+        boolean lowAngleConstraints = cnec.getThresholds().stream().anyMatch(threshold -> threshold.limitsByMin() && angle < threshold.min().orElseThrow());
+
+        return getSecurityStatus(highAngleConstraints, lowAngleConstraints);
     }
 
     @Override

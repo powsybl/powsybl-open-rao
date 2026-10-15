@@ -79,30 +79,14 @@ public class VoltageCnecMonitoringResult extends AbstractCnecMonitoringResult<Vo
         if (minVoltage.isNaN() || maxVoltage.isNaN()) {
             return Cnec.SecurityStatus.FAILURE;
         }
-        if (margin < 0) {
-            boolean highVoltageConstraints = false;
-            boolean lowVoltageConstraints = false;
-
-            double marginLowerBound = minVoltage - cnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-            double marginUpperBound = cnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
-
-            if (marginUpperBound < 0) {
-                highVoltageConstraints = true;
-            }
-            if (marginLowerBound < 0) {
-                lowVoltageConstraints = true;
-            }
-
-            if (highVoltageConstraints && lowVoltageConstraints) {
-                return Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
-            } else if (highVoltageConstraints) {
-                return Cnec.SecurityStatus.HIGH_CONSTRAINT;
-            } else {
-                return Cnec.SecurityStatus.LOW_CONSTRAINT;
-            }
-        } else {
+        if (margin >= 0) {
             return Cnec.SecurityStatus.SECURE;
+
         }
+        boolean highVoltageConstraints = cnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage < 0;
+        boolean lowVoltageConstraints = minVoltage - cnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY) < 0;
+
+        return getSecurityStatus(highVoltageConstraints, lowVoltageConstraints);
     }
 
     public double getMinVoltage() {

@@ -51,4 +51,14 @@ public abstract class AbstractCnecMonitoringResult<I extends Cnec<?>> implements
 
     protected abstract void checkUnit();
 
+    protected Cnec.SecurityStatus getSecurityStatus(boolean highConstraints, boolean lowConstraints) {
+        if (highConstraints && lowConstraints) {
+            return Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+        } else if (highConstraints) {
+            return Cnec.SecurityStatus.HIGH_CONSTRAINT;
+        } else {
+            return Cnec.SecurityStatus.LOW_CONSTRAINT;
+        }
+    }
+
 }

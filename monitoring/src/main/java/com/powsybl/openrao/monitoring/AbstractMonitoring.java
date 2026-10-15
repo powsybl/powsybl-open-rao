@@ -19,7 +19,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -54,7 +53,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
     private final LoadFlowRunParameters loadFlowRunParameters;
     Map<PhysicalParameter, Unit> parameterToUnitMap = new EnumMap<>(PhysicalParameter.class);
 
-    public AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+    protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowRunParameters = new LoadFlowRunParameters().setParameters(loadFlowParameters);
         parameterToUnitMap.put(PhysicalParameter.ANGLE, Unit.DEGREE);
@@ -65,7 +64,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
      * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
-    public AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
+    protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
         this(loadFlowProvider, loadFlowParameters);
         this.loadFlowRunParameters.setComputationManager(computationManager);
     }
@@ -106,7 +105,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         if (Objects.nonNull(preventiveState)) {
             applyOptimalRemedialActions(preventiveState, inputNetwork, raoResult);
             MonitoringResult preventiveStateMonitoringResult = monitorState(preventiveState, crac, inputNetwork, physicalParameter, scalableZonalData);
-            preventiveStateMonitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
+            preventiveStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
             monitoringResult.combine(preventiveStateMonitoringResult);
         }
 
@@ -144,7 +143,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
-        monitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
+        monitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
         return monitoringResult;
     }
 
@@ -177,7 +176,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             MonitoringResult currentStateMonitoringResult = monitorState(
                 state, crac, networkClone, physicalParameter, scalableZonalData
             );
-            currentStateMonitoringResult.printConstraints().forEach(constraint -> BUSINESS_LOGS.info((String) constraint));
+            currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
             return currentStateMonitoringResult;
         } finally {
             networkPool.releaseUsedNetwork(networkClone);
@@ -249,7 +248,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             Map.of(
                 state,
                 networkActionsToApply.stream()
-                    .map(RemedialAction.class::cast)
                     .collect(Collectors.toSet())
             ),
             monitoringResultStatus);
