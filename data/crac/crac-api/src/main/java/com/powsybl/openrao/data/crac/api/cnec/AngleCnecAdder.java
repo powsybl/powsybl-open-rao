@@ -16,11 +16,19 @@ public interface AngleCnecAdder extends CnecAdder<AngleCnecAdder> {
 
     AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId);
 
+    /**
+     * @deprecated since 7.4.0, use {@link #withExportingNetworkElement(String)} directly as the names of network
+     * elements are not used anymore.
+     */
     @Deprecated(since = "7.4.0")
     AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId, String exportingNetworkElementName);
 
     AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId);
 
+    /**
+     * @deprecated since 7.4.0, use {@link #withImportingNetworkElement(String)} directly as the names of network
+     * elements are not used anymore.
+     */
     @Deprecated(since = "7.4.0")
     AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName);
 
