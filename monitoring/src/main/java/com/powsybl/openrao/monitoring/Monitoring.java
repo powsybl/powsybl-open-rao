@@ -7,10 +7,6 @@
 
 package com.powsybl.openrao.monitoring;
 
-/**
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
- */
-
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowRunParameters;
