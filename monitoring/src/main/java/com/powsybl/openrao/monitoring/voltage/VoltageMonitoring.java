@@ -48,9 +48,14 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
-    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), new VoltageMonitoring(loadFlowProvider, loadFlowParameters)
-            .runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
+    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
+                                                  LoadFlowParameters loadFlowParameters,
+                                                  int numberOfLoadFlowsInParallel,
+                                                  MonitoringInput monitoringInput) {
+
+        checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
+        final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
     }
 
     /**
@@ -62,6 +67,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
                                                          ComputationManager computationManager,
                                                          int numberOfLoadFlowsInParallel,
                                                          MonitoringInput monitoringInput) {
+
+        checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
         final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(
             loadFlowProvider,
             loadFlowParameters,

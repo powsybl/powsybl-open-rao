@@ -60,6 +60,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
                                                        LoadFlowParameters loadFlowParameters,
                                                        int numberOfLoadFlowsInParallel,
                                                        MonitoringInput monitoringInput) throws OpenRaoException {
+        checkPhysicalParameter(monitoringInput, PhysicalParameter.ANGLE);
         final MonitoringResult angleMonitoringResult = new AngleMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
     }
@@ -73,6 +74,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
                                                        ComputationManager computationManager,
                                                        int numberOfLoadFlowsInParallel,
                                                        MonitoringInput monitoringInput) throws OpenRaoException {
+        checkPhysicalParameter(monitoringInput, PhysicalParameter.ANGLE);
         final MonitoringResult angleMonitoringResult = new AngleMonitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
     }

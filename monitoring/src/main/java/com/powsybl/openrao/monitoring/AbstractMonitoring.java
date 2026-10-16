@@ -323,14 +323,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         return loadFlowResult.isFullyConverged();
     }
 
-    // Functions to override
-
-    protected abstract Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData);
-
-    protected abstract void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state);
-
-    protected abstract CnecMonitoringResult<I> computeCnecResult(I cnec, Network network, Unit unit);
-
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecMonitoringResult<?>> cnecMonitoringResults = new HashSet<>();
         getCnecs(crac, state).stream()
@@ -344,11 +336,26 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         return new MonitoringResult(physicalParameter, cnecMonitoringResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
     }
 
-    protected abstract Set<I> getCnecs(Crac crac);
-
     protected Set<I> getCnecs(Crac crac, State state) {
         return getCnecs(crac).stream().filter(cnec -> state.equals(cnec.getState())).collect(Collectors.toSet());
     }
+
+    protected static void checkPhysicalParameter(MonitoringInput monitoringInput, PhysicalParameter expectedPhysicalParameter) {
+        if (!monitoringInput.getPhysicalParameter().equals(expectedPhysicalParameter)) {
+            throw new OpenRaoException(String.format("Can't run %s monitoring if physical parameter is %s in the monitoring input",
+                expectedPhysicalParameter.toString(), monitoringInput.getPhysicalParameter().toString()));
+        }
+    }
+
+    // Functions to override
+
+    protected abstract Set<NetworkAction> getValidNetworkActionsAssociatedToCnec(Network network, Crac crac, Cnec cnec, PhysicalParameter physicalParameter, ZonalData<Scalable> scalableZonalData);
+
+    protected abstract void applyNetworkActions(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData, State state);
+
+    protected abstract CnecMonitoringResult<I> computeCnecResult(I cnec, Network network, Unit unit);
+
+    protected abstract Set<I> getCnecs(Crac crac);
 
     protected abstract CnecMonitoringResult<I> makeFailedCnecResult(I cnec);
 

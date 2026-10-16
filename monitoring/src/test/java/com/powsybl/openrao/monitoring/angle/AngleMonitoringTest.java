@@ -39,6 +39,7 @@ import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.MonitoringTestUtil;
 import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -573,4 +574,25 @@ class AngleMonitoringTest {
         assertEquals(0, networkActions.size());
     }
 
+    @Test
+    void testWrongPhysicalParameter() {
+        MonitoringInput monitoringInput = Mockito.mock(MonitoringInput.class);
+        when(monitoringInput.getPhysicalParameter()).thenReturn(PhysicalParameter.VOLTAGE);
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> AngleMonitoring.runAndUpdateRaoResult(
+            "OpenLoadFlow",
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            1,
+            monitoringInput
+        ));
+        assertEquals("Can't run ANGLE monitoring if physical parameter is VOLTAGE in the monitoring input", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> AngleMonitoring.runAndUpdateRaoResult(
+            "OpenLoadFlow",
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            Mockito.mock(),
+            1,
+            monitoringInput
+        ));
+        assertEquals("Can't run ANGLE monitoring if physical parameter is VOLTAGE in the monitoring input", e.getMessage());
+    }
 }

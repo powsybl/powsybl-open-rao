@@ -15,6 +15,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
@@ -575,5 +576,27 @@ class VoltageMonitoringTest {
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
         assert logsList.getLast().toString().equals("[WARN] No actions can be applied in voltage monitoring");
+    }
+
+    @Test
+    void testWrongPhysicalParameter() {
+        MonitoringInput monitoringInput = Mockito.mock(MonitoringInput.class);
+        when(monitoringInput.getPhysicalParameter()).thenReturn(PhysicalParameter.ANGLE);
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> VoltageMonitoring.runAndUpdateRaoResult(
+            "OpenLoadFlow",
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            1,
+            monitoringInput
+        ));
+        assertEquals("Can't run VOLTAGE monitoring if physical parameter is ANGLE in the monitoring input", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> VoltageMonitoring.runAndUpdateRaoResult(
+            "OpenLoadFlow",
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            Mockito.mock(),
+            1,
+            monitoringInput
+        ));
+        assertEquals("Can't run VOLTAGE monitoring if physical parameter is ANGLE in the monitoring input", e.getMessage());
     }
 }
