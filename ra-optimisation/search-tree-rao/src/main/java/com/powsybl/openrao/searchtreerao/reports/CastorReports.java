@@ -83,6 +83,35 @@ public final class CastorReports {
         );
     }
 
+    public static void reportCastorInitialDcSensitivityAnalysisResults(final ReportNode parentNode,
+                                                                     final ObjectiveFunction objectiveFunction,
+                                                                     final RemedialActionActivationResult remedialActionActivationResult,
+                                                                     final PrePerimeterResult sensitivityAnalysisResult,
+                                                                     final RaoParameters raoParameters,
+                                                                     final int numberOfLoggedLimitingElements) {
+        final String messageTemplate = "openrao.searchtreerao.reportCastorInitialDcSensitivityAnalysisResults";
+        final String prefix = "Initial DC sensitivity analysis: ";
+        CommonReports.reportSensitivityAnalysisResults(
+                parentNode,
+                messageTemplate,
+                prefix,
+                objectiveFunction,
+                remedialActionActivationResult,
+                sensitivityAnalysisResult,
+                raoParameters,
+                numberOfLoggedLimitingElements
+        );
+    }
+
+    public static void reportCastorInitialDcSensitivityAnalysisFailed(final ReportNode parentNode) {
+        parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportCastorInitialDcSensitivityAnalysisFailed")
+                .withSeverity(WARN_SEVERITY)
+                .add();
+
+        BUSINESS_LOGS.warn("Initial sensitivity analysis in DC failed. Disabling performance improvement using DC.");
+    }
+
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
                                                                                 final ObjectiveFunction objectiveFunction,
                                                                                 final RemedialActionActivationResult remedialActionActivationResult,
