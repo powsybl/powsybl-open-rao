@@ -13,15 +13,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,13 +22,13 @@ import java.util.stream.Collectors;
 public class MonitoringResult {
 
     private PhysicalParameter physicalParameter;
-    private Set<CnecResult> cnecResults;
-    private Map<State, Set<RemedialAction>> appliedRas;
+    private Map<String, CnecMonitoringResult<?>> cnecMonitoringResultsPerCnecId = new HashMap<>();
+    private Map<State, Set<RemedialAction<?>>> appliedRas;
     private SecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecMonitoringResult<?>> cnecMonitoringResults, Map<State, Set<RemedialAction<?>>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
-        this.cnecResults = cnecResults;
+        cnecMonitoringResults.forEach(result -> this.cnecMonitoringResultsPerCnecId.put(result.getId(), result));
         this.appliedRas = appliedRas;
         this.status = status;
     }
@@ -45,15 +37,23 @@ public class MonitoringResult {
         return physicalParameter;
     }
 
-    public Set<CnecResult> getCnecResults() {
-        return cnecResults;
+    public Set<CnecMonitoringResult<?>> getCnecResults() {
+        return cnecMonitoringResultsPerCnecId.values().stream().collect(Collectors.toSet());
     }
 
-    public Map<State, Set<RemedialAction>> getAppliedRas() {
+    private Map<String, CnecMonitoringResult<?>> getCnecMonitoringResultsPerCnecId() {
+        return cnecMonitoringResultsPerCnecId;
+    }
+
+    public Optional<CnecMonitoringResult<?>> getCnecResult(String id) {
+        return Optional.ofNullable(cnecMonitoringResultsPerCnecId.get(id));
+    }
+
+    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
         return appliedRas;
     }
 
-    public Set<RemedialAction> getAppliedRas(State state) {
+    public Set<RemedialAction<?>> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -77,15 +77,15 @@ public class MonitoringResult {
             return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters.");
         }
         List<String> constraints = new ArrayList<>();
-        cnecResults.stream()
+        cnecMonitoringResultsPerCnecId.values().stream()
             .filter(cr -> cr.getMargin() < 0)
-            .sorted(Comparator.comparing(CnecResult::getId))
+            .sorted(Comparator.comparing(CnecMonitoringResult::getId))
             .forEach(cnecResult -> constraints.add(cnecResult.print()));
 
         if (constraints.isEmpty()) {
-            return List.of(String.format("All %s Cnecs are secure.", physicalParameter));
+            return List.of(String.format("All %s CNECs are secure.", physicalParameter));
         } else {
-            constraints.add(0, String.format("Some %s Cnecs are not secure:", physicalParameter));
+            constraints.add(0, String.format("Some %s CNECs are not secure:", physicalParameter));
         }
         return constraints;
     }
@@ -93,16 +93,19 @@ public class MonitoringResult {
     // Add synchronized in the signature to make the function blocking
     // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
     public synchronized void combine(MonitoringResult monitoringResult) {
-        Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
-        Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
-        thisCnecResults.addAll(otherCnecResults);
-        this.cnecResults = thisCnecResults;
+        if (!Collections.disjoint(this.cnecMonitoringResultsPerCnecId.keySet(), monitoringResult.getCnecMonitoringResultsPerCnecId().keySet())) {
+            throw new OpenRaoException(String.format("Can't combine monitoring result because some CNEC present two different monitoring result"));
 
-        Map<State, Set<RemedialAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
-        Map<State, Set<RemedialAction>> otherAppliedRas = monitoringResult.getAppliedRas();
+        }
+
+        Map<String, CnecMonitoringResult<?>> thisCnecMonitoringResultsPerCnecId = new HashMap<>(cnecMonitoringResultsPerCnecId);
+        thisCnecMonitoringResultsPerCnecId.putAll(monitoringResult.getCnecMonitoringResultsPerCnecId());
+        this.cnecMonitoringResultsPerCnecId = thisCnecMonitoringResultsPerCnecId;
+
+        Map<State, Set<RemedialAction<?>>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
+        Map<State, Set<RemedialAction<?>>> otherAppliedRas = monitoringResult.getAppliedRas();
         thisAppliedRas.putAll(otherAppliedRas);
         this.appliedRas = thisAppliedRas;
-
         this.status = combineStatuses(this.status, monitoringResult.getStatus());
     }
 

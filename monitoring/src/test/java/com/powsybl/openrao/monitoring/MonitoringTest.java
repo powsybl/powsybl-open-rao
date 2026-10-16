@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -22,7 +23,6 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +37,7 @@ class MonitoringTest {
         // 3 voltage CNECs are defined one in preventive, one in curative 1 and one in curative 3.
         // preventive => ok, curative 3 => ok but curative 1 => ignored. We only monitor final curative instant + preventive.
 
-        Monitoring monitoring = new Monitoring("OpenLoadFlow", new LoadFlowParameters());
+        VoltageMonitoring monitoring = new VoltageMonitoring("OpenLoadFlow", new LoadFlowParameters());
 
         Network network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);
@@ -56,8 +56,8 @@ class MonitoringTest {
         assertEquals(2, monitoringResult.getCnecResults().size());
         assertEquals(Cnec.SecurityStatus.SECURE, monitoringResult.getStatus());
 
-        assertEquals(4.30, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - preventive")).findFirst().get().getMargin(), 1e-2);
-        assertEquals(1.88, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative3")).findFirst().get().getMargin(), 1e-2);
-        assertTrue(monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative1")).collect(Collectors.toSet()).isEmpty());
+        assertEquals(4.30, monitoringResult.getCnecResult("vc - preventive").get().getMargin(), 1e-2);
+        assertEquals(1.88, monitoringResult.getCnecResult("vc - curative3").get().getMargin(), 1e-2);
+        assertFalse(monitoringResult.getCnecResult("vc - curative1").isPresent());
     }
 }
