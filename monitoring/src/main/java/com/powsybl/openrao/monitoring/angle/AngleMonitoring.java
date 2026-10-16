@@ -44,8 +44,6 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
-    Map<Injection<?>, Double> setpointPerNetworkElement = new HashMap<>();
-
     public AngleMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
     }
@@ -95,8 +93,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
         if (!availableNetworkActions.isEmpty()) {
             Set<Country> glskCountries = getCountriesFromGlsk(scalableZonalData);
-            setpointPerNetworkElement = new HashMap<>();
-
+            Map<Injection<?>, Double> setpointPerNetworkElement = new HashMap<>();
             availableNetworkActions = availableNetworkActions.stream().filter(networkAction -> networkAction.getElementaryActions().stream()
                 .allMatch(ea ->
                     checkWithGlsk(glskCountries, getCountryFromInjectionAction(ea, network), networkAction.getId()) &&
@@ -139,6 +136,12 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     // Helper functions
 
     protected void rebalanceNetwork(Network network, Set<NetworkAction> networkActionsToApply, ZonalData<Scalable> scalableZonalData) {
+        // Get setpoint per network element
+        Map<Injection<?>, Double> setpointPerNetworkElement = new HashMap<>();
+        networkActionsToApply.forEach(networkAction -> networkAction.getElementaryActions().forEach(ea ->
+            setpointPerNetworkElement.put(getInjectionSetpointIdentifiable(ea, network), getSetPointValue(ea))
+        ));
+
         // Get power to be redispatched and network elements to be excluded
         EnumMap<Country, Double> powerToBeRedispatchedPerCountry = new EnumMap<>(Country.class);
         Set<String> networkElementsToBeExcluded = setpointPerNetworkElement.keySet().stream().map(Injection::getId).collect(Collectors.toSet());
