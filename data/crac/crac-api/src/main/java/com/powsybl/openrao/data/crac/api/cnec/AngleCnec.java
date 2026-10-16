@@ -46,7 +46,7 @@ public interface AngleCnec extends Cnec<AngleCnec> {
     NetworkElement getImportingNetworkElement();
 
     /**
-     * Getter of thenetwork element of the importing end of the branch.
+     * Getter of the network element of the importing end of the branch.
      */
     String getImportingNetworkElementId();
 
