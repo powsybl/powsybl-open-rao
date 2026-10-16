@@ -171,7 +171,7 @@ public class Monitoring {
 
         // I) Preventive state
         State preventiveState = crac.getPreventiveState();
-        if (Objects.nonNull(preventiveState)) {
+        if (Objects.nonNull(preventiveState) && !crac.getCnecs(physicalParameter, preventiveState).isEmpty()) {
             applyOptimalRemedialActions(preventiveState, inputNetwork, raoResult);
             Set<Cnec> preventiveStateCnecs = crac.getCnecs(physicalParameter, preventiveState);
             MonitoringResult preventiveStateMonitoringResult = monitorCnecs(preventiveState, preventiveStateCnecs, inputNetwork, monitoringInput);
