@@ -163,12 +163,14 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         Network networkClone = networkPool.getAvailableNetwork();
         try {
             // Apply contingency
-            if (!applyContingency(networkClone, state, false)) {
+            try {
+                applyContingency(networkClone, state);
+            } catch (OpenRaoException e) {
                 return makeFailedMonitoringResultForStateWithNaNCnecRsults(
                     crac,
                     physicalParameter,
                     state,
-                    "Unable to apply contingency " + state.getContingency().orElseThrow().getId()
+                    e.getMessage()
                 );
             }
 
