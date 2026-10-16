@@ -29,6 +29,8 @@ public class IidmCounterTradeHelper {
 
     public IidmCounterTradeHelper(String areaId, Network network) {
         this.areaId = areaId;
+        // TODO: the country graph is built for each counter-trade range action, which may become costly on large networks:
+        //  check on real data and, if needed, build it once per network and share it between the counter-trade range actions
         this.neighbors = new CountryGraph(network).getNeighbors(toCountry(areaId)).stream()
             .map(Country::toString)
             .sorted()

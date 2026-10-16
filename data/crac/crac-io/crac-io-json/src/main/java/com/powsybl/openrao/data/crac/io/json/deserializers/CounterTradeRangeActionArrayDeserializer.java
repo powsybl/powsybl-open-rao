@@ -94,7 +94,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
                 areaFields.connectedAreasDefined = true;
                 break;
             default:
-                throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.currentName());
+                throw new OpenRaoException("Unexpected field in CounterTradeRangeAction: " + jsonParser.currentName());
         }
     }
 }

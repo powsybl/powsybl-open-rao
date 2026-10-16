@@ -54,6 +54,10 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         connectedAreas.add(connectedArea);
     }
 
+    boolean hasConnectedArea(String areaId) {
+        return connectedAreas.stream().anyMatch(connectedArea -> connectedArea.getAreaId().equals(areaId));
+    }
+
     @Override
     public CounterTradeRangeAction add() {
         checkId();
@@ -64,6 +68,9 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
 
         // check area
         assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withAreaId()");
+        if (hasConnectedArea(area)) {
+            throw new OpenRaoException(String.format("CounterTradeRangeAction %s cannot have its own area %s as a connected area", id, area));
+        }
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");

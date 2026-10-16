@@ -176,17 +176,11 @@ class CracImportExportTest {
     }
 
     @Test
-    void importCounterTradeRangeActionWithoutConnectedAreasTest() {
-        Crac crac = ExhaustiveCracCreation.create();
-        crac.newCounterTradeRangeAction().withId("counterTradeRange2Id")
-            .withAreaId("BE")
-            .newRange().withMin(-500).withMax(500).add()
-            .add();
-
-        Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
-
+    void importCounterTradeRangeActionWithoutConnectedAreasTest() throws IOException {
         // without connected areas in the JSON, all the areas sharing a border with BE in the network are used
-        List<ConnectedArea> connectedAreas = importedCrac.getCounterTradeRangeAction("counterTradeRange2Id").getConnectedAreas();
+        Crac crac = Crac.read("cracCounterTradeWithoutConnectedAreas.json",
+            getClass().getResourceAsStream("/cracCounterTradeWithoutConnectedAreas.json"), ExhaustiveCracCreation.createAssociatedNetwork());
+        List<ConnectedArea> connectedAreas = crac.getCounterTradeRangeAction("counterTradeRangeId").getConnectedAreas();
         assertEquals(List.of("DE", "FR"), connectedAreas.stream().map(ConnectedArea::getAreaId).toList());
         assertTrue(connectedAreas.stream().allMatch(connectedArea -> connectedArea.getBorderRanges().isEmpty()));
     }
@@ -197,6 +191,20 @@ class CracImportExportTest {
         Crac crac = Crac.read("cracCounterTradeWithEmptyConnectedAreas.json",
             getClass().getResourceAsStream("/cracCounterTradeWithEmptyConnectedAreas.json"), ExhaustiveCracCreation.createAssociatedNetwork());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRangeId").getConnectedAreas().isEmpty());
+    }
+
+    @Test
+    void counterTradeRangeActionWithEmptyConnectedAreasRoundTripTest() {
+        Crac crac = ExhaustiveCracCreation.create();
+        crac.newCounterTradeRangeAction().withId("counterTradeRange2Id")
+            .withAreaId("BE")
+            .newRange().withMin(-500).withMax(500).add()
+            .add();
+
+        Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+
+        // the empty list is exported, so the areas sharing a border with BE in the network are not added at import
+        assertTrue(importedCrac.getCounterTradeRangeAction("counterTradeRange2Id").getConnectedAreas().isEmpty());
     }
 
     @Test

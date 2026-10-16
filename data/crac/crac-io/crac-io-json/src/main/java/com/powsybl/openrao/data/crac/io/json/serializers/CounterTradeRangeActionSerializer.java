@@ -31,9 +31,6 @@ public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<Co
     }
 
     private static void serializeConnectedAreas(CounterTradeRangeAction value, JsonGenerator gen) throws IOException {
-        if (value.getConnectedAreas().isEmpty()) {
-            return;
-        }
         gen.writeArrayFieldStart(JsonSerializationConstants.CONNECTED_AREAS);
         for (ConnectedArea connectedArea : value.getConnectedAreas()) {
             gen.writeObject(connectedArea);

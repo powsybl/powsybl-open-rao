@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.ConnectedAreaBorderRangeAdder;
@@ -52,6 +53,9 @@ class ConnectedAreaAdderImpl implements ConnectedAreaAdder {
     @Override
     public CounterTradeRangeActionAdder add() {
         assertAttributeNotNull(area, CLASS_NAME, "area", "withAreaId()");
+        if (ownerAdder.hasConnectedArea(area)) {
+            throw new OpenRaoException(String.format("Connected area %s is defined more than once", area));
+        }
 
         ConnectedArea connectedArea = new ConnectedAreaImpl(area, borderRanges);
 

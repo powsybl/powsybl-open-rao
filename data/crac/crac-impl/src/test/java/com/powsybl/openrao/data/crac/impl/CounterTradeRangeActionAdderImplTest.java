@@ -227,6 +227,30 @@ class CounterTradeRangeActionAdderImplTest {
     }
 
     @Test
+    void testDuplicateConnectedAreaFail() {
+        ConnectedAreaAdder connectedAreaAdder = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .withAreaId("BE")
+                .newConnectedArea().withAreaId("FR").add()
+                .newConnectedArea().withAreaId("FR");
+        Exception e = assertThrows(OpenRaoException.class, connectedAreaAdder::add);
+        assertEquals("Connected area FR is defined more than once", e.getMessage());
+    }
+
+    @Test
+    void testConnectedAreaEqualToAreaFail() {
+        CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
+                .withId("id1")
+                .newConnectedArea().withAreaId("BE").add()
+                .withAreaId("BE")
+                .withInitialSetpoint(1000d)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
+        assertEquals("CounterTradeRangeAction id1 cannot have its own area BE as a connected area", e.getMessage());
+    }
+
+    @Test
     void testBorderRangeWithoutMinAndMaxFail() {
         ConnectedAreaBorderRangeAdder borderRangeAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
