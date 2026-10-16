@@ -55,6 +55,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -78,7 +79,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -742,4 +745,110 @@ class SearchTreeTest {
         assertEquals(42.0, result.getAppliedRangeActions(secondaryState).get(activatedSecondaryRangeAction), DOUBLE_TOLERANCE);
         assertFalse(result.getAppliedRangeActions(secondaryState).containsKey(nonActivatedSecondaryRangeAction));
     }
+
+    // optimizeDecidedNetworkActionCombination: re-runs leaf optimization for an already-decided network
+    // action combination (used to AC-recompute a combination that was decided using a DC ToolProvider).
+
+    @Test
+    void testOptimizeDecidedNetworkActionCombinationWarmStartsOnlyChangedSetpoints() {
+        RangeAction<?> unchangedRa = Mockito.mock(RangeAction.class);
+        RangeAction<?> changedRa = Mockito.mock(RangeAction.class);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(unchangedRa, changedRa)));
+        when(prePerimeterResult.getSetpoint(unchangedRa)).thenReturn(5.);
+        when(prePerimeterResult.getSetpoint(changedRa)).thenReturn(2.);
+
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getOptimizedSetpoint(unchangedRa, optimizedState)).thenReturn(5.);
+        when(decidedResult.getOptimizedSetpoint(changedRa, optimizedState)).thenReturn(8.);
+
+        Leaf decidedLeaf = Mockito.mock(Leaf.class);
+        when(decidedLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
+        when(decidedLeaf.getVirtualCost()).thenReturn(0.);
+        Mockito.doReturn(decidedLeaf).when(searchTree).makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+        searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
+
+        verify(unchangedRa, never()).apply(eq(network), anyDouble());
+        verify(changedRa).apply(network, 8.);
+    }
+
+    @Test
+    void testOptimizeDecidedNetworkActionCombinationSkipsOptimizationOnErrorLeaf() {
+        // availableRangeActions is non-empty so that, if the ERROR guard were ever bypassed, optimizeLeaf's own
+        // "no range actions to optimize" branch would not itself prevent leaf.optimize(...) from being called -
+        // otherwise this test would pass regardless of whether the guard actually works.
+        availableRangeActions.add(Mockito.mock(RangeAction.class));
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getActivatedRangeActions(any())).thenReturn(availableRangeActions);
+
+        Leaf decidedLeaf = Mockito.mock(Leaf.class);
+        when(decidedLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        Mockito.doReturn(decidedLeaf).when(searchTree).makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+        OptimizationResult result = searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
+
+        assertEquals(decidedLeaf, result);
+        verify(decidedLeaf, never()).optimize(any(), any(), any());
+        verify(decidedLeaf).finalizeOptimization();
+    }
+
+    @Test
+    void testOptimizeDecidedNetworkActionCombinationSkipsOptimizationWhenAlreadySecure() {
+        // see comment in testOptimizeDecidedNetworkActionCombinationSkipsOptimizationOnErrorLeaf
+        availableRangeActions.add(Mockito.mock(RangeAction.class));
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getActivatedRangeActions(optimizedState)).thenReturn(Set.of());
+
+        Leaf decidedLeaf = Mockito.mock(Leaf.class);
+        when(decidedLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
+        // purely virtual perimeter (default in this test class) + zero virtual cost => stop criterion already reached
+        when(decidedLeaf.getVirtualCost()).thenReturn(0.);
+        Mockito.doReturn(decidedLeaf).when(searchTree).makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+        OptimizationResult result = searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
+
+        assertEquals(decidedLeaf, result);
+        verify(decidedLeaf, never()).optimize(any(), any(), any());
+        verify(decidedLeaf).finalizeOptimization();
+    }
+
+    @Test
+    void testOptimizeDecidedNetworkActionCombinationOptimizesWhenRangeActionsWereActivated() {
+        RangeAction<?> activatedRa = Mockito.mock(RangeAction.class);
+        availableRangeActions.add(activatedRa);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(activatedRa));
+
+        Leaf decidedLeaf = Mockito.mock(Leaf.class);
+        when(decidedLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
+        Mockito.doReturn(decidedLeaf).when(searchTree).makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+        searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
+
+        verify(decidedLeaf).optimize(searchTreeInput, searchTreeParameters, reportNode);
+        verify(decidedLeaf).finalizeOptimization();
+    }
+
+    @Test
+    void testOptimizeDecidedNetworkActionCombinationCleansUpTemporaryVariant() {
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+
+        Leaf decidedLeaf = Mockito.mock(Leaf.class);
+        when(decidedLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        Mockito.doReturn(decidedLeaf).when(searchTree).makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+        VariantManager variantManager = network.getVariantManager();
+        searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
+
+        InOrder inOrder = Mockito.inOrder(variantManager);
+        inOrder.verify(variantManager).cloneVariant("ID", "SearchTreeWorkingVariantId", true);
+        inOrder.verify(variantManager).setWorkingVariant("SearchTreeWorkingVariantId");
+        inOrder.verify(variantManager).setWorkingVariant("ID");
+        inOrder.verify(variantManager).removeVariant("SearchTreeWorkingVariantId");
+    }
+
 }
