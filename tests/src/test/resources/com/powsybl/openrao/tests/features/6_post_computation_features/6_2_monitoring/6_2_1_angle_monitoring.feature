@@ -108,7 +108,7 @@ Feature: 6.2.1: Angle Monitoring
 
   @fast @ac @rao @angle-monitoring @max-min-margin
   Scenario: 6.2.1.5: Case where the redispatching fails but the load flow diverge
-  Same case as 6.2.1.6, however the setpoint of the elementary action on the Belgian generator is too important.
+  Same case as 6.2.1.4, however the setpoint of the elementary action on the Belgian generator is too important.
   The unbalance is too big and it makes the load flow diverge -> status FAILURE + no action applied
     Given network file is "epic94/MicroGrid.zip"
     Given crac file is "epic94/crac_angle_monitoring_6_2_1_5.json"
