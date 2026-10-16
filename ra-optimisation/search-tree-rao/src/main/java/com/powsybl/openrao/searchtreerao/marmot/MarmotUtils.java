@@ -282,6 +282,15 @@ public final class MarmotUtils {
         return temporalData.mapMultiThreading(function, threads);
     }
 
+    public static <A> TemporalData<A> smartMap(List<OffsetDateTime> timestamps, Function<OffsetDateTime, A> function, int threads) {
+        Map<OffsetDateTime, OffsetDateTime> identityMap = new HashMap<>();
+        timestamps.forEach(timestamp -> identityMap.put(timestamp, timestamp));
+        if (threads == 1) {
+            return new TemporalDataImpl<>(identityMap).map(function);
+        }
+        return new TemporalDataImpl<>(identityMap).mapMultiThreading(function, threads);
+    }
+
     public static double getInitialSetPoint(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());

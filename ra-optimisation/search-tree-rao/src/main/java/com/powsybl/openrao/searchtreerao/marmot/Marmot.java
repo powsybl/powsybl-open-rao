@@ -460,11 +460,11 @@ public class Marmot implements TimeCoupledRaoProvider {
                                     String vcName,
                                     List<String> addedCnecs,
                                     Map<String, Double> margins) {
-        private void addCnec(String cnec) {
+        public void addCnec(String cnec) {
             addedCnecs.add(cnec);
         }
 
-        private void addCnec(String cnec, double margin) {
+        public void addCnec(String cnec, double margin) {
             addedCnecs.add(cnec);
             margins.put(cnec, margin);
         }
