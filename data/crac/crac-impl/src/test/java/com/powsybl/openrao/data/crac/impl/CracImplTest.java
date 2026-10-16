@@ -97,7 +97,7 @@ class CracImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         crac = new CracImpl("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
@@ -1155,8 +1155,8 @@ class CracImplTest {
         // ra10 : preventive only, counter trade
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
-            .withExportingArea("FR")
-            .withImportingArea("DE")
+            .withArea("FR")
+            .withInitialNetPosition(0d)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()

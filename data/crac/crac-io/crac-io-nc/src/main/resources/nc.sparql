@@ -269,6 +269,44 @@ SELECT *
     }
 }
 
+# query: countertradeRemedialAction
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.BiddingZone ?biddingZone .
+        }
+        OPTIONAL {
+            ?fullModel dcterms:creator ?creator .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.maxEconomicP ?maxEconomicP .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.minEconomicP ?minEconomicP .
+        }
+    }
+}
+
 # query: contingencyWithRemedialAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
@@ -589,6 +627,49 @@ GRAPH <%s> {
         rdf:type nc:SchemeRemedialAction ;
         nc:RemedialAction.available ?available .
 }
+}
+
+# query: countertradeRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction ;
+            nc:RemedialAction.available ?available .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingUp ?countertradeRemedialActionMaxRegulatingUp .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingDown ?countertradeRemedialActionMaxRegulatingDown .
+        }
+    }
+}
+
+# query: remedialActionGroupOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?remedialActionGroup
+            rdf:type nc:RemedialActionGroup .
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingUp ?remedialActionGroupMaxRegulatingUp .
+        }
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingDown ?remedialActionGroupMaxRegulatingDown .
+        }
+    }
 }
 
 # query: gridStateAlterationOverriding
