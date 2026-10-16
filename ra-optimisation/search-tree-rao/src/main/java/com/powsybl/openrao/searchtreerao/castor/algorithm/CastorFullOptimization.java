@@ -554,26 +554,26 @@ public class CastorFullOptimization {
                                                            final PrePerimeterResult initialResult,
                                                            final ReportNode preventivePerimeterOptimReportNode) {
 
-        RaoParameters raoParameters = workingToolProvider != null ? workingToolProvider.getRaoParameters() : this.raoParameters;
+        RaoParameters currentRaoParameters = workingToolProvider != null ? workingToolProvider.getRaoParameters() : this.raoParameters;
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
             stateTree.getBasecaseScenario(),
             crac,
             network,
-            raoParameters,
+            currentRaoParameters,
             workingInitialResult,
             preventivePerimeterOptimReportNode
         );
 
         SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
-            .withConstantParametersOverAllRao(raoParameters, crac)
-            .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
+            .withConstantParametersOverAllRao(currentRaoParameters, crac)
+            .withTreeParameters(TreeParameters.buildForPreventivePerimeter(currentRaoParameters))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(currentRaoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
 
         if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network).isEmpty()) {
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
-                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
-                    ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
+                currentRaoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                    ? currentRaoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
                     : new LoadFlowAndSensitivityParameters(preventivePerimeterOptimReportNode);
             searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
         }
@@ -589,7 +589,7 @@ public class CastorFullOptimization {
             workingInitialResult,
             workingInitialResult,
             Collections.emptySet(),
-            raoParameters,
+            currentRaoParameters,
             statesToOptimize
         );
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
