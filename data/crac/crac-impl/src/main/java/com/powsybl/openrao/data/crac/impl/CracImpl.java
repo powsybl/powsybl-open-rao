@@ -221,14 +221,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (instant.isAuto() && instant.getOrder() != 2) {
             throw new OpenRaoException("Only one auto instant is allowed and it must occur between outage and curative instants");
         }
+
         lastInstantAdded = instant;
         instants.put(instantId, instant);
-        return this;
-    }
 
-    @Override
-    public CracImpl newPreventiveState() {
-        addPreventiveState();
+        // Create by default the preventive state when the preventive instant is created
+        if (instant.isPreventive()) {
+            addPreventiveState();
+        }
+
         return this;
     }
 

@@ -1334,10 +1334,10 @@ class CracImplTest {
     }
 
     @Test
-    void testNewPreventiveState() {
+    void testPreventiveStateDefaultCreation() {
+        // check that when preventive instant is created, preventive state is created too
         crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newPreventiveState();
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         assertNotNull(crac.getPreventiveState());
     }
 }
