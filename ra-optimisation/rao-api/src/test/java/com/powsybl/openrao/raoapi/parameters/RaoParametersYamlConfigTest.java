@@ -96,6 +96,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
         assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParameters.getSensitivityProvider());
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        assertTrue(loadFlowAndSensitivityParameters.getOptimizeInDc());
 
         // EXTENSIONS
         assertEquals(2, parameters.getExtensions().size());

@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -45,8 +46,10 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -112,6 +115,61 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void smallRaoWith2POptimizedInDc() throws IOException {
+        // This CRAC has both a curative perimeter (contingency co1_fr2_fr3_1) and triggers second preventive,
+        // so this run exercises the DC search / AC-recompute path in both CastorContingencyScenarios and
+        // CastorSecondPreventive, with enforce-curative-security left at its default (false).
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertFalse(raoResult instanceof FailedRaoResultImpl);
+        // initial and final evaluations are still computed in AC
+        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
+        // no leftover DC-mode working variants: preventive (CastorFullOptimization) and second preventive
+        // (CastorSecondPreventive) both clean up their temporary DC-search variant once the AC recompute is done
+        assertFalse(network.getVariantManager().getVariantIds().contains("WorkingScenario"));
+        assertFalse(network.getVariantManager().getVariantIds().contains("SecondPreventiveScenarioWork"));
+    }
+
+    @Test
+    void smallRaoWith2POptimizedInDcEnforcesCurativeSecurity() throws IOException {
+        // Same CRAC/network as smallRaoWithout2P, but optimized in DC with enforce-curative-security=true.
+        // The curative perimeter's only available action (open_fr1_fr3) cannot actually secure the state
+        // (see smallRaoWithout2P: final AC cost is 256.78, i.e. still overloaded), so this forces
+        // CastorContingencyScenarios' full three-step fallback ladder: the DC search's "secure" claim is
+        // rejected by the AC recompute, an exhaustive DC re-search is tried, and finally a full AC search is
+        // run as a last resort. The final result must match what a pure-AC search finds for this perimeter
+        // (smallRaoWithout2P's 256.78), proving the fallback reproduces the AC-mode decision rather than
+        // silently keeping an insecure DC-decided combination.
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertFalse(raoResult instanceof FailedRaoResultImpl);
+        assertEquals(256.78, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
+        assertFalse(network.getVariantManager().getVariantIds().contains("WorkingScenario"));
+
+        listAppender.stop();
+        List<String> warnLogs = listAppender.list.stream().map(Object::toString).toList();
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; searching deeper in DC")));
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search")));
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("could not find any network action combination that is secure in AC")));
     }
 
     @Test
@@ -502,12 +560,10 @@ class CastorFullOptimizationTest {
     @Test
     void catchDuringInitialSensitivity() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
+        Crac cracSpy = Mockito.spy(crac);
+        when(cracSpy.getRangeActions()).thenThrow(new OpenRaoException("Testing exception handling"));
+        raoInput = RaoInput.build(network, cracSpy).build();
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
-        OpenRaoSearchTreeParameters searchTreeParameters = Mockito.spy(new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.spy(new LoadFlowAndSensitivityParameters(ReportNode.NO_OP));
-        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
-        when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
@@ -517,8 +573,15 @@ class CastorFullOptimizationTest {
     @Test
     void catchDuringFirstPreventive() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
-        RaoParameters raoParameters = Mockito.spy(JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP));
-        when(raoParameters.getTopoOptimizationParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        Crac cracSpy = Mockito.spy(crac);
+        // getNetworkActions(preventiveState) is only called when building the preventive optimization perimeter,
+        // unlike getNetworkActions(any()) which is also hit earlier (e.g. by StateTree, during data initialization).
+        // doThrow(...).when(spy)... is used instead of when(spy...).thenThrow(...) because the latter calls the
+        // real method first, and the real getNetworkActions(State) NPEs here since the matcher's return value
+        // (used as the actual argument) is null, not the matched state.
+        Mockito.doThrow(new OpenRaoException("Testing exception handling")).when(cracSpy).getNetworkActions(crac.getPreventiveState());
+        raoInput = RaoInput.build(network, cracSpy).build();
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
@@ -528,6 +591,9 @@ class CastorFullOptimizationTest {
     void catchDuringContingencyScenarios() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        // Force DC (and a compatible unit) so CastorFullOptimization does not clone raoParameters into a separate
+        // (unmocked) instance before reaching the contingency scenarios step
+        LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
         SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = Mockito.spy(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters());
         when(topoOptimizationParameters.getMaxCurativeSearchTreeDepth()).thenThrow(new OpenRaoException("Testing exception handling"));
@@ -541,6 +607,9 @@ class CastorFullOptimizationTest {
     void catchDuringSecondPreventive() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        // Force DC (and a compatible unit) so CastorFullOptimization does not clone raoParameters into a separate
+        // (unmocked) instance before reaching the second preventive step
+        LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         OpenRaoSearchTreeParameters searchTreeParametersSpied = Mockito.spy(searchTreeParameters);
         raoParameters.removeExtension(OpenRaoSearchTreeParameters.class);
@@ -588,6 +657,27 @@ class CastorFullOptimizationTest {
         // same test as US 15.17.8
         setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_AC.json"), ReportNode.NO_OP);
+        RaoResult raoResult = new Castor().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
+        assertEquals(-432.82, raoResult.getCost(crac.getInstant("curative")), 1e-2);
+        assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
+        assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
+    }
+
+    @Test
+    void checkWithHvdcOptimizedInDc() throws IOException {
+        // Same scenario as checkWithHvdc, but decided in DC and recomputed/reported in AC. The curative
+        // perimeter has to re-optimize the HVDC range action (CRA_HVDC) during that AC recompute
+        // (SearchTree.optimizeDecidedNetworkActionCombination -> Leaf.optimize), which currently reuses
+        // the SearchTreeParameters built for the earlier DC decide step as-is - including its flowUnit
+        // (baked in from RaoUtil.getFlowUnit on the DC-flavored RaoParameters, i.e. MEGAWATT) - instead of
+        // rebuilding it for the AC step (which should use AMPERE). If that reuse affects the MILP's
+        // behaviour, this run will diverge from checkWithHvdc's pure-AC result; if the unit choice is truly
+        // inert here, both runs land on the exact same cost and activated range action.
+        setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_AC.json"), ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
+
         RaoResult raoResult = new Castor().run(raoInput, raoParameters, null, ReportNode.NO_OP).join();
         assertEquals(-432.82, raoResult.getCost(crac.getInstant("curative")), 1e-2);
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());

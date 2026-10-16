@@ -19,6 +19,7 @@ import java.util.Objects;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OPTIMIZE_IN_DC;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PROVIDER;
 
@@ -31,10 +32,12 @@ public class LoadFlowAndSensitivityParameters {
     private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
+    private static final boolean DEFAULT_OPTIMIZE_IN_DC = false;
 
     private String loadFlowProvider;
     private String sensitivityProvider;
     private double sensitivityFailureOvercost;
+    private boolean optimizeInDc = DEFAULT_OPTIMIZE_IN_DC;
     private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
     private final ReportNode reportNode;
 
@@ -82,6 +85,14 @@ public class LoadFlowAndSensitivityParameters {
         this.sensitivityFailureOvercost = Math.abs(sensitivityFailureOvercost);
     }
 
+    public boolean getOptimizeInDc() {
+        return optimizeInDc;
+    }
+
+    public void setOptimizeInDc(boolean optimizeInDc) {
+        this.optimizeInDc = optimizeInDc;
+    }
+
     public static LoadFlowAndSensitivityParameters load(final PlatformConfig platformConfig, final ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
         LoadFlowAndSensitivityParameters parameters = new LoadFlowAndSensitivityParameters(reportNode);
@@ -90,6 +101,7 @@ public class LoadFlowAndSensitivityParameters {
                     parameters.setLoadFlowProvider(config.getStringProperty(LOAD_FLOW_PROVIDER, DEFAULT_LOADFLOW_PROVIDER));
                     parameters.setSensitivityProvider(config.getStringProperty(SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER));
                     parameters.setSensitivityFailureOvercost(config.getDoubleProperty(SENSITIVITY_FAILURE_OVERCOST, DEFAULT_SENSITIVITY_FAILURE_OVERCOST));
+                    parameters.setOptimizeInDc(config.getBooleanProperty(OPTIMIZE_IN_DC, DEFAULT_OPTIMIZE_IN_DC));
                 });
         parameters.setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters.load(platformConfig));
         return parameters;
@@ -114,6 +126,13 @@ public class LoadFlowAndSensitivityParameters {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityProvider();
         }
         return DEFAULT_SENSITIVITY_PROVIDER;
+    }
+
+    public static boolean getOptimizeInDc(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getOptimizeInDc();
+        }
+        return DEFAULT_OPTIMIZE_IN_DC;
     }
 
     // The return value should not be written since it will re-write the parameters if the value si the real one,
