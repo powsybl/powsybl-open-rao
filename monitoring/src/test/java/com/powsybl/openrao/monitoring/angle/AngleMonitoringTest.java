@@ -229,11 +229,7 @@ class AngleMonitoringTest {
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
         ), angleMonitoringResult.printConstraints());
 
-        double angleValue = angleMonitoringResult.getCnecResults().stream()
-            .map(AngleCnecMonitoringResult.class::cast)
-            .findFirst().get()
-            .getAngle();
-        assertEquals(-3.67, angleValue, ANGLE_TOLERANCE);
+        assertEquals(-3.67, ((AngleCnecMonitoringResult) angleMonitoringResult.getCnecResult("acPrev").get()).getAngle(), ANGLE_TOLERANCE);
     }
 
     @Test
@@ -352,7 +348,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(1, angleMonitoringResult.getCnecResults().size());
-        assertEquals("acCur1", angleMonitoringResult.getCnecResults().stream().findFirst().orElseThrow().getCnec().getId());
+        assertTrue(angleMonitoringResult.getCnecResult("acCur1").isPresent());
         assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
@@ -378,11 +374,8 @@ class AngleMonitoringTest {
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        double angleValue = angleMonitoringResult.getCnecResults().stream()
-            .filter(cr -> cr.getCnec().getId().equals("AngleCnec1"))
-            .map(AngleCnecMonitoringResult.class::cast)
-            .findFirst().get()
-            .getAngle();
+        double angleValue = ((AngleCnecMonitoringResult) angleMonitoringResult.getCnecResult("AngleCnec1").get()).getAngle();
+
         assertEquals(5.22, angleValue, ANGLE_TOLERANCE);
         assertEquals(
             List.of(
@@ -426,7 +419,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        Optional<CnecMonitoringResult<?>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
+        Optional<CnecMonitoringResult<?>> acCur1CnecOpt = angleMonitoringResult.getCnecResult("acCur1");
         Double acCur1CnecValue = ((AngleCnecMonitoringResult) acCur1CnecOpt.get()).getAngle();
         Cnec.SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
         double acCur1Margin = acCur1CnecOpt.get().getMargin();

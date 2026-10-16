@@ -91,8 +91,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
                     + voltageCnec.getState().getInstant().getId()
             );
         }
-        Set<CnecMonitoringResult<?>> voltageCnecMonitoringResults = voltageMonitoringResult.getCnecResults();
-        return voltageCnecMonitoringResults.stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
+        return voltageMonitoringResult.getCnecResult(voltageCnec.getId());
     }
 
     @Override

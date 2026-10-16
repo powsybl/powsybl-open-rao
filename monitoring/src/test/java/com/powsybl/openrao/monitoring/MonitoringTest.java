@@ -57,8 +57,8 @@ class MonitoringTest {
         assertEquals(2, monitoringResult.getCnecResults().size());
         assertEquals(Cnec.SecurityStatus.SECURE, monitoringResult.getStatus());
 
-        assertEquals(4.30, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - preventive")).findFirst().get().getMargin(), 1e-2);
-        assertEquals(1.88, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative3")).findFirst().get().getMargin(), 1e-2);
-        assertTrue(monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative1")).collect(Collectors.toSet()).isEmpty());
+        assertEquals(4.30, monitoringResult.getCnecResult("vc - preventive").get().getMargin(), 1e-2);
+        assertEquals(1.88, monitoringResult.getCnecResult("vc - curative3").get().getMargin(), 1e-2);
+        assertFalse(monitoringResult.getCnecResult("vc - curative1").isPresent());
     }
 }

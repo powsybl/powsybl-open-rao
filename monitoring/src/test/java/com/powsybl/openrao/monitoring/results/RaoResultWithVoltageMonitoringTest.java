@@ -17,6 +17,8 @@ import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,8 +44,7 @@ public class RaoResultWithVoltageMonitoringTest {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         MonitoringResult voltageMonitoringResult = Mockito.mock(MonitoringResult.class);
         VoltageCnecMonitoringResult cnecResult = new VoltageCnecMonitoringResult(voltageCnec, Unit.KILOVOLT, -20., 20.);
-
-        when(voltageMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
+        when(voltageMonitoringResult.getCnecResult("voltage")).thenReturn(Optional.of(cnecResult));
 
         RaoResultWithVoltageMonitoring raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
 
