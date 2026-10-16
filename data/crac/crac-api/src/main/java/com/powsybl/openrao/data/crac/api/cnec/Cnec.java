@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -119,23 +118,9 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * belong to two countries.
      */
     default Set<Country> getLocation(Network network) {
-        switch (this) {
-            case AngleCnec angleCnec -> {
-                Set<Country> locations = new HashSet<>();
-                locations.addAll(CountryLocation.getLocation(network, angleCnec.getExportingNetworkElementId()));
-                locations.addAll(CountryLocation.getLocation(network, angleCnec.getImportingNetworkElementId()));
-                return locations;
-            }
-            case FlowCnec flowCnec -> {
-                return CountryLocation.getLocation(network, flowCnec.getNetworkElementId());
-            }
-            case VoltageCnec voltageCnec -> {
-                return CountryLocation.getLocation(network, voltageCnec.getNetworkElementId());
-            }
-            default -> {
-                return Collections.emptySet();
-            }
-        }
+        Set<Country> locations = new HashSet<>();
+        getNetworkElementsIds().forEach(networkElementId -> locations.addAll(CountryLocation.getLocation(network, networkElementId)));
+        return locations;
     }
 
     /**
