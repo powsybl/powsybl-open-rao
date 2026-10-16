@@ -276,13 +276,13 @@ public class CastorFullOptimization {
                     true);
             context.setWorkingInitialOutput(workingprePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode));
             if (context.getWorkingInitialOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
-                // BUSINESS_LOGS.error("Initial sensitivity analysis in DC failed. Disable performance improvement using DC.");
                 context.setUseWorkingVars(false);
                 context.setWorkingToolProvider(context.getToolProvider());
                 context.setWorkingInitialOutput(context.getInitialOutput());
                 network.getVariantManager().removeVariant(WORKING_SCENARIO);
+                CastorReports.reportCastorInitialDcSensitivityAnalysisFailed(optimizationReportNode);
             } else {
-                CastorReports.reportCastorInitialSensitivityAnalysisResults(optimizationReportNode,
+                CastorReports.reportCastorInitialDcSensitivityAnalysisResults(optimizationReportNode,
                         workingprePerimeterSensitivityAnalysis.getObjectiveFunction(),
                         RemedialActionActivationResultImpl.empty(context.getWorkingInitialOutput()),
                         context.getWorkingInitialOutput(),
