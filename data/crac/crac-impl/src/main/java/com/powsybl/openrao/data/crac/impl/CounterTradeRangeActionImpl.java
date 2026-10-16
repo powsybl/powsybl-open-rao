@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
@@ -25,9 +26,9 @@ import java.util.Set;
  */
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
-    private final String exportingArea;
-    private final String importingArea;
     private final List<StandardRange> ranges;
+    private final String area;
+    private final List<ConnectedArea> connectedAreas;
     private final Double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id,
@@ -40,13 +41,13 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
                                 Integer speed,
                                 Double activationCost,
                                 Map<VariationDirection, Double> variationCosts,
-                                String exportingArea,
-                                String importingArea) {
+                                String area,
+                                List<ConnectedArea> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
-        this.exportingArea = exportingArea;
-        this.importingArea = importingArea;
+        this.area = area;
+        this.connectedAreas = connectedAreas;
     }
 
     @Override
@@ -75,13 +76,13 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public String getExportingArea() {
-        return exportingArea;
+    public String getAreaId() {
+        return area;
     }
 
     @Override
-    public String getImportingArea() {
-        return importingArea;
+    public List<ConnectedArea> getConnectedAreas() {
+        return connectedAreas;
     }
 
     @Override
@@ -106,9 +107,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
-                && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
-                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        return this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
+                && this.area.equals(((CounterTradeRangeAction) o).getAreaId())
+                && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
 
     @Override
@@ -117,7 +118,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
         }
-        hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
+        for (ConnectedArea connectedArea : connectedAreas) {
+            hashCode += 31 * connectedArea.hashCode();
+        }
+        hashCode += 31 * area.hashCode();
         return hashCode;
     }
 }
