@@ -287,6 +287,7 @@ public class CastorFullOptimization {
             if (context.workingInitialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 context.useWorkingVars = false;
                 context.workingToolProvider = context.toolProvider;
+                context.dcRaoParameters = raoParameters;
                 context.workingInitialOutput = context.initialOutput;
                 network.getVariantManager().removeVariant(WORKING_SCENARIO);
                 CastorReports.reportCastorInitialDcSensitivityAnalysisFailed(optimizationReportNode);
