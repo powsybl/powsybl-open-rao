@@ -331,7 +331,6 @@ public class CastorContingencyScenarios {
             .filter(flowCnec -> filteredStates.contains(flowCnec.getState()))
             .collect(Collectors.toSet());
 
-        Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, workingRaoParameters, network);
         Map<RangeAction<?>, Double> rangeActionSetpointMap = crac.getRangeActions(curativeState)
             .stream()
             .collect(Collectors.toMap(rangeAction -> rangeAction, prePerimeterSensitivityOutput::getSetpoint));
@@ -339,7 +338,28 @@ public class CastorContingencyScenarios {
         RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionsResult, new NetworkActionsResultImpl(Map.of()));
 
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+        // the stop-criterion pre-check must be evaluated against base parameters: if it finds nothing to
+        // optimize, its result is reported directly below with no recompute to follow (unlike the working search
+        // below, which does get base-verified) - evaluating it with the workingRaoParameters would
+        // silently report/compare margins in MW instead of A whenever optimize-in-dc is active.
+        ObjectiveFunction acObjectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network),
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            raoParameters,
+            curativePerimeter.getAllStates()
+        );
+        ObjectiveFunctionResult objectiveFunctionResult = acObjectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult, reportNode);
+        boolean stopCriterionReached = CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
+        if (stopCriterionReached) {
+            NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of());
+            return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
+        }
+
+        Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, workingRaoParameters, network);
+        ObjectiveFunction objectiveFunction = workingRaoParameters == raoParameters ? acObjectiveFunction : ObjectiveFunction.build(
             flowCnecs,
             loopFlowCnecs,
             initialSensitivityOutput,
@@ -348,12 +368,6 @@ public class CastorContingencyScenarios {
             workingRaoParameters,
             curativePerimeter.getAllStates()
         );
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult, reportNode);
-        boolean stopCriterionReached = CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
-        if (stopCriterionReached) {
-            NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of());
-            return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
-        }
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(
             curativeState,
