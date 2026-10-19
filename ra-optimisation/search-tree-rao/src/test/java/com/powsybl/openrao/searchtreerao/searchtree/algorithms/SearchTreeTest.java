@@ -31,6 +31,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -217,7 +218,9 @@ class SearchTreeTest {
         when(preventiveInstant.toString()).thenReturn("preventive");
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
-        when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
+        when(toolProvider.getRaoParameters()).thenReturn(Mockito.mock(RaoParameters.class));
+        when(searchTreeInput.getToolProvider()).thenReturn(toolProvider);
         Instant outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
         when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
@@ -788,9 +791,11 @@ class SearchTreeTest {
 
         OptimizationResult result = searchTree.optimizeDecidedNetworkActionCombination(decidedResult, reportNode);
 
-        assertEquals(decidedLeaf, result);
+        // the decided combination could not be verified on this leaf: it is reported as a plain sensitivity
+        // failure instead of returning a leaf that throws on every getter
+        assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus());
         verify(decidedLeaf, never()).optimize(any(), any(), any());
-        verify(decidedLeaf).finalizeOptimization();
+        verify(decidedLeaf, never()).finalizeOptimization();
     }
 
     @Test
