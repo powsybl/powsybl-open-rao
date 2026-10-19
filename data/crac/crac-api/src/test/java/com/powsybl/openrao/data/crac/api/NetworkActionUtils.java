@@ -12,7 +12,6 @@ import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -210,11 +209,6 @@ public final class NetworkActionUtils {
 
         @Override
         public String getName() {
-            return null;
-        }
-
-        @Override
-        public Set<Country> getLocation(Network network) {
             return null;
         }
 

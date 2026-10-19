@@ -230,6 +230,17 @@ class VoltageCnecAdderImplTest {
     }
 
     @Test
+    void testMultipleNetworkElementsFail() {
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageCnecAdder.withNetworkElement("otherNeId"));
+        assertEquals("Cannot add multiple network elements for a voltage cnec.", exception.getMessage());
+    }
+
+    @Test
     void testNoThresholdFail() {
         VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")

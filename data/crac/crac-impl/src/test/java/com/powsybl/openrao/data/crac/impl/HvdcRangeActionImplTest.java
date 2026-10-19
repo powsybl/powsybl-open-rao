@@ -158,6 +158,14 @@ class HvdcRangeActionImplTest {
     }
 
     @Test
+    void testGetNetworkElementsIds() {
+        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+                .add();
+        assertEquals("BBE2AA11 FFR3AA11 1", hvdcRa.getNetworkElementId());
+        assertEquals(Set.of(hvdcRa.getNetworkElementId()), hvdcRa.getNetworkElementsIds());
+    }
+
+    @Test
     void hvdcEquals() {
         HvdcRangeAction hvdcRa1 = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
