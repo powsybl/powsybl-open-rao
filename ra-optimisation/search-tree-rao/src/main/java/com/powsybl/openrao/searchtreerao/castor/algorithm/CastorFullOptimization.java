@@ -598,6 +598,18 @@ public class CastorFullOptimization {
                     statesToOptimize);
             finalResult = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
                 new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), searchTreeParameters, optResult, true, reportNode);
+
+            if (finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                // the DC-decided combination does not even converge once recomputed in AC (e.g. it creates an
+                // electrical island that is solvable in DC but not in AC): ignore the DC decision and search for a
+                // combination directly in AC, which naturally discards candidates that fail to converge
+                CastorReports.reportPreventiveDcDecisionFailedAcVerification(reportNode, optResult.getActivatedNetworkActions().size());
+                SearchTreeParameters acSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(baseToolProvider.getRaoParameters(),
+                    TreeParameters.buildForPreventivePerimeter(baseToolProvider.getRaoParameters()), crac, network,
+                    stateTree.getOperatorsNotSharingCras(), reportNode);
+                finalResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
+                    new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, true, reportNode);
+            }
         }
         applyRemedialActions(network, finalResult, crac.getPreventiveState());
         return finalResult;
