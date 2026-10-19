@@ -44,7 +44,7 @@ public final class RaoUtils {
     public static void buildLoopFlowExtensions(Crac crac, Network network, double loopflowAsPmaxPercentage) {
         if (loopflowAsPmaxPercentage > 0) {
             for (FlowCnec cnec : crac.getFlowCnecs(crac.getPreventiveState())) {
-                Line cnecLine = network.getLine(cnec.getNetworkElement().getId());
+                Line cnecLine = network.getLine(cnec.getNetworkElementId());
 
                 // check if the cnec is cross zonal, if yes, apply loopflowAsPmaxPercentage on it
                 if (cnecLine != null &&

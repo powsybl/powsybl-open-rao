@@ -57,8 +57,8 @@ class SwitchPairImplTest {
                 .withSwitchToClose("NNL3AA11 NNL3AA12 1")
                 .add()
             .add();
-        assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
-        assertEquals(Set.of(switch1, switch2), sp2.getNetworkElements());
+        assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp1.getNetworkElementsIds());
+        assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp2.getNetworkElementsIds());
 
         network.getSwitch(switch1.getId()).setOpen(true);
         network.getSwitch(switch2.getId()).setOpen(false);
@@ -93,8 +93,8 @@ class SwitchPairImplTest {
             .withSwitchToClose("NNL3AA11 NNL3AA12 1")
             .add()
             .add();
-        assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
-        assertEquals(Set.of(switch1, switch2), sp2.getNetworkElements());
+        assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp1.getNetworkElementsIds());
+        assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp2.getNetworkElementsIds());
 
         network.getSwitch(switch1.getId()).setOpen(true);
         network.getSwitch(switch2.getId()).setOpen(false);
