@@ -223,6 +223,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
+
+    @Override
     public RangeActionActivationResult getRangeActionActivationResult() {
         return rangeActionActivationResult;
     }

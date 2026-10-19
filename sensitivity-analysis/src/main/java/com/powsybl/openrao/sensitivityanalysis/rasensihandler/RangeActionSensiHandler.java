@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 /**
@@ -29,14 +26,12 @@ public interface RangeActionSensiHandler {
     void checkConsistency(Network network);
 
     static RangeActionSensiHandler get(RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            return new PstRangeActionSensiHandler(pstRangeAction);
-        } else if (rangeAction instanceof HvdcRangeAction hvdcRangeAction) {
-            return new HvdcRangeActionSensiHandler(hvdcRangeAction);
-        } else if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-            return new InjectionRangeActionSensiHandler(injectionRangeAction);
-        } else {
-            throw new OpenRaoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
-        }
+        return switch (rangeAction) {
+            case PstRangeAction pstRangeAction -> new PstRangeActionSensiHandler(pstRangeAction);
+            case HvdcRangeAction hvdcRangeAction -> new HvdcRangeActionSensiHandler(hvdcRangeAction);
+            case InjectionRangeAction injectionRangeAction -> new InjectionRangeActionSensiHandler(injectionRangeAction);
+            case CounterTradeRangeAction counterTradeRangeAction -> new CounterTradeRangeActionSensiHandler(counterTradeRangeAction);
+            default -> throw new OpenRaoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
+        };
     }
 }

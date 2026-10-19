@@ -16,11 +16,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -46,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getCounterTradeRaSensitivityThreshold;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getHvdcSensitivityThreshold;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstSensitivityThreshold;
@@ -206,6 +203,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                               TwoSides side,
                                               OpenRaoMPConstraint flowConstraint,
                                               RangeActionActivationResult rangeActionActivationResult) {
+        if (rangeAction instanceof CounterTradeRangeAction) {
+            return; // handled by CounterTradeAreaBalanceFiller through the stage variables
+        }
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
         if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
@@ -229,6 +229,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             return sensitivity >= getHvdcSensitivityThreshold(rangeActionParametersExtension);
         } else if (rangeAction instanceof InjectionRangeAction) {
             return sensitivity >= getInjectionRaSensitivityThreshold(rangeActionParametersExtension);
+        } else if (rangeAction instanceof CounterTradeRangeAction) {
+            return sensitivity >= getCounterTradeRaSensitivityThreshold(rangeActionParametersExtension);
         } else {
             throw new OpenRaoException("Type of RangeAction not yet handled by the LinearRao.");
         }
@@ -430,7 +432,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
-                if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
+                if (ra.getId().equals(rangeAction.getId()) || !(ra instanceof CounterTradeRangeAction) && (ra.getNetworkElements().equals(rangeAction.getNetworkElements()))) {
+                    // todo: maybe add also the equality in case the ra is CT and the getArea are the same?
                     rangeActions.add(ra);
                 }
             })
@@ -448,6 +451,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             return rangeActionParameters.getHvdcRAMinImpactThreshold();
         } else if (rangeAction instanceof InjectionRangeAction) {
             return rangeActionParameters.getInjectionRAMinImpactThreshold();
+        } else if (rangeAction instanceof CounterTradeRangeAction) {
+            return rangeActionParameters.getCounterTradeRAMinImpactThreshold();
         } else {
             throw new OpenRaoException("Unexpected type of range action: '%s'.".formatted(rangeAction.getClass().getSimpleName()));
         }

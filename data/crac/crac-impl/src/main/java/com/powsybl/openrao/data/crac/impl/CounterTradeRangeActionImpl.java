@@ -7,46 +7,61 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
+import com.powsybl.openrao.commons.GeneratorOrderingComputer;
+import com.powsybl.openrao.commons.GlskGeneratorAllocation;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
-public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
+public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction>
+        implements CounterTradeRangeAction {
 
     private final String exportingArea;
     private final String importingArea;
+    private final String area;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
+    private Map<String, Map<String, Double>> glsk;
+    private CounterTradeGeneratorOrdering generatorOrdering;
 
-    CounterTradeRangeActionImpl(String id,
-                                String name,
-                                String operator,
-                                String groupId,
-                                Set<UsageRule> usageRules,
-                                List<StandardRange> ranges,
-                                Double initialSetpoint,
-                                Integer speed,
-                                Double activationCost,
-                                Map<VariationDirection, Double> variationCosts,
-                                String exportingArea,
-                                String importingArea) {
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
+                                Double activationCost, Map<VariationDirection, Double> variationCosts,
+                                String exportingArea, String importingArea) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.exportingArea = exportingArea;
         this.importingArea = importingArea;
+        this.area = null;
+        this.glsk = null;
+    }
+
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
+                                Double activationCost, Map<VariationDirection, Double> variationCosts,
+                                String area) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
+        this.ranges = ranges;
+        this.initialSetpoint = initialSetpoint;
+        this.exportingArea = "null";
+        this.importingArea = "null";
+        this.area = area;
+        this.glsk = null;
     }
 
     @Override
@@ -72,6 +87,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.emptySet();
+        // modified instead the method: concatenateNetworkElementsIds.
     }
 
     @Override
@@ -85,13 +101,49 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
+    public String getArea() {
+        return area;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
-        throw new OpenRaoException("Can't apply a counter trade range action on a network");
+        boolean upward = setpoint >= 0;
+        List<GlskGeneratorAllocation> order = upward ? generatorOrdering.upwardOrder() : generatorOrdering.downwardOrder();
+
+        Map<String, Double> dispatch = GeneratorOrderingComputer.computeDispatchQuantity(
+            order, GeneratorOrderingComputer.stageAllocation(order, Math.abs(setpoint)));
+
+        double sign = upward ? 1.0 : -1.0;
+        dispatch.forEach((generatorId, p) -> applyCT(network, generatorId, sign * p));
+    }
+
+    public void applyCT(Network network, String generatorId, double targetSetpoint) {
+        Generator generator = network.getGenerator(generatorId);
+        if (generator != null) {
+            new GeneratorActionBuilder().withId("id")
+                                        .withGeneratorId(generatorId)
+                                        .withActivePowerRelativeValue(false)
+                                        .withActivePowerValue(generator.getTargetP() + targetSetpoint)
+                                        .build()
+                                        .toModification()
+                                        .apply(network, true, ReportNode.NO_OP);
+            return;
+        }
+        // TODO do the same with loads (see: injection range actions)
+
+        if (network.getIdentifiable(generatorId) == null) {
+            throw new OpenRaoException(String.format("Injection %s not found in network", generatorId));
+        } else {
+            throw new OpenRaoException(
+                    String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)",
+                                  generatorId));
+        }
     }
 
     @Override
     public double getCurrentSetpoint(Network network) {
         return 0;
+        // TODO: need to change this or not??
     }
 
     @Override
@@ -106,9 +158,16 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
-                && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
-                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        if (this.exportingArea != null && this.importingArea != null) {
+            return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
+                    && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
+                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        } else if (this.area != null) {
+            return this.area.equals(((CounterTradeRangeAction) o).getArea())
+                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -119,5 +178,70 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
         hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
         return hashCode;
+    }
+
+    @Override
+    public void setGlsk(ZonalData<SensitivityVariableSet> zonalGlsk) {
+        this.glsk = new HashMap<>();
+        this.glsk.put(getArea(), new HashMap<>());
+
+        zonalGlsk.getData(getArea())
+                 .getVariablesById()
+                 .forEach((id, variable) -> glsk.get(getArea()).put(id, variable.getWeight()));
+    }
+
+    @Override
+    public void setGlsk(Network network) {
+        this.glsk = new HashMap<>();
+        String areaId = getArea();
+        this.glsk.put(getArea(), new HashMap<>());
+        this.glsk.put(areaId, computeProportionalShares(network, areaId));
+    }
+
+    private static double pseudoTargetP(Generator generator) {
+        return Math.max(1e-5, Math.abs(generator.getTargetP()));
+    }
+//    static Map<String, String> CODES_BY_COUNTRY = Map.ofEntries(Map.entry("ES", "10YES-REE------0"), Map.entry("FR", "10YFR-RTE------C"), Map.entry("PT", "10YPT-REN------W"));
+//    static Map<String, String> COUNTRY_BY_CODE = Map.ofEntries(Map.entry("10YES-REE------0", "ES"), Map.entry("10YFR-RTE------C", "FR"), Map.entry("10YPT-REN------W", "PT"));
+
+
+    private static Map<String, Double> computeProportionalShares(Network network, String areaId) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(areaId);
+        Area area = network.getArea(areaId);
+        if (area == null) {
+            throw new IllegalArgumentException("Area " + areaId + " not present");
+        }
+        List<Generator> generators = area.getVoltageLevelStream()
+                .flatMap(VoltageLevel::getGeneratorStream)
+                .filter(g -> g.getTerminal().isConnected()
+                        && g.getTerminal().getBusView().getBus() != null
+                        && g.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
+                .toList();
+        double totalP = generators.stream().mapToDouble(CounterTradeRangeActionImpl::pseudoTargetP).sum();
+
+        Map<String, Double> shares = new LinkedHashMap<>();
+        generators.forEach(g -> shares.put(g.getId(), pseudoTargetP(g) / totalP));
+        return shares;
+    }
+
+    public Map<String, Map<String, Double>> getGlsk() {
+        return glsk;
+    }
+
+    public void computeGeneratorOrdering(Network network, double tolerance) {
+        String areaId = getArea();
+        Map<String, Double> weights = getGlsk().get(areaId);
+        this.generatorOrdering = GeneratorOrderingComputer.compute(
+                weights,
+                network,
+                tolerance,
+                getMinAdmissibleSetpoint(0),
+                getMaxAdmissibleSetpoint(0)
+        );
+    }
+
+    public CounterTradeGeneratorOrdering getGeneratorOrdering() {
+        return generatorOrdering;
     }
 }
