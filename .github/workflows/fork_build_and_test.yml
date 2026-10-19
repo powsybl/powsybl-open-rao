@@ -39,7 +39,7 @@ jobs:
         run: mvn --batch-mode -Pjacoco install
 
       - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest' || matrix.jvm == 'graalvm'
+        if: matrix.os != 'ubuntu-latest' || matrix.jvm != 'java'
         run: mvn --batch-mode install
 
       # Fork-PR only: collect build data for the "CI on forks - Sonar analysis" workflow
