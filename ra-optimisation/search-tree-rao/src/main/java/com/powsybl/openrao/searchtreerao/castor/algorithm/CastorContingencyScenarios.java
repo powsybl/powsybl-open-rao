@@ -74,7 +74,6 @@ public class CastorContingencyScenarios {
 
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
-    private static final double COST_EPSILON = 1e-6;
 
     private final Crac crac;
     private final RaoParameters raoParameters;
@@ -350,7 +349,7 @@ public class CastorContingencyScenarios {
             curativePerimeter.getAllStates()
         );
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult, reportNode);
-        boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
+        boolean stopCriterionReached = CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
         if (stopCriterionReached) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of());
             return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
@@ -431,7 +430,7 @@ public class CastorContingencyScenarios {
         result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
             new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, false, reportNode);
 
-        if (!isStopCriterionChecked(result, curativeTreeParameters)) {
+        if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
             // the DC search stopped believing this combination made the perimeter secure, but the AC recompute shows it isn't:
             // exhaust the DC search (ignore the stop criterion) to look for a combination that is actually secure in AC
             CastorReports.reportCurativeStateDcSecureButAcMarginViolation(reportNode, curativeState.getId(), decidedResult.getActivatedNetworkActions().size());
@@ -448,7 +447,7 @@ public class CastorContingencyScenarios {
             result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                 new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), exhaustiveSearchTreeParameters, exhaustedDecidedResult, false, reportNode);
 
-            if (!isStopCriterionChecked(result, curativeTreeParameters)) {
+            if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
                 // DC's own greedy search rejected the network action combination that AC would actually need (DC judged it
                 // as not improving, AC does not): fall back to a genuine AC search for this perimeter as a last resort.
                 // This search needs its own AC-flavored parameters instead of reusing the DC-flavored exhaustiveSearchTreeParameters.
@@ -458,7 +457,7 @@ public class CastorContingencyScenarios {
 
                 result = CastorSearchTreeHelper.searchNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                     new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), acExhaustiveSearchTreeParameters, false, reportNode);
-                if (!isStopCriterionChecked(result, curativeTreeParameters)) {
+                if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
                     CastorReports.reportCurativeStateNoSecureCombinationFoundInAc(reportNode, curativeState.getId(), result.getCost());
                 }
             }
@@ -478,22 +477,5 @@ public class CastorContingencyScenarios {
             stateTree.getOperatorsNotSharingCras(), reportNode);
         searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter, prePerimeterResultPerPerimeter);
         return searchTreeParameters;
-    }
-
-    static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
-        if (result.getVirtualCost() > COST_EPSILON) {
-            return false;
-        }
-        if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < COST_EPSILON) {
-            return true;
-        }
-
-        if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
-            return false;
-        } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return result.getCost() < treeParameters.targetObjectiveValue() + COST_EPSILON;
-        } else {
-            throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
-        }
     }
 }
