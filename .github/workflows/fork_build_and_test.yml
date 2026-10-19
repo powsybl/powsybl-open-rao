@@ -1,4 +1,4 @@
-name: CI on forks
+name: CI on forks - build and tests
 
 on:
   pull_request:

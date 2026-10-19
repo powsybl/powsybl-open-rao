@@ -2,7 +2,7 @@ name: CI on forks - Sonar analysis
 
 on:
   workflow_run:
-    workflows: [CI on forks]
+    workflows: [CI on forks - build and tests]
     types:
       - completed
 
@@ -80,8 +80,9 @@ jobs:
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
-          java-version: 21
-          distribution: 'oracle'
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
 
       - name: Download artifact
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
