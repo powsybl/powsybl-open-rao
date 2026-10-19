@@ -28,18 +28,18 @@ class CastorContingencyScenariosTest {
 
         // if virtual cost positive return false
         when(objectiveFunctionResult.getVirtualCost()).thenReturn(100.);
-        assertFalse(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+        assertFalse(CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
 
         // if purely virtual with null virtual cost, return true
         when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
         when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-Double.MAX_VALUE);
-        assertTrue(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+        assertTrue(CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
 
         // if not purely virtual and stop criterion is MIN_OBJECTIVE return false
         when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
         when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
-        assertFalse(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+        assertFalse(CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
 
         // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is higher than target return false
         when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
@@ -47,7 +47,7 @@ class CastorContingencyScenariosTest {
         when(objectiveFunctionResult.getCost()).thenReturn(-10.);
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(-20.);
-        assertFalse(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+        assertFalse(CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
 
         // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is lower than target return true
         when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
@@ -55,6 +55,6 @@ class CastorContingencyScenariosTest {
         when(objectiveFunctionResult.getCost()).thenReturn(-10.);
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(0.);
-        assertTrue(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+        assertTrue(CastorSearchTreeHelper.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
     }
 }

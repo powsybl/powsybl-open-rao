@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -19,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
@@ -41,8 +43,30 @@ import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeAc
  * given call runs in DC or AC depends entirely on the inputs the caller passes in, not on the method itself.
  */
 final class CastorSearchTreeHelper {
+    private static final double COST_EPSILON = 1e-6;
 
     private CastorSearchTreeHelper() {
+    }
+
+    /**
+     * Shared by {@link CastorContingencyScenarios} and {@link CastorFullOptimization}: whether a result already
+     * satisfies the search's stop criterion (e.g. no need to look for a better network-action combination).
+     */
+    static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
+        if (result.getVirtualCost() > COST_EPSILON) {
+            return false;
+        }
+        if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < COST_EPSILON) {
+            return true;
+        }
+
+        if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
+            return false;
+        } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
+            return result.getCost() < treeParameters.targetObjectiveValue() + COST_EPSILON;
+        } else {
+            throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
+        }
     }
 
     static SearchTreeParameters buildSearchTreeParameters(RaoParameters raoParameters,
