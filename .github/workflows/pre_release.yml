@@ -33,13 +33,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build with Maven
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
-        run: mvn --batch-mode -Pjacoco install
+        run: mvn --batch-mode install
 
       - name: Compile Javadoc with Maven
         run: mvn package
-
-      - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest' || matrix.jvm != 'java'
-        run: mvn --batch-mode install
-
