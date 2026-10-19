@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -30,6 +31,7 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -224,9 +226,16 @@ public class SearchTree {
                     .forEach(ra -> ra.apply(input.getNetwork(), decidedResult.getOptimizedSetpoint(ra, mainState)));
 
             leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+            if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
+                // the decided combination was found on different sensitivities (e.g. DC) and does not converge here:
+                // report it as a plain sensitivity failure instead of returning a leaf that throws on every getter
+                SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, leaf);
+                return new SkippedOptimizationResultImpl(mainState, Set.of(), Set.of(), ComputationStatus.FAILURE,
+                    LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost(input.getToolProvider().getRaoParameters()));
+            }
             // same rule as run(): a leaf whose range actions were left untouched is not optimized once the stop criterion is met
             boolean decidedLeafNotOptimized = decidedResult.getActivatedRangeActions(mainState).isEmpty();
-            if (!leaf.getStatus().equals(Leaf.Status.ERROR) && !(decidedLeafNotOptimized && stopCriterionReached(leaf))) {
+            if (!(decidedLeafNotOptimized && stopCriterionReached(leaf))) {
                 optimizeLeaf(leaf, reportNode);
             }
             leaf.finalizeOptimization();
