@@ -24,7 +24,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -486,8 +485,8 @@ class JsonRetrocompatibilityTest {
         assertNotNull(crac.getFlowCnec("cnec4prevId"));
 
         // check network element
-        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
+        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElementId());
+        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElementId());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
@@ -665,8 +664,8 @@ class JsonRetrocompatibilityTest {
         assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
-        assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-close", switchPair.getSwitchToClose().getId());
+        assertEquals("to-open", switchPair.getSwitchToOpenId());
+        assertEquals("to-close", switchPair.getSwitchToCloseId());
     }
 
     void testContentOfV1Point2Crac(Crac crac) {
@@ -679,10 +678,10 @@ class JsonRetrocompatibilityTest {
         assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
         assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
         assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
-        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeys();
+        Map<String, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeysIds();
         assertEquals(2, networkElementAndKeys.size());
-        assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(1., networkElementAndKeys.get("generator1Id"), 1e-3);
+        assertEquals(-1., networkElementAndKeys.get("generator2Id"), 1e-3);
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
@@ -717,8 +716,8 @@ class JsonRetrocompatibilityTest {
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertNotNull(angleCnec);
 
-        assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
-        assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
+        assertEquals("eneId", angleCnec.getExportingNetworkElementId());
+        assertEquals("ineId", angleCnec.getImportingNetworkElementId());
         assertEquals(curativeInstant, angleCnec.getState().getInstant());
         assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
         assertFalse(angleCnec.isOptimized());
@@ -759,7 +758,7 @@ class JsonRetrocompatibilityTest {
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         assertNotNull(voltageCnec);
 
-        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
+        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElementId());
         assertEquals(curativeInstant, voltageCnec.getState().getInstant());
         assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
         assertFalse(voltageCnec.isOptimized());

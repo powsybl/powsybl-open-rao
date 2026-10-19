@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -166,11 +165,11 @@ public final class IteratingLinearOptimizer {
             .collect(Collectors.toSet());
 
         for (NetworkAction action : acEmulationDeactivationActions) {
-            for (NetworkElement hvdcLine : action.getNetworkElements()) {
+            for (String hvdcLineId : action.getNetworkElementsIds()) {
                 Map<State, Set<HvdcRangeAction>> hvdcRangeActionsPerState =
                     getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
                         input.optimizationPerimeter().getRangeActionsPerState(),
-                        hvdcLine.getId()
+                        hvdcLineId
                     );
 
                 hvdcRangeActionsPerState.forEach((state, hvdcRangeActions) ->
