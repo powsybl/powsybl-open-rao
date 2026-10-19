@@ -148,7 +148,7 @@ jobs:
         working-directory: ./powsybl-openrao
 
       - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
