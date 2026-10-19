@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -80,6 +81,8 @@ class InjectionRangeActionImplTest {
         assertEquals(0.2, ira.getInjectionDistributionKeysIds().get("BBE3AA1 _load"));
         assertEquals(0.3, ira.getInjectionDistributionKeysIds().get("FFR2AA1 _generator"));
         assertEquals(0.5, ira.getInjectionDistributionKeysIds().get("NNL3AA1 _load"));
+
+        assertEquals(Set.of("BBE3AA1 _load", "FFR2AA1 _generator", "NNL3AA1 _load"), ira.getNetworkElementsIds());
 
         // set to 100 MW
         ira.apply(network, 100.);
