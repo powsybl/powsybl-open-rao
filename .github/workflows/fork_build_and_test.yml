@@ -57,9 +57,11 @@ jobs:
             */target/classes
             */*/target/classes
             */*/*/target/classes
+            */*/*/*/target/classes
             */target/generated-sources
             */*/target/generated-sources
             */*/*/target/generated-sources
+            */*/*/*/target/generated-sources
             distribution/target/dependency
             distribution/target/site/jacoco-aggregate/jacoco.xml
 
