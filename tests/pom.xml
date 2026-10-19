@@ -8,7 +8,6 @@
         <version>7.4.0-SNAPSHOT</version>
     </parent>
     <properties>
-        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
     <modelVersion>4.0.0</modelVersion>
@@ -31,30 +30,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-assembly-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>package-jar-with-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>jar-with-dependencies.xml</descriptor>
-                            </descriptors>
-                            <archive>
-                                <manifest>
-                                    <mainClass>io.cucumber.core.cli.Main</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
