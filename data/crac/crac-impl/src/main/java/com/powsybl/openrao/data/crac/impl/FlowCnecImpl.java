@@ -63,7 +63,12 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public NetworkElement getNetworkElement() {
-        return getNetworkElements().iterator().next();
+        return networkElements.iterator().next();
+    }
+
+    @Override
+    public String getNetworkElementId() {
+        return networkElements.iterator().next().getId();
     }
 
     @Override
@@ -172,7 +177,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     public boolean isConnected(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(getNetworkElement().getId());
+        Identifiable<?> identifiable = network.getIdentifiable(getNetworkElementId());
         if (identifiable instanceof Connectable) {
             Connectable<?> connectable = (Connectable<?>) identifiable;
             return connectable.getTerminals().stream().allMatch(Terminal::isConnected);
@@ -190,7 +195,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
-        Branch<?> branch = network.getBranch(getNetworkElement().getId());
+        Branch<?> branch = network.getBranch(getNetworkElementId());
         if (getMonitoredSides().size() == 2) {
             return new FlowCnecValue(getFlow(branch, TwoSides.ONE, unit), getFlow(branch, TwoSides.TWO, unit));
         } else {

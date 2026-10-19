@@ -22,7 +22,7 @@ public class HvdcRangeActionSerializer extends AbstractJsonSerializer<HvdcRangeA
     public void serialize(HvdcRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         StandardRangeActionSerializer.serializeCommon(value, gen);
-        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
+        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, value.getNetworkElementId());
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }

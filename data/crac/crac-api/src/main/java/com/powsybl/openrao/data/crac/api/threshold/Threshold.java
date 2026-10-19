@@ -19,8 +19,10 @@ import java.util.Optional;
  * A threshold defines the bounds between which the {@link PhysicalParameter} of a {@link Cnec}
  * should ideally remains.
  *
+ * @deprecated since 7.4.0, this interface is deprecated and will soon be removed.
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@Deprecated(since = "7.4.0")
 public interface Threshold {
 
     /**

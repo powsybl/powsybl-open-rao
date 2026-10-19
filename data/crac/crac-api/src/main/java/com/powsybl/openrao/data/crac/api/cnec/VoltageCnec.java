@@ -24,13 +24,24 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
 
     /**
      * Getter of the {@link NetworkElement} of the monitored VoltageLevel.
+     *
+     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getNetworkElement();
+
+    /**
+     * Getter of the network element of the monitored VoltageLevel.
+     */
+    String getNetworkElementId();
 
     /**
      * Getter of the {@link Threshold}s that the {@link PhysicalParameter} of this {@code VoltageCnec}
      * should ideally meet.
+     *
+     * @deprecated since 7.4.0, use {@link #getUpperBound(Unit)} and/or {@link #getLowerBound(Unit)} instead.
      */
+    @Deprecated(since = "7.4.0")
     Set<Threshold> getThresholds();
 
     /**
