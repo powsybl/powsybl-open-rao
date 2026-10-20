@@ -215,8 +215,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (instant.isAuto() && instant.getOrder() != 2) {
             throw new OpenRaoException("Only one auto instant is allowed and it must occur between outage and curative instants");
         }
+
         lastInstantAdded = instant;
         instants.put(instantId, instant);
+
+        // Create by default the preventive state when the preventive instant is created
+        if (instant.isPreventive()) {
+            addPreventiveState();
+        }
+
         return this;
     }
 
@@ -577,7 +584,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
         Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
         Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElementId()).collect(Collectors.toSet());
-        Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        // do not remove preventive state
+        Set<String> statesToRemove = flowCnecsToRemove.stream().filter(cnec -> !cnec.getState().isPreventive()).map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         flowCnecsToRemove.forEach(flowCnecToRemove ->
             flowCnecs.remove(flowCnecToRemove.getId())
         );

@@ -693,4 +693,19 @@ class CracImportExportTest {
         assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.",
             logsList.get(0).getFormattedMessage());
     }
+
+    @Test
+    void testNoPreventiveCnecOrRemedialAction() throws IOException {
+        // Check that even if the CRAC does not contain any preventive CNEC or RA, a preventive state is still created.
+        Network network = Network.read(
+            "3Nodes_FFR3AA1_disconnected.xiidm",
+            getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+        );
+        Crac crac = Crac.read(
+            "crac_no_preventive.json",
+            getClass().getResourceAsStream("/crac_no_preventive.json"),
+            network
+        );
+        assertNotNull(crac.getPreventiveState());
+    }
 }
