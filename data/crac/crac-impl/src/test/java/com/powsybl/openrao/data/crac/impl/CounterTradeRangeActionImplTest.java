@@ -48,8 +48,8 @@ class CounterTradeRangeActionImplTest {
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
-                .withExportingArea("FR")
-                .withImportingArea("DE")
+                .withAreaId("FR")
+                .withInitialSetpoint(0d)
                 .add();
         assertTrue(counterTradeRangeAction.getNetworkElementsIds().isEmpty());
     }
