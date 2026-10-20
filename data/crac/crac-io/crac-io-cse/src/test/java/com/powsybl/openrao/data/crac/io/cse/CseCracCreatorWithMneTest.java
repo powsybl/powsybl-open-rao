@@ -132,12 +132,12 @@ class CseCracCreatorWithMneTest {
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));
         assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
         assertEquals(instant, flowCnec.getState().getInstant());
-        assertEquals(flowCnec.getNetworkElement().getId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
+        assertEquals(flowCnec.getNetworkElementId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
-            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElementId());
         } else {
-            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElementId());
         }
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
@@ -169,9 +169,9 @@ class CseCracCreatorWithMneTest {
         assertTrue(flowCnec.getState().isPreventive());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
-            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElementId());
         } else {
-            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElementId());
         }
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);

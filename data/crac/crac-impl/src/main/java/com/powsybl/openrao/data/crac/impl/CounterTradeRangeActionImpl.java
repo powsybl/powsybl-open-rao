@@ -76,6 +76,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
+    public Set<String> getNetworkElementsIds() {
+        return Collections.emptySet();
+    }
+
+    @Override
     public String getAreaId() {
         return area;
     }

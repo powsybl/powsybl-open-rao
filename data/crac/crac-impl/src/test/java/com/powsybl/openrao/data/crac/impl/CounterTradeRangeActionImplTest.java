@@ -24,6 +24,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -39,6 +40,18 @@ class CounterTradeRangeActionImplTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+    }
+
+    @Test
+    void testGetNetworkElementsIds() {
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
+                .withId("counterTradeRangeAction")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+                .withExportingArea("FR")
+                .withImportingArea("DE")
+                .add();
+        assertTrue(counterTradeRangeAction.getNetworkElementsIds().isEmpty());
     }
 
     @Test

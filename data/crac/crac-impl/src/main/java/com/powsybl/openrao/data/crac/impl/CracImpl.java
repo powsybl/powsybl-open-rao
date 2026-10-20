@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
@@ -135,13 +134,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     private Set<String> getReferencedNetworkElementIds() {
         Set<String> referencedNetworkElementIds = new HashSet<>();
-        referencedNetworkElementIds.addAll(getCnecs().stream()
-                .map(c -> (Cnec<?>) c)
-                .flatMap(c -> c.getNetworkElements().stream().map(NetworkElement::getId))
-                .collect(Collectors.toSet()));
-        referencedNetworkElementIds.addAll(getRemedialActions().stream()
-                .flatMap(remedialAction -> remedialAction.getNetworkElements().stream().map(NetworkElement::getId))
-                .collect(Collectors.toSet()));
+        getCnecs().forEach(cnec -> referencedNetworkElementIds.addAll(((Cnec<?>) cnec).getNetworkElementsIds()));
+        getRemedialActions().forEach(remedialAction -> referencedNetworkElementIds.addAll(remedialAction.getNetworkElementsIds()));
         return referencedNetworkElementIds;
     }
 
@@ -221,8 +215,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (instant.isAuto() && instant.getOrder() != 2) {
             throw new OpenRaoException("Only one auto instant is allowed and it must occur between outage and curative instants");
         }
+
         lastInstantAdded = instant;
         instants.put(instantId, instant);
+
+        // Create by default the preventive state when the preventive instant is created
+        if (instant.isPreventive()) {
+            addPreventiveState();
+        }
+
         return this;
     }
 
@@ -582,8 +583,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
         Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
-        Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElementId()).collect(Collectors.toSet());
+        // do not remove preventive state
+        Set<String> statesToRemove = flowCnecsToRemove.stream().filter(cnec -> !cnec.getState().isPreventive()).map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         flowCnecsToRemove.forEach(flowCnecToRemove ->
             flowCnecs.remove(flowCnecToRemove.getId())
         );
@@ -599,8 +601,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeAngleCnecs(Set<String> angleCnecsIds) {
         Set<AngleCnec> angleCnecsToRemove = angleCnecsIds.stream().map(angleCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = angleCnecsToRemove.stream().map(Cnec::getNetworkElements)
-            .flatMap(Set::stream).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = angleCnecsToRemove.stream().map(Cnec::getNetworkElementsIds)
+            .flatMap(Set::stream).collect(Collectors.toSet());
         Set<String> statesToRemove = angleCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         angleCnecsToRemove.forEach(angleCnecToRemove ->
             angleCnecs.remove(angleCnecToRemove.getId())
@@ -617,7 +619,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeVoltageCnecs(Set<String> voltageCnecsIds) {
         Set<VoltageCnec> voltageCnecsToRemove = voltageCnecsIds.stream().map(voltageCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = voltageCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = voltageCnecsToRemove.stream().map(VoltageCnec::getNetworkElementId).collect(Collectors.toSet());
         Set<String> statesToRemove = voltageCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         voltageCnecsToRemove.forEach(voltageCnecToRemove ->
             voltageCnecs.remove(voltageCnecToRemove.getId())
@@ -795,7 +797,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return;
         }
 
-        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElementsIds();
         Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         pstRangeActions.remove(id);
@@ -811,7 +813,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return;
         }
 
-        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElementsIds();
         Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         hvdcRangeActions.remove(id);
@@ -828,7 +830,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return;
         }
 
-        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElementsIds();
         Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         injectionRangeActions.remove(id);
@@ -887,7 +889,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return;
         }
 
-        Set<String> associatedNetworkElementsIds = networkActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedNetworkElementsIds = networkActionToRemove.getNetworkElementsIds();
         Set<String> associatedStatesIds = getAssociatedStates(networkActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         networkActions.remove(id);

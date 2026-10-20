@@ -29,7 +29,6 @@ import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -287,8 +286,8 @@ class CracImportExportTest {
         // ----------------------
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertNotNull(angleCnec);
-        assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
-        assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
+        assertEquals("eneId", angleCnec.getExportingNetworkElementId());
+        assertEquals("ineId", angleCnec.getImportingNetworkElementId());
         assertEquals(curativeInstant, angleCnec.getState().getInstant());
         assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
         assertFalse(angleCnec.isOptimized());
@@ -302,7 +301,7 @@ class CracImportExportTest {
         // ----------------------
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         assertNotNull(voltageCnec);
-        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
+        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElementId());
         assertEquals(curativeInstant, voltageCnec.getState().getInstant());
         assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
         assertFalse(voltageCnec.isOptimized());
@@ -368,20 +367,10 @@ class CracImportExportTest {
         assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
         assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
         assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
-        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeys();
+        Map<String, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeysIds();
         assertEquals(2, networkElementAndKeys.size());
-        assertEquals(1.,
-            networkElementAndKeys.entrySet().stream()
-                .filter(e -> e.getKey().getId().equals("generator1Id"))
-                .findAny().orElseThrow()
-                .getValue(),
-            1e-3);
-        assertEquals(-1.,
-            networkElementAndKeys.entrySet().stream()
-                .filter(e -> e.getKey().getId().equals("generator2Id"))
-                .findAny().orElseThrow()
-                .getValue(),
-            1e-3);
+        assertEquals(1., networkElementAndKeys.get("generator1Id"), 1e-3);
+        assertEquals(-1., networkElementAndKeys.get("generator2Id"), 1e-3);
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
@@ -616,8 +605,8 @@ class CracImportExportTest {
         assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
-        assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-close", switchPair.getSwitchToClose().getId());
+        assertEquals("to-open", switchPair.getSwitchToOpenId());
+        assertEquals("to-close", switchPair.getSwitchToCloseId());
     }
 
     private static void testFlowCnecs(Crac crac, Instant preventiveInstant, Instant curativeInstant, Instant autoInstant) {
@@ -631,8 +620,8 @@ class CracImportExportTest {
         assertNotNull(crac.getFlowCnec("cnec4prevId"));
 
         // check network element
-        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
+        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElementId());
+        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElementId());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
@@ -762,5 +751,20 @@ class CracImportExportTest {
         assertEquals(1, logsList.size());
         assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.",
             logsList.get(0).getFormattedMessage());
+    }
+
+    @Test
+    void testNoPreventiveCnecOrRemedialAction() throws IOException {
+        // Check that even if the CRAC does not contain any preventive CNEC or RA, a preventive state is still created.
+        Network network = Network.read(
+            "3Nodes_FFR3AA1_disconnected.xiidm",
+            getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+        );
+        Crac crac = Crac.read(
+            "crac_no_preventive.json",
+            getClass().getResourceAsStream("/crac_no_preventive.json"),
+            network
+        );
+        assertNotNull(crac.getPreventiveState());
     }
 }

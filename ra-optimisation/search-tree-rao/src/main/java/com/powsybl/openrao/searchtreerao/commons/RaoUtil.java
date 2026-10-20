@@ -320,7 +320,7 @@ public final class RaoUtil {
 
             if (previousUsageStateOptional.isPresent()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds()))
                     .findAny();
 
                 if (correspondingRa.isPresent()) {
