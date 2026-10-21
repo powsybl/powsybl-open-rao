@@ -6,8 +6,8 @@ OpenRAO has a monitoring module that can be used apart from the RAO to monitor A
 
 In the [OpenRAO CRAC](../input-data/crac/json.md), the user can define angle or/and voltage constraints on network elements.  
 These are constraints that ensure that the angle/voltage values on given network elements do not exceed a given threshold.  
-OpenRAO allows modelling these constraints in [VoltageCnec](../input-data/crac/json.md#voltage-cnecs) and [AngleCnec](../input-data/crac/json.md#angle-cnecs) objects.  
-However, modelling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
+OpenRAO allows modeling these constraints in [VoltageCnec](../input-data/crac/json.md#voltage-cnecs) and [AngleCnec](../input-data/crac/json.md#angle-cnecs) objects.  
+However, modeling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
 does not inherently support  angle/voltage constraints.  
 The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring)
 package allows monitoring angle/voltage values after a RAO has been run.
@@ -57,7 +57,7 @@ With:
   your computing resources (set it to your number of available CPUs).
 - monitoringInput as built above in step 1.
 
-Here is a complete example while augmenting rao result by voltage monitoring result then augmenting the outcome by angle monitoring result:
+Here is a complete example while augmenting RAO result by voltage monitoring result then augmenting the outcome by angle monitoring result:
 
 ~~~java
 Crac crac = ...
@@ -102,7 +102,7 @@ Here is a detailed description of how the monitoring algorithm operates:
           Angle in degrees = 180 / pi * (max(angle on buses of exporting voltage level) - min(angle on buses of importing voltage level))
         - If PhysicalParameter is VOLTAGE: voltage values are the min and max voltages on the voltage level buses
     - Compare the angles/voltages to their thresholds.
-    - Compute and save each cnec security status (SECURE, HIGH_CONSTRAINT, LOW_CONSTRAINT, HIGH_AND_LOW_CONSTRAINTS, FAILURE) depending on the position of the angle/voltage value(s) regarding the Angle/Voltage Thresholds
+    - Compute and save each CNEC security status (SECURE, HIGH_CONSTRAINT, LOW_CONSTRAINT, HIGH_AND_LOW_CONSTRAINTS, FAILURE) depending on the position of the angle/voltage value(s) regarding the Angle/Voltage Thresholds
     - For the Angle/Voltage Cnecs that have an angle/voltage overshoot (negative margin), get the associated remedial actions
         - If the Angle/Voltage Cnec has no associated RA, then the constraint cannot be remedied: move on to the next Angle/Voltage Cnec.
         - If the state is preventive, do not apply any PRA (it would be incoherent with the RAO results). Move on to the next state.
@@ -118,7 +118,7 @@ Here is a detailed description of how the monitoring algorithm operates:
             - the angles of the Angle/Voltage Cnecs equal to what was computed in step **(1)**
             - no applied remedial actions
             - security FAILURE
-        - If it converges Re-compute all angle/voltage values and create a Cnec result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new cnec status after comparing the new angle/voltage value(s) to their thresholds
+        - If it converges Re-compute all angle/voltage values and create a Cnec result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new CNEC status after comparing the new angle/voltage value(s) to their thresholds
 - Assemble all the Angle/Voltage Cnec results in one overall result
 
 ![Monitoring algorithm](../_static/img/monitoring-algorithm.png){.forced-white-background}

@@ -194,7 +194,7 @@ crac.newFlowCnec()
 
 #### Add a preventive PST range action
 
-Let us add preventive a [PST range action](../input-data/crac/json.md#range-actions). For simplicity's sake, it is
+Let us add a preventive [PST range action](../input-data/crac/json.md#range-actions). For simplicity's sake, it is
 easier to rely on an `IidmPstHelper` which fetches the PST's information in the network to create the remedial action.
 
 ```java
@@ -218,7 +218,7 @@ crac.newPstRangeAction()
 
 #### Add a curative terminals connection action
 
-We can finish by adding a terminals connection action to the CRAC, which consists in connecting lines _NNL2AA1 BBE3AA1 2_ and
+We can finish by adding a terminals connection action to the CRAC, which consists of connecting lines _NNL2AA1 BBE3AA1 2_ and
 _NNL2AA1 BBE3AA1 3_ (both parallel to _NNL2AA1 BBE3AA1 1_) to the rest of the network.
 
 ```java
@@ -304,12 +304,12 @@ RAO's behavior.
 
 As presented earlier, the whole electricity production (1000 MW) in the network is located at node _NNL1AA1_. The flow
 is divided evenly among lines _NNL2AA1 BBE3AA1 1_ and _DDE2AA1 NNL3AA1 1_. The consumption (1000 MW as well) is entirely
-locate at node _FFR1AA1_.
+located at node _FFR1AA1_.
 
 ![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
 However, the PATL of line _NNL2AA1 BBE3AA1 1_ is set to 410 MW which is below the current 500 MW flow on the line. Thus,
-remedial actions must be applied to solve this base case issue. In The CRAC, we only defined one preventive remedial
+remedial actions must be applied to solve this base case issue. In the CRAC, we only defined one preventive remedial
 action which is the PST range action. By changing the PST's tap, we can change the line's impedance and thus modify the
 flow.
 
@@ -354,7 +354,7 @@ Limiting element #01: margin = 0.00 MW, element NNL2AA1  BBE3AA1  1 at state con
 Indeed, the flow on line _NNL2AA1 BBE3AA1 1_ is equal to the TATL which is equivalent to a zero margin. As the TATL can
 only hold for a limited period of time, curative remedial actions must be applied to bring back the flow under the PATL.
 
-### Curative optimisation
+### Curative optimization
 
 The RAO will now try applying the curative remedial action we defined in the CRAC, to bring the flow on line
 _NNL2AA1 BBE3AA1 1_ back under the 410 MW PATL. This curative remedial action is a terminals connection action that closes lines
@@ -446,7 +446,7 @@ public class Main {
       String networkFilename = "12Nodes.uct";
       Network network = Network.read(networkFilename, Main.class.getResourceAsStream("/%s".formatted(networkFilename)));
 
-      // Initialise CRAC
+      // Initialize CRAC
       Crac crac = CracFactory.findDefault().create("crac");
 
       // Create instants

@@ -1,8 +1,8 @@
 # Business parameters
 
-## Rao parameters
+## RAO parameters
 
-RAO parameters to tune the RAO (not implementation specific).
+RAO parameters to tune the RAO (not implementation-specific).
 
 ### Objective function parameters
 
@@ -24,7 +24,7 @@ These parameters (objective-function) configure the remedial action optimization
   - "MAX_MIN_RELATIVE_MARGIN"
   - "MIN_COST"
 - **Default value**: "SECURE_FLOW"
-- **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
+- **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective functions are:
   - **SECURE_FLOW**: The search-tree will stop as soon as it finds a solution where the minimum margin is positive.
   - **MAX_MIN_MARGIN**: the search-tree will maximize the minimum margin until it converges to a
     maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](implementation-specific-parameters.md#max-preventive-search-tree-depth)).
@@ -43,37 +43,37 @@ These parameters (objective-function) configure the remedial action optimization
   *Note: Only applied when ["type"](#type) is set to SECURE_FLOW. In this case, if preventive was unsecure,
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
-### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](../algorithms/castor/linear-problem.md) used to optimise range actions.  
-(See [Modelling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
+### Range actions optimization parameters
+These parameters (range-actions-optimization) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
+(See [Modeling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 #### pst-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
 - **Default value**: 0.01
 - **Usage**: the pst-ra-min-impact-threshold represents the cost of changing the PST set-points, it is used within the linear
-  optimisation problem of the RAO, where, for each PST, the following term is added to the objective function: 
+  optimization problem of the RAO, where, for each PST, the following term is added to the objective function: 
   $pst\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |\alpha - \alpha_{0}|$, where $\alpha$ is the optimized angle of the PST, and 
   $\alpha_{0}$ the angle in its initial position.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst-ra-min-impact-threshold will favour
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst-ra-min-impact-threshold will favor
   the ones with the PST taps the closest to the initial situation.  
 
 #### hvdc-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the hvdc-ra-min-impact-threshold represents the cost of changing the HVDC set-points, it is used within the linear
-  optimisation problem of the RAO, where, for each HVDC, the following term is added to the objective function: 
+  optimization problem of the RAO, where, for each HVDC, the following term is added to the objective function: 
   $hvdc\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |P - P_{0}|$, where $P$ is the optimized target power of the HVDC, and $P_{0}$ the initial target
   power.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc-ra-min-impact-threshold will favour
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc-ra-min-impact-threshold will favor
   the ones with the HVDC set-points the closest to the initial situation.
 
 #### injection-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the injection-ra-min-impact-threshold represents the cost of changing the injection set-points, it is used within the linear
-  optimisation problem of the RAO, in the same way as the two types of RangeAction above.
+  optimization problem of the RAO, in the same way as the two types of RangeAction above.
 
-### Network actions optimisation parameters
+### Network actions optimization parameters
 These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm) 
 when searching for the best network actions.
 
@@ -95,9 +95,9 @@ when searching for the best network actions.
   topological action improves the objective function by $x$, with $x < solution(depth(n)) \times relative\text{-}minimum\text{-}impact\text{-}threshold$, 
   it will not be retained by the search-tree.
 
-### CNECs that should not be optimised
+### CNECs that should not be optimized
 These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
-optimisation of specific CNECs in specific conditions.
+optimization of specific CNECs in specific conditions.
 
 #### do-not-optimize-curative-cnecs-for-tsos-without-cras
 - **Expected value**: true/false
@@ -113,17 +113,17 @@ optimisation of specific CNECs in specific conditions.
 ### Loop-flow optional parameter
 Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
-The following parameters tune some of these constraints, the one which are not implementation specific. 
-See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
+The following parameters tune some of these constraints, the ones that are not implementation-specific. 
+See also: [Modeling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
 
 #### acceptable-increase
 - **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 0.0 MW / 0.0 A
-- **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
+- **Usage**: the increase of the initial loop-flow that is allowed by the optimization. That is to say, the optimization
   bounds the loop-flow on CNECs by:  
   *LFcnec ≤ max(MaxLFcnec , InitLFcnec + acceptableAugmentation)*  
-  With *LFcnec* the loop-flow on the CNEC after optimisation, *MaxLFcnec* is the CNEC loop-flow threshold, *InitLFcnec*
-  the initial loop-flow on the cnec, and *acceptableAugmentation* the so-called "loop-flow-acceptable-augmentation"
+  With *LFcnec* the loop-flow on the CNEC after optimization, *MaxLFcnec* is the CNEC loop-flow threshold, *InitLFcnec*
+  the initial loop-flow on the CNEC, and *acceptableAugmentation* the so-called "loop-flow-acceptable-augmentation"
   coefficient.  
   If this constraint cannot be respected and the loop-flow exceeds the aforementioned threshold, the objective function
   associated to this situation will be penalized (see also [violation-cost](implementation-specific-parameters.md#violation-cost))
@@ -141,16 +141,16 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
 
 Adding a MnecParameters to RaoParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
-The following parameters tune some of these constraints, the one which are not implementation specific.
+The following parameters tune some of these constraints, the ones that are not implementation-specific.
 
 #### acceptable-margin-decrease
 
 - **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 50 MW (required by CORE CC methodology) / Ampere
-- **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
+- **Usage**: the decrease of the initial margin that is allowed by the optimization on MNECs.  
   In other words, it defines the bounds for the margins on the MNECs by  
   *Mcnec ≥ max(0, m0cnec − acceptableDiminution)*  
-  With *Mcnec* the margin on the cnec after optimisation, *m0cnec* the initial margin on the cnec, and
+  With *Mcnec* the margin on the CNEC after optimization, *m0cnec* the initial margin on the CNEC, and
   *acceptableDiminution* the so-called "acceptable-margin-decrease" coefficient.  
   For the CORE CC calculation, the ACER methodology fixes this coefficient at 50 MW.  
   For CSE CC calculation, setting this parameter to -99999 allows the MNEC constraints to consider
@@ -158,24 +158,24 @@ The following parameters tune some of these constraints, the one which are not i
 
 ### Relative margins optional parameter
 Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
-The following parameters tune some constraints, the one which are not implementation specific.
-See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
+The following parameters tune some constraints, the ones that are not implementation-specific.
+See also: [Modeling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
 #### ptdf-boundaries
 - **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  
   Zones are defined by their 2-character code or their 16-character EICode, inside **{ }** characters.  
-  Zones are seperated by + or -.  
+  Zones are separated by + or -.  
   All combinations are allowed: country codes, EIC, a mix.
 - **Default value**: empty array
 - **Usage**: contains the boundaries on which the PTDF absolute sums should be computed (and added to the denominator of
   the relative RAM).  
   For example, in the SWE case, it should be equal to [ "{FR}-{ES}", "{ES}-{PT}" ].  
-  For CORE, we should use all the CORE region boundaries (all countries seperated by a - sign) plus Alegro's special
+  For CORE, we should use all the CORE region boundaries (all countries separated by a - sign) plus Alegro's special
   equation: "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"
 
 ## Examples
 > ⚠️  **NOTE**  
-> The following examples in json and yaml are not equivalent
+> The following examples in JSON and YAML are not equivalent
 
 ::::{tabs}
 :::{group-tab} JSON
