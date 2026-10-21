@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -51,7 +51,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
 
     private final String loadFlowProvider;
     private final LoadFlowRunParameters loadFlowRunParameters;
-    Map<PhysicalParameter, Unit> parameterToUnitMap = new EnumMap<>(PhysicalParameter.class);
+    private final Map<PhysicalParameter, Unit> parameterToUnitMap = new EnumMap<>(PhysicalParameter.class);
 
     protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
@@ -166,7 +166,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             try {
                 applyContingency(networkClone, state);
             } catch (OpenRaoException e) {
-                return makeFailedMonitoringResultForStateWithNaNCnecRsults(
+                return makeFailedMonitoringResultForStateWithNaNCnecResults(
                     crac,
                     physicalParameter,
                     state,
@@ -215,7 +215,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         boolean lfSuccess = computeLoadFlow(network, loadFlowProvider, loadFlowRunParameters);
         if (!lfSuccess) {
             String failureReason = String.format("Load flow computation failed at state %s. Skipping this state.", state);
-            return makeFailedMonitoringResultForStateWithNaNCnecRsults(crac, physicalParameter, state, failureReason);
+            return makeFailedMonitoringResultForStateWithNaNCnecResults(crac, physicalParameter, state, failureReason);
         }
 
         // Fill monitoringResult
@@ -291,6 +291,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             return null;
         } catch (Exception e) {
             String failureReason = String.format("Unable to apply remedial actions at state %s", state.getId());
+            TECHNICAL_LOGS.error("Unable to apply remedial actions at state {}", state.getId(), e);
             return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
         }
 
@@ -325,7 +326,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
         return loadFlowResult.isFullyConverged();
     }
 
-    private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {
+    private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecResults(Crac crac, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecMonitoringResult<?>> cnecMonitoringResults = new HashSet<>();
         getCnecs(crac, state).stream()
             .filter(cnec -> cnec.getPhysicalParameter() == physicalParameter)

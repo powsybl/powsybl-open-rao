@@ -92,11 +92,11 @@ public class VoltageCnecMonitoringResultTest {
         // margin
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
         VoltageCnecMonitoringResult voltageCnecResult1 = new VoltageCnecMonitoringResult(cnec, Unit.KILOVOLT, networkMock1);
-        assertEquals(100., voltageCnecResult1.getMargin(), DOUBLE_TOLERANCE); // bound: 500 MW
+        assertEquals(100., voltageCnecResult1.getMargin(), DOUBLE_TOLERANCE); // margin = 500 - 400
 
         Network networkMock2 = mockBusVoltagesInNetwork("networkElement", -300.);
         VoltageCnecMonitoringResult voltageCnecResult2 = new VoltageCnecMonitoringResult(cnec, Unit.KILOVOLT, networkMock2);
-        assertEquals(800., voltageCnecResult2.getMargin(), DOUBLE_TOLERANCE); // bound: 760 A
+        assertEquals(800., voltageCnecResult2.getMargin(), DOUBLE_TOLERANCE); // margin = 500 - (-300)
     }
 
     @Test

@@ -13,7 +13,15 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -93,13 +101,13 @@ public class MonitoringResult {
     // Add synchronized in the signature to make the function blocking
     // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
     public synchronized void combine(MonitoringResult monitoringResult) {
-        if (!Collections.disjoint(this.cnecMonitoringResultsPerCnecId.keySet(), monitoringResult.getCnecMonitoringResultsPerCnecId().keySet())) {
+        if (!Collections.disjoint(this.cnecMonitoringResultsPerCnecId.keySet(), monitoringResult.cnecMonitoringResultsPerCnecId.keySet())) {
             throw new OpenRaoException(String.format("Can't combine monitoring result because some CNEC present two different monitoring result"));
 
         }
 
         Map<String, CnecMonitoringResult<?>> thisCnecMonitoringResultsPerCnecId = new HashMap<>(cnecMonitoringResultsPerCnecId);
-        thisCnecMonitoringResultsPerCnecId.putAll(monitoringResult.getCnecMonitoringResultsPerCnecId());
+        thisCnecMonitoringResultsPerCnecId.putAll(monitoringResult.cnecMonitoringResultsPerCnecId);
         this.cnecMonitoringResultsPerCnecId = thisCnecMonitoringResultsPerCnecId;
 
         Map<State, Set<RemedialAction<?>>> thisAppliedRas = new HashMap<>(this.getAppliedRas());

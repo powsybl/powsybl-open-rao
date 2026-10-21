@@ -37,7 +37,6 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     public VoltageMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
-
     }
 
     public VoltageMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
