@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class ElementaryActionCompatibilityTest {
-    private final NetworkElement switchFr = NetworkActionUtils.createNetworkElement("switch-fr");
-    private final NetworkElement switchBe = NetworkActionUtils.createNetworkElement("switch-be");
-    private final NetworkElement pstFr = NetworkActionUtils.createNetworkElement("pst-fr");
-    private final NetworkElement pstBe = NetworkActionUtils.createNetworkElement("pst-be");
-    private final NetworkElement generatorFr = NetworkActionUtils.createNetworkElement("generator-fr");
-    private final NetworkElement generatorBe = NetworkActionUtils.createNetworkElement("generator-be");
+    private final String switchFr = "switch-fr";
+    private final String switchBe = "switch-be";
+    private final String pstFr = "pst-fr";
+    private final String pstBe = "pst-be";
+    private final String generatorFr = "generator-fr";
+    private final String generatorBe = "generator-be";
     private final NetworkAction openSwitchFr = NetworkActionUtils.createSwitchAction(switchFr, ActionType.OPEN);
     private final NetworkAction closeSwitchFr = NetworkActionUtils.createSwitchAction(switchFr, ActionType.CLOSE);
     private final NetworkAction openSwitchBe = NetworkActionUtils.createSwitchAction(switchBe, ActionType.OPEN);

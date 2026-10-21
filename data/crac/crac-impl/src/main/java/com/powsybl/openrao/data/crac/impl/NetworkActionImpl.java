@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Group of simple elementary remedial actions.
@@ -47,7 +48,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     public boolean hasImpactOnNetwork(Network network) {
         return elementaryActions.stream().anyMatch(elementaryAction -> {
             if (elementaryAction instanceof SwitchPair switchPair) {
-                return !network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() || network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
+                return !network.getSwitch(switchPair.getSwitchToOpenId()).isOpen() || network.getSwitch(switchPair.getSwitchToCloseId()).isOpen();
             } else {
                 return elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
@@ -69,7 +70,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         return elementaryActions.stream().allMatch(elementaryAction -> {
             if (elementaryAction instanceof SwitchPair switchPair) {
                 // It is only applicable if, initially, one switch was closed and the other was open.
-                return network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() != network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
+                return network.getSwitch(switchPair.getSwitchToOpenId()).isOpen() != network.getSwitch(switchPair.getSwitchToCloseId()).isOpen();
             } else {
                 return elementaryAction.toModification().hasImpactOnNetwork(network) != NetworkModificationImpact.CANNOT_BE_APPLIED;
             }
@@ -84,6 +85,11 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return this.networkElements;
+    }
+
+    @Override
+    public Set<String> getNetworkElementsIds() {
+        return this.networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
     }
 
     @Override

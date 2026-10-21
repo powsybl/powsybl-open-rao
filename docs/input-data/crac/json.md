@@ -1373,9 +1373,26 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 
 ### Counter-Trade Range Action
 
-A CounterTradeRangeAction is an exchange between two areas. The exporting area sends power to the importing area.
+A CounterTradeRangeAction is an exchange between its area and one or more connected areas, each connected via a
+border with optional ranges of admissible power flows.
+
+If border ranges are provided, the optimizer would consider them, otherwise it won't. The optimizer would try to find a solution which won't violate the
+exchange limits we have defined on a particular border.
 
 It is a costly remedial action which is currently not handled by the RAO.
+
+The set-point of the counter-trade range action is the net position of its area, i.e. the sum of its exchanges through
+all its borders (positive when the area exports), and its initial set-point is the net position of the area in the
+initial network. As for other range actions, the variation of the net position with respect to the initial network can
+be bounded with ranges of type RELATIVE_TO_INITIAL_NETWORK. For instance, if France exports 100 MW to Spain in the base
+case and the counter-trade increases this exchange by 100 MW, the initial set-point is +100 MW and the set-point is
++200 MW.
+
+Whereas the set-point is the net position of the area, a border range bounds the power exchanged between the area and a
+connected area. For instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both
+borders change but the net position of France, and thus the set-point, does not.
+
+When importing a JSON CRAC, the initial set-point is not yet computed from the network and is set to 0.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -1387,8 +1404,15 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withActivationCost(100d)
         .withVariationCost(1000d, VariationDirection.UP)
         .withVariationCost(2000d, VariationDirection.DOWN)
-        .withImportingArea("ES")
-        .withExportingArea("FR")
+        .withAreaId("FR")
+        .newConnectedArea()
+            .withAreaId("ES")
+            .newBorderRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMin(-1000)
+                .withMax(1000)
+                .add()
+            .add()
         .withInitialSetpoint(50)
         .newRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -1399,7 +1423,15 @@ It is a costly remedial action which is currently not handled by the RAO.
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
-exported from France to Spain.
+exchanged between France and Spain.  
+Connected areas can be defined with `newConnectedArea()`, optionally with border ranges. The adder does not use the
+network: with the Java API, the connected areas are not checked against the network, and no connected area is added if
+none is defined (unlike the JSON import, see below). The areas sharing a border with the counter-trade area in the
+network can be computed with `IidmCounterTradeHelper`, which can also check that the connected areas of a counter-trade
+range action share a border with its area.  
+An area cannot be defined more than once as a connected area, and the area of the counter-trade range action cannot be
+one of its connected areas.  
+A border range must define at least one of its min and max, whatever its range type. An undefined limit is not constrained.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1416,8 +1448,15 @@ exported from France to Spain.
     "onInstantUsageRules" : [ {
         "instant" : "preventive"
     } ],
-    "exportingArea" : "FR",
-    "importingArea" : "ES",
+    "area" : "FR",
+    "connectedAreas" : [ {
+        "area" : "ES",
+        "borderRanges" : [ {
+            "rangeType" : "absolute",
+            "min" : -1000.0,
+            "max" : 1000.0
+        } ]
+    } ],
     "ranges" : [ {
         "rangeType" : "absolute",
         "min" : 0.0,
@@ -1438,10 +1477,15 @@ exported from France to Spain.
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
-🔴 **exportingArea**  
-🔴 **importingArea**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
+🔴 **area**: the area from which the counter-trade is defined, as a country code (e.g. FR)  
+⚪ **connectedAreas**: list of 0 to N ConnectedArea, the areas involved in the counter-trade. They must share a border with the area in the network, be distinct, and differ from the area. If this field is not defined, all the areas sharing a border with the area in the network are used as connected areas, without border ranges. If it is an empty list, the counter-trade has no connected area (the field is always exported, as an empty list if needed, so that this is kept through an export and re-import)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **area**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **borderRanges**: list of 0 to N Range, admissible power flows on the area's border. If empty, the power flow on the border is not constrained  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined, whatever the range type. If not defined, the power flow on the border is not bounded from below  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max**: at least one of min/max should be defined, whatever the range type. If not defined, the power flow on the border is not bounded from above  
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **rangeType**: must be one of ABSOLUTE, RELATIVE_TO_PREVIOUS_INSTANT, RELATIVE_TO_INITIAL_NETWORK or RELATIVE_TO_PREVIOUS_TIME_STEP  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min**: at least one of min/max should be defined  
@@ -1513,6 +1557,11 @@ The maximum number of applicable remedial actions defined for the third curative
 Thus, if 1 remedial action was applied during the second curative instant, only 6 remedial actions can actually be applied during the second curative instant. 
 
 ## Changelog
+
+**v2.12**
+- Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and the optional `connectedAreas`.
+  When importing an older CRAC, the exporting area is used as the `area` and the importing area becomes a connected area
+  (without border ranges, and it must share a border with the exporting area in the network).
 
 **v2.11**
 - Removed `networkElementsNamePerId`.

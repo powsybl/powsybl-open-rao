@@ -81,7 +81,7 @@ public final class CracValidator {
         Instant outageInstant = crac.getOutageInstant();
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
-            .withNetworkElement(cnec.getNetworkElement().getId())
+            .withNetworkElement(cnec.getNetworkElementId())
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.TWO), TwoSides.TWO)
             .withReliabilityMargin(cnec.getReliabilityMargin())
