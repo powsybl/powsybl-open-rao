@@ -1,8 +1,8 @@
 # Implementation specific parameters
 
-## Rao parameters Extensions
+## RAO parameters Extensions
 
-Used to configure RAO implementation specific parameters
+Used to configure RAO implementation-specific parameters
 
 ### OpenRAO Search Tree Parameters extension
 
@@ -16,22 +16,22 @@ This extension is used to configure OpenRAO specific parameters for search tree 
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO objective value,
   when [type](business-parameters.md#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
 
-#### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](../algorithms/castor/linear-problem.md) used to optimise range actions.  
-(See [Modelling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
+#### Range actions optimization parameters
+These parameters (range-actions-optimization) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
+(See [Modeling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 ##### max-mip-iterations
 - **Expected value**: integer
 - **Default value**: 10
-- **Usage**: defines the maximum number of iterations to be executed by the iterating linear optimiser of the RAO.  
-  One iteration of the iterating linear optimiser includes: the resolution of one linear problem (MIP), an update of the
+- **Usage**: defines the maximum number of iterations to be executed by the iterating linear optimizer of the RAO.  
+  One iteration of the iterating linear optimizer includes: the resolution of one linear problem (MIP), an update of the
   network with the optimal PST taps found in the linear problem, a security analysis of the updated network and an
   assessment of the objective function based on the results of the security analysis.  
   The linear problem relies on sensitivity coefficients to estimate the flows on each CNEC, and those estimations might
-  not be perfect when several PSTs taps are significantly changed. When the linear optimisation problem makes a (n+1)th
-  iteration, it refines its solution with new sensitivity coefficients, which better describe the neighbourhood of the
+  not be perfect when several PSTs taps are significantly changed. When the linear optimization problem makes a (n+1)th
+  iteration, it refines its solution with new sensitivity coefficients, which better describe the neighborhood of the
   solution found in iteration (n).  
-  Note that the linear optimisation problems usually "converge" with very few iterations (1 to 4 iterations).
+  Note that the linear optimization problems usually "converge" with very few iterations (1 to 4 iterations).
 
 ##### pst-model
 - **Expected value**: one of the following:
@@ -39,9 +39,9 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   - "APPROXIMATED_INTEGERS"
 - **Default value**: "CONTINUOUS"
 - **Usage**: the method to model PSTs in the linear problem:
-  - **CONTINUOUS**: PSTs are represented by their angle set-points; the set-points are continuous optimisation variables
-    and OpenRAO rounds the result to the best tap (around the optimal set-point) after optimisation. This approach is not
-    very precise but does not create integer optimisation variables; thus it is quicker to solve, especially with
+  - **CONTINUOUS**: PSTs are represented by their angle set-points; the set-points are continuous optimization variables
+    and OpenRAO rounds the result to the best tap (around the optimal set-point) after optimization. This approach is not
+    very precise but does not create integer optimization variables; thus it is quicker to solve, especially with
     open-source solvers.
   - **APPROXIMATED_INTEGERS**: a PST is represented by its tap positions, and these tap positions are considered
     proportional to the PST's angle set-point (hence the "approximated" adjective). Thus, these tap positions can be
@@ -53,26 +53,26 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / ° (per degree)
 - **Default value**: 1e-6
-- **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
-  zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks
+- **Usage**: the PST sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
+  zero by the linear optimization problem. Filtering small sensitivity coefficients has the two following perks
   for the RAO:
-  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-zero elements
-  - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
+  - it decreases the complexity of the optimization problem by reducing significantly the number of non-zero elements
+  - it can avoid changes of PST set-points when they only allow earning a few MW on the margins of some CNECs.
 
 ##### hvdc-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 1e-6
-- **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
-  to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
+- **Usage**: the HVDC sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
+  to zero by the linear optimization problem. Filtering some of the small sensitivity coefficients has the two
   following perks regarding the RAO:
-  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-null elements
-  - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
+  - it decreases the complexity of the optimization problem by reducing significantly the number of non-null elements
+  - it can avoid changes of HVDC set-points when they only allow earning a few MW on the margins of some CNECs.
 
 ##### injection-ra-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 1e-6
 - **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
-  considered equal to zero by the linear optimisation problem.  
+  considered equal to zero by the linear optimization problem.  
   The perks are the same as the two parameters above.
 
 ##### ra-range-shrinking
@@ -85,8 +85,8 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](../algorithms/castor/linear-problem.md#algorithm).
-  - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
+    see this schema : [Linear Remedial Actions Optimization](../algorithms/castor/linear-problem.md#algorithm).
+  - **ENABLED**: this introduces two new behaviors to the iterating linear optimizer:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have
        the same optimal RA set-points), then the problem returns the best solution it has found.
@@ -107,7 +107,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   - "SCIP"
   - "XPRESS"
 - **Default value**: "CBC"
-- **Usage**: the solver called for optimising the linear problem.  
+- **Usage**: the solver called for optimizing the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
   (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
@@ -127,7 +127,7 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Usage**: this can be used to set solver-specific parameters, when the OR-Tools API and its generic parameters are
   not enough.
 
-#### Network actions optimisation parameters
+#### Network actions optimization parameters
 These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm)
 when searching for the best network actions.
 
@@ -184,7 +184,7 @@ when searching for the best network actions.
 - **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
 
 #### Second preventive RAO parameters
-These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
+These parameters (second-preventive-rao) tune the behavior of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
 
 ##### execution-condition
 - **Expected value**: one of the following:
@@ -195,15 +195,15 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
 - **Usage**: configures whether a 2nd preventive RAO should be run after the curative RAO.  
   *Note: if there are automatons, and if a 2nd preventive RAO is run, then a 2nd automaton RAO is also run*
   - **DISABLED**: 2nd preventive RAO is not run
-  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost has increased after optimisation compared to
-    before optimisation; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
+  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost has increased after optimization compared to
+    before optimization; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
     during curative RAO
   - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
     i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
     This depends on the value of parameter [type](business-parameters.md#type):
-    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
+    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimization
     - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
-      after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
+      after optimization that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
 
 ##### hint-from-first-preventive-rao
 - **Expected value**: true/false
@@ -212,9 +212,9 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
   RAO, as a predefined combination ("hint") to test at the first search depth of the second preventive RAO. This way,
   if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
 
-#### CNECs that should not be optimised
+#### CNECs that should not be optimized
 These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
-optimisation of specific CNECs in specific conditions.
+optimization of specific CNECs in specific conditions.
 
 ##### do-not-optimize-curative-cnecs-for-tsos-without-cras
 - **Expected value**: true/false
@@ -266,7 +266,7 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
 - **Default value**: 1
 - **Usage**: It should not exceed the number of cores of the computer on which the computation is made.
   Then it is used for:
-  - number of contingency scenarios (auto + curative instants) to optimise in parallel.  
+  - number of contingency scenarios (auto + curative instants) to optimize in parallel.  
   - number of combination of remedial actions that the search-tree will investigate in
     parallel during the <ins>preventive</ins> RAO and <ins>automaton</ins> RAO.
   *Note that the more available cpus is configured, the more RAM is required by the RAO, and that the performance
@@ -276,7 +276,7 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
 Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are implementation specific.
-See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)  
+See also: [Modeling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)  
 
 ##### ptdf-approximation
 - **Expected value**: one of the following:
@@ -285,25 +285,25 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
   - "UPDATE_PTDF_WITH_TOPO_AND_PST"
 - **Default value**: "FIXED_PTDF"
 - **Usage**: defines the frequency at which the PTDFs will be updated for the loop-flow computation.
-  This parameter enables to set the desired trade-off between the accuracy of the loop-flow computation, and the
+  This parameter enables setting the desired trade-off between the accuracy of the loop-flow computation, and the
   computation time of the RAO.  
   - **FIXED_PTDF**: the PTDFs are computed only once at the beginning of the RAO.  
   - **UPDATE_PTDF_WITH_TOPO**: the PTDFs are re-computed for each new combination of topological actions (i.e.
     for each new node of the search-tree).  
   - **UPDATE_PTDF_WITH_TOPO_AND_PST**: the PTDFs are re-computed for each new combination of topological action and for
-    each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
+    each new combination of PST taps (i.e. for each iteration of the linear optimization).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### constraint-adjustment-coefficient
 
 - **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 0.0 MW / 0.0 A
-- **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
+- **Usage**: this parameter acts as a margin which tightens, in the linear optimization problem of RAO, the bounds of the
   loop-flow constraints. It conceptually behaves as the coefficient *cAdjustment* from the constraint below:  
   *abs(LoopFlow(cnec)) <= LoopFlowThreshold - cAdjustment*  
   This parameter is a safety margin that can absorb some approximations made in the linear
-  optimisation problem of the RAO (non-integer PSTs taps, flows approximated by sensitivity coefficients, etc.), and
-  therefore increase the probability that the loop-flow constraints which are respected in the linear optimisation
+  optimization problem of the RAO (non-integer PSTs taps, flows approximated by sensitivity coefficients, etc.), and
+  therefore increase the probability that the loop-flow constraints which are respected in the linear optimization
   problem, remain respected once the loop-flows are re-computed without the linear approximations.
 
 ##### violation-cost
@@ -327,8 +327,8 @@ The following parameters tune some of these constraints, the one which are imple
   objective function)
 - **Default value**: 10.0 (same as [loop-flow violation cost](#violation-cost))
 - **Usage**: the penalty cost associated to the violation of a MNEC constraint.
-  In order to avoid optimisation infeasibility, the MNEC constraints are soft: they can be violated. These violations
-  are penalized by a significant cost, in order to guide the optimiser towards a solution where - if possible - all
+  In order to avoid optimization infeasibility, the MNEC constraints are soft: they can be violated. These violations
+  are penalized by a significant cost, in order to guide the optimizer towards a solution where - if possible - all
   MNECs' constraints are respected. The penalty injected in the objective function is equal to the violation (difference
   between actual margin and least acceptable margin) multiplied by this parameter.
 
@@ -337,7 +337,7 @@ The following parameters tune some of these constraints, the one which are imple
 
 - **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 0.0
-- **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
+- **Usage**: this coefficient is here to mitigate the approximation made by the linear optimization (approximation = use
   of sensitivities to linearize the flows, rounding of the PST taps).  
   *Mcnec ≥ max(0 , m0cnec - acceptableDiminution) + constraintAdjustment*  
   With *constraintAdjustment* the so-called "constraint-adjustment-coefficient".  
@@ -347,7 +347,7 @@ The following parameters tune some of these constraints, the one which are imple
 #### Relative margins optional parameter
 Adding a RelativeMarginsParameters is mandatory when [objective function is relative](business-parameters.md#type).  
 The following parameters tune the constraints which are implementation specific.
-See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
+See also: [Modeling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
 ##### ptdf-approximation
 - **Expected value**: one of the following:
@@ -356,13 +356,13 @@ See also: [Modelling the maximum minimum relative margin objective function](../
   - "UPDATE_PTDF_WITH_TOPO_AND_PST"
 - **Default value**: "FIXED_PTDF"
 - **Usage**: defines the frequency at which the PTDFs will be updated for the relative margins computation.
-  This parameter enables to set the desired trade-off between the accuracy of the relative margins computation, and the
+  This parameter enables setting the desired trade-off between the accuracy of the relative margins computation, and the
   computation time of the RAO.
   - **FIXED_PTDF**: the PTDFs are computed only once at the beginning of the RAO.
   - **UPDATE_PTDF_WITH_TOPO**: the PTDFs are re-computed for each new combination of topological actions (i.e.
     for each new node of the search-tree).
   - **UPDATE_PTDF_WITH_TOPO_AND_PST**: the PTDFs are re-computed for each new combination of topological action and for
-    each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
+    each new combination of PST taps (i.e. for each iteration of the linear optimization).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### ptdf-sum-lower-bound
@@ -445,7 +445,7 @@ These parameters are meant to be used in costly optimization only.
 
 ## Examples
 > ⚠️  **NOTE**  
-> The following examples in json and yaml are not equivalent
+> The following examples in JSON and YAML are not equivalent
 
 ::::{tabs}
 :::{group-tab} JSON

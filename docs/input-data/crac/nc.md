@@ -678,7 +678,7 @@ to open or to close the switch.
 
 For the `StaticPropertyRange`, the `PropertyReference` must also be `Switch.open`. Note that the `valueKind` must
 be `absolute` and the `direction` must be `none` to indicate that the limit does not depend on the previous switch's
-state. Finally, the `normalValue` field sets the behaviour of the switch:
+state. Finally, the `normalValue` field sets the behavior of the switch:
 
 - if it is 0 the switch will be closed
 - if it is 1 the switch will be opened

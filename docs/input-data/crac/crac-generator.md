@@ -62,8 +62,8 @@ networkCracCreationParameters.getContingencies().setBranchFilter(branch -> branc
 The NetworkCracCreationParameters' critical elements section allows you to set rules for flow [CNECs](json.md#cnecs) creation.  
 You can set the following parameters:
 - countries: an optional set of countries to choose the critical branches in. If left empty, all branches in the network are considered. If set to an empty set, no country will be considered.
-- optimizedMinMaxV: the voltage level range in which branches are considered as [optimised CNECs](json.md#optimised-and-monitored-cnecs)
-- monitoredMinMaxV: the voltage level range in which branches are considered as [monitored MNECs](json.md#optimised-and-monitored-cnecs). You can leave it empty if you don't want to create MNECs.
+- optimizedMinMaxV: the voltage level range in which branches are considered as [optimized CNECs](json.md#optimized-and-monitored-cnecs)
+- monitoredMinMaxV: the voltage level range in which branches are considered as [monitored MNECs](json.md#optimized-and-monitored-cnecs). You can leave it empty if you don't want to create MNECs.
 - optimizedMonitoredProvider: a function that allows you to indicate if a branch is optimized and/or monitored after a given Contingency or in basecase (contingency = null). The filter applies above the voltage filter. We advise you to use it to make the computations lighter (by default, all branches are optimized and monitored).
 - thresholdDefinition: tells the generator where to find the CNEC [thresholds](json.md#flow-limits-on-a-flowcnec)
   - FROM_OPERATIONAL_LIMITS (default): operational limits (permanent & temporary) will be read in the network. It is expected you define applicableLimitDurationPerInstant or applicableLimitDurationPerInstantPerNominalV (see below). Limit multipliers (see below) apply. 
@@ -79,7 +79,7 @@ You can set the following parameters:
 ~~~java
 CriticalElements params = networkCracCreationParameters.getCriricalElements();
 params.setCountries(Set.of(Country.FR, Country.BE)); // only branches in France & Belgium are considered as critical network elements
-params.setOptimizedMinMaxV(150, null); // branches above 150kV are optimised
+params.setOptimizedMinMaxV(150, null); // branches above 150kV are optimized
 params.setMonitoredMinMaxV(null); // no monitored branches
 params.setOptimizedMonitoredProvider((branch, contingency) -> return new OptimizedMonitored(areInSameCountry(branch, contingency), !areInSameCountry(branch, contingency))); // Optimized CNECs are only made up of elements and contingencies belonging to same country ; other branches are MNECs (just an example, given method areInSameCountry exists)
 params.thresholdDefinition = ThresholdDefinition.FROM_OPERATIONAL_LIMITS; // my network does not contain extensive operation limit information
@@ -183,7 +183,7 @@ params.setRaCostsProvider(instant -> new InjectionRangeActionCosts(10000, 1000, 
 ::::
 
 ## Aligning range actions
-You can align the range actions in the NetworkCracCreationParameters using IDs of the network elements seperated by " + ".  
+You can align the range actions in the NetworkCracCreationParameters using IDs of the network elements separated by " + ".  
 Note that this is currently only supported for PST range actions (use the ID of the TwoWindingsTransformer in the PowSyBl network).  
 
 ::::{tabs}

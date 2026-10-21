@@ -15,7 +15,7 @@ In other words, it gathers the following information:
 - and remedial actions.
 
 It is typically used in European coordinated processes. It enables, for a given geographical region, to define the 
-network elements that might be critical after specific outages, and the remedial actions that might help to manage them.  
+network elements that might be critical after specific outages, and the remedial actions that might help manage them.  
 
 **A CRAC object model has been designed in OpenRAO** to store all the aforementioned information. This page aims to present:
 - the content and the organization of the data present in the OpenRAO CRAC object model,
@@ -132,7 +132,7 @@ A CRAC object must define "critical contingencies" (or "critical outages", or "C
 The denomination chosen within the OpenRAO internal format is **"Contingency"**.
 
 A contingency is the representation of an incident on the network (i.e. a cut line or a group/transformer failure, etc.).
-In OpenRAO, it is modelled by the loss of one or several network elements. Usually we have either a one-network-element-loss
+In OpenRAO, it is modeled by the loss of one or several network elements. Usually we have either a one-network-element-loss
 called "N-1", or a two-network-element-loss called "N-2".
 
 Examples:
@@ -293,10 +293,10 @@ It may also have a border, which can be useful on some processes to know where t
 Moreover, a CNEC can have a reliability margin: a safety buffer to cope with unplanned events or uncertainties of input
 data (i.e. an extra margin).
 
-### Optimised and monitored CNECs
-CNECs can be monitored and/or optimised. This notion of monitored/optimised has been introduced by the capacity
+### Optimized and monitored CNECs
+CNECs can be monitored and/or optimized. This notion of monitored/optimized has been introduced by the capacity
 calculation on the CORE region, and is now also used for the CSE region:
-- maximise the margins of CNECs that are "optimised"
+- maximize the margins of CNECs that are "optimized"
 - ensure that the margins of "monitored" CNECs are positive and/or are not decreased by the RAO.
 
 OpenRAO contains 3 families of CNECs, depending on which type of physical constraints they have: **FlowCnecs**,
@@ -464,7 +464,7 @@ crac.newFlowCnec()
 #### Loop-flow extension
 When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](../../parameters/implementation-specific-parameters.md#loop-flow-optional-parameter)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](../../algorithms/castor/special-features/loop-flows.md)
-when optimising remedial actions.  
+when optimizing remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
 value on this CNEC may override this user-defined thrshold, as explained [here](../../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)).
 
@@ -528,7 +528,7 @@ An AngleCnec has the following specificities:
 - it must contain at least one threshold, defined in degrees. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
+> AngleCnecs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [Monitoring](../../algorithms/monitoring.md) module with **ANGLE** as physical parameter.
 
 #### Creating an AngleCnec
@@ -633,7 +633,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 - it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
+> VoltageCnecs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [VoltageMonitoring](../../algorithms/monitoring.md) module with **VOLTAGE** as physical parameter.
 
 #### Creating a VoltageCnec
