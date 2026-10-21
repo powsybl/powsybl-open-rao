@@ -37,6 +37,11 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Exclude temp and workspace from Windows Defender
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Add-MpPreference -ExclusionPath $env:TEMP, $env:GITHUB_WORKSPACE, "$env:USERPROFILE\.m2"
+
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
         run: mvn --batch-mode -Pjacoco install
