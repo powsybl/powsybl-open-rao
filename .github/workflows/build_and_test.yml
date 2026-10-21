@@ -15,7 +15,7 @@ jobs:
     if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [ windows-2025 ]
         jvm: [ java, graalvm ]
 
     steps:
@@ -37,11 +37,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Exclude temp and workspace from Windows Defender
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: Add-MpPreference -ExclusionPath $env:TEMP, $env:GITHUB_WORKSPACE, "$env:USERPROFILE\.m2"
-
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
         run: mvn --batch-mode -Pjacoco install
@@ -49,6 +44,16 @@ jobs:
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest' || matrix.jvm != 'java'
         run: mvn --batch-mode install
+
+      - name: Upload crash dumps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-${{ matrix.os }}-${{ matrix.jvm }}
+          path: |
+            **/hs_err_pid*.log
+            **/surefire-reports/*.dumpstream
+          if-no-files-found: ignore
 
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
