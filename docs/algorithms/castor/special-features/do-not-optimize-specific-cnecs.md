@@ -14,7 +14,7 @@ This feature is needed in the CORE region capacity calculation process.
 ## Implementation
 
 This situation can be modeled with constraints activating a binary variable when it becomes necessary to loosen the following constraint:
-- Cnecs in $\mathcal{C} ^{specific}$ must not see their margins worsened
+- CNECs in $\mathcal{C} ^{specific}$ must not see their margins worsened
 
 This binary variable forces CNECs in $\mathcal{C} ^{specific}$  to be taken into account in the minimum margin objective.
 These constraints are modeled in the RAO under the linear problem as described [here](../linear-problem/special-features/unoptimized-cnec-filler-cra.md).

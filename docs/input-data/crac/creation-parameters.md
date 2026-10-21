@@ -242,7 +242,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-cnecs). This parameter allows the user 
 to add VoltageCnecs during CRAC creation.  
-To define voltage CNECs, the user has to define:
+To define Voltage CNECs, the user has to define:
 - A list of monitored network elements, identified by their unique ID in the network file. These network elements must be VoltageLevels.
 - Instants for which these elements should be monitored (among instant IDs defined in the CRAC)
 - For instants other than preventive that are selected, a list of contingencies after which these elements are monitored 

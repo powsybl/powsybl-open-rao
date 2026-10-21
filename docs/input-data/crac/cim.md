@@ -236,7 +236,7 @@ In the CIM CRAC, AngleCnecs are actually defined with their corresponding remedi
 
 [VoltageCnecs are defined in the CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 Nevertheless, they are imported via the CimCracCreator because that's where the information on which contingencies are imported lies. 
-Only voltage CNECs with contingencies that were previously correctly defined shall be imported.
+Only Voltage CNECs with contingencies that were previously correctly defined shall be imported.
 
 ## Remedial Actions
 

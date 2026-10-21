@@ -162,7 +162,7 @@ OpenRAO can construct this by concatenating multiple elements in order to ensure
 - **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
 - **NativeBranch**: the UCTE branch referred to in the original CRAC, with a "from" node, a "to" node, and a suffix (order code or alias)
 - **isBaseCase**: a boolean equal to true if the CNEC has been created for the preventive instant
-- **ContingencyId** (if present): the ID of the contingency for which the CNEc is monitored
+- **ContingencyId** (if present): the ID of the contingency for which the CNEC is monitored
 - **CreatedCnecIds**: the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the 
 IDs the user should use to query the internal CRAC & RaoResult objects.
 - **isDirectionInvertedInNetwork**: a boolean equal to true if the from/to in the original CRAC are the inverse of the 
@@ -530,16 +530,16 @@ void printSomeResults(MonitoredSeriesCreationContext context, CracCreationContex
 
 ### Angle CNEC creation contexts
 The `AngleCnecCreationContext` 
-contains information about the creation of angle CNECs in OpenRAO. One AngleCnecCreationContext is created for every native
+contains information about the creation of Angle CNECs in OpenRAO. One AngleCnecCreationContext is created for every native
 [B56](cim.md#anglecnecs) "AdditionalConstraint_Series" in the original CRAC, that can be uniquely identified. 
 It holds the following information:
 - **NativeId**: the unique identifier of the native AdditionalConstraint_Series (contained in the "mRID" tag)
 - **isImported**: a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
 - **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
 - **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedCnecId**: the ID of the OpenRAO angle CNEC that was created for this AdditionalConstraint_Series. 
+- **CreatedCnecId**: the ID of the OpenRAO Angle CNEC that was created for this AdditionalConstraint_Series. 
   This is the ID the user should use to query the internal CRAC & RaoResult objects.
-- **ContingencyId**: the ID of the contingency for this angle CNEC. It can be used with internal objects.
+- **ContingencyId**: the ID of the contingency for this Angle CNEC. It can be used with internal objects.
 
 Here is a complete example of AngleCnecCreationContext usage to export user-comprehensible RAO results:
 
@@ -557,11 +557,11 @@ printSomeResults(context, cimCracCreationContext, raoResult);
 void printSomeResults(AngleCnecCreationContext context, CracCreationContext cracCreationContext, RaoResult raoResult) {
     System.out.println(String.format("AdditionalConstraint_Series ID: %s", context.getNativeId()));
     if (!context.isImported()) {
-        System.out.println(String.format("The angle CNEC could not be imported by OpenRAO for the following reason: %s - %s", context.getImportStatus(), context.getImportStatusDetail()));
+        System.out.println(String.format("The Angle CNEC could not be imported by OpenRAO for the following reason: %s - %s", context.getImportStatus(), context.getImportStatusDetail()));
         System.out.println("The element has been ignored by the RAO, we cannot access any result for it!");
         return;
     }
-    System.out.println(String.format("The angle CNEC created in the OpenRAO CRAC is called: %s", String.join(", ", context.getCreatedAngleCnecId())));
+    System.out.println(String.format("The Angle CNEC created in the OpenRAO CRAC is called: %s", String.join(", ", context.getCreatedAngleCnecId())));
     AngleCnec angleCnec = cracCreationContext.getCrac().getAngleCnec(context.getCreatedAngleCnecId());
     // Print its angle value (note that this will not work with the default search-tree RAO implementation)
     System.out.println(String.format("Its angle value after RAO is: %.2f", raoResult.getAngle(OptimizationState.afterOptimizing(angleCnec.getState()), angleCnec, Unit.DEGREE)));
@@ -570,17 +570,17 @@ void printSomeResults(AngleCnecCreationContext context, CracCreationContext crac
 
 ### Voltage CNEC creation contexts
 The `VoltageCnecCreationContext`
-contains information about the creation of angle CNECs in OpenRAO. One VoltageCnecCreationContext is created for every voltage
+contains information about the creation of Voltage CNECs in OpenRAO. One VoltageCnecCreationContext is created for every Voltage
 CNEC that should be created, as configured in the [CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 It holds the following information:
 - **NativeNetworkElementId**: the unique identifier of the network element that is monitored
 - **Instant**: the instant for which the CNEC is created
 - **NativeContingencyName**: the name of the contingency for which the CNEC is created (if instant is not preventive), 
   as defined in the "name" field of the [B55](cim.md#contingencies) Contingency_Series
-- **isImported**: a boolean equal to true if OpenRAO was able to import the voltage CNEC
+- **isImported**: a boolean equal to true if OpenRAO was able to import the Voltage CNEC
 - **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
 - **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedCnecId**: the ID of the OpenRAO voltage CNEC that was created. 
+- **CreatedCnecId**: the ID of the OpenRAO Voltage CNEC that was created. 
   This is the ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of VoltageCnecCreationContext usage to export user-comprehensible RAO results:
@@ -589,21 +589,21 @@ Here is a complete example of VoltageCnecCreationContext usage to export user-co
 CimCracCreationContext cimCracCreationContext = ...
 RaoResult raoResult = ...
     
-// Do a custom results export of all voltage CNECs results
+// Do a custom results export of all Voltage CNECs results
 cimCracCreationContext.getVoltageCnecCreationContexts().foreach(context -> printSomeResults(context, cimCracCreationContext, raoResult));
 
-// Query the results of a specific voltage CNEC that was created for network element "ne1", at instant "curative", after contingency "co1"
+// Query the results of a specific Voltage CNEC that was created for network element "ne1", at instant "curative", after contingency "co1"
 VoltageCnecCreationContext context = cimCracCreationContext.getVoltageCnecCreationContext("ne1", Instant.CURATIVE, "co1");
 printSomeResults(context, cimCracCreationContext, raoResult);
 
 void printSomeResults(VoltageCnecCreationContext context, CracCreationContext cracCreationContext, RaoResult raoResult) {
     System.out.println(String.format("Voltage CNEC for network element %s after contingency %s at instant %s", context.getNativeNetworkElementId(), context.getNativeContingencyName(), context.getInstant()));
     if (!context.isImported()) {
-        System.out.println(String.format("The voltage CNEC could not be imported by OpenRAO for the following reason: %s - %s", context.getImportStatus(), context.getImportStatusDetail()));
+        System.out.println(String.format("The Voltage CNEC could not be imported by OpenRAO for the following reason: %s - %s", context.getImportStatus(), context.getImportStatusDetail()));
         System.out.println("The element has been ignored by the RAO, we cannot access any result for it!");
         return;
     }
-    System.out.println(String.format("The voltage CNEC created in the OpenRAO CRAC is called: %s", String.join(", ", context.getCreatedCnecId())));
+    System.out.println(String.format("The Voltage CNEC created in the OpenRAO CRAC is called: %s", String.join(", ", context.getCreatedCnecId())));
     VoltageCnec voltageCnec = cracCreationContext.getCrac().getVoltageCnec(context.getCreatedCnecId());
     // Print its voltage value (note that this will not work with the default search-tree RAO implementation)
     System.out.println(String.format("Its max voltage value after RAO is: %.2f", raoResult.getMaxVoltage(OptimizationState.afterOptimizing(voltageCnec.getState()), voltageCnec, Unit.KILOVOLT)));

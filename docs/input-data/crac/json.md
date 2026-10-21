@@ -514,7 +514,7 @@ flowCnec.newExtension(LoopFlowThresholdAdder.class)
 
 ### Angle CNECs
 An "AngleCnec" is a branch which may see a phase angle shift between its two ends when it's disconnected. This may induce
-insecurities in the network when it's back up. That's why we monitor angle CNECs and associate with them remedial actions
+insecurities in the network when it's back up. That's why we monitor Angle CNECs and associate with them remedial actions
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
 In terms of OpenRAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
@@ -743,8 +743,8 @@ OpenRAO has the following usage rules with their activation conditions:
   and an optional [contingency](#contingencies): the remedial action can be activated if any FlowCnec in the given country is
   constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
   only constraints on FlowCnecs with the same contingency count.  
-- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
-  the remedial action can be activated if the given Cnec is constrained at the given instant.
+- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [CNEC](#cnecs)):
+  the remedial action can be activated if the given CNEC is constrained at the given instant.
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -829,7 +829,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
 <ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
-🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
+🔴 **cnecId**: must be the id of a [CNEC](#cnecs) that exists in the CRAC
 
 *NB*: even though OnContingencyState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a OnInstant usage rule on the preventive instant.  
 :::
