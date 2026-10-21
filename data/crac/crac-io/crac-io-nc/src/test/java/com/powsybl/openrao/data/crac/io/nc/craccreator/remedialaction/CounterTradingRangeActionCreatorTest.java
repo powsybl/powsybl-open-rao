@@ -49,11 +49,10 @@ class CounterTradingRangeActionCreatorTest {
 
         assertEquals("CT-ECONOMIC-LIMITS", counterTradeRangeAction.getName());
         assertEquals("RTE", counterTradeRangeAction.getOperator());
-        assertEquals("FR", counterTradeRangeAction.getArea());
-        assertEquals(FR_NET_POSITION, counterTradeRangeAction.getInitialNetPosition());
+        assertEquals("FR", counterTradeRangeAction.getAreaId());
         assertEquals(0., counterTradeRangeAction.getInitialSetpoint());
         assertEquals(Optional.of(10), counterTradeRangeAction.getSpeed());
-        assertEquals(Set.of("BE", "DE"), counterTradeRangeAction.getConnectedAreas().stream().map(ConnectedArea::getArea).collect(Collectors.toSet()));
+        assertEquals(Set.of("BE", "DE"), counterTradeRangeAction.getConnectedAreas().stream().map(ConnectedArea::getAreaId).collect(Collectors.toSet()));
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "ct-economic-limits", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
     }

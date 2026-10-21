@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCounterTradeHelper;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.CountertradeRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
@@ -90,15 +91,22 @@ public class CounterTradingRangeActionCreator {
                             remedialActionId, minRange, maxRange));
         }
 
-        return crac.newCounterTradeRangeAction()
+        IidmCounterTradeHelper iidmCounterTradeHelper = new IidmCounterTradeHelper(area, network);
+
+        List<String> neighbors = iidmCounterTradeHelper.getNeighbors();
+
+        CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withName(countertradeRemedialAction.name())
                 .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
-                .withArea(area)
-                .withInitialNetPosition(initialNetPosition)
-                .withConnectedAreas(network);
+                .withAreaId(area);
+
+        neighbors.forEach(neighbor -> counterTradeRangeActionAdder.newConnectedArea().withAreaId(neighbor).add());
+
+
+        return counterTradeRangeActionAdder;
     }
 
     /**
