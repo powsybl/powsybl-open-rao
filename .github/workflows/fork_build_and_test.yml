@@ -12,7 +12,7 @@ jobs:
     if: github.event.pull_request.head.repo.fork == true
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-2022, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
