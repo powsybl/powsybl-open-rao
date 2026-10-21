@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -159,9 +158,7 @@ class BestTapFinderTest {
         PstRangeAction pst = Mockito.mock(PstRangeAction.class);
         when(pst.getCurrentSetpoint(network)).thenReturn(INITIAL_PST_SET_POINT);
         when(pst.getId()).thenReturn("pst" + pstCounter);
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        when(networkElement.getId()).thenReturn("pstNE" + pstCounter++);
-        when(pst.getNetworkElements()).thenReturn(Set.of(networkElement));
+        when(pst.getNetworkElementsIds()).thenReturn(Set.of("pstNE" + pstCounter++));
         mockPstRangeAction(pst);
         setSensitivityValues(pst);
         return pst;
@@ -297,9 +294,7 @@ class BestTapFinderTest {
 
         RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
-        NetworkElement networkElementOtherThanPst = Mockito.mock(NetworkElement.class);
-        when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
-        when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
+        when(activatedRangeActionOtherThanPst.getNetworkElementsIds()).thenReturn(Set.of("notPstNE"));
 
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
@@ -328,9 +323,7 @@ class BestTapFinderTest {
 
         RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
-        NetworkElement networkElementOtherThanPst = Mockito.mock(NetworkElement.class);
-        when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
-        when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
+        when(activatedRangeActionOtherThanPst.getNetworkElementsIds()).thenReturn(Set.of("notPstNE"));
 
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
@@ -360,9 +353,7 @@ class BestTapFinderTest {
 
         RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
-        NetworkElement networkElementOtherThanPst = Mockito.mock(NetworkElement.class);
-        when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
-        when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
+        when(activatedRangeActionOtherThanPst.getNetworkElementsIds()).thenReturn(Set.of("notPstNE"));
 
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
             pstRangeAction, startingSetPoint,

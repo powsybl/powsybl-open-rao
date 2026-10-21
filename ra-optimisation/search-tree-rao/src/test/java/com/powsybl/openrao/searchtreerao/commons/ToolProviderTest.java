@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -74,7 +75,14 @@ class ToolProviderTest {
         Instant outageInstant = Mockito.mock(Instant.class);
         Mockito.when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant, ReportNode.NO_OP);
+            Set.of(cnec1, cnec2),
+            Set.of(Mockito.mock(RangeAction.class)),
+            false,
+            false,
+            outageInstant,
+            ReportNode.NO_OP,
+            LocalComputationManager.getDefault()
+        );
         assertNotNull(sensitivityInterface);
     }
 

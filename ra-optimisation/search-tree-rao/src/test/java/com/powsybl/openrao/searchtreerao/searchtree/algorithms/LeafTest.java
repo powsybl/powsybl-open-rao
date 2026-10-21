@@ -678,14 +678,14 @@ class LeafTest {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         when(pstRangeAction.getId()).thenReturn("pstRa");
         when(pstRangeAction.convertAngleToTap(3.)).thenReturn(3);
-        when(pstRangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(pstRangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
         int optimalTap = 3;
         double optimalSetpoint = 3.;
         Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
         optimizedTaps.put(pstRangeAction, optimalTap);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         when(rangeAction.getId()).thenReturn("ra");
-        when(pstRangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(pstRangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
         Map<RangeAction<?>, Double> optimizedSetPoints = new HashMap<>();
         optimizedSetPoints.put(rangeAction, optimalSetpoint);
         optimizedSetPoints.put(pstRangeAction, optimalSetpoint);

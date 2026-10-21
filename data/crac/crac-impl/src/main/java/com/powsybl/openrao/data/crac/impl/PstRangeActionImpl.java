@@ -74,6 +74,16 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     }
 
     @Override
+    public String getNetworkElementId() {
+        return networkElement.getId();
+    }
+
+    @Override
+    public Set<String> getNetworkElementsIds() {
+        return Set.of(networkElement.getId());
+    }
+
+    @Override
     public List<TapRange> getRanges() {
         return ranges;
     }
@@ -247,7 +257,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             return false;
         }
 
-        return this.networkElement.equals(((PstRangeAction) o).getNetworkElement())
+        return this.getNetworkElementId().equals(((PstRangeAction) o).getNetworkElementId())
             && this.ranges.equals(((PstRangeAction) o).getRanges())
             && this.tapToAngleConversionMap.equals(((PstRangeAction) o).getTapToAngleConversionMap())
             && this.initialTapPosition == ((PstRangeAction) o).getInitialTap();

@@ -7,25 +7,7 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -61,51 +43,5 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
     @Override
     public int hashCode() {
         return getId().hashCode();
-    }
-
-    /**
-     * Returns the location of the network element, as a set of optional countries
-     *
-     * @param network the network object used to look for the network element
-     * @return a set of countries containing the network element
-     */
-    @Override
-    public Set<Country> getLocation(Network network) {
-        Identifiable<?> ne = network.getIdentifiable(this.getId());
-        Set<Country> countries = new HashSet<>();
-        if (Objects.isNull(ne)) {
-            throw new OpenRaoException("Network element " + this.getId() + " was not found in the network.");
-        } else if (ne instanceof Branch<?> branch) {
-            getTerminalCountry(branch.getTerminal1()).ifPresent(countries::add);
-            getTerminalCountry(branch.getTerminal2()).ifPresent(countries::add);
-        } else if (ne instanceof Switch sw) {
-            getVoltageLevelCountry(sw.getVoltageLevel()).ifPresent(countries::add);
-        } else if (ne instanceof Injection<?> injection) {
-            getTerminalCountry(injection.getTerminal()).ifPresent(countries::add);
-        } else if (ne instanceof Bus bus) {
-            getVoltageLevelCountry(bus.getVoltageLevel()).ifPresent(countries::add);
-        } else if (ne instanceof VoltageLevel voltageLevel) {
-            getVoltageLevelCountry(voltageLevel).ifPresent(countries::add);
-        } else if (ne instanceof Substation substation) {
-            substation.getCountry().ifPresent(countries::add);
-        } else if (ne instanceof HvdcLine hvdcLine) {
-            getTerminalCountry(hvdcLine.getConverterStation1().getTerminal()).ifPresent(countries::add);
-            getTerminalCountry(hvdcLine.getConverterStation2().getTerminal()).ifPresent(countries::add);
-        } else {
-            throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
-        }
-        return countries;
-    }
-
-    private static Optional<Country> getTerminalCountry(Terminal terminal) {
-        return getVoltageLevelCountry(terminal.getVoltageLevel());
-    }
-
-    private static Optional<Country> getVoltageLevelCountry(VoltageLevel voltageLevel) {
-        Optional<Substation> substation = voltageLevel.getSubstation();
-        if (substation.isEmpty()) {
-            return Optional.empty();
-        }
-        return substation.get().getCountry();
     }
 }
