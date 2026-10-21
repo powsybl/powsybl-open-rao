@@ -88,12 +88,12 @@ and distribution system.
 
 Thanks to our modular architecture, implementing a new process in existing RAO modules or creating a new RAO based on an existing input format is accelerated (see concrete example below):
 
-![FARAO modules]( _static/img/modular.png){.forced-white-background}
+![OpenRAO modules]( _static/img/modular.png){.forced-white-background}
 
 
 Benefit from our platform for optimization with different methodologies already implemented for CACM/SO methodologies. Moreover, it is possible to contribute by adding your features/improvements in existing RAO modules and creating new ones if needed.
 
-![FARAO modules usage]( _static/img/modular2.png){.forced-white-background}
+![OpenRAO modules usage]( _static/img/modular2.png){.forced-white-background}
 
 # Under the hood
 
