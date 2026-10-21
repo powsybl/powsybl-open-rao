@@ -41,7 +41,7 @@ Whereas **HVDC range action** setpoint is not always positive. The setpoint foll
 
 ## HVDC Range Action in some capacity calculation processes
 
-### Italy Nord Process (CSE CRAC)
+### Italy North Process (CSE CRAC)
 
 As HVDC line cannot be modeled in UCTE format, an equivalent model is used: the HVDC is represented through two injections (one on each side of the line, with opposite keys of 1 and -1) as illustrated in the following diagram.
 
