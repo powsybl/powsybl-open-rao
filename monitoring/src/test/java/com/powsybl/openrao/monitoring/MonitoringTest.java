@@ -10,10 +10,12 @@ package com.powsybl.openrao.monitoring;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -21,10 +23,14 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -59,5 +65,20 @@ class MonitoringTest {
         assertEquals(4.30, monitoringResult.getCnecResult("vc - preventive").get().getMargin(), 1e-2);
         assertEquals(1.88, monitoringResult.getCnecResult("vc - curative3").get().getMargin(), 1e-2);
         assertFalse(monitoringResult.getCnecResult("vc - curative1").isPresent());
+    }
+
+    @Test
+    void testCombineWithDuplicateCnec() {
+        // Combining two monitoring results that contain the same CNEC must fail, to avoid silent overwriting of results.
+        CnecMonitoringResult<?> first = Mockito.mock(CnecMonitoringResult.class);
+        when(first.getId()).thenReturn("ac1");
+        CnecMonitoringResult<?> second = Mockito.mock(CnecMonitoringResult.class);
+        when(second.getId()).thenReturn("ac1");
+
+        MonitoringResult base = new MonitoringResult(PhysicalParameter.ANGLE, Set.of(first), Map.of(), Cnec.SecurityStatus.SECURE);
+        MonitoringResult other = new MonitoringResult(PhysicalParameter.ANGLE, Set.of(second), Map.of(), Cnec.SecurityStatus.SECURE);
+
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> base.combine(other));
+        assertEquals("Can't combine monitoring result because some CNEC present two different monitoring result", e.getMessage());
     }
 }
