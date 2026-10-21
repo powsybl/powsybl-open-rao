@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.voltage;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -575,7 +576,9 @@ class VoltageMonitoringTest {
         new VoltageMonitoring("FakeProvider", new LoadFlowParameters()).applyNetworkActions(network, Set.of(), null, Mockito.mock(State.class));
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
-        assert logsList.getLast().toString().equals("[WARN] No actions can be applied in voltage monitoring");
+        ILoggingEvent lastEvent = logsList.getLast();
+        assertEquals(Level.WARN, lastEvent.getLevel());
+        assertEquals("No actions can be applied in voltage monitoring", lastEvent.getFormattedMessage());
     }
 
     @Test
