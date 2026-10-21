@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,7 +76,8 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             timestamp = OffsetDateTime.parse(jsonParser.nextTextValue());
             nextToken = jsonParser.nextToken();
         } else {
-            timestamp = null;
+            timestamp = OffsetDateTime.now();
+            LOGGER.warn("No timestamp was provided, using current instant as a default: {}", timestamp.format(DateTimeFormatter.ISO_DATE_TIME));
         }
         Crac crac = cracFactory.create(id, name, timestamp);
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2) {

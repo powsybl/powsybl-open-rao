@@ -158,9 +158,9 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         }
     }
 
-    static boolean doesPrePerimeterSetpointRespectRange(final RangeAction<?> rangeAction,
-                                                        final RangeActionSetpointResult prePerimeterSetpoints,
-                                                        final ReportNode reportNode) {
+    public static boolean doesPrePerimeterSetpointRespectRange(final RangeAction<?> rangeAction,
+                                                               final RangeActionSetpointResult prePerimeterSetpoints,
+                                                               final ReportNode reportNode) {
         double preperimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
@@ -176,7 +176,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     /**
      * If aligned range actions' initial setpoint are different, this function filters them out
      */
-    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(final Set<RangeAction<?>> rangeActions,
+    public static void removeAlignedRangeActionsWithDifferentInitialSetpoints(final Set<RangeAction<?>> rangeActions,
                                                                        final RangeActionSetpointResult prePerimeterSetPoints,
                                                                        final ReportNode reportNode) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
