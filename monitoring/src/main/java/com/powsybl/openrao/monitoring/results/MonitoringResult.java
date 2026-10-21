@@ -49,10 +49,6 @@ public class MonitoringResult {
         return cnecMonitoringResultsPerCnecId.values().stream().collect(Collectors.toSet());
     }
 
-    private Map<String, CnecMonitoringResult<?>> getCnecMonitoringResultsPerCnecId() {
-        return cnecMonitoringResultsPerCnecId;
-    }
-
     public Optional<CnecMonitoringResult<?>> getCnecResult(String id) {
         return Optional.ofNullable(cnecMonitoringResultsPerCnecId.get(id));
     }
