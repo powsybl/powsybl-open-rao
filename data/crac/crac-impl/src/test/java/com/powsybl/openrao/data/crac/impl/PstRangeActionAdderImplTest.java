@@ -73,7 +73,7 @@ class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElementId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(Optional.of(0d), pstRangeAction.getActivationCost());
         assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(VariationDirection.UP));
@@ -150,7 +150,7 @@ class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElementId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
@@ -174,7 +174,7 @@ class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElementId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(0, pstRangeAction.getRanges().size());
         assertEquals(0, pstRangeAction.getUsageRules().size());
@@ -199,7 +199,7 @@ class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElementId());
         assertNull(pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());

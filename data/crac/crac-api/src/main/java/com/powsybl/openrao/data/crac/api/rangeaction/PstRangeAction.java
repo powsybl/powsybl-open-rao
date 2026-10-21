@@ -30,8 +30,16 @@ public interface PstRangeAction extends RangeAction<PstRangeAction> {
 
     /**
      * Get the PST Network Element on which the remedial action applies
+     *
+     * @deprecated since 7.4.0, use {@link #getNetworkElementId()} instead
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getNetworkElement();
+
+    /**
+     * Get the PST Network Element on which the remedial action applies.
+     */
+    String getNetworkElementId();
 
     /**
      * Get the list of operational TapRange delimiting the bounds of the PST range action

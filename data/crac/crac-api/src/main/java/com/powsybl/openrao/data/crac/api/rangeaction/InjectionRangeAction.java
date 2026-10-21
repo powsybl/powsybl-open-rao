@@ -38,6 +38,16 @@ public interface InjectionRangeAction extends StandardRangeAction<InjectionRange
      * Get the map of the NetworkElement (injections) on which the rangeAction applies,
      * alongside with the distribution key which define how each injection NetworkElement
      * is impacted by a change of setpoint of the RangeAction
+     *
+     * @deprecated since 7.4.0, use {@link #getInjectionDistributionKeysIds()} instead
      */
+    @Deprecated(since = "7.4.0")
     Map<NetworkElement, Double> getInjectionDistributionKeys();
+
+    /**
+     * Get the map of the network elements (injections) on which the rangeAction applies,
+     * alongside with the distribution key which define how each injection network element
+     * is impacted by a change of setpoint of the RangeAction
+     */
+    Map<String, Double> getInjectionDistributionKeysIds();
 }

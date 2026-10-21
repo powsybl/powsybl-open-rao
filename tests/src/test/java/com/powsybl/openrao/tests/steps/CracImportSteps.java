@@ -21,10 +21,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -250,7 +248,7 @@ public class CracImportSteps {
             FlowCnec flowCnec = cnecs.stream()
                 .filter(cnec -> cnec.getName()
                     .equals(cnecName))
-                .filter(cnec -> cnec.getNetworkElement().getId()
+                .filter(cnec -> cnec.getNetworkElementId()
                     .equals(networkElementId))
                 .filter(cnec -> cnec.isOptimized() == optimized)
                 .filter(cnec -> cnec.isMonitored() == monitored)
@@ -339,9 +337,9 @@ public class CracImportSteps {
                     .equals(cnecId))
                 .filter(cnec -> cnec.getName()
                     .equals(cnecName))
-                .filter(cnec -> cnec.getImportingNetworkElement().getId()
+                .filter(cnec -> cnec.getImportingNetworkElementId()
                     .equals(importingElementId))
-                .filter(cnec -> cnec.getExportingNetworkElement().getId()
+                .filter(cnec -> cnec.getExportingNetworkElementId()
                     .equals(exportingElementId))
                 .filter(cnec -> cnec.isOptimized() == optimized)
                 .filter(cnec -> cnec.isMonitored() == monitored)
@@ -349,7 +347,7 @@ public class CracImportSteps {
                 .findFirst()
                 .orElseThrow(Exception::new);
 
-            Set<String> angleCnecsNetworkElementIds = angleCnec.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet());
+            Set<String> angleCnecsNetworkElementIds = angleCnec.getNetworkElementsIds();
             assert angleCnecsNetworkElementIds.containsAll(Set.of(importingElementId, exportingElementId))
                 && Set.of(importingElementId, exportingElementId).containsAll(angleCnecsNetworkElementIds);
 
@@ -386,7 +384,7 @@ public class CracImportSteps {
             Double max = expectedCnec.get("Max").equals("null") ? null : Double.valueOf(expectedCnec.get("Max"));
 
             VoltageCnec voltageCnec = crac.getVoltageCnec(cnecId);
-            assertEquals(networkElementId, voltageCnec.getNetworkElement().getId());
+            assertEquals(networkElementId, voltageCnec.getNetworkElementId());
             if (instant.isPreventive()) {
                 assertEquals(crac.getPreventiveState(), voltageCnec.getState());
                 assertNull(contingencyName);
@@ -457,7 +455,7 @@ public class CracImportSteps {
             PstRangeAction pstRangeAction = crac.getPstRangeAction(id);
             assertNotNull(pstRangeAction);
             assertEquals(expectedPst.get("PstRangeActionName"), pstRangeAction.getName());
-            assertEquals(expectedPst.get("NetworkElementId"), pstRangeAction.getNetworkElement().getId());
+            assertEquals(expectedPst.get("NetworkElementId"), pstRangeAction.getNetworkElementId());
             assertEquals(Integer.parseInt(expectedPst.get("InitialTap")), pstRangeAction.getInitialTap());
             int minTap = Collections.min(pstRangeAction.getTapToAngleConversionMap().keySet());
             int maxTap = Collections.max(pstRangeAction.getTapToAngleConversionMap().keySet());
@@ -503,7 +501,7 @@ public class CracImportSteps {
             HvdcRangeAction rangeAction = crac.getHvdcRangeAction(id);
             assertNotNull(rangeAction);
             assertEquals(expectedRA.get("HvdcRangeActionName"), rangeAction.getName());
-            assertEquals(expectedRA.get("NetworkElementId"), rangeAction.getNetworkElement().getId());
+            assertEquals(expectedRA.get("NetworkElementId"), rangeAction.getNetworkElementId());
             String groupId = rangeAction.getGroupId().isPresent() ? rangeAction.getGroupId().get() : "null";
             assertEquals(expectedRA.get("GroupId"), groupId);
             assertEquals(Double.parseDouble(expectedRA.get("InitialSetpoint")), rangeAction.getInitialSetpoint(), DOUBLE_TOLERANCE);
@@ -571,14 +569,14 @@ public class CracImportSteps {
         assertNotNull(ira);
 
         List<Map<String, String>> expectedInjectionAndKeys = arg2.asMaps(String.class, String.class);
-        assertEquals(expectedInjectionAndKeys.size(), ira.getInjectionDistributionKeys().size());
+        assertEquals(expectedInjectionAndKeys.size(), ira.getInjectionDistributionKeysIds().size());
 
         for (Map<String, String> expectedInjectionAndKey : expectedInjectionAndKeys) {
             String expectedInjectionId = expectedInjectionAndKey.get("InjectionId");
             String expectedKey = expectedInjectionAndKey.get("Key");
 
-            Map.Entry<NetworkElement, Double> correspondingEntry = ira.getInjectionDistributionKeys().entrySet().stream()
-                .filter(e -> e.getKey().getId().equals(expectedInjectionId))
+            Map.Entry<String, Double> correspondingEntry = ira.getInjectionDistributionKeysIds().entrySet().stream()
+                .filter(e -> e.getKey().equals(expectedInjectionId))
                 .findAny().orElse(null);
 
             assertNotNull(correspondingEntry);
@@ -657,8 +655,8 @@ public class CracImportSteps {
                     String close = networkElementId.split("/")[1];
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
                         elementaryAction instanceof SwitchPair switchPair
-                            && switchPair.getSwitchToOpen().getId().equals(open)
-                            && switchPair.getSwitchToClose().getId().equals(close)));
+                            && switchPair.getSwitchToOpenId().equals(open)
+                            && switchPair.getSwitchToCloseId().equals(close)));
                     break;
                 default:
                     throw new IllegalArgumentException(String.format("Unknown elementary network action type: %s", expectedNetworkAction.get("ElementaryActionType")));

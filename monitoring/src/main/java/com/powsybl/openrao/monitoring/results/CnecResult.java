@@ -70,7 +70,7 @@ public class CnecResult<T extends CnecValue> {
             VoltageCnecValue voltageValue = (VoltageCnecValue) value;
             VoltageCnec voltageCnec = (VoltageCnec) cnec;
             return String.format("Network element %s at state %s has a min voltage of %s kV and a max voltage of %s kV.",
-                voltageCnec.getNetworkElement().getId(),
+                voltageCnec.getNetworkElementId(),
                 voltageCnec.getState().getId(),
                 MeasurementRounding.roundValueBasedOnMargin(voltageValue.minValue(), margin, 2).doubleValue(),
                 MeasurementRounding.roundValueBasedOnMargin(voltageValue.maxValue(), margin, 2).doubleValue());
@@ -79,8 +79,8 @@ public class CnecResult<T extends CnecValue> {
             AngleCnec angleCnec = (AngleCnec) cnec;
             return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %s°.",
                 angleCnec.getId(),
-                angleCnec.getImportingNetworkElement().getId(),
-                angleCnec.getExportingNetworkElement().getId(),
+                angleCnec.getImportingNetworkElementId(),
+                angleCnec.getExportingNetworkElementId(),
                 cnec.getState().getId(),
                 MeasurementRounding.roundValueBasedOnMargin(angleValue.value(), margin, 2).doubleValue());
         } else {
