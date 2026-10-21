@@ -24,7 +24,7 @@ With:
 - **cracCreationContext**: the [CimCracCreationContext object](../input-data/crac/creation-context.md#cim-implementation) generated during
   [CRAC creation](../input-data/crac/import.md) from a native [CIM CRAC file](../input-data/crac/cim.md).
   > ⚠️  **NOTE**  
-  > The exporter will fail if angle CNECs are present in the CRAC, but the RAO result does not contain angle results.  
+  > The exporter will fail if Angle CNECs are present in the CRAC, but the RAO result does not contain angle results.  
   > See how to compute angle results [here](../algorithms/monitoring.md#the-monitoring-algorithm).
 - **properties**: a specific object that te user should define, containing meta-information that will be written
   in the header of the CNE file as well as relevant RAO parameters:
@@ -312,12 +312,12 @@ Then no more results are exported for the failed perimeter.
 
 #### AdditionalConstraint_Series (optional)
 
-If angle CNECs are monitored in the actual perimeter (in basecase or after a specific contingency identified by
+If Angle CNECs are monitored in the actual perimeter (in basecase or after a specific contingency identified by
 **Contingency_Series**), this tag contains angle values from the angle monitoring module.
 
 ##### mRID
 
-Unique ID of the angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Unique ID of the Angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### businessType
 
@@ -325,7 +325,7 @@ One possible value: **B87** (angle monitoring).
 
 ##### name
 
-Name of the angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Name of the Angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### quantity.quantity
 

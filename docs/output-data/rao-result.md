@@ -819,7 +819,7 @@ This complete example was also enriched with two curative instants: `curative1` 
 
 ### Angle CNECs results
 
-These results contain important RAO information about angle CNECs.  
+These results contain important RAO information about Angle CNECs.  
 Note that you have to use [AngleCnec](../input-data/crac/json.md#angle-cnecs) objects from the CRAC in order to query the RaoResult Java API.
 
 #### Angle
@@ -829,11 +829,11 @@ Access the angle value of an AngleCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimized
+*Note that this feature is not implemented in the default RAO result implementation, as Angle CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
-// get the angle value for a given AngleCNEC, at a given state, in a given angle unit
+// get the angle value for a given Angle CNEC, at a given state, in a given angle unit
 double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
 ~~~
 
@@ -870,11 +870,11 @@ Access the angle margin value of an AngleCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimized
+*Note that this feature is not implemented in the default RAO result implementation, as Angle CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
-// get the margin value for a given AngleCNEC, at a given state, in a given angle unit
+// get the margin value for a given Angle CNEC, at a given state, in a given angle unit
 double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
 ~~~
 
@@ -925,7 +925,7 @@ Example:
 
 ### Voltage CNECs results
 
-These results contain important RAO information about voltage CNECs.  
+These results contain important RAO information about Voltage CNECs.  
 Note that you have to use [VoltageCnec](../input-data/crac/json.md#voltage-cnecs) objects from the CRAC in order to query the RaoResult Java API.
 
 #### Voltage
@@ -936,11 +936,11 @@ so multiple voltage values can exist).
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimized
+*Note that this feature is not implemented in the default RAO result implementation, as Voltage CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
-// get the min or max voltage value for a given VoltageCNEC, after optimization of a given instant, in a given voltage unit
+// get the min or max voltage value for a given Voltage CNEC, after optimization of a given instant, in a given voltage unit
 double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 ~~~
@@ -979,11 +979,11 @@ Access the worst voltage margin value (between min & max) of a VoltageCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimized
+*Note that this feature is not implemented in the default RAO result implementation, as Voltage CNECs are not optimized
 by the RAO, but monitored by a [voltage monitoring module](../algorithms/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
-// get the margin value for a given VoltageCNEC, after optimization of a given instant, in a given voltage unit
+// get the margin value for a given Voltage CNEC, after optimization of a given instant, in a given voltage unit
 double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 ~~~
 
