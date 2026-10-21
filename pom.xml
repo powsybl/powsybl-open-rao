@@ -110,11 +110,23 @@
         <powsybl.openloadflow.version>2.4.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.18</slf4j.version>
         <com.networknt.version>2.0.1</com.networknt.version><!-- TODO: update to v3 when powsybl-core updates Jackson dependency to v3 -->
+        <!-- default empty, filled by jacoco prepare-agent when the jacoco profile is active -->
+        <argLine></argLine>
     </properties>
 
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <!-- Extract native libs (powsybl-math-native) to a stable project-local dir
+                             instead of %TEMP%, to avoid the Windows Defender race on the freshly
+                             extracted DLL that crashes the Surefire fork (corrupted channel). -->
+                        <argLine>${argLine} -Dnative.lib.loader.path=${project.build.directory}/native-libs</argLine>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.jvnet.jaxb</groupId>
                     <artifactId>jaxb-maven-plugin</artifactId>
