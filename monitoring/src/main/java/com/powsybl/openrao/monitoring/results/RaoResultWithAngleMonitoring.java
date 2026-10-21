@@ -82,11 +82,12 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Optional<CnecMonitoringResult<?>> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
-
-            return ((AngleCnecMonitoringResult) angleCnecResultOpt.get()).getAngle();
-        } else {
-            return Double.NaN;
+            if (angleCnecResultOpt.get() instanceof AngleCnecMonitoringResult angleCnecMonitoringResult) {
+                return angleCnecMonitoringResult.getAngle();
+            }
+            throw new OpenRaoException("Unexpected monitoring result type for angle monitoring : " + angleCnecResultOpt.get().getClass().getSimpleName());
         }
+        return Double.NaN;
     }
 
     @Override

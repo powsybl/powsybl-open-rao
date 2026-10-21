@@ -65,10 +65,12 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecMonitoringResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
-            return ((VoltageCnecMonitoringResult) voltageCnecResultOpt.get()).getMinVoltage();
-        } else {
-            return Double.NaN;
+            if (voltageCnecResultOpt.get() instanceof VoltageCnecMonitoringResult voltageCnecMonitoringResult) {
+                return voltageCnecMonitoringResult.getMinVoltage();
+            }
+            throw new OpenRaoException("Unexpected monitoring result type for voltage monitoring : " + voltageCnecResultOpt.get().getClass().getSimpleName());
         }
+        return Double.NaN;
     }
 
     @Override
@@ -76,10 +78,12 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecMonitoringResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
-            return ((VoltageCnecMonitoringResult) voltageCnecResultOpt.get()).getMaxVoltage();
-        } else {
-            return Double.NaN;
+            if (voltageCnecResultOpt.get() instanceof VoltageCnecMonitoringResult voltageCnecMonitoringResult) {
+                return voltageCnecMonitoringResult.getMaxVoltage();
+            }
+            throw new OpenRaoException("Unexpected monitoring result type for voltage monitoring : " + voltageCnecResultOpt.get().getClass().getSimpleName());
         }
+        return Double.NaN;
     }
 
     Optional<CnecMonitoringResult<?>> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
