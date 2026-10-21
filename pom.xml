@@ -124,7 +124,7 @@
                         <!-- Extract native libs (powsybl-math-native) to a stable project-local dir
                              instead of %TEMP%, to avoid the Windows Defender race on the freshly
                              extracted DLL that crashes the Surefire fork (corrupted channel). -->
-                        <argLine>${argLine} -Dnative.lib.loader.path=${project.build.directory}/native-libs</argLine>
+                        <argLine>${argLine} -Djava.io.tmpdir=${project.build.directory}</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
