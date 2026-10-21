@@ -189,6 +189,11 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         }
 
         Injection<?> ne = getInjectionSetpointIdentifiable(ea, network);
+        if (ne == null) {
+            BUSINESS_WARNS.warn("Remedial action {} is ignored : its elementary action targets a network element that is missing in the network.", naId);
+            return false;
+        }
+
         Optional<Substation> substation = ne.getTerminal().getVoltageLevel().getSubstation();
 
         if (substation.isEmpty()) {
