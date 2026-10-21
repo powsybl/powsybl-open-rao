@@ -11,17 +11,12 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
-
-import java.util.EnumMap;
-import java.util.Map;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -32,28 +27,23 @@ public class Monitoring {
 
     private final String loadFlowProvider;
     private final LoadFlowRunParameters loadFlowRunParameters;
-    Map<PhysicalParameter, Unit> parameterToUnitMap = new EnumMap<>(PhysicalParameter.class);
 
     /**
-     * @deprecated
-     * @param loadFlowProvider
-     * @param loadFlowParameters
+     * @deprecated use {@link AngleMonitoring} or {@link VoltageMonitoring} instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowRunParameters = new LoadFlowRunParameters().setParameters(loadFlowParameters);
-        parameterToUnitMap.put(PhysicalParameter.ANGLE, Unit.DEGREE);
-        parameterToUnitMap.put(PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
     }
 
     /**
      * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      *
-     * @deprecated
+     * @deprecated use {@link AngleMonitoring} or {@link VoltageMonitoring} instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
         this(loadFlowProvider, loadFlowParameters);
         this.loadFlowRunParameters.setComputationManager(computationManager);
@@ -65,7 +55,7 @@ public class Monitoring {
      *
      * @deprecated use AngleMonitoring.runAndUpdateRaoResult instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
                                                        LoadFlowParameters loadFlowParameters,
                                                        int numberOfLoadFlowsInParallel,
@@ -80,7 +70,7 @@ public class Monitoring {
      *
      * @deprecated use AngleMonitoring.runAndUpdateRaoResult instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider,
                                                        LoadFlowParameters loadFlowParameters,
                                                        ComputationManager computationManager,
@@ -96,7 +86,7 @@ public class Monitoring {
      *
      * @deprecated use VoltageMonitoring.runAndUpdateRaoResult instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
                                                          LoadFlowParameters loadFlowParameters,
                                                          int numberOfLoadFlowsInParallel,
@@ -111,7 +101,7 @@ public class Monitoring {
      *
      * @deprecated use VoltageMonitoring.runAndUpdateRaoResult instead
      */
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider,
                                                          LoadFlowParameters loadFlowParameters,
                                                          ComputationManager computationManager,

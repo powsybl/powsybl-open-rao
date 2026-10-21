@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 /**
  * @deprecated Will be replaced by CnecMonitoringResult
  */
-@Deprecated(since = "7.4.0")
+@Deprecated(since = "7.5.0")
 public class CnecResult<T extends CnecValue> {
 
     private final Cnec<?> cnec;
@@ -34,7 +34,7 @@ public class CnecResult<T extends CnecValue> {
 
     private final Cnec.SecurityStatus securityStatus;
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public CnecResult(Cnec<?> cnec, Unit unit, T value, double margin, Cnec.SecurityStatus securityStatus) {
         this.cnec = cnec;
         this.unit = unit;
@@ -43,42 +43,42 @@ public class CnecResult<T extends CnecValue> {
         this.securityStatus = securityStatus;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public T getValue() {
         return value;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Cnec<?> getCnec() {
         return cnec;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public State getState() {
         return cnec.getState();
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public String getId() {
         return cnec.getId();
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Unit getUnit() {
         return unit;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public Cnec.SecurityStatus getCnecSecurityStatus() {
         return securityStatus;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public double getMargin() {
         return margin;
     }
 
-    @Deprecated(since = "7.4.0")
+    @Deprecated(since = "7.5.0")
     public String print() {
         if (value instanceof VoltageCnecValue) {
             VoltageCnecValue voltageValue = (VoltageCnecValue) value;

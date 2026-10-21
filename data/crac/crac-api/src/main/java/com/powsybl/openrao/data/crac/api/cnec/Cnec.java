@@ -71,7 +71,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      *
      * @deprecated Only used in the context of monitoring result, to create a new cnec monitoring result use CnecMonitoringResult
      */
-    @Deprecated (since = "7.4.0")
+    @Deprecated (since = "7.5.0")
     CnecValue computeValue(Network network, Unit unit);
 
     /**
@@ -81,7 +81,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      *
      * @deprecated Only used in the context of monitoring result, to create a new cnec monitoring result use CnecMonitoringResult
      */
-    @Deprecated (since = "7.4.0")
+    @Deprecated (since = "7.5.0")
     double computeMargin(Network network, Unit unit);
 
     /**
@@ -91,7 +91,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      *
      * @deprecated Only used in the context of monitoring result, to create a new cnec monitoring result use CnecMonitoringResult
      */
-    @Deprecated (since = "7.4.0")
+    @Deprecated (since = "7.5.0")
     SecurityStatus computeSecurityStatus(Network network, Unit unit);
 
     /**
