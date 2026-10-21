@@ -103,7 +103,7 @@ class CracValidatorTest {
         assertNotNull(flowCnec);
         FlowCnec duplicate = crac.getFlowCnec(flowCnec.getId() + " - OUTAGE DUPLICATE");
         assertNotNull(duplicate);
-        assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
+        assertEquals(flowCnec.getNetworkElementId(), duplicate.getNetworkElementId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
         assertEquals(outageInstant, duplicate.getState().getInstant());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());

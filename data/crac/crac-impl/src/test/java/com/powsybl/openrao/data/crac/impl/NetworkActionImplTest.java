@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -71,7 +69,7 @@ class NetworkActionImplTest {
         assertEquals("operator", networkAction1.getOperator());
         assertEquals(1, networkAction1.getUsageRules().size());
         assertEquals(1, networkAction1.getElementaryActions().size());
-        assertEquals(generator.getId(), networkAction1.getNetworkElements().iterator().next().getId());
+        assertEquals(generator.getId(), networkAction1.getNetworkElementsIds().iterator().next());
     }
 
     @Test
@@ -81,7 +79,7 @@ class NetworkActionImplTest {
         assertEquals("operator", networkAction2.getOperator());
         assertEquals(2, networkAction2.getUsageRules().size());
         assertEquals(2, networkAction2.getElementaryActions().size());
-        assertEquals(Set.of(generator.getId(), switchToOpen.getId(), switchToClose.getId()), networkAction2.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
+        assertEquals(Set.of(generator.getId(), switchToOpen.getId(), switchToClose.getId()), networkAction2.getNetworkElementsIds());
     }
 
     @Test
@@ -132,6 +130,6 @@ class NetworkActionImplTest {
         assertEquals(Optional.of(10), duplicate.getSpeed());
         assertEquals(1, duplicate.getUsageRules().size());
         assertEquals(1, duplicate.getElementaryActions().size());
-        assertEquals(generator.getId(), duplicate.getNetworkElements().iterator().next().getId());
+        assertEquals(generator.getId(), duplicate.getNetworkElementsIds().iterator().next());
     }
 }

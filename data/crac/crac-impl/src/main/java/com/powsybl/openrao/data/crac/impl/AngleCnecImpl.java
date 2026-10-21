@@ -30,16 +30,16 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     private final NetworkElement importingNetworkElement;
 
     AngleCnecImpl(String id,
-                 String name,
-                 NetworkElement exportingNetworkElement,
-                 NetworkElement importingNetworkElement,
-                 String operator,
-                 String border,
-                 State state,
-                 boolean optimized,
-                 boolean monitored,
+                  String name,
+                  NetworkElement exportingNetworkElement,
+                  NetworkElement importingNetworkElement,
+                  String operator,
+                  String border,
+                  State state,
+                  boolean optimized,
+                  boolean monitored,
                   Set<Threshold> thresholds,
-                 double reliabilityMargin) {
+                  double reliabilityMargin) {
         super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
         this.exportingNetworkElement = exportingNetworkElement;
@@ -52,8 +52,18 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     @Override
+    public String getExportingNetworkElementId() {
+        return exportingNetworkElement.getId();
+    }
+
+    @Override
     public NetworkElement getImportingNetworkElement() {
         return importingNetworkElement;
+    }
+
+    @Override
+    public String getImportingNetworkElementId() {
+        return importingNetworkElement.getId();
     }
 
     @Override
@@ -133,23 +143,9 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         double actualAngleValue = computeValue(network, unit).value();
 
         if (computeMargin(actualAngleValue, unit) < 0) {
-            boolean highVoltageConstraints = false;
-            boolean lowVoltageConstraints = false;
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && actualAngleValue > threshold.max().orElseThrow())) {
-                highVoltageConstraints = true;
-            }
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && actualAngleValue < threshold.min().orElseThrow())) {
-                lowVoltageConstraints = true;
-            }
-            if (highVoltageConstraints && lowVoltageConstraints) {
-                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
-            } else if (highVoltageConstraints) {
-                return SecurityStatus.HIGH_CONSTRAINT;
-            } else {
-                return SecurityStatus.LOW_CONSTRAINT;
-            }
+            return getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) < actualAngleValue
+                ? SecurityStatus.HIGH_CONSTRAINT
+                : SecurityStatus.LOW_CONSTRAINT;
         } else {
             return SecurityStatus.SECURE;
         }
@@ -173,16 +169,16 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         AngleCnecImpl cnec = (AngleCnecImpl) o;
         return super.equals(cnec)
             && thresholds.equals(cnec.getThresholds())
-            && exportingNetworkElement.equals(cnec.getExportingNetworkElement())
-            && importingNetworkElement.equals(cnec.getImportingNetworkElement());
+            && getExportingNetworkElementId().equals(cnec.getExportingNetworkElementId())
+            && getImportingNetworkElementId().equals(cnec.getImportingNetworkElementId());
     }
 
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
         hashCode = 31 * hashCode + thresholds.hashCode();
-        hashCode = 31 * hashCode + exportingNetworkElement.hashCode();
-        hashCode = 31 * hashCode + importingNetworkElement.hashCode();
+        hashCode = 31 * hashCode + getExportingNetworkElementId().hashCode();
+        hashCode = 31 * hashCode + getImportingNetworkElementId().hashCode();
         return hashCode;
     }
 }

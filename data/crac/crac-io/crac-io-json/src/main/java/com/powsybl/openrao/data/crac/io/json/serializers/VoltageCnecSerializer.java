@@ -30,7 +30,7 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.ID, voltageCnec.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, voltageCnec.getName());
-        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, voltageCnec.getNetworkElement().getId());
+        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, voltageCnec.getNetworkElementId());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, voltageCnec.getOperator());
         gen.writeStringField(JsonSerializationConstants.BORDER, voltageCnec.getBorder());
         gen.writeStringField(JsonSerializationConstants.INSTANT, voltageCnec.getState().getInstant().getId());

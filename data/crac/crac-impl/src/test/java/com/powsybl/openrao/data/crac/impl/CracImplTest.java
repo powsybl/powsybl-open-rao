@@ -160,7 +160,8 @@ class CracImplTest {
     @Test
     void testStatesAndInstantsInitialization() {
         assertEquals(0, crac.getContingencies().size());
-        assertEquals(0, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState());
+        assertEquals(1, crac.getStates().size()); //preventive state is created by default
     }
 
     @Test
@@ -313,14 +314,15 @@ class CracImplTest {
         assertNotNull(crac.getRemedialAction("ra"));
         assertNotNull(crac.getNetworkAction("ra"));
 
-        assertEquals(5, crac.getStates().size());
+        assertEquals(6, crac.getStates().size());
         crac.safeRemoveStates(Set.of(curative1.getId(), auto1.getId(), curative2.getId(), auto2.getId()));
-        assertEquals(4, crac.getStates().size());
+        assertEquals(5, crac.getStates().size());
         assertNotNull(crac.getState(contingency1, curativeInstant));
         assertNotNull(crac.getState(contingency1, curativeInstant));
         assertNotNull(crac.getState(contingency2, curativeInstant));
         assertNull(crac.getState(contingency2, autoInstant));
         assertNotNull(crac.getState(contingency2, curativeInstant));
+        assertNotNull(crac.getPreventiveState());
     }
 
     @Test
@@ -399,8 +401,6 @@ class CracImplTest {
 
     @Test
     void testPreventiveState() {
-        assertNull(crac.getPreventiveState());
-        crac.addPreventiveState();
         State state = crac.getPreventiveState();
         assertNotNull(state);
         assertEquals(preventiveInstant, state.getInstant());
@@ -447,7 +447,7 @@ class CracImplTest {
         assertTrue(crac.getStates(outageInstant).containsAll(Set.of(outage1, outage2)));
         assertEquals(1, crac.getStates(autoInstant).size());
         assertTrue(crac.getStates(autoInstant).contains(auto2));
-        assertTrue(crac.getStates(preventiveInstant).isEmpty());
+        assertFalse(crac.getStates(preventiveInstant).isEmpty()); // preventive state created by default
     }
 
     @Test
@@ -594,7 +594,8 @@ class CracImplTest {
         assertEquals(0, crac.getNetworkElements().size());
         assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(1, crac.getContingency("co2").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
-        assertEquals(0, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState()); // preventive state is created by default
+        assertEquals(1, crac.getStates().size());
     }
 
     @Test
@@ -669,7 +670,8 @@ class CracImplTest {
         assertEquals(0, crac.getNetworkElements().size());
         assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(1, crac.getContingency("co2").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
-        assertEquals(0, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState());
+        assertEquals(1, crac.getStates().size()); // preventive state is created by default
     }
 
     @Test
@@ -740,7 +742,8 @@ class CracImplTest {
         assertEquals(0, crac.getNetworkElements().size());
         assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
-        assertEquals(0, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState());
+        assertEquals(1, crac.getStates().size()); // by default the preventive state is created
     }
 
     @Test
@@ -877,7 +880,8 @@ class CracImplTest {
         assertEquals(0, crac.getRemedialActions().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neCo"));
-        assertEquals(0, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState());
+        assertEquals(1, crac.getStates().size()); // by default the preventive state is created
     }
 
     @Test
@@ -1155,8 +1159,8 @@ class CracImplTest {
         // ra10 : preventive only, counter trade
         ra10 = crac.newCounterTradeRangeAction()
             .withId("ra10")
-            .withExportingArea("FR")
-            .withImportingArea("DE")
+            .withAreaId("FR")
+            .withInitialSetpoint(0d)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()
@@ -1331,5 +1335,13 @@ class CracImplTest {
 
         crac2 = CommonCracCreation.createWithCurativePstRange();
         assertEquals(Set.of("operator2"), crac2.findOperatorsNotSharingCras());
+    }
+
+    @Test
+    void testPreventiveStateDefaultCreation() {
+        // check that when preventive instant is created, preventive state is created too
+        crac = new CracImpl("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+        assertNotNull(crac.getPreventiveState());
     }
 }

@@ -20,8 +20,16 @@ public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
 
     /**
      * Get the HVDC Network Element on which the remedial action applies
+     *
+     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getNetworkElement();
+
+    /**
+     * Get the HVDC Network Element on which the remedial action applies
+     */
+    String getNetworkElementId();
 
     boolean isAngleDroopActivePowerControlEnabled(Network network);
 

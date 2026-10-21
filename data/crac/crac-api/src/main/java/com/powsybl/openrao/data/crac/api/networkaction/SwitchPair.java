@@ -19,22 +19,38 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 public interface SwitchPair extends Action {
     /**
      * Get the switch that should be opened by the elementary action
+     *
+     * @deprecated since 7.4.0, use {@link #getSwitchToOpenId()} instead
      */
+    @Deprecated(since = "7.4.0")
     NetworkElement getSwitchToOpen();
+
+    /**
+     * Get the switch that should be opened by the elementary action
+     */
+    String getSwitchToOpenId();
+
+    /**
+     * Get the switch that should be closed by the elementary action
+     *
+     * @deprecated since 7.4.0, use {@link #getSwitchToCloseId()} instead
+     */
+    @Deprecated(since = "7.4.0")
+    NetworkElement getSwitchToClose();
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    NetworkElement getSwitchToClose();
+    String getSwitchToCloseId();
 
     default boolean isCompatibleWith(Action otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return getSwitchToOpen().equals(switchPair.getSwitchToOpen())
-                    && getSwitchToClose().equals(switchPair.getSwitchToClose())
-                || !getSwitchToOpen().equals(switchPair.getSwitchToOpen())
-                    && !getSwitchToOpen().equals(switchPair.getSwitchToClose())
-                    && !getSwitchToClose().equals(switchPair.getSwitchToClose())
-                    && !getSwitchToClose().equals(switchPair.getSwitchToOpen());
+            return getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
+                    && getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
+                || !getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
+                    && !getSwitchToOpenId().equals(switchPair.getSwitchToCloseId())
+                    && !getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
+                    && !getSwitchToCloseId().equals(switchPair.getSwitchToOpenId());
         }
         return true;
     }

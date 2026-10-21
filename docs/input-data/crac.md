@@ -38,8 +38,8 @@ They can be defined on some categories of network elements:
 - HVDC line,
 - Production unit.
 
-A range action can also be a counter-trade remedial action corresponding to an exchange from an exporting country to an
-importing country.
+A range action can also be a counter-trade remedial action corresponding to an exchange between an area and one or more
+connected areas sharing a border with it.
 
 The determination of the optimal set-point improving a network situation requires some data:
 - the current value in a specified network,
