@@ -1,10 +1,10 @@
 # CRAC creation parameters
 
 ## Introduction
-Native CRAC formats do not always hold all the information needed in order to conduct a precise remedial action optimisation.  
+Native CRAC formats do not always hold all the information needed in order to conduct a precise remedial action optimization.  
 For instance, when monitoring current flows (vs their limits) on lines, one can wonder if they shall monitor 
 the current on both sides of the line, on the left side only, or on the right side only.  
-In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimisation problem.  
+In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimization problem.  
 In AC convention, it is generally preferred to monitor both sides, as flows on both sides can be different because of losses.  
   
 In OpenRAO's [internal CRAC format](json.md), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
@@ -127,7 +127,7 @@ extension to the CracCreationParameters object in order to define them.
 
 The CSE native CRAC format does not allow defining [aligned range actions](json.md#range-actions). This extra parameter 
 allows the user to do just that.  
-To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
+To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned separated by a 
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
 See [example below](#full-cse-example) for a better illustration.
 
@@ -223,7 +223,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](json.md#range-actions). 
 This extra parameter allows the user to do just that.  
-To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
+To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned separated by a
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
 See [example below](#full-cim-example) for a better illustration.
 
@@ -238,9 +238,9 @@ Beware that OpenRAO cannot optimize range-action automatons that do not have a d
 must have the same speed.  
 See [example below](#full-cim-example) for a better illustration.
 
-### voltage-cnecs-creation-parameters
+### voltage-CNECs-creation-parameters
 
-The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-cnecs). This parameter allows the user 
+The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-CNECs). This parameter allows the user 
 to add VoltageCnecs during CRAC creation.  
 To define voltage CNECs, the user has to define:
 - A list of monitored network elements, identified by their unique ID in the network file. These network elements must be VoltageLevels.
@@ -333,7 +333,7 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
           "speed": 2
         }
       ],
-      "voltage-cnecs-creation-parameters": {
+      "voltage-CNECs-creation-parameters": {
         "monitored-states-and-thresholds": [
           {
             "instant": "preventive",
@@ -391,7 +391,7 @@ The NC profiles from the [NC native CRAC format](nc.md) need additional informat
 
 ### capacity-calculation-region-eic-code
 
-In the NC profiles, the [AssessedElements](nc.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
+In the NC profiles, the [AssessedElements](nc.md#CNECs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
 
 ### curative-instants
 

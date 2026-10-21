@@ -2,11 +2,11 @@
 
 ## Definition
 
-MNECs (Monitored Network Elements) are monitored rather than optimised,
-see [Optimised and monitored CNECs](../../../input-data/crac/json.md#optimised-and-monitored-cnecs)
+MNECs (Monitored Network Elements) are monitored rather than optimized,
+see [Optimized and monitored CNECs](../../../input-data/crac/json.md#optimized-and-monitored-CNECs)
 Their margin must be kept positive or above its initial value.
 
 ## Implementation
 
-MNEC constraints are modelled in the RAO under the linear problem
+MNEC constraints are modeled in the RAO under the linear problem
 as [MNEC constraints](../linear-problem/special-features/mnec-filler.md).

@@ -5,7 +5,7 @@
 getting-started/tutorial.md
 getting-started/time-coupled-tutorial.md
 ```
-OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation, part of the Linux Foundation Energy.
+OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims to provide a modular engine for remedial actions optimization, part of LF Energy.
 
 ## Useful links
 
@@ -14,36 +14,36 @@ OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims at provi
 - [GitHub](https://github.com/powsybl/powsybl-open-rao)
 - [![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://powsybl.slack.com/archives/C06D799R51T)
 
-A java tutorial is available [here](getting-started/tutorial.md).
+A Java tutorial is available [here](getting-started/tutorial.md).
 
 ### Python
 
-Based on PyPowsybl, OpenRao can be used with Python.
+Based on PyPowsybl, OpenRAO can be used with Python.
 - [GitHub](https://github.com/powsybl/pypowsybl-notebooks)
 - [PyPowsybl documentation](https://powsybl.readthedocs.io/projects/pypowsybl/en/stable/)
 
 A Jupyter notebook is defined [here](https://github.com/powsybl/pypowsybl-notebooks/blob/notebook_rao_v1.11/open_rao.ipynb).
 
-## Start using OpenRao
+## Start using OpenRAO
 
 - Mandatory [input data](input-data.md) are:
   - a [network](input-data/network.md)
   - a [CRAC](input-data/crac.md). CRAC objects are detailed [here](input-data/crac/json.md).
-- You will also need to define a set of [rao parameters](parameters.md).
+- You will also need to define a set of [RAO parameters](parameters.md).
 - Outputs:
   - Step-by-step calculation is detailed in the [logs](output-data/rao-logs.md). Learn more about how logs are configured [here](output-data/rao-logs/example.md).
-  - Rao results are defined in a json file, described [here](output-data/rao-result.md).
+  - RAO results are defined in a JSON file, described [here](output-data/rao-result.md).
 
-## Understanding OpenRao
+## Understanding OpenRAO
 
-- The following pages describe how OpenRao works:
+- The following pages describe how OpenRAO works:
   - [CASTOR, the RAO algorithm](algorithms/castor.md)
-  - [Optimisation steps](algorithms/castor/rao-steps.md)
+  - [Optimization steps](algorithms/castor/rao-steps.md)
   - [Monitoring module](algorithms/monitoring.md)
 
 - For a fine understanding of the constraints defined in the Linear Problem, see this [section](algorithms/castor/linear-problem).
 
 
-## Fine tuning your implementation of OpenRao
+## Fine tuning your implementation of OpenRAO
 
-Check [Combining performance and complexity](algorithms/castor/performance.md) to adapt your rao implementation.
+Check [Combining performance and complexity](algorithms/castor/performance.md) to adapt your RAO implementation.

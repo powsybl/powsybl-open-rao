@@ -6,7 +6,7 @@ to the end user._
 
 ## OpenRAO version
 
-The first log that is outputed by OpenRAO is about the version of OpenRAO which is used.
+The first log that is output by OpenRAO is about the version of OpenRAO which is used.
 ~~~
 WARN  c.p.o.commons.logs.RaoBusinessWarns - Running RAO using OpenRAO version 5.6.0-SNAPSHOT from git commit 45eb3cf9d26a3509eeeb260bd9fe157ff006e1c2.
 ~~~
@@ -71,11 +71,11 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -1
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
-After root leaf evaluation, the RAO conducts [range action linear optimisation](../../algorithms/castor/linear-problem.md) 
+After root leaf evaluation, the RAO conducts [range action linear optimization](../../algorithms/castor/linear-problem.md) 
 before applying any [network action](../../input-data/crac.md#network-action). 
 This step is usually quick and allows the RAO to try to secure the network / improve margins using only remedial actions 
 with a linear impact on the network ([range actions](../../input-data/crac.md#range-action)).  
-Multiple "MILP -> sensitivity analysis" iterations can be needed until the optimisation converges to an optimal set of 
+Multiple "MILP -> sensitivity analysis" iterations can be needed until the optimization converges to an optimal set of 
 set-point for range actions (in the example, 2 iterations are needed at the root leaf).
 
 ~~~
@@ -96,13 +96,13 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -179.1
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -173.31 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
-The RAO successfully decreased the objection function value to 179.1 by setting the tap position of PST "PRA_CRA_PST_BE" to 1.
+The RAO successfully decreased the objective function value to 179.1 by setting the tap position of PST "PRA_CRA_PST_BE" to 1.
 (Note that the objective function seen by the RAO is the opposite of the minimum margin).  
 So it increased the margin on the most limiting element from -182MW to -179MW.  
 This is not a lot (but it's a good start); you can limit using range actions for small margin improvements using 
-[the dedicated parameters](../../parameters/business-parameters.md#range-actions-optimisation-parameters).
+[the dedicated parameters](../../parameters/business-parameters.md#range-actions-optimization-parameters).
 
-### Network actions optimisation
+### Network actions optimization
 
 After getting the most out of range actions, the RAO then goes on to choosing the best network actions.  
 It does so by choosing the single best network action (or [pre-defined network action combination](../../parameters/implementation-specific-parameters.md#predefined-combinations)) 
@@ -112,7 +112,7 @@ actions to try.
 
 The search-tree RAO works by generating "leaves" for every depth: every leaf represents the situation of the network with 
 an applied network action (or network action combination).  
-Then every leaf is treated like the root leaf: it is evaluated, then optimised.  
+Then every leaf is treated like the root leaf: it is evaluated, then optimized.  
 
 #### Search depth 1
 
@@ -162,11 +162,11 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 M
 
 The RAO has two preventive network actions to assess:
 - Open line FR1-FR2: after applying this action on the original network (leaf evaluation), the minimum margin is 
-  decreased from -182 to -1308 MW! Even after optimising range actions (leaf optimisaton), minimum margin only reaches -1267MW.
+  decreased from -182 to -1308 MW! Even after optimizing range actions (leaf optimization), minimum margin only reaches -1267MW.
 - Open line NL1-NL2: after applying this action on the original network, the minimum margin is almost not changed (-182 MW). 
   However, once it is associated to optimal range action ste-points, the minimum margin reaches -141 MW!  
 
-After evaluating and optimising these two leaves, the search-tree decides to keep the combination of network action 
+After evaluating and optimizing these two leaves, the search-tree decides to keep the combination of network action 
 "Open line NL1-NL2" with PST action "PRA_CRA_PST_BE" at tap position -6. This optimal combination changes the most 
 limiting elements in the preventive RAO:
 - CNEC "NL1-NL3-D - outage" is now secure with a margin of +0.22MW, and is the second most-limiting element
@@ -199,8 +199,8 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - No better result found in search dept
 ~~~
 
 This combination is almost as catastrophic as using "Open line FR1-FR2" alone:
-- before range actions optimisation, minimum margin is decreased to -1339MW
-- even after range actions optimisation, minimum margin only reaches -1280MW
+- before range actions optimization, minimum margin is decreased to -1339MW
+- even after range actions optimization, minimum margin only reaches -1280MW
   
 The RAO scraps the combination.
 
@@ -241,7 +241,7 @@ The following steps will have to take care of this.
 
 Every contingency is treated separately:
 - Each auto instant is simulated to select triggered automatons (if AUTO CNECs and remedial actions exist)
-- Each curative instant is optimised in a search-tree to select best curative actions
+- Each curative instant is optimized in a search-tree to select best curative actions
 
 In this case, the CRAC only defines one contingency: "Contingency_FR1_FR3".
 As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](../../algorithms/castor/rao-steps.md#extension-of-the-preventive-perimeter-to-the-curative-situation)).
@@ -279,7 +279,7 @@ The OpenRAO automaton simulator shifts the PST's tap (using sensitivity values) 
 reaches its limit tap. In this case, shifting the PST's set-point from 0.0 to 1.56 (in radians) is enough to increase 
 the margin on the CNEC from -32 to +7 MW.  
 
-### Curative remedial actions optimisation
+### Curative remedial actions optimization
 
 The curative search-tree starts by assessing the most limiting element of the curative perimeter.  
 Here, it is the same network element as in the auto perimeter with a margin of +7MW.  
@@ -339,7 +339,7 @@ perimeter, increased from +7 to +224 MW.
 
 ## Second preventive RAO
 
-After optimising preventive remedial actions, simulating automatons, and optimising curative remedial actions, the 
+After optimizing preventive remedial actions, simulating automatons, and optimizing curative remedial actions, the 
 network situation is re-assessed after applying these actions on it.  
 Then a second preventive RAO is executed.  
 First, the RAO applies only automatons and curative actions on the network and assesses the constraints.
@@ -361,8 +361,8 @@ virtual cost (i.e. soft constraint violation) of 389 (equivalent) megawatts.
 A new preventive search-tree is executed, like the first one, but taking into account all CNECs as well as applied 
 automatic and curative actions.  
 
-(Note that the original virtual cost is due to applied preventive PST that is not re-optimised, because it is also 
-curative, and re-optimising curative PSTs is not enabled in this instance)
+(Note that the original virtual cost is due to applied preventive PST that is not re-optimized, because it is also 
+curative, and re-optimizing curative PSTs is not enabled in this instance)
 
 ~~~
 INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Second preventive perimeter optimization [start]

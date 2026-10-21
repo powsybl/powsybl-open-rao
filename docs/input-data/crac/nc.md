@@ -165,7 +165,7 @@ element.
 
 ## CNECs
 
-The [CNECs](json.md#cnecs) are described in the **AE** profile with an `AssessedElement` object which bears the identifier,
+The [CNECs](json.md#CNECs) are described in the **AE** profile with an `AssessedElement` object which bears the identifier,
 name, instant(s) and operator information.
 
 ```xml
@@ -233,7 +233,7 @@ of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
 
 ::::{tabs}
 :::{group-tab} OperationalLimit
-The CNEC is a [FlowCNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
+The CNEC is a [FlowCNEC](json.md#flow-CNECs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
 the **EQ** profile (CGMES file).
 
 ```xml
@@ -396,7 +396,7 @@ Then given a limit (PATL or TATL), the FlowCNEC's instant is retrieved as follow
 
 ### AngleCNEC
 
-The CNEC is an [AngleCNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
+The CNEC is an [AngleCNEC](json.md#angle-CNECs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
 found in the **ER** profile.
 
 ```xml
@@ -453,7 +453,7 @@ on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 
 ### VoltageCNEC
 
-The CNEC is a [VoltageCNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
+The CNEC is a [VoltageCNEC](json.md#voltage-CNECs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
 found in the **EQ** profile (CGMES file).
 
 ```xml
@@ -678,7 +678,7 @@ to open or to close the switch.
 
 For the `StaticPropertyRange`, the `PropertyReference` must also be `Switch.open`. Note that the `valueKind` must
 be `absolute` and the `direction` must be `none` to indicate that the limit does not depend on the previous switch's
-state. Finally, the `normalValue` field sets the behaviour of the switch:
+state. Finally, the `normalValue` field sets the behavior of the switch:
 
 - if it is 0 the switch will be closed
 - if it is 1 the switch will be opened

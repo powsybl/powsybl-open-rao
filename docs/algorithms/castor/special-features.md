@@ -3,14 +3,14 @@
 ```{toctree}
 :hidden:
 special-features/loop-flows.md
-special-features/mnecs.md
-special-features/do-not-optimize-specific-cnecs.md
+special-features/MNECs.md
+special-features/do-not-optimize-specific-CNECs.md
 special-features/hvdc.md
 ```
 
-Several special features can be included in the RAO optimisation:
-- limiting loop-flows on cross-zonal cnecs 
-- monitoring (rather than optimising) the flow on certain FlowCnecs (MNECs)
+Several special features can be included in the RAO optimization:
+- limiting loop flows on cross-zonal CNECs 
+- monitoring (rather than optimizing) the flow on certain FlowCnecs (MNECs)
 - not taking into account certain FlowCnecs - under specific conditions - for the computation of the minimum margin in the objective function
 - optimizing HVDC range action when the HVDC line is originally in AC emulation mode.
 

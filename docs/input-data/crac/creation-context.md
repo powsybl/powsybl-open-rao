@@ -571,7 +571,7 @@ void printSomeResults(AngleCnecCreationContext context, CracCreationContext crac
 ### Voltage CNEC creation contexts
 The `VoltageCnecCreationContext`
 contains information about the creation of angle CNECs in OpenRAO. One VoltageCnecCreationContext is created for every voltage
-CNEC that should be created, as configured in the [CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
+CNEC that should be created, as configured in the [CimCracCreationParameters](creation-parameters.md#voltage-CNECs-creation-parameters). 
 It holds the following information:
 - **NativeNetworkElementId**: the unique identifier of the network element that is monitored
 - **Instant**: the instant for which the CNEC is created

@@ -1,10 +1,10 @@
-# Modelling the maximum minimum relative margin objective function
+# Modeling the maximum minimum relative margin objective function
 
 ## Used input data
 
 | Name                     | Symbol                    | Details                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 |--------------------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OptimisedFlowCnecs       | $c \in \mathcal{C} ^{o}$  | Set of FlowCnecs[^1] which are ['optimised'](../../../../input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$                                                                                                                                                                                                   |
+| OptimisedFlowCnecs       | $c \in \mathcal{C} ^{o}$  | Set of FlowCnecs[^1] which are ['optimized'](../../../../input-data/crac/json.md#optimized-and-monitored-CNECs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$                                                                                                                                                                                                   |
 | upper threshold          | $f^{+}_{threshold} (c)$   | Upper threshold of FlowCnec $c$, in [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters), as defined in the CRAC                                                                                                                                                                                                                                                                                                |
 | lower threshold          | $f^{-}_{threshold} (c)$   | Lower threshold of FlowCnec $c$, in [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters), defined in the CRAC                                                                                                                                                                                                                                                                                                   |
 | nominal voltage          | $U_{nom}(c)$              | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -124,7 +124,7 @@ $$
 
 ## Contribution to the objective function
 
-The sum of minimum absolute & relative margins should be maximised:
+The sum of minimum absolute & relative margins should be maximized:
 
 $$
 \begin{equation}

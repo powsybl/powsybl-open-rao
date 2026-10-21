@@ -18,7 +18,7 @@ gradient constraints** (in MW/h for instance) that restrict the power variation 
 > For example, if a generator has an upward and downward power gradient of 50 MW/h, its power cannot increase or decrease
 > more than 50 MW between two consecutive timestamps of one hour each.
 
-When aiming for a more realistic modelling of the power grid, such constraints must be taken in account and some RCCs
+When aiming for a more realistic modeling of the power grid, such constraints must be taken in account and some RCCs
 have already expressed their need for including time-coupled constraints in RAO optimization.
 
 By coupling the optimization timestamps with one another, these time-coupled constraints increase significantly the

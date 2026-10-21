@@ -73,7 +73,7 @@ However, a branch has also a lot of optional tags that are described right below
 - **Vn** : It is the nominal voltage, but OpenRAO reads is directly in the network therefore it is useless to fill it
 - **minmargin** : OpenRAO does not interact with this tag
 - **Direction** : Has to be DIRECT, OPPOSITE or BIDIR. **If the Branch is defined in a BaseCaseBranch, a CriticalBranch 
-or a MonitoredElement, this tag is mandatory.** Please refer to [this section](json.md#flow-cnecs) of JSON CRAC Format
+or a MonitoredElement, this tag is mandatory.** Please refer to [this section](json.md#flow-CNECs) of JSON CRAC Format
 for more information on the behavior of OpenRAO according to the different direction values.
 - **Status** : Must be OPEN or CLOSE for a branch involved in a topological action. Default value is OPEN. See an example in the [topological actions](#network-actions) section of this page.
 - **Sensitivity** : OpenRAO does not interact with this tag
