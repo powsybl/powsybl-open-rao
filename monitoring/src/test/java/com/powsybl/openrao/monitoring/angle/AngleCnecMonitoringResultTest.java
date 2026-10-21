@@ -93,10 +93,12 @@ public class AngleCnecMonitoringResultTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
-        Network networkMock = mockBusAngleInNetwork("BBE1AA1", 1200., "BBE2AA1", 300.);
+        // angle = 1400 - 300 = 1100 > max threshold 1000 -> margin = -100 -> HIGH_CONSTRAINT
+        Network networkMock = mockBusAngleInNetwork("BBE1AA1", 1400., "BBE2AA1", 300.);
         AngleCnecMonitoringResult angleCnecResult = new AngleCnecMonitoringResult(cnec, Unit.DEGREE, networkMock);
 
-        assertEquals(Cnec.SecurityStatus.SECURE, angleCnecResult.getCnecSecurityStatus());
+        assertEquals(-100., angleCnecResult.getMargin(), DOUBLE_TOLERANCE);
+        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, angleCnecResult.getCnecSecurityStatus());
     }
 
     // test threshold on branches whose nominal voltage is the same on both side
