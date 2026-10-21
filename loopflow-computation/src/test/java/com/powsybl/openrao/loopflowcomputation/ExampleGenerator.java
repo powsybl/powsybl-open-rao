@@ -175,36 +175,36 @@ final class ExampleGenerator {
             .setId("FR-BE1").setName("FR-BE1")
             .setVoltageLevel1("Voltage level FR").setVoltageLevel2("Voltage level BE")
             .setBus1("Bus FR").setBus2("Bus BE 1")
-            .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
+            .setR(0.1).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
         network.newLine()
             .setId("FR-DE").setName("FR-DE")
             .setVoltageLevel1("Voltage level FR").setVoltageLevel2("Voltage level DE")
             .setBus1("Bus FR").setBus2("Bus DE")
-            .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
+            .setR(0.1).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
         network.newLine()
             .setId("BE2-NL").setName("BE2-NL")
             .setVoltageLevel1("Voltage level BE").setVoltageLevel2("Voltage level NL")
             .setBus1("Bus BE 2").setBus2("Bus NL")
-            .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
+            .setR(0.1).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
         network.newLine()
             .setId("DE-NL").setName("DE-NL")
             .setVoltageLevel1("Voltage level DE").setVoltageLevel2("Voltage level NL")
             .setBus1("Bus DE").setBus2("Bus NL")
-            .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
+            .setR(0.1).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
         network.newLine()
             .setId("BE1-BE2").setName("BE1-BE2")
             .setVoltageLevel1("Voltage level BE").setVoltageLevel2("Voltage level BE")
             .setBus1("Bus BE 1").setBus2("Bus BE 2")
-            .setR(0).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
+            .setR(0.1).setX(5).setB1(0).setB2(0).setG1(0).setG2(0)
             .add();
         voltageLevelBe.newBoundaryLine()
             .setId("BE1-XBE").setBus("Bus BE 1").setPairingKey("XBE")
             .setP0(25).setQ0(0)
-            .setR(0).setX(5).setB(0).setG(0)
+            .setR(0.1).setX(5).setB(0).setG(0)
             .add();
 
         return network;
