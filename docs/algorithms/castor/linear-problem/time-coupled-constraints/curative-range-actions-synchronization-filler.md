@@ -43,4 +43,5 @@ A range action shared by $n$ timestamps therefore creates $n-1$ constraints. The
 implied by transitivity, so this is the minimal set of constraints making the $n$ setpoints mutually equal.
 
 **Note** : 
-The range actions are matched across the timestamps by their CRAC IDs, their network elements are not compared.
+- The range actions are matched across the timestamps by their CRAC IDs, their network elements are not compared.
+- All range actions available for the given contingency are synchronized. Currently, there is no way to allow some range actions to be unsynchronized.
