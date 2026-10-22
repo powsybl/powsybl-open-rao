@@ -7,6 +7,13 @@ on:
   pull_request:
 
 jobs:
+  path-filter:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/path-filter.yml
+
   doc_ubuntu:
     name: ⚙️ Build documentation on Ubuntu
     runs-on: ubuntu-latest
@@ -33,20 +40,34 @@ jobs:
 
   broken_links_check:
     name: 🔗 Look for broken links
+    needs: path-filter
+    if: always()
     runs-on: ubuntu-latest
+    # Code-only PRs: skip the check, but keep the job running (no-op) so the required
+    # check is still reported and the PR is not blocked.
+    env:
+      RUN_CHECK: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.docs == 'true' }}
     steps:
+      - name: Skip link check for code-only PR
+        if: env.RUN_CHECK != 'true'
+        run: echo "PR does not touch documentation - skipping broken links check"
+
       - name: Checkout sources
+        if: env.RUN_CHECK == 'true'
         uses: actions/checkout@v1
 
       - name: Set up Node.js
+        if: env.RUN_CHECK == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
       - name: Install markdown-link-check
+        if: env.RUN_CHECK == 'true'
         run: npm install --ignore-scripts -g markdown-link-check@3.13.7
 
       - name: Check all Markdown links
+        if: env.RUN_CHECK == 'true'
         run: |
           BROKEN_LINKS=$(markdown-link-check -q -a 200,201,202,203,204,205,206,207,208,226,403,429 ./docs)
           if [ -n "$BROKEN_LINKS" ]; then
