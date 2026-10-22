@@ -15,7 +15,7 @@ jobs:
     if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-2022, macos-latest ]
+        os: [ ubuntu-latest, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
