@@ -11,14 +11,13 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -30,7 +29,7 @@ public class RaoResultWithVoltageMonitoringTest {
 
     @Test
     void testGetCnecResult() {
-        // We have a preventive voltage CNEC. We should allow getCnecResult to return a CnecResult only if optimizationInstant is preventive.
+        // We have a preventive voltage CNEC. We should allow getCnecResult to return a CnecMonitoringResult only if optimizationInstant is preventive.
 
         VoltageCnec voltageCnec = Mockito.mock(VoltageCnec.class);
         when(voltageCnec.getId()).thenReturn("voltage");
@@ -42,8 +41,8 @@ public class RaoResultWithVoltageMonitoringTest {
 
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         MonitoringResult voltageMonitoringResult = Mockito.mock(MonitoringResult.class);
-        CnecResult cnecResult = new CnecResult(voltageCnec, Unit.KILOVOLT, new VoltageCnecValue(-20.0, 20.0), 10, Cnec.SecurityStatus.SECURE);
-        when(voltageMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
+        VoltageCnecMonitoringResult cnecResult = new VoltageCnecMonitoringResult(voltageCnec, Unit.KILOVOLT, -20., 20.);
+        when(voltageMonitoringResult.getCnecResult("voltage")).thenReturn(Optional.of(cnecResult));
 
         RaoResultWithVoltageMonitoring raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
 
