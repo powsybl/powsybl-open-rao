@@ -360,7 +360,7 @@ Below are some examples of cases using different sets of TATLs:
 :::
 ::::
 
-The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [NC extension](creation-parameters.md#csa-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#cra-application-window) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#use-patl-in-final-state) and which do not.
+The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [NC extension](creation-parameters.md#nc-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#curative-instants) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#tsos-which-do-not-use-patl-in-final-state) and which do not.
 
 By default, the first curative instant is associated to 300 seconds, the second curative to 600 seconds and the third curative to 1200 seconds.
 

@@ -10,7 +10,7 @@ An HVDC line can operate in **two modes**:
    In this mode, the power flow on the HVDC line is directly controlled via its **active power setpoint**.
 
 2. **AC Emulation Mode**  
-   The HVDC line operates in AC Emulation mode when the extension [**angle-droop active power control**](inv:powsyblecore:*:*#hvdc-angle-droop-active-power-control-extension) is enabled. In this mode, the flow is determined by the **phase difference**:  
+   The HVDC line operates in AC Emulation mode when the extension [**angle-droop active power control**](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension) is enabled. In this mode, the flow is determined by the **phase difference**:  
   
   $$ P = P_0 + k (\phi_1 - \phi_2)$$
    and **ignores the active power setpoint and converters mode**.

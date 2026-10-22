@@ -96,7 +96,7 @@ Network elements are referenced in the CRAC with:
 When using a network element, the applications relying on the CRAC will look in the Network for an identifiable element
 with the very same id: if this element cannot be found, it can lead to an error in the application. When building the CRAC,
 one must therefore make sure that only the network elements whose IDs can be understood by the PowSyBl iidm Network are
-added to the CRAC. This is particularly important to keep in mind if you want to [develop your own CRAC importer](import.md#implementing-new-crac-formats).
+added to the CRAC. This is particularly important to keep in mind if you want to [develop your own CRAC importer](import.md#implementing-new-crac-file-formats).
 
 ⚪ a name
 : The name shouldn't be absolutely required by the application relying on the CRAC object, but it could be useful to
@@ -1295,7 +1295,7 @@ Each impacted generator or load has an associated "key", which is a coefficient 
 This range action has two main applications:
 * to represent redispatching remedial actions for [time-coupled computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md)
 * to represent an HVDC line in an AC equivalent model (where the line is disconnected and
-replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-nord-process-cse-crac)
+replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-north-process-cse-crac)
 
 
 Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will

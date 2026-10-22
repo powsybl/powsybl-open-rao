@@ -23,7 +23,7 @@
 
 | Name        | Symbol      | Details                                                                                                                                                                      | Type       | Index                                                  | Unit                                                                                      | Lower bound | Upper bound |
 |-------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|-------------|
-| MNEC excess | $S^{m} (c)$ | Slack variable for the MNEC constraint of FlowCnec c. <br> Defines the amount of MW by which a MNEC constraint has been violated. <br> This makes the MNEC constraints soft. | Real value | One variable for every element of (MonitoredFlowCnecs) | [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters   | 0           | $+\infty$   |
+| MNEC excess | $S^{m} (c)$ | Slack variable for the MNEC constraint of FlowCnec c. <br> Defines the amount of MW by which a MNEC constraint has been violated. <br> This makes the MNEC constraints soft. | Real value | One variable for every element of (MonitoredFlowCnecs) | [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters)  | 0           | $+\infty$   |
 
 ## Used optimization variables
 
