@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -604,7 +603,7 @@ public final class AutomatonSimulator {
         }
 
         activePowerSetpoints.forEach((ra, activePowerSetpoint) -> {
-            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElement().getId(), activePowerSetpoint, simulationReportNode);
+            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElementId(), activePowerSetpoint, simulationReportNode);
         });
 
         if (activePowerSetpoints.isEmpty()) {
@@ -666,7 +665,7 @@ public final class AutomatonSimulator {
      */
     private static NetworkAction getAcEmulationDeactivationNetworkActionOnHvdcLine(final Crac crac, final String hvdcLineId, final ReportNode reportNode) {
         Set<NetworkAction> acEmulationDeactivationActionsOnHvdcLine = crac.getNetworkActions().stream()
-            .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
+            .filter(ra -> ra.getNetworkElementsIds().equals(Set.of(hvdcLineId)))
             .filter(ra -> ra.getElementaryActions().stream()
                 .allMatch(ea -> ea instanceof HvdcAction)).collect(Collectors.toSet());
 

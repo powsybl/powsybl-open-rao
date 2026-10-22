@@ -397,22 +397,16 @@ class RaoUtilTest {
         Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
         Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
 
-        NetworkElement pst = Mockito.mock(NetworkElement.class);
-        Mockito.when(pst.getId()).thenReturn("pst");
-
         RangeAction<?> rangeAction1 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction1.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction1.getNetworkElementsIds()).thenReturn(Set.of("pst"));
         Mockito.when(rangeAction1.getId()).thenReturn("range-action-1");
 
         RangeAction<?> rangeAction2 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction2.getNetworkElementsIds()).thenReturn(Set.of("pst"));
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
-        NetworkElement anotherNetworkElement = Mockito.mock(NetworkElement.class);
-        Mockito.when(anotherNetworkElement.getId()).thenReturn("another-network-element");
-
         RangeAction<?> rangeAction3 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction3.getNetworkElements()).thenReturn(Set.of(pst, anotherNetworkElement));
+        Mockito.when(rangeAction3.getNetworkElementsIds()).thenReturn(Set.of("pst", "another-network-element"));
         Mockito.when(rangeAction3.getId()).thenReturn("range-action-3");
 
         OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);

@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.CountryLocation;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
@@ -60,8 +61,17 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network
      * elements must not be duplicated inside a remedial action and there is no defined order for network elements.
+     *
+     * @deprecated since 7.4.0, use {@link #getNetworkElementsIds()} instead
      */
+    @Deprecated(since = "7.4.0")
     Set<NetworkElement> getNetworkElements();
+
+    /**
+     * Gather all the network elements present in the remedial action. It returns a set because network
+     * elements must not be duplicated inside a remedial action and there is no defined order for network elements.
+     */
+    Set<String> getNetworkElementsIds();
 
     /**
      * Returns the location of the remedial action, as a set of optional countries
@@ -70,7 +80,7 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      * @return a set of countries containing the remedial action
      */
     default Set<Country> getLocation(Network network) {
-        return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
+        return getNetworkElementsIds().stream().map(networkElement -> CountryLocation.getLocation(network, networkElement))
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
 

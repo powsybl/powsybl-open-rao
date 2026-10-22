@@ -51,8 +51,18 @@ public class SwitchPairImpl implements SwitchPair {
     }
 
     @Override
+    public String getSwitchToOpenId() {
+        return switchToOpen.getId();
+    }
+
+    @Override
     public NetworkElement getSwitchToClose() {
         return switchToClose;
+    }
+
+    @Override
+    public String getSwitchToCloseId() {
+        return switchToClose.getId();
     }
 
     @Override
@@ -64,7 +74,7 @@ public class SwitchPairImpl implements SwitchPair {
             return false;
         }
         SwitchPair oSwitchPair = (SwitchPairImpl) o;
-        return this.switchToOpen.equals(oSwitchPair.getSwitchToOpen()) && this.switchToClose.equals(oSwitchPair.getSwitchToClose());
+        return this.getSwitchToOpenId().equals(oSwitchPair.getSwitchToOpenId()) && this.getSwitchToCloseId().equals(oSwitchPair.getSwitchToCloseId());
     }
 
     @Override

@@ -14,7 +14,6 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -76,8 +75,8 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private List<SensitivityFactor> getFactors(ContingencyContext contingencyContext, Stream<FlowCnec> flowCnecsStream) {
         Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<NetworkElement, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
-        flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
+        Map<String, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
+        flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElementId(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
         networkElementsAndSides
             .forEach((ne, sides) -> {
                 // we allow the computation of both function types (branch_active_power and branch_current) at the same time to match loadFlowProvider behavior
@@ -85,7 +84,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
                     mapCountryLinearGlsk.values().stream()
                         .map(linearGlsk -> new SensitivityFactor(
                             functionType,
-                            ne.getId(),
+                            ne,
                             SensitivityVariableType.INJECTION_ACTIVE_POWER,
                             linearGlsk.getId(),
                             true,

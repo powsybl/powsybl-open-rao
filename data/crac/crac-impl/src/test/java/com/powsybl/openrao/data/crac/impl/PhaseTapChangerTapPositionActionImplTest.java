@@ -47,8 +47,8 @@ class PhaseTapChangerTapPositionActionImplTest {
                 .withTapPosition(12)
                 .add()
             .add();
-        assertEquals(1, pstSetpoint.getNetworkElements().size());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstSetpoint.getNetworkElements().iterator().next().getId());
+        assertEquals(1, pstSetpoint.getNetworkElementsIds().size());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstSetpoint.getNetworkElementsIds().iterator().next());
         assertTrue(pstSetpoint.canBeApplied(network));
     }
 
