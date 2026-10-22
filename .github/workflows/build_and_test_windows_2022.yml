@@ -1,6 +1,6 @@
 # This CI stopped working on GitHub for obscure reasons and was disabled as a workaround. Further investigations required...
 
-name: CI
+name: CI - Windows
 
 on:
   push:
