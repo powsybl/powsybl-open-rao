@@ -2,13 +2,17 @@
 
 ## RAO parameters Extensions
 
-Used to configure RAO implementation-specific parameters
+The extensions are used to configure RAO implementation specific parameters.
+They are configured through the `extensions` field of the [RaoParameters](business-parameters.md) file;
+each extension is identified in the JSON file by the name given in backticks in its section description below.
 
 ### OpenRAO Search Tree Parameters extension
 
-This extension is used to configure OpenRAO specific parameters for search tree algorithms
+This extension (`open-rao-search-tree-parameters`) is used to configure OpenRAO specific parameters for search tree algorithms.
 
 #### Objective function parameters
+
+These parameters (JSON sub-object `objective-function` of the `open-rao-search-tree-parameters` extension) configure the objective function of the search tree RAO.
 
 ##### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
@@ -273,7 +277,8 @@ These parameters (`multi-threading`) allow you to run a RAO making the most out 
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
 #### Loop-flow optional parameter
-Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
+
+Adding a LoopFlowParameters (`loop-flow-parameters`) to the `open-rao-search-tree-parameters` extension will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are implementation specific.
 See also: [Modeling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)  
@@ -316,7 +321,7 @@ See also: [Modeling loop-flows and their virtual cost](../algorithms/castor/line
 
 #### MNEC optional parameter
 
-Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
+Adding a MnecParameters (`mnec-parameters`) to the `open-rao-search-tree-parameters` extension will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are implementation specific.
 
@@ -345,7 +350,7 @@ The following parameters tune some of these constraints, the one which are imple
   approximations are removed (i.e. taps have been rounded and real flow calculated)
 
 #### Relative margins optional parameter
-Adding a RelativeMarginsParameters is mandatory when [objective function is relative](business-parameters.md#type).  
+Adding a RelativeMarginsParameters (`relative-margins-parameters`) to the `open-rao-search-tree-parameters` extension is mandatory when [objective function is relative](business-parameters.md#type).  
 The following parameters tune the constraints which are implementation specific.
 See also: [Modeling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
@@ -374,7 +379,8 @@ See also: [Modeling the maximum minimum relative margin objective function](../a
 
 #### Min margin optional parameters
 
-These parameters are meant to be used in costly optimization only.
+These parameters (`costly-min-margin-parameters`) are meant to be used in costly optimization only.
+They are configured as a sub-object of the `open-rao-search-tree-parameters` extension.
 
 ##### shifted-violation-penalty
 
@@ -389,6 +395,8 @@ These parameters are meant to be used in costly optimization only.
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
 ### FastRAO Parameters extension
+
+This extension (`fast-rao-parameters`) is used to configure FastRAO specific parameters.
 
 #### number-of-cnecs-to-add
 - **Expected value**: integer, no unit
@@ -406,6 +414,8 @@ These parameters are meant to be used in costly optimization only.
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
 ### Marmot Parameters extension
+
+This extension (`marmot-parameters`) is used to configure Marmot specific parameters.
 
 #### number-of-cnecs-to-add-per-virtual-cost-name
 - **Expected value**: integer, no unit
@@ -548,28 +558,24 @@ These parameters are meant to be used in costly optimization only.
             }
           }
         }
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 10.0,
+        "violation-cost" : 10.0
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 1.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-sum-lower-bound" : 0.01
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty": 1000.0,
+        "shifted-violation-threshold": 0.0
       }
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 10.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 10.0,
-      "violation-cost" : 10.0,
-      "countries" : [ "FR", "ES", "PT" ]
-    },
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 1.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
-      "ptdf-approximation" : "FIXED_PTDF",
-      "ptdf-sum-lower-bound" : 0.01
-    },
-    "costly-min-margin-parameters" : {
-      "shifted-violation-penalty": 1000.0,
-      "shifted-violation-threshold": 0.0
     }
   }
 }
