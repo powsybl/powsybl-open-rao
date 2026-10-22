@@ -28,11 +28,6 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
         return (I) this;
     }
 
-    public I withNetworkElement(String networkElementId, String networkElementName) {
-        this.networkElementId = networkElementId;
-        return (I) this;
-    }
-
     public NetworkActionAdder add() {
         assertAttributeNotNull(networkElementId, getActionName(), "network element", "withNetworkElement()");
         assertSpecificAttributes();

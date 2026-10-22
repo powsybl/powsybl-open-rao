@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Interface for Critical Network Element &amp; Contingency
  *
- * A Cnec represents a set of network element that are considered critical in the network.
+ * A Cnec represents a set of network elements that are considered critical in the network.
  * The {@link PhysicalParameter} of the Cnec is therefore monitored and/or optimized in
  * RAOs relying on the Crac containing this Cnec.
  *
