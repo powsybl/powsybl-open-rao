@@ -26,7 +26,7 @@ With:
   > ⚠️  **NOTE**  
   > The exporter will fail if Angle CNECs are present in the CRAC, but the RAO result does not contain angle results.  
   > See how to compute angle results [here](../algorithms/monitoring.md#the-monitoring-algorithm).
-- **properties**: a specific object that te user should define, containing meta-information that will be written
+- **properties**: a specific object that the user should define, containing meta-information that will be written
   in the header of the CNE file as well as relevant RAO parameters:
     - **`"document-id"`**: document ID to be written in "mRID" field
     - **`"revision-number"`**: integer to be written in "revisionNumber" field
@@ -303,7 +303,7 @@ Exists if the CNEC is monitored after a contingency (if the CNEC is preventive, 
 
 #### Reason (optional)
 
-When sensitivity computation fails in a given perimeter (in basecase or after a specific contingency identified by
+When sensitivity computation fails in a given perimeter (in base case or after a specific contingency identified by
 **Contingency_Series**), this tag is present with the following information:
 - **code**: "B18"
 - **text**: "Rao failure"
@@ -312,12 +312,12 @@ Then no more results are exported for the failed perimeter.
 
 #### AdditionalConstraint_Series (optional)
 
-If Angle CNECs are monitored in the actual perimeter (in basecase or after a specific contingency identified by
+If Angle CNECs are monitored in the actual perimeter (in base case or after a specific contingency identified by
 **Contingency_Series**), this tag contains angle values from the angle monitoring module.
 
 ##### mRID
 
-Unique ID of the Angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Unique ID of the Angle CNEC, as defined in the [original CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### businessType
 
@@ -325,7 +325,7 @@ One possible value: **B87** (angle monitoring).
 
 ##### name
 
-Name of the Angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Name of the Angle CNEC, as defined in the [original CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### quantity.quantity
 
@@ -446,4 +446,4 @@ one angle constraints).
 </Reason>
 ~~~
 This means that the RAO or the angle monitoring could not be conducted normally because at least one perimeter lead to
-a load-flow divergence. This perimeter can be identified by looking at the [B57 Constraint_Series](#cnec-results).
+a load flow divergence. This perimeter can be identified by looking at the [B57 Constraint_Series](#cnec-results).

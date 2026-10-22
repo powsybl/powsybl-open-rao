@@ -37,12 +37,12 @@ MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().w
 ~~~
 
 With:
-- PhysicalParameter.VOLTAGE to start voltage monitoring and PhysicalParameter.ANGLE to start angle monitoring
-- crac: the CRAC object used for the RAO, and containing [VoltageCnecs](../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../input-data/crac/json.md#angle-cnecs) to be monitored.
-- network: the network to be monitored.
-- raoResult: the [RaoResult](../output-data/rao-result.md) object containing selected remedial actions (that shall
+- `PhysicalParameter.VOLTAGE` to start voltage monitoring and `PhysicalParameter.ANGLE` to start angle monitoring
+- `crac`: the CRAC object used for the RAO, and containing [VoltageCnecs](../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../input-data/crac/json.md#angle-cnecs) to be monitored.
+- `network`: the network to be monitored.
+- `raoResult`: the [RaoResult](../output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle/voltage values)
-- scalableZonalData for redispatching in case of angle monitoring
+- `scalableZonalData` for redispatching in case of angle monitoring
 
 2. Run the monitoring algorithm using the constructed object's following method:
 
@@ -51,11 +51,11 @@ public RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowPar
 
 ~~~
 With:
-- loadFlowProvider: the name of the load-flow computer to use. This should refer to a [PowSyBl load flow provider implementation](https://powsybl.readthedocs.io/projects/pypowsybl/en/latest/user_guide/loadflow.html#providers)
-- loadFlowParameters: the PowSyBl LoadFlowParameters object to configure load-flow computation.
-- numberOfLoadFlowsInParallel: the number of contingencies to monitor in parallel, allowing a maximum utilization of
+- `loadFlowProvider`: the name of the load flow computer to use. This should refer to a [PowSyBl load flow provider implementation](https://powsybl.readthedocs.io/projects/pypowsybl/en/latest/user_guide/loadflow.html#providers)
+- `loadFlowParameters`: the PowSyBl LoadFlowParameters object to configure load flow computation.
+- `numberOfLoadFlowsInParallel`: the number of contingencies to monitor in parallel, allowing a maximum utilization of
   your computing resources (set it to your number of available CPUs).
-- monitoringInput as built above in step 1.
+- `monitoringInput` as built above in step 1.
 
 Here is a complete example while augmenting RAO result by voltage monitoring result then augmenting the outcome by angle monitoring result:
 
@@ -91,7 +91,7 @@ Here is a detailed description of how the monitoring algorithm operates:
     - If the state is not preventive,
         - apply the contingency on the network
         - from the RaoResult, apply on the network the optimal remedial actions decided by the RAO (automatic and curative)
-    - Compute load-flow
+    - Compute load flow
         - If it diverges, return the following content for this state, then move on to the next state:
             - If PhysicalParameter is ANGLE : the angles of the Angle CNECs equal to NaN
             - If PhysicalParameter is Voltage : the max and min values of the Voltage CNECs equal to NaN
@@ -113,12 +113,12 @@ Here is a detailed description of how the monitoring algorithm operates:
         - The amount of power to re-dispatch is the net sum (generation - load) of power generations & loads affected by the RAs, before changing the set-points
         - Exclude from the re-dispatching all the generators & loads that were modified by an injection-set-point RA, since they should not be affected
     - If no RA was applied, keep CNEC results from **(4)** and move on to the next state
-    - If any RA was applied, recompute the load-flow
+    - If any RA was applied, recompute the load flow
         - If it diverges, return the following content for this state, then move on to the next state:
             - the angles of the Angle/Voltage CNECs equal to what was computed in step **(1)**
             - no applied remedial actions
             - security FAILURE
-        - If it converges Re-compute all angle/voltage values and create a CNEC result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new CNEC status after comparing the new angle/voltage value(s) to their thresholds
+        - If it converges, re-compute all angle/voltage values and create a CNEC result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new CNEC status after comparing the new angle/voltage value(s) to their thresholds
 - Assemble all the Angle/Voltage CNEC results in one overall result
 
 ![Monitoring algorithm](../_static/img/monitoring-algorithm.png){.forced-white-background}
@@ -128,7 +128,7 @@ Here is a detailed description of how the monitoring algorithm operates:
 In the logs, the start and end of different steps are logged:
 - Start and end of the 'angle/voltage' monitoring algorithm
 - Start and end of the monitoring of each state (preventive or post-contingency)
-- Start and end of each load-flow computation
+- Start and end of each load flow computation
 
 Also, the following information is logged:
 - Applied remedial actions to relieve 'angle/voltage' constraints

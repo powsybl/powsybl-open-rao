@@ -33,11 +33,11 @@ Examples of complete CRACs are given below
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
-The creation of a small CRAC is for instance made in this test class of powsybl-open-rao repository:  
+The creation of a small CRAC is for instance made in this test class of the OpenRAO repository:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/crac/impl/utils/CommonCracCreation.java)
 :::
 :::{group-tab} JSON file
-An example of a small CRAC in the json internal format of OpenRAO is given below:  
+An example of a small CRAC in the JSON internal format of OpenRAO is given below:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json)
 <!-- TODO: point to the latest JSON CRAC version above -->
 :::
@@ -116,7 +116,7 @@ These methods will be depicted in the following examples on this page.
 :::
 :::{group-tab} JSON file
 Network elements' IDs are defined within the objects that contain them. Examples are given later in this page,
-for contingencies, CNECs and remedial actions. Moreover, the internal Json CRAC format contains an index of network
+for contingencies, CNECs and remedial actions. Moreover, the internal JSON CRAC format contains an index of network
 element names, in which network elements that have a name are listed, with their name and their ID.
 ~~~json
 "networkElementsNamePerId" : {
@@ -333,7 +333,7 @@ flow of the FlowCnec should ideally remain.
       >   as the current values on the two sides of a transformer are different,
   > - when the threshold is defined in %Imax on a [**tie-line**](inv:powsyblcore:*:*#tie-line),
       >   as the current limits are usually different on both sides of a tie-line,
-  > - when the application uses **AC load-flow** computation, as the flow values on the two sides of a branch are
+  > - when the application uses **AC load flow** computation, as the flow values on the two sides of a branch are
       >   different (due to losses). The CracCreationParameters allows the user to [decide which side(s) should be monitored by default](creation-parameters.md#default-monitored-line-side).
 - A threshold has a minimum and/or a maximum value. The maximum value represents the maximum value of the flow in the "direct" direction
   and the minimum value represents the maximum value of the flow in the "opposite" direction.
@@ -353,7 +353,7 @@ additional data is required in order to handle the following conversions:
 > It can only be defined in megawatt, it is subtracted from the thresholds of the FlowCnec, adding an extra constraint.
 
 #### Creating a FlowCnec
-In OpenRAO, FlowCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, FlowCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -532,7 +532,7 @@ An AngleCnec has the following specificities:
 > [Monitoring](../../algorithms/monitoring.md) module with **ANGLE** as physical parameter.
 
 #### Creating an AngleCnec
-In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, AngleCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -637,7 +637,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 > [VoltageMonitoring](../../algorithms/monitoring.md) module with **VOLTAGE** as physical parameter.
 
 #### Creating a VoltageCnec
-In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, VoltageCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -791,7 +791,7 @@ crac.newNetworkAction()
 ~~~
 :::
 :::{group-tab} JSON file
-Complete examples of Network and Range Action in Json format are given in the following paragraphs
+Complete examples of Network and Range Action in JSON format are given in the following paragraphs
 ~~~json
 "onInstantUsageRules" : [ {
   "instant" : "preventive"

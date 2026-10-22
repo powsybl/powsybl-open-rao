@@ -17,7 +17,7 @@ This extension is used to configure OpenRAO specific parameters for search tree 
   when [type](business-parameters.md#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
 
 #### Range actions optimization parameters
-These parameters (range-actions-optimization) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
+These parameters (`range-actions-optimization`) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
 (See [Modeling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 ##### max-mip-iterations
@@ -53,7 +53,7 @@ These parameters (range-actions-optimization) tune the [linear optimizer](../alg
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / ° (per degree)
 - **Default value**: 1e-6
-- **Usage**: the PST sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
+- **Usage**: the PST sensitivity coefficients which are below the `pst-sensitivity-threshold` will be considered equal to
   zero by the linear optimization problem. Filtering small sensitivity coefficients has the two following perks
   for the RAO:
   - it decreases the complexity of the optimization problem by reducing significantly the number of non-zero elements
@@ -62,7 +62,7 @@ These parameters (range-actions-optimization) tune the [linear optimizer](../alg
 ##### hvdc-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 1e-6
-- **Usage**: the HVDC sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
+- **Usage**: the HVDC sensitivity coefficients which are below the `hvdc-sensitivity-threshold` will be considered equal
   to zero by the linear optimization problem. Filtering some of the small sensitivity coefficients has the two
   following perks regarding the RAO:
   - it decreases the complexity of the optimization problem by reducing significantly the number of non-null elements
@@ -71,7 +71,7 @@ These parameters (range-actions-optimization) tune the [linear optimizer](../alg
 ##### injection-ra-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 1e-6
-- **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
+- **Usage**: the injection sensitivity coefficients which are below the `injection-ra-sensitivity-threshold` will be
   considered equal to zero by the linear optimization problem.  
   The perks are the same as the two parameters above.
 
@@ -128,7 +128,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   not enough.
 
 #### Network actions optimization parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm)
+These parameters (`topological-actions-optimization`) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm)
 when searching for the best network actions.
 
 ##### max-preventive-search-tree-depth
@@ -184,7 +184,7 @@ when searching for the best network actions.
 - **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
 
 #### Second preventive RAO parameters
-These parameters (second-preventive-rao) tune the behavior of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
+These parameters (`second-preventive-rao`) tune the behavior of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
 
 ##### execution-condition
 - **Expected value**: one of the following:
@@ -213,7 +213,7 @@ These parameters (second-preventive-rao) tune the behavior of the [second preven
   if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
 
 #### CNECs that should not be optimized
-These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
+These parameters (`not-optimized-cnecs`) allow the activation of region-specific features, that de-activate the
 optimization of specific CNECs in specific conditions.
 
 ##### do-not-optimize-curative-cnecs-for-tsos-without-cras
@@ -227,18 +227,18 @@ optimization of specific CNECs in specific conditions.
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
 
-#### Load-flow and sensitivity computation parameters
-These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers
+#### Load flow and sensitivity computation parameters
+These parameters (`load-flow-and-sensitivity-computation`) configure the load flow and sensitivity computation providers
 from inside the RAO.
 
 ##### load-flow-provider
 - **Expected value**: String, should refer to a [PowSyBl load flow provider implementation](inv:powsyblcore:std:doc#simulation/loadflow/index)
-- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
+- **Default value**: "OpenLoadFlow" (see [PowSyBl Open Load Flow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the load flow provider to use when a load flow is needed
 
 ##### sensitivity-provider
 - **Expected value**: String, should refer to a [PowSyBl sensitivity provider implementation](inv:powsyblcore:std:doc#simulation/sensitivity/index)
-- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
+- **Default value**: "OpenLoadFlow" (see [PowSyBl Open Load Flow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the sensitivity provider to use in the RAO
 
 ##### sensitivity-failure-overcost
@@ -256,10 +256,10 @@ from inside the RAO.
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)
 - **Default value**: PowSyBl's default value (it is generally a bad idea to keep the default value for this parameter)
 - **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within OpenRAO.
-  The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed.
+  The underlying `load-flow-parameters` is also used whenever an explicit pure load flow computation is needed.
 
 #### Multi-threading parameters
-These parameters (multi-threading) allow you to run a RAO making the most out of your computation resources.
+These parameters (`multi-threading`) allow you to run a RAO making the most out of your computation resources.
 
 ##### available-cpus
 - **Expected value**: integer
@@ -292,7 +292,7 @@ See also: [Modeling loop-flows and their virtual cost](../algorithms/castor/line
     for each new node of the search-tree).  
   - **UPDATE_PTDF_WITH_TOPO_AND_PST**: the PTDFs are re-computed for each new combination of topological action and for
     each new combination of PST taps (i.e. for each iteration of the linear optimization).  
-    *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
+    *Note that this option is only relevant in AC load flow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### constraint-adjustment-coefficient
 
@@ -363,7 +363,7 @@ See also: [Modeling the maximum minimum relative margin objective function](../a
     for each new node of the search-tree).
   - **UPDATE_PTDF_WITH_TOPO_AND_PST**: the PTDFs are re-computed for each new combination of topological action and for
     each new combination of PST taps (i.e. for each iteration of the linear optimization).  
-    *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
+    *Note that this option is only relevant in AC load flow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### ptdf-sum-lower-bound
 - **Expected value**: numeric value, no unit (homogeneous to PTDFs)

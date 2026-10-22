@@ -8,9 +8,9 @@ There are different layers of parallelization possible in the search-tree method
 of the algorithm, the following parallelization features are all available and parameterized independently:
 
 - Parallelization of contingency simulations:
-In a security analysis, the load-flow computation for all contingencies can be done in parallel. A parameter is 
+In a security analysis, the load flow computation for all contingencies can be done in parallel. A parameter is 
 available to specify how many threads are available for each security analysis. This parallelization is directly
-operated by the load-flow module itself. It is especially very useful for the preventive perimeter, where all
+operated by the load flow module itself. It is especially very useful for the preventive perimeter, where all
 post-contingency flows must be calculated after each contingency.
 
 - Parallelization of topological actions:
@@ -112,8 +112,8 @@ The system contains three types of CNECs:
 The green area represents the secure region found after a RAO. The goal is to build a set of CNECs (ideally only the red ones)
 that will lead to a solution where all CNECs are secure.
 
-We begin by computing the margins for all CNECs via a loadflow in the initial state and identify two unsecure ones to
-include in the first RAO. After applying the resulting actions, we run another loadflow check. The two previous CNECs
+We begin by computing the margins for all CNECs via a load flow in the initial state and identify two unsecure ones to
+include in the first RAO. After applying the resulting actions, we run another load flow check. The two previous CNECs
 are now secure, but a new unsecure one is found. This loop continues: running RAO, applying results, and checking
 all CNECs until all are secure.
 </td>

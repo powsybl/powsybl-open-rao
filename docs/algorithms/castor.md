@@ -47,7 +47,7 @@ For each iteration/step (a level of depth in tree):
 - Determination of available remedial actions.
 - Once the list of available remedial actions is defined, candidates are created. Each candidate corresponds to a grid situation, where one (or more) remedial actions are applied.
 - A skippable [optimization of the linear remedial](castor/linear-problem.md) actions is done.
-- A security analysis determines for each candidate the value of the objective function. The security analysis consists of a series of DC (or AC) load-flow computations (for each defined contingency).
+- A security analysis determines for each candidate the value of the objective function. The security analysis consists of a series of DC (or AC) load flow computations (for each defined contingency).
 - In order to maximize the objective function, values obtained for each candidate are compared: the candidate leading to the best increase of objective function value is selected. The remedial actions corresponding to this candidate are applied.
 
 Note that if no candidate can increase the objective function value more than configurable value, the optimization of the current studied perimeter (preventive/curative) stops. All candidates applied in previous steps/iterations of optimization will be considered as final found remedial actions.

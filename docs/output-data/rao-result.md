@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A **R**emedial **A**ction **O**ptimisation process provides an optimal list of remedial actions to be applied in basecase and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](../input-data/crac.md#cnec).
+A **R**emedial **A**ction **O**ptimization process provides an optimal list of remedial actions to be applied in base case and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](../input-data/crac.md#cnec).
 
 A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimization.
 In this page, we present:
@@ -63,7 +63,7 @@ The RAO result object generally contains information about post-optimization res
 However, in some cases, it may be interesting to get some information about the initial state (e.g. power flows before 
 optimization), or about the situation after preventive optimization (e.g. optimal PST tap positions in preventive). 
 This is why **most of the information in the RAO results are stored by optimized instant**:  
-- **INITIAL** (json) or **null** (Java API): values before remedial action optimization (initial state)
+- **INITIAL** (JSON) or **null** (Java API): values before remedial action optimization (initial state)
 - Instant of kind **PREVENTIVE** or **OUTAGE**: values after optimizing preventive instant, i.e. after applying optimal preventive remedial actions
 - Instant of kind **AUTO**: values after simulating auto instant, i.e. after applying automatic remedial actions
 - Instant of kind **CURATIVE**: values after optimizing curative instant, i.e. after applying optimal curative remedial actions
@@ -72,14 +72,14 @@ _See also: [RAO steps](../algorithms/castor/rao-steps.md)_
 
 ### Computation status
 
-This field contains the status of sensitivity / load-flow computations during the RAO, for a given [state](../input-data/crac/json.md#instants-and-states),
+This field contains the status of sensitivity / load flow computations during the RAO, for a given [state](../input-data/crac/json.md#instants-and-states),
 or for the overall RAO (the status of the overall RAO is computed as the worst status among all states).  
 It can have one of the following values:
-- **DEFAULT**: the sensitivity / load-flow computations converged normally
-- **FAILURE**: the sensitivity / load-flow computations failed
+- **DEFAULT**: the sensitivity / load flow computations converged normally
+- **FAILURE**: the sensitivity / load flow computations failed
 
 When the results are returned to the user of your application, they should be sufficiently warned if any state's
-sensitivity / load-flow computation has failed.
+sensitivity / load flow computation has failed.
 
 ::::{tabs}
 :::{group-tab} JAVA API
@@ -145,7 +145,7 @@ parameters among:
 :::
 :::{group-tab} JSON File
 
-This information is not written in the json file, it is deduced from the values of the CNECs' margins (see below).
+This information is not written in the JSON file, it is deduced from the values of the CNECs' margins (see below).
 
 :::
 ::::

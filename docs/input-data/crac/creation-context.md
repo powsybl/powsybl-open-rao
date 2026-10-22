@@ -694,7 +694,7 @@ _**This section is under construction**_
 ## JSON implementation
 
 The JsonCracCreationContext is a basic implementation of CracCreationContext.  
-Since the [JSON](json.md) format is OpenRAO's native format, not much transformation is made when importing a json CRAC 
+Since the [JSON](json.md) format is OpenRAO's native format, not much transformation is made when importing a JSON CRAC 
 file; thus, in most cases, the JSON CRAC creation context is not much of a use.  
 However, the importer does not throw exceptions, so it is important to check its success flag.  
 In the future, the object may evolve to contain information about transformations made in the rare cases where the user 

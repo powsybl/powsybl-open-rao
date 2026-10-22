@@ -19,7 +19,7 @@ The first step is to import a network for the simulation. As an example, we will
 network that is made of 18 lines including 1 PST spread over 4 countries. All the production (1000 MW) is located in the
 Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _FFR1AA1_).
 
-![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
+![Base case network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
 We will create a UCTE file to model this network, so it can be processed and imported for the RAO. The
 network data in a file named `12Nodes.uct` that is stored in the [resources directory of the project](https://github.com/farao-community/rao-example/tree/main/src/main/resources).
@@ -133,10 +133,10 @@ Now that contingencies and instants are all set, we can start adding CNECs and r
 
 The next step is to create the [CNECs](../input-data/crac/json.md#cnecs). For our example and given the simple network
 we are using, we will only consider [FlowCNECs](../input-data/crac/json.md#flow-cnecs) that correspond to lines in the
-network that will have to be optimized flow-wise after contingencies (and in basecase). The FlowCNECs also have
+network that will have to be optimized flow-wise after contingencies (and in base case). The FlowCNECs also have
 thresholds that indicate the maximum admissible flow on the line for a given instant.
 
-Let us make sure that the flow on line _NNL2AA1 BBE3AA1 1_ stays under 410 MW in basecase:
+Let us make sure that the flow on line _NNL2AA1 BBE3AA1 1_ stays under 410 MW in base case:
 
 ```java
 crac.newFlowCnec()
@@ -247,13 +247,13 @@ Next, define the parameters to run the RAO using the [RaoParameters](../paramete
         RaoParameters raoParameters = new RaoParameters();
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
 
-        // Enable DC mode for load-flow & sensitivity computations
+        // Enable DC mode for load flow & sensitivity computations
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(true);
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.setLoadFlowParameters(loadFlowParameters);
 
-        // Set "OpenLoadFlow" as load-flow provider
+        // Set "OpenLoadFlow" as load flow provider
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
         loadFlowAndSensitivityParameters.setLoadFlowProvider("OpenLoadFlow");
         loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);
@@ -306,7 +306,7 @@ As presented earlier, the whole electricity production (1000 MW) in the network 
 is divided evenly among lines _NNL2AA1 BBE3AA1 1_ and _DDE2AA1 NNL3AA1 1_. The consumption (1000 MW as well) is entirely
 located at node _FFR1AA1_.
 
-![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
+![Base case network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
 However, the PATL of line _NNL2AA1 BBE3AA1 1_ is set to 410 MW which is below the current 500 MW flow on the line. Thus,
 remedial actions must be applied to solve this base case issue. In the CRAC, we only defined one preventive remedial
@@ -541,13 +541,13 @@ public class Main {
       RaoParameters raoParameters = new RaoParameters();
       OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
 
-      // Enable DC mode for load-flow & sensitivity computations
+      // Enable DC mode for load flow & sensitivity computations
       LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
       loadFlowParameters.setDc(true);
       SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
       sensitivityAnalysisParameters.setLoadFlowParameters(loadFlowParameters);
 
-      // Set "OpenLoadFlow" as load-flow provider
+      // Set "OpenLoadFlow" as load flow provider
       LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
       loadFlowAndSensitivityParameters.setLoadFlowProvider("OpenLoadFlow");
       loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);

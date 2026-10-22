@@ -23,7 +23,7 @@ With:
 - **cracCreationContext**: the [CracCreationContext object](../input-data/crac/creation-context.md) generated during
   [CRAC creation](../input-data/crac/import.md). CORE CNE export only handles [UcteCracCreationContext](../input-data/crac/creation-context.md#ucte-implementation)
   subtype, because it follows the UCTE conventions.
-- **properties**: a specific object that te user should define, containing meta-information that will be written
+- **properties**: a specific object that the user should define, containing meta-information that will be written
   in the header of the CNE file as well as relevant RAO parameters:
     - **`"rao-result.export.core-cne.document-id"`**: document ID to be written in "mRID" field
     - **`"rao-result.export.core-cne.revision-number"`**: integer to be written in "revisionNumber" field

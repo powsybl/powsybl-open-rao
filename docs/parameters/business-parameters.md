@@ -6,16 +6,16 @@ RAO parameters to tune the RAO (not implementation-specific).
 
 ### Objective function parameters
 
-These parameters (objective-function) configure the remedial action optimization's objective function. 
+These parameters (`objective-function`) configure the remedial action optimization's objective function. 
 
 > Since the version 3.3 of the parameters, we no longer allow changing the objective function's unit.
 > The flow unit and thus the objective function's unit (for SECURE_FLOW, MAX_MIN_MARGIN and MAX_MIN_RELATIVE_MARGIN) will be defined depending on 
-> whether the loadflow/sensitivity computation is carried out in AC or DC.
+> whether the load flow/sensitivity computation is carried out in AC or DC.
 >
 > - in AC, the flow unit is AMPERE 
 > - in DC the flow unit is MEGAWATT
 > 
-> See [sensitivity-parameter](implementation-specific-parameters.md#sensitivity-parameters)
+> See [`sensitivity-parameters`](implementation-specific-parameters.md#sensitivity-parameters)
 
 #### type
 - **Expected value**: one of the following:
@@ -40,41 +40,41 @@ These parameters (objective-function) configure the remedial action optimization
   If this parameter is set to false, OpenRAO will stop after preventive if preventive state is unsecure and won't try to 
   improve curative states.
   
-  *Note: Only applied when ["type"](#type) is set to SECURE_FLOW. In this case, if preventive was unsecure,
+  *Note: Only applied when [`type`](#type) is set to `SECURE_FLOW`. In this case, if preventive was unsecure,
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
 ### Range actions optimization parameters
-These parameters (range-actions-optimization) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
+These parameters (`range-actions-optimization`) tune the [linear optimizer](../algorithms/castor/linear-problem.md) used to optimize range actions.  
 (See [Modeling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 #### pst-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
 - **Default value**: 0.01
-- **Usage**: the pst-ra-min-impact-threshold represents the cost of changing the PST set-points, it is used within the linear
+- **Usage**: the `pst-ra-min-impact-threshold` represents the cost of changing the PST set-points, it is used within the linear
   optimization problem of the RAO, where, for each PST, the following term is added to the objective function: 
   $pst\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |\alpha - \alpha_{0}|$, where $\alpha$ is the optimized angle of the PST, and 
   $\alpha_{0}$ the angle in its initial position.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst-ra-min-impact-threshold will favor
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive `pst-ra-min-impact-threshold` will favor
   the ones with the PST taps the closest to the initial situation.  
 
 #### hvdc-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
-- **Usage**: the hvdc-ra-min-impact-threshold represents the cost of changing the HVDC set-points, it is used within the linear
+- **Usage**: the `hvdc-ra-min-impact-threshold` represents the cost of changing the HVDC set-points, it is used within the linear
   optimization problem of the RAO, where, for each HVDC, the following term is added to the objective function: 
   $hvdc\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |P - P_{0}|$, where $P$ is the optimized target power of the HVDC, and $P_{0}$ the initial target
   power.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc-ra-min-impact-threshold will favor
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive `hvdc-ra-min-impact-threshold` will favor
   the ones with the HVDC set-points the closest to the initial situation.
 
 #### injection-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
-- **Usage**: the injection-ra-min-impact-threshold represents the cost of changing the injection set-points, it is used within the linear
+- **Usage**: the `injection-ra-min-impact-threshold` represents the cost of changing the injection set-points, it is used within the linear
   optimization problem of the RAO, in the same way as the two types of RangeAction above.
 
 ### Network actions optimization parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm) 
+These parameters (`topological-actions-optimization`) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm) 
 when searching for the best network actions.
 
 #### absolute-minimum-impact-threshold
@@ -96,7 +96,7 @@ when searching for the best network actions.
   it will not be retained by the search-tree.
 
 ### CNECs that should not be optimized
-These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
+These parameters (`not-optimized-cnecs`) allow the activation of region-specific features, that de-activate the
 optimization of specific CNECs in specific conditions.
 
 #### do-not-optimize-curative-cnecs-for-tsos-without-cras

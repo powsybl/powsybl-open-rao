@@ -58,7 +58,7 @@ Then it starts the [search-tree](../../algorithms/castor.md#search-tree-algorith
 "root leaf": it assesses CNEC constraints on the network, considering only CNECs that belong to the 
 [preventive perimeter](../../algorithms/castor/rao-steps.md#preventive-perimeter), 
 before applying any preventive remedial action.  
-It needs not re-run a sensitivity analysis (or load-flow computation), as this has already been done. It just needs to 
+It needs not re-run a sensitivity analysis (or load flow computation), as this has already been done. It just needs to 
 restrict constraints assessment on the perimeter's CNECs.  
 The RAO then logs the most limiting elements of the preventive perimeter. In this case, they are the same as the RAO's 
 overall most limiting elements for the reasons explained above.

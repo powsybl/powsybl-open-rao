@@ -18,9 +18,9 @@ A Java tutorial is available [here](getting-started/tutorial.md).
 
 ### Python
 
-Based on PyPowsybl, OpenRAO can be used with Python.
+Based on PyPowSyBl, OpenRAO can be used with Python.
 - [GitHub](https://github.com/powsybl/pypowsybl-notebooks)
-- [PyPowsybl documentation](https://powsybl.readthedocs.io/projects/pypowsybl/en/stable/)
+- [PyPowSyBl documentation](https://powsybl.readthedocs.io/projects/pypowsybl/en/stable/)
 
 A Jupyter notebook is defined [here](https://github.com/powsybl/pypowsybl-notebooks/blob/notebook_rao_v1.11/open_rao.ipynb).
 
