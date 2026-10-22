@@ -488,6 +488,7 @@ public class FastRao implements RaoProvider {
         Set<String> flowCnecsToRemoveIds = new HashSet<>();
         flowCnecsToRemove.forEach(cnec -> flowCnecsToRemoveIds.add(cnec.getId()));
         crac.removeFlowCnecs(flowCnecsToRemoveIds);
+        System.out.println("THIS IS A TEST");
     }
 
     private static void applyOptimalPreventiveRemedialActions(Network networkCopy, State state, RaoResult raoResult) {
