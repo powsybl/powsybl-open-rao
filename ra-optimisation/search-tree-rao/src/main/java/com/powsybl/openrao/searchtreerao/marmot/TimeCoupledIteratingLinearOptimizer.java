@@ -26,7 +26,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PstConstraintsFiller;
