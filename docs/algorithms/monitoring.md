@@ -14,9 +14,9 @@ package allows monitoring angle/voltage values after a RAO has been run.
 
 > ⚠️ WARNING️ ⚠️
 > 
-> Only Angle/Voltage CNECs defined on **preventive and last curative instant** can be monitored ! 
+> Only angle/voltage CNECs defined on **preventive and last curative instant** can be monitored ! 
 > 
-> If a Voltage/Angle CNEC is defined on an intermediate instant (ex. auto or not final curative instant), the CNEC won't be monitored (a warning will be issued) and 
+> If a voltage/angle CNEC is defined on an intermediate instant (ex. auto or not final curative instant), the CNEC won't be monitored (a warning will be issued) and 
 >  will be ignored in the final augmented RaoResult.
 
 ![Monitoring](../_static/img/monitoring.png){.forced-white-background}
@@ -78,8 +78,8 @@ The method presented above generates a new [RAO result](../output-data/rao-resul
 object, which is equivalent to the initial one, augmented by the relevant results of the angle monitoring or voltage monitoring :
 - The [computation status](../output-data/rao-result.md#computation-status) of the RAO is updated
 - The [activated network actions](../output-data/rao-result.md#network-actions-results) are updated
-- The [angle](../output-data/rao-result.md#angle) & [margin](../output-data/rao-result.md#id3) values for Angle CNECs are updated in case of angle monitoring
-- The [voltage](../output-data/rao-result.md#voltage) & [margin](../output-data/rao-result.md#id3) values for Voltage CNECs are updated in case of voltage monitoring
+- The [angle](../output-data/rao-result.md#angle) & [margin](../output-data/rao-result.md#id3) values for angle CNECs are updated in case of angle monitoring
+- The [voltage](../output-data/rao-result.md#voltage) & [margin](../output-data/rao-result.md#id3) values for voltage CNECs are updated in case of voltage monitoring
 
 ## The monitoring algorithm
 
@@ -93,18 +93,18 @@ Here is a detailed description of how the monitoring algorithm operates:
         - from the RaoResult, apply on the network the optimal remedial actions decided by the RAO (automatic and curative)
     - Compute load flow
         - If it diverges, return the following content for this state, then move on to the next state:
-            - If PhysicalParameter is ANGLE : the angles of the Angle CNECs equal to NaN
-            - If PhysicalParameter is Voltage : the max and min values of the Voltage CNECs equal to NaN
+            - If PhysicalParameter is ANGLE : the angles of the angle CNECs equal to NaN
+            - If PhysicalParameter is Voltage : the max and min values of the voltage CNECs equal to NaN
             - no applied remedial actions
             - status FAILURE
-    - Compute the angles/voltages for all Angle/Voltage CNECs **(1)** :
+    - Compute the angles/voltages for all angle/voltage CNECs **(1)** :
         - If PhysicalParameter is ANGLE: angle values are the maximum phase difference between the 2 voltage levels
           Angle in degrees = 180 / pi * (max(angle on buses of exporting voltage level) - min(angle on buses of importing voltage level))
         - If PhysicalParameter is VOLTAGE: voltage values are the min and max voltages on the voltage level buses
     - Compare the angles/voltages to their thresholds.
     - Compute and save each CNEC security status (SECURE, HIGH_CONSTRAINT, LOW_CONSTRAINT, HIGH_AND_LOW_CONSTRAINTS, FAILURE) depending on the position of the angle/voltage value(s) regarding the Angle/Voltage Thresholds
-    - For the Angle/Voltage CNECs that have an angle/voltage overshoot (negative margin), get the associated remedial actions
-        - If the Angle/Voltage CNEC has no associated RA, then the constraint cannot be remedied: move on to the next Angle/Voltage CNEC.
+    - For the angle/voltage CNECs that have an angle/voltage overshoot (negative margin), get the associated remedial actions
+        - If the angle/voltage CNEC has no associated RA, then the constraint cannot be remedied: move on to the next angle/voltage CNEC.
         - If the state is preventive, do not apply any PRA (it would be incoherent with the RAO results). Move on to the next state.
         - For every RA:
             - If the remedial action is not a network action, do not apply it (if it's a RangeAction, we cannot know which set-point to use). Move on to the next RA.
@@ -115,11 +115,11 @@ Here is a detailed description of how the monitoring algorithm operates:
     - If no RA was applied, keep CNEC results from **(4)** and move on to the next state
     - If any RA was applied, recompute the load flow
         - If it diverges, return the following content for this state, then move on to the next state:
-            - the angles of the Angle/Voltage CNECs equal to what was computed in step **(1)**
+            - the angles of the angle/voltage CNECs equal to what was computed in step **(1)**
             - no applied remedial actions
             - security FAILURE
         - If it converges, re-compute all angle/voltage values and create a CNEC result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new CNEC status after comparing the new angle/voltage value(s) to their thresholds
-- Assemble all the Angle/Voltage CNEC results in one overall result
+- Assemble all the angle/voltage CNEC results in one overall result
 
 ![Monitoring algorithm](../_static/img/monitoring-algorithm.png){.forced-white-background}
 

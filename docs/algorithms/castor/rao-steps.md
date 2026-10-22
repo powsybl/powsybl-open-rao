@@ -174,7 +174,7 @@ optimization. This optimization is carried out using a search-tree algorithm jus
 [described above](#curative-perimeters).
 
 What was described in the [previous section](#extension-of-the-preventive-perimeter-to-the-curative-situation) also
-stands for multi-curative situations. If a curative instant has no remedial actions available, all its FlowCNECs will be
+stands for multi-curative situations. If a curative instant has no remedial actions available, all its flow CNECs will be
 included in its previous instant's perimeter.
 
 ![PATL vs TATL](../../_static/img/tatl-instant.png){.forced-white-background}

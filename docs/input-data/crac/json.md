@@ -303,7 +303,7 @@ OpenRAO contains 3 families of CNECs, depending on which type of physical constr
 **AngleCnecs** and **VoltageCnecs**.
 
 ### Flow CNECs
-A "FlowCnec" has the two following specificities:
+A FlowCnec has the two following specificities:
 
 - it contains one network element that is a **Branch**. In the PowSyBl vocabulary, a "Branch"
   is an element connected to two terminals. For instance,
@@ -513,8 +513,8 @@ flowCnec.newExtension(LoopFlowThresholdAdder.class)
 ::::
 
 ### Angle CNECs
-An "AngleCnec" is a branch which may see a phase angle shift between its two ends when it's disconnected. This may induce
-insecurities in the network when it's back up. That's why we monitor Angle CNECs and associate with them remedial actions
+An AngleCnec is a branch which may see a phase angle shift between its two ends when it's disconnected. This may induce
+insecurities in the network when it's back up. That's why we monitor angle CNECs and associate with them remedial actions
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
 In terms of OpenRAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
@@ -528,11 +528,11 @@ An AngleCnec has the following specificities:
 - it must contain at least one threshold, defined in degrees. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> AngleCnecs currently cannot be optimized by the RAO, but they are monitored by an independent
+> Angle CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [Monitoring](../../algorithms/monitoring.md) module with **ANGLE** as physical parameter.
 
-#### Creating an AngleCnec
-In OpenRAO, AngleCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
+#### Creating an angle CNEC
+In OpenRAO, angle CNECs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -627,17 +627,17 @@ cnec2 = crac.newAngleCnec()
 ::::
 
 ### Voltage CNECs
-A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has the following specificities:
+A VoltageCnec is a CNEC on which we monitor the voltage on substations. It has the following specificities:
 - it contains one network element (a [VoltageLevel](inv:powsyblcore:*:*#voltage-level))
 - the physical parameter which is monitored by the CNEC is the **voltage**.
 - it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> VoltageCnecs currently cannot be optimized by the RAO, but they are monitored by an independent
+> Voltage CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [VoltageMonitoring](../../algorithms/monitoring.md) module with **VOLTAGE** as physical parameter.
 
-#### Creating a VoltageCnec
-In OpenRAO, VoltageCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
+#### Creating a voltage CNEC
+In OpenRAO, voltage CNECs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API

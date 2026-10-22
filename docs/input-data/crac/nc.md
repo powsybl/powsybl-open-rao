@@ -226,14 +226,14 @@ case, the contingency's name is added to the CNEC's name.
 
 Finally, the created CNEC can be optimized (resp. monitored) if the `AssessedElement` has a `SecuredForRegion` (resp. `ScannedForRegion`) attribute pointing to the [EI Code of the CCR](creation-parameters.md#capacity-calculation-region-eic-code) declared in the NC parameters extension (default is `10Y1001C--00095L`, i.e. SWE CCR).
 
-The distinction between the types of CNEC (FlowCNEC, AngleCNEC or VoltageCNEC) comes from the type of `OperationalLimit`
-of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
+The distinction between the types of CNEC (flow CNEC, angle CNEC or voltage CNEC) comes from the type of `OperationalLimit`
+of the Assessed Element (or the use of a `ConductingEquipment` for flow CNECs).
 
 ### FlowCNEC
 
 ::::{tabs}
 :::{group-tab} OperationalLimit
-The CNEC is a [FlowCNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
+The CNEC is a [flow CNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
 the **EQ** profile (CGMES file).
 
 ```xml
@@ -301,14 +301,14 @@ existing line in the network and which also defines the CNEC's network element:
 - if the line is a `CGMES.Terminal2` or a `CGMES.Terminal_Boundary_2` in PowSyBl, the threshold of the CNEC is on the
   side **two**
 
-Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the FlowCNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
+Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the flow CNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
-If the `AssessedElement` is `inBaseCase` and the limit is a PATL, a preventive FlowCNEC is added as well.
+If the `AssessedElement` is `inBaseCase` and the limit is a PATL, a preventive flow CNEC is added as well.
 
 :::
 :::{group-tab} ConductingEquipment
 
-FlowCNECs can also be defined with a `ConductingEquipement` that points to a line in the CGMES.
+Flow CNECs can also be defined with a `ConductingEquipement` that points to a line in the CGMES.
 
 ```xml
 <!-- AE Profile -->
@@ -329,20 +329,20 @@ FlowCNECs can also be defined with a `ConductingEquipement` that points to a lin
 </rdf:RDF>
 ```
 
-In that case, several FlowCNECs can be defined at once depending on the number of TATLs defined for the line (given that
+In that case, several flow CNECs can be defined at once depending on the number of TATLs defined for the line (given that
 the `AssessedElement` is linked to a contingency).
 
 The whole set of limits of the line is use to determine which limit is associated to which instant (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
-For each contingency, a curative FlowCNEC is also created using the PATL. Finally, if the `AssessedElement`
-is `inBaseCase` a preventive FlowCNEC is added using the PATL as well. In all case, the limit's threshold is used for
-both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
+For each contingency, a curative flow CNEC is also created using the PATL. Finally, if the `AssessedElement`
+is `inBaseCase` a preventive flow CNEC is added using the PATL as well. In all case, the limit's threshold is used for
+both the maximum (positive) and minimum (negative) flow CNEC's thresholds.
 :::
 ::::
 
 #### TATL to FlowCNEC instant association
 
-Because of the three curative instants used in the NC process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
+Because of the three curative instants used in the NC process, the definition of instants for flow CNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
 
 This association is more complex, as the set of TATLs used is not fixed from one line to the next, but the RAO must be able to map each of these limits at all 5 post-contingency instants (outage, auto and curative 1, 2 and 3).
 
@@ -386,17 +386,17 @@ For a given AssessedElement, no matter if it is defined using a `ConductingEquip
 > 1. For each instant, if no TATL meets the condition "highest limit with a duration >= X", the PATL is used instead (or the longest TATL if the TSO does not use the PATL for the final state)
 > 2. If the TSO does not use the PATL for the final state but the line has no TATL, the PATL is used by default for all the instants
 
-Then given a limit (PATL or TATL), the FlowCNEC's instant is retrieved as followed:
-- if the limit is associated to one or several instants by the previous algorithm, one FlowCNEC is created per such instant
+Then given a limit (PATL or TATL), the flow CNEC's instant is retrieved as followed:
+- if the limit is associated to one or several instants by the previous algorithm, one flow CNEC is created per such instant
 - if not, the instants associated to the closest limit with a longer duration (and which was mapped to instants by the algorithm) are used instead
 
 > **Remark about interconnections**
 > 
-> Note that to avoid potential interconnection lines that may have different limits on both sides, one FlowCNEC is created for each side
+> Note that to avoid potential interconnection lines that may have different limits on both sides, one flow CNEC is created for each side
 
 ### AngleCNEC
 
-The CNEC is an [AngleCNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
+The CNEC is an [angle CNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
 found in the **ER** profile.
 
 ```xml
@@ -439,8 +439,8 @@ s `direction`:
 - if the `direction` is `absoluteValue`, the maximum value of the threshold is + `normalValue` and the minimum value of
   the threshold is `- normalValue`
 
-An AngleCNEC also has two terminals, one being the importing element and the other being the exporting element, which
-imposes the flow direction. Two terminals are referenced by the AngleCNEC in the NC profiles. The first one (called
+An angle CNEC also has two terminals, one being the importing element and the other being the exporting element, which
+imposes the flow direction. Two terminals are referenced by the angle CNEC in the NC profiles. The first one (called
 *terminal_1*) is referenced by the `VoltageAngleLimit`'s `AngleReferenceTerminal` field. The second one (called
 *terminal_2*) is referenced by the `OperationalLimitSet`'s `Terminal` field. The flow direction is determined depending
 on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
@@ -449,11 +449,11 @@ on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 - if it is present of `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
 
 > ⚠️ Note that if the `OperationalLimitType`'s `direction` is **not** `absoluteValue`, the `isFlowToRefTerminal` must be
-> present otherwise the AngleCNEC will be ignored.
+> present otherwise the angle CNEC will be ignored.
 
 ### VoltageCNEC
 
-The CNEC is a [VoltageCNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
+The CNEC is a [voltage CNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
 found in the **EQ** profile (CGMES file).
 
 ```xml
@@ -485,7 +485,7 @@ found in the **EQ** profile (CGMES file).
 </rdf:RDF>
 ```
 
-The VoltageCNEC's `isInfiniteDuration` field is optional and its default value is `true`. If it is set to `false` the voltageCNEC will
+The voltage CNEC's `isInfiniteDuration` field is optional and its default value is `true`. If it is set to `false` the voltage CNEC will
 be ignored.
 
 The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` and must be positive.
@@ -494,7 +494,7 @@ Whether this is the maximum or minimum threshold of the CNEC depends on the `Ope
 - if the `limitType` is `highVoltage`, the maximum value of the threshold is `+ normalValue`
 - if the `limitType` is `lowVoltage`, the minimum value of the threshold is `- normalValue`
 
-The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
+The voltage CNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
 existing BusBarSection in the network.
 
 ## Remedial Actions
@@ -867,5 +867,5 @@ assessed element and the contingency.
 </rdf:RDF>
 ```
 
-> - If several FlowCNECs were created from the `AssessedElement`, an onConstraint usage rule is created for each as long as the instant of the FlowCNEC occurs after the instant of the remedial action (except for ARAs for which only auto CNECs are supported)
-> - If the `AssessedElement` is also linked to a `Contingency`, only the FlowCNECs monitored after said contingency will be considered for the onConstraint usage rules (see previous bullet point)
+> - If several flow CNECs were created from the `AssessedElement`, an onConstraint usage rule is created for each as long as the instant of the flow CNEC occurs after the instant of the remedial action (except for ARAs for which only auto CNECs are supported)
+> - If the `AssessedElement` is also linked to a `Contingency`, only the flow CNECs monitored after said contingency will be considered for the onConstraint usage rules (see previous bullet point)

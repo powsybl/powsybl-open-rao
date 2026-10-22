@@ -2,7 +2,7 @@
 
 ## Definition
 
-Some FlowCnecs $\mathcal{C} ^{specific}$ can be omitted from the optimization for the following reason:
+Some flow CNECs $\mathcal{C} ^{specific}$ can be omitted from the optimization for the following reason:
 - Curative CNECs from TSOs not sharing any CRAs are not taken into account when looking for the minimum margin in the 
 objective function (only during CRA optimization), as long as the applied CRAs do not decrease these CNECs' margins 
 (compared to their margins before applying any CRA).  

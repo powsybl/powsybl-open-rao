@@ -242,7 +242,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-cnecs). This parameter allows the user 
 to add VoltageCnecs during CRAC creation.  
-To define Voltage CNECs, the user has to define:
+To define voltage CNECs, the user has to define:
 - A list of monitored network elements, identified by their unique ID in the network file. These network elements must be VoltageLevels.
 - Instants for which these elements should be monitored (among instant IDs defined in the CRAC)
 - For instants other than preventive that are selected, a list of contingencies after which these elements are monitored 
@@ -395,7 +395,7 @@ In the NC profiles, the [AssessedElements](nc.md#cnecs) objects can be declared 
 
 ### curative-instants
 
-Because of the multiple curative instants used in NC, the definition of the instant of a FlowCNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
+Because of the multiple curative instants used in NC, the definition of the instant of a flow CNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
 
 ### tsos-which-do-not-use-patl-in-final-state
 
@@ -403,7 +403,7 @@ Usually, the PATL is used as the operational limit for the final state (i.e. aft
 
 ### borders
 
-This field is used to define the EI Code associated to each border so that the importer can properly assign FlowCNECs to region borders.
+This field is used to define the EI Code associated to each border so that the importer can properly assign flow CNECs to region borders.
 
 ### Full NC example
 

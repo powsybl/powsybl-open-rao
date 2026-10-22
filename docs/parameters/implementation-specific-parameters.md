@@ -392,7 +392,7 @@ They are configured as a sub-object of the `open-rao-search-tree-parameters` ext
 
 - **Expected value**: numeric positive value, in MW or A unit (same as min margin)
 - **Default value**: 0.0
-- **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
+- **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each flow CNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
 ### FastRAO Parameters extension
 

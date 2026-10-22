@@ -129,11 +129,11 @@ crac.newInstant("preventive", InstantKind.PREVENTIVE)
 
 Now that contingencies and instants are all set, we can start adding CNECs and remedial actions to the CRAC.
 
-### Create FlowCNECs
+### Create flow CNECs
 
 The next step is to create the [CNECs](../input-data/crac/json.md#cnecs). For our example and given the simple network
-we are using, we will only consider [FlowCNECs](../input-data/crac/json.md#flow-cnecs) that correspond to lines in the
-network that will have to be optimized flow-wise after contingencies (and in base case). The FlowCNECs also have
+we are using, we will only consider [flow CNECs](../input-data/crac/json.md#flow-cnecs) that correspond to lines in the
+network that will have to be optimized flow-wise after contingencies (and in base case). The flow CNECs also have
 thresholds that indicate the maximum admissible flow on the line for a given instant.
 
 Let us make sure that the flow on line _NNL2AA1 BBE3AA1 1_ stays under 410 MW in base case:
@@ -460,7 +460,7 @@ public class Main {
               .withContingencyElement("DDE2AA1  NNL3AA1  1", ContingencyElementType.LINE)
               .add();
 
-      // Add FlowCNECs
+      // Add flow CNECs
       crac.newFlowCnec()
               .withId("NNL2AA1  BBE3AA1  1 - preventive")
               .withInstant("preventive")
