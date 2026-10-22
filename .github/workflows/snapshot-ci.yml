@@ -50,7 +50,7 @@ jobs:
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
 
       - name: Checkout script
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           sparse-checkout: |
             .github
@@ -62,7 +62,7 @@ jobs:
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-core.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout core sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: powsybl/powsybl-core
           ref: ${{ env.SNAPSHOT_BRANCH }}
@@ -81,7 +81,7 @@ jobs:
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-open-loadflow sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: powsybl/powsybl-open-loadflow
           ref: ${{ env.SNAPSHOT_BRANCH }}
@@ -104,7 +104,7 @@ jobs:
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-entsoe sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: powsybl/powsybl-entsoe
           ref: ${{ env.SNAPSHOT_BRANCH }}
@@ -126,7 +126,7 @@ jobs:
 
       # Build powsybl-open-rao
       - name: Checkout powsybl-open-rao sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           path: powsybl-openrao
 
