@@ -17,13 +17,12 @@ jobs:
     needs: path-filter
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    if: >-
-      github.event.pull_request.head.repo.fork == true
+    if: github.event.pull_request.head.repo.fork == true
     # Docs-only PRs: skip all build cells except ubuntu/java, which still runs so that the
     # artifacts for the "CI on forks - Sonar analysis" workflow are uploaded and the real
     # SonarCloud analysis can execute and report its result.
     env:
-      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
+      RUN_BUILD: ${{ needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
@@ -32,7 +31,7 @@ jobs:
     steps:
       - name: Skip build and test for docs-only PR
         if: env.RUN_BUILD != 'true'
-        run: echo "Docs-only PR - skipping build and test"
+        run: echo "Docs-only PR - skipping build and test (kept only for the SonarCloud analysis cell)"
 
       - name: Checkout sources
         if: env.RUN_BUILD == 'true'
