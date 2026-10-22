@@ -11,8 +11,10 @@ import com.google.common.hash.Hashing;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -29,6 +31,7 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -198,6 +201,51 @@ public class SearchTree {
         }
     }
 
+    /**
+     * Leaf optimization only, no tree search: re-evaluates and re-optimizes {@code decidedResult}'s
+     * network-action combination using this SearchTree's own ToolProvider/parameters, without reopening
+     * which network actions are applied. Used to re-run leaf optimization with a different (e.g. base/AC)
+     * ToolProvider than the one that decided the combination.
+     */
+    public OptimizationResult optimizeDecidedNetworkActionCombination(OptimizationResult decidedResult, ReportNode reportNode) {
+        // like run(), work on a copy so that the caller's variant is left untouched
+        String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
+        input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        try {
+            State mainState = input.getOptimizationPerimeter().getMainOptimizationState();
+
+            // network actions must be applied before range action setpoints: activating an HVDC range action
+            // may require a network action to disable AC emulation on its line beforehand
+            Leaf leaf = makeLeafForDecidedNetworkActionCombination(decidedResult);
+
+            // warm-start with the decided setpoints; unchanged ones are skipped because applying e.g. an HVDC
+            // range action disables its AC emulation even when the setpoint is the same
+            input.getOptimizationPerimeter().getRangeActionsPerState().getOrDefault(mainState, Set.of()).stream()
+                    .filter(ra -> Math.abs(decidedResult.getOptimizedSetpoint(ra, mainState) - input.getPrePerimeterResult().getSetpoint(ra)) > 1e-6)
+                    .forEach(ra -> ra.apply(input.getNetwork(), decidedResult.getOptimizedSetpoint(ra, mainState)));
+
+            leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+            if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
+                // the decided combination was found on different sensitivities (e.g. DC) and does not converge here:
+                // report it as a plain sensitivity failure instead of returning a leaf that throws on every getter
+                SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, leaf);
+                return new SkippedOptimizationResultImpl(mainState, Set.of(), Set.of(), ComputationStatus.FAILURE,
+                    LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost(input.getToolProvider().getRaoParameters()));
+            }
+            // same rule as run(): a leaf whose range actions were left untouched is not optimized once the stop criterion is met
+            boolean decidedLeafNotOptimized = decidedResult.getActivatedRangeActions(mainState).isEmpty();
+            if (!(decidedLeafNotOptimized && stopCriterionReached(leaf))) {
+                optimizeLeaf(leaf, reportNode);
+            }
+            leaf.finalizeOptimization();
+            return leaf;
+        } finally {
+            input.getNetwork().getVariantManager().setWorkingVariant(preSearchTreeVariantId);
+            input.getNetwork().getVariantManager().removeVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        }
+    }
+
     void initLeaves(SearchTreeInput input) {
         rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
@@ -206,6 +254,19 @@ public class SearchTree {
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    }
+
+    Leaf makeLeafForDecidedNetworkActionCombination(OptimizationResult decidedResult) {
+        return new Leaf(
+                input.getOptimizationPerimeter(),
+                input.getNetwork(),
+                decidedResult.getActivatedNetworkActions(),
+                null,
+                decidedResult,
+                input.getPrePerimeterResult(),
+                input.getPreOptimizationAppliedRemedialActions(),
+                parameters.getNetworkActionParameters().isAllowElectricalIslandCreation(),
+                initialNumberOfConnectedComponent);
     }
 
     private void iterateOnTree() {

@@ -98,6 +98,7 @@ public final class RaoParametersCommons {
     public static final String LOAD_FLOW_PROVIDER = "load-flow-provider";
     public static final String SENSITIVITY_PROVIDER = "sensitivity-provider";
     public static final String SENSITIVITY_FAILURE_OVERCOST = "sensitivity-failure-overcost";
+    public static final String OPTIMIZE_IN_DC = "optimize-in-dc";
     public static final String SENSITIVITY_PARAMETERS = "sensitivity-parameters";
 
     // EXTENSIONS

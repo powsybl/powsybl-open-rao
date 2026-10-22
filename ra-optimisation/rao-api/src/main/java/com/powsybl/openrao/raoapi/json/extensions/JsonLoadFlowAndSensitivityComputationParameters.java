@@ -18,6 +18,7 @@ import java.io.IOException;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OPTIMIZE_IN_DC;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PROVIDER;
@@ -35,6 +36,7 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
         jsonGenerator.writeStringField(LOAD_FLOW_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider());
         jsonGenerator.writeStringField(SENSITIVITY_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider());
         jsonGenerator.writeNumberField(SENSITIVITY_FAILURE_OVERCOST, parameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost());
+        jsonGenerator.writeBooleanField(OPTIMIZE_IN_DC, parameters.getLoadFlowAndSensitivityParameters().getOptimizeInDc());
         jsonGenerator.writeFieldName(SENSITIVITY_PARAMETERS);
         serializerProvider.defaultSerializeValue(parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters(), jsonGenerator);
         jsonGenerator.writeEndObject();
@@ -54,6 +56,10 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
                 case SENSITIVITY_FAILURE_OVERCOST -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(jsonParser.getValueAsDouble());
+                }
+                case OPTIMIZE_IN_DC -> {
+                    jsonParser.nextToken();
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setOptimizeInDc(jsonParser.getBooleanValue());
                 }
                 case SENSITIVITY_PARAMETERS -> {
                     jsonParser.nextToken();
