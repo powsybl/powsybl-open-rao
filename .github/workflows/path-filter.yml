@@ -28,7 +28,6 @@ jobs:
             code:
               - '**'
               - '!docs/**'
-              - '!.github/**'
               - '!**/*.md'
             docs:
               - 'docs/**'
