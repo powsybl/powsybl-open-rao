@@ -112,7 +112,7 @@ class RaoResultSerializerTest {
         Crac crac = ExhaustiveCracCreation.create();
         crac.newVoltageCnec().withId("voltageCnecIdAuto")
             .withName("voltageCnecNameAuto")
-            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
+            .withNetworkElement("voltageCnecNeId")
             .withInstant("auto")
             .withContingency("contingency1Id")
             .withOperator("operator1")
@@ -122,8 +122,8 @@ class RaoResultSerializerTest {
             .add();
         crac.newAngleCnec().withId("angleCnecIdAuto")
             .withName("angleCnecNameAuto")
-            .withExportingNetworkElement("eneId", "eneName")
-            .withImportingNetworkElement("ineId", "ineName")
+            .withExportingNetworkElement("eneId")
+            .withImportingNetworkElement("ineId")
             .withInstant("auto")
             .withContingency("contingency1Id")
             .withOperator("operator1")
@@ -159,7 +159,7 @@ class RaoResultSerializerTest {
 
         crac.newVoltageCnec().withId("voltageCnecId2")
             .withName("voltageCnecName2")
-            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
+            .withNetworkElement("voltageCnecNeId")
             .withInstant("curative")
             .withContingency("contingency1Id")
             .withOperator("operator1")
@@ -169,8 +169,8 @@ class RaoResultSerializerTest {
             .add();
         crac.newAngleCnec().withId("angleCnecId2")
             .withName("angleCnecName2")
-            .withExportingNetworkElement("eneId", "eneName")
-            .withImportingNetworkElement("ineId", "ineName")
+            .withExportingNetworkElement("eneId")
+            .withImportingNetworkElement("ineId")
             .withInstant("curative")
             .withContingency("contingency1Id")
             .withOperator("operator1")

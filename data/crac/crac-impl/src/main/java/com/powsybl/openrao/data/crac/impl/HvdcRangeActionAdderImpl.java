@@ -39,11 +39,6 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
 
     @Override
     public HvdcRangeActionAdder withNetworkElement(String networkElementId) {
-        return withNetworkElement(networkElementId, networkElementId);
-    }
-
-    @Override
-    public HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.getCrac().addNetworkElement(networkElementId);
         return this;

@@ -64,7 +64,7 @@ class VoltageCnecAdderImplTest {
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency(contingency1Id)
                 .withOperator("cnec1Operator")
-                .withNetworkElement("neId1", "neName1")
+                .withNetworkElement("neId1")
                 .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.0).withMin(-1000.0).add()
                 .add();
         cnec2 = crac.newVoltageCnec()

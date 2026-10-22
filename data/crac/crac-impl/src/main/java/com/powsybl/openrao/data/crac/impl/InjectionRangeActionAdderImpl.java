@@ -41,11 +41,6 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId) {
-        return withNetworkElementAndKey(key, networkElementId, networkElementId);
-    }
-
-    @Override
-    public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
         distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId));
         if (Math.abs(key) > 1e-3) {
             this.getCrac().addNetworkElement(networkElementId);
@@ -56,16 +51,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeActionAdder withNetworkElement(String networkElementId) {
         if (distributionKeys.isEmpty()) {
-            return withNetworkElementAndKey(1.0, networkElementId, networkElementId);
-        } else {
-            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
-        }
-    }
-
-    @Override
-    public InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
-        if (distributionKeys.isEmpty()) {
-            return withNetworkElementAndKey(1.0, networkElementId, networkElementName);
+            return withNetworkElementAndKey(1.0, networkElementId);
         } else {
             throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
         }

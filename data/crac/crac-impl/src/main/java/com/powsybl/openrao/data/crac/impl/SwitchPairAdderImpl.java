@@ -28,22 +28,12 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
 
     @Override
     public SwitchPairAdder withSwitchToOpen(String networkElementId) {
-        return withSwitchToOpen(networkElementId, networkElementId);
-    }
-
-    @Override
-    public SwitchPairAdder withSwitchToClose(String networkElementId) {
-        return withSwitchToClose(networkElementId, networkElementId);
-    }
-
-    @Override
-    public SwitchPairAdder withSwitchToOpen(String networkElementId, String networkElementName) {
         this.switchToOpenId = networkElementId;
         return this;
     }
 
     @Override
-    public SwitchPairAdder withSwitchToClose(String networkElementId, String networkElementName) {
+    public SwitchPairAdder withSwitchToClose(String networkElementId) {
         this.switchToCloseId = networkElementId;
         return this;
     }

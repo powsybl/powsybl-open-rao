@@ -817,19 +817,19 @@ class CracImplTest {
 
         NetworkActionAdder na1Adder = crac.newNetworkAction().withId("na1").withName("na1").withOperator("operator").withSpeed(10);
         na1Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
-        na1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        na1Adder.newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na1 = na1Adder.add();
         NetworkActionAdder na2Adder = crac.newNetworkAction().withId("na2").withName("na2").withOperator("operator").withSpeed(10);
         na2Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
-        na2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        na2Adder.newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na2 = na2Adder.add();
         NetworkActionAdder na3Adder = crac.newNetworkAction().withId("na3").withName("na3").withOperator("operator").withSpeed(10);
         na3Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
-        na3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        na3Adder.newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na3 = na3Adder.add();
         NetworkActionAdder na4Adder = crac.newNetworkAction().withId("na4").withName("na4").withOperator("operator").withSpeed(10);
         na4Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
-        na4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        na4Adder.newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na4 = na4Adder.add();
 
         state1 = crac.getState(contingency1, curativeInstant);
@@ -876,19 +876,19 @@ class CracImplTest {
 
         NetworkActionAdder na1Adder = crac.newNetworkAction().withId("na1").withName("na1").withOperator("operator").withSpeed(10);
         na1Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
-        na1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        na1Adder.newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na1 = na1Adder.add();
         NetworkActionAdder na2Adder = crac.newNetworkAction().withId("na2").withName("na2").withOperator("operator").withSpeed(10);
         na2Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
-        na2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        na2Adder.newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na2 = na2Adder.add();
         NetworkActionAdder na3Adder = crac.newNetworkAction().withId("na3").withName("na3").withOperator("operator").withSpeed(10);
         na3Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
-        na3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        na3Adder.newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na3 = na3Adder.add();
         NetworkActionAdder na4Adder = crac.newNetworkAction().withId("na4").withName("na4").withOperator("operator").withSpeed(10);
         na4Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
-        na4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        na4Adder.newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na4 = na4Adder.add();
 
         state1 = crac.getState(contingency1, curativeInstant);

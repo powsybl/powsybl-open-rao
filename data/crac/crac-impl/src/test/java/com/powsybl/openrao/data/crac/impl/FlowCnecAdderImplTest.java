@@ -64,7 +64,7 @@ class FlowCnecAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("cnec1Operator")
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(1000.0).withMin(-1000.0).add()
             .add();
         FlowCnec cnec2 = crac.newFlowCnec()
@@ -232,8 +232,8 @@ class FlowCnecAdderImplTest {
     @Test
     void testUniqueNetworkElement() {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec()
-            .withNetworkElement("neId1", "neName1");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2", "neName2"));
+            .withNetworkElement("neId1");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2"));
         assertEquals("Cannot add multiple network elements for a flow cnec.", exception.getMessage());
     }
 
@@ -243,7 +243,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(1000.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
@@ -258,7 +258,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withContingency(contingency1Id)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).withSide(ONE).add()
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
@@ -286,7 +286,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);

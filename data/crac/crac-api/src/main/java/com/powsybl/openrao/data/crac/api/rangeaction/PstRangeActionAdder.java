@@ -20,8 +20,6 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
 
     PstRangeActionAdder withNetworkElement(String networkElementId);
 
-    PstRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
-
     PstRangeActionAdder withGroupId(String groupId);
 
     PstRangeActionAdder withInitialTap(int initialTap);

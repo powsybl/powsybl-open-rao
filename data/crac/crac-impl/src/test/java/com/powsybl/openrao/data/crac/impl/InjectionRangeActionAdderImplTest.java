@@ -32,7 +32,6 @@ class InjectionRangeActionAdderImplTest {
     private CracImpl crac;
     private String injectionId1;
     private String injectionId2;
-    private String injectionName2;
 
     @BeforeEach
     public void setUp() {
@@ -41,7 +40,6 @@ class InjectionRangeActionAdderImplTest {
 
         injectionId1 = "BBE2AA11_Generator";
         injectionId2 = "FFR3AA11_Load";
-        injectionName2 = "Load in FFR3AA11";
     }
 
     @Test
@@ -54,7 +52,7 @@ class InjectionRangeActionAdderImplTest {
                 .withVariationCost(700d, VariationDirection.UP)
                 .withVariationCost(1000d, VariationDirection.DOWN)
                 .withNetworkElementAndKey(1., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .withNetworkElementAndKey(-1., injectionId2)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .withInitialSetpoint(10.0)
@@ -94,7 +92,7 @@ class InjectionRangeActionAdderImplTest {
             .withVariationCost(700d, VariationDirection.UP)
             .withVariationCost(1000d, VariationDirection.DOWN)
             .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-2., injectionId2, injectionName2)
+            .withNetworkElementAndKey(-2., injectionId2)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
@@ -109,7 +107,7 @@ class InjectionRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(4., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .withNetworkElementAndKey(-1., injectionId2)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -143,7 +141,7 @@ class InjectionRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .withNetworkElementAndKey(-1., injectionId2)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -184,7 +182,7 @@ class InjectionRangeActionAdderImplTest {
             .withId("id2")
             .withOperator("DE")
             .withGroupId("groupId2")
-            .withNetworkElement(injectionId2, injectionName2)
+            .withNetworkElement(injectionId2)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
@@ -209,14 +207,14 @@ class InjectionRangeActionAdderImplTest {
             crac.newInjectionRangeAction()
             .withId("id_error_1")
             .withNetworkElement(injectionId1)
-            .withNetworkElement(injectionId2, injectionName2)
+            .withNetworkElement(injectionId2)
         );
         assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e1.getMessage());
 
         Exception e2 = assertThrows(OpenRaoException.class, () ->
             crac.newInjectionRangeAction()
                 .withId("id_error_2")
-                .withNetworkElement(injectionId2, injectionName2)
+                .withNetworkElement(injectionId2)
                 .withNetworkElement(injectionId1)
         );
         assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e2.getMessage());
@@ -254,7 +252,7 @@ class InjectionRangeActionAdderImplTest {
                 .withId("id1")
                 .withGroupId("groupId1")
                 .withNetworkElementAndKey(1., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .withNetworkElementAndKey(-1., injectionId2)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
@@ -275,7 +273,7 @@ class InjectionRangeActionAdderImplTest {
             .withOperator("BE")
             .withGroupId("groupId1")
             .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+            .withNetworkElementAndKey(-1., injectionId2)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
@@ -300,7 +298,7 @@ class InjectionRangeActionAdderImplTest {
             .withId("id1")
             .withOperator("BE")
             .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+            .withNetworkElementAndKey(-1., injectionId2)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add InjectionRangeAction without a range. Please use newRange()", exception.getMessage());

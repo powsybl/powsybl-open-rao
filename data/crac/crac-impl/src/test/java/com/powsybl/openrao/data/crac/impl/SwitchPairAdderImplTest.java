@@ -42,8 +42,8 @@ class SwitchPairAdderImplTest {
     @Test
     void testOk() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
-            .withSwitchToOpen("open-id", "open-name")
-            .withSwitchToClose("close-id", "close-name")
+            .withSwitchToOpen("open-id")
+            .withSwitchToClose("close-id")
             .add()
             .add();
 
