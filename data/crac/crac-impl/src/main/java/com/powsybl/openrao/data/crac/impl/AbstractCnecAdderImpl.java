@@ -54,7 +54,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
                 throw new OpenRaoException(format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
-        networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
+        networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey()));
 
         if (owner.getCnec(id) != null) {
             throw new OpenRaoException(format("Cannot add a cnec with an already existing ID - %s.", id));

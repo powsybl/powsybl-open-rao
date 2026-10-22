@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPairAdder;
 
@@ -21,9 +20,7 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
 
     private final NetworkActionAdderImpl ownerAdder;
     private String switchToOpenId;
-    private String switchToOpenName;
     private String switchToCloseId;
-    private String switchToCloseName;
 
     SwitchPairAdderImpl(NetworkActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;
@@ -42,14 +39,12 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
     @Override
     public SwitchPairAdder withSwitchToOpen(String networkElementId, String networkElementName) {
         this.switchToOpenId = networkElementId;
-        this.switchToOpenName = networkElementName;
         return this;
     }
 
     @Override
     public SwitchPairAdder withSwitchToClose(String networkElementId, String networkElementName) {
         this.switchToCloseId = networkElementId;
-        this.switchToCloseName = networkElementName;
         return this;
     }
 
@@ -60,10 +55,10 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
         if (switchToOpenId.equals(switchToCloseId)) {
             throw new OpenRaoException("A switch pair cannot be created with the same switch to open & close!");
         }
-        NetworkElement switchToOpen = this.ownerAdder.getCrac().addNetworkElement(switchToOpenId, switchToOpenName);
-        NetworkElement switchToClose = this.ownerAdder.getCrac().addNetworkElement(switchToCloseId, switchToCloseName);
-        String id = String.format("%s_%s_%s", getActionName(), switchToOpen.getId(), switchToClose.getId());
-        ownerAdder.addElementaryAction(new SwitchPairImpl(id, switchToOpen, switchToClose), switchToOpen, switchToClose);
+        this.ownerAdder.getCrac().addNetworkElement(switchToOpenId);
+        this.ownerAdder.getCrac().addNetworkElement(switchToCloseId);
+        String id = String.format("%s_%s_%s", getActionName(), switchToOpenId, switchToCloseId);
+        ownerAdder.addElementaryAction(new SwitchPairImpl(id, switchToOpenId, switchToCloseId), switchToOpenId, switchToCloseId);
         return ownerAdder;
     }
 

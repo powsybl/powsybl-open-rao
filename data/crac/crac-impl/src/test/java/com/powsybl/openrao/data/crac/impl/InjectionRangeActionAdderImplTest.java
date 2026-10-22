@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,9 +76,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(-1., injectionRangeAction.getInjectionDistributionKeysIds().get(injectionId2), 1e-6);
         assertEquals(10.0, injectionRangeAction.getInitialSetpoint());
 
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(injectionId1));
-        assertNotNull(crac.getNetworkElement(injectionId2));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement(injectionId1));
+        assertTrue(crac.hasNetworkElement(injectionId2));
 
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -130,9 +129,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(5., injectionRangeAction.getInjectionDistributionKeysIds().get(injectionId1), 1e-6);
         assertEquals(-1., injectionRangeAction.getInjectionDistributionKeysIds().get(injectionId2), 1e-6);
 
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(injectionId1));
-        assertNotNull(crac.getNetworkElement(injectionId2));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement(injectionId1));
+        assertTrue(crac.hasNetworkElement(injectionId2));
 
         assertEquals(1, crac.getRangeActions().size());
 
@@ -157,7 +156,7 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(2, injectionRangeAction.getInjectionDistributionKeysIds().size());
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(2, crac.getNetworkElements().size());
+        assertEquals(2, crac.getNetworkElementIds().size());
     }
 
     @Test
@@ -200,9 +199,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(1, injectionRangeAction2.getInjectionDistributionKeysIds().size());
         assertEquals(1., injectionRangeAction2.getInjectionDistributionKeysIds().get(injectionId2), 1e-6);
 
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(injectionId1));
-        assertNotNull(crac.getNetworkElement(injectionId2));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement(injectionId1));
+        assertTrue(crac.hasNetworkElement(injectionId2));
 
         assertEquals(2, crac.getRangeActions().size());
 
@@ -246,7 +245,7 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(1, injectionRangeAction.getInjectionDistributionKeysIds().size());
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(1, crac.getNetworkElements().size());
+        assertEquals(1, crac.getNetworkElementIds().size());
     }
 
     @Test
@@ -267,7 +266,7 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(2, injectionRangeAction.getInjectionDistributionKeysIds().size());
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(2, crac.getNetworkElements().size());
+        assertEquals(2, crac.getNetworkElementIds().size());
     }
 
     @Test

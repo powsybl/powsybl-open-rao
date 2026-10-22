@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.CountryLocation;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.HashSet;
@@ -22,7 +21,7 @@ import java.util.Set;
 /**
  * Interface for Critical Network Element &amp; Contingency
  *
- * A Cnec represents a set of {@link NetworkElement} that are considered critical in the network.
+ * A Cnec represents a set of network element that are considered critical in the network.
  * The {@link PhysicalParameter} of the Cnec is therefore monitored and/or optimized in
  * RAOs relying on the Crac containing this Cnec.
  *
@@ -32,14 +31,6 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
-
-    /**
-     * Getter of the set of {@link NetworkElement}s on which the {@code Cnec} is defined.
-     *
-     * @deprecated since 7.4.0, use {@link #getNetworkElementsIds()} instead
-     */
-    @Deprecated(since = "7.4.0")
-    Set<NetworkElement> getNetworkElements();
 
     /**
      * Getter of the set of network elements on which the {@code Cnec} is defined.

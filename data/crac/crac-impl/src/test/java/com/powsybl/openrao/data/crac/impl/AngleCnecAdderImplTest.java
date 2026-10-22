@@ -117,11 +117,11 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId2") // same as cnec2
             .newThreshold().withUnit(Unit.DEGREE).withMax(500.0).add()
             .add();
-        assertEquals(4, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("eneId1"));
-        assertNotNull(crac.getNetworkElement("ineId1"));
-        assertNotNull(crac.getNetworkElement("eneId2"));
-        assertNotNull(crac.getNetworkElement("ineId2"));
+        assertEquals(4, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement("eneId1"));
+        assertTrue(crac.hasNetworkElement("ineId1"));
+        assertTrue(crac.hasNetworkElement("eneId2"));
+        assertTrue(crac.hasNetworkElement("ineId2"));
 
         // Verify states were created
         assertEquals(2, crac.getStates().size());
