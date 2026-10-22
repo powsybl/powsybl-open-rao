@@ -25,6 +25,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -39,6 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
+// TODO: re-enable on Windows once the native crash on GitHub runners is understood and fixed.
+@DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
 class MarmotUtilsTest {
     private Crac crac1;
     private Crac crac2;
