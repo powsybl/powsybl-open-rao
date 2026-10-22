@@ -291,7 +291,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> {
             return null;
         } catch (Exception e) {
             String failureReason = String.format("Unable to apply remedial actions at state %s", state.getId());
-            TECHNICAL_LOGS.error("Unable to apply remedial actions at state {}", state.getId(), e);
+            TECHNICAL_LOGS.error(failureReason);
             return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecMonitoringResults);
         }
 
