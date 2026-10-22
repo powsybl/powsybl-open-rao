@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -20,14 +21,15 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * This filler adds constraints to the linear problem that force a curative range action shared by several
- * timestamp's CRACs under the same ID to be activated identically across all of them, i.e. all the common
- * range actions must share the same setpoint value.
+ * This filler adds constraints to the linear problem that force a range action shared by several timestamp's CRACs
+ * under the same ID to be activated identically across all of them, i.e. all the common range actions must share the
+ * same set-point value.
  * <p>
  *     Since the range actions are matched by their CRAC ID only (and not by their network elements). The
  *     synchronization will not work if the same range action carries different CRAC IDs from one timestamp
@@ -54,16 +56,27 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
         if (timestamps.size() < 2) {
             return;
         }
-        // group by state in order to synchronize by contingency
+        // group by state in order to synchronize by state equivalence
+        Map<OffsetDateTime, State> preventiveStates = new HashMap<>();
         Map<String, Map<OffsetDateTime, State>> statesPerTimestampPerContingency = new HashMap<>();
         availableRangeActionsPerStatePerTimestamp.getDataPerTimestamp().forEach(
                 (timestamp, rangeActionsPerState) -> rangeActionsPerState.keySet().forEach(
-                        state -> statesPerTimestampPerContingency.computeIfAbsent(state.getContingency().orElseThrow().getId(), contingencyId -> new HashMap<>()).put(timestamp, state)
+                        state -> {
+                            Optional<Contingency> contingency = state.getContingency();
+                            if (contingency.isPresent()) {
+                                statesPerTimestampPerContingency.computeIfAbsent(contingency.get().getId(), contingencyId -> new HashMap<>()).put(timestamp, state);
+                            } else {
+                                preventiveStates.put(timestamp, state);
+                            }
+                        }
                 )
         );
+
+        // synchronize preventive states
+        addRangeActionsSynchronizationConstraintsForEquivalentStates(linearProblem, preventiveStates);
         // sort the contingencies by id and synchronize their setpoints
         statesPerTimestampPerContingency.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(
-                entry -> addRangeActionsSynchronizationConstraintsForContingency(linearProblem, entry.getValue())
+                entry -> addRangeActionsSynchronizationConstraintsForEquivalentStates(linearProblem, entry.getValue())
         );
     }
 
@@ -74,12 +87,12 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
 
     // Constraints
     /**
-     * Adds the synchronization constraints for one contingency.
+     * Adds the synchronization constraints for set of equivalent states (i.e. same instant and contingency, if any).
      *
-     * @param statesPerTimestamp the state to synchronize in every timestamp sharing the contingency.
+     * @param statesPerTimestamp the state to synchronize in every timestamp.
      */
-    private void addRangeActionsSynchronizationConstraintsForContingency(LinearProblem linearProblem, Map<OffsetDateTime, State> statesPerTimestamp) {
-        // for this contingency, the range action objects carrying the same ID, keyed by this ID then by timestamp
+    private void addRangeActionsSynchronizationConstraintsForEquivalentStates(LinearProblem linearProblem, Map<OffsetDateTime, State> statesPerTimestamp) {
+        // for all states, the range action objects carrying the same ID, keyed by this ID then by timestamp
         Map<String, SortedMap<OffsetDateTime, RangeAction<?>>> rangeActionPerTimestampPerId = new HashMap<>();
         statesPerTimestamp.forEach((timestamp, state) ->
                 availableRangeActionsPerStatePerTimestamp.getData(timestamp).orElseThrow().get(state).forEach(
@@ -99,7 +112,7 @@ public class RangeActionsSynchronizationFiller implements ProblemFiller {
      * The equality condition between the non-reference timestamps is implied by transitivity.
      *
      * @param timestampRangeActionMap the range action instances carrying the common ID keyed by timestamp.
-     * @param timestampStateMap the state to synchronize in every timestamp sharing the contingency.
+     * @param timestampStateMap the state to synchronize in every timestamp.
      */
     private void addRangeActionsSynchronizationConstraints(LinearProblem linearProblem,
                                                            SortedMap<OffsetDateTime, RangeAction<?>> timestampRangeActionMap,
