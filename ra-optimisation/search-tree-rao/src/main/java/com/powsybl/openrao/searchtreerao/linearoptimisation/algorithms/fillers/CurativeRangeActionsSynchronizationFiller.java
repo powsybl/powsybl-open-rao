@@ -62,7 +62,7 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
                         state -> statesPerTimestampPerContingency.computeIfAbsent(state.getContingency().orElseThrow().getId(), contingencyId -> new HashMap<>()).put(timestamp, state)
                 )
         );
-        // sort the contingencies by id
+        // sort the contingencies by id and synchronize their setpoints
         statesPerTimestampPerContingency.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(
                 entry -> addRangeActionsSynchronizationConstraintsForContingency(linearProblem, entry.getValue())
         );
