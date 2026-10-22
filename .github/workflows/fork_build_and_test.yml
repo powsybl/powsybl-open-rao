@@ -6,10 +6,27 @@ on:
 permissions: {}
 
 jobs:
+  # Gate job: skips the build matrix on docs-only PRs.
+  # Shared gate logic lives in .github/actions/code-change-gate (see build_and_test.yml).
+  path-filter:
+    name: Code change gate
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.fork == true
+    permissions:
+      contents: read
+    outputs:
+      code_changed: ${{ steps.gate.outputs.code_changed }}
+    steps:
+      - id: gate
+        uses: ./.github/actions/code-change-gate
+
   build:
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.head.repo.fork == true
+    needs: path-filter
+    if: >
+      github.event.pull_request.head.repo.fork == true &&
+      needs.path-filter.outputs.code_changed == 'true'
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]

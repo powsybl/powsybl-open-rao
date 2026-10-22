@@ -9,10 +9,30 @@ on:
       - 'ci/**-**'
 
 jobs:
+  # Gate job: always runs and always succeeds, so it can be a required check even
+  # when the build matrix below is skipped (skipped required checks would block the merge).
+  # See .github/actions/code-change-gate for the shared gate logic (doc-path filter,
+  # synthetic SonarCloud check on docs-only PRs, step summary).
+  path-filter:
+    name: Code change gate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    permissions:
+      contents: read
+      checks: write
+    outputs:
+      code_changed: ${{ steps.gate.outputs.code_changed }}
+    steps:
+      - id: gate
+        uses: ./.github/actions/code-change-gate
+
   build:
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.head.repo.fork == false
+    needs: path-filter
+    if: >
+      github.event.pull_request.head.repo.fork == false &&
+      (github.event_name != 'pull_request' || needs.path-filter.outputs.code_changed == 'true')
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
