@@ -37,7 +37,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
         run: mvn --batch-mode -Pjacoco install
