@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class CurativeRangeActionsSynchronizationFillerTest {
+class RangeActionsSynchronizationFillerTest {
     private static final double DOUBLE_EPSILON = 1e-3;
     private static final String CONTINGENCY_ID = "common_contingency";  // the contingency opens FR1-FR3
 
@@ -113,7 +113,7 @@ class CurativeRangeActionsSynchronizationFillerTest {
             );
             rangeActionsPerStatePerTimestamp.put(timestamp, rangeActionsPerState);
         });
-        CurativeRangeActionsSynchronizationFiller rangeActionsSynchronizer = new CurativeRangeActionsSynchronizationFiller(new TemporalDataImpl<>(rangeActionsPerStatePerTimestamp));
+        RangeActionsSynchronizationFiller rangeActionsSynchronizer = new RangeActionsSynchronizationFiller(new TemporalDataImpl<>(rangeActionsPerStatePerTimestamp));
         linearProblemBuilder.withProblemFiller(rangeActionsSynchronizer);
     }
 
@@ -196,9 +196,9 @@ class CurativeRangeActionsSynchronizationFillerTest {
         TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp = new TemporalDataImpl<>(Map.of(
                 hourlyTimestamps.get(0), Map.of(mockCurativeState("curative_state"), Set.of(mockRangeAction("pst_be"))
         )));
-        CurativeRangeActionsSynchronizationFiller curativeRangeActionsSynchronizationFiller = new CurativeRangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
+        RangeActionsSynchronizationFiller rangeActionsSynchronizationFiller = new RangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
         LinearProblem linearProblemMock = Mockito.mock(LinearProblem.class);
-        curativeRangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null);
+        rangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null);
         Mockito.verifyNoInteractions(linearProblemMock);
     }
 
@@ -263,11 +263,11 @@ class CurativeRangeActionsSynchronizationFillerTest {
                 hourlyTimestamps.get(0), Map.of(mockCurativeState("curative_state_1"), Set.of(mockRangeAction("pst_be"))),
                 hourlyTimestamps.get(1), Map.of(mockCurativeState("curative_state_2"), Set.of(mockRangeAction("pst_be")))
         ));
-        CurativeRangeActionsSynchronizationFiller curativeRangeActionsSynchronizationFiller = new CurativeRangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
+        RangeActionsSynchronizationFiller rangeActionsSynchronizationFiller = new RangeActionsSynchronizationFiller(availableRangeActionsPerStatePerTimestamp);
         LinearProblem linearProblemMock = Mockito.mock(LinearProblem.class);
         when(linearProblemMock.getRangeActionSetpointVariable(any(), any())).thenThrow(new OpenRaoException("Variable not found"));
-        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> curativeRangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null));
-        assertEquals("The setpoint variable of range action pst_be was not found at state : curative_state_1.", openRaoException.getMessage());
+        OpenRaoException openRaoException = assertThrows(OpenRaoException.class, () -> rangeActionsSynchronizationFiller.fill(linearProblemMock, null, null, null));
+        assertEquals("Variable not found", openRaoException.getMessage());
     }
 
     // utils

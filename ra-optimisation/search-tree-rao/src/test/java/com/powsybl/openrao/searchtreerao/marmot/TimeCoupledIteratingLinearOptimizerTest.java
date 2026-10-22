@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.RangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class TimeCoupledIteratingLinearOptimizerTest {
         // 2 timestamps with curative main optimization state -> curative MIP
         List<ProblemFiller> problemFillers = TimeCoupledIteratingLinearOptimizer.getTimeCoupledProblemFillers(createTimeCoupledInput(false), Mockito.mock(IteratingLinearOptimizerParameters.class));
         assertEquals(1, problemFillers.size());
-        assertInstanceOf(CurativeRangeActionsSynchronizationFiller.class, problemFillers.getFirst());
+        assertInstanceOf(RangeActionsSynchronizationFiller.class, problemFillers.getFirst());
     }
 
     @Test
@@ -52,7 +52,7 @@ class TimeCoupledIteratingLinearOptimizerTest {
         // 2 timestamps with preventive main optimization state + curative states -> global MIP
         List<ProblemFiller> problemFillers = TimeCoupledIteratingLinearOptimizer.getTimeCoupledProblemFillers(createTimeCoupledInput(true), Mockito.mock(IteratingLinearOptimizerParameters.class));
         assertEquals(1, problemFillers.size());
-        assertInstanceOf(CurativeRangeActionsSynchronizationFiller.class, problemFillers.getFirst());
+        assertInstanceOf(RangeActionsSynchronizationFiller.class, problemFillers.getFirst());
     }
 
     private static TimeCoupledIteratingLinearOptimizerInput createTimeCoupledInput(boolean isGlobalMip) {

@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -37,12 +36,12 @@ import java.util.TreeMap;
  *
  * @author Atena Amnache {@literal <atena.amnache at rte-france.com>}
  */
-public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller {
+public class RangeActionsSynchronizationFiller implements ProblemFiller {
     private final List<OffsetDateTime> timestamps;
     // for each timestamp, for each state, which range actions are available
     private final TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp;
 
-    public CurativeRangeActionsSynchronizationFiller(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp) {
+    public RangeActionsSynchronizationFiller(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActionsPerStatePerTimestamp) {
         this.timestamps = availableRangeActionsPerStatePerTimestamp.getTimestamps();
         this.availableRangeActionsPerStatePerTimestamp = availableRangeActionsPerStatePerTimestamp;
     }
@@ -134,8 +133,8 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
                                                RangeAction<?> otherTimestampRangeAction,
                                                State referenceTimestampState,
                                                State otherTimestampState) {
-        OpenRaoMPVariable referenceTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, referenceTimestampRangeAction, referenceTimestampState);
-        OpenRaoMPVariable otherTimestampRangeActionSetpoint = getSetpointVariable(linearProblem, otherTimestampRangeAction, otherTimestampState);
+        OpenRaoMPVariable referenceTimestampRangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(referenceTimestampRangeAction, referenceTimestampState);
+        OpenRaoMPVariable otherTimestampRangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(otherTimestampRangeAction, otherTimestampState);
         OpenRaoMPConstraint rangeActionSynchronizationConstraint = linearProblem.addRangeActionSynchronizationConstraint(
                 referenceTimestampRangeAction.getId(),
                 referenceTimestampState,
@@ -144,17 +143,5 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
         // +1 * referenceTimestampRangeActionSetpoint - 1 * otherTimestampRangeActionSetpoint = 0
         rangeActionSynchronizationConstraint.setCoefficient(referenceTimestampRangeActionSetpoint, 1.0);
         rangeActionSynchronizationConstraint.setCoefficient(otherTimestampRangeActionSetpoint, -1.0);
-    }
-
-    // Utility methods
-    /**
-     * Returns the setpoint variable of a range action at a given state
-     */
-    private OpenRaoMPVariable getSetpointVariable(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        try {
-            return linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        } catch (OpenRaoException e) {
-            throw new OpenRaoException("The setpoint variable of range action %s was not found at state : %s.".formatted(rangeAction.getId(), state.getId()), e);
-        }
     }
 }

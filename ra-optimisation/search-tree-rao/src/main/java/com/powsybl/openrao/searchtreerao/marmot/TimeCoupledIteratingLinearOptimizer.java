@@ -26,10 +26,10 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CurativeRangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PstConstraintsFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.RangeActionsSynchronizationFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -264,13 +264,13 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // Two cases for the curative range actions synchronization :
         // 1. curative MIP
         if (isCurativeMip && input.synchronizeCurativeRangeActions()) {
-            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                 iteratingLinearOptimizerInput -> iteratingLinearOptimizerInput.optimizationPerimeter().getRangeActionsPerState()
             )));
         }
         // 2. global MIP (main optimization state is preventive but the optimization perimeter is global)
         if (isPreventiveMip && input.synchronizeCurativeRangeActions()) {
-            problemFillers.add(new CurativeRangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
+            problemFillers.add(new RangeActionsSynchronizationFiller(input.iteratingLinearOptimizerInputs().map(
                 iteratingLinearOptimizerInput -> getCurativeRangeActionsPerState(iteratingLinearOptimizerInput.optimizationPerimeter())
             )));
         }
