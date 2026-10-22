@@ -81,3 +81,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build-status:
+    name: Build status
+    needs: [path-filter, build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build result
+        run: |
+          pf="${{ needs.path-filter.result }}"
+          result="${{ needs.build.result }}"
+          if [ "$pf" = "failure" ] || [ "$pf" = "cancelled" ]; then
+            echo "Path filter result: $pf"
+            exit 1
+          fi
+          if [ "$result" = "success" ] || [ "$result" = "skipped" ]; then
+            exit 0
+          fi
+          echo "Build result: $result"
+          exit 1
