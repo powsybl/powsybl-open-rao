@@ -259,7 +259,7 @@ class LoopFlowComputationImplTest {
     // surefire JVM crashes right after the Jacobian matrix is built ("forked VM terminated without
     // properly saying goodbye"). The same code passes on Linux/macOS, passed earlier on Windows CI (v7.4.0),
     // and passes locally on Windows 10, so the crash seems specific to the GitHub runner environment.
-    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
+    //@DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
     @Test
     void testCalculateLoopFlows() {
         ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
