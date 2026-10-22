@@ -22,6 +22,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
+      # Avoid flaky "Unable to establish loopback connection" /
+      # "No buffer space available" errors: on Windows, Java NIO pipes (used by
+      # NetworkSerDe.copy) are loopback TCP sockets, and the build opens thousands
+      # of them. Widen the default ~16k ephemeral port range to ~64k.
+      - name: Widen TCP ephemeral port range
+        if: runner.os == 'Windows'
+        run: netsh int ipv4 set dynamicport tcp start=1025 num=64509
+
       - name: Set up Java 21
         if: matrix.jvm == 'java'
         uses: actions/setup-java@v5
