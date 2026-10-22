@@ -34,8 +34,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: path-filter
     if: >
-      github.event.pull_request.head.repo.fork == false &&
-      (github.event_name != 'pull_request' || needs.path-filter.outputs.code_changed == 'true')
+      always() &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.head.repo.fork == false &&
+        needs.path-filter.outputs.code_changed == 'true'))
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
