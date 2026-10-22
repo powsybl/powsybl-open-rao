@@ -22,7 +22,7 @@ can be applied to try and reduce the overloading.
 
 ## Monitoring input
 
-- The [CRAC](../../input-data/crac/json.md) object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored.
+- The [CRAC](../../input-data/crac/json.md) object used for the RAO, and containing [VoltageCnecs](../../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../../input-data/crac/json.md#angle-cnecs) to be monitored
 - The [network](../../input-data/network.md) to be monitored
 - The [loadflow parameters](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/parameters.html) used for the load-flow computation
 - The [RaoResult](../../output-data/rao-result.md) object containing selected remedial actions (that shall
@@ -122,7 +122,6 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - All ANGLE Cnecs are secure.
 INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- ANGLE monitoring [end]
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Some ANGLE Cnecs are not secure:
 INFO  c.p.o.commons.logs.RaoBusinessLogs - AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°.
-
 ~~~
 
 **Example 2 - VOLTAGE Monitoring:**  
