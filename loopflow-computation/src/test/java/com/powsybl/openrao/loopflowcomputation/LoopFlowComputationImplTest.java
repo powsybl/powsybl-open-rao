@@ -254,7 +254,7 @@ class LoopFlowComputationImplTest {
     }
 
     // TODO: re-enable on Windows once the native crash on GitHub runners is understood and fixed.
-    // This test runs an AC sensitivity analysis with OpenLoadFlow, which loads the native KLU solver
+    // This test runs a sensitivity analysis with OpenLoadFlow, which loads the native KLU solver
     // (math.dll from powsybl-math-native). On the GitHub Windows runners (windows-2022/2025) the forked
     // surefire JVM crashes right after the Jacobian matrix is built ("forked VM terminated without
     // properly saying goodbye"). The same code passes on Linux/macOS, passed earlier on Windows CI (v7.4.0),
