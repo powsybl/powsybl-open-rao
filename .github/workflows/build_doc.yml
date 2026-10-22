@@ -20,9 +20,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     # Code-only PRs: skip the build, but keep the job running (no-op) so the required
-    # check is still reported and the PR is not blocked.
+    # check is still reported and the PR is not blocked. If path-filter FAILS, build anyway.
     env:
-      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.docs == 'true' }}
+      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.result == 'failure' || needs.path-filter.outputs.docs == 'true' }}
     steps:
       - name: Skip doc build for code-only PR
         if: env.RUN_BUILD != 'true'
@@ -58,9 +58,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     # Code-only PRs: skip the check, but keep the job running (no-op) so the required
-    # check is still reported and the PR is not blocked.
+    # check is still reported and the PR is not blocked. If path-filter FAILS, check anyway.
     env:
-      RUN_CHECK: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.docs == 'true' }}
+      RUN_CHECK: ${{ github.event_name != 'pull_request' || needs.path-filter.result == 'failure' || needs.path-filter.outputs.docs == 'true' }}
     steps:
       - name: Skip link check for code-only PR
         if: env.RUN_CHECK != 'true'

@@ -10,7 +10,7 @@ on:
 
 jobs:
   path-filter:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
     permissions:
       contents: read
       pull-requests: read
@@ -25,8 +25,9 @@ jobs:
       github.event.pull_request.head.repo.fork == false)
     # Docs-only PRs: skip all build cells except ubuntu/java, which still runs so that the
     # SonarCloud analysis (and its quality-gate check) executes and reports the real result.
+    # If the path-filter job FAILS, treat it as "code changed" and build everything (fail-safe).
     env:
-      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
+      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.result == 'failure' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]

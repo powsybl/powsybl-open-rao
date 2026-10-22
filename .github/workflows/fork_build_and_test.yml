@@ -17,12 +17,14 @@ jobs:
     needs: path-filter
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.head.repo.fork == true
+    # always(): if the path-filter job fails, the build must still run (fail-safe), not be skipped
+    if: always() && github.event.pull_request.head.repo.fork == true
     # Docs-only PRs: skip all build cells except ubuntu/java, which still runs so that the
     # artifacts for the "CI on forks - Sonar analysis" workflow are uploaded and the real
     # SonarCloud analysis can execute and report its result.
+    # If the path-filter job FAILS, treat it as "code changed" and build everything (fail-safe).
     env:
-      RUN_BUILD: ${{ needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
+      RUN_BUILD: ${{ needs.path-filter.result == 'failure' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
