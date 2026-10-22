@@ -253,6 +253,13 @@ class LoopFlowComputationImplTest {
         assertEquals(170., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
+    // TODO: re-enable on Windows once the native crash on GitHub runners is understood and fixed.
+    // This test runs an AC sensitivity analysis with OpenLoadFlow, which loads the native KLU solver
+    // (math.dll from powsybl-math-native). On the GitHub Windows runners (windows-2022/2025) the forked
+    // surefire JVM crashes right after the Jacobian matrix is built ("forked VM terminated without
+    // properly saying goodbye"). The same code passes on Linux/macOS, passed earlier on Windows CI (v7.4.0),
+    // and passes locally on Windows 10, so the crash seems specific to the GitHub runner environment.
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
     @Test
     void testCalculateLoopFlows() {
         ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
@@ -282,11 +289,7 @@ class LoopFlowComputationImplTest {
         assertEquals(80., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
-    // TODO: re-enable on Windows once the native crash is understood and fixed.
-    // These tests run an AC sensitivity analysis with OpenLoadFlow, which loads the native KLU solver
-    // (math.dll from powsybl-math-native). On the GitHub Windows runners (windows-2022/2025) the forked
-    // surefire JVM crashes right after the Jacobian matrix is built ("forked VM terminated without
-    // properly saying goodbye"), whereas the same code passes on Linux/macOS and passed earlier on Windows.
+    // TODO: re-enable on Windows once the native crash on GitHub runners is understood and fixed.
     @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
     @Test
     void testCalculateLoopFlowsInAmpere() {
