@@ -23,8 +23,9 @@ jobs:
         if: matrix.jvm == 'java'
         uses: actions/setup-java@v5
         with:
-          java-version: 21
-          distribution: ${{ matrix.os == 'windows-latest' && 'microsoft' || 'oracle' }}
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
 
       - name: Setup GraalVM
         if: matrix.jvm == 'graalvm'
