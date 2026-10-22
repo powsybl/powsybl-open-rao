@@ -71,7 +71,7 @@ class NcCracCreator {
         addCsaInstants(ncParameters);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
-        this.nativeCrac.setForTimestamp(offsetDateTime);
+        this.nativeCrac.setForTimestampAndCheckHeaders(offsetDateTime);
 
         createContingencies();
         createCnecs(cracCreationParameters);
