@@ -16,7 +16,7 @@ crac/creation-context.md
 The CRAC (***C**ontingency list, **R**emedial **A**ctions and additional **C**onstraints*) file model contains two main categories of objects:
 - CNECs, containing the network elements to be monitored after given contingencies,
 - and the remedial actions that can be used to secure these elements.
-
+THIS IS A TEST
 ## CNEC
 
 CNEC means *Critical Network Element & Contingency* as defined in the literature. It associates a **network element** with a **state**: it represents a network element at a specific instant in preventive state or after a contingency.
