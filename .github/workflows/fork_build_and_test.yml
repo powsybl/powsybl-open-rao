@@ -6,30 +6,32 @@ on:
 permissions: {}
 
 jobs:
-  # Gate job: skips the build matrix on docs-only PRs.
-  # Shared gate logic lives in .github/actions/code-change-gate (see build_and_test.yml).
   path-filter:
-    name: Code change gate
+    name: Detect code changes
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.fork == true
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
+      pull-requests: read
     outputs:
-      code_changed: ${{ steps.gate.outputs.code_changed }}
+      code: ${{ steps.filter.outputs.code }}
     steps:
-      # Required before referencing the local composite action (empty workspace otherwise).
-      - name: Checkout sources
-        uses: actions/checkout@v1
-      - id: gate
-        uses: ./.github/actions/code-change-gate
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          predicate-quantifier: 'every'
+          filters: |
+            code:
+              - '**'
+              - '!docs/**'
+              - '!**/*.md'
 
   build:
+    needs: path-filter
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    needs: path-filter
-    if: >
-      github.event.pull_request.head.repo.fork == true &&
-      needs.path-filter.outputs.code_changed == 'true'
+    if: >-
+      github.event.pull_request.head.repo.fork == true && needs.path-filter.outputs.code == 'true'
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]

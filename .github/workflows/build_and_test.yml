@@ -9,35 +9,33 @@ on:
       - 'ci/**-**'
 
 jobs:
-  # Gate job: always runs and always succeeds, so it can be a required check even
-  # when the build matrix below is skipped (skipped required checks would block the merge).
-  # See .github/actions/code-change-gate for the shared gate logic (doc-path filter,
-  # synthetic SonarCloud check on docs-only PRs, step summary).
   path-filter:
-    name: Code change gate
+    name: Detect code changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
-      checks: write
+      pull-requests: read
     outputs:
-      code_changed: ${{ steps.gate.outputs.code_changed }}
+      code: ${{ steps.filter.outputs.code }}
     steps:
-      # Required before referencing the local composite action (empty workspace otherwise).
-      - name: Checkout sources
-        uses: actions/checkout@v1
-      - id: gate
-        uses: ./.github/actions/code-change-gate
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          predicate-quantifier: 'every'
+          filters: |
+            code:
+              - '**'
+              - '!docs/**'
+              - '!**/*.md'
 
   build:
+    needs: path-filter
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    needs: path-filter
-    if: >
-      always() &&
-      (github.event_name != 'pull_request' ||
-       (github.event.pull_request.head.repo.fork == false &&
-        needs.path-filter.outputs.code_changed == 'true'))
+    if: >-
+      always() && (github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.fork == false && needs.path-filter.outputs.code == 'true'))
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
@@ -81,23 +79,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  build-status:
-    name: Build status
-    needs: [path-filter, build]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check build result
-        run: |
-          pf="${{ needs.path-filter.result }}"
-          result="${{ needs.build.result }}"
-          if [ "$pf" = "failure" ] || [ "$pf" = "cancelled" ]; then
-            echo "Path filter result: $pf"
-            exit 1
-          fi
-          if [ "$result" = "success" ] || [ "$result" = "skipped" ]; then
-            exit 0
-          fi
-          echo "Build result: $result"
-          exit 1
