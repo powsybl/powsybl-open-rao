@@ -2,7 +2,7 @@
 
 ## Definition
 
-Some FlowCnecs $\mathcal{C} ^{specific}$ can be omitted from the optimization for the following reason:
+Some flow CNECs $\mathcal{C} ^{specific}$ can be omitted from the optimization for the following reason:
 - Curative CNECs from TSOs not sharing any CRAs are not taken into account when looking for the minimum margin in the 
 objective function (only during CRA optimization), as long as the applied CRAs do not decrease these CNECs' margins 
 (compared to their margins before applying any CRA).  
@@ -13,8 +13,8 @@ This feature is needed in the CORE region capacity calculation process.
 
 ## Implementation
 
-This situation can be modelled with constraints activating a binary variable when it becomes necessary to loosen the following constraint:
-- Cnecs in $\mathcal{C} ^{specific}$ must not see their margins worsened
+This situation can be modeled with constraints activating a binary variable when it becomes necessary to loosen the following constraint:
+- CNECs in $\mathcal{C} ^{specific}$ must not see their margins worsened
 
-This binary variable forces cnecs in $\mathcal{C} ^{specific}$  to be taken into account in the minimum margin objective.
-These constraints are modelled in the RAO under the linear problem as described [here](../linear-problem/special-features/unoptimized-cnec-filler-cra.md).
+This binary variable forces CNECs in $\mathcal{C} ^{specific}$  to be taken into account in the minimum margin objective.
+These constraints are modeled in the RAO under the linear problem as described [here](../linear-problem/special-features/unoptimized-cnec-filler-cra.md).

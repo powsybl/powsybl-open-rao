@@ -11,4 +11,3 @@ OpenRAO has a monitoring module that can be used apart from the RAO to monitor a
 For more information, see the following pages:
 - [Monitoring, getting started](monitoring/getting-started.md)
 - [Monitoring, the algorithm](monitoring/monitoring-algorithm.md)
-
