@@ -15,7 +15,7 @@ jobs:
     if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
-        os: [ windows-2022 ]
+        os: [ windows-latest ]
         jvm: [ java, graalvm ]
 
     steps:
@@ -37,10 +37,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install latest Visual C++ Redistributable
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: choco upgrade vcredist140 -y --no-progress
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
