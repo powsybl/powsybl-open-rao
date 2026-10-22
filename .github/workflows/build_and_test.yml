@@ -10,24 +10,11 @@ on:
 
 jobs:
   path-filter:
-    name: Detect code changes
-    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
       pull-requests: read
-    outputs:
-      code: ${{ steps.filter.outputs.code }}
-    steps:
-      - id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          predicate-quantifier: 'every'
-          filters: |
-            code:
-              - '**'
-              - '!docs/**'
-              - '!**/*.md'
+    uses: ./.github/workflows/path-filter.yml
 
   build:
     needs: path-filter

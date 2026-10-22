@@ -1,0 +1,27 @@
+name: Detect code changes
+
+on:
+  workflow_call:
+    outputs:
+      code:
+        description: "'true' if the PR changes anything other than docs and markdown files"
+        value: ${{ jobs.filter.outputs.code }}
+
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          predicate-quantifier: 'every'
+          filters: |
+            code:
+              - '**'
+              - '!docs/**'
+              - '!**/*.md'
