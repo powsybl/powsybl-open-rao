@@ -18,7 +18,7 @@ This synchronization is currently available for curative range actions only.
 |-----------------------------------|------------------|-------------------------------------------------------------------------------------|
 | Timestamps                        | $\mathcal{T}$    | Set of all timestamps on which the optimization is performed.                       |
 | Synchronized contingencies        | $\mathcal{C}$    | Set of the contingency ids whose curative states hold range actions to synchronize. |
-| Synchronized range actions        | $\mathcal{R}(c)} | Set of the range action ids available, for the contingency $c$                      |
+| Synchronized range actions        | $\mathcal{R}(c)}$ | Set of the range action ids available, for the contingency $c$                      |
 | Timestamps sharing a range action | $\mathcal{T}(r)$ | Set of the timestamps in which the range action $r \in \mathcal{R}$ is available.   |
 
 
