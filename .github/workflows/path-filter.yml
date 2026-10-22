@@ -31,3 +31,4 @@ jobs:
               - '!**/*.md'
             docs:
               - 'docs/**'
+              - '.github/**'
