@@ -23,6 +23,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -39,6 +41,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
+// TODO: re-enable on Windows once the native crash on GitHub runners is understood and fixed.
+@DisabledOnOs(value = OS.WINDOWS, disabledReason = "Native KLU solver (math.dll) crashes the forked JVM on Windows CI runners")
 class FastRaoTest {
 
     @Test
