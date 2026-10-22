@@ -96,7 +96,7 @@ public class CurativeRangeActionsSynchronizationFiller implements ProblemFiller 
 
     /**
      * Adds the setpoint equality constraints for one range action ID. One constraint is added between the first timestamp
-     * (the reference timestamp) and all the other timestamps sharing the range action. Meaning n timestamps create n constraints.
+     * (the reference timestamp) and all the other timestamps sharing the range action. Meaning n-1 timestamps create n constraints.
      * The equality condition between the non-reference timestamps is implied by transitivity.
      *
      * @param timestampRangeActionMap the range action instances carrying the common ID keyed by timestamp.
