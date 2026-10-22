@@ -18,47 +18,38 @@ jobs:
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
     if: >-
-      github.event.pull_request.head.repo.fork == true && needs.path-filter.outputs.code == 'true'
+      github.event.pull_request.head.repo.fork == true
+    env:
+      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.outputs.code == 'true' }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
+      - name: Skip build and test for docs-only PR
+        if: env.RUN_BUILD != 'true'
+        run: echo "Docs-only PR - skipping build and test"
+
       - name: Checkout sources
+        if: env.RUN_BUILD == 'true'
         uses: actions/checkout@v1
 
-      - name: Set up Java 21
-        if: matrix.jvm == 'java'
-        uses: actions/setup-java@v5
+      - name: Build and test
+        if: env.RUN_BUILD == 'true'
+        uses: ./.github/actions/build
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-
-      - name: Setup GraalVM
-        if: matrix.jvm == 'graalvm'
-        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1.5.2
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
+          jvm: ${{ matrix.jvm }}
+          os: ${{ matrix.os }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build with Maven
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
-        run: mvn --batch-mode -Pjacoco install
-
-      - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest' || matrix.jvm != 'java'
-        run: mvn --batch-mode install
 
       # Fork-PR only: collect build data for the "CI on forks - Sonar analysis" workflow
       - name: Regroup dependencies in target folders
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        if: env.RUN_BUILD == 'true' && (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java')
         run: mvn --batch-mode dependency:copy-dependencies
 
       - name: Save classes and Jacoco report
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        if: env.RUN_BUILD == 'true' && (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java')
         uses: actions/upload-artifact@v4
         with:
           name: data-for-sonar-analysis-${{ github.event.pull_request.number }}
@@ -76,7 +67,7 @@ jobs:
             distribution/target/site/jacoco-aggregate/jacoco.xml
 
       - name: Save PR Information
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        if: env.RUN_BUILD == 'true' && (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java')
         env:
           REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
@@ -92,7 +83,7 @@ jobs:
           echo "$BASE_REF" > pr-info/base-ref
 
       - name: Upload PR Information
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        if: env.RUN_BUILD == 'true' && (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java')
         uses: actions/upload-artifact@v4
         with:
           name: pr-info-${{ github.event.pull_request.number }}

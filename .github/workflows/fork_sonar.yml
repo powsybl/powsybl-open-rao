@@ -23,7 +23,25 @@ jobs:
       pull-requests: write
       statuses: write
     steps:
+      # The fork build workflow skips its build job for docs-only PRs (path-filter), which still
+      # concludes the run as 'success'. In that case no artifacts exist: detect it here.
+      - name: Detect skipped build (docs-only PR)
+        id: detect
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let buildRan = allArtifacts.data.artifacts.some((artifact) =>
+              artifact.name.startsWith("pr-info-") || artifact.name.startsWith("data-for-sonar-analysis-"));
+            core.setOutput('build_skipped', buildRan ? 'false' : 'true');
+            console.log(`Build ran: ${buildRan}`);
+
       - name: Download PR information
+        if: steps.detect.outputs.build_skipped != 'true'
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
@@ -55,6 +73,7 @@ jobs:
             console.log("PR information downloaded");
 
       - name: Extract PR Information
+        if: steps.detect.outputs.build_skipped != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/pr-info-extracted
           unzip -q ${{ runner.temp }}/pr-info/pr-info.zip -d ${{ runner.temp }}/pr-info-extracted
@@ -71,6 +90,7 @@ jobs:
           echo "PR information extracted: $REPO_NAME $HEAD_REF $HEAD_SHA $PR_NUMBER $BASE_REF"
 
       - name: Checkout sources
+        if: steps.detect.outputs.build_skipped != 'true'
         uses: actions/checkout@v1
         with:
           ref: ${{ env.HEAD_REF }}
@@ -78,6 +98,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Java 21
+        if: steps.detect.outputs.build_skipped != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -85,6 +106,7 @@ jobs:
           cache: 'maven'
 
       - name: Download artifact
+        if: steps.detect.outputs.build_skipped != 'true'
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
@@ -118,6 +140,7 @@ jobs:
             fs.writeFileSync(path.join(temp, 'sonar-data.zip'), Buffer.from(download.data));
 
       - name: Extract Sonar Analysis Data
+        if: steps.detect.outputs.build_skipped != 'true'
         run: |
           mkdir -p ${{ runner.temp }}/extracted
           unzip -q ${{ runner.temp }}/artifacts/sonar-data.zip -d ${{ runner.temp }}/extracted
@@ -125,6 +148,7 @@ jobs:
           ls -la distribution/target/site/jacoco-aggregate/ || echo "Jacoco report directory not found"
 
       - name: Prepare Sonar Analysis
+        if: steps.detect.outputs.build_skipped != 'true'
         run: |
           echo "Checking required directories..."
           if [ -f "distribution/target/site/jacoco-aggregate/jacoco.xml" ]; then
@@ -172,6 +196,7 @@ jobs:
       # This sonar action should NOT be replaced by a direct use of the mvn verify command since we don't want external
       # code to run in a workflow_run workflow (it may lead to security issues).
       - name: Run Sonar Analysis
+        if: steps.detect.outputs.build_skipped != 'true'
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -197,8 +222,36 @@ jobs:
             -Dsonar.qualitygate.wait=true
             -Dsonar.scm.revision=${{ env.HEAD_SHA }}
 
+      # Docs-only PR: the build was skipped, so no real analysis can run. Post a successful
+      # check with the same name as the one created by sonarqube-scan-action, so the
+      # "SonarCloud Code Analysis" required check is satisfied and the PR is not blocked.
+      - name: Report successful SonarCloud check (docs-only PR)
+        if: steps.detect.outputs.build_skipped == 'true'
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headSha = context.payload.workflow_run.head_sha;
+            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({ owner, repo, commit_sha: headSha });
+            for (const pr of prs.data) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                head_sha: headSha,
+                name: 'SonarCloud Code Analysis',
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'Sonar analysis skipped',
+                  summary: 'This PR only changes documentation: the build and the SonarCloud analysis were skipped. This check is reported as successful to unblock the PR.',
+                },
+              });
+              console.log(`Reported successful SonarCloud check on PR #${pr.number}`);
+            }
+
       - name: Delete artifacts used in analysis
-        if: always()
+        if: always() && steps.detect.outputs.build_skipped != 'true'
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
