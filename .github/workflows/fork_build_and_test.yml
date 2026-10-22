@@ -24,7 +24,7 @@ jobs:
     # SonarCloud analysis can execute and report its result.
     # If the path-filter job FAILS, treat it as "code changed" and build everything (fail-safe).
     env:
-      RUN_BUILD: ${{ needs.path-filter.result == 'failure' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
+      RUN_BUILD: ${{ needs.path-filter.result != 'success' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
@@ -37,7 +37,7 @@ jobs:
 
       - name: Checkout sources
         if: env.RUN_BUILD == 'true'
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Build and test
         if: env.RUN_BUILD == 'true'
