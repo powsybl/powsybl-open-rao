@@ -17,6 +17,9 @@ jobs:
     outputs:
       code_changed: ${{ steps.gate.outputs.code_changed }}
     steps:
+      # Required before referencing the local composite action (empty workspace otherwise).
+      - name: Checkout sources
+        uses: actions/checkout@v1
       - id: gate
         uses: ./.github/actions/code-change-gate
 
