@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 
@@ -39,36 +38,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public double getGlobalFunctionalCost(Instant instant) {
-        return 0;
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant) {
-        return 0;
-    }
-
-    @Override
-    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
-        return 0;
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp) {
-        return 0;
-    }
-
-    @Override
     public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
         return null;
     }
@@ -76,16 +45,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) {
 
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return null;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return null;
     }
 
     @Override
@@ -115,26 +74,6 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
 
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return 0;
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        return 0;
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return null;
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         return 0;
     }
 
@@ -191,15 +130,5 @@ public class TimeCoupledRaoResultMock extends AbstractExtendable<RaoResult> impl
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return null;
-    }
-
-    @Override
-    public String getExecutionDetails() {
-        return null;
-    }
-
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-
     }
 }

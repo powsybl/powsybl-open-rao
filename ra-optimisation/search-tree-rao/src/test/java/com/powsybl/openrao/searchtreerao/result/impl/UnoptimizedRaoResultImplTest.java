@@ -13,14 +13,10 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
@@ -51,12 +47,6 @@ class UnoptimizedRaoResultImplTest {
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);
-    }
-
-    @Test
-    void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test
@@ -150,55 +140,6 @@ class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    void testGetCost() {
-        when(initialResult.getCost()).thenReturn(-50.);
-        assertEquals(-50., output.getCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-50., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetFunctionalCost() {
-        when(initialResult.getFunctionalCost()).thenReturn(-500.);
-        assertEquals(-500., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetVirtualCost() {
-        when(initialResult.getVirtualCost()).thenReturn(-5000.);
-        assertEquals(-5000., output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-5000., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetVirtualCostNames() {
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("one", "two"));
-        assertEquals(Set.of("one", "two"), output.getVirtualCostNames());
-    }
-
-    @Test
-    void testGetVirtualCostWithName() {
-        when(initialResult.getVirtualCost("one")).thenReturn(60.);
-        when(initialResult.getVirtualCost("two")).thenReturn(600.);
-
-        assertEquals(60., output.getVirtualCost(null, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(preventiveInstant, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(autoInstant, "one"), DOUBLE_TOLERANCE);
-        assertEquals(60., output.getVirtualCost(curativeInstant, "one"), DOUBLE_TOLERANCE);
-
-        assertEquals(600., output.getVirtualCost(null, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(preventiveInstant, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(autoInstant, "two"), DOUBLE_TOLERANCE);
-        assertEquals(600., output.getVirtualCost(curativeInstant, "two"), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void testWasActivatedBeforeState() {
         NetworkAction na = Mockito.mock(NetworkAction.class);
         State state = Mockito.mock(State.class);
@@ -269,13 +210,5 @@ class UnoptimizedRaoResultImplTest {
     void testGetActivatedRangeActionsDuringState() {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
-    }
-
-    @Test
-    void testOptimizedStepsExecuted() {
-        setUp();
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, output.getExecutionDetails());
-        output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, output.getExecutionDetails());
     }
 }

@@ -23,11 +23,13 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.monitoring.Monitoring.postProcessVoltageMonitoringResult;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -48,13 +50,16 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
     public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
-                                                  LoadFlowParameters loadFlowParameters,
+                                                  RaoParameters raoParameters,
                                                   int numberOfLoadFlowsInParallel,
                                                   MonitoringInput monitoringInput) {
 
         checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
-        final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
+        final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(
+            loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
     }
 
     /**
@@ -62,18 +67,18 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
     public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
-                                                         LoadFlowParameters loadFlowParameters,
-                                                         ComputationManager computationManager,
-                                                         int numberOfLoadFlowsInParallel,
-                                                         MonitoringInput monitoringInput) {
+                                                  RaoParameters raoParameters,
+                                                  ComputationManager computationManager,
+                                                  int numberOfLoadFlowsInParallel,
+                                                  MonitoringInput monitoringInput) {
 
         checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
         final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(
             loadFlowProvider,
-            loadFlowParameters,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
             computationManager
         ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
+        return postProcessVoltageMonitoringResult(voltageMonitoringResult, monitoringInput, raoParameters);
     }
 
     @Override

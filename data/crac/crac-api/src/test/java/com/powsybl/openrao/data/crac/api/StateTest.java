@@ -29,7 +29,8 @@ class StateTest {
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 12, 15, 48, 0, 0, ZoneOffset.UTC);
     private Instant preventiveInstant;
     private Instant curativeInstant;
-    private Contingency contingency;
+    private Contingency contingency1;
+    private Contingency contingency2;
 
     @BeforeEach
     void setUp() {
@@ -39,25 +40,28 @@ class StateTest {
         curativeInstant = Mockito.mock(Instant.class);
         Mockito.when(curativeInstant.getKind()).thenReturn(InstantKind.CURATIVE);
         Mockito.when(curativeInstant.getOrder()).thenReturn(2);
-        contingency = Mockito.mock(Contingency.class);
+        contingency1 = Mockito.mock(Contingency.class);
+        Mockito.when(contingency1.getId()).thenReturn("c1");
+        contingency2 = Mockito.mock(Contingency.class);
+        Mockito.when(contingency2.getId()).thenReturn("c2");
     }
 
     @Test
     void testIsPreventive() {
         assertTrue(new MockState(preventiveInstant, null, null).isPreventive());
-        assertFalse(new MockState(curativeInstant, contingency, null).isPreventive());
+        assertFalse(new MockState(curativeInstant, contingency1, null).isPreventive());
     }
 
     @Test
     void testCompareTo() {
         // no timestamp
         State state1 = new MockState(preventiveInstant, null, null);
-        State state2 = new MockState(curativeInstant, contingency, null);
+        State state2 = new MockState(curativeInstant, contingency1, null);
         assertTrue(state1.compareTo(state2) < 0);
 
         // same timestamps
         State state3 = new MockState(preventiveInstant, null, timestamp1);
-        State state4 = new MockState(curativeInstant, contingency, timestamp1);
+        State state4 = new MockState(curativeInstant, contingency1, timestamp1);
         assertTrue(state3.compareTo(state4) < 0);
 
         // different timestamps
@@ -65,8 +69,25 @@ class StateTest {
         State state6 = new MockState(preventiveInstant, null, timestamp2);
         assertTrue(state5.compareTo(state6) < 0);
 
-        // illegal case
+        // same timestamp, same instant, different contingencies
+        State state7 = new MockState(curativeInstant, contingency1, timestamp1);
+        State state8 = new MockState(curativeInstant, contingency2, timestamp1);
+        assertTrue(state7.compareTo(state8) < 0);
+        assertTrue(state8.compareTo(state7) > 0);
+        assertEquals(0, state7.compareTo(state7));
+
+        // same timestamp, same instant, same contingency
+        State state9 = new MockState(curativeInstant, contingency1, timestamp1);
+        assertEquals(0, state7.compareTo(state9));
+
+        // illegal case: no timestamp
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> state1.compareTo(state6));
         assertEquals("Cannot compare states with no timestamp", exception.getMessage());
+
+        // illegal case: no contingency (preventive vs curative with same instant and timestamp - should not happen in reality but good to test the exception)
+        State state10 = new MockState(curativeInstant, null, timestamp1);
+        State state11 = new MockState(curativeInstant, contingency1, timestamp1);
+        exception = assertThrows(OpenRaoException.class, () -> state10.compareTo(state11));
+        assertEquals("Cannot compare states with no contingency", exception.getMessage());
     }
 }

@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
@@ -130,14 +131,14 @@ public class AngleMonitoringSteps {
     @Then("the angle of CNEC {string} should be {double} at {string}")
     public void assertAngleValue(String angleCnecId, double expectedAngleValue, String instantId) {
         AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
-        double actualAngleValue = CommonTestData.getRaoResult().getAngle(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        double actualAngleValue = CommonTestData.getRaoResult().getExtension(AngleResult.class).getAngle(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
         assertEquals(expectedAngleValue, actualAngleValue, 1e-2);
     }
 
     @Then("the angle margin of CNEC {string} should be {double} at {string}")
     public void assertAngleMargin(String angleCnecId, double expectedAngleMargin, String instantId) {
         AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
-        double actualAngleMargin = CommonTestData.getRaoResult().getMargin(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        double actualAngleMargin = CommonTestData.getRaoResult().getExtension(AngleResult.class).getMargin(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
         assertEquals(expectedAngleMargin, actualAngleMargin, 1e-2);
     }
 

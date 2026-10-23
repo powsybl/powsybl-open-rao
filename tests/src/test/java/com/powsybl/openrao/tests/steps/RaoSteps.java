@@ -27,6 +27,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -148,17 +150,23 @@ public class RaoSteps {
 
     @Then("the calculation succeeds")
     public void theCalculationSucceeds() {
-        assertEquals(ComputationStatus.DEFAULT, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 
     @Then("the calculation partially fails")
     public void theCalculationPartiallyFails() {
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
 
     @Then("the calculation fails")
     public void theCalculationFails() {
-        assertEquals(ComputationStatus.FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Then("its security status should be {string}")
@@ -176,28 +184,38 @@ public class RaoSteps {
 
     @Then("the value of the objective function initially should be {double}")
     public void objectiveFunctionValueInitialShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after PRA should be {double}")
     public void objectiveFunctionValueAfterPraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after ARA should be {double}")
     public void objectiveFunctionValueAfterAraShouldBe(double expectedValue) {
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
         Instant instant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getOutageInstant();
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(instant), flowAmpereTolerance(expectedValue));
+        assertEquals(expectedValue, costResult.getCost(instant), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after CRA should be {double}")
     public void objectiveFunctionValueAfterCraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function before optimisation should be {double}")
     public void objectiveFunctionValueBeforeOptShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("{int} remedial actions are used in preventive")
@@ -859,8 +877,8 @@ public class RaoSteps {
         //Filter flow cnecs from failed perimeters
         final RaoResult commonTestRaoResult = CommonTestData.getRaoResult();
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> commonTestRaoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
-                        .collect(Collectors.toSet());
+            .filter(RaoSteps::hasStateComputationFailed)
+            .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
                 continue;
@@ -897,12 +915,20 @@ public class RaoSteps {
         return new ImmutablePair<>(worstCnecAlphabetical, worstMargin);
     }
 
+    private static boolean hasStateComputationFailed(State state) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
+    }
+
     /*
     RaoResult infos
      */
 
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
-        assertEquals(string, CommonTestData.getRaoResult().getExecutionDetails());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals(string, metadata.getExecutionDetails().get());
     }
 }

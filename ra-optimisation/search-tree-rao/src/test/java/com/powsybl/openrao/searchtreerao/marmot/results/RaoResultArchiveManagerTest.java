@@ -161,8 +161,6 @@ class RaoResultArchiveManagerTest {
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
 
         TimeCoupledRaoResultImpl globalRaoResultToExport = new TimeCoupledRaoResultImpl(
-            initialLinearOptimizationResult,
-            globalLinearOptimizationResult,
             new TemporalDataImpl<>(Map.of(
                 timestamp1, raoResult1,
                 timestamp2, raoResult2,
