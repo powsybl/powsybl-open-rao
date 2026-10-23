@@ -248,18 +248,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         private void serializeForUnit(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, Unit unit) throws IOException {
             jsonGenerator.writeObjectFieldStart(unit.name().toLowerCase());
 
-            // serialize margin
-            Optional<Double> margin = measurement.getMargin(unit);
-            if (margin.isPresent() && margin.get() != Double.POSITIVE_INFINITY) {
-                jsonGenerator.writeNumberField("margin", margin.get());
-            }
-
-            // serialize relative margin
-            Optional<Double> relativeMargin = measurement.getRelativeMargin(unit);
-            if (relativeMargin.isPresent() && relativeMargin.get() != Double.POSITIVE_INFINITY) {
-                jsonGenerator.writeNumberField("relativeMargin", relativeMargin.get());
-            }
-
             for (TwoSides side : measurement.getSidesWithResults(unit)) {
                 serializeForSide(jsonGenerator, measurement, unit, side);
             }

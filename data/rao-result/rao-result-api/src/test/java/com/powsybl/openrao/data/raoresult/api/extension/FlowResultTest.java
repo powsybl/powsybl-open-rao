@@ -653,7 +653,6 @@ class FlowResultTest {
                 + "\"flowCnecId\":\"cnec1\","
                 + "\"initial\":{"
                 + "\"megawatt\":{"
-                + "\"margin\":800.0,"
                 + "\"side1\":{\"flow\":200.0}"
                 + "}"
                 + "}"
@@ -662,7 +661,7 @@ class FlowResultTest {
         }
 
         @Test
-        @DisplayName("Serialize initial instant with all MW fields: flow, commercial flow, loop flow, margin, relative margin, zonalPtdfSum")
+        @DisplayName("Serialize initial instant with all MW fields: flow, commercial flow, loop flow, zonalPtdfSum")
         void testSerializeInitialAllMegawattFields() throws IOException {
             when(flowCnec.getId()).thenReturn("cnec1");
             flowResult.addFlowMeasurement(300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
@@ -673,8 +672,6 @@ class FlowResultTest {
                 + "\"flowCnecId\":\"cnec1\","
                 + "\"initial\":{"
                 + "\"megawatt\":{"
-                + "\"margin\":700.0,"
-                + "\"relativeMargin\":1400.0,"
                 + "\"side1\":{"
                 + "\"flow\":300.0,"
                 + "\"commercialFlow\":100.0,"
@@ -699,8 +696,6 @@ class FlowResultTest {
                 + "\"flowCnecId\":\"cnec1\","
                 + "\"initial\":{"
                 + "\"ampere\":{"
-                + "\"margin\":1500.0,"
-                + "\"relativeMargin\":3750.0,"
                 + "\"side2\":{"
                 + "\"flow\":500.0,"
                 + "\"commercialFlow\":200.0,"
@@ -722,7 +717,6 @@ class FlowResultTest {
             String json = serializeToJson(flowResult);
             // Verify structure includes flowCnecId, initial, megawatt, margin = 750.0, side1 flow = 200.0, side2 flow = 250.0
             assertTrue(json.contains("\"flowCnecId\":\"cnec1\""));
-            assertTrue(json.contains("\"margin\":750.0"));
             assertTrue(json.contains("\"side1\":{\"flow\":200.0}"));
             assertTrue(json.contains("\"side2\":{\"flow\":250.0}"));
         }
@@ -735,32 +729,8 @@ class FlowResultTest {
             flowResult.addFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
 
             String json = serializeToJson(flowResult);
-            assertTrue(json.contains("\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}"));
-            assertTrue(json.contains("\"ampere\":{\"margin\":1600.0,\"side1\":{\"flow\":400.0}}"));
-        }
-
-        @Test
-        @DisplayName("Serialize negative margin and relative margin (overload)")
-        void testSerializeNegativeMarginAndRelativeMargin() throws IOException {
-            when(flowCnec.getId()).thenReturn("cnec1");
-            // Flow 1200 MW > 1000 MW -> margin = -200 MW, relative margin = -200 MW
-            flowResult.addFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResult.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
-
-            String expectedJson = "[{"
-                + "\"flowCnecId\":\"cnec1\","
-                + "\"initial\":{"
-                + "\"megawatt\":{"
-                + "\"margin\":-200.0,"
-                + "\"relativeMargin\":-200.0,"
-                + "\"side1\":{"
-                + "\"flow\":1200.0,"
-                + "\"zonalPtdfSum\":0.5"
-                + "}"
-                + "}"
-                + "}"
-                + "}]";
-            assertEquals(expectedJson, serializeToJson(flowResult));
+            assertTrue(json.contains("\"megawatt\":{\"side1\":{\"flow\":200.0}}"));
+            assertTrue(json.contains("\"ampere\":{\"side1\":{\"flow\":400.0}}"));
         }
 
         @Test
@@ -781,8 +751,8 @@ class FlowResultTest {
             flowResult.addFlowMeasurement(100.0, null, cnecA, TwoSides.ONE, Unit.MEGAWATT);
 
             String expectedJson = "["
-                + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"margin\":900.0,\"side1\":{\"flow\":100.0}}}},"
-                + "{\"flowCnecId\":\"cnec-b\",\"initial\":{\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}}}"
+                + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.0}}}},"
+                + "{\"flowCnecId\":\"cnec-b\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":200.0}}}}"
                 + "]";
             assertEquals(expectedJson, serializeToJson(flowResult));
         }
@@ -807,9 +777,9 @@ class FlowResultTest {
 
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
-                + "\"initial\":{\"megawatt\":{\"margin\":900.0,\"side1\":{\"flow\":100.0}}},"
-                + "\"instant1\":{\"megawatt\":{\"margin\":800.0,\"side1\":{\"flow\":200.0}}},"
-                + "\"instant2\":{\"megawatt\":{\"margin\":700.0,\"side1\":{\"flow\":300.0}}}"
+                + "\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.0}}},"
+                + "\"instant1\":{\"megawatt\":{\"side1\":{\"flow\":200.0}}},"
+                + "\"instant2\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
                 + "}]";
             assertEquals(expectedJson, serializeToJson(flowResult));
         }
@@ -823,7 +793,7 @@ class FlowResultTest {
             // Initial has no flows, so only preventive instant appears
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
-                + "\"preventive\":{\"megawatt\":{\"margin\":700.0,\"side1\":{\"flow\":300.0}}}"
+                + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
                 + "}]";
             assertEquals(expectedJson, serializeToJson(flowResult));
         }
