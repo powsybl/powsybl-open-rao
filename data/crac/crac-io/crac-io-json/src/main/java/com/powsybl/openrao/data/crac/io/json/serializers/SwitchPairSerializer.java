@@ -21,8 +21,8 @@ public class SwitchPairSerializer extends AbstractJsonSerializer<SwitchPair> {
     @Override
     public void serialize(SwitchPair value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(JsonSerializationConstants.OPEN_ACTION, value.getSwitchToOpen().getId());
-        gen.writeStringField(JsonSerializationConstants.CLOSE_ACTION, value.getSwitchToClose().getId());
+        gen.writeStringField(JsonSerializationConstants.OPEN_ACTION, value.getSwitchToOpenId());
+        gen.writeStringField(JsonSerializationConstants.CLOSE_ACTION, value.getSwitchToCloseId());
         gen.writeEndObject();
     }
 }

@@ -329,10 +329,10 @@ class AutomatonSimulatorTest {
         assertEquals(mockedPrePerimeterResult, result.getLeft());
         assertEquals(1, result.getRight().size());
         assertEquals(2451.3764524964786, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getConvertersMode());
+        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getConvertersMode());
+        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
 
         // run a second time => no influence + sensitivity not run
         result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(
@@ -344,10 +344,10 @@ class AutomatonSimulatorTest {
         assertFalse(topoAutomatonSimulationResult.getActivatedNetworkActions().contains(acEmulationDeactivation2));
         assertEquals(prePerimeterResult, result.getLeft());
         assertEquals(Map.of(), result.getRight());
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getConvertersMode());
+        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getConvertersMode());
+        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -366,11 +366,11 @@ class AutomatonSimulatorTest {
         assertEquals(mockedPrePerimeterResult, result.getLeft());
         assertEquals(2, result.getRight().size());
         assertEquals(2451.3764524964786, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getConvertersMode());
+        assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(-45.72718047413281, result.getRight().get(hvdcRa2), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(45.72718047413281, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getConvertersMode());
+        assertEquals(45.72718047413281, network.getHvdcLine(hvdcRa2.getNetworkElementId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
     }
 
     @Test

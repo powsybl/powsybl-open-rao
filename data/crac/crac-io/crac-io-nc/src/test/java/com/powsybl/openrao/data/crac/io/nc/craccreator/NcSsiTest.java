@@ -172,7 +172,7 @@ class NcSsiTest {
         PstRangeAction remedialAction = crac.getPstRangeActions().iterator().next();
         assertEquals("remedial-action", remedialAction.getId());
         assertEquals("RTE_RA", remedialAction.getName());
-        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElementId());
         assertEquals(1, remedialAction.getRanges().size());
         assertEquals(-16, remedialAction.getRanges().iterator().next().getMinTap());
         assertEquals(16, remedialAction.getRanges().iterator().next().getMaxTap());
@@ -185,7 +185,7 @@ class NcSsiTest {
         remedialAction = crac.getPstRangeActions().iterator().next();
         assertEquals("remedial-action", remedialAction.getId());
         assertEquals("RTE_RA", remedialAction.getName());
-        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElementId());
         assertEquals(1, remedialAction.getRanges().size());
         assertEquals(-5, remedialAction.getRanges().iterator().next().getMinTap());
         assertEquals(10, remedialAction.getRanges().iterator().next().getMaxTap());
@@ -306,7 +306,7 @@ class NcSsiTest {
         PstRangeAction remedialAction = crac.getPstRangeActions().iterator().next();
         assertEquals("remedial-action", remedialAction.getId());
         assertEquals("RTE_RA", remedialAction.getName());
-        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElementId());
         assertEquals(1, remedialAction.getRanges().size());
         assertEquals(-4, remedialAction.getRanges().iterator().next().getMinTap());
         assertEquals(8, remedialAction.getRanges().iterator().next().getMaxTap());
@@ -322,7 +322,7 @@ class NcSsiTest {
         PstRangeAction remedialAction = crac.getPstRangeActions().iterator().next();
         assertEquals("remedial-action", remedialAction.getId());
         assertEquals("RTE_RA", remedialAction.getName());
-        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", remedialAction.getNetworkElementId());
         assertEquals(1, remedialAction.getRanges().size());
         assertEquals(-4, remedialAction.getRanges().iterator().next().getMinTap());
         assertEquals(8, remedialAction.getRanges().iterator().next().getMaxTap());

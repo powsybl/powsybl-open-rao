@@ -58,7 +58,7 @@ public final class HvdcUtils {
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
         // for each HVDC range action
         for (HvdcRangeAction hvdcRangeAction : crac.getHvdcRangeActions()) { // get associated HVDC line id
-            String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
+            String hvdcLineId = hvdcRangeAction.getNetworkElementId();
 
             // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
@@ -221,7 +221,7 @@ public final class HvdcUtils {
 
         // Set active power set-points
         for (HvdcRangeAction hvdcRa : hvdcRangeActionsWithHvdcLineInAcEmulation) {
-            String hvdcLineId = hvdcRa.getNetworkElement().getId();
+            String hvdcLineId = hvdcRa.getNetworkElementId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
             double activePowerSetpoint = controls.get(hvdcLineId);
 
@@ -289,7 +289,7 @@ public final class HvdcUtils {
                 entry -> entry.getValue().stream()
                     .filter(HvdcRangeAction.class::isInstance)
                     .map(HvdcRangeAction.class::cast)
-                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElement().getId().equals(hvdcLineId))
+                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElementId().equals(hvdcLineId))
                     .collect(Collectors.toSet())
             ));
     }

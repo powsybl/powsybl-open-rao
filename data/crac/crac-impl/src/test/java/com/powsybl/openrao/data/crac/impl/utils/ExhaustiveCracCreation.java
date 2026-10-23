@@ -244,8 +244,10 @@ public final class ExhaustiveCracCreation {
 
         crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
             .withName("counterTradeRange1Name")
-            .withExportingArea("FR")
-            .withImportingArea("DE")
+            .withAreaId("BE")
+            .newConnectedArea().withAreaId("FR")
+                .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                .add()
             .withVariationCost(2000d, VariationDirection.UP)
             .withVariationCost(1000d, VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()

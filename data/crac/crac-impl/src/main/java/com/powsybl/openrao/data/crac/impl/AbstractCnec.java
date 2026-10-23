@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -53,6 +54,11 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public final Set<NetworkElement> getNetworkElements() {
         return networkElements;
+    }
+
+    @Override
+    public final Set<String> getNetworkElementsIds() {
+        return networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -102,7 +108,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         }
         AbstractCnec<?> cnec = (AbstractCnec<?>) o;
         return super.equals(cnec)
-            && networkElements.equals(cnec.getNetworkElements())
+            && getNetworkElementsIds().equals(cnec.getNetworkElementsIds())
             && state.equals(cnec.getState())
             && optimized == cnec.isOptimized()
             && monitored == cnec.isMonitored()
@@ -112,7 +118,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + networkElements.hashCode();
+        result = 31 * result + getNetworkElementsIds().hashCode();
         result = 31 * result + state.hashCode();
         result = 31 * result + Double.hashCode(reliabilityMargin);
         return result;

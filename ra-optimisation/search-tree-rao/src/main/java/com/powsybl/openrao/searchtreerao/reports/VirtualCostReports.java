@@ -111,7 +111,7 @@ public final class VirtualCostReports {
                 flow, unit,
                 limitingThreshold, unit,
                 leaf.getMargin(flowCnec, limitingSide, unit), unit,
-                flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
+                flowCnec.getNetworkElementId(), flowCnec.getState().getId(),
                 flowCnec.getId(), flowCnec.getName());
             reportVirtualCostlyElement(parentNode, verbose, element, optimized);
             i++;
