@@ -147,7 +147,7 @@ public final class RaoResultHelper {
             // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
             // - outage CNECs that were duplicated from auto CNECs
             if (flowResult == null) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No FlowResult extension found in the RaoResult. Impossible to compute flow security status.");
+                throw new OpenRaoException("No FlowResult extension found in the RaoResult. Impossible to compute flow security status.");
             } else {
                 for (FlowCnec flowCnec : crac.getFlowCnecs()) {
                     if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
@@ -167,7 +167,7 @@ public final class RaoResultHelper {
         if (parameters.contains(PhysicalParameter.ANGLE)) {
             AngleResult angleResult = raoResult.getExtension(AngleResult.class);
             if (angleResult == null) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No AngleResult extension found in the RaoResult. Impossible to compute angle security status.");
+                throw new OpenRaoException("No AngleResult extension found in the RaoResult. Impossible to compute angle security status.");
             } else {
                 for (AngleCnec angleCnec : crac.getAngleCnecs()) {
                     Optional<Double> minDegreeMargin = safeGetDouble(angleResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
@@ -184,7 +184,7 @@ public final class RaoResultHelper {
         if (parameters.contains(PhysicalParameter.VOLTAGE)) {
             VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
             if (voltageResult == null) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.");
+                throw new OpenRaoException("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.");
             } else {
                 for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
                     Optional<Double> minKiloVoltMargin = safeGetDouble(voltageResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
