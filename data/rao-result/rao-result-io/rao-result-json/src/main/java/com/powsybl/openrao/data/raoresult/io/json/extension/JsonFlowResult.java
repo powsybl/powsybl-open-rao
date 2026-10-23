@@ -45,7 +45,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Version version = (Version) deserializationContext.getAttribute("version");
         if (version.major() == 1) {
-            throw new OpenRaoException("Angle results extension is only available for JSON RAO Result versions >= 2.");
+            throw new OpenRaoException("Flow results extension is only available for JSON RAO Result versions >= 2.");
         }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         FlowResult flowResult = new FlowResult();
