@@ -1,0 +1,34 @@
+name: Detect code changes
+
+on:
+  workflow_call:
+    outputs:
+      code:
+        description: "'true' if the PR changes at least one file other than docs and markdown files"
+        value: ${{ jobs.filter.outputs.code }}
+      docs:
+        description: "'true' if the PR changes at least one documentation or markdown file"
+        value: ${{ jobs.filter.outputs.docs }}
+
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
+        with:
+          predicate-quantifier: 'some-with-excludes'
+          filters: |
+            code:
+              - '**'
+              - '!docs/**'
+              - '!**/*.md'
+            docs:
+              - 'docs/**'
+              - '.github/**'

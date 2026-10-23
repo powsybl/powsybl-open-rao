@@ -9,45 +9,49 @@ on:
       - 'ci/**-**'
 
 jobs:
+  path-filter:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/path-filter.yml
+
   build:
+    needs: path-filter
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.head.repo.fork == false
+    if: >-
+      always() && (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.fork == false)
+    # Docs-only PRs: skip all build cells except ubuntu/java, which still runs so that the
+    # SonarCloud analysis (and its quality-gate check) executes and reports the real result.
+    # If the path-filter job FAILS, treat it as "code changed" and build everything (fail-safe).
+    env:
+      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.result != 'success' || needs.path-filter.outputs.code == 'true' || (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         jvm: [ java, graalvm ]
 
     steps:
+      - name: Skip build and test for docs-only PR
+        if: env.RUN_BUILD != 'true'
+        run: echo "Docs-only PR - skipping build and test (kept only for the SonarCloud analysis cell)"
+
       - name: Checkout sources
-        uses: actions/checkout@v1
+        if: env.RUN_BUILD == 'true'
+        uses: actions/checkout@v4
 
-      - name: Set up Java 21
-        if: matrix.jvm == 'java'
-        uses: actions/setup-java@v5
+      - name: Build and test
+        if: env.RUN_BUILD == 'true'
+        uses: ./.github/actions/build
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-
-      - name: Setup GraalVM
-        if: matrix.jvm == 'graalvm'
-        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1.5.2
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
+          jvm: ${{ matrix.jvm }}
+          os: ${{ matrix.os }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build with Maven
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
-        run: mvn --batch-mode -Pjacoco install
-
-      - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest' || matrix.jvm != 'java'
-        run: mvn --batch-mode install
-
       - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        if: env.RUN_BUILD == 'true' && (matrix.os == 'ubuntu-latest' && matrix.jvm == 'java')
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io

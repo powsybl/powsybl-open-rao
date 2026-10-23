@@ -7,19 +7,39 @@ on:
   pull_request:
 
 jobs:
+  path-filter:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/path-filter.yml
+
   doc_ubuntu:
     name: ⚙️ Build documentation on Ubuntu
+    needs: path-filter
+    if: always()
     runs-on: ubuntu-latest
+    # Code-only PRs: skip the build, but keep the job running (no-op) so the required
+    # check is still reported and the PR is not blocked. If path-filter FAILS, build anyway.
+    env:
+      RUN_BUILD: ${{ github.event_name != 'pull_request' || needs.path-filter.result != 'success' || needs.path-filter.outputs.docs == 'true' }}
     steps:
+      - name: Skip doc build for code-only PR
+        if: env.RUN_BUILD != 'true'
+        run: echo "PR does not touch documentation - skipping doc build"
+
       - name: Checkout sources
-        uses: actions/checkout@v1
+        if: env.RUN_BUILD == 'true'
+        uses: actions/checkout@v4
 
       - name: Set up Python
+        if: env.RUN_BUILD == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
       - name: Install Python dependencies
+        if: env.RUN_BUILD == 'true'
         run: |
           pip install --only-binary :all: sphinx==9.1.0
           pip install --only-binary :all: sphinx-tabs==3.5.0
@@ -29,24 +49,39 @@ jobs:
           pip install --only-binary :all: sphinx_copybutton==0.5.2
 
       - name: Build doc
+        if: env.RUN_BUILD == 'true'
         run: sphinx-build -a docs ./build-docs
 
   broken_links_check:
     name: 🔗 Look for broken links
+    needs: path-filter
+    if: always()
     runs-on: ubuntu-latest
+    # Code-only PRs: skip the check, but keep the job running (no-op) so the required
+    # check is still reported and the PR is not blocked. If path-filter FAILS, check anyway.
+    env:
+      RUN_CHECK: ${{ github.event_name != 'pull_request' || needs.path-filter.result != 'success' || needs.path-filter.outputs.docs == 'true' }}
     steps:
+      - name: Skip link check for code-only PR
+        if: env.RUN_CHECK != 'true'
+        run: echo "PR does not touch documentation - skipping broken links check"
+
       - name: Checkout sources
-        uses: actions/checkout@v1
+        if: env.RUN_CHECK == 'true'
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
+        if: env.RUN_CHECK == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
       - name: Install markdown-link-check
+        if: env.RUN_CHECK == 'true'
         run: npm install --ignore-scripts -g markdown-link-check@3.13.7
 
       - name: Check all Markdown links
+        if: env.RUN_CHECK == 'true'
         run: |
           BROKEN_LINKS=$(markdown-link-check -q -a 200,201,202,203,204,205,206,207,208,226,403,429 ./docs)
           if [ -n "$BROKEN_LINKS" ]; then
