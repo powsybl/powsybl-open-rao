@@ -7,28 +7,35 @@
 
 package com.powsybl.openrao.monitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class MonitoringTest {
+class MonitoringTest {
 
     @Test
     void testRunMonitoringOnMultiCurative() throws IOException {
@@ -36,13 +43,13 @@ public class MonitoringTest {
         // 3 voltage CNECs are defined one in preventive, one in curative 1 and one in curative 3.
         // preventive => ok, curative 3 => ok but curative 1 => ignored. We only monitor final curative instant + preventive.
 
-        Monitoring monitoring = new Monitoring("OpenLoadFlow", new LoadFlowParameters());
+        VoltageMonitoring monitoring = new VoltageMonitoring("OpenLoadFlow", new LoadFlowParameters());
 
         Network network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters).join();
+        RaoResult raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters, ReportNode.NO_OP).join();
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
@@ -55,8 +62,23 @@ public class MonitoringTest {
         assertEquals(2, monitoringResult.getCnecResults().size());
         assertEquals(Cnec.SecurityStatus.SECURE, monitoringResult.getStatus());
 
-        assertEquals(4.30, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - preventive")).findFirst().get().getMargin(), 1e-2);
-        assertEquals(1.88, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative3")).findFirst().get().getMargin(), 1e-2);
-        assertTrue(monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative1")).collect(Collectors.toSet()).isEmpty());
+        assertEquals(4.30, monitoringResult.getCnecResult("vc - preventive").get().getMargin(), 1e-2);
+        assertEquals(1.88, monitoringResult.getCnecResult("vc - curative3").get().getMargin(), 1e-2);
+        assertFalse(monitoringResult.getCnecResult("vc - curative1").isPresent());
+    }
+
+    @Test
+    void testCombineWithDuplicateCnec() {
+        // Combining two monitoring results that contain the same CNEC must fail, to avoid silent overwriting of results.
+        CnecMonitoringResult<?> first = Mockito.mock(CnecMonitoringResult.class);
+        when(first.getId()).thenReturn("ac1");
+        CnecMonitoringResult<?> second = Mockito.mock(CnecMonitoringResult.class);
+        when(second.getId()).thenReturn("ac1");
+
+        MonitoringResult base = new MonitoringResult(PhysicalParameter.ANGLE, Set.of(first), Map.of(), Cnec.SecurityStatus.SECURE);
+        MonitoringResult other = new MonitoringResult(PhysicalParameter.ANGLE, Set.of(second), Map.of(), Cnec.SecurityStatus.SECURE);
+
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> base.combine(other));
+        assertEquals("Can't combine monitoring result because some CNEC present two different monitoring result", e.getMessage());
     }
 }

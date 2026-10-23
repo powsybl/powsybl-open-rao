@@ -20,13 +20,13 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -42,7 +42,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +132,7 @@ public final class NcCracCreationTestUtil {
                                            String expectedBorder) {
         assertEquals(expectedCnecIdAndName, cnec.getId());
         assertEquals(expectedCnecIdAndName, cnec.getName());
-        assertEquals(expectedNetworkElementsIds, cnec.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()));
+        assertEquals(expectedNetworkElementsIds, cnec.getNetworkElementsIds());
         assertEquals(expectedInstant, cnec.getState().getInstant().getId());
         if (expectedContingencyId == null) {
             assertFalse(cnec.getState().getContingency().isPresent());
@@ -195,8 +194,8 @@ public final class NcCracCreationTestUtil {
             expectedOperator,
             expectedBorder
         );
-        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
-        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
+        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElementId());
+        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElementId());
 
         Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
@@ -238,9 +237,7 @@ public final class NcCracCreationTestUtil {
         assertTrue(ncElementaryCreationContext.isImported());
         assertEquals(isAltered, ncElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getNetworkAction(id));
-        Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream()
-            .map(NetworkElement::getId)
-            .collect(Collectors.toSet());
+        Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElementsIds();
         assertEquals(networkElements, actualNetworkElements);
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
         assertEquals(expectedOperator, cracCreationContext.getCrac().getNetworkAction(id).getOperator());
@@ -363,7 +360,7 @@ public final class NcCracCreationTestUtil {
                                                     String expectedOperator) {
         assertEquals(expectedId, pstRangeAction.getId());
         assertEquals(expectedName, pstRangeAction.getName());
-        assertEquals(expectedPstId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(expectedPstId, pstRangeAction.getNetworkElementId());
         assertEquals(expectedOperator, pstRangeAction.getOperator());
         if (expectedMinTap == null && expectedMaxTap == null) {
             return;

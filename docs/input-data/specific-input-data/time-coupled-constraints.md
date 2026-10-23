@@ -32,6 +32,18 @@ that the generator can be shutdown.
 This is a boolean to indicate if a generator can be started up from standstill. If no value is defined, value will be set to true, meaning
 that generator can be started up.
 
+## PST Constraints 
+
+### Tap gradients 
+
+A preventive PST can be restricted by **tap gradients** that limit its tap variation between two consecutive timestamps.
+These gradients can be defined upward and/or downward.
+
+Note that for this to work, the PST model must be set to **APPROXIMATED_INTEGERS** in the [raoParameters](https://powsybl.readthedocs.io/projects/openrao/en/stable/parameters.html) 
+(see [DiscreetPstTapFiller](https://powsybl.readthedocs.io/projects/openrao/en/stable/algorithms/castor/linear-problem/discrete-pst-tap-filler.html) for more details).
+
+
+
 ## JSON API
 
 ### Generator constraints
@@ -46,12 +58,20 @@ that generator can be started up.
 | `isShutDownAllowed`     | boolean | Optional  | -     | Indicate if RA RD can be shutdown. Default value : true                                 |
 | `isStartUpAllowed`      | boolean | Optional  | -     | Indicates if RA RD can be started up . Default value : true                             |
 
+### Pst constraints
+
+| Field name            | Type    | Status    | Unit  | Description                                            |
+|-----------------------|---------|-----------|-------|--------------------------------------------------------|
+| `pstId`               | string  | Mandatory | -     | Id of the pst on which the constraints apply.          |
+| `upwardTapGradient`   | number  | Optional  | tap/h | Upward tap gradient for the pst. Must be positive.     |
+| `downwardTapGradient` | number  | Optional  | tap/h | Downward tap gradient for the pst. Must be negative.   |
+
 ### Comprehensive example
 
 ```json
 {
   "type": "OpenRAO Time-Coupled Constraints",
-  "version": "1.0",
+  "version": "1.1",
   "generatorConstraints": [
     {
       "generatorId": "generator-1",
@@ -72,6 +92,21 @@ that generator can be started up.
       "shutDownAllowed": true,
       "startUpAllowed": false
     }
+  ],
+  "pstConstraints" : [
+    {
+      "pstId": "pst-1",
+      "upwardTapGradient": 1,
+      "downwardTapGradient":-1
+    },
+    {
+      "pstId": "pst-2",
+      "upwardTapGradient": 1
+    },
+    {
+      "pstId": "pst-3",
+      "downwardTapGradient": -3
+    }
   ]
 }
 ```
@@ -82,24 +117,9 @@ that generator can be started up.
 TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(getClass().getResourceAsStream("/time-coupled-constraints.json"));
 ```
 
-#### Import Time-Coupled Constraints JSON from ICS data
+### Export
 
 ```java
-// read ICS data
-InputStream staticIcs = new FileInputStream("path/to/ics/static.csv");
-InputStream seriesIcs = new FileInputStream("path/to/ics/series.csv");
-InputStream gskIcs = new FileInputStream("path/to/ics/gsk.csv");
-IcsData icsData = new IcsDataImporter.read(staticIcs, seriesIcs, gskIcs);
-
-// Create Generator Constraints
-Set<GeneratorConstraints> generatorConstraintsSet = new HashSet<>();
-TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
-// Warning: in exemple we use a default generator id per node
-icsData.getRedispatchingActions().forEach(raId -> generatorConstraintsSet.addAll(icsData.createGeneratorConstraints(raId, getDefaultGeneratorIdPerNode(raId))));
-generatorConstraintsSet.forEach(constraint -> timeCoupledConstraints.addGeneratorConstraints(constraint));
-
-// Write Time-Coupled Constraints JSON
-OutputStream outputStream = Files.newOutputStream(Path.of("output.json"));
+OutputStream outputStream = Files.newOutputStream(Path.of(exportPath.concat("time-coupled-constraints.json")));
 JsonTimeCoupledConstraints.write(timeCoupledConstraints, outputStream);
-TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(icsData);
 ```

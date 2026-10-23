@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.openloadflow.sensi.OpenSensitivityAnalysisParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -42,6 +45,8 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
     protected final ToolProvider toolProvider;
     protected final boolean multiThreadedSensitivities;
 
+    protected ComputationManager computationManager = LocalComputationManager.getDefault();
+
     protected AbstractMultiPerimeterSensitivityAnalysis(Crac crac,
                                                         Set<FlowCnec> flowCnecs,
                                                         Set<RangeAction<?>> rangeActions,
@@ -71,6 +76,10 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
         this.raoParameters = raoParameters;
         this.multiThreadedSensitivities = multiThreadedSensitivities;
+    }
+
+    public void setComputationManager(final ComputationManager computationManager) {
+        this.computationManager = computationManager;
     }
 
     /*
@@ -107,12 +116,15 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         openSensitivityAnalysisParameters.setThreadCount(oldThreadCount);
     }
 
-    protected SensitivityComputer buildSensitivityComputer(FlowResult initialFlowResult, AppliedRemedialActions appliedCurativeRemedialActions) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+    protected SensitivityComputer buildSensitivityComputer(final FlowResult initialFlowResult,
+                                                           final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                           final ReportNode reportNode) {
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(reportNode)
             .withToolProvider(toolProvider)
             .withCnecs(flowCnecs)
             .withRangeActions(rangeActions)
-            .withOutageInstant(crac.getOutageInstant());
+            .withOutageInstant(crac.getOutageInstant())
+            .withComputationManager(computationManager);
 
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         if (Objects.nonNull(searchTreeParameters)) {

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -25,7 +26,6 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETE
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_REGULATION_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAMETERS;
@@ -50,22 +50,34 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
         JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
         JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
-        JsonSearchTreeRaoPstRegulationParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
     @Override
     public OpenRaoSearchTreeParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, new OpenRaoSearchTreeParameters());
+        return deserialize(jsonParser, deserializationContext, ReportNode.NO_OP);
+    }
+
+    @Override
+    public OpenRaoSearchTreeParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+        return deserializeAndUpdate(jsonParser, deserializationContext, new OpenRaoSearchTreeParameters(reportNode), reportNode);
     }
 
     @Override
     public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters) throws IOException {
+        return deserializeAndUpdate(parser, deserializationContext, parameters, ReportNode.NO_OP);
+    }
+
+    @Override
+    public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser,
+                                                            DeserializationContext deserializationContext,
+                                                            OpenRaoSearchTreeParameters parameters,
+                                                            ReportNode reportNode) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
-                    JsonObjectiveFunctionParameters.deserialize(parser, parameters);
+                    JsonObjectiveFunctionParameters.deserialize(parser, parameters, reportNode);
                 }
                 case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
@@ -103,12 +115,8 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                     parser.nextToken();
                     JsonMinMarginsParameters.deserialize(parser, parameters);
                 }
-                case PST_REGULATION_PARAMETERS -> {
-                    parser.nextToken();
-                    JsonSearchTreeRaoPstRegulationParameters.deserialize(parser, parameters);
-                }
                 default ->
-                    throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.currentName());
+                    throw new OpenRaoException("Unexpected field in OpenRAO search tree parameters: " + parser.currentName());
             }
         }
         return parameters;

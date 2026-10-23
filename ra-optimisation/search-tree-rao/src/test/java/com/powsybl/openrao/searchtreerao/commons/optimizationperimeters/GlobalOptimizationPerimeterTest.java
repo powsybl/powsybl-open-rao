@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -38,7 +39,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(1000. + 2 * 1e-6); // should be filtered out
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
-        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState, cState1), optPerimeter.getRangeActionOptimizationStates());
@@ -75,7 +76,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
             .newOnInstantUsageRule().withInstant("preventive").add()
             .newRange().withMin(-5).withMax(10).add()
             .add();
-        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
         assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
         // test copy the hvdc range action is filtered from the perimeter
         GlobalOptimizationPerimeter copyPerimeter = (GlobalOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);

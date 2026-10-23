@@ -32,4 +32,6 @@ public interface TemporalData<T> {
     <U> TemporalData<U> map(Function<T, U> function);
 
     <U> TemporalData<U> mapMultiThreading(Function<T, U> function, int parallelism);
+
+    void clear();
 }

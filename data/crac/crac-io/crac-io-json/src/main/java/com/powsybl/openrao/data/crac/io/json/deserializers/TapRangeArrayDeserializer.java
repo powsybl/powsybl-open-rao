@@ -38,7 +38,7 @@ public final class TapRangeArrayDeserializer {
                         adder.withRangeType(JsonSerializationConstants.deserializeRangeType(jsonParser.nextTextValue()));
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in TapRange: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in TapRange: " + jsonParser.currentName());
                 }
             }
             adder.add();

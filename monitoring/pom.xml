@@ -7,13 +7,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-monitoring</artifactId>
     <packaging>jar</packaging>
     <name>Monitoring</name>
-    <description>Common monitoring algorithm for voltage and angle of Open RAO</description>
+    <description>Common monitoring algorithm for voltage and angle of OpenRAO</description>
 
     <dependencies>
         <!-- Compile dependencies -->
@@ -23,7 +23,15 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -41,15 +49,12 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-cim</artifactId>
         </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -99,11 +104,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-search-tree-rao</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocu
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
 import com.powsybl.openrao.virtualhubs.HvdcConverter;
 import com.powsybl.openrao.virtualhubs.HvdcLine;
+import com.powsybl.openrao.virtualhubs.HvdcPole;
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.time.OffsetDateTime;
@@ -231,12 +232,16 @@ class FbConstraintCracCreator {
                                                      final UcteNetworkAnalyzer ucteNetworkAnalyzer,
                                                      final FbConstraintCreationContext creationContext) {
         final List<HvdcLine> hvdcLines = internalHvdcs.stream()
-            .map(InternalHvdc::lines)
+            .map(InternalHvdc::poles)
+            .flatMap(List::stream)
+            .map(HvdcPole::lines)
             .flatMap(List::stream)
             .toList();
 
         final Map<String, String> nodeToStationMap = internalHvdcs.stream()
-            .map(InternalHvdc::converters)
+            .map(InternalHvdc::poles)
+            .flatMap(List::stream)
+            .map(HvdcPole::converters)
             .flatMap(List::stream)
             .collect(Collectors.toMap(HvdcConverter::node, HvdcConverter::station));
 

@@ -7,10 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -28,6 +30,7 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitatio
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
@@ -45,19 +48,14 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
+import static com.powsybl.openrao.searchtreerao.reports.ReportUtils.getVirtualCostDetailed;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -109,7 +107,10 @@ public class Leaf implements OptimizationResult {
          NetworkActionCombination newCombinationToApply,
          RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         boolean allowElectricalIslandCreation,
+         Integer initialNumberOfConnectedComponent) {
+
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
         this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
@@ -126,9 +127,15 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
+            boolean applicationSuccess = na.apply(network);
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
+            }
+
+            // If island creation is not allowed, verify whether the network action (+ contingency in curative) creates an island
+            // before evaluating or optimizing the leaf. This saves computation time by rejecting invalid network actions upfront.
+            if (!allowElectricalIslandCreation) {
+                throwAnErrorIfIslandIsCreated(optimizationPerimeter, network, na, initialNumberOfConnectedComponent);
             }
         }
 
@@ -139,10 +146,40 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter,
+            network,
+            Collections.emptySet(),
+            null,
+            new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates, true, null
+        );
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
+    }
+
+    private static void throwAnErrorIfIslandIsCreated(OptimizationPerimeter optimizationPerimeter, Network network, NetworkAction networkAction, double initialNbOfComponent) {
+        double newNbOfComponent;
+        if (!optimizationPerimeter.getMainOptimizationState().isPreventive()) {
+            String initialVariantId = network.getVariantManager().getWorkingVariantId();
+            String tmpVariant = RandomizedString.getRandomizedString("check_island", network.getVariantManager().getVariantIds(), 10);
+            network.getVariantManager().cloneVariant(initialVariantId, tmpVariant);
+            network.getVariantManager().setWorkingVariant(tmpVariant);
+
+            // Apply contingency and number of connected component
+            applyContingency(network, optimizationPerimeter.getMainOptimizationState());
+
+            newNbOfComponent = getNumberOfConnectedComponent(network);
+
+            // Reset working variant
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            network.getVariantManager().removeVariant(tmpVariant);
+        } else {
+            newNbOfComponent = getNumberOfConnectedComponent(network);
+        }
+
+        if (newNbOfComponent > initialNbOfComponent) {
+            throw new OpenRaoException(String.format("%s will not be evaluated because it creates an island", networkAction.getId()));
+        }
     }
 
     public FlowResult getPreOptimBranchResult() {
@@ -157,7 +194,7 @@ public class Leaf implements OptimizationResult {
         return status;
     }
 
-    boolean isRoot() {
+    public boolean isRoot() {
         return appliedNetworkActionsInPrimaryState.isEmpty();
     }
 
@@ -165,26 +202,28 @@ public class Leaf implements OptimizationResult {
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
-    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+    void evaluate(final ObjectiveFunction objectiveFunction,
+                  final SensitivityComputer sensitivityComputer,
+                  final ReportNode reportNode) {
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
             raActivationResultFromParentLeaf,
             new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
         );
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult, reportNode);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
         sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
+            SearchTreeReports.reportFailedToEvaluateLeafSensiFailed(reportNode);
             status = Status.ERROR;
             return;
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult, reportNode);
         status = Status.EVALUATED;
     }
 
@@ -198,7 +237,9 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
+    void optimize(final SearchTreeInput searchTreeInput,
+                  final SearchTreeParameters parameters,
+                  final ReportNode reportNode) {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -215,7 +256,7 @@ public class Leaf implements OptimizationResult {
 
             // check if there are still range actions to optimize
             if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
-                TECHNICAL_LOGS.info("No range actions to optimize after filtering HVDC range actions");
+                SearchTreeReports.reportNoRangeActionToOptimizeAfterFilteringHvdcRangeActions(reportNode);
                 return;
             }
 
@@ -255,13 +296,13 @@ public class Leaf implements OptimizationResult {
                 .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                 .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, reportNode);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {} because evaluation failed", this);
+            SearchTreeReports.reportImpossibleToOptimizeLeafBecauseEvaluationFailed(reportNode, this);
         } else if (status.equals(Status.CREATED)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {} because evaluation has not been performed", this);
+            SearchTreeReports.reportImpossibleToOptimizeLeafBecauseEvaluationNotPerformed(reportNode, this);
         }
     }
 
@@ -283,7 +324,11 @@ public class Leaf implements OptimizationResult {
                 RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
                 Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
                     appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
-                int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
+                Integer maxRa = raUsageLimits.getMaxRa();
+                if (maxRa != null) {
+                    maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
+                }
+
                 Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
                 Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                 maxRaPerTso.entrySet().forEach(entry -> {

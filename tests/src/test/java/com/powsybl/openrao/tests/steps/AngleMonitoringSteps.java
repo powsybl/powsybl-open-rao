@@ -15,11 +15,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -29,11 +27,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -59,14 +55,22 @@ public class AngleMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
-        MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
+        MonitoringResult angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setAngleMonitoringResult(angleMonitoringResult);
     }
 
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals("secure".equalsIgnoreCase(expectedStatus), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
+        assertEquals(
+            "secure".equalsIgnoreCase(expectedStatus),
+                isSecure(
+                    CommonTestData.getRaoResult(),
+                    CommonTestData.getCrac(),
+                    CommonTestData.getRaoParameters(),
+                    PhysicalParameter.ANGLE
+                )
+        );
     }
 
     @Then("the applied remedial actions should be:")
@@ -95,28 +99,14 @@ public class AngleMonitoringSteps {
         assertEquals(expectedCnecs.size(), CommonTestData.getMonitoringResult().getCnecResults().size());
         for (Map<String, String> expectedCnec : expectedCnecs) {
             String cnecId = expectedCnec.get("AngleCnecId");
-            String cnecName = expectedCnec.get("Name");
-            String contingency = expectedCnec.get("Contingency");
             Instant instant = CommonTestData.getCrac().getInstant(expectedCnec.get("Instant").toLowerCase());
             Double expectedAngle = Double.parseDouble(expectedCnec.get("Angle"));
 
-            State state;
-            if (instant.isPreventive()) {
-                state = CommonTestData.getCrac().getPreventiveState();
-            } else {
-                state = CommonTestData.getCrac().getState(contingency, instant);
-            }
+            AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(cnecId);
 
-            Set<CnecResult> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
-                    && angleResult.getCnec().getName().equals(cnecName)
-                    && angleResult.getCnec().getState().equals(state))
-                    .collect(Collectors.toSet());
-            assertNotNull(angleResults);
-            assertEquals(1, angleResults.size());
-            AngleCnec angleCnec = (AngleCnec) angleResults.iterator().next().getCnec();
-            AngleCnecValue angleValue = (AngleCnecValue) angleResults.iterator().next().getValue();
+            Double angle = CommonTestData.getRaoResult().getAngle(instant, angleCnec, Unit.DEGREE);
 
-            assertEquals(expectedAngle, angleValue.value(), DOUBLE_TOLERANCE);
+            assertEquals(expectedAngle, angle, DOUBLE_TOLERANCE);
 
             if (expectedCnec.get("LowerBound") != null) {
                 Optional<Double> lowerBound = angleCnec.getLowerBound(Unit.DEGREE);
@@ -157,6 +147,13 @@ public class AngleMonitoringSteps {
         State state = CommonTestData.getCrac().getState(contingencyId, CommonTestData.getCrac().getInstant(instantId));
         NetworkAction networkAction = CommonTestData.getCrac().getNetworkAction(networkActionId);
         assertTrue(monitoringResult.getAppliedRas(state).contains(networkAction));
+    }
+
+    @Then("{int} network actions are used after {string} at {string} during monitoring")
+    public void countNetworkActionAppliedForMonitoring(int expectedCount, String contingencyId, String instantId) {
+        MonitoringResult monitoringResult = CommonTestData.getMonitoringResult();
+        State state = CommonTestData.getCrac().getState(contingencyId, CommonTestData.getCrac().getInstant(instantId));
+        assertEquals(expectedCount, monitoringResult.getAppliedRas(state).size());
     }
 }
 

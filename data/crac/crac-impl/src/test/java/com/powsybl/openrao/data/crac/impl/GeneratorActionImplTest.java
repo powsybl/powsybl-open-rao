@@ -38,8 +38,8 @@ class GeneratorActionImplTest {
                 .withActivePowerValue(10.0)
                 .add()
             .add();
-        assertEquals(1, injectionSetpoint.getNetworkElements().size());
-        assertEquals("element", injectionSetpoint.getNetworkElements().iterator().next().getId());
+        assertEquals(1, injectionSetpoint.getNetworkElementsIds().size());
+        assertEquals("element", injectionSetpoint.getNetworkElementsIds().iterator().next());
     }
 
     @Test

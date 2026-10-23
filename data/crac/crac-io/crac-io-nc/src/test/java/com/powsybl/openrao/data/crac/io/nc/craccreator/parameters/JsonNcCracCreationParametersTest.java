@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.parameters;
 
+import com.powsybl.entsoe.utils.CapacityCalculationRegion;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.nc.parameters.CapacityCalculationRegion;
 import com.powsybl.openrao.data.crac.io.nc.parameters.JsonNcCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;

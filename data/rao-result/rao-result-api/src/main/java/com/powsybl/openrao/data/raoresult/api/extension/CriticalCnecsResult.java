@@ -7,17 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class CriticalCnecsResult extends AbstractExtension<RaoResult> {
-    Set<String> criticalCnecIds;
+public class CriticalCnecsResult extends AbstractCnecIdsExtension {
 
     @Override
     public String getName() {
@@ -25,18 +20,10 @@ public class CriticalCnecsResult extends AbstractExtension<RaoResult> {
     }
 
     public CriticalCnecsResult(Set<String> criticalCnecIds) {
-        this.criticalCnecIds = criticalCnecIds;
+        super(criticalCnecIds);
     }
 
     public CriticalCnecsResult() {
-        this.criticalCnecIds = new HashSet<>();
-    }
-
-    public Set<String> getCriticalCnecIds() {
-        return criticalCnecIds;
-    }
-
-    public void setCriticalCnecIds(Set<String> criticalCnecIds) {
-        this.criticalCnecIds = criticalCnecIds;
+        super();
     }
 }

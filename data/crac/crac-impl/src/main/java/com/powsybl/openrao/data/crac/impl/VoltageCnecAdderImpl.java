@@ -33,11 +33,11 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
     }
 
     @Override
-    public VoltageCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
-        if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
+    public VoltageCnecAdder withNetworkElement(String networkElementId) {
+        if (!this.networkElementsIds.isEmpty()) {
             throw new OpenRaoException("Cannot add multiple network elements for a voltage cnec.");
         }
-        super.withNetworkElement(networkElementId, networkElementName);
+        super.withNetworkElement(networkElementId);
         return this;
     }
 
@@ -60,7 +60,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         checkCnec();
 
         if (optimized) {
-            throw new OpenRaoException(format("Error while adding cnec %s : Open RAO does not allow the optimization of VoltageCnecs.", id));
+            throw new OpenRaoException(format("Error while adding cnec %s : OpenRAO does not allow the optimization of VoltageCnecs.", id));
         }
 
         checkAndInitThresholds();
@@ -68,7 +68,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         State state = getState();
 
         VoltageCnec cnec = new VoltageCnecImpl(id, name,
-            owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()),
+            networkElementsIds.iterator().next(),
             operator, border, state, optimized, monitored,
             thresholds, reliabilityMargin);
 

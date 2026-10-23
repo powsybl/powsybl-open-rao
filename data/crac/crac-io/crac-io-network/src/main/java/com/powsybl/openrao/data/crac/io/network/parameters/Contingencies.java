@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.Branch;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -129,7 +130,7 @@ class ElementaryActionsCompatibilityFilterTest {
 
         assertEquals(
             Set.of(networkActionCombination2, networkActionCombination3, networkActionCombination4),
-            naFilter.filter(naCombinations, previousLeaf)
+            naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP)
         );
     }
 }

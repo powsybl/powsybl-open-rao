@@ -10,6 +10,7 @@ package com.powsybl.openrao.virtualhubs.xml;
 import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.HvdcConverter;
 import com.powsybl.openrao.virtualhubs.HvdcLine;
+import com.powsybl.openrao.virtualhubs.HvdcPole;
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
@@ -31,7 +32,6 @@ import jakarta.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,7 +80,9 @@ class VirtualHubsConfigurationImporter {
         }
     }
 
-    private static void importMarketAreas(final List<com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea> rawMarketAreas, final Map<String, MarketArea> marketAreasMap, final VirtualHubsConfiguration configuration) {
+    private static void importMarketAreas(final List<com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea> rawMarketAreas,
+                                          final Map<String, MarketArea> marketAreasMap,
+                                          final VirtualHubsConfiguration configuration) {
         for (com.powsybl.openrao.virtualhubs.xml.xsd.MarketArea rawMarketArea : rawMarketAreas) {
             final String code = rawMarketArea.getCode();
             final String eic = rawMarketArea.getEic();
@@ -92,7 +94,9 @@ class VirtualHubsConfigurationImporter {
         }
     }
 
-    private static void importVirtualHubs(final List<com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub> rawVirtualHubs, final Map<String, MarketArea> marketAreasMap, final VirtualHubsConfiguration configuration) {
+    private static void importVirtualHubs(final List<com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub> rawVirtualHubs,
+                                          final Map<String, MarketArea> marketAreasMap,
+                                          final VirtualHubsConfiguration configuration) {
         for (com.powsybl.openrao.virtualhubs.xml.xsd.VirtualHub rawVirtualHub : rawVirtualHubs) {
             final String code = rawVirtualHub.getCode();
             final String eic = rawVirtualHub.getEic();
@@ -115,15 +119,22 @@ class VirtualHubsConfigurationImporter {
     }
 
     private static void importInternalHvdcs(final List<HVDCType> internalHvdcs, final VirtualHubsConfiguration configuration) {
-        internalHvdcs.stream()
-            .map(HVDCType::getPole)
-            .flatMap(Collection::stream)
-            .forEach(pole -> importHvdcPoleConfiguration(pole, configuration));
+        internalHvdcs.forEach(hvdc -> importInternalHvdc(hvdc, configuration));
     }
 
-    private static void importHvdcPoleConfiguration(final PoleType pole, final VirtualHubsConfiguration configuration) {
+    private static void importInternalHvdc(final HVDCType internalHvdc, final VirtualHubsConfiguration configuration) {
+        final List<HvdcPole> hvdcPoles = internalHvdc.getPole()
+            .stream()
+            .map(VirtualHubsConfigurationImporter::poleTypeToHvdcPole)
+            .filter(Objects::nonNull)
+            .toList();
+
+        configuration.addInternalHvdc(new InternalHvdc(internalHvdc.getEic(), internalHvdc.getCode(), hvdcPoles));
+    }
+
+    private static HvdcPole poleTypeToHvdcPole(final PoleType pole) {
         if (pole == null) {
-            return;
+            return null;
         }
 
         final List<HvdcConverter> hvdcConverters = new ArrayList<>();
@@ -140,10 +151,10 @@ class VirtualHubsConfigurationImporter {
         final List<Serializable> lineLists = pole.getLineList().getContent();
         for (Serializable serializableConverter : lineLists) {
             if (serializableConverter instanceof JAXBElement<?> element && element.getValue() instanceof LineListType.Line hvdcLine) {
-                hvdcLines.add(new HvdcLine(hvdcLine.getFrom(), hvdcLine.getTo()));
+                hvdcLines.add(new HvdcLine(hvdcLine.getId(), hvdcLine.getFrom(), hvdcLine.getTo()));
             }
         }
 
-        configuration.addInternalHvdc(new InternalHvdc(hvdcConverters, hvdcLines));
+        return new HvdcPole(pole.getId(), hvdcConverters, hvdcLines);
     }
 }

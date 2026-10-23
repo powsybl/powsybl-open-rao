@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -43,7 +44,8 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
             new ElementaryActionsCompatibilityFilter(),
-            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()))
+            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()),
+            new IneffectiveActionsFilter(input.getNetwork()))
         );
         if (parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements()) {
             this.networkActionCombinationFilters.add(
@@ -68,7 +70,7 @@ public final class SearchTreeBloomer {
      * <li>they are not too far away from the most limiting CNEC</li>
      * </ul>
      */
-    Set<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
+    Set<NetworkActionCombination> bloom(final Leaf fromLeaf, final Set<NetworkAction> networkActions, final ReportNode reportNode) {
 
         // preDefined combinations
         Set<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
@@ -88,7 +90,7 @@ public final class SearchTreeBloomer {
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf, reportNode);
         }
 
         return networkActionCombinations;
@@ -111,7 +113,7 @@ public final class SearchTreeBloomer {
         int naCombinationSize = naCombination.getNetworkActionSet().size();
         Set<NetworkAction> alreadyActivatedNetworkActions = optimizationResult.getActivatedNetworkActions();
         Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions(optimizationState);
-        if (alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
+        if (raUsageLimits.getMaxRa() != null && alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
             return true;
         }
 

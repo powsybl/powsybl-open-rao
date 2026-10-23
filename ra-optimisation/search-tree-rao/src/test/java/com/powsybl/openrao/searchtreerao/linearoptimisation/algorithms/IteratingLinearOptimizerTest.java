@@ -7,13 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.action.HvdcAction;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -29,13 +32,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -49,12 +46,11 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -87,7 +83,7 @@ class IteratingLinearOptimizerTest {
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         when(rangeAction.getId()).thenReturn("ra");
-        when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(rangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
         optimizedState = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
@@ -106,6 +102,10 @@ class IteratingLinearOptimizerTest {
         ));
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
+
+        NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
+        when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(input.appliedNetworkActionsInPrimaryState()).thenReturn(networkActionsResult);
 
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
         SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
@@ -143,9 +143,9 @@ class IteratingLinearOptimizerTest {
 
         linearProblemMockedStatic = Mockito.mockStatic(LinearProblem.class);
         sensitivityComputerMockedStatic = Mockito.mockStatic(SensitivityComputer.class);
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(SensitivityComputer.SensitivityComputerBuilder.class);
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(new SensitivityComputer.SensitivityComputerBuilder(ReportNode.NO_OP));
         doReturn(sensitivityComputer).when(sensitivityComputerBuilder).build();
-        sensitivityComputerMockedStatic.when(SensitivityComputer::create).thenReturn(sensitivityComputerBuilder);
+        sensitivityComputerMockedStatic.when(() -> SensitivityComputer.create(any())).thenReturn(sensitivityComputerBuilder);
 
         when(input.outageInstant()).thenReturn(outageInstant);
     }
@@ -166,7 +166,7 @@ class IteratingLinearOptimizerTest {
         ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(initialFunctionalCost);
         if (iterationFunctionalCosts.length == 0) {
-            when(objectiveFunction.evaluate(any(), any())).thenReturn(initialObjectiveFunctionResult);
+            when(objectiveFunction.evaluate(any(), any(), any())).thenReturn(initialObjectiveFunctionResult);
         } else {
             ObjectiveFunctionResult[] objectiveFunctionResults = new ObjectiveFunctionResult[iterationFunctionalCosts.length];
             for (int i = 0; i < iterationFunctionalCosts.length; i++) {
@@ -174,7 +174,7 @@ class IteratingLinearOptimizerTest {
                 when(objectiveFunctionResult.getFunctionalCost()).thenReturn(iterationFunctionalCosts[i]);
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
-            when(objectiveFunction.evaluate(any(), any())).thenReturn(
+            when(objectiveFunction.evaluate(any(), any(), any())).thenReturn(
                 initialObjectiveFunctionResult,
                 objectiveFunctionResults
             );
@@ -208,7 +208,7 @@ class IteratingLinearOptimizerTest {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
@@ -219,7 +219,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -233,7 +233,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -248,7 +248,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -262,7 +262,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -277,7 +277,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -291,7 +291,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -305,7 +305,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -323,7 +323,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -352,7 +352,42 @@ class IteratingLinearOptimizerTest {
         when(input.raActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
         prepareLinearProblemBuilder();
 
-        IteratingLinearOptimizer.optimize(input, parameters);
+        IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
+    void updateWithHvdcRangeActionIfNecessaryAddsHvdcRangeActionWhenAcEmulationDeactivationWasApplied() throws Exception {
+        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
+        when(hvdcRangeAction.getNetworkElementId()).thenReturn("hvdc-line");
+        when(hvdcRangeAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
+        when(hvdcRangeAction.getInitialSetpoint()).thenReturn(823.0);
+        when(hvdcRangeAction.getCurrentSetpoint(network)).thenReturn(796.0);
+
+        RangeActionSetpointResultImpl setpointResult = new RangeActionSetpointResultImpl(Map.of(hvdcRangeAction, 823.0));
+        RangeActionActivationResultImpl activationResult = new RangeActionActivationResultImpl(setpointResult);
+
+        HvdcAction elementaryHvdcAction = Mockito.mock(HvdcAction.class);
+        NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
+        when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(elementaryHvdcAction));
+        when(acEmulationDeactivationAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
+        when(elementaryHvdcAction.isAcEmulationEnabled()).thenReturn(Optional.of(false));
+
+        NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
+        when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of(acEmulationDeactivationAction));
+        when(input.appliedNetworkActionsInPrimaryState()).thenReturn(networkActionsResult);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(hvdcRangeAction)));
+
+        Method method = IteratingLinearOptimizer.class.getDeclaredMethod(
+            "updateWithHvdcRangeActionIfNecessary",
+            RangeActionActivationResultImpl.class,
+            IteratingLinearOptimizerInput.class
+        );
+        method.setAccessible(true);
+
+        RangeActionActivationResult result = (RangeActionActivationResult) method.invoke(null, activationResult, input);
+
+        assertTrue(result.getActivatedRangeActions(optimizedState).contains(hvdcRangeAction));
+        assertEquals(796.0, result.getOptimizedSetpoint(hvdcRangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 }

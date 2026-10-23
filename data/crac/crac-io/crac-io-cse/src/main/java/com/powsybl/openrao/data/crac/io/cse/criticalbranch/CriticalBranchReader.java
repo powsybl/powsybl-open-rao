@@ -21,8 +21,7 @@ import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TImax;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;

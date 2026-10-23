@@ -27,12 +27,16 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     static final double DEFAULT_MARGIN_WINDOW_TO_CONSIDER = 5.0;
     static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
     static final int DEFAULT_NUMBER_OF_THREADS = 1;
+    static final boolean DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION = false;
+    static final boolean DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION = false;
 
     private int numberOfCnecsToAddPerVirtualCostName = DEFAULT_NUMBER_OF_CNECS_TO_ADD_PER_VIRTUAL_COST_NAME;
     private double minRelativeImprovementOnMargin = DEFAULT_MIN_RELATIVE_IMPROVEMENT_ON_MARGIN;
     private double marginWindowToConsider = DEFAULT_MARGIN_WINDOW_TO_CONSIDER;
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
     private int numberOfThreads = DEFAULT_NUMBER_OF_THREADS;
+    private boolean curativeRangeActionsSynchronization = DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
+    private boolean curativeTopologicalActionsSynchronization = DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 
     public int getNumberOfCnecsToAddPerVirtualCostName() {
         return numberOfCnecsToAddPerVirtualCostName;
@@ -72,5 +76,21 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
 
     public void setNumberOfThreads(final int numberOfThreads) {
         this.numberOfThreads = numberOfThreads;
+    }
+
+    public boolean getCurativeRangeActionsSynchronization() {
+        return curativeRangeActionsSynchronization;
+    }
+
+    public void setCurativeRangeActionsSynchronization(final boolean curativeRangeActionsSynchronization) {
+        this.curativeRangeActionsSynchronization = curativeRangeActionsSynchronization;
+    }
+
+    public boolean getCurativeTopologicalActionsSynchronization() {
+        return curativeTopologicalActionsSynchronization;
+    }
+
+    public void setCurativeTopologicalActionsSynchronization(final boolean curativeTopologicalActionsSynchronization) {
+        this.curativeTopologicalActionsSynchronization = curativeTopologicalActionsSynchronization;
     }
 }

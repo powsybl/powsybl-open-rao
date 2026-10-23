@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 

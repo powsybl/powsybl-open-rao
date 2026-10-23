@@ -7,16 +7,16 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<CounterTradeRangeActionAdder> {
 
-    CounterTradeRangeActionAdder withExportingCountry(Country exportingCountry);
+    CounterTradeRangeActionAdder withAreaId(String areaId);
 
-    CounterTradeRangeActionAdder withImportingCountry(Country importingCountry);
+    ConnectedAreaAdder newConnectedArea();
 
     CounterTradeRangeAction add();
 }

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -87,7 +86,6 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
-        // missing key should only occur in PST regulation
         elementaryResultMap.computeIfAbsent(rangeAction, k -> new ElementaryResult(getInitialSetPoint(rangeAction))).put(state, setpoint);
         memoizedPreviousState = new HashMap<>();
     }
@@ -117,7 +115,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     private String concatenateNetworkElementsIds(RangeAction<?> rangeAction) {
-        return rangeAction.getNetworkElements().stream().map(Identifiable::getId).sorted().collect(Collectors.joining("+"));
+        return rangeAction.getNetworkElementsIds().stream().sorted().collect(Collectors.joining("+"));
     }
 
     @Override

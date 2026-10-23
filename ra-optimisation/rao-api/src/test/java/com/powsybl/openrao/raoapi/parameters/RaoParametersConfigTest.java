@@ -13,6 +13,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoConfigLoader;
@@ -27,7 +28,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
@@ -38,7 +38,6 @@ import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -77,7 +76,7 @@ class RaoParametersConfigTest {
         objectiveFunctionModuleConfig.setStringProperty("enforce-curative-security", "false");
         MapModuleConfig objectiveFunctionModuleConfigExt = platformCfg.createModuleConfig("search-tree-objective-function");
         objectiveFunctionModuleConfigExt.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(123, getCurativeMinObjImprovement(parameters), DOUBLE_TOLERANCE);
@@ -100,7 +99,7 @@ class RaoParametersConfigTest {
         linearOptimizationSolverModuleConfig.setStringProperty("solver", "XPRESS");
         linearOptimizationSolverModuleConfig.setStringProperty("relative-mip-gap", Objects.toString(22));
         linearOptimizationSolverModuleConfig.setStringProperty("solver-specific-parameters", "blabla");
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         RangeActionsOptimizationParameters params = parameters.getRangeActionsOptimizationParameters();
         SearchTreeRaoRangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
         assertEquals(4, paramsExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
@@ -128,7 +127,7 @@ class RaoParametersConfigTest {
         topoActionsModuleConfigExt.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
         topoActionsModuleConfigExt.setStringProperty("skip-actions-far-from-most-limiting-element", Objects.toString(true));
         topoActionsModuleConfigExt.setStringProperty("max-number-of-boundaries-for-skipping-actions", Objects.toString(3333));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         TopoOptimizationParameters params = parameters.getTopoOptimizationParameters();
         SearchTreeRaoTopoOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
         assertEquals(3, paramsExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -144,7 +143,7 @@ class RaoParametersConfigTest {
     void checkMultiThreadingConfig() {
         MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("search-tree-multi-threading");
         multiThreadingModuleConfig.setStringProperty("available-cpus", Objects.toString(43));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         MultithreadingParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getMultithreadingParameters();
         assertEquals(43, params.getAvailableCPUs(), DOUBLE_TOLERANCE);
     }
@@ -154,7 +153,7 @@ class RaoParametersConfigTest {
         MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("search-tree-second-preventive-rao");
         secondPreventiveRaoModuleConfig.setStringProperty("execution-condition", "POSSIBLE_CURATIVE_IMPROVEMENT");
         secondPreventiveRaoModuleConfig.setStringProperty("hint-from-first-preventive-rao", Objects.toString(true));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         SecondPreventiveRaoParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, params.getExecutionCondition());
         assertTrue(params.getHintFromFirstPreventiveRao());
@@ -164,7 +163,7 @@ class RaoParametersConfigTest {
     void checkNotOptimizedCnecsConfig() {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringProperty("do-not-optimize-curative-cnecs-for-tsos-without-cras", Objects.toString(false));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         NotOptimizedCnecsParameters params = parameters.getNotOptimizedCnecsParameters();
         assertFalse(params.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
     }
@@ -175,7 +174,7 @@ class RaoParametersConfigTest {
         loadFlowModuleConfig.setStringProperty("load-flow-provider", "Bonjour");
         loadFlowModuleConfig.setStringProperty("sensitivity-provider", "Au revoir");
         loadFlowModuleConfig.setStringProperty("sensitivity-failure-overcost", Objects.toString(32));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         LoadFlowAndSensitivityParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         assertEquals("Bonjour", paramsExt.getLoadFlowProvider());
         assertEquals("Au revoir", paramsExt.getSensitivityProvider());
@@ -188,10 +187,11 @@ class RaoParametersConfigTest {
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("acceptable-increase"), anyDouble())).thenReturn(32.);
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("FR", "ES", "PT"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
-        LoopFlowParameters parameters = RaoParameters.load(mockedPlatformConfig).getLoopFlowParameters().get();
+        LoopFlowParameters parameters = RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP).getLoopFlowParameters().get();
         assertEquals(32, parameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
         assertEquals(expectedCountries, parameters.getCountries());
+
     }
 
     @Test
@@ -214,7 +214,7 @@ class RaoParametersConfigTest {
         ModuleConfig mnecModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(mnecModuleConfig.getDoubleProperty(eq("acceptable-margin-decrease"), anyDouble())).thenReturn(32.);
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-mnec-parameters")).thenReturn(Optional.of(mnecModuleConfig));
-        MnecParameters parameters = RaoParameters.load(mockedPlatformConfig).getMnecParameters().get();
+        MnecParameters parameters = RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP).getMnecParameters().get();
         assertEquals(32, parameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
     }
 
@@ -248,7 +248,7 @@ class RaoParametersConfigTest {
             .thenReturn(List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
             .thenReturn(Optional.of(relativeMarginsModuleConfig));
-        RelativeMarginsParameters parameters = RaoParameters.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
+        RelativeMarginsParameters parameters = RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP).getRelativeMarginsParameters().get();
         List<String> expectedBoundaries = List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
         assertEquals(expectedBoundaries, parameters.getPtdfBoundariesAsString());
     }
@@ -265,18 +265,6 @@ class RaoParametersConfigTest {
     }
 
     @Test
-    void checkPstRegulationConfigExtension() {
-        ModuleConfig pstRegulationModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList()))
-            .thenReturn(List.of("{pst-1}:{network-element-1}", "{pst-2}:{network-element-2}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters"))
-            .thenReturn(Optional.of(pstRegulationModuleConfig));
-        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
-        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), pstRegulationParameters.getPstsToRegulate());
-    }
-
-    @Test
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
@@ -284,7 +272,7 @@ class RaoParametersConfigTest {
         objectiveFunctionExtModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         MapModuleConfig rangeActionsOptimizationExtModuleConfig = platformCfg.createModuleConfig("search-tree-range-actions-optimization");
         rangeActionsOptimizationExtModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
-        RaoParameters parameters = RaoParameters.load(platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         assertEquals(123, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
@@ -301,14 +289,14 @@ class RaoParametersConfigTest {
     void inconsistentPredefinedCombinations1() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12 + {na22}", "{na41} + {na5} + {na6}"));
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg, ReportNode.NO_OP));
     }
 
     @Test
     void inconsistentPredefinedCombinations2() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg, ReportNode.NO_OP));
     }
 
     @Test
@@ -316,7 +304,7 @@ class RaoParametersConfigTest {
         ModuleConfig loopFlowModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("France", "ES", "PT"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP));
     }
 
     @Test
@@ -325,7 +313,7 @@ class RaoParametersConfigTest {
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}{BE}"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
             .thenReturn(Optional.of(relativeMarginsModuleConfig));
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP));
     }
 
     @Test
@@ -334,7 +322,7 @@ class RaoParametersConfigTest {
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR-{BE}"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
             .thenReturn(Optional.of(relativeMarginsModuleConfig));
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig, ReportNode.NO_OP));
     }
 
     @Test
@@ -362,6 +350,8 @@ class RaoParametersConfigTest {
         Mockito.when(marmotModuleConfig.getDoubleProperty(eq("margin-window-to-consider"), anyDouble())).thenReturn(3.2);
         Mockito.when(marmotModuleConfig.getIntProperty(eq("max-mip-iterations"), anyInt())).thenReturn(15);
         Mockito.when(marmotModuleConfig.getIntProperty(eq("number-of-threads"), anyInt())).thenReturn(42);
+        Mockito.when(marmotModuleConfig.getBooleanProperty(eq("curative-range-actions-synchronization"), anyBoolean())).thenReturn(true);
+        Mockito.when(marmotModuleConfig.getBooleanProperty(eq("curative-topological-actions-synchronization"), anyBoolean())).thenReturn(true);
 
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("marmot-parameters")).thenReturn(Optional.of(marmotModuleConfig));
 
@@ -373,5 +363,7 @@ class RaoParametersConfigTest {
         assertEquals(3.2, parameters.getMarginWindowToConsider(), DOUBLE_TOLERANCE);
         assertEquals(15, parameters.getMaxMipIterations());
         assertEquals(42, parameters.getNumberOfThreads());
+        assertTrue(parameters.getCurativeRangeActionsSynchronization());
+        assertTrue(parameters.getCurativeTopologicalActionsSynchronization());
     }
 }

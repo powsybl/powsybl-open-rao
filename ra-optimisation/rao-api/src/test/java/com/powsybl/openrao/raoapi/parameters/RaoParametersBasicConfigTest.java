@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RaoParametersBasicConfigTest {
     @Test
     void testExtensions() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
@@ -35,7 +36,7 @@ class RaoParametersBasicConfigTest {
 
     @Test
     void testNoExtensions() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);

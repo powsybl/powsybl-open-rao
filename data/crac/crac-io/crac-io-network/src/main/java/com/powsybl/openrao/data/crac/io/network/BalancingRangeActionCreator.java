@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -55,7 +55,7 @@ class BalancingRangeActionCreator {
             return;
         }
 
-        Set<Generator> consideredGenerators = network.getGeneratorStream()
+        Set<Injection<?>> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant, creationContext))
             .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
             .collect(Collectors.toSet());

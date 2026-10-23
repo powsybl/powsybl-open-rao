@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.PhaseTapChangerTapPositio
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
@@ -24,26 +23,20 @@ public final class PhaseTapChangerTapPositionActionArrayDeserializer {
     private PhaseTapChangerTapPositionActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
-        if (networkElementsNamesPerId == null) {
-            throw new OpenRaoException(String.format(
-                "Cannot deserialize %s before %s",
-                JsonSerializationConstants.PHASETAPCHANGER_TAPPOSITION_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID
-            ));
-        }
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PhaseTapChangerTapPositionActionAdder adder = ownerAdder.newPhaseTapChangerTapPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        JsonSerializationConstants.deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
+                        adder.withNetworkElement(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.TAP_POSITION:
                         jsonParser.nextToken();
                         adder.withTapPosition(jsonParser.getIntValue());
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field in PhaseTapChangerTapPositionAction: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field in PhaseTapChangerTapPositionAction: " + jsonParser.currentName());
                 }
             }
             adder.add();

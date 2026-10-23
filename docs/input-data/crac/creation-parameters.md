@@ -67,7 +67,7 @@ The RAs usage limits contain the following fields :
 
  - **max-ra :**
     - _Expected value:_ integer
-    - _Default value:_ 2^32 -1 (max integer value)
+    - _Default value:_ null
     - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
 
   - **max-ra-per-tso :**
@@ -521,16 +521,24 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
     "FbConstraintCracCreatorParameters" : {
       "timestamp": "2019-01-08T12:00+02:00",
       "internal-hvdcs" : [ {
-        "converters" : [ {
-          "node" : "NODE__1A",
-          "station" : "Station1"
-        }, {
-          "node" : "NODE__1B",
-          "station" : "Station2"
-        } ],
-        "lines" : [ {
-          "from" : "NODE__1A",
-          "to" : "NODE__1B"
+        "code" : "hvdc_code",
+        "eic": "hvdc_eic",
+        "poles": [
+          {
+            "id":"pole_id",
+            "converters" : [ {
+              "node" : "NODE__1A",
+              "station" : "Station1"
+            },
+            {
+              "node" : "NODE__1B",
+              "station" : "Station2"
+            }],
+            "lines" : [ {
+              "id" : "ID__1",
+              "from" : "NODE__1A",
+              "to" : "NODE__1B"
+            } ]
         } ]
       } ]
     }

@@ -106,7 +106,9 @@ public class IcsDataTest {
             generateOffsetDateTimeList(24));
 
         // Check generator constraint creation
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
 
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
@@ -134,7 +136,9 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(24));
 
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"));
 
         assertEquals(2, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraintsBE = generatorConstraintsSet.stream()
@@ -174,7 +178,9 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/ics/series.csv"),
             null,
             generateOffsetDateTimeList(24));
-        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints("Redispatching_RA", Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
+        Set<GeneratorConstraints> generatorConstraintsSet = icsData.createGeneratorConstraints(
+            "Redispatching_RA",
+            Map.of("BBE1AA1", icsData.getGeneratorIdFromRaIdAndNodeId("Redispatching_RA", "BBE1AA1")));
         assertEquals(1, generatorConstraintsSet.size());
         GeneratorConstraints generatorConstraints = generatorConstraintsSet.iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
@@ -326,7 +332,13 @@ public class IcsDataTest {
             getClass().getResourceAsStream("/glsk/gsk.csv"),
             generateOffsetDateTimeList(2));
 
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+        icsData.createInjectionRangeActionsAndUpdateCracs(
+            cracTemporalData,
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"),
+            5.,
+            5.
+        );
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -348,8 +360,15 @@ public class IcsDataTest {
              new ByteArrayInputStream(staticCsv.getBytes(StandardCharsets.UTF_8)),
              getClass().getResourceAsStream("/ics/series.csv"),
              getClass().getResourceAsStream("/glsk/gsk.csv"),
-             generateOffsetDateTimeList(2));
-        icsData.createInjectionRangeActionsAndUpdateCracs(cracTemporalData, "Redispatching_RA", Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"), 5., 5.);
+             generateOffsetDateTimeList(2)
+        );
+        icsData.createInjectionRangeActionsAndUpdateCracs(
+            cracTemporalData,
+            "Redispatching_RA",
+            Map.of("BBE1AA1", "Redispatching_RA_BBE1AA1_GENERATOR", "FFR1AA1", "Redispatching_RA_FFR1AA1_GENERATOR"),
+            5.,
+            5.
+        );
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
         assertEquals(1, ra1.getUsageRules().size());
@@ -523,6 +542,47 @@ public class IcsDataTest {
         JsonNode actualJson = mapper.readTree(actualOutputStream.toString());
 
         assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    void testRedispatchingRangeWithZeroFloor() throws IOException {
+        String tmpDir = System.getProperty("java.io.tmpdir") + File.separator;
+        String networkFilePath1 = "2Nodes2ParallelLinesPST_0030.uct";
+        String networkFilePath2 = "2Nodes2ParallelLinesPST_0130.uct";
+        Network network1 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath1));
+        Network network2 = LazyNetwork.of(getResourcePath("/network/" + networkFilePath2));
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                timestamp2, RaoInput.build(network2, crac2).build()
+            ));
+
+        TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+
+        IcsData icsData = IcsDataImporter.read(
+            getClass().getResourceAsStream("/ics/static.csv"),
+            getClass().getResourceAsStream("/ics/series_with_null_p0.csv"),
+            getClass().getResourceAsStream("/glsk/gsk.csv"),
+            generateOffsetDateTimeList(2));
+
+        TimeCoupledRaoInput postIcsRaoInputs = icsData.processAllRedispatchingActions(timeCoupledRaoInput, 5., 4., tmpDir);
+
+        Crac crac1 = postIcsRaoInputs.getRaoInputs().getData(timestamp1).orElseThrow().getCrac();
+        Crac crac2 = postIcsRaoInputs.getRaoInputs().getData(timestamp2).orElseThrow().getCrac();
+
+        // with P0 = 0 MW and RDP- = 35 MW, the theoretical min value of the range is -35 MW, yet we check that the range is bounded by 0 MW
+        checkRedispatchingAction(0., 0., 43., 5., 4., crac1.getInjectionRangeActions().iterator().next());
+        checkRedispatchingAction(0., 0., 48., 5., 4., crac2.getInjectionRangeActions().iterator().next());
+    }
+
+    private void checkRedispatchingAction(double expectedP0, double expectedMin, double expectedMax, double expectedCostUp, double expectedCostDown, InjectionRangeAction injectionRangeAction) {
+        assertEquals(expectedP0, injectionRangeAction.getInitialSetpoint(), DOUBLE_EPSILON);
+        assertTrue(injectionRangeAction.getVariationCost(VariationDirection.UP).isPresent());
+        assertEquals(expectedCostUp, injectionRangeAction.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
+        assertTrue(injectionRangeAction.getVariationCost(VariationDirection.DOWN).isPresent());
+        assertEquals(expectedCostDown, injectionRangeAction.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
+        assertEquals(expectedMin, injectionRangeAction.getRanges().getFirst().getMin(), DOUBLE_EPSILON);
+        assertEquals(expectedMax, injectionRangeAction.getRanges().getFirst().getMax(), DOUBLE_EPSILON);
     }
 
     private String getResourcePath(String resourcePath) {

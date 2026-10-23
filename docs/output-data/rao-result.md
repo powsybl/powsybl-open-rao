@@ -155,7 +155,7 @@ This information is not written in the json file, it is deduced from the values 
 This field can either contain information about the failure when the RAO fails, or macro information about which steps the [CASTOR RAO](../algorithms/castor.md#algorithm-details) executed when it did not fail.  
 (See also: [Second preventive RAO parameters](../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters))
 
-Note: This field replaced the optimizationStepsExecuted field.
+> **Note:** This field replaced the optimizationStepsExecuted field.
 
 ::::{tabs}
 :::{group-tab} JAVA API
@@ -178,6 +178,18 @@ Example:
 
 :::
 ::::
+
+The different possible execution details are:
+- **The RAO only went through first preventive**: only the first preventive optimization was run (no second preventive); this is the default situation;
+- **First preventive fell back to initial situation**: the first preventive RAO did not improve the situation, so the initial situation (no remedial action applied) was kept;
+- **Second preventive improved first preventive results**: the second preventive RAO gave better or similar results than the first one (cost-wise), so its results were kept;
+- **Second preventive fell back to first preventive results**: the second preventive RAO did not improve on the first one, so the first preventive results were kept;
+- **Second preventive fell back to initial situation**: the second preventive RAO did not improve the situation, so the initial situation was kept;
+- **<specific failure reason>**: when the RAO fails, the field contains a message describing the cause of the failure.
+
+If the RAO went through angle or voltage [monitoring](../algorithms/monitoring.md), said monitoring(s) are appended to the execution details from the first flow RAO.
+
+For [MARMOT](../algorithms/marmot.md), one detail per timestamp is given as `<timestamp>: <detail>`, separated by ` - `; the default value is "RAO went through independent topological optimization and global time-coupled linear optimization".
 
 ### Objective function cost results
 
@@ -1200,6 +1212,105 @@ Example:
     "initialTap" : -1,
     "activatedStates" : [ ]
   } ]
+~~~
+
+:::
+::::
+
+### Implementation-specific extensions
+
+Different RAO implementations can add extensions to the RAO result.  
+These extensions allow the RAO implementation to provide extra information about the computations, for example results of intermediary steps.  
+
+#### FastRAO extensions
+##### Critical CNECs result
+This extension lists the CNECs that are considered in the last step of [FastRAO](../algorithms/castor/performance.md#fastrao).  
+
+::::{tabs}
+:::{group-tab} JAVA API
+
+~~~java
+// Access the extension
+CriticalCnecsResult extension = raoResult.getExtension(CriticalCnecsResult.class);
+// Fetch the critical CNEC IDs
+Set<String> criticalCnecIds = extension.getCriticalCnecIds();
+~~~
+
+:::
+:::{group-tab} JSON File
+
+Example:
+
+~~~json
+
+{
+  "type" : "RAO_RESULT",
+  "version" : "1.8",
+  ...,
+  "extensions" : {
+    "critical-cnecs-result" : [ {
+      "flowCnecId" : "cnec1outageId"
+    }, {
+      "flowCnecId" : "cnec1prevId"
+    }, {
+      "flowCnecId" : "cnec2prevId"
+    }, {
+      "flowCnecId" : "cnec3autoId"
+    }, {
+      "flowCnecId" : "cnec3curId"
+    }, {
+      "flowCnecId" : "cnec3prevId"
+    }, {
+      "flowCnecId" : "cnec4prevId"
+    } ]
+  }
+}
+
+~~~
+
+:::
+::::
+
+#### MARMOT extensions
+##### Pre-time coupling overloaded CNECs
+This extension lists the CNECs that are overloaded (i.e. have a negative margin) after time-independent RAOs.  
+This means that these CNECs need to be secured by the time-coupled RAO.  
+For curative CNECs in particular, this means that extra preventive actions should be implemented to secure them. 
+
+::::{tabs}
+:::{group-tab} JAVA API
+
+~~~java
+// Access the extension
+PreTimeCouplingOverloadedCnecs extension = raoResult.getExtension(PreTimeCouplingOverloadedCnecs.class);
+// Fetch the overloaded CNEC IDs
+Set<String> overloadedCnecs = extension.getCriticalCnecIds();
+~~~
+
+:::
+:::{group-tab} JSON File
+
+Example:
+
+~~~json
+
+{
+  "type" : "RAO_RESULT",
+  "version" : "1.8",
+  ...,
+  "extensions" : {
+    "pre-time-coupling-overloaded-cnecs" : [ {
+      "flowCnecId" : "cnec1outageId"
+    }, {
+      "flowCnecId" : "cnec1prevId"
+    }, {
+      "flowCnecId" : "cnec2prevId"
+    }, {
+      "flowCnecId" : "cnec3autoId"
+    } ]
+  }
+}
+
 ~~~
 
 :::

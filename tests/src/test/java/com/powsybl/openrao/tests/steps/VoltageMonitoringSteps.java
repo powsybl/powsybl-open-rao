@@ -13,14 +13,15 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -46,14 +47,22 @@ public class VoltageMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput voltageMonitoringInput = MonitoringInput.buildWithVoltage(network, CommonTestData.getCrac(), raoResult).build();
-        MonitoringResult voltageMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(voltageMonitoringInput, numberOfLoadFlowsInParallel);
+        MonitoringResult voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(voltageMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setVoltageMonitoringResult(voltageMonitoringResult);
     }
 
     @Then("the voltage monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
-        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.VOLTAGE));
+        assertEquals(
+            isSecure(
+                CommonTestData.getRaoResult(),
+                CommonTestData.getCrac(),
+                CommonTestData.getRaoParameters(),
+                PhysicalParameter.VOLTAGE
+            ),
+            "secure".equalsIgnoreCase(expectedStatus)
+        );
     }
 
     @Then("the min voltage of CNEC {string} should be {double} kV at {string}")

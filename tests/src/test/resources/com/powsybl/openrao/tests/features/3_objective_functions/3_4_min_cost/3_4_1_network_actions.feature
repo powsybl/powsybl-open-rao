@@ -312,3 +312,27 @@ Feature: 3.4.1: Costly network actions optimization
     Then the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty on cnecBeFrCurative - coBeFr3 (66.67 * 1000)
     Then the value of the objective function after CRA should be 70756.67
+
+  @fast @rao @dc @costly @preventive-only @fast-rao
+  Scenario: 3.4.13 : Overload cannot be resolved due to MNEC violation and high virtual cost during fast RAO second iteration
+  This is an isolated test of the second timestamp of the 4.1.2 Marmot scenario at the 01:30 timestamp.
+  At 01:30, the CNEC "NNL2AA1  BBE3AA1  1 - preventive" is overloaded. The only available preventive action is the topological
+  action "Close Line NL2 BE3 2" but applying it violates the MNEC constraints during the first Fast RAO iteration and increases significantly
+  the virtual cost during the second Fast RAO iteration on top of also violating MNEC constraints.
+  Since no redispatching action is available, the RAO cannot resolve the overload.
+    Given network file is "epic93/TestCases_93_2_2/12Nodes_0130.uct"
+    Given crac file is "epic93/cbcora_93_2_2.xml"
+    # The CRAC file defines 2 CNECs, 1 MNEC and 1 topological action (Close Line NL2 BE3 2)
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    When I launch rao at "2019-01-08 01:30"
+    # No curative perimeter
+    Then the execution details should be "The RAO only went through first preventive"
+    # During the first FastRAO iteration, Only 2 out of 3 CNECs are considered. The initial virtual cost is 124729.66.
+    # The topological action "Close Line NL2 BE3 2" is activated and lowers the cost to 0. However, MNEC constraints are violated.
+    # During the second FastRAO iteration, the MNEC is also considered along with the other two CNECs. The initial cost is the same. However, this
+    # time, the topological action leads to a worse virtual cost of 1081081.08. Therefore, the action is not activated
+    # in the final FastRAO result
+    Then the remedial action "Close Line NL2 BE3 2" is not used in preventive
+    Then the value of the objective function after PRA should be 124729.66
+    # In the end of the run, the network is still overloaded, no action was used in this Run
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -124.73 MW

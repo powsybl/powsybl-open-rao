@@ -44,6 +44,7 @@ public enum TsoEICode {
     PT("PT", "10XPT-REN------9", "REN"),
     RO("RO", "10XRO-TEL------2", "TEL"),
     SE("SE", "10X1001A1001A418", "SVK"),
+    SEM("SEM", "10YIE-1001A00010", "SEM"),
     SI("SI", "10XSI-ELES-----1", "ELES"),
     SK("SK", "10XSK-SEPS-GRIDB", "SEPS"),
     TR("TR", "10XTR-TEIAS----9", "TEIAS"),

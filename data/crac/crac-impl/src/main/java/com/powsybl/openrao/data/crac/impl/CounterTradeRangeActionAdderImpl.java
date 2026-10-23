@@ -7,11 +7,14 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -24,8 +27,8 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
-    private Country exportingCountry;
-    private Country importingCountry;
+    private String area;
+    private final List<ConnectedArea> connectedAreas = new ArrayList<>();
 
     @Override
     protected String getTypeDescription() {
@@ -37,15 +40,22 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
-    public CounterTradeRangeActionAdder withExportingCountry(Country exportingCountry) {
-        this.exportingCountry = exportingCountry;
+    public CounterTradeRangeActionAdder withAreaId(String areaId) {
+        this.area = areaId;
         return this;
     }
 
     @Override
-    public CounterTradeRangeActionAdder withImportingCountry(Country importingCountry) {
-        this.importingCountry = importingCountry;
-        return this;
+    public ConnectedAreaAdder newConnectedArea() {
+        return new ConnectedAreaAdderImpl(this);
+    }
+
+    void addConnectedArea(ConnectedArea connectedArea) {
+        connectedAreas.add(connectedArea);
+    }
+
+    boolean hasConnectedArea(String areaId) {
+        return connectedAreas.stream().anyMatch(connectedArea -> connectedArea.getAreaId().equals(areaId));
     }
 
     @Override
@@ -56,9 +66,11 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        // check exporting and importing country
-        assertAttributeNotNull(exportingCountry, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingCountry()");
-        assertAttributeNotNull(importingCountry, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingCountry()");
+        // check area
+        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withAreaId()");
+        if (hasConnectedArea(area)) {
+            throw new OpenRaoException(String.format("CounterTradeRangeAction %s cannot have its own area %s as a connected area", id, area));
+        }
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -69,7 +81,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
-            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingCountry, this.importingCountry
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint,
+            speed, activationCost, variationCosts, this.area, List.copyOf(connectedAreas)
         );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;

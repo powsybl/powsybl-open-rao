@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -30,15 +30,14 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
@@ -54,32 +53,139 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
-        checkParameters(raoParameters, raoInput);
-        checkCnecsThresholdsUnit(raoParameters, raoInput);
+    public static void initData(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
+        checkParameters(raoParameters, raoInput, reportNode);
+        checkCnecsThresholdsUnit(raoParameters, raoInput, reportNode);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
+        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
+        checkCurativeRaUsageLimit(raoInput.getCrac());
+    }
+
+    /**
+     * Generates a mapping of TSOs to their respective limit values for a given limit type, with values organized chronologically by instants.
+     * ex. {"BE": [1, 2, 3], "FR": [2, null, 3]}
+     */
+    public static Map<String, List<Integer>> dataPerTsoForLimit(Crac crac, String limitType, List<Instant> sortedCurativeInstants) {
+
+        // Collect for each TSO a list of limit values sorted by instant
+        Map<String, List<Integer>> dataPerTso = new HashMap<>();
+        for (Instant instant : sortedCurativeInstants) {
+            RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
+            if (raUsageLimits != null) {
+                getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                );
+            }
+
+            for (Map.Entry<String, List<Integer>> entry : dataPerTso.entrySet()) {
+                if (raUsageLimits == null || !getRaUsageLimitByLimitName(limitType, raUsageLimits).containsKey(entry.getKey())) {
+                    entry.getValue().add(null);
+                }
+            }
+        }
+
+        return dataPerTso;
+    }
+
+    private static Map<String, Integer> getRaUsageLimitByLimitName(String limitType, RaUsageLimits raUsageLimits) {
+        switch (limitType) {
+            case "maxRaPerTso":
+                return raUsageLimits.getMaxRaPerTso();
+            case "maxPstPerTso":
+                return raUsageLimits.getMaxPstPerTso();
+            case "maxTopoPerTso":
+                return raUsageLimits.getMaxTopoPerTso();
+            case "maxElementaryActionsPerTso":
+                return raUsageLimits.getMaxElementaryActionsPerTso();
+            case "maxRa":
+                return Collections.singletonMap(null, raUsageLimits.getMaxRa());
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * Check that remedial action usage limits are coherent.
+     * We do not allow null values for an instant if a limit was defined for a previous and following instant
+     * We do not allow a decrease in the limit value between two instants
+     * ex. if curative2 has no max-ra limit for TSO "FR" but curative1 and curative3 have a limit -> throw an error
+     */
+    public static void checkCurativeRaUsageLimit(Crac crac) {
+        List<String> raUsageLimitToCheck = List.of("maxRaPerTso", "maxTopoPerTso", "maxPstPerTso", "maxElementaryActionsPerTso", "maxRa");
+        List<Instant> sortedCurativeInstants = crac.getInstants(InstantKind.CURATIVE).stream().toList();
+
+        for (String limitType : raUsageLimitToCheck) {
+            Map<String, List<Integer>> dataPerTso = dataPerTsoForLimit(crac, limitType, sortedCurativeInstants);
+
+            for (String tso : dataPerTso.keySet()) {
+                List<Integer> values = dataPerTso.get(tso);
+                String tsoMessage = tso == null ? "" : String.format(" and TSO %s", tso);
+
+                Integer previousValue = null;
+                int previousIndex = -1;
+
+                for (int i = 0; i < values.size(); i++) {
+                    Integer value = values.get(i);
+
+                    if (value == null) {
+                        // A null after a non-null value is only invalid if another non-null follows it.
+                        if (previousValue != null) {
+                            for (int j = i + 1; j < values.size(); j++) {
+                                if (values.get(j) != null) {
+                                    throw new OpenRaoException(String.format(
+                                        "Incoherence found for limit '%s'%s: null value found between non-null values for instant %s.",
+                                        limitType,
+                                        tsoMessage,
+                                        sortedCurativeInstants.get(i).getId()
+                                    ));
+                                }
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (previousValue != null && value < previousValue) {
+                        throw new OpenRaoException(String.format(
+                            "Incoherence found for limit '%s'%s: the value decreased between instant %s (limit=%d) and instant %s (limit=%d).",
+                            limitType,
+                            tsoMessage,
+                            sortedCurativeInstants.get(previousIndex).getId(),
+                            previousValue,
+                            sortedCurativeInstants.get(i).getId(),
+                            value
+                        ));
+                    }
+
+                    previousValue = value;
+                    previousIndex = i;
+                }
+            }
+        }
+
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 
-    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkParameters(final RaoParameters raoParameters,
+                                       final RaoInput raoInput,
+                                       final ReportNode reportNode) {
         checkObjectiveFunctionParameters(raoParameters, raoInput);
-        checkLoopFlowParameters(raoParameters, raoInput);
-        checkHvdcAcEmulationParameters(raoParameters, raoInput);
+        checkLoopFlowParameters(raoParameters, raoInput, reportNode);
+        checkHvdcAcEmulationParameters(raoParameters, raoInput, reportNode);
 
         if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
             && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
-            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+            CommonReports.reportPstsMustBeApproximatedAsIntegers(reportNode);
+            throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
         }
     }
 
-    public static void checkHvdcAcEmulationParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkHvdcAcEmulationParameters(final RaoParameters raoParameters,
+                                                      final RaoInput raoInput,
+                                                      final ReportNode reportNode) {
         boolean isAnyHvdcInAcEmulation = raoInput.getNetwork().getHvdcLineStream()
             .anyMatch(hvdcLine -> {
                 HvdcAngleDroopActivePowerControl extension = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
@@ -87,30 +193,30 @@ public final class RaoUtil {
             });
 
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isHvdcAcEmulation() && isAnyHvdcInAcEmulation) {
-            String msg = "hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+            CommonReports.reportHvdcAcEmulationDisabledButNetworkContainsAcHvdcLines(reportNode);
+            throw new OpenRaoException("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.");
         }
     }
 
-    private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    private static void checkLoopFlowParameters(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+            CommonReports.reportNoReferenceProgramProvided(reportNode);
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(
                 raoInput.getNetwork(),
                 getLoadFlowProvider(raoParameters),
-                getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
-            ));
+                getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters())
+            );
         }
 
         if (raoParameters.getLoopFlowParameters().isPresent() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            String msg = format(
+            CommonReports.reportLoopflowComputationLacksReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            throw new OpenRaoException(format(
                 "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                raoInput.getCrac().getId());
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+                raoInput.getCrac().getId()));
         }
     }
 
@@ -133,33 +239,16 @@ public final class RaoUtil {
         }
     }
 
-    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkCnecsThresholdsUnit(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
                 if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    String msg = format(
-                        "A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. " +
-                            "It will be imprecisely converted by the RAO which could create uncoherent results due to side effects",
-                        flowCnec.getId()
-                    );
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
+                    CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
-        }
-    }
-
-    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new OpenRaoException("Only conversions between MW and A are supported.");
         }
     }
 
@@ -231,7 +320,7 @@ public final class RaoUtil {
 
             if (previousUsageStateOptional.isPresent()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds()))
                     .findAny();
 
                 if (correspondingRa.isPresent()) {
@@ -259,6 +348,16 @@ public final class RaoUtil {
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
 
+    public static void applyContingency(Network network, State state) {
+        if (state.getContingency().isPresent()) {
+            Contingency contingency = state.getContingency().orElseThrow();
+            if (!contingency.isValid(network)) {
+                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+            }
+            contingency.toModification().apply(network, (ComputationManager) null);
+        }
+    }
+
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
             .map(FlowCnec::getId)
@@ -266,8 +365,15 @@ public final class RaoUtil {
             .collect(Collectors.toSet());
     }
 
+    public static int getNumberOfConnectedComponent(Network network) {
+        return Math.toIntExact(StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
+            .map(Bus::getConnectedComponent)
+            .distinct()
+            .count());
+    }
+
     // TODO: find a better place for this function
-    public static Unit getFlowUnit(RaoParameters raoParameters) {
+    public static Unit getFlowUnit(final RaoParameters raoParameters) {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 

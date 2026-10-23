@@ -2,13 +2,17 @@
 
 ## Rao parameters Extensions
 
-Used to configure RAO implementation specific parameters
+The extensions are used to configure RAO implementation specific parameters.
+They are configured through the `extensions` field of the [RaoParameters](business-parameters.md) file;
+each extension is identified in the JSON file by the name given in backticks in its section description below.
 
-### Open Rao Search Tree Parameters extension
+### OpenRAO Search Tree Parameters extension
 
-This extension is used to configure Open RAO specific parameters for search tree algorithms
+This extension (`open-rao-search-tree-parameters`) is used to configure OpenRAO specific parameters for search tree algorithms.
 
 #### Objective function parameters
+
+These parameters (JSON sub-object `objective-function` of the `open-rao-search-tree-parameters` extension) configure the objective function of the search tree RAO.
 
 ##### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
@@ -109,7 +113,7 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Default value**: "CBC"
 - **Usage**: the solver called for optimising the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
 ###### relative-mip-gap
@@ -174,6 +178,14 @@ when searching for the best network actions.
   *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
   considered direct neighbors; boundary lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
+
+##### allow-electrical-island-creation
+- **Expected value**: boolean
+- **Default value**: true
+- **Usage**: configures whether islands can be created during the search-tree.  
+  If set to false, islands will not be created during the search-tree.  
+  If set to true, islands can be created during the search-tree.
+- **WARNING**: even if the parameter is set to false, an island can still be created in the curative perimeter because of a network action taken in preventive.
 
 #### Second preventive RAO parameters
 These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
@@ -265,7 +277,8 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
 #### Loop-flow optional parameter
-Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
+
+Adding a LoopFlowParameters (`loop-flow-parameters`) to the `open-rao-search-tree-parameters` extension will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are implementation specific.
 See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)  
@@ -308,7 +321,7 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
 
 #### MNEC optional parameter
 
-Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
+Adding a MnecParameters (`mnec-parameters`) to the `open-rao-search-tree-parameters` extension will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are implementation specific.
 
@@ -337,7 +350,7 @@ The following parameters tune some of these constraints, the one which are imple
   approximations are removed (i.e. taps have been rounded and real flow calculated)
 
 #### Relative margins optional parameter
-Adding a RelativeMarginsParameters is mandatory when [objective function is relative](business-parameters.md#type).  
+Adding a RelativeMarginsParameters (`relative-margins-parameters`) to the `open-rao-search-tree-parameters` extension is mandatory when [objective function is relative](business-parameters.md#type).  
 The following parameters tune the constraints which are implementation specific.
 See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
@@ -366,7 +379,8 @@ See also: [Modelling the maximum minimum relative margin objective function](../
 
 #### Min margin optional parameters
 
-These parameters are meant to be used in costly optimization only.
+These parameters (`costly-min-margin-parameters`) are meant to be used in costly optimization only.
+They are configured as a sub-object of the `open-rao-search-tree-parameters` extension.
 
 ##### shifted-violation-penalty
 
@@ -381,6 +395,8 @@ These parameters are meant to be used in costly optimization only.
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
 ### FastRAO Parameters extension
+
+This extension (`fast-rao-parameters`) is used to configure FastRAO specific parameters.
 
 #### number-of-cnecs-to-add
 - **Expected value**: integer, no unit
@@ -397,15 +413,9 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
-#### PST regulation parameters
-
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
-
 ### Marmot Parameters extension
+
+This extension (`marmot-parameters`) is used to configure Marmot specific parameters.
 
 #### number-of-cnecs-to-add-per-virtual-cost-name
 - **Expected value**: integer, no unit
@@ -426,19 +436,22 @@ These parameters are meant to be used in costly optimization only.
 - **Expected value**: integer, no unit
 - **Default value**: 10
 - **Usage**: This values corresponds to the maximum number of iterations of the MIP.
+- ⚠️ **Warning**: If MIP iterations end prematurely, there is no guarantee of result. 
 
 #### number-of-threads
 - **Expected value**: integer, no unit
 - **Default value**: 1
 - **Usage**: This value corresponds to the number of threads that will be used to run computations in parallel.
 
-#### PST regulation parameters
+#### curative-range-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when same curative range actions must be activated on all the timestamps at once with the same setpoint value.
 
-##### psts-to-regulate
-
-- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
-- **Default value**: empty map
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+#### curative-topological-actions-synchronization
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: Set to true when the same topological actions must be applied on all the timestamps at once.
 
 ## Examples
 > ⚠️  **NOTE**  
@@ -448,7 +461,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.4",
+  "version" : "3.5",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -460,7 +473,9 @@ These parameters are meant to be used in costly optimization only.
       "min-relative-improvement-on-margin" : 12.0,
       "margin-window-to-consider" : 7.0,
       "max-mip-iterations" : 13,
-      "number-of-threads" : 4
+      "number-of-threads" : 4,
+      "curative-range-actions-synchronization" : false,
+      "curative-topological-actions-synchronization" : false
     },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
@@ -486,7 +501,8 @@ These parameters are meant to be used in costly optimization only.
           [ "na4", "na5", "na6" ]
         ],
         "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
+        "max-number-of-boundaries-for-skipping-actions" : 2,
+        "allow-electrical-island-creation": true
       },
       "multi-threading" : {
         "available-cpus" : 4
@@ -500,9 +516,9 @@ These parameters are meant to be used in costly optimization only.
         "sensitivity-provider" : "OpenLoadFlow",
         "sensitivity-failure-overcost" : 0.0,
         "sensitivity-parameters" : {
-          "version" : "1.0",
+          "version" : "1.3",
           "load-flow-parameters" : {
-            "version" : "1.10",
+            "version" : "1.11",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
@@ -542,33 +558,23 @@ These parameters are meant to be used in costly optimization only.
             }
           }
         }
-      }
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 10.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 10.0,
-      "violation-cost" : 10.0,
-      "countries" : [ "FR", "ES", "PT" ]
-    },
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 1.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
-      "ptdf-approximation" : "FIXED_PTDF",
-      "ptdf-sum-lower-bound" : 0.01
-    },
-    "costly-min-margin-parameters" : {
-      "shifted-violation-penalty": 1000.0,
-      "shifted-violation-threshold": 0.0
-    },
-    "pst-regulation-parameters" : {
-      "psts-to-regulate": {
-        "pst-1": "line-1",
-        "pst-2": "line-2"
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 10.0,
+        "violation-cost" : 10.0
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 1.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-sum-lower-bound" : 0.01
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty": 1000.0,
+        "shifted-violation-threshold": 0.0
       }
     }
   }

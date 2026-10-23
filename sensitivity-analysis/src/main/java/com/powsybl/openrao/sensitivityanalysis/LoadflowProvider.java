@@ -10,8 +10,8 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -156,7 +156,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
         Map<String, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecs.forEach(flowCnec ->
-            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
+            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElementId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
         );
 
         List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();

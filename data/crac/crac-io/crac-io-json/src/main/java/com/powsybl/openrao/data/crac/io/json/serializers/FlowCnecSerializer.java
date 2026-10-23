@@ -30,7 +30,7 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.ID, flowCnec.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, flowCnec.getName());
-        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
+        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, flowCnec.getNetworkElementId());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, flowCnec.getOperator());
         gen.writeStringField(JsonSerializationConstants.BORDER, flowCnec.getBorder());
         gen.writeStringField(JsonSerializationConstants.INSTANT, flowCnec.getState().getInstant().getId());

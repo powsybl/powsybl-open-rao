@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ public class TimeCoupledConstraintsSerializer extends StdSerializer<TimeCoupledC
         if (!timeCoupledConstraints.getGeneratorConstraints().isEmpty()) {
             serializeGeneratorConstraints(timeCoupledConstraints.getGeneratorConstraints(), jsonGenerator);
         }
+        if (!timeCoupledConstraints.getPstConstraints().isEmpty()) {
+            serializePstConstraints(timeCoupledConstraints.getPstConstraints(), jsonGenerator);
+        }
         jsonGenerator.writeEndObject();
     }
 
@@ -41,6 +45,14 @@ public class TimeCoupledConstraintsSerializer extends StdSerializer<TimeCoupledC
         jsonGenerator.writeArrayFieldStart(JsonTimeCoupledConstraints.GENERATOR_CONSTRAINTS);
         for (GeneratorConstraints individualGeneratorConstraints : generatorConstraints.stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList()) {
             jsonGenerator.writeObject(individualGeneratorConstraints);
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private static void serializePstConstraints(Set<PstConstraints> pstConstraints, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeArrayFieldStart(JsonTimeCoupledConstraints.PST_CONSTRAINTS);
+        for (PstConstraints individualPstConstraints : pstConstraints.stream().sorted(Comparator.comparing(PstConstraints::getPstId)).toList()) {
+            jsonGenerator.writeObject(individualPstConstraints);
         }
         jsonGenerator.writeEndArray();
     }

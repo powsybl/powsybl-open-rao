@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Arrays;
@@ -24,7 +25,6 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_COSTLY_MIN_MARG
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_LOOP_FLOW_PARAMETERS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_MNEC_PARAMETERS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_OBJECTIVE_FUNCTION_SECTION;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RANGE_ACTIONS_OPTIMIZATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RELATIVE_MARGINS_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
@@ -36,7 +36,12 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACT
 public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.ConfigLoader<OpenRaoSearchTreeParameters> {
 
     @Override
-    public OpenRaoSearchTreeParameters load(PlatformConfig platformConfig) {
+    public OpenRaoSearchTreeParameters load(final PlatformConfig platformConfig) {
+        return load(platformConfig, ReportNode.NO_OP);
+    }
+
+    @Override
+    public OpenRaoSearchTreeParameters load(final PlatformConfig platformConfig, final ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
         List<String> searchTreeParams = Arrays.asList(
             ST_OBJECTIVE_FUNCTION_SECTION,
@@ -48,25 +53,23 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
             ST_MNEC_PARAMETERS_SECTION,
             ST_RELATIVE_MARGINS_SECTION,
             ST_LOOP_FLOW_PARAMETERS_SECTION,
-            ST_COSTLY_MIN_MARGIN_SECTION,
-            ST_PST_REGULATION_SECTION
+            ST_COSTLY_MIN_MARGIN_SECTION
         );
         boolean anySearchTreeParams = searchTreeParams.stream().map(platformConfig::getOptionalModuleConfig).anyMatch(Optional::isPresent);
         if (!anySearchTreeParams) {
             return null;
         }
-        OpenRaoSearchTreeParameters parameters = new OpenRaoSearchTreeParameters();
-        parameters.setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters.load(platformConfig));
+        OpenRaoSearchTreeParameters parameters = new OpenRaoSearchTreeParameters(reportNode);
+        parameters.setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters.load(platformConfig, reportNode));
         parameters.setRangeActionsOptimizationParameters(SearchTreeRaoRangeActionsOptimizationParameters.load(platformConfig));
-        parameters.setTopoOptimizationParameters(SearchTreeRaoTopoOptimizationParameters.load(platformConfig));
+        parameters.setTopoOptimizationParameters(SearchTreeRaoTopoOptimizationParameters.load(platformConfig, reportNode));
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
-        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
+        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig, reportNode));
         SearchTreeRaoCostlyMinMarginParameters.load(platformConfig).ifPresent(parameters::setMinMarginsParameters);
         SearchTreeRaoMnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
         SearchTreeRaoRelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
         SearchTreeRaoLoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
-        SearchTreeRaoPstRegulationParameters.load(platformConfig).ifPresent(parameters::setPstRegulationParameters);
         return parameters;
     }
 

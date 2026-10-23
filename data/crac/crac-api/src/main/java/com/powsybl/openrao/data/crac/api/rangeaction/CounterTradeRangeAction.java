@@ -7,20 +7,25 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.iidm.network.Country;
+import com.google.common.annotations.Beta;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
+
+import java.util.List;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
+@Beta
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the exporting country
+     * Get the area id
      */
-    Country getExportingCountry();
+    String getAreaId();
 
     /**
-     * Get the importing country
+     * Get connected areas
      */
-    Country getImportingCountry();
+    List<ConnectedArea> getConnectedAreas();
 }
+

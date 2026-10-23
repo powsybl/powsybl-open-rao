@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.HvdcActionBuilder;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -14,21 +18,28 @@ import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -82,9 +93,9 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
 
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters, ReportNode.NO_OP);
 
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
@@ -112,9 +123,9 @@ public class HvdcUtilsTest {
         assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
 
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters, ReportNode.NO_OP);
 
         // the flow goes from converter station 2 to converter station 1 on the line => setpoint should be negative.
         assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
@@ -140,14 +151,15 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
 
         // Preventive state, no contingency is applied
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         Map<HvdcRangeAction, Double> hvdcRangeActionActivePowerSetpoint = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
             network,
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
 
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
@@ -160,7 +172,8 @@ public class HvdcUtilsTest {
             autoState,
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
         assertEquals(864, hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), 1);
@@ -181,9 +194,105 @@ public class HvdcUtilsTest {
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertTrue(hvdcRangeActionActivePowerSetpoint.isEmpty());
         assertEquals(0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
+    }
+
+    @Test
+    void testGetHvdcRangeActionsPerStateAssociatedWithHvdcLine() {
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+
+        HvdcRangeAction hvdcRangeActionOnTargetLine = Mockito.mock(HvdcRangeAction.class);
+        when(hvdcRangeActionOnTargetLine.getNetworkElementId()).thenReturn("hvdc-1");
+
+        HvdcRangeAction hvdcRangeActionOnOtherLine = Mockito.mock(HvdcRangeAction.class);
+        when(hvdcRangeActionOnOtherLine.getNetworkElementId()).thenReturn("hvdc-2");
+
+        RangeAction<?> nonHvdcRangeAction = Mockito.mock(RangeAction.class);
+
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState = Map.of(
+            state1, Set.of(hvdcRangeActionOnTargetLine, hvdcRangeActionOnOtherLine, nonHvdcRangeAction),
+            state2, Set.of(hvdcRangeActionOnTargetLine, hvdcRangeActionOnOtherLine, nonHvdcRangeAction)
+        );
+
+        Map<State, Set<HvdcRangeAction>> result = getHvdcRangeActionsPerStateAssociatedWithHvdcLine(rangeActionsPerState, "hvdc-1");
+
+        assertEquals(Set.of(state1, state2), result.keySet());
+        assertEquals(Set.of(hvdcRangeActionOnTargetLine), result.get(state1));
+        assertEquals(Set.of(hvdcRangeActionOnTargetLine), result.get(state2));
+    }
+
+    @Test
+    void testIsAcEmulationDeactivationAction() {
+        // Test 1: NetworkAction with only HvdcAction with AC emulation disabled - should return true
+        HvdcAction hvdcAction1 = new HvdcActionBuilder()
+            .withId("hvdc-deactivate-1")
+            .withHvdcId("HVDC1")
+            .withAcEmulationEnabled(false)
+            .build();
+
+        NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
+        when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(hvdcAction1));
+
+        assertTrue(HvdcUtils.isAcEmulationDeactivationAction(acEmulationDeactivationAction));
+
+        // Test 2: NetworkAction with multiple HvdcActions all with AC emulation disabled - should return true
+        HvdcAction hvdcAction2 = new HvdcActionBuilder()
+            .withId("hvdc-deactivate-2")
+            .withHvdcId("HVDC2")
+            .withAcEmulationEnabled(false)
+            .build();
+
+        NetworkAction multipleHvdcDeactivationAction = Mockito.mock(NetworkAction.class);
+        when(multipleHvdcDeactivationAction.getElementaryActions()).thenReturn(Set.of(hvdcAction1, hvdcAction2));
+
+        assertTrue(HvdcUtils.isAcEmulationDeactivationAction(multipleHvdcDeactivationAction));
+
+        // Test 3: NetworkAction with HvdcAction with AC emulation enabled - should return false
+        HvdcAction hvdcActionEnabled = new HvdcActionBuilder()
+            .withId("hvdc-activate-1")
+            .withHvdcId("HVDC3")
+            .withAcEmulationEnabled(true)
+            .build();
+
+        NetworkAction acEmulationActivationAction = Mockito.mock(NetworkAction.class);
+        when(acEmulationActivationAction.getElementaryActions()).thenReturn(Set.of(hvdcActionEnabled));
+
+        assertFalse(HvdcUtils.isAcEmulationDeactivationAction(acEmulationActivationAction));
+
+        // Test 5: NetworkAction with HvdcAction without AC emulation specification - should return false
+        HvdcAction hvdcActionNoAcEmulation = new HvdcActionBuilder()
+            .withId("hvdc-no-ac-1")
+            .withHvdcId("HVDC4")
+            .withActivePowerSetpoint(100.0)
+            .build();
+
+        NetworkAction noAcEmulationSpecAction = Mockito.mock(NetworkAction.class);
+        when(noAcEmulationSpecAction.getElementaryActions()).thenReturn(Set.of(hvdcActionNoAcEmulation));
+
+        assertFalse(HvdcUtils.isAcEmulationDeactivationAction(noAcEmulationSpecAction));
+
+        // Test 6: NetworkAction with non-HvdcAction - should return false
+        Action otherAction = Mockito.mock(Action.class);
+        NetworkAction nonHvdcAction = Mockito.mock(NetworkAction.class);
+        when(nonHvdcAction.getElementaryActions()).thenReturn(Set.of(otherAction));
+
+        assertFalse(HvdcUtils.isAcEmulationDeactivationAction(nonHvdcAction));
+
+        // Test 7: NetworkAction with mix of HvdcAction and other actions - should return false
+        NetworkAction mixedActionTypes = Mockito.mock(NetworkAction.class);
+        when(mixedActionTypes.getElementaryActions()).thenReturn(Set.of(hvdcAction1, otherAction));
+
+        assertFalse(HvdcUtils.isAcEmulationDeactivationAction(mixedActionTypes));
+
+        // Test 8: NetworkAction with empty elementary actions - should return true (vacuous truth)
+        NetworkAction emptyAction = Mockito.mock(NetworkAction.class);
+        when(emptyAction.getElementaryActions()).thenReturn(Set.of());
+
+        assertTrue(HvdcUtils.isAcEmulationDeactivationAction(emptyAction));
     }
 }

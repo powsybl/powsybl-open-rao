@@ -8,8 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.action.HvdcAction;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -33,6 +32,7 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.setActivePowerSetpointOnHvdcLine;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -57,11 +58,11 @@ public final class HvdcUtils {
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
         // for each HVDC range action
         for (HvdcRangeAction hvdcRangeAction : crac.getHvdcRangeActions()) { // get associated HVDC line id
-            String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
+            String hvdcLineId = hvdcRangeAction.getNetworkElementId();
 
             // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
-                .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
+                .filter(ra -> isAcEmulationDeactivationAction(ra))
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).getHvdcId().equals(hvdcLineId)))
                 .collect(Collectors.toSet());
 
@@ -126,10 +127,12 @@ public final class HvdcUtils {
     /**
      * Run a load flow to update the initial set-points of the HVDC range actions assiociated to HVDC line in AC emulation mode
      */
-    static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
-
+    static void updateHvdcRangeActionInitialSetpoint(final Crac crac,
+                                                     final Network network,
+                                                     final RaoParameters raoParameters,
+                                                     final ReportNode reportNode) {
         // Run load flow to update flow on all the lines of the network
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         }
@@ -147,7 +150,8 @@ public final class HvdcUtils {
                 crac.getPreventiveState(),
                 loadFlowAndSensitivityParameters.getLoadFlowProvider(),
                 loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
-                hvdcRasOnHvdcLinesInAcEmulation
+                hvdcRasOnHvdcLinesInAcEmulation,
+                reportNode
             );
         }
 
@@ -184,7 +188,7 @@ public final class HvdcUtils {
     }
 
     /**
-     * Run load flow and update the active power setpoints of the HVDC range actions associated with HVDC lines in AC emulation mode
+     * Run load flow and update the active power setpoints of the HVDC line in AC emulation mode
      *
      * @param network
      * @param optimizationState used to get contingency to apply
@@ -194,11 +198,12 @@ public final class HvdcUtils {
      * @return A map of HVDC Range Action to their updated computed active power setpoints
      */
     public static Map<HvdcRangeAction, Double> runLoadFlowAndUpdateHvdcActivePowerSetpoint(
-        Network network,
-        State optimizationState,
-        String loadFlowProvider,
-        LoadFlowParameters loadFlowParameters,
-        Set<HvdcRangeAction> hvdcRangeActionsWithHvdcLineInAcEmulation
+        final Network network,
+        final State optimizationState,
+        final String loadFlowProvider,
+        final LoadFlowParameters loadFlowParameters,
+        final Set<HvdcRangeAction> hvdcRangeActionsWithHvdcLineInAcEmulation,
+        final ReportNode reportNode
     ) {
 
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
@@ -216,7 +221,7 @@ public final class HvdcUtils {
 
         // Set active power set-points
         for (HvdcRangeAction hvdcRa : hvdcRangeActionsWithHvdcLineInAcEmulation) {
-            String hvdcLineId = hvdcRa.getNetworkElement().getId();
+            String hvdcLineId = hvdcRa.getNetworkElementId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
             double activePowerSetpoint = controls.get(hvdcLineId);
 
@@ -231,14 +236,12 @@ public final class HvdcUtils {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
             } else {
-                TECHNICAL_LOGS.info(String.format(
-                    "HVDC line %s active setpoint could not be updated because its new set-point "
-                        + "(%.1f) does not fall within its allowed range (%.1f - %.1f)",
+                CastorReports.reportHvdcLineSetpointNotUpdated(
+                    reportNode,
                     hvdcLineId,
                     activePowerSetpoint,
                     hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint),
-                    hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
-                ));
+                    hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint));
             }
         }
 
@@ -261,13 +264,7 @@ public final class HvdcUtils {
         network.getVariantManager().setWorkingVariant(tmpVariant);
 
         // Apply contingency and compute load-flow
-        if (state.getContingency().isPresent()) {
-            Contingency contingency = state.getContingency().orElseThrow();
-            if (!contingency.isValid(network)) {
-                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
-            }
-            contingency.toModification().apply(network, (ComputationManager) null);
-        }
+        applyContingency(network, state);
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
@@ -282,4 +279,24 @@ public final class HvdcUtils {
         return controls;
     }
 
+    public static Map<State, Set<HvdcRangeAction>> getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState,
+        String hvdcLineId
+    ) {
+        return rangeActionsPerState.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .map(HvdcRangeAction.class::cast)
+                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElementId().equals(hvdcLineId))
+                    .collect(Collectors.toSet())
+            ));
+    }
+
+    public static boolean isAcEmulationDeactivationAction(NetworkAction networkAction) {
+        return networkAction.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance)
+            && networkAction.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).isAcEmulationEnabled().isPresent())
+            && networkAction.getElementaryActions().stream().allMatch(action -> !((HvdcAction) action).isAcEmulationEnabled().get());
+    }
 }
