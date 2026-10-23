@@ -16,7 +16,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -33,7 +32,6 @@ import java.util.Set;
 public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<FlowResult> {
     @Override
     public void serialize(FlowResult flowResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        // TODO: select units to export with configuration?
         Set<Unit> flowUnits = (Set<Unit>) serializerProvider.getAttribute("flowUnits");
         if (flowUnits == null || flowUnits.isEmpty()) {
             return;
@@ -43,10 +41,6 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
 
     @Override
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Version version = (Version) deserializationContext.getAttribute("version");
-        if (version.major() == 1) {
-            throw new OpenRaoException("Flow results extension is only available for JSON RAO Result versions >= 2.");
-        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         FlowResult flowResult = new FlowResult();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
