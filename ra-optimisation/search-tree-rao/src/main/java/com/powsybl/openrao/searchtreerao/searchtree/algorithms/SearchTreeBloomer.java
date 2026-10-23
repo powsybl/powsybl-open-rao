@@ -44,7 +44,8 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
             new ElementaryActionsCompatibilityFilter(),
-            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()))
+            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()),
+            new IneffectiveActionsFilter(input.getNetwork()))
         );
         if (parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements()) {
             this.networkActionCombinationFilters.add(
@@ -112,7 +113,7 @@ public final class SearchTreeBloomer {
         int naCombinationSize = naCombination.getNetworkActionSet().size();
         Set<NetworkAction> alreadyActivatedNetworkActions = optimizationResult.getActivatedNetworkActions();
         Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions(optimizationState);
-        if (alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
+        if (raUsageLimits.getMaxRa() != null && alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
             return true;
         }
 

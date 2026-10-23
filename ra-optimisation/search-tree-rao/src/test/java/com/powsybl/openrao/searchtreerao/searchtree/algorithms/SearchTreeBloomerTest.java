@@ -7,7 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
@@ -19,6 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParamet
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -45,18 +50,37 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class SearchTreeBloomerTest {
+    private SwitchAction switchAction;
+    private GeneratorAction generatorAction;
+
+    @BeforeEach
+    void setUp() {
+        NetworkModification switchModification = Mockito.mock(NetworkModification.class);
+        when(switchModification.hasImpactOnNetwork(Mockito.any())).thenReturn(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        switchAction = Mockito.mock(SwitchAction.class);
+        when(switchAction.toModification()).thenReturn(switchModification);
+
+        NetworkModification generatorModification = Mockito.mock(NetworkModification.class);
+        when(generatorModification.hasImpactOnNetwork(Mockito.any())).thenReturn(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        generatorAction = Mockito.mock(GeneratorAction.class);
+        when(generatorAction.toModification()).thenReturn(generatorModification);
+    }
+
     @Test
     void testDoNotRemoveCombinationDetectedInRao() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.getElementaryActions()).thenReturn(Set.of(switchAction));
+        Mockito.when(na2.getElementaryActions()).thenReturn(Set.of(generatorAction));
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
@@ -73,6 +97,8 @@ class SearchTreeBloomerTest {
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.getElementaryActions()).thenReturn(Set.of(switchAction));
+        Mockito.when(na2.getElementaryActions()).thenReturn(Set.of(generatorAction));
 
         SearchTreeBloomer bloomer = initBloomer(
             List.of(
@@ -84,7 +110,7 @@ class SearchTreeBloomerTest {
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2), ReportNode.NO_OP);
-        assertEquals(4, bloomResults.size());
+        assertEquals(3, bloomResults.size()); // na1+na2 appears twice so one is filtered out by IneffectiveACtionsFilter
     }
 
     @Test
