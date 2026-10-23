@@ -53,8 +53,6 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         if (metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             RemedialActionActivationsSerializer.serialize(raoResult, crac, jsonGenerator);
         }
-        JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
-
         serializerProvider.setAttribute("flowUnits", flowUnits);
         JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 

@@ -119,15 +119,6 @@ class MarmotTest {
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac1.getPreventiveState()));
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac2.getPreventiveState()));
 
-        // check metadata
-        Metadata metadata = results.getExtension(Metadata.class);
-        assertNotNull(metadata);
-        assertTrue(metadata.getExecutionDetails().isPresent());
-        assertEquals("RAO went through independent topological optimizations and global time-coupled linear optimization.", metadata.getExecutionDetails().get());
-        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
-        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac1.getPreventiveState()));
-        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac2.getPreventiveState()));
-
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }

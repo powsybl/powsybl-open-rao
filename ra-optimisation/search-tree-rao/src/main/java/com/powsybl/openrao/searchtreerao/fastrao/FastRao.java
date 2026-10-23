@@ -466,43 +466,6 @@ public class FastRao implements RaoProvider {
         return costResultCopy;
     }
 
-    private static Metadata regenerateMetadata(Metadata metadata,
-                                               Crac crac,
-                                               PrePerimeterResult postPraSensi,
-                                               PrePerimeterResult postAraSensi,
-                                               PrePerimeterResult postCraSensi) {
-        Metadata metadataCopy = new Metadata();
-        metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
-        for (State state : crac.getStates()) {
-            ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
-            if (computationStatus != ComputationStatus.DEFAULT) {
-                metadataCopy.setComputationStatus(state, computationStatus);
-            }
-        }
-        return metadataCopy;
-    }
-
-    private static PrePerimeterResult getAppropriateResult(State state,
-                                                           PrePerimeterResult postPraSensi,
-                                                           PrePerimeterResult postAraSensi,
-                                                           PrePerimeterResult postCraSensi) {
-        return switch (state.getInstant().getKind()) {
-            case PREVENTIVE, OUTAGE -> postPraSensi;
-            case AUTO -> postAraSensi;
-            case CURATIVE -> postCraSensi;
-        };
-    }
-
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
-    }
-
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(
         Network networkCopy,
         Crac crac,

@@ -34,7 +34,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
@@ -306,16 +305,8 @@ public final class RaoResultHelper {
                 Thread.currentThread().interrupt();
             }
 
-            final StateTree stateTree = new StateTree(crac, reportNode);
-            final PreventiveAndCurativesRaoResultImpl mergedRaoResult = new PreventiveAndCurativesRaoResultImpl(
-                stateTree,
-                initialFlowResult,
-                preventivePostPerimeterResult,
-                postMergingContingencyResults,
-                crac,
-                raoParameters,
-                reportNode
-            );
+            final RaoResultImpl mergedRaoResult = new RaoResultImpl(crac);
+            RaoUtil.fillWithActivatedRemedialActions(mergedRaoResult, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
 
             // add extensions
             mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(

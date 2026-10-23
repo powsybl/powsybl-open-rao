@@ -969,11 +969,6 @@ public class RaoSteps {
         return flowResult.getRelativeMargin(instant, flowCnec, unit);
     }
 
-    private static boolean hasStateComputationFailed(State state) {
-        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
-        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
-    }
-
     /*
     RaoResult infos
      */
