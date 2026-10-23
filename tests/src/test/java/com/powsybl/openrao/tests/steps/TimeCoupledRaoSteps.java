@@ -539,9 +539,7 @@ public final class TimeCoupledRaoSteps {
                 timeCoupledRaoResult,
                 CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac),
                 CommonTestData.getRaoParameters(),
-                PhysicalParameter.FLOW,
-                PhysicalParameter.ANGLE,
-                PhysicalParameter.VOLTAGE
+                PhysicalParameter.FLOW
             )
         );
     }

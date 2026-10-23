@@ -178,6 +178,19 @@ public class RaoSteps {
                 CommonTestData.getRaoResult(),
                 crac,
                 raoParameters,
+                PhysicalParameter.FLOW
+            )
+        );
+    }
+
+    @Then("its security status including VoltageCNECs should be {string}")
+    public void statusWithVoltageShouldBe(String status) {
+        assertEquals(
+            "secured".equalsIgnoreCase(status),
+            isSecure(
+                CommonTestData.getRaoResult(),
+                crac,
+                raoParameters,
                 PhysicalParameter.FLOW,
                 PhysicalParameter.VOLTAGE
             )
