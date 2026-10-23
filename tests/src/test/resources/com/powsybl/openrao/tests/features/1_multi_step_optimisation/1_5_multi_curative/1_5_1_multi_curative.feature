@@ -627,6 +627,7 @@ Feature: 1.5.1: Multi-curative
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 107.26 A
+    # Preventive
     Then 3 remedial actions are used in preventive
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -636,6 +637,15 @@ Feature: 1.5.1: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 320.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
+    # Curative1
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 320.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 120.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 70.6 MW
+    # Curative2
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 120.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 70.6 MW
+     # Curative3
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 70.6 MW
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.19: Multi-curative CNECs with simple 2nd PRAO
@@ -649,6 +659,7 @@ Feature: 1.5.1: Multi-curative
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
     Then the worst margin is 107.26 A
+    # Preventive
     Then 3 remedial actions are used in preventive
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -658,6 +669,15 @@ Feature: 1.5.1: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 320.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
+    # Curative1
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 320.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 120.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 70.6 MW
+    # Curative2
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 120.6 MW
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 70.6 MW
+     # Curative3
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 70.6 MW
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.20: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO

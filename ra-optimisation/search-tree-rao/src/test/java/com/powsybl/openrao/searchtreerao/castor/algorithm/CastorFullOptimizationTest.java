@@ -24,9 +24,11 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -36,7 +38,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -77,7 +77,10 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Test
@@ -224,36 +227,39 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative1"))));
         assertEquals(Set.of(pstCur), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative3"))));
 
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
         FlowCnec cnec;
         cnec = crac.getFlowCnec("c1-prev");
-        assertEquals(2228.9, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(-228.9, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(20.3, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(2228.9, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1979.7, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(-228.9, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(20.3, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-out");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(128.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(370.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(128.12, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(370.78, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur1");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(28.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(270.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
-        assertEquals(850.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, flowResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(28.12, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(270.78, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(850.82, flowResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur3");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(-671.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(-429.22, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
-        assertEquals(150.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
-        assertEquals(1267.27, raoResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, flowResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(432.73, flowResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(-671.88, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(-429.22, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(150.82, flowResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
+        assertEquals(1267.27, flowResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -322,48 +328,51 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(pstCur2), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative2"))));
         assertEquals(Set.of(pstCur), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative3"))));
 
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
         FlowCnec cnec;
         cnec = crac.getFlowCnec("c1-prev");
-        assertEquals(2228.9, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(-228.9, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(20.3, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(2228.9, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1979.7, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(-228.9, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(20.3, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-out");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(128.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(370.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(128.12, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(370.78, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur1");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(28.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(270.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
-        assertEquals(850.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, flowResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(28.12, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(270.78, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(850.82, flowResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur2");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(-71.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(170.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
-        assertEquals(750.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
-        assertEquals(1309.68, raoResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, flowResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(990.32, flowResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(-71.88, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(170.78, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(750.82, flowResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
+        assertEquals(1309.68, flowResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur3");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
-        assertEquals(-671.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
-        assertEquals(-429.22, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
-        assertEquals(150.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
-        assertEquals(709.68, raoResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
-        assertEquals(1267.27, raoResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
+        assertEquals(2371.88, flowResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, flowResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, flowResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(990.32, flowResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(432.73, flowResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(-671.88, flowResult.getMargin(null, cnec, Unit.AMPERE), 1.);
+        assertEquals(-429.22, flowResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
+        assertEquals(150.82, flowResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
+        assertEquals(709.68, flowResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
+        assertEquals(1267.27, flowResult.getMargin(crac.getInstant("curative3"), cnec, Unit.AMPERE), 1.);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -516,7 +525,9 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
         checkExecutionDetails(raoResult, "RAO failed during data initialization : This exception should be caught");
     }
 
@@ -531,7 +542,9 @@ class CastorFullOptimizationTest {
         when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
         checkExecutionDetails(raoResult, "RAO failed during initial sensitivity analysis : Testing exception handling");
     }
 

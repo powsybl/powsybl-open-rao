@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
@@ -23,21 +24,17 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -58,7 +55,7 @@ class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -77,7 +74,7 @@ class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -94,7 +91,7 @@ class FastRaoTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
@@ -121,7 +118,6 @@ class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
 
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
@@ -139,6 +135,9 @@ class FastRaoTest {
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(individualRaoInput.getCrac()).thenReturn(crac);
         Instant instant = Mockito.mock(Instant.class);
+        State preventiveState = Mockito.mock(State.class);
+        when(preventiveState.isPreventive()).thenReturn(true);
+        when(crac.getPreventiveState()).thenReturn(preventiveState);
         Mockito.when(instant.getKind()).thenReturn(InstantKind.CURATIVE);
         Instant instant2 = Mockito.mock(Instant.class);
         Mockito.when(instant2.getKind()).thenReturn(InstantKind.CURATIVE);
@@ -147,10 +146,10 @@ class FastRaoTest {
         curativeInstants.add(instant2);
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
 
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
         assertTrue(metadata.getExecutionDetails().isPresent());
         assertEquals("Fast Rao does not support multi-curative optimization", metadata.getExecutionDetails().get());
     }
@@ -159,12 +158,17 @@ class FastRaoTest {
     void testErrorInitData() throws ExecutionException, InterruptedException {
         RaoInput raoInput = Mockito.mock(RaoInput.class);
         Crac crac = Mockito.mock(Crac.class);
-        when(crac.getStates()).thenReturn(Set.of());
+        State preventiveState = Mockito.mock(State.class);
+        when(preventiveState.isPreventive()).thenReturn(true);
+        when(crac.getPreventiveState()).thenReturn(preventiveState);
         Mockito.when(raoInput.getCrac()).thenReturn(crac);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         // Run RAO
         RaoResult raoResult = new FastRao().run(raoInput, raoParameters, ReportNode.NO_OP).get();
-        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 }

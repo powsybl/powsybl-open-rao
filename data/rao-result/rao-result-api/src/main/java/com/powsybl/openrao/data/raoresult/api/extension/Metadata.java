@@ -48,6 +48,7 @@ public class Metadata extends AbstractExtension<RaoResult> {
             ComputationStatus stateStatus = computationStatusPerState.get(state);
             if (stateStatus == ComputationStatus.FAILURE) {
                 if (state.isPreventive()) {
+                    // TODO: is it okay in multi-timestamp computations?
                     return ComputationStatus.FAILURE;
                 }
                 anyFailure = true;

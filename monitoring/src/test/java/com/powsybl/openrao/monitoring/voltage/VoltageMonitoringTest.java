@@ -543,7 +543,7 @@ class VoltageMonitoringTest {
         // Loadflow is expected to be run 2 times: 2+2=4. Once to evaluate preventive state and another time to evaluate curative state
         assertEquals(4, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -577,7 +577,7 @@ class VoltageMonitoringTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
-        assertTrue(isSecure(importedRaoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(isSecure(importedRaoResult, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
     @Test
