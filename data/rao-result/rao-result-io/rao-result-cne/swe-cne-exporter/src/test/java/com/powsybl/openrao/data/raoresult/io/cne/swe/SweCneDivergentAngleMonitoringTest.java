@@ -19,12 +19,11 @@ import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
-import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

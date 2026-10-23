@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;

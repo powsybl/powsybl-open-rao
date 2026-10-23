@@ -38,7 +38,6 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
@@ -146,11 +145,7 @@ public class CastorFullOptimization {
             java.time.Instant preventiveRaoStartInstant = java.time.Instant.now();
 
             final ReportNode preventivePerimeterOptimReportNode = CastorReports.reportPreventivePerimeterOptimization(optimizationReportNode);
-
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO);
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-            network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+            setUpNetworkVariantsBeforePreventive();
 
             OptimizationResult preventiveResult;
             if (Objects.isNull(crac.getPreventiveState())) {
@@ -172,12 +167,8 @@ public class CastorFullOptimization {
             // ----- SENSI POST-PRA -----
             // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
             currentStep = "post-PRA sensitivity analysis";
-
             final ReportNode postPraSensiAnalysisReportNode = CastorReports.reportPostPraSensiAnalysis(optimizationReportNode);
-
-            network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO, true);
-            network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+            setUpNetworkVariantsAfterPreventive();
             applyRemedialActions(network, preventiveResult, crac.getPreventiveState());
 
             PostPerimeterResult postPreventiveResult = computePostPreventiveResult(toolProvider, initialOutput, preventiveResult, postPraSensiAnalysisReportNode);
@@ -345,6 +336,19 @@ public class CastorFullOptimization {
         } finally {
             network.getVariantManager().setWorkingVariant(initialVariantName);
         }
+    }
+
+    private void setUpNetworkVariantsBeforePreventive() {
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
+        network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+    }
+
+    private void setUpNetworkVariantsAfterPreventive() {
+        network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO, true);
+        network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
     }
 
     private void logFinalResults(ReportNode optimizationReportNode,

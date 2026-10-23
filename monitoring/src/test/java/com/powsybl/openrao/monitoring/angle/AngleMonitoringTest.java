@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -38,14 +39,12 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
-import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.MonitoringTestUtil;
 import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -59,6 +58,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -68,10 +68,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * Angle monitoring with Crac Factory test class
@@ -182,6 +185,9 @@ class AngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
+        if (raoResult == null) {
+            raoResult = Mockito.mock(RaoResult.class);
+        }
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
             .withNetwork(network)
@@ -199,7 +205,7 @@ class AngleMonitoringTest {
             .withPhysicalParameter(PhysicalParameter.ANGLE)
             .withScalableZonalData(scalableZonalData)
             .build();
-        return Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", raoParameters, 1, monitoringInput);
+        return AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, 1, monitoringInput);
     }
 
     @Test
@@ -492,7 +498,7 @@ class AngleMonitoringTest {
             .withScalableZonalData(scalableZonalData)
             .build();
 
-        RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", raoParameters, 2, monitoringInput);
+        RaoResult raoResultWithAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, 2, monitoringInput);
 
         AngleResult angleResult = raoResultWithAngleMonitoring.getExtension(AngleResult.class);
         assertNotNull(angleResult);
@@ -536,7 +542,7 @@ class AngleMonitoringTest {
         final CountDownLatch latch = new CountDownLatch(3);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
-        final RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 2, monitoringInput);
+        final RaoResult raoResultWithAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 2, monitoringInput);
 
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
@@ -629,7 +635,7 @@ class AngleMonitoringTest {
         when(monitoringInput.getPhysicalParameter()).thenReturn(PhysicalParameter.VOLTAGE);
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> AngleMonitoring.runAndUpdateRaoResult(
             "OpenLoadFlow",
-            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            raoParameters,
             1,
             monitoringInput
         ));
@@ -637,7 +643,7 @@ class AngleMonitoringTest {
 
         e = assertThrows(OpenRaoException.class, () -> AngleMonitoring.runAndUpdateRaoResult(
             "OpenLoadFlow",
-            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            raoParameters,
             Mockito.mock(),
             1,
             monitoringInput

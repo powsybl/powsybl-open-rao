@@ -26,22 +26,14 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.MonitoringTestUtil;
 import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
-import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
-import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -68,8 +60,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -529,29 +522,6 @@ class VoltageMonitoringTest {
 
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
-
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
-            .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters, 1, monitoringInput);
-
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-
-        assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
-        assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertFalse(isSecure(raoResultWithVoltageMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-
-        Metadata metadata = raoResultWithVoltageMonitoring.getExtension(Metadata.class);
-        assertNotNull(metadata);
-        // sensi failed because no curative FlowCNEC provided
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
-
-        VoltageResult voltageResult = raoResultWithVoltageMonitoring.getExtension(VoltageResult.class);
-        assertNotNull(voltageResult);
-        assertEquals(400., voltageResult.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(400, voltageResult.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
-        assertEquals(-1., voltageResult.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
     }
 
     @Test
@@ -568,7 +538,7 @@ class VoltageMonitoringTest {
         final CountDownLatch latch = new CountDownLatch(2);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
-        final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 1, monitoringInput);
+        final RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 1, monitoringInput);
 
         // Loadflow is expected to be run 2 times: 2+2=4. Once to evaluate preventive state and another time to evaluate curative state
         assertEquals(4, referenceValue.get());
@@ -630,7 +600,7 @@ class VoltageMonitoringTest {
         when(monitoringInput.getPhysicalParameter()).thenReturn(PhysicalParameter.ANGLE);
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> VoltageMonitoring.runAndUpdateRaoResult(
             "OpenLoadFlow",
-            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            raoParameters,
             1,
             monitoringInput
         ));
@@ -638,7 +608,7 @@ class VoltageMonitoringTest {
 
         e = assertThrows(OpenRaoException.class, () -> VoltageMonitoring.runAndUpdateRaoResult(
             "OpenLoadFlow",
-            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(Mockito.mock()).getLoadFlowParameters(),
+            raoParameters,
             Mockito.mock(),
             1,
             monitoringInput

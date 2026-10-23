@@ -35,7 +35,8 @@ import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.monitoring.Monitoring.postProcessAngleMonitoringResult;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -70,12 +72,15 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
     public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
-                                                       LoadFlowParameters loadFlowParameters,
-                                                       int numberOfLoadFlowsInParallel,
-                                                       MonitoringInput monitoringInput) throws OpenRaoException {
+                                                  RaoParameters raoParameters,
+                                                  int numberOfLoadFlowsInParallel,
+                                                  MonitoringInput monitoringInput) throws OpenRaoException {
         checkPhysicalParameter(monitoringInput, PhysicalParameter.ANGLE);
-        final MonitoringResult angleMonitoringResult = new AngleMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
+        final MonitoringResult angleMonitoringResult = new AngleMonitoring(
+            loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
     }
 
     /**
@@ -83,13 +88,17 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
      * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
      */
     public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
-                                                       LoadFlowParameters loadFlowParameters,
-                                                       ComputationManager computationManager,
-                                                       int numberOfLoadFlowsInParallel,
-                                                       MonitoringInput monitoringInput) throws OpenRaoException {
+                                                  RaoParameters raoParameters,
+                                                  ComputationManager computationManager,
+                                                  int numberOfLoadFlowsInParallel,
+                                                  MonitoringInput monitoringInput) throws OpenRaoException {
         checkPhysicalParameter(monitoringInput, PhysicalParameter.ANGLE);
-        final MonitoringResult angleMonitoringResult = new AngleMonitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
+        final MonitoringResult angleMonitoringResult = new AngleMonitoring(
+            loadFlowProvider,
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
+            computationManager
+        ).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return postProcessAngleMonitoringResult(angleMonitoringResult, monitoringInput, raoParameters);
     }
 
     @Override
