@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 3
+Feature: 4.1.4 : Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 3
 
   Presentation of the US
   ----------------------
@@ -15,7 +15,8 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
 
   ----------------------
 
-  Scenario: 4.4.1 : Global MIP changes curative pst tap to adapt to a startup not allowed generator constraint
+  Scenario: 4.1.4.1 : Global MIP changes curative pst tap to adapt to a startup not allowed generator constraint
+
   This scenario shows how the global MIP respects the time coupled Start-Up not allowed constraint by adjusting curative
   and preventive remedial actions to accommodate the redispatching.
 
@@ -29,6 +30,7 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   using 1160MW of redispatching and setting the PST to 14. However, the global MIP strictly respects the constraint which
   forces the generator to stay OFF and relies heavily on the other generator pushing it to 580MW. This change of power
   leads to the re-optimization of the curative PST tap from 14 to 2 in order to keep the curative CNEC secure.
+
   Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
   Given time-coupled constraints are in file "epic93/time-coupled-constraints-startup-not-allowed.json" and rao inputs are:
     | Network                                    | Timestamp        | CRAC                                   |
@@ -50,9 +52,9 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   # 10(activation) + 100(variation) * 580MW = 58010
   Then the total cost for all timestamps is 58010.0
 
-  Scenario: 4.4.2 : Global MIP changes curative pst tap to adapt to power gradient constraint redispatching changes
+  Scenario: 4.1.4.2 : Global MIP changes curative pst tap to adapt to power gradient constraint redispatching changes
 
-  There are 3 timestamps separated by 1 hour (19:30, 20:30 and 21:30), 1 preventive costly redispatching
+  In this scenario, there are 3 timestamps separated by 1 hour (19:30, 20:30 and 21:30), 1 preventive costly redispatching
   action and 1 curative PST. The generator has a strict power gradient constraint of maximum 200MW per hour.
   3 CNECs are defined : 1 preventive CNEC on line 3, 2 curative CNECs (one on line 2 and the other on line 3)
   At 19:30, the network is secure, there is no overload. At 20:30 the loss of line 1 occurs which creates an overload
@@ -71,6 +73,7 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   - 20:30 : it ramps up to 396MW respecting the 200MW/h constraint, this changes the flows and leads to the need of
   reoptimizing the pst tap to +1 in curative to avoid new overloads.
   - 21:30 : it reaches the 500MW needed to solve the overload on line 2 by adding 104MW < 200MW.
+
   Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
   Given time-coupled constraints are in file "epic93/time-coupled-power-gradient-constraint.json" and rao inputs are:
     | Network                                    | Timestamp        | CRAC                                   |
