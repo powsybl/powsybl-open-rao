@@ -68,7 +68,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     /**
      * Returns the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
-     * {@link Instant} and in a given {@link Unit}. If the margin is negative Returns it directly (same
+     * {@link Instant} and in a given {@link Unit}. If the margin is negative, returns it directly (same
      * value as {@code getMargin} method. If the margin is positive Returns this value divided by the sum of the zonal
      * PTDFs on this branch of the studied zone. Zones to include in this computation are defined in the
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
