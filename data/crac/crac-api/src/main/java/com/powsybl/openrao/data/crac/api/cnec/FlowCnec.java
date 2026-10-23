@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 import java.util.Collections;
@@ -27,14 +26,6 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface FlowCnec extends Cnec<FlowCnec> {
-
-    /**
-     * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.
-     *
-     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getNetworkElement();
 
     /**
      * Getter of the network element on which the {@code Cnec} is defined.
@@ -127,7 +118,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
     Optional<Double> getIMax(TwoSides side);
 
     /**
-     * Says if a FlowCnec's NetworkElement is connected in a Network
+     * Says if a FlowCnec's network element is connected in a Network
      *
      * @param network the network to look into
      * @return true if the CNEC is connected

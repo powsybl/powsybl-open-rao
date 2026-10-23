@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
@@ -32,8 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SwitchPairImplTest {
 
     private Network network;
-    private NetworkElement switch1 = new NetworkElementImpl("NNL3AA11 NNL3AA12 1");
-    private NetworkElement switch2 = new NetworkElementImpl("NNL3AA13 NNL3AA14 1");
+    private final String switch1 = "NNL3AA11 NNL3AA12 1";
+    private final String switch2 = "NNL3AA13 NNL3AA14 1";
 
     @BeforeEach
     public void setUp() {
@@ -60,18 +59,18 @@ class SwitchPairImplTest {
         assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp1.getNetworkElementsIds());
         assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp2.getNetworkElementsIds());
 
-        network.getSwitch(switch1.getId()).setOpen(true);
-        network.getSwitch(switch2.getId()).setOpen(false);
+        network.getSwitch(switch1).setOpen(true);
+        network.getSwitch(switch2).setOpen(false);
         assertFalse(sp1.hasImpactOnNetwork(network));
         assertTrue(sp2.hasImpactOnNetwork(network));
 
-        network.getSwitch(switch1.getId()).setOpen(true);
-        network.getSwitch(switch2.getId()).setOpen(true);
+        network.getSwitch(switch1).setOpen(true);
+        network.getSwitch(switch2).setOpen(true);
         assertTrue(sp1.hasImpactOnNetwork(network));
         assertTrue(sp2.hasImpactOnNetwork(network));
 
-        network.getSwitch(switch1.getId()).setOpen(false);
-        network.getSwitch(switch2.getId()).setOpen(false);
+        network.getSwitch(switch1).setOpen(false);
+        network.getSwitch(switch2).setOpen(false);
         assertTrue(sp1.hasImpactOnNetwork(network));
         assertTrue(sp2.hasImpactOnNetwork(network));
     }
@@ -96,41 +95,41 @@ class SwitchPairImplTest {
         assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp1.getNetworkElementsIds());
         assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), sp2.getNetworkElementsIds());
 
-        network.getSwitch(switch1.getId()).setOpen(true);
-        network.getSwitch(switch2.getId()).setOpen(false);
+        network.getSwitch(switch1).setOpen(true);
+        network.getSwitch(switch2).setOpen(false);
         assertTrue(sp1.canBeApplied(network));
         assertTrue(sp2.canBeApplied(network));
 
-        network.getSwitch(switch1.getId()).setOpen(true);
-        network.getSwitch(switch2.getId()).setOpen(true);
+        network.getSwitch(switch1).setOpen(true);
+        network.getSwitch(switch2).setOpen(true);
         assertFalse(sp1.canBeApplied(network));
         assertFalse(sp2.canBeApplied(network));
 
-        network.getSwitch(switch1.getId()).setOpen(false);
-        network.getSwitch(switch2.getId()).setOpen(false);
+        network.getSwitch(switch1).setOpen(false);
+        network.getSwitch(switch2).setOpen(false);
         assertFalse(sp1.canBeApplied(network));
         assertFalse(sp2.canBeApplied(network));
     }
 
     @Test
     void testApply() {
-        network.getSwitch(switch1.getId()).setOpen(false);
-        network.getSwitch(switch2.getId()).setOpen(true);
+        network.getSwitch(switch1).setOpen(false);
+        network.getSwitch(switch2).setOpen(true);
 
         // apply
         new SwitchPairImpl("id", switch1, switch2).toModification().apply(network);
-        assertTrue(network.getSwitch(switch1.getId()).isOpen());
-        assertFalse(network.getSwitch(switch2.getId()).isOpen());
+        assertTrue(network.getSwitch(switch1).isOpen());
+        assertFalse(network.getSwitch(switch2).isOpen());
 
         // re-apply
         new SwitchPairImpl("id", switch1, switch2).toModification().apply(network);
-        assertTrue(network.getSwitch(switch1.getId()).isOpen());
-        assertFalse(network.getSwitch(switch2.getId()).isOpen());
+        assertTrue(network.getSwitch(switch1).isOpen());
+        assertFalse(network.getSwitch(switch2).isOpen());
 
         // invert
         new SwitchPairImpl("id", switch2, switch1).toModification().apply(network);
-        assertFalse(network.getSwitch(switch1.getId()).isOpen());
-        assertTrue(network.getSwitch(switch2.getId()).isOpen());
+        assertFalse(network.getSwitch(switch1).isOpen());
+        assertTrue(network.getSwitch(switch2).isOpen());
     }
 
     @Test
@@ -140,7 +139,7 @@ class SwitchPairImplTest {
         assertNotEquals(Mockito.mock(SwitchAction.class), switchPair);
         assertNotEquals(new SwitchPairImpl("id", switch2, switch1), switchPair);
         assertEquals(new SwitchPairImpl("id", switch1, switch2), switchPair);
-        assertNotEquals(new SwitchPairImpl("id", switch1, new NetworkElementImpl("other")), switchPair);
+        assertNotEquals(new SwitchPairImpl("id", switch1, "other"), switchPair);
         SwitchPairImpl switchPairImpl = new SwitchPairImpl("id", switch1, switch2);
         assertEquals(switchPair, switchPairImpl);
     }

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,8 +79,8 @@ class PstRangeActionAdderImplTest {
         assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(VariationDirection.DOWN));
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(networkElementId));
+        assertEquals(1, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement(networkElementId));
     }
 
     @Test

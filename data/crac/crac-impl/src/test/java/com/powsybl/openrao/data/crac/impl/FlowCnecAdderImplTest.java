@@ -64,7 +64,7 @@ class FlowCnecAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("cnec1Operator")
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(1000.0).withMin(-1000.0).add()
             .add();
         FlowCnec cnec2 = crac.newFlowCnec()
@@ -82,7 +82,7 @@ class FlowCnecAdderImplTest {
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
-        assertEquals("neName1", cnec1.getNetworkElement().getName());
+        assertEquals("neId1", cnec1.getNetworkElementId());
         assertEquals(1000.0, cnec1.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
 
@@ -92,7 +92,7 @@ class FlowCnecAdderImplTest {
         assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
-        assertEquals("neId2", cnec2.getNetworkElement().getName());
+        assertEquals("neId2", cnec2.getNetworkElementId());
         assertEquals(500.0, cnec2.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(ONE, Unit.MEGAWATT).isPresent());
 
@@ -104,9 +104,9 @@ class FlowCnecAdderImplTest {
                 .withNetworkElement("neId2") // same as cnec2
                 .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(500.0).add()
                 .add();
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neId1"));
-        assertNotNull(crac.getNetworkElement("neId2"));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement("neId1"));
+        assertTrue(crac.hasNetworkElement("neId2"));
 
         // Verify states were created
         assertEquals(2, crac.getStates().size());
@@ -232,8 +232,8 @@ class FlowCnecAdderImplTest {
     @Test
     void testUniqueNetworkElement() {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec()
-            .withNetworkElement("neId1", "neName1");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2", "neName2"));
+            .withNetworkElement("neId1");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2"));
         assertEquals("Cannot add multiple network elements for a flow cnec.", exception.getMessage());
     }
 
@@ -243,7 +243,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(1000.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
@@ -258,7 +258,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withContingency(contingency1Id)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).withSide(ONE).add()
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
@@ -286,7 +286,7 @@ class FlowCnecAdderImplTest {
             .withName("cnecName1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
+            .withNetworkElement("neId1")
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
