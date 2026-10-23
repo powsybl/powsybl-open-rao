@@ -61,11 +61,13 @@ import org.jgrapht.alg.util.Pair;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -192,8 +194,6 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, getFlowUnit(parameters), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                // Add worst preventive cnec to considered cnecs to ensure preventive state is defined
-                consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 Pair<RaoResultImpl, PrePerimeterResult> filteredRaoResults = runFilteredRao(
@@ -255,14 +255,6 @@ public class FastRao implements RaoProvider {
         network.getVariantManager().setWorkingVariant(initialNetworkVariantId);
     }
 
-    private static FlowCnec getWorstPreventiveCnec(ObjectiveFunctionResult ofResult, Crac crac) {
-        List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
-        return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
-            // If only MNECs are present previous list will be empty
-            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow(() -> new OpenRaoException("No flow cnecs found in preventive state"))
-        );
-    }
-
     private static Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit, Double marginLimit) {
         List<FlowCnec> orderedCnecs = prePerimeterResult.getMostLimitingElements(Integer.MAX_VALUE);
         Set<FlowCnec> flowCnecs = new HashSet<>();
@@ -302,9 +294,12 @@ public class FastRao implements RaoProvider {
         RaoResult raoResult;
         try {
             raoResult = Rao.find(INNER_LOOP_RAO_IMPLEMENTATION).runAsync(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).get();
-            List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
-                .map(Identifiable::getId)
-                .toList();
+            List<String> preventiveNetworkActions = new ArrayList<>();
+            if (!Objects.isNull(crac.getPreventiveState())) {
+                preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
+                    .map(Identifiable::getId)
+                    .toList();
+            }
             // Define combinations to improve performance
             if (preventiveNetworkActions.size() >= 2) {
                 List<List<String>> predefinedCombinations = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
@@ -461,6 +456,53 @@ public class FastRao implements RaoProvider {
             ));
     }
 
+    private static CostResult duplicateCostResult(CostResult costResult, Crac crac) {
+        CostResult costResultCopy = new CostResult();
+        copyCostResultsForInstant(costResult, costResultCopy, null);
+        crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
+        return costResultCopy;
+    }
+
+    private static Metadata regenerateMetadata(Metadata metadata,
+                                               Crac crac,
+                                               PrePerimeterResult postPraSensi,
+                                               PrePerimeterResult postAraSensi,
+                                               PrePerimeterResult postCraSensi) {
+        Metadata metadataCopy = new Metadata();
+        metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
+        for (State state : crac.getStates()) {
+            ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
+            if (computationStatus != ComputationStatus.DEFAULT) {
+                metadataCopy.setComputationStatus(state, computationStatus);
+            }
+        }
+        return metadataCopy;
+    }
+
+    private static PrePerimeterResult getAppropriateResult(State state,
+                                                           PrePerimeterResult postPraSensi,
+                                                           PrePerimeterResult postAraSensi,
+                                                           PrePerimeterResult postCraSensi) {
+        return switch (state.getInstant().getKind()) {
+            case PREVENTIVE, OUTAGE -> postPraSensi;
+            case AUTO -> postAraSensi;
+            case CURATIVE -> postCraSensi;
+        };
+    }
+
+    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
+        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
+        costResult.getVirtualCostNames().forEach(
+            virtualCostName -> costResultCopy.addVirtualCostResult(
+                instant,
+                virtualCostName,
+                costResult.getVirtualCost(instant, virtualCostName)
+            ));
+    }
+
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(
         Network networkCopy,
         Crac crac,
@@ -478,7 +520,9 @@ public class FastRao implements RaoProvider {
         RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialRangeActionSetpointResult);
 
         // Apply Preventive Remedial Actions
-        applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        if (!Objects.isNull(crac.getPreventiveState())) {
+            applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        }
 
         AppliedRemedialActions appliedRemedialActions;
         if (instantKind.equals(InstantKind.PREVENTIVE)) {

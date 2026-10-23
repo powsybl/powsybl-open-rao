@@ -151,10 +151,10 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     // serialization
 
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
+    public void serialize(JsonGenerator jsonGenerator, Set<Unit> flowUnits) throws IOException {
         jsonGenerator.writeStartArray();
         for (FlowCnec flowCnec : results.keySet().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList()) {
-            results.get(flowCnec).serialize(jsonGenerator);
+            results.get(flowCnec).serialize(jsonGenerator, flowUnits);
         }
         jsonGenerator.writeEndArray();
     }
@@ -217,23 +217,25 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return actualInstant == null ? initialMeasurement : measurementsPerInstant.get(actualInstant);
         }
 
-        void serialize(JsonGenerator jsonGenerator) throws IOException {
+        void serialize(JsonGenerator jsonGenerator, Set<Unit> flowUnits) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("flowCnecId", flowCnec.getId());
             if (!initialMeasurement.isEmpty()) {
-                serializeForInstant(jsonGenerator, initialMeasurement, "initial");
+                serializeForInstant(jsonGenerator, initialMeasurement, "initial", flowUnits);
             }
             for (Instant instant : measurementsPerInstant.keySet().stream().sorted().toList()) {
-                serializeForInstant(jsonGenerator, measurementsPerInstant.get(instant), instant.getId());
+                serializeForInstant(jsonGenerator, measurementsPerInstant.get(instant), instant.getId(), flowUnits);
             }
             jsonGenerator.writeEndObject();
         }
 
-        private void serializeForInstant(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, String instantId) throws IOException {
+        private void serializeForInstant(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, String instantId, Set<Unit> flowUnits) throws IOException {
             if (!measurement.isEmpty()) {
                 jsonGenerator.writeObjectFieldStart(instantId);
                 for (Unit unit : measurement.getUnitsWithResults()) {
-                    serializeForUnit(jsonGenerator, measurement, unit);
+                    if (flowUnits.contains(unit)) {
+                        serializeForUnit(jsonGenerator, measurement, unit);
+                    }
                 }
                 jsonGenerator.writeEndObject();
             }

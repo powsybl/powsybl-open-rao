@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -60,7 +61,7 @@ class FastRaoTest {
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
         assertEquals(-143.83, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
+        assertEquals(5, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
     @Test

@@ -37,7 +37,7 @@ public final class MonitoringTestUtil {
     }
 
     public static RaoResult readRaoResult(String resourcePath, Crac crac) {
-        try (InputStream is = VoltageMonitoringTest.class.getResourceAsStream(resourcePath)) {
+        try (InputStream is = MonitoringTestUtil.class.getResourceAsStream(resourcePath)) {
             return RaoResult.read(is, crac);
         } catch (IOException e) {
             throw new OpenRaoException("An error occurred while instantiating tests: " + e.getMessage());

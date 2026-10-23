@@ -73,41 +73,57 @@ public final class CastorFlowResultExtensionHelper {
     }
 
     private static void fillResultForUnit(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
-        // TODO: check zero-flows
-        // TODO: note to future self, please fix this
-        double flow1 = prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit, instant);
-        if (!Double.isNaN(flow1)) {
-            flowResult.addFlowMeasurement(flow1, instant, flowCnec, TwoSides.ONE, flowUnit);
+        // flows
+        safeGetAndAddFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE, flowUnit);
+        safeGetAndAddFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO, flowUnit);
+
+        // commercial flows
+        safeGetAndAddCommercialFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE, flowUnit);
+        safeGetAndAddCommercialFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO, flowUnit);
+
+        // PTDF zonal sums
+        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE);
+        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO);
+    }
+
+    private static void safeGetAndAddFlow(PrePerimeterResult prePerimeterResult,
+                                          FlowResult flowResult,
+                                          FlowCnec flowCnec,
+                                          Instant instant,
+                                          TwoSides side,
+                                          Unit flowUnit) {
+        double flow = prePerimeterResult.getFlow(flowCnec, side, flowUnit, instant);
+        if (!Double.isNaN(flow)) {
+            flowResult.addFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
         }
-        double flow2 = prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit, instant);
-        if (!Double.isNaN(flow2)) {
-            flowResult.addFlowMeasurement(flow2, instant, flowCnec, TwoSides.TWO, flowUnit);
-        }
+    }
+
+    private static void safeGetAndAddCommercialFlow(PrePerimeterResult prePerimeterResult,
+                                                    FlowResult flowResult,
+                                                    FlowCnec flowCnec,
+                                                    Instant instant,
+                                                    TwoSides side,
+                                                    Unit flowUnit) {
+        // FlowResultImpl throws exception if PTDF zonal sums are missing -> maybe consider a future refactoring
         try {
-            double commercialFlow1 = prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.ONE, flowUnit);
-            if (!Double.isNaN(commercialFlow1)) {
-                flowResult.addCommercialFlowMeasurement(commercialFlow1, instant, flowCnec, TwoSides.ONE, flowUnit);
+            double commercialFlow = prePerimeterResult.getCommercialFlow(flowCnec, side, flowUnit);
+            if (!Double.isNaN(commercialFlow)) {
+                flowResult.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
             }
         } catch (OpenRaoException ignored) {
         }
+    }
+
+    private static void safeGetAndAddPtdfZonalSum(PrePerimeterResult prePerimeterResult,
+                                                  FlowResult flowResult,
+                                                  FlowCnec flowCnec,
+                                                  Instant instant,
+                                                  TwoSides side) {
+        // FlowResultImpl throws exception if PTDF zonal sums are missing -> maybe consider a future refactoring
         try {
-            double commercialFlow2 = prePerimeterResult.getCommercialFlow(flowCnec, TwoSides.TWO, flowUnit);
-            if (!Double.isNaN(commercialFlow2)) {
-                flowResult.addCommercialFlowMeasurement(commercialFlow2, instant, flowCnec, TwoSides.TWO, flowUnit);
-            }
-        } catch (OpenRaoException ignored) {
-        }
-        try {
-            double ptdfZonalSum1 = prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.ONE);
-            if (!Double.isNaN(ptdfZonalSum1)) {
-                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum1, instant, flowCnec, TwoSides.ONE);
-            }
-        } catch (OpenRaoException ignored) {
-        }
-        try {
-            double ptdfZonalSum2 = prePerimeterResult.getPtdfZonalSum(flowCnec, TwoSides.TWO);
-            if (!Double.isNaN(ptdfZonalSum2)) {
-                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum2, instant, flowCnec, TwoSides.TWO);
+            double ptdfZonalSum = prePerimeterResult.getPtdfZonalSum(flowCnec, side);
+            if (!Double.isNaN(ptdfZonalSum)) {
+                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
             }
         } catch (OpenRaoException ignored) {
         }

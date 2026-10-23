@@ -9,8 +9,8 @@ package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -23,7 +23,7 @@ public final class AngleMonitoringResultAdapter {
         AngleResult angleExtension = new AngleResult();
         angleMonitoringResult.getCnecResults().forEach(
             angleResult -> angleExtension.addMeasurement(
-                ((AngleCnecValue) angleResult.getValue()).value(),
+                ((AngleCnecMonitoringResult) angleResult).getAngle(),
                 angleResult.getCnec().getState().getInstant(),
                 (AngleCnec) angleResult.getCnec(),
                 Unit.DEGREE)

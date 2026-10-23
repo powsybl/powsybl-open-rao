@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -620,7 +621,7 @@ class FlowResultTest {
             StringWriter writer = new StringWriter();
             JsonFactory factory = new JsonFactory();
             try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-                result.serialize(jsonGenerator);
+                result.serialize(jsonGenerator, Set.of(Unit.AMPERE, Unit.MEGAWATT));
             }
             return writer.toString();
         }

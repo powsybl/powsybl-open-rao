@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.io.IOException;
@@ -36,6 +37,10 @@ public class TimeCoupledConstraintsDeserializer extends StdDeserializer<TimeCoup
                 case JsonTimeCoupledConstraints.GENERATOR_CONSTRAINTS -> {
                     jsonParser.nextToken();
                     List.of(jsonParser.readValueAs(GeneratorConstraints[].class)).forEach(timeCoupledConstraints::addGeneratorConstraints);
+                }
+                case JsonTimeCoupledConstraints.PST_CONSTRAINTS -> {
+                    jsonParser.nextToken();
+                    List.of(jsonParser.readValueAs(PstConstraints[].class)).forEach(timeCoupledConstraints::addPstConstraints);
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field '%s' in JSON time-coupled constraints.".formatted(jsonParser.currentName()));

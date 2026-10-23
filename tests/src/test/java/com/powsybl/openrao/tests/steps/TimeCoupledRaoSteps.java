@@ -16,7 +16,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -526,9 +525,7 @@ public final class TimeCoupledRaoSteps {
                 timeCoupledRaoResult,
                 CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac),
                 CommonTestData.getRaoParameters(),
-                PhysicalParameter.FLOW,
-                PhysicalParameter.ANGLE,
-                PhysicalParameter.VOLTAGE
+                PhysicalParameter.FLOW
             )
         );
     }
@@ -568,13 +565,12 @@ public final class TimeCoupledRaoSteps {
             .stream()
             .filter(InjectionRangeAction.class::isInstance)
             .map(InjectionRangeAction.class::cast)
-            .filter(injection -> injection.getInjectionDistributionKeys().keySet().stream().anyMatch(networkElement -> networkElement.getId().equals(networkElementId)))
+            .filter(injection -> injection.getInjectionDistributionKeysIds().keySet().stream().anyMatch(networkElement -> networkElement.equals(networkElementId)))
             .findFirst();
         assertTrue(injectionRangeAction.isPresent());
-        NetworkElement networkElement = injectionRangeAction.get().getNetworkElements().stream().filter(ne -> ne.getId().equals(networkElementId)).findFirst().orElseThrow();
         assertEquals(
             expectedPower,
-            timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement),
+            timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeysIds().get(networkElementId),
             TOLERANCE_REDISPATCHING_VALUE
         );
     }

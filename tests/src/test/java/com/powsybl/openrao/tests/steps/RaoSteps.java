@@ -178,8 +178,20 @@ public class RaoSteps {
                 CommonTestData.getRaoResult(),
                 crac,
                 raoParameters,
-                PhysicalParameter.FLOW,
-                PhysicalParameter.VOLTAGE
+                PhysicalParameter.FLOW
+            )
+        );
+    }
+
+    @Then("its security status including VoltageCNECs should be {string}")
+    public void statusWithVoltageShouldBe(String status) {
+        assertEquals(
+            "secured".equalsIgnoreCase(status),
+            isSecure(
+                CommonTestData.getRaoResult(),
+                crac,
+                raoParameters,
+                PhysicalParameter.FLOW
             )
         );
     }
@@ -926,6 +938,11 @@ public class RaoSteps {
 
         FlowCnec worstCnecAlphabetical = worstCnecs.stream().sorted(Comparator.comparing(Identifiable::getId)).toList().getFirst();
         return new ImmutablePair<>(worstCnecAlphabetical, worstMargin);
+    }
+
+    private static boolean hasStateComputationFailed(State state) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
     }
 
     private double getFlow(Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {

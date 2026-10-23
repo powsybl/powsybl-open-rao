@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
@@ -74,7 +73,6 @@ public final class CoreCneCnecsCreator {
     }
 
     private CoreCneCnecsCreator() {
-
     }
 
     public List<ConstraintSeries> generate() {
@@ -246,9 +244,7 @@ public final class CoreCneCnecsCreator {
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
-
-        FlowResult flowResult = cneHelper.getRaoResult().getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getFlow(resultState, cnec, side, Unit.MEGAWATT);
+        return cneHelper.getFlowResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
 
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, Unit unit, boolean deductFrmFromThreshold) {
@@ -266,8 +262,7 @@ public final class CoreCneCnecsCreator {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
 
-        FlowResult flowResult = cneHelper.getRaoResult().getExtension(FlowResult.class);
-        double ptdfZonalSum = flowResult == null ? Double.NaN : flowResult.getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec));
+        double ptdfZonalSum = cneHelper.getFlowResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec));
         return absoluteMargin > 0 ? absoluteMargin / ptdfZonalSum : absoluteMargin;
     }
 
@@ -343,8 +338,7 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {
-        FlowResult flowResult = cneHelper.getRaoResult().getExtension(FlowResult.class);
-        double absPtdfSum = flowResult == null ? Double.NaN : flowResult.getPtdfZonalSum(null, cnec, getMonitoredSide(cnec));
+        double absPtdfSum = cneHelper.getFlowResult().getPtdfZonalSum(null, cnec, getMonitoredSide(cnec));
         return newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum);
     }
 
@@ -355,8 +349,7 @@ public final class CoreCneCnecsCreator {
         }
         List<Analog> measurements = new ArrayList<>();
         try {
-            FlowResult flowResult = cneHelper.getRaoResult().getExtension(FlowResult.class);
-            double loopflow = flowResult == null ? Double.NaN : flowResult.getLoopFlow(resultOptimState, cnec, getMonitoredSide(cnec), Unit.MEGAWATT);
+            double loopflow = cneHelper.getFlowResult().getLoopFlow(resultOptimState, cnec, getMonitoredSide(cnec), Unit.MEGAWATT);
             LoopFlowThreshold loopFlowExtension = cnec.getExtension(LoopFlowThreshold.class);
             if (!Objects.isNull(loopFlowExtension) && !Double.isNaN(loopflow)) {
                 double invert = shouldInvertBranchDirection ? -1 : 1;

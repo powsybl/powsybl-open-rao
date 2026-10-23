@@ -9,8 +9,8 @@ package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -23,8 +23,8 @@ public final class VoltageMonitoringResultAdapter {
         VoltageResult voltageExtension = new VoltageResult();
         voltageMonitoringResult.getCnecResults().forEach(
             voltageResult -> voltageExtension.addMeasurement(
-                ((VoltageCnecValue) voltageResult.getValue()).minValue(),
-                ((VoltageCnecValue) voltageResult.getValue()).maxValue(),
+                ((VoltageCnecMonitoringResult) voltageResult).getMinVoltage(),
+                ((VoltageCnecMonitoringResult) voltageResult).getMaxVoltage(),
                 voltageResult.getCnec().getState().getInstant(),
                 (VoltageCnec) voltageResult.getCnec(),
                 Unit.KILOVOLT)

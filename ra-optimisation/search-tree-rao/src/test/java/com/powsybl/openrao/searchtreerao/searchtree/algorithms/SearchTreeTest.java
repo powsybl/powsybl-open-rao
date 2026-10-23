@@ -9,8 +9,12 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -99,6 +103,8 @@ class SearchTreeTest {
     private Set<RangeAction<?>> availableRangeActions;
     private PrePerimeterResult prePerimeterResult;
     private AppliedRemedialActions appliedRemedialActions;
+    private SwitchAction switchAction;
+    private GeneratorAction generatorAction;
 
     private Leaf rootLeaf;
 
@@ -124,6 +130,16 @@ class SearchTreeTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
+
+        NetworkModification switchModification = Mockito.mock(NetworkModification.class);
+        when(switchModification.hasImpactOnNetwork(network)).thenReturn(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        switchAction = Mockito.mock(SwitchAction.class);
+        when(switchAction.toModification()).thenReturn(switchModification);
+
+        NetworkModification generatorModification = Mockito.mock(NetworkModification.class);
+        when(generatorModification.hasImpactOnNetwork(network)).thenReturn(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        generatorAction = Mockito.mock(GeneratorAction.class);
+        when(generatorAction.toModification()).thenReturn(generatorModification);
 
         // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
         hvdcUtilsMock = mockStatic(HvdcUtils.class);
@@ -384,7 +400,9 @@ class SearchTreeTest {
         when(networkAction1.getOperator()).thenReturn("operator1");
         when(networkAction2.getOperator()).thenReturn("operator2");
         when(networkAction1.getId()).thenReturn("na1");
-        when(networkAction1.getId()).thenReturn("na2");
+        when(networkAction2.getId()).thenReturn("na2");
+        when(networkAction1.getElementaryActions()).thenReturn(Set.of(switchAction));
+        when(networkAction2.getElementaryActions()).thenReturn(Set.of(generatorAction));
         availableNetworkActions.add(networkAction1);
         availableNetworkActions.add(networkAction2);
         availableNaCombinations.add(new NetworkActionCombination(networkAction1));
@@ -506,6 +524,7 @@ class SearchTreeTest {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getOperator()).thenReturn("operator");
         when(networkAction.getId()).thenReturn("na1");
+        when(networkAction.getElementaryActions()).thenReturn(Set.of(switchAction, generatorAction));
         availableNetworkActions.add(networkAction);
         availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }

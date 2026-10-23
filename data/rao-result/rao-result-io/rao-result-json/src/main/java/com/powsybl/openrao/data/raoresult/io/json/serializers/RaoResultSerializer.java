@@ -55,6 +55,9 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         }
         JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
+        serializerProvider.setAttribute("flowUnits", flowUnits);
+        JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
+
         jsonGenerator.writeEndObject();
     }
 }

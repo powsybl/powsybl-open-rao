@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElementMarketDocument;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ class CoreCneTest {
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant("preventive", InstantKind.PREVENTIVE);
         RaoResult raoResult = Mockito.mock(RaoResult.class);
+        FlowResult flowResult = new FlowResult();
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
         UcteCracCreationContext cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
         Mockito.when(cracCreationContext.getCrac()).thenReturn(crac);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());

@@ -12,7 +12,6 @@ import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -51,8 +50,18 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public String getSwitchToOpenId() {
+            return switchToOpen.getId();
+        }
+
+        @Override
         public NetworkElement getSwitchToClose() {
             return switchToClose;
+        }
+
+        @Override
+        public String getSwitchToCloseId() {
+            return switchToClose.getId();
         }
 
         @Override
@@ -115,6 +124,11 @@ public final class NetworkActionUtils {
 
         @Override
         public Set<NetworkElement> getNetworkElements() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getNetworkElementsIds() {
             return null;
         }
 
@@ -199,11 +213,6 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<Country> getLocation(Network network) {
-            return null;
-        }
-
-        @Override
         public <E extends Extension<NetworkElement>> void addExtension(Class<? super E> aClass, E e) {
             //not used
         }
@@ -246,23 +255,23 @@ public final class NetworkActionUtils {
         return new NetworkElementImplTest(networkElementId);
     }
 
-    public static NetworkAction createSwitchAction(NetworkElement networkElement, ActionType actionType) {
-        return new NetworkActionImplTest(new SwitchActionBuilder().withId("id").withNetworkElementId(networkElement.getId()).withOpen(actionType == ActionType.OPEN).build());
+    public static NetworkAction createSwitchAction(String networkElementId, ActionType actionType) {
+        return new NetworkActionImplTest(new SwitchActionBuilder().withId("id").withNetworkElementId(networkElementId).withOpen(actionType == ActionType.OPEN).build());
     }
 
-    public static NetworkAction createSwitchPair(NetworkElement switchToOpen, NetworkElement switchToClose) {
-        return new NetworkActionImplTest(new SwitchPairImplTest(switchToOpen, switchToClose));
+    public static NetworkAction createSwitchPair(String switchToOpenId, String switchToCloseId) {
+        return new NetworkActionImplTest(new SwitchPairImplTest(createNetworkElement(switchToOpenId), createNetworkElement(switchToCloseId)));
     }
 
-    public static NetworkAction createPhaseTapChangerTapPositionAction(NetworkElement pst, int setpoint) {
-        return new NetworkActionImplTest(new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId(pst.getId()).withTapPosition(setpoint).withRelativeValue(false).build());
+    public static NetworkAction createPhaseTapChangerTapPositionAction(String pstId, int setpoint) {
+        return new NetworkActionImplTest(new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId(pstId).withTapPosition(setpoint).withRelativeValue(false).build());
     }
 
-    public static NetworkAction createGeneratorActivePowerAction(NetworkElement networkElement, double setpoint) {
-        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withActivePowerValue(setpoint).withActivePowerRelativeValue(false).build());
+    public static NetworkAction createGeneratorActivePowerAction(String networkElementId, double setpoint) {
+        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElementId).withActivePowerValue(setpoint).withActivePowerRelativeValue(false).build());
     }
 
-    public static NetworkAction createGeneratorTargetVAction(NetworkElement networkElement, double setpoint) {
-        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withTargetV(setpoint).build());
+    public static NetworkAction createGeneratorTargetVAction(String networkElementId, double setpoint) {
+        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElementId).withTargetV(setpoint).build());
     }
 }

@@ -36,12 +36,12 @@ public class SweCneHelper extends CneHelper {
     }
 
     private void defineContingencyFailureMap() {
-        contingencyFailureMap = getCrac().getContingencies().stream()
-            .collect(Collectors.toMap(Function.identity(), contingency -> getCrac().getStates(contingency).stream()
-                .anyMatch(state -> {
-                    Metadata metadata = getRaoResult().getExtension(Metadata.class);
-                    return metadata != null && metadata.getComputationStatus(state).equals(ComputationStatus.FAILURE);
-                })));
+        Metadata metadata = getRaoResult().getExtension(Metadata.class);
+        if (metadata != null) {
+            contingencyFailureMap = getCrac().getContingencies().stream()
+                .collect(Collectors.toMap(Function.identity(), contingency -> getCrac().getStates(contingency).stream()
+                    .anyMatch(state -> metadata.getComputationStatus(state).equals(ComputationStatus.FAILURE))));
+        }
     }
 
     public boolean isAnyContingencyInFailure() {
