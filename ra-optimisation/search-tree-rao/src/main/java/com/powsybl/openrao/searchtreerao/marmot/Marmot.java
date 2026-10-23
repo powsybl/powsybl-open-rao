@@ -828,6 +828,11 @@ public class Marmot implements TimeCoupledRaoProvider {
                     flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit);
                     flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit);
                     flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    // TODO: handle multi-curative in MARMOT (the following only works with one curative instant)
+                    if (flowCnec.getState().getInstant().isCurative()) {
+                        flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit);
+                        flowResult.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    }
                 }
             )
         );
