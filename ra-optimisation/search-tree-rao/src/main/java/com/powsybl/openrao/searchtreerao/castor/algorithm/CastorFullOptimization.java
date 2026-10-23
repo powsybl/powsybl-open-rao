@@ -230,12 +230,8 @@ public class CastorFullOptimization {
                 stateTree, initialOutput, postPreventiveResult, postContingencyResults, crac, raoParameters, secondPreventivePerimeterOptimReportNode);
 
             CostResult postFirstRaoCostResult = CastorCostResultExtensionHelper.convertToExtension(
-                initialOutput,
-                generatePreventiveAndOutageOnlyResult(initialOutput, postPreventiveResult, reportNode),
-                postPreventiveResult.prePerimeterResultForAllFollowingStates(),
-                postContingencyResults,
-                costOptimization,
-                crac
+                initialOutput, generatePreventiveAndOutageOnlyResult(initialOutput, postPreventiveResult, reportNode),
+                postPreventiveResult.prePerimeterResultForAllFollowingStates(), postContingencyResults, costOptimization, crac
             );
             mergedRaoResults.addExtension(CostResult.class, postFirstRaoCostResult);
 
