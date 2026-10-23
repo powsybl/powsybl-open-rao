@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -65,6 +66,7 @@ import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -441,7 +443,8 @@ class AngleMonitoringTest {
 
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
-        assertTrue(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
+        OpenRaoException noVoltageCnecsException = assertThrows(OpenRaoException.class, () -> isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
+        assertEquals("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.", noVoltageCnecsException.getMessage());
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 

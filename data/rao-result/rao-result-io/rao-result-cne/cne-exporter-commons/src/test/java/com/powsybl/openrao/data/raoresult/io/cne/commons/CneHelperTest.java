@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.cne.commons;
 
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +27,8 @@ class CneHelperTest {
     void testInitFromProperties() {
         Crac crac = Mockito.mock(Crac.class);
         RaoResult raoResult = Mockito.mock(RaoResult.class);
+        FlowResult flowResult = new FlowResult();
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
 
         Properties properties = new Properties();
         properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
