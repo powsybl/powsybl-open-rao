@@ -17,11 +17,11 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
@@ -66,7 +66,7 @@ class SweCneTest {
     private Properties properties;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
 
@@ -103,6 +103,11 @@ class SweCneTest {
             Map.of(curativeState, Set.of(networkAction)),
             Cnec.SecurityStatus.SECURE
         );
+
+        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
+            Set.of(new AngleCnecMonitoringResult(crac.getAngleCnec("ac1"), Unit.DEGREE, 4.0)),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
+            Cnec.SecurityStatus.SECURE);
 
         raoResultWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
         AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);

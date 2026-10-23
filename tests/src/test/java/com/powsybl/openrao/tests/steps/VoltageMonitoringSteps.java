@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
@@ -49,7 +50,7 @@ public class VoltageMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput voltageMonitoringInput = MonitoringInput.buildWithVoltage(network, CommonTestData.getCrac(), raoResult).build();
-        MonitoringResult voltageMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(voltageMonitoringInput, numberOfLoadFlowsInParallel);
+        MonitoringResult voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(voltageMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setVoltageMonitoringResult(voltageMonitoringResult);
     }
 

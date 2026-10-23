@@ -183,7 +183,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             final State finalStateBefore = stateBefore;
             Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
                     rangeActionResults.entrySet().stream().filter(entry ->
-                    entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
+                    entry.getKey().getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds())
                             && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
             if (activatedRangeAction.isPresent()) {
                 return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);

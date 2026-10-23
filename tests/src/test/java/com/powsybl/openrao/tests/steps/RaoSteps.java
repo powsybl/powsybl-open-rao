@@ -177,8 +177,7 @@ public class RaoSteps {
                 CommonTestData.getRaoResult(),
                 crac,
                 raoParameters,
-                PhysicalParameter.FLOW,
-                PhysicalParameter.VOLTAGE
+                PhysicalParameter.FLOW
             )
         );
     }

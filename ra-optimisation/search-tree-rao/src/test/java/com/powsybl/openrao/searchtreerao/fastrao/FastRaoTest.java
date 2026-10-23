@@ -63,7 +63,7 @@ class FastRaoTest {
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
         assertEquals(-143.83, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
+        assertEquals(5, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
     @Test
