@@ -33,6 +33,13 @@ public class CostResult extends AbstractExtension<RaoResult> {
         this.costResultPerInstant = new HashMap<>();
     }
 
+    public CostResult(CostResult costResultToCopy) {
+        this.initialCostResult = new ElementaryCostResult();
+        this.initialCostResult.functionalCost = costResultToCopy.initialCostResult.functionalCost;
+        this.initialCostResult.virtualCosts.putAll(costResultToCopy.initialCostResult.virtualCosts);
+        this.costResultPerInstant = new HashMap<>(costResultToCopy.costResultPerInstant);
+    }
+
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.

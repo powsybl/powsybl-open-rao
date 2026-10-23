@@ -822,7 +822,6 @@ public class Marmot implements TimeCoupledRaoProvider {
             crac -> crac.getFlowCnecs().forEach(
                 flowCnec -> {
                     // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
-                    // TODO: ponder if using both units is relevant
                     // TODO: include curatives
                     PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
                     flowResult.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit);

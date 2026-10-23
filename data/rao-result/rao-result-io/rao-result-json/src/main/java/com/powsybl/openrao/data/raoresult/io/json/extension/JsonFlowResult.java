@@ -72,11 +72,11 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
             switch (jsonParser.currentName()) {
                 case "ampere" -> {
                     jsonParser.nextToken();
-                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.AMPERE, crac);
+                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.AMPERE);
                 }
                 case "megawatt" -> {
                     jsonParser.nextToken();
-                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.MEGAWATT, crac);
+                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.MEGAWATT);
                 }
                 default -> throw new OpenRaoException("Unsupported unit for flow values: %s.".formatted(jsonParser.currentName()));
             }
@@ -89,11 +89,11 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                 case "margin", "relativeMargin" -> jsonParser.nextToken();
                 case "side1" -> {
                     jsonParser.nextToken();
-                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.ONE, crac);
+                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.ONE);
                 }
                 case "side2" -> {
                     jsonParser.nextToken();
-                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.TWO, crac);
+                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.TWO);
                 }
                 default -> throw new OpenRaoException("Unsupported side for flow values: %s.".formatted(jsonParser.currentName()));
             }

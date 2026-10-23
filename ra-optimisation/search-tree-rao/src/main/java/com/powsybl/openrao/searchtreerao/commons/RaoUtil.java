@@ -392,31 +392,6 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static CostResult duplicateCastorCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
-    }
-
-    public static com.powsybl.openrao.data.raoresult.api.extension.FlowResult duplicateFlowResult(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult, Crac crac) {
-        com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy = new com.powsybl.openrao.data.raoresult.api.extension.FlowResult();
-        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-            // copy initial measurements
-            copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, null);
-            // copy other measurements
-            for (Instant instant : crac.getSortedInstants()) {
-                if (!instant.isOutage()) {
-                    copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, instant);
-                }
-            }
-        }
-        return flowResultCopy;
-    }
-
     private static void copyFlowMeasurements(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult,
                                              com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy,
                                              FlowCnec flowCnec,

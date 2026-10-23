@@ -38,6 +38,10 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         this.results = new HashMap<>();
     }
 
+    public FlowResult(FlowResult flowResultToCopy) {
+        this.results = new HashMap<>(flowResultToCopy.results);
+    }
+
     /**
      * Returns the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
