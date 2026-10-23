@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -33,7 +34,11 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     @Override
     public void serialize(FlowResult flowResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         // TODO: select units to export with configuration?
-        flowResult.serialize(jsonGenerator);
+        Set<Unit> flowUnits = (Set<Unit>) serializerProvider.getAttribute("flowUnits");
+        if (flowUnits == null || flowUnits.isEmpty()) {
+            return;
+        }
+        flowResult.serialize(jsonGenerator, flowUnits);
     }
 
     @Override
