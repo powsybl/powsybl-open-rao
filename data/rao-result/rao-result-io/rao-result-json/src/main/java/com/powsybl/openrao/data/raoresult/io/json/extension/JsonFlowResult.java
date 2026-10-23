@@ -100,7 +100,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
         }
     }
 
-    private static void deserializeForSide(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, Instant instant, Unit unit, TwoSides side, Crac crac) throws IOException {
+    private static void deserializeForSide(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, Instant instant, Unit unit, TwoSides side) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "flow" -> {
