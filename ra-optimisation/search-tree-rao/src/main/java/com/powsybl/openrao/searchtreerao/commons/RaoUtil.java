@@ -12,10 +12,16 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -36,7 +42,15 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -75,7 +89,7 @@ public final class RaoUtil {
             RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
             if (raUsageLimits != null) {
                 getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
-                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit)
                 );
             }
 
@@ -378,14 +392,40 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static CostResult duplicateCastorCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
+    private static void copyFlowMeasurements(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult,
+                                             com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy,
+                                             FlowCnec flowCnec,
+                                             Instant instant) {
+        List<Unit> possibleUnits = List.of(Unit.AMPERE, Unit.MEGAWATT);
+        List<TwoSides> possibleSides = List.of(TwoSides.ONE, TwoSides.TWO);
+        for (Unit unit : possibleUnits) {
+            for (TwoSides side : possibleSides) {
+                copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, unit, side, instant);
+            }
+        }
+
+    }
+
+    private static void copyFlowMeasurements(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult,
+                                             com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy,
+                                             FlowCnec flowCnec,
+                                             Unit unit,
+                                             TwoSides side,
+                                             Instant instant) {
+        double flow = flowResult.getFlow(instant, flowCnec, side, unit);
+        if (!Double.isNaN(flow)) {
+            flowResultCopy.addFlowMeasurement(flow, instant, flowCnec, side, unit);
+        }
+
+        double commercialFlow = flowResult.getCommercialFlow(instant, flowCnec, side, unit);
+        if (!Double.isNaN(commercialFlow)) {
+            flowResultCopy.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, unit);
+        }
+
+        double ptdfZonalSum = flowResult.getPtdfZonalSum(instant, flowCnec, side);
+        if (!Double.isNaN(ptdfZonalSum)) {
+            flowResultCopy.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+        }
     }
 
     private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
