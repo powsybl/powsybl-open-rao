@@ -65,7 +65,6 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                             jsonParser.nextToken();
                             angleResult.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
                         }
-                        case "margin" -> jsonParser.nextToken();
                         default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
                     }
                 }

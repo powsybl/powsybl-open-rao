@@ -100,8 +100,8 @@ public class VoltageResultTest {
         }
 
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0}},"
-            + "\"preventive\":{\"kilovolt\":{\"minVoltage\":417.0,\"maxVoltage\":437.0,\"margin\":3.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}},"
+            + "\"preventive\":{\"kilovolt\":{\"minVoltage\":417.0,\"maxVoltage\":437.0}}}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -140,9 +140,9 @@ public class VoltageResultTest {
 
         // Should be sorted by ID: cnec1 then cnec2
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0}}},"
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}}},"
             + "{\"voltageCnecId\":\"cnec2\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":215.0,\"maxVoltage\":220.0,\"margin\":5.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":215.0,\"maxVoltage\":220.0}}}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -175,9 +175,9 @@ public class VoltageResultTest {
 
         // Instants should be sorted: initial, then instant1, then instant2
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0,\"margin\":20.0}},"
-            + "\"instant1\":{\"kilovolt\":{\"minVoltage\":405.0,\"maxVoltage\":410.0,\"margin\":25.0}},"
-            + "\"instant2\":{\"kilovolt\":{\"minVoltage\":415.0,\"maxVoltage\":425.0,\"margin\":15.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}},"
+            + "\"instant1\":{\"kilovolt\":{\"minVoltage\":405.0,\"maxVoltage\":410.0}},"
+            + "\"instant2\":{\"kilovolt\":{\"minVoltage\":415.0,\"maxVoltage\":425.0}}}]";
         assertEquals(expectedJson, writer.toString());
     }
 }

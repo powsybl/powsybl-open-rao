@@ -71,7 +71,6 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
                             jsonParser.nextToken();
                             maxVoltage = jsonParser.getDoubleValue();
                         }
-                        case "margin" -> jsonParser.nextToken();
                         default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
                     }
                 }

@@ -188,7 +188,6 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
             jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
             jsonGenerator.writeNumberField("minVoltage", minVoltage);
             jsonGenerator.writeNumberField("maxVoltage", maxVoltage);
-            jsonGenerator.writeNumberField("margin", margin);
             jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }

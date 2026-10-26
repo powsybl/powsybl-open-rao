@@ -163,7 +163,6 @@ public class AngleResult extends AbstractExtension<RaoResult> {
             jsonGenerator.writeObjectFieldStart(instantId);
             jsonGenerator.writeObjectFieldStart(Unit.DEGREE.name().toLowerCase());
             jsonGenerator.writeNumberField("angle", angle);
-            jsonGenerator.writeNumberField("margin", margin);
             jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }

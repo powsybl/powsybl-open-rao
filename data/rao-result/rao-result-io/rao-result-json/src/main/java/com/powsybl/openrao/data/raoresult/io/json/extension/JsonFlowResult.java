@@ -140,12 +140,6 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
             jsonGenerator.writeNumberField("commercialFlow", commercialFlow);
         }
 
-        // serialize loop flow -> TODO remove
-        double loopFlow = flowResult.getLoopFlow(instant, flowCnec, side, unit);
-        if (!Double.isNaN(loopFlow)) {
-            jsonGenerator.writeNumberField("loopFlow", loopFlow);
-        }
-
         // serialize PTDF zonal sum -> TODO: kept here to mimic RAO Result, might have a better place
         if (unit == Unit.MEGAWATT) {
             double ptdfZonalSum = flowResult.getPtdfZonalSum(instant, flowCnec, side);
@@ -223,7 +217,6 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                     jsonParser.nextToken();
                     flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
-                case "loopFlow" -> jsonParser.nextToken();
                 case "zonalPtdfSum" -> {
                     if (unit != Unit.MEGAWATT) {
                         throw new OpenRaoException("Zonal PTDF sum only defined for measurements in MW.");
