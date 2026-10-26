@@ -384,7 +384,7 @@ public class CastorContingencyScenarios {
         OptimizationResult result;
         if (workingToolProvider != toolProvider) {
             result = runDcSearch(curativePerimeter, network, prePerimeterSensitivityOutput, resultsPerPerimeter, prePerimeterResultPerPerimeter, reportNode,
-                objectiveFunction, curativeState, flowCnecs, loopFlowCnecs, optPerimeter, searchTreeParameters, objectiveFunctionResult.getCost());
+                objectiveFunction, curativeState, flowCnecs, loopFlowCnecs, optPerimeter, searchTreeParameters, objectiveFunctionResult, rangeActionsResult);
         } else {
             result = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                 new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, false, reportNode);
@@ -406,7 +406,9 @@ public class CastorContingencyScenarios {
                                    Set<FlowCnec> loopFlowCnecs,
                                    OptimizationPerimeter optPerimeter,
                                    SearchTreeParameters searchTreeParameters,
-                                   double previousOptimizedCost) {
+                                   ObjectiveFunctionResult noRaObjectiveFunctionResult,
+                                   RangeActionActivationResult noRaRangeActionsResult) {
+        double previousOptimizedCost = noRaObjectiveFunctionResult.getCost();
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         String prevVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(prevVariant, newVariant);
@@ -441,8 +443,14 @@ public class CastorContingencyScenarios {
         ObjectiveFunction baseObjectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialSensitivityOutput,
                 prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), toolProvider.getRaoParameters(),
                 curativePerimeter.getAllStates());
-        OptimizationResult result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
-            new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, false, reportNode);
+        OptimizationResult result;
+        if (decidedResult.getActivatedNetworkActions().isEmpty() && decidedResult.getActivatedRangeActions(curativeState).isEmpty()) {
+            result = new OptimizationResultImpl(noRaObjectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput,
+                new NetworkActionsResultImpl(Map.of()), noRaRangeActionsResult);
+        } else {
+            result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
+                new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, false, reportNode);
+        }
 
         if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
             // the DC search stopped believing this combination made the perimeter secure, but the AC recompute shows it isn't:
