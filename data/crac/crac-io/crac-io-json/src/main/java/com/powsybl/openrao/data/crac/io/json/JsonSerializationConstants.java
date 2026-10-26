@@ -44,7 +44,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.12";
+    public static final String CRAC_IO_VERSION = "2.13";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -68,6 +68,7 @@ public final class JsonSerializationConstants {
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
     v2.11: removal of networkElementsNamePerId, renaming counter-trade actions' importingCountry to importingArea, and exportingCountry to exportingArea
     v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area and the optional connectedAreas
+    v2.13: removal of percent_imax unit in threshold definition + for a given cnec, side and bound (max or min) -> can only define threshold in one unit
      */
 
     // headers
