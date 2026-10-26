@@ -42,7 +42,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     @Override
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        FlowResult flowResult = new FlowResult();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnec flowCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -51,58 +51,58 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                         jsonParser.nextToken();
                         flowCnec = crac.getFlowCnec(jsonParser.getValueAsString());
                     }
-                    case "initial" -> deserializeForInstant(jsonParser, flowResult, flowCnec, null, crac);
-                    default -> deserializeForInstant(jsonParser, flowResult, flowCnec, jsonParser.currentName(), crac);
+                    case "initial" -> deserializeForInstant(jsonParser, flowResultBuilder, flowCnec, null, crac);
+                    default -> deserializeForInstant(jsonParser, flowResultBuilder, flowCnec, jsonParser.currentName(), crac);
                 }
             }
         }
-        return flowResult;
+        return flowResultBuilder.build();
     }
 
-    private static void deserializeForInstant(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, String instantId, Crac crac) throws IOException {
+    private static void deserializeForInstant(JsonParser jsonParser, FlowResult.FlowResultBuilder flowResultBuilder, FlowCnec flowCnec, String instantId, Crac crac) throws IOException {
         Instant instant = instantId == null ? null : crac.getInstant(instantId);
         jsonParser.nextToken();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "ampere" -> {
                     jsonParser.nextToken();
-                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.AMPERE);
+                    deserializeForUnit(jsonParser, flowResultBuilder, flowCnec, instant, Unit.AMPERE);
                 }
                 case "megawatt" -> {
                     jsonParser.nextToken();
-                    deserializeForUnit(jsonParser, flowResult, flowCnec, instant, Unit.MEGAWATT);
+                    deserializeForUnit(jsonParser, flowResultBuilder, flowCnec, instant, Unit.MEGAWATT);
                 }
                 default -> throw new OpenRaoException("Unsupported unit for flow values: %s.".formatted(jsonParser.currentName()));
             }
         }
     }
 
-    private static void deserializeForUnit(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, Instant instant, Unit unit) throws IOException {
+    private static void deserializeForUnit(JsonParser jsonParser, FlowResult.FlowResultBuilder flowResultBuilder, FlowCnec flowCnec, Instant instant, Unit unit) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "side1" -> {
                     jsonParser.nextToken();
-                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.ONE);
+                    deserializeForSide(jsonParser, flowResultBuilder, flowCnec, instant, unit, TwoSides.ONE);
                 }
                 case "side2" -> {
                     jsonParser.nextToken();
-                    deserializeForSide(jsonParser, flowResult, flowCnec, instant, unit, TwoSides.TWO);
+                    deserializeForSide(jsonParser, flowResultBuilder, flowCnec, instant, unit, TwoSides.TWO);
                 }
                 default -> throw new OpenRaoException("Unsupported side for flow values: %s.".formatted(jsonParser.currentName()));
             }
         }
     }
 
-    private static void deserializeForSide(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, Instant instant, Unit unit, TwoSides side) throws IOException {
+    private static void deserializeForSide(JsonParser jsonParser, FlowResult.FlowResultBuilder flowResultBuilder, FlowCnec flowCnec, Instant instant, Unit unit, TwoSides side) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "flow" -> {
                     jsonParser.nextToken();
-                    flowResult.addFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "commercialFlow" -> {
                     jsonParser.nextToken();
-                    flowResult.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "loopFlow" -> jsonParser.nextToken();
                 case "zonalPtdfSum" -> {
@@ -110,7 +110,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                         throw new OpenRaoException("Zonal PTDF sum only defined for measurements in MW.");
                     }
                     jsonParser.nextToken();
-                    flowResult.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
                 }
                 default -> throw new OpenRaoException("Unsupported flow value: %s.".formatted(jsonParser.currentName()));
             }

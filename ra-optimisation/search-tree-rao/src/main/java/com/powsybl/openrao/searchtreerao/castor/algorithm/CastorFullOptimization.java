@@ -116,7 +116,7 @@ public class CastorFullOptimization {
                     .runInitialSensitivityAnalysis(network, optimizationReportNode);
                 RaoResult raoResult = new UnoptimizedRaoResultImpl(initialResult);
                 raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(initialResult));
-                raoResult.addExtension(FlowResult.class, new FlowResult()); // the extension is created by convention
+                raoResult.addExtension(FlowResult.class, FlowResult.build().build()); // the extension is created by convention
                 CastorMetadataHelper.fillAndAddFromPrePerimeter(crac, raoResult, initialResult, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
                 return CompletableFuture.completedFuture(raoResult);
             }
@@ -135,7 +135,7 @@ public class CastorFullOptimization {
                 CommonReports.reportInitialSensitivityAnalysisFailed(optimizationReportNode);
                 RaoResult raoResult = new FailedRaoResultImpl("Initial sensitivity analysis failed");
                 raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(initialOutput));
-                raoResult.addExtension(FlowResult.class, new FlowResult()); // the extension is created by convention
+                raoResult.addExtension(FlowResult.class, FlowResult.build().build()); // the extension is created by convention
                 CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, "Initial sensitivity analysis failed");
                 return CompletableFuture.completedFuture(raoResult);
             }

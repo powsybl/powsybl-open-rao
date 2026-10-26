@@ -68,8 +68,7 @@ class CoreCneRemedialActionsCreatorTest {
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
-        FlowResult flowResult = new FlowResult();
-        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(FlowResult.build().build());
         setUpContingencySeries();
         setUpProperties();
     }

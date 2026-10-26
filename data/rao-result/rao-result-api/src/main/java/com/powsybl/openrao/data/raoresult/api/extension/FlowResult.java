@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -34,12 +35,12 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private final Map<FlowCnec, FlowCnecResult> results;
 
-    public FlowResult() {
-        this.results = new HashMap<>();
+    private FlowResult(Map<FlowCnec, FlowCnecResult> results) {
+        this.results = new HashMap<>(results);
     }
 
     public FlowResult(FlowResult flowResultToCopy) {
-        this.results = new HashMap<>(flowResultToCopy.results);
+        this(flowResultToCopy.results);
     }
 
     /**
@@ -126,18 +127,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
      */
     public double getPtdfZonalSum(Instant instant, FlowCnec flowCnec, TwoSides side) {
         return safeGetResult(flowCnec).flatMap(flowCnecResult -> flowCnecResult.getPtdfZonalSum(instant, side)).orElse(Double.NaN);
-    }
-
-    public void addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        getOrCreateResult(flowCnec).addFlowMeasurement(flow, instant, side, unit);
-    }
-
-    public void addCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        getOrCreateResult(flowCnec).addCommercialFlowMeasurement(commercialFlow, instant, side, unit);
-    }
-
-    public void addPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
-        getOrCreateResult(flowCnec).addPtdfZonalSumMeasurement(ptdfZonalSum, instant, side);
     }
 
     private FlowCnecResult getOrCreateResult(FlowCnec flowCnec) {
@@ -304,6 +293,23 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         static FlowCnecResult of(FlowCnec flowCnec) {
             return new FlowCnecResult(flowCnec);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            FlowCnecResult that = (FlowCnecResult) o;
+            return flowCnec.equals(that.flowCnec);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(flowCnec) * 31;
+        }
     }
 
     private static class ElementaryFlowCnecMeasurement {
@@ -429,5 +435,38 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private static double computeRelativeMargin(double margin, double ptdfZonalSum) {
         return margin <= 0 ? margin : Math.min(Double.POSITIVE_INFINITY, margin / ptdfZonalSum);
+    }
+
+    // builder
+
+    public static FlowResultBuilder build() {
+        return new FlowResultBuilder();
+    }
+
+    public static final class FlowResultBuilder {
+        private final Map<FlowCnec, FlowCnecResult> results;
+
+        private FlowResultBuilder() {
+            results = new HashMap<>();
+        }
+
+        public FlowResultBuilder addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addFlowMeasurement(flow, instant, side, unit);
+            return this;
+        }
+
+        public FlowResultBuilder addCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addCommercialFlowMeasurement(commercialFlow, instant, side, unit);
+            return this;
+        }
+
+        public FlowResultBuilder addPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addPtdfZonalSumMeasurement(ptdfZonalSum, instant, side);
+            return this;
+        }
+
+        public FlowResult build() {
+            return new FlowResult(results);
+        }
     }
 }

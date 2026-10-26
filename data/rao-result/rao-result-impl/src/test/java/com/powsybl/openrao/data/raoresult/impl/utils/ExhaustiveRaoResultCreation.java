@@ -104,11 +104,11 @@ public final class ExhaustiveRaoResultCreation {
          and the CostResults
          */
 
-        FlowResult flowResult = new FlowResult();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
         for (FlowCnec cnec : crac.getFlowCnecs()) {
-            fillFlowCnecResult(flowResult, cnec, crac);
+            fillFlowCnecResult(flowResultBuilder, cnec, crac);
         }
-        raoResult.addExtension(FlowResult.class, flowResult);
+        raoResult.addExtension(FlowResult.class, flowResultBuilder.build());
 
         AngleResult angleResult = new AngleResult();
         for (AngleCnec cnec : crac.getAngleCnecs()) {
@@ -212,20 +212,20 @@ public final class ExhaustiveRaoResultCreation {
         return raoResult;
     }
 
-    private static void fillFlowCnecResult(FlowResult flowResult, FlowCnec cnec, Crac crac) {
+    private static void fillFlowCnecResult(FlowResult.FlowResultBuilder flowResultBuilder, FlowCnec cnec, Crac crac) {
 
         double x = Integer.parseInt(String.valueOf(cnec.getId().charAt(4))) * 1000;
         boolean hasLoopFlow = cnec.getId().startsWith("cnec1") || cnec.getId().startsWith("cnec2");
         boolean isPureMnec = cnec.isMonitored() && !cnec.isOptimized();
 
-        fillElementaryResult(flowResult, cnec, null, x, 100, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
-        fillElementaryResult(flowResult, cnec, crac.getPreventiveInstant(), x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
+        fillElementaryResult(flowResultBuilder, cnec, null, x, 100, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
+        fillElementaryResult(flowResultBuilder, cnec, crac.getPreventiveInstant(), x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            fillElementaryResult(flowResult, cnec, crac.getInstant("auto"), x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
+            fillElementaryResult(flowResultBuilder, cnec, crac.getInstant("auto"), x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
         if (cnec.getState().getInstant().isCurative()) {
-            fillElementaryResult(flowResult, cnec, crac.getInstant("curative"), x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
+            fillElementaryResult(flowResultBuilder, cnec, crac.getInstant("curative"), x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
     }
 
@@ -259,22 +259,36 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillElementaryResult(FlowResult flowResult, FlowCnec flowCnec, Instant instant, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Set<TwoSides> sides) {
-        sides.forEach(side -> fillElementaryResult(flowResult, flowCnec, instant, x, y, hasLoopFlow, isPureMnec, side));
+    private static void fillElementaryResult(FlowResult.FlowResultBuilder flowResultBuilder,
+                                             FlowCnec flowCnec,
+                                             Instant instant,
+                                             double x,
+                                             double y,
+                                             boolean hasLoopFlow,
+                                             boolean isPureMnec,
+                                             Set<TwoSides> sides) {
+        sides.forEach(side -> fillElementaryResult(flowResultBuilder, flowCnec, instant, x, y, hasLoopFlow, isPureMnec, side));
     }
 
-    private static void fillElementaryResult(FlowResult flowResult, FlowCnec flowCnec, Instant instant, double x, double y, boolean hasLoopFlow, boolean isPureMnec, TwoSides side) {
+    private static void fillElementaryResult(FlowResult.FlowResultBuilder flowResultBuilder,
+                                             FlowCnec flowCnec,
+                                             Instant instant,
+                                             double x,
+                                             double y,
+                                             boolean hasLoopFlow,
+                                             boolean isPureMnec,
+                                             TwoSides side) {
         double perturb = side.equals(TwoSides.ONE) ? 0 : 0.5;
 
-        flowResult.addFlowMeasurement(perturb + x + y + 10, instant, flowCnec, side, MEGAWATT);
-        flowResult.addFlowMeasurement(perturb + x + y + 20, instant, flowCnec, side, AMPERE);
+        flowResultBuilder.addFlowMeasurement(perturb + x + y + 10, instant, flowCnec, side, MEGAWATT)
+            .addFlowMeasurement(perturb + x + y + 20, instant, flowCnec, side, AMPERE);
 
         if (!isPureMnec) {
-            flowResult.addPtdfZonalSumMeasurement(perturb + x / 10000, instant, flowCnec, side);
+            flowResultBuilder.addPtdfZonalSumMeasurement(perturb + x / 10000, instant, flowCnec, side);
         }
         if (hasLoopFlow) {
-            flowResult.addCommercialFlowMeasurement(perturb + x + y + 14, instant, flowCnec, side, MEGAWATT);
-            flowResult.addCommercialFlowMeasurement(perturb + x + y + 24, instant, flowCnec, side, AMPERE);
+            flowResultBuilder.addCommercialFlowMeasurement(perturb + x + y + 14, instant, flowCnec, side, MEGAWATT)
+                .addCommercialFlowMeasurement(perturb + x + y + 24, instant, flowCnec, side, AMPERE);
         }
     }
 }

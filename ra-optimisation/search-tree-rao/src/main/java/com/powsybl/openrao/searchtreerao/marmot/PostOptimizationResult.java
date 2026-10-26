@@ -170,24 +170,24 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     }
 
     private void computeFlowResultsExtension() {
-        FlowResult flowResult = new FlowResult();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
         for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-            addFlowMeasurements(flowResult, flowCnec, initialResult, null);
+            addFlowMeasurements(flowResultBuilder, flowCnec, initialResult, null);
             crac.getSortedInstants()
                 .stream()
                 .filter(instant -> !instant.isOutage())
                 .filter(instant -> !instant.comesAfter(flowCnec.getState().getInstant()))
                 .forEach(instant -> addFlowMeasurements(
-                    flowResult,
+                    flowResultBuilder,
                     flowCnec,
                     postMipResult.getFlowResult(crac.getTimestamp().orElseThrow()),
                     instant)
                 );
         }
-        addExtension(FlowResult.class, flowResult);
+        addExtension(FlowResult.class, flowResultBuilder.build());
     }
 
-    private void addFlowMeasurements(FlowResult flowResult,
+    private void addFlowMeasurements(FlowResult.FlowResultBuilder flowResultBuilder,
                                      FlowCnec flowCnec,
                                      com.powsybl.openrao.searchtreerao.result.api.FlowResult sensiResult,
                                      Instant instant) {
@@ -195,13 +195,13 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         List<TwoSides> possibleSides = List.of(TwoSides.ONE, TwoSides.TWO);
         for (Unit unit : possibleUnits) {
             for (TwoSides side : possibleSides) {
-                addFlowMeasurements(flowResult, flowCnec, sensiResult, instant, side, unit);
+                addFlowMeasurements(flowResultBuilder, flowCnec, sensiResult, instant, side, unit);
             }
         }
 
     }
 
-    private void addFlowMeasurements(FlowResult flowResult,
+    private void addFlowMeasurements(FlowResult.FlowResultBuilder flowResultBuilder,
                                      FlowCnec flowCnec,
                                      com.powsybl.openrao.searchtreerao.result.api.FlowResult sensiResult,
                                      Instant instant,
@@ -209,17 +209,17 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
                                      Unit unit) {
         double flow = sensiResult.getFlow(flowCnec, side, unit);
         if (!Double.isNaN(flow)) {
-            flowResult.addFlowMeasurement(flow, instant, flowCnec, side, unit);
+            flowResultBuilder.addFlowMeasurement(flow, instant, flowCnec, side, unit);
         }
 
         double commercialFlow = sensiResult.getCommercialFlow(flowCnec, side, unit);
         if (!Double.isNaN(commercialFlow)) {
-            flowResult.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, unit);
+            flowResultBuilder.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, unit);
         }
 
         double ptdfZonalSum = sensiResult.getPtdfZonalSum(flowCnec, side);
         if (!Double.isNaN(ptdfZonalSum)) {
-            flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+            flowResultBuilder.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
         }
     }
 

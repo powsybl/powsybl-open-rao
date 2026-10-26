@@ -30,15 +30,23 @@ public final class CastorFlowResultExtensionHelper {
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {
-        FlowResult flowResult = new FlowResult();
-        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResult, initialResult, flowCnec, null, flowUnit));
-        return flowResult;
+        return fillFromInitialResults(initialResult, crac, flowUnit).build();
+    }
+
+    private static FlowResult.FlowResultBuilder fillFromInitialResults(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
+        return flowResultBuilder;
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, Unit flowUnit) {
-        FlowResult flowResult = convertToExtension(initialResult, crac, flowUnit);
-        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResult, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
-        return flowResult;
+        return fillFromInitialAndPreventiveResults(initialResult, preventiveResult, crac, flowUnit).build();
+    }
+
+    private static FlowResult.FlowResultBuilder fillFromInitialAndPreventiveResults(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, Unit flowUnit) {
+        FlowResult.FlowResultBuilder flowResultBuilder = fillFromInitialResults(initialResult, crac, flowUnit);
+        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
+        return flowResultBuilder;
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult,
@@ -46,7 +54,15 @@ public final class CastorFlowResultExtensionHelper {
                                                 Map<State, PostPerimeterResult> postContingencyResults,
                                                 Crac crac,
                                                 Unit flowUnit) {
-        FlowResult flowResult = convertToExtension(initialResult, preventiveResult, crac, flowUnit);
+        return fillFromInitialPreventiveAndCurativeResults(initialResult, preventiveResult, postContingencyResults, crac, flowUnit).build();
+    }
+
+    private static FlowResult.FlowResultBuilder fillFromInitialPreventiveAndCurativeResults(PrePerimeterResult initialResult,
+                                                                                            PrePerimeterResult preventiveResult,
+                                                                                            Map<State, PostPerimeterResult> postContingencyResults,
+                                                                                            Crac crac,
+                                                                                            Unit flowUnit) {
+        FlowResult.FlowResultBuilder flowResultBuilder = fillFromInitialAndPreventiveResults(initialResult, preventiveResult, crac, flowUnit);
         for (State state : postContingencyResults.keySet()) {
             if (hasRemedialActionsApplied(postContingencyResults.get(state).optimizationResult(), state)) {
                 PrePerimeterResult prePerimeterResult = postContingencyResults.get(state).prePerimeterResultForAllFollowingStates();
@@ -55,51 +71,51 @@ public final class CastorFlowResultExtensionHelper {
                     .filter(s -> !s.getInstant().comesBefore(state.getInstant()))
                     .forEach(
                         s -> crac.getFlowCnecs(s).forEach(
-                            flowCnec -> fillResultForInstant(flowResult, prePerimeterResult, flowCnec, state.getInstant(), flowUnit)
+                            flowCnec -> fillResultForInstant(flowResultBuilder, prePerimeterResult, flowCnec, state.getInstant(), flowUnit)
                         )
                     );
             }
         }
-        return flowResult;
+        return flowResultBuilder;
     }
 
     private static boolean hasRemedialActionsApplied(OptimizationResult optimizationResult, State state) {
         return !optimizationResult.getActivatedNetworkActions().isEmpty() || !optimizationResult.getActivatedRangeActions(state).isEmpty();
     }
 
-    private static void fillResultForInstant(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
-        fillResultForUnit(flowResult, prePerimeterResult, flowCnec, instant, Unit.AMPERE);
-        fillResultForUnit(flowResult, prePerimeterResult, flowCnec, instant, Unit.MEGAWATT);
+    private static void fillResultForInstant(FlowResult.FlowResultBuilder flowResultBuilder, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
+        fillResultForUnit(flowResultBuilder, prePerimeterResult, flowCnec, instant, Unit.AMPERE);
+        fillResultForUnit(flowResultBuilder, prePerimeterResult, flowCnec, instant, Unit.MEGAWATT);
     }
 
-    private static void fillResultForUnit(FlowResult flowResult, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
+    private static void fillResultForUnit(FlowResult.FlowResultBuilder flowResultBuilder, PrePerimeterResult prePerimeterResult, FlowCnec flowCnec, Instant instant, Unit flowUnit) {
         // flows
-        safeGetAndAddFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE, flowUnit);
-        safeGetAndAddFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO, flowUnit);
+        safeGetAndAddFlow(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.ONE, flowUnit);
+        safeGetAndAddFlow(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.TWO, flowUnit);
 
         // commercial flows
-        safeGetAndAddCommercialFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE, flowUnit);
-        safeGetAndAddCommercialFlow(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO, flowUnit);
+        safeGetAndAddCommercialFlow(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.ONE, flowUnit);
+        safeGetAndAddCommercialFlow(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.TWO, flowUnit);
 
         // PTDF zonal sums
-        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.ONE);
-        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResult, flowCnec, instant, TwoSides.TWO);
+        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.ONE);
+        safeGetAndAddPtdfZonalSum(prePerimeterResult, flowResultBuilder, flowCnec, instant, TwoSides.TWO);
     }
 
     private static void safeGetAndAddFlow(PrePerimeterResult prePerimeterResult,
-                                          FlowResult flowResult,
+                                          FlowResult.FlowResultBuilder flowResultBuilder,
                                           FlowCnec flowCnec,
                                           Instant instant,
                                           TwoSides side,
                                           Unit flowUnit) {
         double flow = prePerimeterResult.getFlow(flowCnec, side, flowUnit, instant);
         if (!Double.isNaN(flow)) {
-            flowResult.addFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
+            flowResultBuilder.addFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
         }
     }
 
     private static void safeGetAndAddCommercialFlow(PrePerimeterResult prePerimeterResult,
-                                                    FlowResult flowResult,
+                                                    FlowResult.FlowResultBuilder flowResultBuilder,
                                                     FlowCnec flowCnec,
                                                     Instant instant,
                                                     TwoSides side,
@@ -108,14 +124,14 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double commercialFlow = prePerimeterResult.getCommercialFlow(flowCnec, side, flowUnit);
             if (!Double.isNaN(commercialFlow)) {
-                flowResult.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
+                flowResultBuilder.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
             }
         } catch (OpenRaoException ignored) {
         }
     }
 
     private static void safeGetAndAddPtdfZonalSum(PrePerimeterResult prePerimeterResult,
-                                                  FlowResult flowResult,
+                                                  FlowResult.FlowResultBuilder flowResultBuilder,
                                                   FlowCnec flowCnec,
                                                   Instant instant,
                                                   TwoSides side) {
@@ -123,7 +139,7 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double ptdfZonalSum = prePerimeterResult.getPtdfZonalSum(flowCnec, side);
             if (!Double.isNaN(ptdfZonalSum)) {
-                flowResult.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+                flowResultBuilder.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
             }
         } catch (OpenRaoException ignored) {
         }

@@ -47,7 +47,7 @@ final class FlowCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        FlowResult flowResult = new FlowResult();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(FLOWCNEC_ID)) {
@@ -60,37 +60,41 @@ final class FlowCnecResultArrayDeserializer {
             if (flowCnec == null) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: flowCnec with id %s does not exist in the Crac", flowCnecId));
             }
-            deserializeFlowCnecResult(jsonParser, flowResult, flowCnec, jsonFileVersion, crac);
+            deserializeFlowCnecResult(jsonParser, flowResultBuilder, flowCnec, jsonFileVersion, crac);
         }
 
-        raoResult.addExtension(FlowResult.class, flowResult);
+        raoResult.addExtension(FlowResult.class, flowResultBuilder.build());
     }
 
-    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowResult.FlowResultBuilder flowResultBuilder, FlowCnec flowCnec, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
-            deserializeElementaryFlowCnecResult(jsonParser, flowResult, flowCnec, optimizedInstant, jsonFileVersion);
+            deserializeElementaryFlowCnecResult(jsonParser, flowResultBuilder, flowCnec, optimizedInstant, jsonFileVersion);
         }
     }
 
-    private static void deserializeElementaryFlowCnecResult(JsonParser jsonParser, FlowResult flowResult, FlowCnec flowCnec, Instant optimizedInstant, String jsonFileVersion) throws IOException {
+    private static void deserializeElementaryFlowCnecResult(JsonParser jsonParser,
+                                                            FlowResult.FlowResultBuilder flowResultBuilder,
+                                                            FlowCnec flowCnec,
+                                                            Instant optimizedInstant,
+                                                            String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
                 case MEGAWATT_UNIT:
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnit(jsonParser, flowResult, flowCnec, Unit.MEGAWATT, optimizedInstant, jsonFileVersion);
+                    deserializeElementaryFlowCnecResultForUnit(jsonParser, flowResultBuilder, flowCnec, Unit.MEGAWATT, optimizedInstant, jsonFileVersion);
                     break;
                 case AMPERE_UNIT:
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnit(jsonParser, flowResult, flowCnec, Unit.AMPERE, optimizedInstant, jsonFileVersion);
+                    deserializeElementaryFlowCnecResultForUnit(jsonParser, flowResultBuilder, flowCnec, Unit.AMPERE, optimizedInstant, jsonFileVersion);
                     break;
                 case ZONAL_PTDF_SUM:
                     checkSideHandlingVersion(jsonFileVersion, ZONAL_PTDF_SUM);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResult.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE);
-                    flowResult.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO);
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
@@ -99,7 +103,7 @@ final class FlowCnecResultArrayDeserializer {
     }
 
     private static void deserializeElementaryFlowCnecResultForUnit(JsonParser jsonParser,
-                                                                   FlowResult flowResult,
+                                                                   FlowResult.FlowResultBuilder flowResultBuilder,
                                                                    FlowCnec flowCnec,
                                                                    Unit unit,
                                                                    Instant optimizedInstant,
@@ -111,35 +115,35 @@ final class FlowCnecResultArrayDeserializer {
                     break;
                 case SIDE_ONE:
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResult, flowCnec, unit, TwoSides.ONE, optimizedInstant);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResultBuilder, flowCnec, unit, TwoSides.ONE, optimizedInstant);
                     break;
                 case SIDE_TWO:
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResult, flowCnec, unit, TwoSides.TWO, optimizedInstant);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResultBuilder, flowCnec, unit, TwoSides.TWO, optimizedInstant);
                     break;
                 case LEFT_SIDE:
                     Utils.checkDeprecatedField(LEFT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResult, flowCnec, unit, TwoSides.ONE, optimizedInstant);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResultBuilder, flowCnec, unit, TwoSides.ONE, optimizedInstant);
                     break;
                 case RIGHT_SIDE:
                     Utils.checkDeprecatedField(RIGHT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResult, flowCnec, unit, TwoSides.TWO, optimizedInstant);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, flowResultBuilder, flowCnec, unit, TwoSides.TWO, optimizedInstant);
                     break;
                 case FLOW:
                     checkSideHandlingVersion(jsonFileVersion, FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResult.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
-                    flowResult.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
                     break;
                 case COMMERCIAL_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, COMMERCIAL_FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResult.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
-                    flowResult.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
                     break;
                 case LOOP_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, LOOP_FLOW);
@@ -156,7 +160,7 @@ final class FlowCnecResultArrayDeserializer {
     }
 
     private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser,
-                                                                          FlowResult flowResult,
+                                                                          FlowResult.FlowResultBuilder flowResultBuilder,
                                                                           FlowCnec flowCnec,
                                                                           Unit unit,
                                                                           TwoSides side,
@@ -165,11 +169,11 @@ final class FlowCnecResultArrayDeserializer {
             switch (jsonParser.currentName()) {
                 case FLOW:
                     jsonParser.nextToken();
-                    flowResult.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
                     break;
                 case COMMERCIAL_FLOW:
                     jsonParser.nextToken();
-                    flowResult.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
                     break;
                 case LOOP_FLOW:
                     jsonParser.nextToken();
@@ -179,7 +183,7 @@ final class FlowCnecResultArrayDeserializer {
                     if (!unit.equals(Unit.MEGAWATT)) {
                         throw new OpenRaoException(String.format("%s can only be defined in the MEGAWATT section", ZONAL_PTDF_SUM));
                     }
-                    flowResult.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side);
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
