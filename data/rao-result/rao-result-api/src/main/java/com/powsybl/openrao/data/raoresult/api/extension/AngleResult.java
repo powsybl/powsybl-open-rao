@@ -7,17 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -75,16 +71,6 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
         }
     }
 
-    // serialization
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartArray();
-        for (AngleCnec angleCnec : results.keySet().stream().sorted(Comparator.comparing(Identifiable::getId)).toList()) {
-            results.get(angleCnec).serialize(jsonGenerator);
-        }
-        jsonGenerator.writeEndArray();
-    }
-
     // result data model
 
     private static class AngleCnecResult {
@@ -129,34 +115,6 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
         public static AngleCnecResult of(AngleCnec angleCnec) {
             return new AngleCnecResult(angleCnec);
-        }
-
-        public void serialize(JsonGenerator jsonGenerator) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("angleCnecId", angleCnec.getId());
-            serializeInitialResults(jsonGenerator);
-            for (Instant instant : anglePerInstant.keySet().stream().sorted().toList()) {
-                serializeMeasurementsForInstant(jsonGenerator, instant);
-            }
-            jsonGenerator.writeEndObject();
-        }
-
-        private void serializeInitialResults(JsonGenerator jsonGenerator) throws IOException {
-            if (initialAngle != null && initialMargin != null) {
-                serializeResults(jsonGenerator, "initial", initialAngle, initialMargin);
-            }
-        }
-
-        private void serializeMeasurementsForInstant(JsonGenerator jsonGenerator, Instant instant) throws IOException {
-            serializeResults(jsonGenerator, instant.getId(), anglePerInstant.get(instant), marginPerInstant.get(instant));
-        }
-
-        private static void serializeResults(JsonGenerator jsonGenerator, String instantId, double angle, double margin) throws IOException {
-            jsonGenerator.writeObjectFieldStart(instantId);
-            jsonGenerator.writeObjectFieldStart(Unit.DEGREE.name().toLowerCase());
-            jsonGenerator.writeNumberField("angle", angle);
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
         }
 
         @Override
