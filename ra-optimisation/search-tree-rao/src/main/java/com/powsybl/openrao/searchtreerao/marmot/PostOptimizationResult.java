@@ -160,13 +160,13 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     }
 
     private void computeCastorCostResultsExtension() {
-        CostResult costResult = new CostResult();
-        addCostsForInstant(costResult, initialResult, null);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        addCostsForInstant(costResultBuilder, initialResult, null);
         crac.getSortedInstants()
             .stream()
             .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(costResult, singleTimestampObjectiveFunctionResult, instant));
-        addExtension(CostResult.class, costResult);
+            .forEach(instant -> addCostsForInstant(costResultBuilder, singleTimestampObjectiveFunctionResult, instant));
+        addExtension(CostResult.class, costResultBuilder.build());
     }
 
     private void computeFlowResultsExtension() {
@@ -223,12 +223,12 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         }
     }
 
-    private void addCostsForInstant(CostResult costResult,
+    private void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                     ObjectiveFunctionResult objectiveFunctionResult,
                                     Instant instant) {
-        costResult.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResult.addVirtualCostResult(
+            virtualCostName -> costResultBuilder.addVirtualCostResult(
                 instant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName)

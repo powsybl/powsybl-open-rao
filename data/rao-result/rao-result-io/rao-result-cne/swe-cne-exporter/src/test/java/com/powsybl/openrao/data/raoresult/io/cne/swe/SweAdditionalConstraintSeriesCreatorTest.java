@@ -174,6 +174,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         metadata = Metadata.build()
             .addComputationStatus(preventiveState, ComputationStatus.FAILURE)
             .build();
+        Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         setUpAngleCnecs(contingency);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);

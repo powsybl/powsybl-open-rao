@@ -79,14 +79,14 @@ class JsonTimeCoupledRaoResultSerializerTest {
             ))
         );
 
-        CostResult costResult = new CostResult();
-        costResult.addFunctionalCostResult(null, 0.0);
-        costResult.addVirtualCostResult(null, "min-margin-violation-evaluator", 3333333.33);
-        costResult.addVirtualCostResult(null, "sensitivity-failure-cost", 0.0);
-        costResult.addFunctionalCostResult(preventiveInstant, 65030.00);
-        costResult.addVirtualCostResult(preventiveInstant, "min-margin-violation-evaluator", 0.0);
-        costResult.addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 0.0);
-        timeCoupledRaoResult.addExtension(CostResult.class, costResult);
+        CostResult.CostResultBuilder costResult = CostResult.build()
+            .addFunctionalCostResult(null, 0.0)
+            .addVirtualCostResult(null, "min-margin-violation-evaluator", 3333333.33)
+            .addVirtualCostResult(null, "sensitivity-failure-cost", 0.0)
+            .addFunctionalCostResult(preventiveInstant, 65030.00)
+            .addVirtualCostResult(preventiveInstant, "min-margin-violation-evaluator", 0.0)
+            .addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 0.0);
+        timeCoupledRaoResult.addExtension(CostResult.class, costResult.build());
     }
 
     @Test

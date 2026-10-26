@@ -59,29 +59,29 @@ public final class ExhaustiveRaoResultCreation {
         // --- Cost results ---
         // --------------------
 
-        CostResult costResult = new CostResult();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
 
         // CostResult at initial state
-        costResult.addFunctionalCostResult(null, 100.0);
-        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
-        costResult.addVirtualCostResult(null, "MNEC", 0.0);
+        costResultBuilder.addFunctionalCostResult(null, 100.0);
+        costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);
 
         // CostResult after PRA
-        costResult.addFunctionalCostResult(crac.getPreventiveInstant(), 80.0);
-        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "loopFlow", 0.0);
-        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "MNEC", 0.0);
+        costResultBuilder.addFunctionalCostResult(crac.getPreventiveInstant(), 80.0);
+        costResultBuilder.addVirtualCostResult(crac.getPreventiveInstant(), "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(crac.getPreventiveInstant(), "MNEC", 0.0);
 
         // CostResult after ARA
-        costResult.addFunctionalCostResult(crac.getInstant("auto"), -20.0);
-        costResult.addVirtualCostResult(crac.getInstant("auto"), "loopFlow", 15.0);
-        costResult.addVirtualCostResult(crac.getInstant("auto"), "MNEC", 20.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant("auto"), -20.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("auto"), "loopFlow", 15.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("auto"), "MNEC", 20.0);
 
         // CostResult after CRA
-        costResult.addFunctionalCostResult(crac.getInstant("curative"), -50.0);
-        costResult.addVirtualCostResult(crac.getInstant("curative"), "loopFlow", 10.0);
-        costResult.addVirtualCostResult(crac.getInstant("curative"), "MNEC", 2.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant("curative"), -50.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("curative"), "loopFlow", 10.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("curative"), "MNEC", 2.0);
 
-        raoResult.addExtension(CostResult.class, costResult);
+        raoResult.addExtension(CostResult.class, costResultBuilder.build());
 
         // ------------------------
         // --- FlowCnec results ---

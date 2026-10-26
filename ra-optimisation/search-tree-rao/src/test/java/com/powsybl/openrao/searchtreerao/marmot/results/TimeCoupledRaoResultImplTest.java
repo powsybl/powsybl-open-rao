@@ -105,9 +105,10 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(raoResult.isActivatedDuringState(state, networkAction)).thenReturn(isNetworkActionActivated);
 
         // mock cost extension
-        CostResult costResult = new CostResult();
-        costResult.addFunctionalCostResult(instant, functionalCost);
-        costResult.addVirtualCostResult(instant, "virtual", virtualCost);
+        CostResult costResult = CostResult.build()
+            .addFunctionalCostResult(instant, functionalCost)
+            .addVirtualCostResult(instant, "virtual", virtualCost)
+            .build();
         Mockito.when(raoResult.getExtension(CostResult.class)).thenReturn(costResult);
 
         // mock metadata extension

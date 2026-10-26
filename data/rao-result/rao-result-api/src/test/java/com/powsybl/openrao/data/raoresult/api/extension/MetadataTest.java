@@ -33,14 +33,8 @@ class MetadataTest {
     private Metadata metadata;
 
     @Test
-    void testConstructor() {
-        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
-        assertTrue(metadata.getExecutionDetails().isEmpty());
-    }
-
-    @Test
     void testGetName() {
-        assertEquals("metadata", metadata.getName());
+        assertEquals("metadata", Metadata.build().build().getName());
     }
 
     @Test
@@ -83,6 +77,7 @@ class MetadataTest {
 
         // Case 6: Mixed statuses (preventive FAILURE + others) -> FAILURE
         metadata = Metadata.build()
+            .addComputationStatus(preventive, ComputationStatus.FAILURE)
             .addComputationStatus(curative, ComputationStatus.FAILURE)
             .build();
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
@@ -118,6 +113,8 @@ class MetadataTest {
 
     @Test
     void testSetAndGetExecutionDetails() {
+        metadata = Metadata.build().build();
+
         String details = "Step 1: Success\nStep 2: Warning";
         metadata.setExecutionDetails(details);
         assertEquals(Optional.of(details), metadata.getExecutionDetails());
@@ -128,8 +125,6 @@ class MetadataTest {
 
     @Test
     void testSerialize() throws IOException {
-        metadata.setExecutionDetails("Some details");
-
         Instant instant1 = Mockito.mock(Instant.class);
         when(instant1.getId()).thenReturn("i1");
         State state1 = Mockito.mock(State.class);
@@ -191,6 +186,7 @@ class MetadataTest {
             .addComputationStatus(state2, ComputationStatus.FAILURE)
             .addComputationStatus(state3, ComputationStatus.PARTIAL_FAILURE)
             .addComputationStatus(state4, ComputationStatus.DEFAULT)
+            .addExecutionDetails("Some details")
             .build();
 
         StringWriter writer = new StringWriter();

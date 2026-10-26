@@ -450,16 +450,6 @@ public class FastRao implements RaoProvider {
         };
     }
 
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
-    }
-
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(
         Network networkCopy,
         Crac crac,

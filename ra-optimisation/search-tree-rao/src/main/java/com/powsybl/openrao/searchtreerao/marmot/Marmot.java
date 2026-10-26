@@ -793,20 +793,20 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
                                                               ObjectiveFunctionResult finalLinearOptimizationResult,
                                                               List<Instant> instants) {
-        CostResult costResult = new CostResult();
-        addCostsForInstant(costResult, initialOptimizationResult, null);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
         instants.stream()
             .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(costResult, finalLinearOptimizationResult, instant));
-        return costResult;
+            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
+        return costResultBuilder.build();
     }
 
-    private static void addCostsForInstant(CostResult costResult,
+    private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant optimizedInstant) {
-        costResult.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames()
-            .forEach(virtualCostName -> costResult.addVirtualCostResult(
+            .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
                 optimizedInstant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
