@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -158,8 +159,11 @@ public class Marmot implements TimeCoupledRaoProvider {
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
             RaoResult raoResult = topologicalOptimizationResults.getData(timestamp).orElseThrow();
-            crac.getFlowCnecs().stream().filter(flowCnec -> raoResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
-                .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+            com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult = raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class);
+            if (flowResult != null) {
+                crac.getFlowCnecs().stream().filter(flowCnec -> flowResult.getMargin(crac.getLastInstant(), flowCnec, RaoUtil.getFlowUnit(raoParameters)) < 0)
+                    .map(Identifiable::getId).forEach(postTopoOverloadedCnecs::add);
+            }
         });
         topologicalOptimizationResults.clear(); // delete RAO results
 
@@ -778,6 +782,10 @@ public class Marmot implements TimeCoupledRaoProvider {
             CostResult.class,
             createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
         );
+        result.addExtension(
+            com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
+            createFlowResultExtension(initialResults, globalLinearOptimizationResult, raoInputs.map(RaoInput::getCrac), RaoUtil.getFlowUnit(raoParameters))
+        );
         result.addExtension(Metadata.class, getMetadataExtension(raoInputs.map(RaoInput::getCrac), globalLinearOptimizationResult));
         return result;
     }
@@ -803,6 +811,31 @@ public class Marmot implements TimeCoupledRaoProvider {
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
             );
+    }
+
+    private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult createFlowResultExtension(TemporalData<PrePerimeterResult> initialResults,
+                                                                                                         FlowResult finalFlowResult,
+                                                                                                         TemporalData<Crac> cracs,
+                                                                                                         Unit flowUnit) {
+        com.powsybl.openrao.data.raoresult.api.extension.FlowResult.FlowResultBuilder flowResultBuilder = com.powsybl.openrao.data.raoresult.api.extension.FlowResult.build();
+        cracs.getDataPerTimestamp().values().forEach(
+            crac -> crac.getFlowCnecs().forEach(
+                flowCnec -> {
+                    // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
+                    PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
+                    flowResultBuilder.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
+                        .addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
+                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    // TODO: handle multi-curative in MARMOT (the following only works with one curative instant)
+                    if (flowCnec.getState().getInstant().isCurative()) {
+                        flowResultBuilder.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                            .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    }
+                }
+            )
+        );
+        return flowResultBuilder.build();
     }
 
     private static Metadata getMetadataExtension(TemporalData<Crac> cracs, FlowResult globalFlowResult) {

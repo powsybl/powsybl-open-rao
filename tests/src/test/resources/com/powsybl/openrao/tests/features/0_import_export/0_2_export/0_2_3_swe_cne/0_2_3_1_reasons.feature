@@ -27,7 +27,7 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin
   Scenario: 0.2.3.1.1.2: One contingency failing during 1st PRAO with 2P
-   2P finds the same result as 1P.
+  2P finds the same result as 1P.
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
@@ -283,6 +283,7 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @cne-export
   Scenario: 0.2.3.1.6: CNE export with angles, no angle results
+  # warning: margins in RAO Result are inconsistent with flows
   Copy of 0.2.3.1.4 with extra angle CNEC but no angle values in RAO result and a secure RAO
   Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 0.2.3.1.4 (but secure)
     Given network file is "epic12/nordic32.xiidm"

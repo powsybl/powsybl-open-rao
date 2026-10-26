@@ -7,19 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -50,20 +46,5 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-    }
-
-    @Test
-    void testgetFlowAndMargin() {
-        Instant optInstant = mock(Instant.class);
-        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 3");
-        FlowCnec flowCnec = mock(FlowCnec.class);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optInstant, flowCnec, TwoSides.ONE));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
-        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
-        assertEquals("This method should not be used, because the RAO failed: mocked error message 3", e.getMessage());
     }
 }

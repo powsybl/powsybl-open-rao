@@ -508,7 +508,8 @@ class AngleMonitoringTest {
 
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
-        assertTrue(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
+        OpenRaoException noVoltageCnecsException = assertThrows(OpenRaoException.class, () -> isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
+        assertEquals("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.", noVoltageCnecsException.getMessage());
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
         assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 
