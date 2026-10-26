@@ -58,8 +58,9 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("The RAO only went through first preventive");
+        Metadata metadata = Metadata.build()
+            .addExecutionDetails("The RAO only went through first preventive")
+            .build();
         raoResult.addExtension(Metadata.class, metadata);
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", autoInstant));

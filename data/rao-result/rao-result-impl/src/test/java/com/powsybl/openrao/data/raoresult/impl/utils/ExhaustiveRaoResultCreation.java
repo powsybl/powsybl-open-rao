@@ -51,9 +51,9 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
-        raoResult.addExtension(Metadata.class, metadata);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadataBuilder.addExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
+        raoResult.addExtension(Metadata.class, metadataBuilder.build());
 
         // --------------------
         // --- Cost results ---

@@ -839,17 +839,17 @@ public class Marmot implements TimeCoupledRaoProvider {
     }
 
     private static Metadata getMetadataExtension(TemporalData<Crac> cracs, FlowResult globalFlowResult) {
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadataBuilder.addExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
             for (State state : cracs.getData(timestamp).orElseThrow().getStates()) {
                 ComputationStatus computationStatus = globalFlowResult.getComputationStatus(state);
                 if (computationStatus != ComputationStatus.DEFAULT) {
-                    metadata.setComputationStatus(state, computationStatus);
+                    metadataBuilder.addComputationStatus(state, computationStatus);
                 }
             }
         }
-        return metadata;
+        return metadataBuilder.build();
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {

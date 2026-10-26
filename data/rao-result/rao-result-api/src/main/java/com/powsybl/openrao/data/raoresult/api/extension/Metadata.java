@@ -25,15 +25,15 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class Metadata extends AbstractExtension<RaoResult> {
+public final class Metadata extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "metadata";
 
     private final Map<State, ComputationStatus> computationStatusPerState;
     private String executionDetails;
 
-    public Metadata() {
-        this.computationStatusPerState = new HashMap<>();
-        this.executionDetails = null;
+    private Metadata(Map<State, ComputationStatus> computationStatusPerState, String executionDetails) {
+        this.computationStatusPerState = new HashMap<>(computationStatusPerState);
+        this.executionDetails = executionDetails;
     }
 
     /**
@@ -69,12 +69,6 @@ public class Metadata extends AbstractExtension<RaoResult> {
      */
     public Optional<String> getExecutionDetails() {
         return Optional.ofNullable(executionDetails);
-    }
-
-    public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        if (computationStatus != null) {
-            this.computationStatusPerState.put(state, computationStatus);
-        }
     }
 
     public void setExecutionDetails(String executionDetails) {
@@ -119,5 +113,34 @@ public class Metadata extends AbstractExtension<RaoResult> {
 
     private static String getComputationStatusAsString(ComputationStatus computationStatus) {
         return computationStatus.name().toLowerCase().replace("_", "-");
+    }
+
+    // builder
+
+    public static MetadataBuilder build() {
+        return new MetadataBuilder();
+    }
+
+    public static final class MetadataBuilder {
+        private final Map<State, ComputationStatus> computationStatusPerState;
+        private String executionDetails = null;
+
+        private MetadataBuilder() {
+            this.computationStatusPerState = new HashMap<>();
+        }
+
+        public MetadataBuilder addComputationStatus(State state, ComputationStatus computationStatus) {
+            this.computationStatusPerState.put(state, computationStatus);
+            return this;
+        }
+
+        public MetadataBuilder addExecutionDetails(String executionDetails) {
+            this.executionDetails = executionDetails;
+            return this;
+        }
+
+        public Metadata build() {
+            return new Metadata(computationStatusPerState, executionDetails);
+        }
     }
 }

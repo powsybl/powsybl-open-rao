@@ -598,8 +598,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     default void setExecutionDetails(String executionDetails) {
         Metadata metadata = getExtension(Metadata.class);
         if (metadata == null) {
-            metadata = new Metadata();
-            addExtension(Metadata.class, metadata);
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
         }
         metadata.setExecutionDetails(executionDetails);
     }

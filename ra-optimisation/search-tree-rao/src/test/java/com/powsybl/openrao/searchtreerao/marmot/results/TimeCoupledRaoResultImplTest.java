@@ -111,8 +111,9 @@ class TimeCoupledRaoResultImplTest {
         Mockito.when(raoResult.getExtension(CostResult.class)).thenReturn(costResult);
 
         // mock metadata extension
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails(executionDetails);
+        Metadata metadata = Metadata.build()
+            .addExecutionDetails(executionDetails)
+            .build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
 
         return raoResult;

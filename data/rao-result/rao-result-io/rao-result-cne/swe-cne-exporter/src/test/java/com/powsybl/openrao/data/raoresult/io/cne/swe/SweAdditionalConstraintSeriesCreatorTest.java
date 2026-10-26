@@ -53,7 +53,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.angleResult = Mockito.mock(AngleResult.class);
-        this.metadata = new Metadata();
+        this.metadata = Metadata.build().build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
@@ -171,7 +171,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
-        metadata.setComputationStatus(preventiveState, ComputationStatus.FAILURE);
+        metadata = Metadata.build()
+            .addComputationStatus(preventiveState, ComputationStatus.FAILURE)
+            .build();
         setUpAngleCnecs(contingency);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);

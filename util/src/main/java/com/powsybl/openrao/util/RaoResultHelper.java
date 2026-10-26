@@ -445,18 +445,18 @@ public final class RaoResultHelper {
                                            PrePerimeterResult postPreventiveResults,
                                            Map<State, PostPerimeterResult> postMergingContingencyResults,
                                            String executionDetails) {
-        Metadata metadata = new Metadata();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
         if (executionDetails != null) {
-            metadata.setExecutionDetails(executionDetails);
+            metadataBuilder.addExecutionDetails(executionDetails);
         }
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPreventiveResults, postMergingContingencyResults)
                 .getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadata.setComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
-        raoResult.addExtension(Metadata.class, metadata);
+        raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
 
     private static PrePerimeterResult getAppropriateResult(State state,
