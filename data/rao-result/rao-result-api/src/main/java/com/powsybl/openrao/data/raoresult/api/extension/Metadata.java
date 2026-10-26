@@ -7,18 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -78,41 +72,6 @@ public final class Metadata extends AbstractExtension<RaoResult> {
     @Override
     public String getName() {
         return EXTENSION_NAME;
-    }
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(getComputationStatus()));
-        if (executionDetails != null) {
-            jsonGenerator.writeStringField("executionDetails", executionDetails);
-        }
-        if (!computationStatusPerState.isEmpty()) {
-            jsonGenerator.writeArrayFieldStart("computationStatusMap");
-            for (State state : getSortedStates()) {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(computationStatusPerState.get(state)));
-                jsonGenerator.writeStringField("instant", state.getInstant().getId());
-                Optional<Contingency> contingency = state.getContingency();
-                if (contingency.isPresent()) {
-                    jsonGenerator.writeStringField("contingency", contingency.get().getId());
-                }
-                Optional<OffsetDateTime> timestamp = state.getTimestamp();
-                if (timestamp.isPresent()) {
-                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(timestamp.get()));
-                }
-                jsonGenerator.writeEndObject();
-            }
-            jsonGenerator.writeEndArray();
-        }
-        jsonGenerator.writeEndObject();
-    }
-
-    private List<State> getSortedStates() {
-        return computationStatusPerState.keySet().stream().sorted().toList();
-    }
-
-    private static String getComputationStatusAsString(ComputationStatus computationStatus) {
-        return computationStatus.name().toLowerCase().replace("_", "-");
     }
 
     // builder

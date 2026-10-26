@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -40,10 +41,12 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
     private static final DateTimeFormatter FIELD_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final String individualRaoResultFilenameTemplate;
+    private final Crac crac;
     private final List<Instant> instants;
 
-    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, Crac crac, List<Instant> instants) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
+        this.crac = crac;
         this.instants = instants;
     }
 
@@ -61,6 +64,9 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         serializeRaoResultPerTimestamp(timeCoupledRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
+
+        // write extensions
+        serializerProvider.setAttribute("crac", crac);
         JsonUtil.writeExtensions(timeCoupledRaoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();

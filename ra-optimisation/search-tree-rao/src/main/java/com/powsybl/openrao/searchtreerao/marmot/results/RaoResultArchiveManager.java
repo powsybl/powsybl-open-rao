@@ -50,8 +50,14 @@ public final class RaoResultArchiveManager {
         for (OffsetDateTime timestamp : timeCoupledRaoResult.getTimestamps()) {
             addRaoResultToZipArchive(timestamp, zipOutputStream, timeCoupledRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties, jsonFileNameTemplate);
         }
-        List<Instant> instants = cracs.getDataPerTimestamp().values().iterator().next().getSortedInstants();
-        addSummaryToZipArchive(zipOutputStream, timeCoupledRaoResult, summaryFilename, jsonFileNameTemplate, instants, exportOnlyPreventiveResults(properties));
+        addSummaryToZipArchive(
+            zipOutputStream,
+            timeCoupledRaoResult,
+            summaryFilename,
+            jsonFileNameTemplate,
+            cracs.getDataPerTimestamp().values().iterator().next(),
+            exportOnlyPreventiveResults(properties)
+        );
         zipOutputStream.close();
     }
 
@@ -71,12 +77,13 @@ public final class RaoResultArchiveManager {
                                                TimeCoupledRaoResult timeCoupledRaoResult,
                                                String summaryFilename,
                                                String jsonFileNameTemplate,
-                                               List<Instant> instants,
+                                               Crac crac,
                                                boolean preventiveOnly) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
+            List<Instant> instants = crac.getSortedInstants();
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule(jsonFileNameTemplate, crac, preventiveOnly ? List.of(instants.getFirst()) : instants);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);
