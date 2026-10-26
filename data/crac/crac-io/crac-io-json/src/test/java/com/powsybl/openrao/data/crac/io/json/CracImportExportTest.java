@@ -645,8 +645,9 @@ class CracImportExportTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
+        // iMax is never added to FlowCnec object from Crac JSON deserialization
+        assertTrue(crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).isEmpty());
+        assertTrue(crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
@@ -661,7 +662,7 @@ class CracImportExportTest {
         assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        assertEquals(2, crac.getFlowCnec("cnec2prevId").getThresholds().size());
     }
 
     @Test

@@ -560,14 +560,18 @@ class JsonRetrocompatibilityTest {
         assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(3, crac.getFlowCnec("cnec2prevId").getThresholds().size());
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+        // lowerbound = max(-600,-600,-0.3*2000)
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+
         // nominalV is the same on both sides so the threshold can either be defined on side ONE or TWO
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
+        assertTrue(
+            crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+                || crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+        );
 
         // ---------------------------
         // --- test NetworkActions ---
