@@ -29,7 +29,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -95,7 +94,7 @@ class JsonTimeCoupledRaoResultSerializerTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", crac1, List.of(preventiveInstant));
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", crac1);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);

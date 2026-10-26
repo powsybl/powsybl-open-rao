@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
@@ -23,7 +22,6 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
@@ -42,12 +40,10 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
 
     private final String individualRaoResultFilenameTemplate;
     private final Crac crac;
-    private final List<Instant> instants;
 
-    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, Crac crac, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, Crac crac) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
         this.crac = crac;
-        this.instants = instants;
     }
 
     @Override

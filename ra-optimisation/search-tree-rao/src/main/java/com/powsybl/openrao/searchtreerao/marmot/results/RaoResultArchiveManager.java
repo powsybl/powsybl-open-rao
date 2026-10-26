@@ -36,7 +36,6 @@ import java.util.zip.ZipOutputStream;
 public final class RaoResultArchiveManager {
     private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "time-coupled-rao-result.export.filename-template";
     private static final String TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "time-coupled-rao-result.export.summary-filename";
-    private static final String TIME_COUPLED_RAO_RESULT_PREVENTIVE_ONLY = "time-coupled-rao-result.export.preventive-only";
     private static final String DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE = "'raoResult_'yyyyMMddHHmm'.json'";
     private static final String DEFAULT_TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME = "timeCoupledRaoSummary.json";
 
@@ -55,8 +54,7 @@ public final class RaoResultArchiveManager {
             timeCoupledRaoResult,
             summaryFilename,
             jsonFileNameTemplate,
-            cracs.getDataPerTimestamp().values().iterator().next(),
-            exportOnlyPreventiveResults(properties)
+            cracs.getDataPerTimestamp().values().iterator().next()
         );
         zipOutputStream.close();
     }
@@ -77,13 +75,12 @@ public final class RaoResultArchiveManager {
                                                TimeCoupledRaoResult timeCoupledRaoResult,
                                                String summaryFilename,
                                                String jsonFileNameTemplate,
-                                               Crac crac,
-                                               boolean preventiveOnly) throws IOException {
+                                               Crac crac) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
             List<Instant> instants = crac.getSortedInstants();
-            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule(jsonFileNameTemplate, crac, preventiveOnly ? List.of(instants.getFirst()) : instants);
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule(jsonFileNameTemplate, crac);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);
@@ -118,9 +115,5 @@ public final class RaoResultArchiveManager {
 
     private static String getIndividualRaoResultFilenameTemplate(Properties properties) {
         return properties.getProperty(INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY, DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE);
-    }
-
-    private static boolean exportOnlyPreventiveResults(Properties properties) {
-        return Boolean.parseBoolean(properties.getProperty(TIME_COUPLED_RAO_RESULT_PREVENTIVE_ONLY));
     }
 }
