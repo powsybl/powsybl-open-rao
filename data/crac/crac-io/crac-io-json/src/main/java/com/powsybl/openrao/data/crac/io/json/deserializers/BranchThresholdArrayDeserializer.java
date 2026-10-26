@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -33,8 +33,17 @@ public final class BranchThresholdArrayDeserializer {
         //TODO: Refactor this method
         boolean iMaxFetched = false;
         Pair<Double, Double> nominalV = readAndAddNominalV(cnecElementHelper, ownerAdder);
+
+        // Store already deserialized thresholds to validate duplicate bounds
+        Map<TwoSides, Set<String>> thresholdSideBounds = new HashMap<>();
+
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
+
+            TwoSides side = null; // Stores the side of the current threshold
+            boolean hasMin = false; // Track if 'min' is set
+            boolean hasMax = false; // Track if 'max' is set
+
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.UNIT:
@@ -42,11 +51,11 @@ public final class BranchThresholdArrayDeserializer {
                         branchThresholdAdder.withUnit(unit);
                         if (Unit.PERCENT_IMAX.equals(unit)) {
                             if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
-                                throw new OpenRaoException("IMax threshold are no longer supported in CRAC JSON format since CRAC version 2.13");
+                                throw new OpenRaoException("PERCENT_IMAX thresholds are no longer supported in CRAC JSON format since CRAC version 2.13");
                             }
 
                             // FlowCNEC's iMax is required only if it has a threshold with a %IMax unit
-                            if (Unit.PERCENT_IMAX.equals(unit) && !iMaxFetched) {
+                            if (!iMaxFetched) {
                                 addIMax(cnecElementHelper, ownerAdder);
                                 iMaxFetched = true;
                             }
@@ -55,24 +64,28 @@ public final class BranchThresholdArrayDeserializer {
                     case JsonSerializationConstants.MIN:
                         jsonParser.nextToken();
                         branchThresholdAdder.withMin(jsonParser.getDoubleValue());
+                        hasMin = true;
                         break;
                     case JsonSerializationConstants.MAX:
                         jsonParser.nextToken();
                         branchThresholdAdder.withMax(jsonParser.getDoubleValue());
+                        hasMax = true;
                         break;
                     case JsonSerializationConstants.RULE:
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
                             throw new OpenRaoException("Branch threshold rule is not handled since CRAC version 1.6");
                         } else {
-                            branchThresholdAdder.withSide(JsonSerializationConstants.convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV));
+                            side = JsonSerializationConstants.convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV);
+                            branchThresholdAdder.withSide(side);
                         }
                         break;
                     case JsonSerializationConstants.SIDE:
-                        JsonToken side = jsonParser.nextToken();
+                        JsonToken sideToken = jsonParser.nextToken();
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
                             || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 3) {
-                            if (side == JsonToken.VALUE_NUMBER_INT) {
-                                branchThresholdAdder.withSide(JsonSerializationConstants.deserializeSide(jsonParser.getIntValue()));
+                            if (sideToken == JsonToken.VALUE_NUMBER_INT) {
+                                side = JsonSerializationConstants.deserializeSide(jsonParser.getIntValue());
+                                branchThresholdAdder.withSide(side);
                             } else if (Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.LEFT_SIDE)
                                 || Objects.equals(jsonParser.getValueAsString(), JsonSerializationConstants.RIGHT_SIDE)) {
                                 throw new OpenRaoException(String.format(
@@ -86,14 +99,38 @@ public final class BranchThresholdArrayDeserializer {
                                 throw new OpenRaoException(String.format("Unrecognized side %s", jsonParser.getValueAsString()));
                             }
                         } else {
-                            branchThresholdAdder.withSide(JsonSerializationConstants.deserializeSide(jsonParser.getValueAsString()));
+                            side = JsonSerializationConstants.deserializeSide(jsonParser.getValueAsString());
+                            branchThresholdAdder.withSide(side);
                         }
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in BranchThreshold: " + jsonParser.currentName());
                 }
             }
+
+            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+                checkForDuplicateThresholds(thresholdSideBounds, side, hasMin, hasMax);
+            }
+
             branchThresholdAdder.add();
+
+        }
+    }
+
+    private static void checkForDuplicateThresholds(Map<TwoSides, Set<String>> thresholdSideBounds, TwoSides side, boolean hasMin, boolean hasMax) {
+        // Check for duplicate thresholds for the same side and bound
+        if (!thresholdSideBounds.containsKey(side)) {
+            thresholdSideBounds.put(side, new HashSet<>());
+        }
+        if (hasMin) {
+            if (!thresholdSideBounds.get(side).add("min")) {
+                throw new OpenRaoException(String.format("Lower bound can only be defined once for side %s since CRAC v2.13", side));
+            }
+        }
+        if (hasMax) {
+            if (!thresholdSideBounds.get(side).add("max")) {
+                throw new OpenRaoException(String.format("Upper bound can only be defined once for side %s since CRAC v2.13", side));
+            }
         }
     }
 
