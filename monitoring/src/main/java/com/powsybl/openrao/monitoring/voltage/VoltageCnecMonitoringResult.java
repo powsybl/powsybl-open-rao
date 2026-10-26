@@ -43,7 +43,7 @@ public class VoltageCnecMonitoringResult extends AbstractCnecMonitoringResult<Vo
     @Override
     public String print() {
         return String.format("Network element %s at state %s has a min voltage of %s kV and a max voltage of %s kV.",
-            cnec.getNetworkElement().getId(),
+            cnec.getNetworkElementId(),
             cnec.getState().getId(),
             MeasurementRounding.roundValueBasedOnMargin(minVoltage, margin, 2).doubleValue(),
             MeasurementRounding.roundValueBasedOnMargin(maxVoltage, margin, 2).doubleValue());
@@ -51,12 +51,12 @@ public class VoltageCnecMonitoringResult extends AbstractCnecMonitoringResult<Vo
 
     @Override
     protected void computeValue(Network network) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(cnec.getNetworkElement().getId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(cnec.getNetworkElementId());
         if (voltageLevel == null) {
-            throw new OpenRaoException("Voltage level is missing on network element " + cnec.getNetworkElement().getId());
+            throw new OpenRaoException("Voltage level is missing on network element " + cnec.getNetworkElementId());
         }
         Set<Double> voltages = new HashSet<>();
-        BusbarSection busbarSection = network.getBusbarSection(cnec.getNetworkElement().getId());
+        BusbarSection busbarSection = network.getBusbarSection(cnec.getNetworkElementId());
         if (busbarSection != null) {
             Double busBarVoltages = busbarSection.getV();
             voltages.add(busBarVoltages);
