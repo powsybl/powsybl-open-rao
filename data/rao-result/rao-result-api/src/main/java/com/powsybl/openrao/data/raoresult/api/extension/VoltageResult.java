@@ -7,17 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -88,16 +84,6 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
         }
     }
 
-    // serialization
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartArray();
-        for (VoltageCnec voltageCnec : results.keySet().stream().sorted(Comparator.comparing(Identifiable::getId)).toList()) {
-            results.get(voltageCnec).serialize(jsonGenerator);
-        }
-        jsonGenerator.writeEndArray();
-    }
-
     // result data model
 
     private static class VoltageCnecResult {
@@ -152,35 +138,6 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
 
         public static VoltageCnecResult of(VoltageCnec voltageCnec) {
             return new VoltageCnecResult(voltageCnec);
-        }
-
-        public void serialize(JsonGenerator jsonGenerator) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("voltageCnecId", voltageCnec.getId());
-            serializeInitialResults(jsonGenerator);
-            for (Instant instant : minVoltagePerInstant.keySet().stream().sorted().toList()) {
-                serializeMeasurementsForInstant(jsonGenerator, instant);
-            }
-            jsonGenerator.writeEndObject();
-        }
-
-        private void serializeInitialResults(JsonGenerator jsonGenerator) throws IOException {
-            if (initialMinVoltage != null && initialMaxVoltage != null && initialMargin != null) {
-                serializeResults(jsonGenerator, "initial", initialMinVoltage, initialMaxVoltage, initialMargin);
-            }
-        }
-
-        private void serializeMeasurementsForInstant(JsonGenerator jsonGenerator, Instant instant) throws IOException {
-            serializeResults(jsonGenerator, instant.getId(), minVoltagePerInstant.get(instant), maxVoltagePerInstant.get(instant), marginPerInstant.get(instant));
-        }
-
-        private static void serializeResults(JsonGenerator jsonGenerator, String instantId, double minVoltage, double maxVoltage, double margin) throws IOException {
-            jsonGenerator.writeObjectFieldStart(instantId);
-            jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
-            jsonGenerator.writeNumberField("minVoltage", minVoltage);
-            jsonGenerator.writeNumberField("maxVoltage", maxVoltage);
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
         }
     }
 

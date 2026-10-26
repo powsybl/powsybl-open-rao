@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -22,20 +23,39 @@ import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(RaoResultJsonUtils.ExtensionSerializer.class)
-public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSerializer<VoltageResult> {
+public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer<VoltageResult> {
     @Override
     public void serialize(VoltageResult voltageResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        voltageResult.serialize(jsonGenerator);
+        Crac crac = (Crac) serializerProvider.getAttribute("crac");
+        if (crac == null) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("VoltageResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            return;
+        }
+
+        List<Instant> instants = crac.getSortedInstants();
+        List<VoltageCnec> voltageCnecs = crac.getVoltageCnecs().stream().sorted(Comparator.comparing(VoltageCnec::getId)).toList();
+
+        jsonGenerator.writeStartArray();
+        for (VoltageCnec voltageCnec : voltageCnecs) {
+            serializeForVoltageCnec(jsonGenerator, voltageCnec, voltageResult, instants);
+        }
+        jsonGenerator.writeEndArray();
     }
 
     @Override
     public VoltageResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
+        if (crac == null) {
+            throw new OpenRaoException("VoltageResult cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+        }
+
         VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnec voltageCnec = null;
@@ -52,6 +72,51 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
         }
         return voltageResultBuilder.build();
     }
+
+    // serialization
+
+    private static void serializeForVoltageCnec(JsonGenerator jsonGenerator, VoltageCnec voltageCnec, VoltageResult voltageResult, List<Instant> instants) throws IOException {
+        if (hasVoltageMeasurements(voltageCnec, voltageResult, instants)) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("voltageCnecId", voltageCnec .getId());
+
+            // serialize initial results
+            if (hasVoltageMeasurements(voltageCnec, voltageResult, (Instant) null)) {
+                serializeForInstant(jsonGenerator, voltageCnec, voltageResult, null);
+            }
+
+            // serialize results per instant
+            for (Instant instant : instants) {
+                if (!instant.isOutage()
+                    && !instant.comesAfter(voltageCnec.getState().getInstant())
+                    && hasVoltageMeasurements(voltageCnec, voltageResult, instant)) {
+                    serializeForInstant(jsonGenerator, voltageCnec, voltageResult, instant);
+                }
+            }
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    private static void serializeForInstant(JsonGenerator jsonGenerator, VoltageCnec voltageCnec, VoltageResult voltageResult, Instant instant) throws IOException {
+        jsonGenerator.writeObjectFieldStart(instant == null ? "initial" : instant.getId());
+        jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
+        jsonGenerator.writeNumberField("minVoltage", voltageResult.getMinVoltage(instant, voltageCnec, Unit.KILOVOLT));
+        jsonGenerator.writeNumberField("maxVoltage", voltageResult.getMaxVoltage(instant, voltageCnec, Unit.KILOVOLT));
+        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndObject();
+    }
+
+    private static boolean hasVoltageMeasurements(VoltageCnec voltageCnec, VoltageResult voltageResult, List<Instant> instants) {
+        return hasVoltageMeasurements(voltageCnec, voltageResult, (Instant) null)
+            || instants.stream().anyMatch(instant -> hasVoltageMeasurements(voltageCnec, voltageResult, instant));
+    }
+
+    private static boolean hasVoltageMeasurements(VoltageCnec voltageCnec, VoltageResult voltageResult, Instant instant) {
+        return !Double.isNaN(voltageResult.getMinVoltage(instant, voltageCnec, Unit.KILOVOLT))
+            && !Double.isNaN(voltageResult.getMaxVoltage(instant, voltageCnec, Unit.KILOVOLT));
+    }
+
+    // deserialization
 
     private static void deserializeForInstant(JsonParser jsonParser,
                                               VoltageResult.VoltageResultBuilder voltageResultBuilder,
