@@ -796,7 +796,7 @@ class CracImportExportTest {
             )
         );
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals("[ERROR] Lower bound can only be defined once for side %s since CRAC v2.13",
+        assertEquals("[ERROR] Lower bound can only be defined once for side ONE since CRAC v2.13",
             cracCreationContext.getCreationReport().getReport().get(0));
     }
 }
