@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -36,10 +35,6 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
 
     @Override
     public VoltageResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Version version = (Version) deserializationContext.getAttribute("version");
-        if (version.major() == 1) {
-            throw new OpenRaoException("Voltage results extension is only available for JSON RAO Result versions >= 2.");
-        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         VoltageResult voltageResult = new VoltageResult();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {

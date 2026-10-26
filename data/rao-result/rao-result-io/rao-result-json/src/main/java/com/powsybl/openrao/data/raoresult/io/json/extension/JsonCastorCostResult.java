@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
@@ -34,10 +33,6 @@ public class JsonCastorCostResult implements RaoResultJsonUtils.ExtensionSeriali
 
     @Override
     public CostResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Version version = (Version) deserializationContext.getAttribute("version");
-        if (version.major() == 1) {
-            throw new OpenRaoException("Cost results extension is only available for JSON RAO Result versions >= 2.");
-        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         CostResult costResult = new CostResult();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

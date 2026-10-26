@@ -190,7 +190,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case "extensions":
                     jsonParser.nextToken();
-                    deserializationContext.setAttribute("version", version);
                     deserializationContext.setAttribute("crac", crac);
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -39,10 +38,6 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
 
     @Override
     public Metadata deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Version version = (Version) deserializationContext.getAttribute("version");
-        if (version.major() == 1) {
-            throw new OpenRaoException("Metadata extension is only available for JSON RAO Result versions >= 2.");
-        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         Metadata metadata = new Metadata();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
