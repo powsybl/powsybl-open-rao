@@ -7,18 +7,15 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.data.crac.api.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -112,31 +109,5 @@ class CostResultTest {
         costResult = costResultBuilder.build();
 
         assertEquals(275.0, costResult.getCost(preventive));
-    }
-
-    @Test
-    void testSerialize() throws IOException {
-        costResultBuilder.addFunctionalCostResult(null, 10.0)
-            .addVirtualCostResult(null, "v1", 1.0)
-            .addFunctionalCostResult(preventive, 20.0)
-            .addVirtualCostResult(preventive, "v2", 2.0)
-            .addFunctionalCostResult(curative, 30.0)
-            .addVirtualCostResult(curative, "v3", 3.0);
-        costResult = costResultBuilder.build();
-
-        StringWriter writer = new StringWriter();
-        JsonFactory factory = new JsonFactory();
-        try (JsonGenerator gen = factory.createGenerator(writer)) {
-            costResult.serialize(gen);
-        }
-
-        String expectedJson = "{\"initial\":"
-            + "{\"functionalCost\":10.0,\"virtualCost\":{\"v1\":1.0}},"
-            + "\"preventive\":"
-            + "{\"functionalCost\":20.0,\"virtualCost\":{\"v2\":2.0}},"
-            + "\"curative\":"
-            + "{\"functionalCost\":30.0,\"virtualCost\":{\"v3\":3.0}}"
-            + "}";
-        assertEquals(expectedJson, writer.toString());
     }
 }

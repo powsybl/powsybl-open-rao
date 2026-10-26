@@ -7,12 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,23 +118,6 @@ public class CostResult extends AbstractExtension<RaoResult> {
         }
     }
 
-    private ElementaryCostResult getOrCreateAppropriateResult(Instant optimizedInstant) {
-        return optimizedInstant == null ?
-            initialCostResult :
-            costResultPerInstant.computeIfAbsent(optimizedInstant, k -> new ElementaryCostResult());
-    }
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartObject();
-        initialCostResult.serialize(jsonGenerator, "initial");
-        for (Instant instant : costResultPerInstant.keySet().stream().sorted().toList()) {
-            if (!instant.isOutage()) {
-                getAppropriateResult(instant).serialize(jsonGenerator, instant.getId());
-            }
-        }
-        jsonGenerator.writeEndObject();
-    }
-
     @Override
     public String getName() {
         return EXTENSION_NAME;
@@ -174,17 +155,6 @@ public class CostResult extends AbstractExtension<RaoResult> {
 
         private Set<String> getVirtualCostNames() {
             return virtualCosts.keySet();
-        }
-
-        private void serialize(JsonGenerator jsonGenerator, String instantId) throws IOException {
-            jsonGenerator.writeObjectFieldStart(instantId);
-            jsonGenerator.writeNumberField("functionalCost", functionalCost);
-            jsonGenerator.writeObjectFieldStart("virtualCost");
-            for (String virtualCostName : getVirtualCostNames().stream().sorted().toList()) {
-                jsonGenerator.writeNumberField(virtualCostName, virtualCosts.get(virtualCostName));
-            }
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
         }
     }
 
