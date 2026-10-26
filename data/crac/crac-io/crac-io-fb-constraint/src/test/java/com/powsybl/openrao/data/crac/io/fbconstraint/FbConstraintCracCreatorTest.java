@@ -683,7 +683,7 @@ class FbConstraintCracCreatorTest {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         Crac crac = Crac.read("transformers.xml", getClass().getResourceAsStream("/merged_cb/transformers.xml"), network, parameters);
         // CBCO_1 - preventive has iMax side One != iMax side Two
-        checkThreshold(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.ONE, Unit.AMPERE, -1727.27, Double.NaN);
+        checkThreshold(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.ONE, Unit.AMPERE, -1727.273, Double.NaN);
         checkThreshold(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.TWO, Unit.AMPERE, -1000., Double.NaN);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., Double.NaN);
 
