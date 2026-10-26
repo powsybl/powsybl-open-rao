@@ -25,6 +25,8 @@ import java.util.Objects;
  * <p>
  * Fields are private: they can only be read through the getters below, which fail fast with a clear message
  * if a step is reached before the step that is supposed to populate the field it needs has run.
+ *
+ * * @author Maxence Fleury {@literal <maxence.fleury at artelys.com>}
  */
 final class RaoRunContext {
     @NonNull private final ToolProvider toolProvider;
@@ -32,7 +34,7 @@ final class RaoRunContext {
     @Nullable private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
     @Nullable private PrePerimeterResult initialOutput;
     @Nullable private OptimizationResult preventiveResult;
-    private long preventiveRaoTime;
+    @Nullable private Long preventiveRaoTime;
     @Nullable private PostPerimeterResult postPreventiveResult;
     @Nullable private PrePerimeterResult preCurativeSensitivityAnalysisOutput;
     @Nullable private CastorContingencyScenarios castorContingencyScenarios;
@@ -40,7 +42,7 @@ final class RaoRunContext {
     @Nullable private RaoResult mergedRaoResults;
     @Nullable private PostPerimeterResult finalSecondPreventiveResult;
     @Nullable private Map<State, PostPerimeterResult> finalPostContingencyResults;
-    private boolean logFinalResultsOutsideOfSecondPreventive;
+    @Nullable private Boolean logFinalResultsOutsideOfSecondPreventive;
 
     RaoRunContext(@NonNull ToolProvider toolProvider) {
         this.toolProvider = Objects.requireNonNull(toolProvider);
@@ -87,7 +89,7 @@ final class RaoRunContext {
     }
 
     long getPreventiveRaoTime() {
-        return preventiveRaoTime;
+        return Objects.requireNonNull(preventiveRaoTime, "preventiveRaoTime has not been computed yet");
     }
 
     void setPostPreventiveResult(@NonNull PostPerimeterResult postPreventiveResult) {
@@ -151,6 +153,6 @@ final class RaoRunContext {
     }
 
     boolean isLogFinalResultsOutsideOfSecondPreventive() {
-        return logFinalResultsOutsideOfSecondPreventive;
+        return Objects.requireNonNull(logFinalResultsOutsideOfSecondPreventive, "logFinalResultsOutsideOfSecondPreventive has not been set yet");
     }
 }
