@@ -883,10 +883,10 @@ Finally, the `timeToImplement` is converted to a number of seconds and used as t
 
 The `CountertradeRemedialAction` object has specific fields that define the range and behavior of the counter-trade action:
 
-- **`maxEconomicP`**: The maximum economic power (in MW) that can be traded. This value is used as the upper bound of 
-  the counter-trade range action.
-- **`minEconomicP`**: The minimum economic power (in MW) that can be traded. This value is used as the lower bound of 
-  the counter-trade range action.
+- **`maxEconomicP`**: The maximum economic net position (in MW) of the bidding zone. It is used to compute the upper 
+  bound of the counter-trade range action (see [range](#range)).
+- **`minEconomicP`**: The minimum economic net position (in MW) of the bidding zone. It is used to compute the lower 
+  bound of the counter-trade range action (see [range](#range)).
 - **`AppointedToRegion`**: The region (border) to which the counter-trade action is appointed. This field is used to 
   determine the importing and exporting areas based on the `RemedialActionSystemOperator`.
 - **`BiddingZone`**: (Optional) The bidding zone related to the power remedial action.
@@ -894,12 +894,46 @@ The `CountertradeRemedialAction` object has specific fields that define the rang
 - **`gLSKStrategy`**: (Optional) The GLSK (Generation and Load Shift Keys) strategy to be applied. Can be values like 
   `proportionalForGenerator`.
 
-If neither the economic limit nor the SSI limit is provided for the minimum (resp. maximum) of the range, the 
-`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as fallback. If this 
-parameter is not set either, the remedial action is not imported.
+#### Range
 
-The initial net position of the bidding zone's area is computed from the network (which must carry a load flow result). 
-It has no default value: if no net position can be computed for the area, the remedial action is not imported.
+The range of the counter-trade range action is relative to the initial net position of the bidding zone's area: its 
+initial setpoint is 0, and a setpoint of X means that the net position of the area is shifted by X MW.
+
+The initial net position is computed from the network (which must carry a load flow result). It has no default value: 
+if no net position can be computed for the area, the remedial action is not imported.
+
+Each bound of the range combines two limits:
+
+- the **economic limit**, computed from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction`;
+- the **SSI limit**, computed from the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile. These values 
+  are read on the `CountertradeRemedialAction` if it provides any of them, or else on the `RemedialActionGroup` linked to 
+  it through an enabled `RemedialActionDependency`. If both define these values with different values, the remedial 
+  action is not imported.
+
+The bounds are:
+
+- **lower bound** = max(`minEconomicP` - initial net position, -`maxRegulatingDown`)
+- **upper bound** = min(`maxEconomicP` - initial net position, `maxRegulatingUp`)
+
+If only one of the two limits is provided for a bound, it is used alone.
+
+Moreover, the counter-trade cannot change the sign of the net position:
+
+- if the initial net position is positive, initial net position + lower bound cannot be negative;
+- if the initial net position is negative, initial net position + upper bound cannot be positive.
+
+If neither the economic limit nor the SSI limit is provided for the lower (resp. upper) bound, the 
+`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
+above is not applied to it). If this parameter is not set either, the remedial action is not imported.
+
+If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
+
+> For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000, 
+> `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000:
+> - lower bound = max(-1000 - 500, -3000) = -1500, limited to -500 so that the net position does not become negative;
+> - upper bound = min(1000 - 500, 2000) = 500.
+>
+> The range of the counter-trade range action is [-500, 500].
 
 #### Importing and exporting areas
 

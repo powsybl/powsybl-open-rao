@@ -70,7 +70,7 @@ public class CounterTradingRangeActionCreator {
 
         validateCountertradeRemedialAction(countertradeRemedialAction, remedialActionId);
 
-        String area = getArea(countertradeRemedialAction, remedialActionId);
+        String area = getAreaId(countertradeRemedialAction, remedialActionId);
         Double initialNetPosition = netPositions.get(new EICode(Country.valueOf(area)));
         if (initialNetPosition == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
@@ -110,11 +110,12 @@ public class CounterTradingRangeActionCreator {
     }
 
     /**
-     * Get the maximum range of a CountertradeRemedialAction, based on its bidding zone and initial net position.
-     * The SSI limit is initialNetPosition + maxRegulatingUp and the economic limit is maxEconomicP.
+     * Get the maximum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
+     * The SSI limit is maxRegulatingUp and the economic limit is maxEconomicP - initialNetPosition.
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the max range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
+     * If the initial net position is negative, initialNetPosition + max range cannot be positive (not applied to the ncCracCreationParameters value).
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
@@ -125,36 +126,41 @@ public class CounterTradingRangeActionCreator {
      */
     private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
 
-        double ssiMaxRange = initialNetPosition + maxRegulatingUp;
-        double economicMaxRange = countertradeRemedialAction.maxEconomicP();
+        double ssiMaxRange = maxRegulatingUp;
+        double economicMaxRange = countertradeRemedialAction.maxEconomicP() - initialNetPosition;
 
+        double maxRange;
         if (!Double.isNaN(ssiMaxRange) && !Double.isNaN(economicMaxRange)) {
-            return Math.min(ssiMaxRange, economicMaxRange);
-        }
-        if (!Double.isNaN(ssiMaxRange)) {
-            return ssiMaxRange;
-        }
-        if (!Double.isNaN(economicMaxRange)) {
-            return economicMaxRange;
+            maxRange = Math.min(ssiMaxRange, economicMaxRange);
+        } else if (!Double.isNaN(ssiMaxRange)) {
+            maxRange = ssiMaxRange;
+        } else if (!Double.isNaN(economicMaxRange)) {
+            maxRange = economicMaxRange;
+        } else {
+            // Fallback to the value from the parameters
+            Double parametersMaxRange = ncCracCreationParameters.getCounterTradingMaxRange();
+            if (parametersMaxRange == null) {
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                        String.format("Remedial action %s will not be imported because its maximum range was not provided.", remedialActionId));
+            }
+            alterations.add("the maximum range was not provided. It has been set to the maximal range value of " + parametersMaxRange);
+            return parametersMaxRange;
         }
 
-        // Fallback to the value from the parameters
-        Double maxRange = ncCracCreationParameters.getCounterTradingMaxRange();
-        if (maxRange == null) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported because its maximum range was not provided.", remedialActionId));
+        // A negative net position cannot become positive
+        if (initialNetPosition < 0) {
+            maxRange = Math.min(maxRange, -initialNetPosition);
         }
-        alterations.add("the maximum range was not provided. It has been set to the maximal range value of " + maxRange);
         return maxRange;
-
     }
 
     /**
-     * Get the minimum range of a CountertradeRemedialAction, based on its bidding zone and initial net position.
-     * The SSI limit is initialNetPosition - maxRegulatingDown and the economic limit is minEconomicP.
+     * Get the minimum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
+     * The SSI limit is -maxRegulatingDown and the economic limit is minEconomicP - initialNetPosition.
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the min range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
+     * If the initial net position is positive, initialNetPosition + min range cannot be negative (not applied to the ncCracCreationParameters value).
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
@@ -165,26 +171,31 @@ public class CounterTradingRangeActionCreator {
      */
     private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
 
-        double ssiMinRange = initialNetPosition - maxRegulatingDown;
-        double economicMinRange = countertradeRemedialAction.minEconomicP();
+        double ssiMinRange = -maxRegulatingDown;
+        double economicMinRange = countertradeRemedialAction.minEconomicP() - initialNetPosition;
 
+        double minRange;
         if (!Double.isNaN(ssiMinRange) && !Double.isNaN(economicMinRange)) {
-            return Math.max(ssiMinRange, economicMinRange);
-        }
-        if (!Double.isNaN(ssiMinRange)) {
-            return ssiMinRange;
-        }
-        if (!Double.isNaN(economicMinRange)) {
-            return economicMinRange;
+            minRange = Math.max(ssiMinRange, economicMinRange);
+        } else if (!Double.isNaN(ssiMinRange)) {
+            minRange = ssiMinRange;
+        } else if (!Double.isNaN(economicMinRange)) {
+            minRange = economicMinRange;
+        } else {
+            // Fallback to the value from the parameters
+            Double parametersMinRange = ncCracCreationParameters.getCounterTradingMinRange();
+            if (parametersMinRange == null) {
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                        String.format("Remedial action %s will not be imported because its minimum range was not provided.", remedialActionId));
+            }
+            alterations.add("the minimum range was not provided. It has been set to the minimal range value of " + parametersMinRange);
+            return parametersMinRange;
         }
 
-        // Fallback to the value from the parameters
-        Double minRange = ncCracCreationParameters.getCounterTradingMinRange();
-        if (minRange == null) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported because its minimum range was not provided.", remedialActionId));
+        // A positive net position cannot become negative
+        if (initialNetPosition > 0) {
+            minRange = Math.max(minRange, -initialNetPosition);
         }
-        alterations.add("the minimum range was not provided. It has been set to the minimal range value of " + minRange);
         return minRange;
     }
 
@@ -195,7 +206,7 @@ public class CounterTradingRangeActionCreator {
      * @param remedialActionId                  ID of the RemedialAction (RA id)
      * @return the area code of the counter trading remedial action
      */
-    private String getArea(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId) {
+    private String getAreaId(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId) {
         String biddingZoneEic = NcCracUtils.getEicFromUrl(countertradeRemedialAction.biddingZone());
         if (biddingZoneEic == null) {
             throw new OpenRaoImportException(

@@ -63,28 +63,29 @@ class CounterTradingRangeActionCreatorTest {
 
         assertEquals(12, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
 
-        // Economic limits are the tightest on both sides
-        assertRange(cracCreationContext, "ct-economic-limits", -1000, 1000);
-        // SSI limits (around the FR net position) are the tightest on both sides
-        assertRange(cracCreationContext, "ct-ssi-limits", -1000, 1500);
+        // Ranges are relative to the FR net position (500), and the min range cannot make it negative (min range >= -500)
+        // Economic limit is the tightest for max
+        assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
+        // SSI limit is the tightest for max
+        assertRange(cracCreationContext, "ct-ssi-limits", -500, 1000);
         // Economic limit is the tightest for min, SSI limit for max
-        assertRange(cracCreationContext, "ct-mixed-limits", 0, 1500);
+        assertRange(cracCreationContext, "ct-mixed-limits", -500, 1000);
         // Only SSI limits
-        assertRange(cracCreationContext, "ct-ssi-only", 300, 800);
+        assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
         // Only economic limits
-        assertRange(cracCreationContext, "ct-economic-only", -2000, 3000);
+        assertRange(cracCreationContext, "ct-economic-only", -500, 2500);
         // SSI limit only for max
-        assertRange(cracCreationContext, "ct-ssi-up-only", -4000, 1500);
+        assertRange(cracCreationContext, "ct-ssi-up-only", -500, 1000);
         // Outdated SSI profile is ignored: the action stays available and uses economic limits only
-        assertRange(cracCreationContext, "ct-outdated-ssi", -2000, 2000);
+        assertRange(cracCreationContext, "ct-outdated-ssi", -500, 1500);
         // SSI limits from the RemedialActionGroup linked through a RemedialActionDependency
-        assertRange(cracCreationContext, "ct-group-limits", -400, 1200);
+        assertRange(cracCreationContext, "ct-group-limits", -500, 700);
         // Same RemedialActionGroup shared by another CountertradeRemedialAction, economic limit is the tightest for max
-        assertRange(cracCreationContext, "ct-shared-group-limits", -400, 1000);
+        assertRange(cracCreationContext, "ct-shared-group-limits", -500, 500);
         // RemedialActionDependency not enabled: the RemedialActionGroup SSI limits are ignored
-        assertRange(cracCreationContext, "ct-disabled-group-dependency", -3000, 3000);
+        assertRange(cracCreationContext, "ct-disabled-group-dependency", -500, 2500);
         // Same SSI limits in the CountertradeRemedialAction and the RemedialActionGroup
-        assertRange(cracCreationContext, "ct-ctra-and-group-limits", -1000, 1500);
+        assertRange(cracCreationContext, "ct-ctra-and-group-limits", -500, 1000);
 
         // RemedialActionGroups only made of CountertradeRemedialActions are not imported as network actions
         assertNull(cracCreationContext.getRemedialActionCreationContext("ct-group"));
@@ -94,6 +95,22 @@ class CounterTradingRangeActionCreatorTest {
         ElementaryCreationContext notAlteredContext = cracCreationContext.getRemedialActionCreationContext("ct-mixed-limits");
         assertTrue(notAlteredContext.isImported());
         assertFalse(notAlteredContext.isAltered());
+    }
+
+    @Test
+    void importCounterTradeRangeActionsWithNegativeNetPosition() {
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE,
+                getNetworkWithFrNetPosition(-FR_NET_POSITION), NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
+
+        // Ranges are relative to the FR net position (-500), and the max range cannot make it positive (max range <= 500)
+        // SSI limit for max (1000) is capped, SSI limit for min (-1500) is kept
+        assertRange(cracCreationContext, "ct-ssi-limits", -1500, 500);
+        // Economic limit for max (1500) is capped, economic limit for min (-500) is kept
+        assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
+        // SSI limit for max (300) is below the cap
+        assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
+        // Economic limit for min (500) is the tightest, SSI limit for max (1000) is capped
+        assertRange(cracCreationContext, "ct-mixed-limits", 500, 500);
     }
 
     @Test
@@ -121,12 +138,13 @@ class CounterTradingRangeActionCreatorTest {
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCounterTradingMaxRange(4321.);
         NcCracCreationContext cracCreationContext = importCrac(cracCreationParameters);
 
+        // The range from the parameters is used as is, even if it would make the FR net position (500) negative
         assertRange(cracCreationContext, "ct-no-limits", -1234, 4321);
         assertEquals("the minimum range was not provided. It has been set to the minimal range value of -1234.0, "
                 + "the maximum range was not provided. It has been set to the maximal range value of 4321.0",
                 cracCreationContext.getRemedialActionCreationContext("ct-no-limits").getImportStatusDetail());
         // Parameters are only used when no limit is provided
-        assertRange(cracCreationContext, "ct-economic-limits", -1000, 1000);
+        assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
     }
 
     @Test
@@ -135,8 +153,8 @@ class CounterTradingRangeActionCreatorTest {
         NcCracCreationContext cracCreationContext = importCrac();
 
         // Imported with the creator as operator, whether the RemedialActionSystemOperator matches it or not
-        assertRange(cracCreationContext, "ct-economic-limits", -1000, 1000);
-        assertRange(cracCreationContext, "ct-different-system-operator", -1000, 1000);
+        assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
+        assertRange(cracCreationContext, "ct-different-system-operator", -500, 500);
 
         List<String> systemOperatorWarnings = listAppender.list.stream()
                 .map(ILoggingEvent::getFormattedMessage)
@@ -177,9 +195,9 @@ class CounterTradingRangeActionCreatorTest {
         assertRaNotImported(cracCreationContext, "ct-unknown-bidding-zone", ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action ct-unknown-bidding-zone will not be imported because the bidding zone code XXXXX-XXX------X is invalid.");
 
-        // Range: min(4000, 500 + 1000) = 1500 < max(3000, 500 - 500) = 3000
+        // Range: min(4000 - 500, 1000) = 1000 < max(3000 - 500, -500) = 2500
         assertRaNotImported(cracCreationContext, "ct-empty-range", ImportStatus.INCONSISTENCY_IN_DATA,
-                "Remedial action ct-empty-range will not be imported because its range is empty: the min range 3000.0 is greater than the max range 1500.0.");
+                "Remedial action ct-empty-range will not be imported because its range is empty: the min range 2500.0 is greater than the max range 1000.0.");
 
         // Different SSI limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRaNotImported(cracCreationContext, "ct-different-ctra-and-group-limits", ImportStatus.INCONSISTENCY_IN_DATA,
@@ -197,20 +215,20 @@ class CounterTradingRangeActionCreatorTest {
                 "Remedial action ct-economic-limits will not be imported because the initial net position of area FR could not be computed from the network.");
     }
 
-    private static Network getNetworkWithFrNetPosition() {
+    private static Network getNetworkWithFrNetPosition(double frNetPosition) {
         Network network = NcCracCreationTestUtil.getNetworkFromResource("/networks/16Nodes.zip");
         network.getLineStream().forEach(line -> {
             line.getTerminal1().setP(0.);
             line.getTerminal2().setP(0.);
         });
         Line frToDeLine = network.getLine(FR_TO_DE_LINE);
-        frToDeLine.getTerminal1().setP(FR_NET_POSITION);
-        frToDeLine.getTerminal2().setP(-FR_NET_POSITION);
+        frToDeLine.getTerminal1().setP(frNetPosition);
+        frToDeLine.getTerminal2().setP(-frNetPosition);
         return network;
     }
 
     private static NcCracCreationContext importCrac(CracCreationParameters cracCreationParameters) {
-        return NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, getNetworkWithFrNetPosition(), cracCreationParameters);
+        return NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, getNetworkWithFrNetPosition(FR_NET_POSITION), cracCreationParameters);
     }
 
     private static NcCracCreationContext importCrac() {
