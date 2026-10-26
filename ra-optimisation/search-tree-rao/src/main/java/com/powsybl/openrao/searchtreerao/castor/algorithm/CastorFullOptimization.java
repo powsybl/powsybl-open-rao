@@ -102,10 +102,11 @@ public class CastorFullOptimization {
                     .runInitialSensitivityAnalysis(network, optimizationReportNode);
                 return CompletableFuture.completedFuture(new UnoptimizedRaoResultImpl(initialResult));
             }
-            prepareInitialSetup(context, optimizationReportNode);
+
+            context.setStateTree(new StateTree(crac, optimizationReportNode));
 
             currentStep = "initial sensitivity analysis";
-            runInitialSensitivityAnalyses(context, optimizationReportNode);
+            runInitialSensitivityAnalysis(context, optimizationReportNode);
             if (context.getInitialOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(optimizationReportNode);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
@@ -231,15 +232,11 @@ public class CastorFullOptimization {
         return new RaoRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters));
     }
 
-    private void prepareInitialSetup(final RaoRunContext context, final ReportNode optimizationReportNode) {
-        context.setStateTree(new StateTree(crac, optimizationReportNode));
-    }
-
     /**
      * Compute initial sensitivity on all CNECs (necessary to have initial flows for MNEC and loopflow
      * constraints on CNECs, in preventive and curative perimeters).
      */
-    private void runInitialSensitivityAnalyses(final RaoRunContext context, final ReportNode optimizationReportNode) {
+    private void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true);
         context.setPrePerimeterSensitivityAnalysis(prePerimeterSensitivityAnalysis);
