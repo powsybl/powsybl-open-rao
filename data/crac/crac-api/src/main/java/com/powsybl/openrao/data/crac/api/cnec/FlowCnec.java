@@ -14,11 +14,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * Specific type of {@link Cnec} whose monitored {@link PhysicalParameter} is implicitly
@@ -109,14 +106,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * Getter of the one or two {@link TwoSides}s on which the {@code Cnec} is defined.
      * Always return an ordered set.
      */
-    default Set<TwoSides> getMonitoredSides() {
-        return getThresholds().stream()
-            .map(BranchThreshold::getSide)
-            .collect(Collectors.collectingAndThen(
-                Collectors.toCollection(TreeSet::new),
-                Collections::unmodifiableSet
-            ));
-    }
+    Set<TwoSides> getMonitoredSides();
 
     /**
      * Getter of the Imax on each {@link TwoSides} of the {@code FlowCnec}.

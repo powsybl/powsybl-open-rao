@@ -40,10 +40,16 @@ public final class BranchThresholdArrayDeserializer {
                     case JsonSerializationConstants.UNIT:
                         Unit unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         branchThresholdAdder.withUnit(unit);
-                        // FlowCNEC's iMax is required only if it ahs a threshold with a %IMax unit
-                        if (Unit.PERCENT_IMAX.equals(unit) && !iMaxFetched) {
-                            addIMax(cnecElementHelper, ownerAdder);
-                            iMaxFetched = true;
+                        if (Unit.PERCENT_IMAX.equals(unit)) {
+                            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+                                throw new OpenRaoException("IMax threshold are no longer supported in CRAC JSON format since CRAC version 2.13");
+                            }
+
+                            // FlowCNEC's iMax is required only if it has a threshold with a %IMax unit
+                            if (Unit.PERCENT_IMAX.equals(unit) && !iMaxFetched) {
+                                addIMax(cnecElementHelper, ownerAdder);
+                                iMaxFetched = true;
+                            }
                         }
                         break;
                     case JsonSerializationConstants.MIN:
