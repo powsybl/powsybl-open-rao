@@ -384,7 +384,7 @@ public class CastorContingencyScenarios {
         OptimizationResult result;
         if (workingToolProvider != toolProvider) {
             result = runDcSearch(curativePerimeter, network, prePerimeterSensitivityOutput, resultsPerPerimeter, prePerimeterResultPerPerimeter, reportNode,
-                objectiveFunction, curativeState, flowCnecs, loopFlowCnecs, optPerimeter, searchTreeParameters);
+                objectiveFunction, curativeState, flowCnecs, loopFlowCnecs, optPerimeter, searchTreeParameters, objectiveFunctionResult.getCost());
         } else {
             result = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                 new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, false, reportNode);
@@ -405,7 +405,8 @@ public class CastorContingencyScenarios {
                                    Set<FlowCnec> flowCnecs,
                                    Set<FlowCnec> loopFlowCnecs,
                                    OptimizationPerimeter optPerimeter,
-                                   SearchTreeParameters searchTreeParameters) {
+                                   SearchTreeParameters searchTreeParameters,
+                                   double previousOptimizedCost) {
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         String prevVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(prevVariant, newVariant);
@@ -430,7 +431,6 @@ public class CastorContingencyScenarios {
 
         OptimizationResult decidedResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, searchObjectiveFunction, searchInitialOutput, searchPrePerimeterOutput,
             new AppliedRemedialActions(), workingToolProvider, crac.getOutageInstant(), searchTreeParameters, false, reportNode);
-        OptimizationResult result;
         // the search above ran on DC sensitivities for performance; recompute the decided RA combination in AC before reporting it
         network.getVariantManager().setWorkingVariant(prevVariant);
 
@@ -441,10 +441,10 @@ public class CastorContingencyScenarios {
         ObjectiveFunction baseObjectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialSensitivityOutput,
                 prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), toolProvider.getRaoParameters(),
                 curativePerimeter.getAllStates());
-        result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
+        OptimizationResult result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
             new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, false, reportNode);
 
-        if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
+        if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
             // the DC search stopped believing this combination made the perimeter secure, but the AC recompute shows it isn't:
             // exhaust the DC search (ignore the stop criterion) to look for a combination that is actually secure in AC
             CastorReports.reportCurativeStateDcSecureButAcMarginViolation(reportNode, curativeState.getId(), decidedResult.getActivatedNetworkActions().size());
@@ -460,8 +460,7 @@ public class CastorContingencyScenarios {
 
             result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                 new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), exhaustiveSearchTreeParameters, exhaustedDecidedResult, false, reportNode);
-
-            if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
+            if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
                 // DC's own greedy search rejected the network action combination that AC would actually need (DC judged it
                 // as not improving, AC does not): fall back to a genuine AC search for this perimeter as a last resort.
                 // This search needs its own AC-flavored parameters instead of reusing the DC-flavored exhaustiveSearchTreeParameters.
@@ -471,7 +470,7 @@ public class CastorContingencyScenarios {
 
                 result = CastorSearchTreeHelper.searchNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
                     new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), acExhaustiveSearchTreeParameters, false, reportNode);
-                if (!CastorSearchTreeHelper.isStopCriterionChecked(result, curativeTreeParameters)) {
+                if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
                     CastorReports.reportCurativeStateNoSecureCombinationFoundInAc(reportNode, curativeState.getId(), result.getCost());
                 }
             }

@@ -69,6 +69,12 @@ final class CastorSearchTreeHelper {
         }
     }
 
+    static boolean isSecureAndBetterThan(ObjectiveFunctionResult result, double previousOptimizedCost) {
+        boolean secure = result.getVirtualCost() < COST_EPSILON && result.getFunctionalCost() < COST_EPSILON;
+        boolean costIsBetter = result.getCost() < previousOptimizedCost + COST_EPSILON;
+        return secure && costIsBetter;
+    }
+
     static SearchTreeParameters buildSearchTreeParameters(RaoParameters raoParameters,
                                                            TreeParameters treeParameters,
                                                            Crac crac,
