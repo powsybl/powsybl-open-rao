@@ -768,4 +768,35 @@ class CracImportExportTest {
         );
         assertNotNull(crac.getPreventiveState());
     }
+
+    @Test
+    void testPercentImaxThreshold() {
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_percent_imax_threshold.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] PERCENT_IMAX thresholds are no longer supported in CRAC JSON format since CRAC version 2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+    }
+
+    @Test
+    void testTwoThresholdOnSameSide() {
+        // Check that two thresholds (one in megawatt, one in ampere) defined on same side and bound is not allowed
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_two_thresholds.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Lower bound can only be defined once for side %s since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+    }
 }
