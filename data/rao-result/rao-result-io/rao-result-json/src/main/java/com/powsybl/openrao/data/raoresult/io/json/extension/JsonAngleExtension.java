@@ -36,7 +36,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
     @Override
     public AngleResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        AngleResult angleResult = new AngleResult();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnec angleCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -45,15 +45,15 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                         jsonParser.nextToken();
                         angleCnec = crac.getAngleCnec(jsonParser.getValueAsString());
                     }
-                    case "initial" -> deserializeForInstant(jsonParser, angleResult, angleCnec, null, crac);
-                    default -> deserializeForInstant(jsonParser, angleResult, angleCnec, jsonParser.currentName(), crac);
+                    case "initial" -> deserializeForInstant(jsonParser, angleResultBuilder, angleCnec, null, crac);
+                    default -> deserializeForInstant(jsonParser, angleResultBuilder, angleCnec, jsonParser.currentName(), crac);
                 }
             }
         }
-        return angleResult;
+        return angleResultBuilder.build();
     }
 
-    private static void deserializeForInstant(JsonParser jsonParser, AngleResult angleResult, AngleCnec angleCnec, String instantId, Crac crac) throws IOException {
+    private static void deserializeForInstant(JsonParser jsonParser, AngleResult.AngleResultBuilder angleResultBuilder, AngleCnec angleCnec, String instantId, Crac crac) throws IOException {
         Instant instant = instantId == null ? null : crac.getInstant(instantId);
         jsonParser.nextToken();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -63,7 +63,7 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
                     switch (jsonParser.currentName()) {
                         case "angle" -> {
                             jsonParser.nextToken();
-                            angleResult.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
+                            angleResultBuilder.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
                         }
                         default -> throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
                     }

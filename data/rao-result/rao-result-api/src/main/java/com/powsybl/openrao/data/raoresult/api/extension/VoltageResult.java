@@ -25,13 +25,13 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageResult extends AbstractExtension<RaoResult> {
+public final class VoltageResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "voltage-results";
 
     private final Map<VoltageCnec, VoltageCnecResult> results;
 
-    public VoltageResult() {
-        this.results = new HashMap<>();
+    private VoltageResult(Map<VoltageCnec, VoltageCnecResult> results) {
+        this.results = new HashMap<>(results);
     }
 
     @Override
@@ -82,11 +82,6 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         return results.getOrDefault(voltageCnec, VoltageCnecResult.of(voltageCnec)).getMargin(optimizedInstant).orElse(Double.NaN);
     }
 
-    public void addMeasurement(double minVoltage, double maxVoltage, Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        checkUnit(unit);
-        results.computeIfAbsent(voltageCnec, k -> VoltageCnecResult.of(voltageCnec)).addVoltageMeasurement(optimizedInstant, minVoltage, maxVoltage);
-    }
-
     private static void checkUnit(Unit unit) {
         if (!Unit.KILOVOLT.equals(unit)) {
             throw new OpenRaoException("VoltageCNEC results are only allowed for kilovolts.");
@@ -122,10 +117,6 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
             this.minVoltagePerInstant = new HashMap<>();
             this.maxVoltagePerInstant = new HashMap<>();
             this.marginPerInstant = new HashMap<>();
-        }
-
-        public VoltageCnec getVoltageCnec() {
-            return voltageCnec;
         }
 
         public Optional<Double> getMinVoltage(Instant instant) {
@@ -190,6 +181,30 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
             jsonGenerator.writeNumberField("maxVoltage", maxVoltage);
             jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
+        }
+    }
+
+    // builder
+
+    public static VoltageResult.VoltageResultBuilder build() {
+        return new VoltageResult.VoltageResultBuilder();
+    }
+
+    public static final class VoltageResultBuilder {
+        private final Map<VoltageCnec, VoltageCnecResult> results;
+
+        private VoltageResultBuilder() {
+            results = new HashMap<>();
+        }
+
+        public VoltageResult.VoltageResultBuilder addMeasurement(double minVoltage, double maxVoltage, Instant instant, VoltageCnec voltageCnec, Unit unit) {
+            checkUnit(unit);
+            results.computeIfAbsent(voltageCnec, VoltageCnecResult::new).addVoltageMeasurement(instant, minVoltage, maxVoltage);
+            return this;
+        }
+
+        public VoltageResult build() {
+            return new VoltageResult(results);
         }
     }
 }

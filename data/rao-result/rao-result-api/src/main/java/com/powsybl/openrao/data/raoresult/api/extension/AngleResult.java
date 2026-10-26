@@ -20,18 +20,19 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleResult extends AbstractExtension<RaoResult> {
+public final class AngleResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "angle-results";
 
     private final Map<AngleCnec, AngleCnecResult> results;
 
-    public AngleResult() {
-        this.results = new HashMap<>();
+    private AngleResult(Map<AngleCnec, AngleCnecResult> results) {
+        this.results = new HashMap<>(results);
     }
 
     @Override
@@ -51,11 +52,6 @@ public class AngleResult extends AbstractExtension<RaoResult> {
     public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         checkUnit(unit);
         return results.getOrDefault(angleCnec, AngleCnecResult.of(angleCnec)).getAngle(optimizedInstant).orElse(Double.NaN);
-    }
-
-    public void addMeasurement(double angle, Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        checkUnit(unit);
-        results.computeIfAbsent(angleCnec, k -> AngleCnecResult.of(angleCnec)).addAngleMeasurement(optimizedInstant, angle);
     }
 
     /**
@@ -104,10 +100,6 @@ public class AngleResult extends AbstractExtension<RaoResult> {
             this.initialMargin = null;
             this.anglePerInstant = new HashMap<>();
             this.marginPerInstant = new HashMap<>();
-        }
-
-        public AngleCnec getAngleCnec() {
-            return angleCnec;
         }
 
         public Optional<Double> getAngle(Instant instant) {
@@ -165,6 +157,47 @@ public class AngleResult extends AbstractExtension<RaoResult> {
             jsonGenerator.writeNumberField("angle", angle);
             jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            AngleResult.AngleCnecResult that = (AngleResult.AngleCnecResult) o;
+            return angleCnec.equals(that.angleCnec);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(angleCnec) * 31;
+        }
+    }
+
+    // builder
+
+    public static AngleResult.AngleResultBuilder build() {
+        return new AngleResult.AngleResultBuilder();
+    }
+
+    public static final class AngleResultBuilder {
+        private final Map<AngleCnec, AngleCnecResult> results;
+
+        private AngleResultBuilder() {
+            this.results = new HashMap<>();
+        }
+
+        public AngleResultBuilder addMeasurement(double angle, Instant instant, AngleCnec angleCnec, Unit unit) {
+            checkUnit(unit);
+            results.computeIfAbsent(angleCnec, AngleResult.AngleCnecResult::new).addAngleMeasurement(instant, angle);
+            return this;
+        }
+
+        public AngleResult build() {
+            return new AngleResult(results);
         }
     }
 }

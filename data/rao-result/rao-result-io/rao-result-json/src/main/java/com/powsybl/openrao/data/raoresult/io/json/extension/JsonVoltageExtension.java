@@ -36,7 +36,7 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
     @Override
     public VoltageResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        VoltageResult voltageResult = new VoltageResult();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnec voltageCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -45,15 +45,19 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
                         jsonParser.nextToken();
                         voltageCnec = crac.getVoltageCnec(jsonParser.getValueAsString());
                     }
-                    case "initial" -> deserializeForInstant(jsonParser, voltageResult, voltageCnec, null, crac);
-                    default -> deserializeForInstant(jsonParser, voltageResult, voltageCnec, jsonParser.currentName(), crac);
+                    case "initial" -> deserializeForInstant(jsonParser, voltageResultBuilder, voltageCnec, null, crac);
+                    default -> deserializeForInstant(jsonParser, voltageResultBuilder, voltageCnec, jsonParser.currentName(), crac);
                 }
             }
         }
-        return voltageResult;
+        return voltageResultBuilder.build();
     }
 
-    private static void deserializeForInstant(JsonParser jsonParser, VoltageResult voltageResult, VoltageCnec voltageCnec, String instantId, Crac crac) throws IOException {
+    private static void deserializeForInstant(JsonParser jsonParser,
+                                              VoltageResult.VoltageResultBuilder voltageResultBuilder,
+                                              VoltageCnec voltageCnec,
+                                              String instantId,
+                                              Crac crac) throws IOException {
         Instant instant = instantId == null ? null : crac.getInstant(instantId);
         jsonParser.nextToken();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -75,7 +79,7 @@ public class JsonVoltageExtension implements RaoResultJsonUtils.ExtensionSeriali
                     }
                 }
                 if (minVoltage != null && maxVoltage != null) {
-                    voltageResult.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
+                    voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
                 } else {
                     throw new OpenRaoException("Missing min or max voltage for VoltageCNEC %s at instant %s.".formatted(voltageCnec.getId(), instant == null ? "initial" : instant.getId()));
                 }

@@ -38,37 +38,42 @@ public class AngleResultTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         Mockito.when(curativeInstant.getOrder()).thenReturn(1);
 
-        AngleResult angleResult = new AngleResult();
-        assertEquals("angle-results", angleResult.getName());
-
         // initial results
 
-        assertEquals(Double.NaN, angleResult.getAngle(null, angleCnec, Unit.DEGREE));
-        assertEquals(Double.NaN, angleResult.getMargin(null, angleCnec, Unit.DEGREE));
+        AngleResult emptyAngleResult = AngleResult.build().build();
+        assertEquals("angle-results", emptyAngleResult.getName());
 
-        assertEquals(Double.NaN, angleResult.getAngle(preventiveInstant, angleCnec, Unit.DEGREE));
-        assertEquals(Double.NaN, angleResult.getMargin(preventiveInstant, angleCnec, Unit.DEGREE));
+        assertEquals(Double.NaN, emptyAngleResult.getAngle(null, angleCnec, Unit.DEGREE));
+        assertEquals(Double.NaN, emptyAngleResult.getMargin(null, angleCnec, Unit.DEGREE));
 
-        assertEquals(Double.NaN, angleResult.getAngle(curativeInstant, angleCnec, Unit.DEGREE));
-        assertEquals(Double.NaN, angleResult.getMargin(curativeInstant, angleCnec, Unit.DEGREE));
+        assertEquals(Double.NaN, emptyAngleResult.getAngle(preventiveInstant, angleCnec, Unit.DEGREE));
+        assertEquals(Double.NaN, emptyAngleResult.getMargin(preventiveInstant, angleCnec, Unit.DEGREE));
+
+        assertEquals(Double.NaN, emptyAngleResult.getAngle(curativeInstant, angleCnec, Unit.DEGREE));
+        assertEquals(Double.NaN, emptyAngleResult.getMargin(curativeInstant, angleCnec, Unit.DEGREE));
 
         // manually add results
 
-        angleResult.addMeasurement(25.0, null, angleCnec, Unit.DEGREE);
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+
+        angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
+            .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE)
+            .addMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
+
+        AngleResult angleResult = angleResultBuilder.build();
+
         assertEquals(25.0, angleResult.getAngle(null, angleCnec, Unit.DEGREE));
         assertEquals(5.0, angleResult.getMargin(null, angleCnec, Unit.DEGREE));
 
-        angleResult.addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
         assertEquals(17.0, angleResult.getAngle(preventiveInstant, angleCnec, Unit.DEGREE));
         assertEquals(13.0, angleResult.getMargin(preventiveInstant, angleCnec, Unit.DEGREE));
 
-        angleResult.addMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
         assertEquals(-5.0, angleResult.getAngle(curativeInstant, angleCnec, Unit.DEGREE));
         assertEquals(-5.0, angleResult.getMargin(curativeInstant, angleCnec, Unit.DEGREE));
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleResult.addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.build().addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
         assertEquals("AngleCNEC results are only allowed for degrees.", exception.getMessage());
     }
 
@@ -83,14 +88,14 @@ public class AngleResultTest {
         Mockito.when(preventiveInstant.getId()).thenReturn("preventive");
         Mockito.when(preventiveInstant.compareTo(Mockito.any())).thenReturn(-1);
 
-        AngleResult angleResult = new AngleResult();
-        angleResult.addMeasurement(25.0, null, angleCnec, Unit.DEGREE);
-        angleResult.addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
+            .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            angleResult.serialize(jsonGenerator);
+            angleResultBuilder.build().serialize(jsonGenerator);
         }
 
         String expectedJson = "[{"
@@ -103,11 +108,10 @@ public class AngleResultTest {
 
     @Test
     void testSerializeEmpty() throws IOException {
-        AngleResult angleResult = new AngleResult();
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            angleResult.serialize(jsonGenerator);
+            AngleResult.build().build().serialize(jsonGenerator);
         }
         assertEquals("[]", writer.toString());
     }
@@ -124,14 +128,14 @@ public class AngleResultTest {
         Mockito.when(cnec2.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(45.0));
         Mockito.when(cnec2.getLowerBound(Unit.DEGREE)).thenReturn(Optional.of(-45.0));
 
-        AngleResult angleResult = new AngleResult();
-        angleResult.addMeasurement(10.0, null, cnec2, Unit.DEGREE);
-        angleResult.addMeasurement(25.0, null, cnec1, Unit.DEGREE);
+        AngleResult.AngleResultBuilder angleResult = AngleResult.build();
+        angleResult.addMeasurement(10.0, null, cnec2, Unit.DEGREE)
+            .addMeasurement(25.0, null, cnec1, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            angleResult.serialize(jsonGenerator);
+            angleResult.build().serialize(jsonGenerator);
         }
 
         // Should be sorted by ID: cnec1 then cnec2
@@ -158,15 +162,15 @@ public class AngleResultTest {
         Mockito.when(instant1.compareTo(instant2)).thenReturn(-1);
         Mockito.when(instant2.compareTo(instant1)).thenReturn(1);
 
-        AngleResult angleResult = new AngleResult();
-        angleResult.addMeasurement(15.0, instant2, angleCnec, Unit.DEGREE);
-        angleResult.addMeasurement(10.0, instant1, angleCnec, Unit.DEGREE);
-        angleResult.addMeasurement(20.0, null, angleCnec, Unit.DEGREE);
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        angleResultBuilder.addMeasurement(15.0, instant2, angleCnec, Unit.DEGREE)
+            .addMeasurement(10.0, instant1, angleCnec, Unit.DEGREE)
+            .addMeasurement(20.0, null, angleCnec, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            angleResult.serialize(jsonGenerator);
+            angleResultBuilder.build().serialize(jsonGenerator);
         }
 
         // Instants should be sorted: initial, then instant1, then instant2

@@ -38,43 +38,48 @@ public class VoltageResultTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         Mockito.when(curativeInstant.getOrder()).thenReturn(1);
 
-        VoltageResult voltageResult = new VoltageResult();
-        assertEquals("voltage-results", voltageResult.getName());
+        VoltageResult emptyVoltageResult = VoltageResult.build().build();
+        assertEquals("voltage-results", emptyVoltageResult.getName());
 
         // initial results
 
-        assertEquals(Double.NaN, voltageResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMargin(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMargin(null, voltageCnec, Unit.KILOVOLT));
 
-        assertEquals(Double.NaN, voltageResult.getMinVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMaxVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMargin(preventiveInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMinVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMaxVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMargin(preventiveInstant, voltageCnec, Unit.KILOVOLT));
 
-        assertEquals(Double.NaN, voltageResult.getMinVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMaxVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
-        assertEquals(Double.NaN, voltageResult.getMargin(curativeInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMinVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMaxVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
+        assertEquals(Double.NaN, emptyVoltageResult.getMargin(curativeInstant, voltageCnec, Unit.KILOVOLT));
 
         // manually add results
 
-        voltageResult.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+
+        voltageResultBuilder.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.addMeasurement(370.0, 461.0, curativeInstant, voltageCnec, Unit.KILOVOLT);
+
+        VoltageResult voltageResult = voltageResultBuilder.build();
+
         assertEquals(400.0, voltageResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
         assertEquals(405.0, voltageResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
         assertEquals(20.0, voltageResult.getMargin(null, voltageCnec, Unit.KILOVOLT));
 
-        voltageResult.addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
         assertEquals(417.0, voltageResult.getMinVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
         assertEquals(437.0, voltageResult.getMaxVoltage(preventiveInstant, voltageCnec, Unit.KILOVOLT));
         assertEquals(3.0, voltageResult.getMargin(preventiveInstant, voltageCnec, Unit.KILOVOLT));
 
-        voltageResult.addMeasurement(370.0, 461.0, curativeInstant, voltageCnec, Unit.KILOVOLT);
         assertEquals(370.0, voltageResult.getMinVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
         assertEquals(461.0, voltageResult.getMaxVoltage(curativeInstant, voltageCnec, Unit.KILOVOLT));
         assertEquals(-21.0, voltageResult.getMargin(curativeInstant, voltageCnec, Unit.KILOVOLT));
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageResult.addMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> VoltageResult.build().addMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
         assertEquals("VoltageCNEC results are only allowed for kilovolts.", exception.getMessage());
     }
 
@@ -89,14 +94,14 @@ public class VoltageResultTest {
         Mockito.when(preventiveInstant.getId()).thenReturn("preventive");
         Mockito.when(preventiveInstant.compareTo(Mockito.any())).thenReturn(-1);
 
-        VoltageResult voltageResult = new VoltageResult();
-        voltageResult.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
-        voltageResult.addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        voltageResultBuilder.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT)
+            .addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            voltageResult.serialize(jsonGenerator);
+            voltageResultBuilder.build().serialize(jsonGenerator);
         }
 
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
@@ -107,11 +112,10 @@ public class VoltageResultTest {
 
     @Test
     void testSerializeEmpty() throws IOException {
-        VoltageResult voltageResult = new VoltageResult();
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            voltageResult.serialize(jsonGenerator);
+            VoltageResult.build().build().serialize(jsonGenerator);
         }
         assertEquals("[]", writer.toString());
     }
@@ -128,14 +132,14 @@ public class VoltageResultTest {
         Mockito.when(cnec2.getUpperBound(Unit.KILOVOLT)).thenReturn(Optional.of(245.0));
         Mockito.when(cnec2.getLowerBound(Unit.KILOVOLT)).thenReturn(Optional.of(210.0));
 
-        VoltageResult voltageResult = new VoltageResult();
-        voltageResult.addMeasurement(215.0, 220.0, null, cnec2, Unit.KILOVOLT);
-        voltageResult.addMeasurement(400.0, 405.0, null, cnec1, Unit.KILOVOLT);
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        voltageResultBuilder.addMeasurement(215.0, 220.0, null, cnec2, Unit.KILOVOLT)
+            .addMeasurement(400.0, 405.0, null, cnec1, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            voltageResult.serialize(jsonGenerator);
+            voltageResultBuilder.build().serialize(jsonGenerator);
         }
 
         // Should be sorted by ID: cnec1 then cnec2
@@ -162,15 +166,15 @@ public class VoltageResultTest {
         Mockito.when(instant1.compareTo(instant2)).thenReturn(-1);
         Mockito.when(instant2.compareTo(instant1)).thenReturn(1);
 
-        VoltageResult voltageResult = new VoltageResult();
-        voltageResult.addMeasurement(415.0, 425.0, instant2, voltageCnec, Unit.KILOVOLT);
-        voltageResult.addMeasurement(405.0, 410.0, instant1, voltageCnec, Unit.KILOVOLT);
-        voltageResult.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        voltageResultBuilder.addMeasurement(415.0, 425.0, instant2, voltageCnec, Unit.KILOVOLT)
+            .addMeasurement(405.0, 410.0, instant1, voltageCnec, Unit.KILOVOLT)
+            .addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
         try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
-            voltageResult.serialize(jsonGenerator);
+            voltageResultBuilder.build().serialize(jsonGenerator);
         }
 
         // Instants should be sorted: initial, then instant1, then instant2

@@ -39,7 +39,7 @@ final class VoltageCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        VoltageResult voltageResult = new VoltageResult();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(VOLTAGECNEC_ID)) {
@@ -52,23 +52,27 @@ final class VoltageCnecResultArrayDeserializer {
             if (voltageCnec == null) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: voltageCnec with id %s does not exist in the Crac", voltageCnecId));
             }
-            deserializeVoltageCnecResult(jsonParser, voltageCnec, voltageResult, jsonFileVersion, crac);
+            deserializeVoltageCnecResult(jsonParser, voltageCnec, voltageResultBuilder, jsonFileVersion, crac);
         }
 
-        raoResult.addExtension(VoltageResult.class, voltageResult);
+        raoResult.addExtension(VoltageResult.class, voltageResultBuilder.build());
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnec voltageCnec, VoltageResult voltageResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser,
+                                                     VoltageCnec voltageCnec,
+                                                     VoltageResult.VoltageResultBuilder voltageResultBuilder,
+                                                     String jsonFileVersion,
+                                                     Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
-            deserializeElementaryVoltageCnecResult(jsonParser, voltageCnec, voltageResult, optimizedInstant, jsonFileVersion);
+            deserializeElementaryVoltageCnecResult(jsonParser, voltageCnec, voltageResultBuilder, optimizedInstant, jsonFileVersion);
         }
     }
 
     private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser,
                                                                VoltageCnec voltageCnec,
-                                                               VoltageResult voltageResult,
+                                                               VoltageResult.VoltageResultBuilder voltageResultBuilder,
                                                                Instant optimizedInstant,
                                                                String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
@@ -76,14 +80,14 @@ final class VoltageCnecResultArrayDeserializer {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.currentName()));
             } else {
                 jsonParser.nextToken();
-                deserializeElementaryVoltageCnecResultForUnit(jsonParser, voltageCnec, voltageResult, optimizedInstant, jsonFileVersion);
+                deserializeElementaryVoltageCnecResultForUnit(jsonParser, voltageCnec, voltageResultBuilder, optimizedInstant, jsonFileVersion);
             }
         }
     }
 
     private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser,
                                                                       VoltageCnec voltageCnec,
-                                                                      VoltageResult voltageResult,
+                                                                      VoltageResult.VoltageResultBuilder voltageResultBuilder,
                                                                       Instant optimizedInstant,
                                                                       String jsonFileVersion) throws IOException {
         double minVoltage = Double.NaN;
@@ -118,7 +122,7 @@ final class VoltageCnecResultArrayDeserializer {
 
         }
         if (!Double.isNaN(minVoltage) && !Double.isNaN(maxVoltage)) {
-            voltageResult.addMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
+            voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
         }
     }
 }
