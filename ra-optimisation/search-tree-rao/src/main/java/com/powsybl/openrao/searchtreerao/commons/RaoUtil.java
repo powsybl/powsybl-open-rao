@@ -393,7 +393,9 @@ public final class RaoUtil {
     }
 
     public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit) {
-        return flowCnecs.stream().allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
+        return flowCnecs.stream()
+            .filter(FlowCnec::isOptimized) // ignore MNECs
+            .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
     }
 
     public static boolean getFlowSecurityStatus(boolean computedStatus,

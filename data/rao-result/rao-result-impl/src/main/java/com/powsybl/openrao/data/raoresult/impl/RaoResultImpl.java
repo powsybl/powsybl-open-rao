@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
-    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
-    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
+    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult(RaoSecurityStatusHolder.DEFAULT, false);
+    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult(RaoSecurityStatusHolder.DEFAULT);
+    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult(RaoSecurityStatusHolder.DEFAULT);
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
@@ -154,7 +154,12 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult(raoSecurityStatusHolder));
+        if (!flowCnecResults.containsKey(flowCnec)) {
+            // exclude MNECs and CNECs belonging to diverging states
+            boolean shouldIncludeCnec = !flowCnec.isMonitored()
+                && computationStatusPerState.getOrDefault(flowCnec.getState(), ComputationStatus.DEFAULT) == ComputationStatus.DEFAULT;
+            flowCnecResults.put(flowCnec, new FlowCnecResult(raoSecurityStatusHolder, shouldIncludeCnec));
+        }
         return flowCnecResults.get(flowCnec);
     }
 
@@ -353,8 +358,9 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
-        return (crac.getFlowCnecs().isEmpty() || raoSecurityStatusHolder.getFlowSecurityStatus())
-            && (crac.getAngleCnecs().isEmpty() || raoSecurityStatusHolder.getAngleSecurityStatus())
-            && (crac.getVoltageCnecs().isEmpty() || raoSecurityStatusHolder.getVoltageSecurityStatus());
+        if (computationStatus == ComputationStatus.FAILURE) {
+            return false;
+        }
+        return parameters.stream().allMatch(raoSecurityStatusHolder::getSecurityStatus);
     }
 }

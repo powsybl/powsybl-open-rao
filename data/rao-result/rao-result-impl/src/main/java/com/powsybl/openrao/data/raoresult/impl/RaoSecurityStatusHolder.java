@@ -7,43 +7,47 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
+
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class RaoSecurityStatusHolder {
-    private final AtomicBoolean isFlowSecure;
-    private final AtomicBoolean isAngleSecure;
-    private final AtomicBoolean isVoltageSecure;
+    private final Set<AtomicBoolean> flowStatuses;
+    private final Set<AtomicBoolean> angleStatuses;
+    private final Set<AtomicBoolean> voltageStatuses;
+
+    public static final RaoSecurityStatusHolder DEFAULT = new RaoSecurityStatusHolder(); // used for placeholder
 
     public RaoSecurityStatusHolder() {
-        this.isFlowSecure = new AtomicBoolean(true);
-        this.isAngleSecure = new AtomicBoolean(true);
-        this.isVoltageSecure = new AtomicBoolean(true);
+        this.flowStatuses = new HashSet<>();
+        this.angleStatuses = new HashSet<>();
+        this.voltageStatuses = new HashSet<>();
     }
 
-    public boolean getFlowSecurityStatus() {
-        return isFlowSecure.get();
+    public boolean getSecurityStatus(PhysicalParameter physicalParameter) {
+        return switch (physicalParameter) {
+            case ANGLE -> reduceBooleanSet(angleStatuses);
+            case FLOW -> reduceBooleanSet(flowStatuses);
+            case VOLTAGE -> reduceBooleanSet(voltageStatuses);
+        };
     }
 
-    public void updateFlowSecurityStatus(boolean isFlowSecure) {
-        this.isFlowSecure.set(isFlowSecure);
+    public void registerSecurityStatus(AtomicBoolean statusWatcher, PhysicalParameter physicalParameter) {
+        switch (physicalParameter) {
+            case ANGLE -> this.angleStatuses.add(statusWatcher);
+            case FLOW -> this.flowStatuses.add(statusWatcher);
+            case VOLTAGE -> this.voltageStatuses.add(statusWatcher);
+            default -> throw new OpenRaoException("Unsupported physical parameter: " + physicalParameter);
+        }
     }
 
-    public boolean getAngleSecurityStatus() {
-        return isAngleSecure.get();
-    }
-
-    public void updateAngleSecurityStatus(boolean isAngleSecure) {
-        this.isAngleSecure.set(isAngleSecure);
-    }
-
-    public boolean getVoltageSecurityStatus() {
-        return isVoltageSecure.get();
-    }
-
-    public void updateVoltageSecurityStatus(boolean isVoltageSecure) {
-        this.isVoltageSecure.set(isVoltageSecure);
+    private static boolean reduceBooleanSet(Set<AtomicBoolean> booleanSet) {
+        return booleanSet.stream().allMatch(AtomicBoolean::get);
     }
 }

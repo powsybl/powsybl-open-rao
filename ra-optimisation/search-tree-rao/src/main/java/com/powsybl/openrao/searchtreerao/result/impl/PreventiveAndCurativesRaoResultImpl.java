@@ -123,9 +123,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         this.raoParameters = raoParameters;
         this.preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(reportNode);
         completePostContingencyResultsMap(stateTree, reportNode);
-        excludeContingencies(getContingenciesToExclude(stateTree));
+        Set<String> contingenciesToExclude = getContingenciesToExclude(stateTree);
+        excludeContingencies(contingenciesToExclude);
         excludeDuplicateCnecs();
-        computeFlowSecurityStatus();
+        computeFlowSecurityStatus(contingenciesToExclude);
     }
 
     private OptimizationResult generatePreventiveAndOutageOnlyResult(final ReportNode reportNode) {
@@ -293,10 +294,13 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         });
     }
 
-    private void computeFlowSecurityStatus() {
+    private void computeFlowSecurityStatus(Set<String> contingenciesToExclude) {
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
-        crac.getStates().forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
+        crac.getStates(crac.getOutageInstant())
+            .stream()
+            .filter(state -> !contingenciesToExclude.contains(state.getContingency().orElseThrow().getId()))
+            .forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
 
         boolean preventiveAndOutageStatus = RaoUtil.computeSecurityStatus(
             preventiveAndOutageCnecs, finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit);
@@ -307,6 +311,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
 
         Set<State> postOutageStates = crac.getStates().stream()
             .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
+            .filter(state -> !contingenciesToExclude.contains(state.getContingency().orElseThrow().getId()))
             .collect(Collectors.toSet());
         for (State state : postOutageStates) {
             boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(

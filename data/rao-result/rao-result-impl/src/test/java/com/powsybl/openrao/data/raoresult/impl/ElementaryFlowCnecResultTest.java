@@ -33,7 +33,7 @@ class ElementaryFlowCnecResultTest {
 
     @Test
     void defaultValuesTest() {
-        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
+        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult(null);
 
         assertMarginsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT);
         assertMarginsAreNan(elementaryFlowCnecResult, Unit.AMPERE);
@@ -49,7 +49,7 @@ class ElementaryFlowCnecResultTest {
 
     @Test
     void getterAndSetters() {
-        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
+        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult(null);
 
         // Per unit
         elementaryFlowCnecResult.setMargin(101, Unit.MEGAWATT);
@@ -97,7 +97,7 @@ class ElementaryFlowCnecResultTest {
 
     @Test
     void notAFlowUnitTest() {
-        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
+        ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult(null);
         assertThrows(OpenRaoException.class, () -> elementaryFlowCnecResult.setLoopFlow(TwoSides.TWO, 100, Unit.KILOVOLT));
     }
 }

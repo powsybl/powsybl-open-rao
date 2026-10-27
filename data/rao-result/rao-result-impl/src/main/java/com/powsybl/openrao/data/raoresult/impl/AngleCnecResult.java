@@ -7,27 +7,28 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class AngleCnecResult {
 
-    private static final ElementaryAngleCnecResult DEFAULT_RESULT = new ElementaryAngleCnecResult();
+    private static final ElementaryAngleCnecResult DEFAULT_RESULT = new ElementaryAngleCnecResult(null);
     private final Map<Instant, ElementaryAngleCnecResult> results;
-    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
-
-    AngleCnecResult() {
-        this(null);
-    }
+    private Instant lastInstantAdded;
+    private final AtomicBoolean angleSecurityStatus;
 
     AngleCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
         this.results = new HashMap<>();
-        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
+        this.lastInstantAdded = null;
+        this.angleSecurityStatus = new AtomicBoolean(true);
+        raoSecurityStatusHolder.registerSecurityStatus(this.angleSecurityStatus, PhysicalParameter.ANGLE);
     }
 
     public ElementaryAngleCnecResult getResult(Instant optimizedInstant) {
@@ -35,7 +36,17 @@ public class AngleCnecResult {
     }
 
     public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        results.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult(raoSecurityStatusHolder));
+        boolean latestInstantUpdated = false;
+        if (lastInstantAdded == null) {
+            lastInstantAdded = optimizedInstant;
+            latestInstantUpdated = true;
+        } else if (optimizedInstant != null && !lastInstantAdded.comesAfter(optimizedInstant)) {
+            lastInstantAdded = optimizedInstant;
+            latestInstantUpdated = true;
+        }
+
+        // update security status holder only if posterior result added
+        results.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult(latestInstantUpdated ? angleSecurityStatus : null));
         return results.get(optimizedInstant);
     }
 }

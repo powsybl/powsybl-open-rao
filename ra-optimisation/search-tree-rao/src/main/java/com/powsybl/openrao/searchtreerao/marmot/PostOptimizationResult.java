@@ -64,7 +64,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     private final RemedialActionActivationResult remedialActionActivationResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
     private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
-    private boolean isFlowSecure;
+    private final boolean isFlowSecure;
 
     public PostOptimizationResult(final RaoInput raoInput,
                                   final PrePerimeterResult initialResult,

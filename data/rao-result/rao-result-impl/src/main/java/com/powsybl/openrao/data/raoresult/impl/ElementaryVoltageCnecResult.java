@@ -10,6 +10,8 @@ package com.powsybl.openrao.data.raoresult.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -18,14 +20,14 @@ public class ElementaryVoltageCnecResult {
     private double minVoltage = Double.NaN;
     private double maxVoltage = Double.NaN;
     private double margin = Double.NaN;
-    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
+    private final AtomicBoolean voltageSecurityStatus;
 
     ElementaryVoltageCnecResult() {
         this(null);
     }
 
-    ElementaryVoltageCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
-        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
+    ElementaryVoltageCnecResult(AtomicBoolean voltageSecurityStatus) {
+        this.voltageSecurityStatus = voltageSecurityStatus;
     }
 
     private void checkUnit(Unit unit) {
@@ -62,8 +64,8 @@ public class ElementaryVoltageCnecResult {
     public void setMargin(double margin, Unit unit) {
         checkUnit(unit);
         this.margin = margin;
-        if (raoSecurityStatusHolder != null && margin < 0) {
-            raoSecurityStatusHolder.updateVoltageSecurityStatus(false);
+        if (voltageSecurityStatus != null) {
+            voltageSecurityStatus.set(margin >= 0);
         }
     }
 }

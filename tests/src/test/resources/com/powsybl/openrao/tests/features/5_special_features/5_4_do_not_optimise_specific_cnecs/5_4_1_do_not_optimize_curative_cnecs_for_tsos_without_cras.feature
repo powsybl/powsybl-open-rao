@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
+  # FIXME: impossible to access the list of CNECs to exclude without the parameters -> update importer?
   This feature covers the parameter "not-optimized-cnecs"/"do-not-optimize-curative-cnecs-for-tsos-without-cras",
   from the RaoParameters.
 
