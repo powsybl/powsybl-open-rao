@@ -63,10 +63,12 @@ public final class GeneratorOrderingComputer {
         int downwardLastStage = lastReachableStage(downward, max(0, -maxDownwardMagnitude));
 
         return new CounterTradeGeneratorOrdering(
-                withCumulativeAllocation(upwardRaw),
-                withCumulativeAllocation(downwardRaw),
+                upward,
+                downward,
                 upwardLastStage,
+                max(0, maxUpwardMagnitude),
                 downwardLastStage,
+                max(0, -maxDownwardMagnitude),
                 initialTargetP,
                 zeroWeightIds);
     }

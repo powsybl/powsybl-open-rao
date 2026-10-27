@@ -64,6 +64,7 @@ public final class LinearProblemIdGenerator {
     private static final String COUNTERTRADE_DISPATCH = "countertradedispatch";
     private static final String COUNTERTRADE_SATURATION = "countertradesaturation";
     private static final String COUNTERTRADE_ORDER = "countertradeorder";
+    private static final String COUNTERTRADE_SATURATION_ORDER = "countertradesaturationorder";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
@@ -148,6 +149,10 @@ public final class LinearProblemIdGenerator {
 
     public static String counterTradeGeneratorOrderConstraintId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
         return formatName(COUNTERTRADE_ORDER, area, generatorId + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String counterTradeSaturationOrderConstraintId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(COUNTERTRADE_SATURATION_ORDER, area, generatorId + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {

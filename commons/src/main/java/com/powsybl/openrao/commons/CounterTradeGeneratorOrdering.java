@@ -8,6 +8,8 @@ public record CounterTradeGeneratorOrdering(
         List<GlskGeneratorAllocation> upwardOrder,
         List<GlskGeneratorAllocation> downwardOrder,
         int upwardLastStage,
+        double maxUpwardMagnitude,
         int downwardLastStage,
+        double maxDownwardMagnitude,
         Map<String, Double> initialTargetP,
         Set<String> zeroWeightGeneratorIds) { }
