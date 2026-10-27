@@ -16,17 +16,17 @@ HTML content of the website is built automatically from source files written in 
 using [Sphinx](https://www.sphinx-doc.org/).  
 Sphinx build needs a configuration file: [conf.py](./conf.py). 
 It contains all customization options for the website (for example, the theme used is [furo](https://pradyunsg.me/furo/)).
-Here is the most common cases when you'll need to tweak this file:
-- If you want to customize the theme's behaviour, you will probably have to change the conf.py file (refer to the
+Here are the most common cases when you'll need to tweak this file:
+- If you want to customize the theme's behavior, you will probably have to change the conf.py file (refer to the
   used theme's documentation first)
-- If you want to customize sphinx's behaviour, add plugins, css, etc., you need to change this file (refer to the
+- If you want to customize Sphinx's behavior, add plugins, CSS, etc., you need to change this file (refer to the
   Sphinx doc first)
 
 ### Customization options
 
 Sometimes, the possibilities offered by Sphinx & the used theme can be limiting. Sphinx offers the possibility to use
-custom html & css code. Currently, two methods are used:
-- Custom CSS: the [styles.css](_static/styles/styles.css) files contains custom CSS classes (read more about this [here](https://docs.readthedocs.io/en/stable/guides/adding-custom-css.html)).
+custom HTML & CSS code. Currently, two methods are used:
+- Custom CSS: the [styles.css](_static/styles/styles.css) file contains custom CSS classes (read more about this [here](https://docs.readthedocs.io/en/stable/guides/adding-custom-css.html)).
   Feel free to add classes to it if you find it necessary.
 - HTML overrides: the [_templates](_templates) directory contains HTML files that override objects inherited from Sphinx
   or its theme (read more about this [here](https://www.sphinx-doc.org/en/master/development/theming.html#templating)).

@@ -15,7 +15,7 @@ In other words, it gathers the following information:
 - and remedial actions.
 
 It is typically used in European coordinated processes. It enables, for a given geographical region, to define the 
-network elements that might be critical after specific outages, and the remedial actions that might help to manage them.  
+network elements that might be critical after specific outages, and the remedial actions that might help manage them.  
 
 **A CRAC object model has been designed in OpenRAO** to store all the aforementioned information. This page aims to present:
 - the content and the organization of the data present in the OpenRAO CRAC object model,
@@ -33,11 +33,11 @@ Examples of complete CRACs are given below
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
-The creation of a small CRAC is for instance made in this test class of powsybl-open-rao repository:  
+The creation of a small CRAC is for instance made in this test class of the OpenRAO repository:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/crac/impl/utils/CommonCracCreation.java)
 :::
 :::{group-tab} JSON file
-An example of a small CRAC in the json internal format of OpenRAO is given below:  
+An example of a small CRAC in the JSON internal format of OpenRAO is given below:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json)
 <!-- TODO: point to the latest JSON CRAC version above -->
 :::
@@ -96,7 +96,7 @@ Network elements are referenced in the CRAC with:
 When using a network element, the applications relying on the CRAC will look in the Network for an identifiable element
 with the very same id: if this element cannot be found, it can lead to an error in the application. When building the CRAC,
 one must therefore make sure that only the network elements whose IDs can be understood by the PowSyBl iidm Network are
-added to the CRAC. This is particularly important to keep in mind if you want to [develop your own CRAC importer](import.md#implementing-new-crac-formats).
+added to the CRAC. This is particularly important to keep in mind if you want to [develop your own CRAC importer](import.md#implementing-new-crac-file-formats).
 
 ⚪ a name
 : The name shouldn't be absolutely required by the application relying on the CRAC object, but it could be useful to
@@ -116,7 +116,7 @@ These methods will be depicted in the following examples on this page.
 :::
 :::{group-tab} JSON file
 Network elements' IDs are defined within the objects that contain them. Examples are given later in this page,
-for contingencies, CNECs and remedial actions. Moreover, the internal Json CRAC format contains an index of network
+for contingencies, CNECs and remedial actions. Moreover, the internal JSON CRAC format contains an index of network
 element names, in which network elements that have a name are listed, with their name and their ID.
 ~~~json
 "networkElementsNamePerId" : {
@@ -132,7 +132,7 @@ A CRAC object must define "critical contingencies" (or "critical outages", or "C
 The denomination chosen within the OpenRAO internal format is **"Contingency"**.
 
 A contingency is the representation of an incident on the network (i.e. a cut line or a group/transformer failure, etc.).
-In OpenRAO, it is modelled by the loss of one or several network elements. Usually we have either a one-network-element-loss
+In OpenRAO, it is modeled by the loss of one or several network elements. Usually we have either a one-network-element-loss
 called "N-1", or a two-network-element-loss called "N-2".
 
 Examples:
@@ -293,17 +293,17 @@ It may also have a border, which can be useful on some processes to know where t
 Moreover, a CNEC can have a reliability margin: a safety buffer to cope with unplanned events or uncertainties of input
 data (i.e. an extra margin).
 
-### Optimised and monitored CNECs
-CNECs can be monitored and/or optimised. This notion of monitored/optimised has been introduced by the capacity
+### Optimized and monitored CNECs
+CNECs can be monitored and/or optimized. This notion of monitored/optimized has been introduced by the capacity
 calculation on the CORE region, and is now also used for the CSE region:
-- maximise the margins of CNECs that are "optimised"
+- maximize the margins of CNECs that are "optimized"
 - ensure that the margins of "monitored" CNECs are positive and/or are not decreased by the RAO.
 
 OpenRAO contains 3 families of CNECs, depending on which type of physical constraints they have: **FlowCnecs**,
 **AngleCnecs** and **VoltageCnecs**.
 
 ### Flow CNECs
-A "FlowCnec" has the two following specificities:
+A FlowCnec has the two following specificities:
 
 - it contains one network element that is a **Branch**. In the PowSyBl vocabulary, a "Branch"
   is an element connected to two terminals. For instance,
@@ -333,7 +333,7 @@ flow of the FlowCnec should ideally remain.
       >   as the current values on the two sides of a transformer are different,
   > - when the threshold is defined in %Imax on a [**tie-line**](inv:powsyblcore:*:*#tie-line),
       >   as the current limits are usually different on both sides of a tie-line,
-  > - when the application uses **AC load-flow** computation, as the flow values on the two sides of a branch are
+  > - when the application uses **AC load flow** computation, as the flow values on the two sides of a branch are
       >   different (due to losses). The CracCreationParameters allows the user to [decide which side(s) should be monitored by default](creation-parameters.md#default-monitored-line-side).
 - A threshold has a minimum and/or a maximum value. The maximum value represents the maximum value of the flow in the "direct" direction
   and the minimum value represents the maximum value of the flow in the "opposite" direction.
@@ -353,7 +353,7 @@ additional data is required in order to handle the following conversions:
 > It can only be defined in megawatt, it is subtracted from the thresholds of the FlowCnec, adding an extra constraint.
 
 #### Creating a FlowCnec
-In OpenRAO, FlowCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, FlowCnecs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -464,7 +464,7 @@ crac.newFlowCnec()
 #### Loop-flow extension
 When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](../../parameters/implementation-specific-parameters.md#loop-flow-optional-parameter)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](../../algorithms/castor/special-features/loop-flows.md)
-when optimising remedial actions.  
+when optimizing remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
 value on this CNEC may override this user-defined thrshold, as explained [here](../../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)).
 
@@ -513,7 +513,7 @@ flowCnec.newExtension(LoopFlowThresholdAdder.class)
 ::::
 
 ### Angle CNECs
-An "AngleCnec" is a branch which may see a phase angle shift between its two ends when it's disconnected. This may induce
+An AngleCnec is a branch which may see a phase angle shift between its two ends when it's disconnected. This may induce
 insecurities in the network when it's back up. That's why we monitor angle CNECs and associate with them remedial actions
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
@@ -528,11 +528,11 @@ An AngleCnec has the following specificities:
 - it must contain at least one threshold, defined in degrees. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
+> Angle CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [Monitoring](../../algorithms/monitoring.md) module with **ANGLE** as physical parameter.
 
-#### Creating an AngleCnec
-In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+#### Creating an angle CNEC
+In OpenRAO, angle CNECs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -627,17 +627,17 @@ cnec2 = crac.newAngleCnec()
 ::::
 
 ### Voltage CNECs
-A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has the following specificities:
+A VoltageCnec is a CNEC on which we monitor the voltage on substations. It has the following specificities:
 - it contains one network element (a [VoltageLevel](inv:powsyblcore:*:*#voltage-level))
 - the physical parameter which is monitored by the CNEC is the **voltage**.
 - it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
 
 > 💡  **NOTE**
-> VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
+> Voltage CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
 > [VoltageMonitoring](../../algorithms/monitoring.md) module with **VOLTAGE** as physical parameter.
 
-#### Creating a VoltageCnec
-In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+#### Creating a voltage CNEC
+In OpenRAO, voltage CNECs can be created by the java API, or written in the JSON CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -743,8 +743,8 @@ OpenRAO has the following usage rules with their activation conditions:
   and an optional [contingency](#contingencies): the remedial action can be activated if any FlowCnec in the given country is
   constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
   only constraints on FlowCnecs with the same contingency count.  
-- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
-  the remedial action can be activated if the given Cnec is constrained at the given instant.
+- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [CNEC](#cnecs)):
+  the remedial action can be activated if the given CNEC is constrained at the given instant.
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -791,7 +791,7 @@ crac.newNetworkAction()
 ~~~
 :::
 :::{group-tab} JSON file
-Complete examples of Network and Range Action in Json format are given in the following paragraphs
+Complete examples of Network and Range Action in JSON format are given in the following paragraphs
 ~~~json
 "onInstantUsageRules" : [ {
   "instant" : "preventive"
@@ -829,7 +829,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
 <ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
-🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
+🔴 **cnecId**: must be the id of a [CNEC](#cnecs) that exists in the CRAC
 
 *NB*: even though OnContingencyState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a OnInstant usage rule on the preventive instant.  
 :::
@@ -1295,7 +1295,7 @@ Each impacted generator or load has an associated "key", which is a coefficient 
 This range action has two main applications:
 * to represent redispatching remedial actions for [time-coupled computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md)
 * to represent an HVDC line in an AC equivalent model (where the line is disconnected and
-replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-nord-process-cse-crac)
+replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-north-process-cse-crac)
 
 
 Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
