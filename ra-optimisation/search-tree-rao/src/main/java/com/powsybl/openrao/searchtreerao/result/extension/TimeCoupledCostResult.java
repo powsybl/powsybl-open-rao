@@ -129,4 +129,6 @@ public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
         }
         jsonGenerator.writeEndObject();
     }
+
+    // TODO: define builder like other extensions
 }

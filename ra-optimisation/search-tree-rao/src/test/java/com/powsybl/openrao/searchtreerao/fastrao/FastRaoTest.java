@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -144,6 +145,7 @@ class FastRaoTest {
         SortedSet<Instant> curativeInstants = new TreeSet<>();
         curativeInstants.add(instant);
         curativeInstants.add(instant2);
+        Mockito.when(crac.getStates()).thenReturn(Set.of(preventiveState));
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
 
@@ -161,6 +163,7 @@ class FastRaoTest {
         State preventiveState = Mockito.mock(State.class);
         when(preventiveState.isPreventive()).thenReturn(true);
         when(crac.getPreventiveState()).thenReturn(preventiveState);
+        when(crac.getStates()).thenReturn(Set.of(preventiveState));
         Mockito.when(raoInput.getCrac()).thenReturn(crac);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
