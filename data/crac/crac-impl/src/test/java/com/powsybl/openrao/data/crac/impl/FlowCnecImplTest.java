@@ -740,8 +740,6 @@ class FlowCnecImplTest {
         assertEquals(
             Set.of(new BranchThresholdImpl(ONE, MEGAWATT, null, 100. * 220. * Math.sqrt(3) / 1000), new BranchThresholdImpl(ONE, AMPERE, null, 100.)),
             cnec2.getThresholds());
-
-
     }
 
     @Test
@@ -758,7 +756,7 @@ class FlowCnecImplTest {
             Set.of(new BranchThresholdImpl(ONE, MEGAWATT, -100., 500.), new BranchThresholdImpl(TWO, AMPERE, -200., 300.)),
             cnec.getThresholds());
         assertEquals(400., cnec.getUpperBound(ONE, MEGAWATT).get());
-        assertEquals(300. - 100 / (220. * Math.sqrt(3) / 1000) , cnec.getUpperBound(TWO, AMPERE).get());
+        assertEquals(300. - 100 / (220. * Math.sqrt(3) / 1000), cnec.getUpperBound(TWO, AMPERE).get());
         assertEquals(0., cnec.getLowerBound(ONE, MEGAWATT).get());
         assertEquals(-200 + 100 / (220. * Math.sqrt(3) / 1000), cnec.getLowerBound(TWO, AMPERE).get());
     }
@@ -786,7 +784,6 @@ class FlowCnecImplTest {
             .add();
 
         assertEquals(Set.of(TWO), cnec2.getMonitoredSides());
-
 
         FlowCnec cnec3 = crac.newFlowCnec()
             .withId("cnec-id-3")
