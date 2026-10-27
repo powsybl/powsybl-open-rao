@@ -197,17 +197,19 @@ These parameters (`second-preventive-rao`) tune the behavior of the [second prev
   - "POSSIBLE_CURATIVE_IMPROVEMENT"
 - **Default value**: "DISABLED"
 - **Usage**: configures whether a 2nd preventive RAO should be run after the curative RAO.  
-  *Note: if there are automatons, and if a 2nd preventive RAO is run, then a 2nd automaton RAO is also run*
-  - **DISABLED**: 2nd preventive RAO is not run
-  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost has increased after optimization compared to
-    before optimization; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
-    during curative RAO
+  *Note: if there are automatons, and if a 2nd preventive RAO is run, then a 2nd automaton simulation is also run.*
+  - **DISABLED**: 2nd preventive RAO is not run.
+  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost at the final curative instant has increased after optimization compared to
+    the initial unoptimized situation; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
+    during curative RAO.
   - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
     i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
     This depends on the value of parameter [type](business-parameters.md#type):
-    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimization
+    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is unsecure after optimization.
+      *Note: if the first preventive perimeter itself is unsecure, the 2nd preventive RAO is cancelled to save computation time, unless [enforce-curative-security](business-parameters.md#enforce-curative-security) is set to true.*
     - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
-      after optimization that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
+      after optimization that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement)).
+  - **Time budget guardrail**: regardless of the condition above, if a target end instant is configured and the remaining execution time is less than the duration of the first preventive RAO, the 2nd preventive RAO will be skipped.
 
 ##### hint-from-first-preventive-rao
 - **Expected value**: true/false
@@ -215,6 +217,8 @@ These parameters (`second-preventive-rao`) tune the behavior of the [second prev
 - **Usage**: if set to true, the RAO will use the optimal combination of network actions found in the first preventive
   RAO, as a predefined combination ("hint") to test at the first search depth of the second preventive RAO. This way,
   if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
+
+> **Performance Note**: The second preventive RAO operates on a **Global Optimization Perimeter** containing all CNECs and contingencies simultaneously. Additionally, it re-runs systematic sensitivity analyses and the automaton simulation. As a result, running a second preventive RAO can significantly increase total computation time.
 
 #### CNECs that should not be optimized
 These parameters (`not-optimized-cnecs`) allow the activation of region-specific features, that de-activate the

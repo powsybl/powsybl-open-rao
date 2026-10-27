@@ -180,12 +180,12 @@ Example:
 ::::
 
 The different possible execution details are:
-- **The RAO only went through first preventive**: only the first preventive optimization was run (no second preventive); this is the default situation;
-- **First preventive fell back to initial situation**: the first preventive RAO did not improve the situation, so the initial situation (no remedial action applied) was kept;
-- **Second preventive improved first preventive results**: the second preventive RAO gave better or similar results than the first one (cost-wise), so its results were kept;
-- **Second preventive fell back to first preventive results**: the second preventive RAO did not improve on the first one, so the first preventive results were kept;
-- **Second preventive fell back to initial situation**: the second preventive RAO did not improve the situation, so the initial situation was kept;
-- **<specific failure reason>**: when the RAO fails, the field contains a message describing the cause of the failure.
+- **The RAO only went through first preventive**: only the first preventive optimization was run (the second preventive RAO was either disabled, skipped due to time budget / security conditions, or not triggered); this is the default situation;
+- **First preventive fell back to initial situation**: the first preventive RAO did not improve the situation (or increased overall cost), so the initial situation (no remedial action applied) was kept;
+- **Second preventive improved first preventive results**: the second preventive RAO ran and produced a lower or equal total cost at the final curative instant ($Cost_{2P} \le Cost_{1P}$) without sensitivity failures, so its global preventive and curative results were kept;
+- **Second preventive fell back to first preventive results**: the second preventive RAO was triggered but either failed (e.g. sensitivity analysis divergence) or resulted in a worse cost ($Cost_{2P} > Cost_{1P}$), so the results from the first preventive run were preserved;
+- **Second preventive fell back to initial situation**: the second preventive RAO ran, but the final cost remained higher than the initial unoptimized situation, so all remedial actions were discarded and the initial state was restored;
+- **<specific failure reason>**: when the RAO fails completely, the field contains a message describing the cause of the failure.
 
 If the RAO went through angle or voltage [monitoring](../algorithms/monitoring.md), said monitoring(s) are appended to the execution details from the first flow RAO.
 
