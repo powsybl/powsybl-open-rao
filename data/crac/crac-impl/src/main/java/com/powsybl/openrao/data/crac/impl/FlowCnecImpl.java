@@ -214,17 +214,14 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                     initialUnit = Unit.AMPERE;
                 }
                 double flowUnitMultiplier = getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                if (!Double.isNaN(flowUnitMultiplier)) {
-                    if (flowUnitMultiplier == 1) {
-                        boundProvided[getIndex(side, requestedUnit, Bound.UPPER)] = true;
-                    }
-                    currentBound = currentBound * flowUnitMultiplier;
-                    currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
-                    if (currentBound < upperBound) {
-                        upperBound = currentBound;
-                    }
+                if (flowUnitMultiplier == 1) {
+                    boundProvided[getIndex(side, requestedUnit, Bound.UPPER)] = true;
                 }
-
+                currentBound = currentBound * flowUnitMultiplier;
+                currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
+                if (currentBound < upperBound) {
+                    upperBound = currentBound;
+                }
             }
             if (upperBound != Double.POSITIVE_INFINITY) {
                 boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
