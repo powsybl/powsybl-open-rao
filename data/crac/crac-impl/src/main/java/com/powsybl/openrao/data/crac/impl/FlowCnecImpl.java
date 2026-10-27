@@ -144,14 +144,12 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     private void computeBoundsFromThresholds(Set<BranchThreshold> thresholds) {
-        computeLowerBound(TwoSides.ONE, Unit.MEGAWATT, thresholds);
-        computeLowerBound(TwoSides.TWO, Unit.MEGAWATT, thresholds);
-        computeUpperBound(TwoSides.ONE, Unit.MEGAWATT, thresholds);
-        computeUpperBound(TwoSides.TWO, Unit.MEGAWATT, thresholds);
-        computeLowerBound(TwoSides.ONE, Unit.AMPERE, thresholds);
-        computeLowerBound(TwoSides.TWO, Unit.AMPERE, thresholds);
-        computeUpperBound(TwoSides.ONE, Unit.AMPERE, thresholds);
-        computeUpperBound(TwoSides.TWO, Unit.AMPERE, thresholds);
+        for (TwoSides side: Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            for (Unit unit: Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+                computeLowerBound(side, unit, thresholds);
+                computeUpperBound(side, unit, thresholds);
+            }
+        }
     }
 
     private void computeLowerBound(TwoSides side, Unit requestedUnit, Set<BranchThreshold> thresholds) {
