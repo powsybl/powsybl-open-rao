@@ -708,7 +708,7 @@ class FlowCnecImplTest {
 
     @Test
     void testGetThresholds() {
-        FlowCnec cnec1 = initPreventiveCnecAdder()
+        FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec-id-1")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .withInstant(PREVENTIVE_INSTANT_ID)
