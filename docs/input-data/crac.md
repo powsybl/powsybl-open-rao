@@ -30,7 +30,7 @@ OpenRAO distinguishes two types of remedial actions, **range actions** and **net
 ### Range action
 
 Range actions are actions on the network with a degree of freedom: the choice of a **set-point** within a given range. 
-These actions can be optimised linearly, with some approximations. For more information related to the linear optimisation 
+These actions can be optimized linearly, with some approximations. For more information related to the linear optimization 
 of range actions in OpenRAO, please refer to the [dedicated documentation page](../algorithms/castor/linear-problem.md).
 
 They can be defined on some categories of network elements:

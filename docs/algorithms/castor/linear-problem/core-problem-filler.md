@@ -1,4 +1,4 @@
-# Modelling CNECs and range actions
+# Modeling CNECs and range actions
 
 This page gathers core constraints, i.e constraints that need to be defined at the beginning of the optimization problem.
 
@@ -129,7 +129,7 @@ $$\sum_{r \in \mathcal{IRA}(s)} \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \r
 
 ### Margin optimization
 
-Small penalisation for the use of RangeActions:
+Small penalization for the use of RangeActions:
 
 $$
 \begin{equation}
