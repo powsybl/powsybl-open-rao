@@ -8,12 +8,14 @@
 package com.powsybl.openrao.searchtreerao.result.extension;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.io.json.extension.JsonCostResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -118,11 +120,12 @@ public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
         return EXTENSION_NAME;
     }
 
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
+    // TODO: move to JsonTimeCoupledCostResult directly
+    public void serialize(JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         for (OffsetDateTime timestamp : costResults.getTimestamps()) {
             jsonGenerator.writeFieldName(DateTimeFormatter.ISO_DATE_TIME.format(timestamp));
-            costResults.getData(timestamp).orElseThrow().serialize(jsonGenerator);
+            new JsonCostResult().serialize(costResults.getData(timestamp).orElseThrow(), jsonGenerator, serializerProvider);
         }
         jsonGenerator.writeEndObject();
     }

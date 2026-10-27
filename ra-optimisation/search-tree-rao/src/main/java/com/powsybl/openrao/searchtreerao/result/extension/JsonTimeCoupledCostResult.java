@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
-import com.powsybl.openrao.data.raoresult.io.json.extension.JsonCastorCostResult;
+import com.powsybl.openrao.data.raoresult.io.json.extension.JsonCostResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 public class JsonTimeCoupledCostResult implements RaoResultJsonUtils.ExtensionSerializer<TimeCoupledCostResult> {
     @Override
     public void serialize(TimeCoupledCostResult extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        extension.serialize(jsonGenerator);
+        extension.serialize(jsonGenerator, serializerProvider);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class JsonTimeCoupledCostResult implements RaoResultJsonUtils.ExtensionSe
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             OffsetDateTime timestamp = OffsetDateTime.parse(jsonParser.currentName(), DateTimeFormatter.ISO_DATE_TIME);
             jsonParser.nextToken();
-            CostResult costResult = new JsonCastorCostResult().deserialize(jsonParser, deserializationContext);
+            CostResult costResult = new JsonCostResult().deserialize(jsonParser, deserializationContext);
             timeCoupledCostResult.add(costResult, timestamp);
         }
         return timeCoupledCostResult;
