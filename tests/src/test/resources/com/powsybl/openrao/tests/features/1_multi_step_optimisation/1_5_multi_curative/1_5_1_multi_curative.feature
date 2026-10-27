@@ -295,7 +295,6 @@ Feature: 1.5.1: Multi-curative
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    # FIXME: not consistent with what is logged -> worst reported margin is 61.52 MW
     Then the worst margin is 16.7 MW
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
@@ -521,7 +520,6 @@ Feature: 1.5.1: Multi-curative
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    # FIXME: not consistent with what is logged -> worst reported margin is 61.52 MW
     Then the worst margin is 216.7 MW
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
