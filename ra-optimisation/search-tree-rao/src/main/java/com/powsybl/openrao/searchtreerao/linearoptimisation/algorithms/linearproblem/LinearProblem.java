@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.linearsolver.MPModelExportOptions;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -640,6 +641,10 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getCounterTradeAreaBalanceConstraint(CounterTradeRangeAction rangeAction, State state) {
         return solver.getConstraint(counterTradeAreaBalanceConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeAreaBalanceConstraint(String areaId, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeAreaBalanceConstraintId(areaId, state));
     }
 
     public OpenRaoMPVariable addCounterTradeDirectionBinary(String areaId, State state) {

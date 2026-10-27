@@ -146,7 +146,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         }
         CounterTradeGeneratorOrdering counterTradeGeneratorOrdering = counterTradeRangeAction.getGeneratorOrdering();
 
-
         List<GlskGeneratorAllocation> orderUp = counterTradeGeneratorOrdering.upwardOrder();
         List<GlskGeneratorAllocation> orderDown = counterTradeRangeAction.getGeneratorOrdering().downwardOrder();
         int lastUp = counterTradeRangeAction.getGeneratorOrdering().upwardLastStage();
@@ -155,7 +154,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         String tailIdUp = "counterTrade_" + counterTradeRangeAction.getId() + "_tail_UPWARD";
         double tailWeightUp = orderUp.subList(lastUp, orderUp.size()).stream().mapToDouble(GlskGeneratorAllocation::weight).sum();
         List<WeightedSensitivityVariable> tailUp = orderUp.subList(lastUp, orderUp.size()).stream()
-                .map(a -> new WeightedSensitivityVariable(a.generatorId(), (float) a.weight()/tailWeightUp))
+                .map(a -> new WeightedSensitivityVariable(a.generatorId(), (float) a.weight() / tailWeightUp))
                 .toList();
         sensitivityVariables.put(tailIdUp, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         glsks.putIfAbsent(tailIdUp, new SensitivityVariableSet(tailIdUp, tailUp));
@@ -163,7 +162,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         String tailIdDown = "counterTrade_" + counterTradeRangeAction.getId() + "_tail_DOWNWARD";
         double tailWeightDown = orderDown.subList(lastDown, orderDown.size()).stream().mapToDouble(GlskGeneratorAllocation::weight).sum();
         List<WeightedSensitivityVariable> tailDown = orderDown.subList(lastDown, orderDown.size()).stream()
-                .map(a -> new WeightedSensitivityVariable(a.generatorId(), (float) a.weight()/ tailWeightDown))
+                .map(a -> new WeightedSensitivityVariable(a.generatorId(), (float) a.weight() / tailWeightDown))
                 .toList();
         sensitivityVariables.put(tailIdDown, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         glsks.putIfAbsent(tailIdDown, new SensitivityVariableSet(tailIdDown, tailDown));
@@ -175,28 +174,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         for (int h = 0; h < lastDown; h++) {
             sensitivityVariables.put(orderDown.get(h).generatorId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
         }
-
-//        counterTradeRangeAction.getGeneratorOrdering().upwardOrder().forEach(allocation ->
-//                sensitivityVariables.put(allocation.generatorId(), SensitivityVariableType.INJECTION_ACTIVE_POWER));
-
-//        var positiveGlskMap = getPositiveGlskMap(area);
-//
-//        if (!positiveGlskMap.isEmpty()) {
-//            List<WeightedSensitivityVariable> positiveGlsk = positiveGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
-//            String positiveGlskMapId = handler.getPositiveGlskMapId();
-//            sensitivityVariables.put(positiveGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
-//            glsks.putIfAbsent(positiveGlskMapId, new SensitivityVariableSet(positiveGlskMapId, positiveGlsk));
-//            glskIds.add(positiveGlskMapId);
-//        }
-//
-//        var negativeGlskMap = getNegativeGlskMap(area);
-//        if (!negativeGlskMap.isEmpty()) {
-//            List<WeightedSensitivityVariable> negativeGlsk = negativeGlskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
-//            String negativeGlskMapId = handler.getNegativeGlskMapId();
-//            sensitivityVariables.put(negativeGlskMapId, SensitivityVariableType.INJECTION_ACTIVE_POWER);
-//            glsks.putIfAbsent(negativeGlskMapId, new SensitivityVariableSet(negativeGlskMapId, negativeGlsk));
-//            glskIds.add(negativeGlskMapId);
-//        }
     }
 
     private void createPositiveAndNegativeGlsks(InjectionRangeAction rangeAction, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {

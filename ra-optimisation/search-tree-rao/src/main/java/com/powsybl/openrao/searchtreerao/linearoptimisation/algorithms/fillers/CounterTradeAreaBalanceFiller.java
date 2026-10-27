@@ -17,6 +17,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getCounterTradeRaSensitivityThreshold;
 
@@ -53,11 +54,18 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
         counterTradeActions.forEach((state, counterTradeRangeActions) -> {
             Set<AreaPairBoundary> alreadyCreatedBorders = new HashSet<>();
+            Set<String> areasWithCt = counterTradeRangeActions.stream().map(CounterTradeRangeAction::getArea).collect(Collectors.toSet());
+
             for (CounterTradeRangeAction ra : counterTradeRangeActions) {
                 // add the border balance constraints between CT on each area and its borders
                 fillBorderBalance(linearProblem, ra, state, alreadyCreatedBorders);
                 // add the generation dispatch
                 fillGeneratorDispatch(linearProblem, ra, state);
+            }
+            for (String areaId : areaGraph.getAllAreas()) {
+                if (!areasWithCt.contains(areaId)) {
+                    fillZeroBalance(linearProblem, areaId, state, alreadyCreatedBorders);
+                }
             }
         });
         fillFlowImpact(linearProblem, sensitivityResult, rangeActionActivationResult, validFlowCnecs);
@@ -72,10 +80,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
         for (String neighbour : areaGraph.getNeighbours(area)) {
             AreaPairBoundary pairKey = AreaPairBoundary.of(area, neighbour);
-            OpenRaoMPVariable borderVar = alreadyCreatedBorders.add(pairKey)
-                    ? linearProblem.addCounterTradeBorderExchangeVariable(
-                    -linearProblem.infinity(), linearProblem.infinity(), area, neighbour, state)
-                    : linearProblem.getCounterTradeBorderExchangeVariable(area, neighbour, state);
+            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders);
             double sign = pairKey.isFromSide(area) ? 1.0 : -1.0;
             balance.setCoefficient(borderVar, sign);
         }
@@ -199,6 +204,24 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * xCur);
             flowConstraint.setUb(flowConstraint.ub() - sensitivity * xCur);
             flowConstraint.setCoefficient(x, -sensitivity);
+        }
+    }
+
+    private OpenRaoMPVariable getOrCreateBorderVariable(LinearProblem linearProblem, String areaId, String neighbourId,
+                                                        State state, Set<AreaPairBoundary> alreadyCreatedBorders) {
+        AreaPairBoundary pair = AreaPairBoundary.of(areaId, neighbourId);
+        return alreadyCreatedBorders.add(pair)
+                ? linearProblem.addCounterTradeBorderExchangeVariable(
+                -linearProblem.infinity(), linearProblem.infinity(), areaId, neighbourId, state)
+                : linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
+    }
+
+    private void fillZeroBalance(LinearProblem linearProblem, String areaId, State state,
+                                 Set<AreaPairBoundary> alreadyCreatedBorders) {
+        OpenRaoMPConstraint balance = linearProblem.addCounterTradeAreaBalanceConstraint(areaId, state); // 0 = Σ ± border
+        for (String neighbour : areaGraph.getNeighbours(areaId)) {
+            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, areaId, neighbour, state, alreadyCreatedBorders);
+            balance.setCoefficient(borderVar, AreaPairBoundary.of(areaId, neighbour).isFromSide(areaId) ? 1.0 : -1.0);
         }
     }
 

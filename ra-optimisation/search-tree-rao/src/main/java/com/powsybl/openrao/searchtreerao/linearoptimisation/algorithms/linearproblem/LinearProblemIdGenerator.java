@@ -118,6 +118,10 @@ public final class LinearProblemIdGenerator {
         return formatName(COUNTERTRADE_BALANCE, state.getId(), rangeAction.getId(), CONSTRAINT_SUFFIX);
     }
 
+    public static String counterTradeAreaBalanceConstraintId(String area, State state) {
+        return formatName(COUNTERTRADE_BALANCE, state.getId(), area, CONSTRAINT_SUFFIX);
+    }
+
     public static String counterTradeDirectionBinaryVariableId(String area, State state) {
         return formatName(area, state.getId(), COUNTERTRADE_EXCLUSIVITY, VARIABLE_SUFFIX);
     }
