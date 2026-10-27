@@ -104,14 +104,12 @@ public class CounterTradingRangeActionCreator {
                 .withAreaId(area);
 
         neighbors.forEach(neighbor -> counterTradeRangeActionAdder.newConnectedArea().withAreaId(neighbor).add());
-
-
         return counterTradeRangeActionAdder;
     }
 
     /**
      * Get the maximum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
-     * The SSI limit is maxRegulatingUp and the economic limit is maxEconomicP - initialNetPosition.
+     * The physical limit is maxRegulatingUp and the economic limit is maxEconomicP - initialNetPosition.
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the max range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
@@ -126,14 +124,14 @@ public class CounterTradingRangeActionCreator {
      */
     private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
 
-        double ssiMaxRange = maxRegulatingUp;
+        double physicalMaxRange = maxRegulatingUp;
         double economicMaxRange = countertradeRemedialAction.maxEconomicP() - initialNetPosition;
 
         double maxRange;
-        if (!Double.isNaN(ssiMaxRange) && !Double.isNaN(economicMaxRange)) {
-            maxRange = Math.min(ssiMaxRange, economicMaxRange);
-        } else if (!Double.isNaN(ssiMaxRange)) {
-            maxRange = ssiMaxRange;
+        if (!Double.isNaN(physicalMaxRange) && !Double.isNaN(economicMaxRange)) {
+            maxRange = Math.min(physicalMaxRange, economicMaxRange);
+        } else if (!Double.isNaN(physicalMaxRange)) {
+            maxRange = physicalMaxRange;
         } else if (!Double.isNaN(economicMaxRange)) {
             maxRange = economicMaxRange;
         } else {
@@ -156,7 +154,7 @@ public class CounterTradingRangeActionCreator {
 
     /**
      * Get the minimum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
-     * The SSI limit is -maxRegulatingDown and the economic limit is minEconomicP - initialNetPosition.
+     * The physical limit is -maxRegulatingDown and the economic limit is minEconomicP - initialNetPosition.
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the min range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
@@ -171,14 +169,14 @@ public class CounterTradingRangeActionCreator {
      */
     private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
 
-        double ssiMinRange = -maxRegulatingDown;
+        double physicalMinRange = -maxRegulatingDown;
         double economicMinRange = countertradeRemedialAction.minEconomicP() - initialNetPosition;
 
         double minRange;
-        if (!Double.isNaN(ssiMinRange) && !Double.isNaN(economicMinRange)) {
-            minRange = Math.max(ssiMinRange, economicMinRange);
-        } else if (!Double.isNaN(ssiMinRange)) {
-            minRange = ssiMinRange;
+        if (!Double.isNaN(physicalMinRange) && !Double.isNaN(economicMinRange)) {
+            minRange = Math.max(physicalMinRange, economicMinRange);
+        } else if (!Double.isNaN(physicalMinRange)) {
+            minRange = physicalMinRange;
         } else if (!Double.isNaN(economicMinRange)) {
             minRange = economicMinRange;
         } else {

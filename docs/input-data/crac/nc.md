@@ -838,8 +838,6 @@ directly within the `CountertradeRemedialAction` object itself, which inherits f
         <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
         <nc:RemedialAction.RemedialActionSystemOperator 
                 rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
-        <nc:RemedialAction.AppointedToRegion 
-                rdf:resource="http://energy.referencedata.eu/EIC/10YDOM--ES-FR--D"/>
         <nc:PowerRemedialAction.BiddingZone 
                 rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
         <nc:CountertradeRemedialAction.maxEconomicP>4000</nc:CountertradeRemedialAction.maxEconomicP>
@@ -887,9 +885,9 @@ The `CountertradeRemedialAction` object has specific fields that define the rang
   bound of the counter-trade range action (see [range](#range)).
 - **`minEconomicP`**: The minimum economic net position (in MW) of the bidding zone. It is used to compute the lower 
   bound of the counter-trade range action (see [range](#range)).
-- **`AppointedToRegion`**: The region (border) to which the counter-trade action is appointed. This field is used to 
-  determine the importing and exporting areas based on the `RemedialActionSystemOperator`.
-- **`BiddingZone`**: (Optional) The bidding zone related to the power remedial action.
+- **`BiddingZone`**: The bidding zone of the counter-trade action. It defines the area of the counter-trade range 
+  action (see [area and connected areas](#area-and-connected-areas)) and the net position its range is relative to 
+  (see [range](#range)).
 - **`shiftMethod`**: (Optional) The method used for shifting power. Can be values like `shared`.
 - **`gLSKStrategy`**: (Optional) The GLSK (Generation and Load Shift Keys) strategy to be applied. Can be values like 
   `proportionalForGenerator`.
@@ -905,10 +903,11 @@ if no net position can be computed for the area, the remedial action is not impo
 Each bound of the range combines two limits:
 
 - the **economic limit**, computed from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction`;
-- the **SSI limit**, computed from the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile. These values 
-  are read on the `CountertradeRemedialAction` if it provides any of them, or else on the `RemedialActionGroup` linked to 
-  it through an enabled `RemedialActionDependency`. If both define these values with different values, the remedial 
-  action is not imported.
+- the **physical limit**, given by the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile, which are the 
+  maximum variations (in MW) that the remedial action can physically regulate down and up. These values are read on the 
+  `CountertradeRemedialAction` if it provides any of them, or else on the `RemedialActionGroup` linked to it through an 
+  enabled `RemedialActionDependency`. If both define these values with different values, the remedial action is not 
+  imported.
 
 The bounds are:
 
@@ -922,7 +921,7 @@ Moreover, the counter-trade cannot change the sign of the net position:
 - if the initial net position is positive, initial net position + lower bound cannot be negative;
 - if the initial net position is negative, initial net position + upper bound cannot be positive.
 
-If neither the economic limit nor the SSI limit is provided for the lower (resp. upper) bound, the 
+If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
 `counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
 above is not applied to it). If this parameter is not set either, the remedial action is not imported.
 
@@ -935,23 +934,23 @@ If the resulting lower bound is greater than the upper bound, the remedial actio
 >
 > The range of the counter-trade range action is [-500, 500].
 
-#### Importing and exporting areas
+#### Area and connected areas
 
-The importing and exporting areas are automatically determined based on the combination of the 
-`RemedialActionSystemOperator` and the `AppointedToRegion`:
+The [counter-trade range action](json.md#counter-trade-range-action) is an exchange between its area and one or more 
+connected areas sharing a border with it.
 
-- **French operator (10XFR-RTE------Q)**
-  - **ES-FR border (10YDOM--ES-FR--D)**:  The counter-trade is between ES (importing) and FR (exporting).
-- **Portuguese operator (10XPT-REN------9)**
-  - **ES-PT border (10YDOM--ES-PT--T)**: Counter-trade between ES (importing) and PT (exporting).
-- **Spanish operator (10XES-REE------E)**
-  - **ES-FR border (10YDOM--ES-FR--D)**: Counter-trade between FR (importing) and ES (exporting).
-  - **ES-PT border (10YDOM--ES-PT--T)**: Counter-trade between PT (importing) and ES (exporting).
+The area is the country of the `BiddingZone`, whose EIC code is converted to a country code (for instance, 
+`10YFR-RTE------C` gives `FR`). The remedial action is not imported if the `BiddingZone` is missing, does not contain a 
+valid EIC code or does not correspond to a country.
 
-If the operator or region combination is not supported, the remedial action will not be imported.
+The connected areas are all the areas sharing a border with the area in the network. No border range is defined on 
+them, so the power exchanged with each connected area is not constrained.
 
-> ⚠️ Currently, counter-trade remedial actions are only supported for the SWE (South-West Europe) region, specifically 
-> for the ES-FR and ES-PT borders.
+> For instance, if France shares borders with Belgium, Germany and Spain in the network, a counter-trade remedial action 
+> with the `BiddingZone` `10YFR-RTE------C` has `FR` as area and `BE`, `DE` and `ES` as connected areas.
+
+> ⚠️ Currently, the area of a counter-trade remedial action must be a country: bidding zones that do not correspond to 
+> a single country (e.g. DE-LU, or the Italian and Nordic bidding zones) are not supported.
 
 ### Usage Rules
 

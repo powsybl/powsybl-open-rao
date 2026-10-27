@@ -66,25 +66,25 @@ class CounterTradingRangeActionCreatorTest {
         // Ranges are relative to the FR net position (500), and the min range cannot make it negative (min range >= -500)
         // Economic limit is the tightest for max
         assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
-        // SSI limit is the tightest for max
+        // Physical limit is the tightest for max
         assertRange(cracCreationContext, "ct-ssi-limits", -500, 1000);
-        // Economic limit is the tightest for min, SSI limit for max
+        // Economic limit is the tightest for min, physical limit for max
         assertRange(cracCreationContext, "ct-mixed-limits", -500, 1000);
-        // Only SSI limits
+        // Only physical limits
         assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
         // Only economic limits
         assertRange(cracCreationContext, "ct-economic-only", -500, 2500);
-        // SSI limit only for max
+        // Physical limit only for max
         assertRange(cracCreationContext, "ct-ssi-up-only", -500, 1000);
         // Outdated SSI profile is ignored: the action stays available and uses economic limits only
         assertRange(cracCreationContext, "ct-outdated-ssi", -500, 1500);
-        // SSI limits from the RemedialActionGroup linked through a RemedialActionDependency
+        // Physical limits from the RemedialActionGroup linked through a RemedialActionDependency
         assertRange(cracCreationContext, "ct-group-limits", -500, 700);
         // Same RemedialActionGroup shared by another CountertradeRemedialAction, economic limit is the tightest for max
         assertRange(cracCreationContext, "ct-shared-group-limits", -500, 500);
-        // RemedialActionDependency not enabled: the RemedialActionGroup SSI limits are ignored
+        // RemedialActionDependency not enabled: the RemedialActionGroup physical limits are ignored
         assertRange(cracCreationContext, "ct-disabled-group-dependency", -500, 2500);
-        // Same SSI limits in the CountertradeRemedialAction and the RemedialActionGroup
+        // Same physical limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRange(cracCreationContext, "ct-ctra-and-group-limits", -500, 1000);
 
         // RemedialActionGroups only made of CountertradeRemedialActions are not imported as network actions
@@ -103,13 +103,13 @@ class CounterTradingRangeActionCreatorTest {
                 getNetworkWithFrNetPosition(-FR_NET_POSITION), NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
 
         // Ranges are relative to the FR net position (-500), and the max range cannot make it positive (max range <= 500)
-        // SSI limit for max (1000) is capped, SSI limit for min (-1500) is kept
+        // Physical limit for max (1000) is capped, physical limit for min (-1500) is kept
         assertRange(cracCreationContext, "ct-ssi-limits", -1500, 500);
         // Economic limit for max (1500) is capped, economic limit for min (-500) is kept
         assertRange(cracCreationContext, "ct-economic-limits", -500, 500);
-        // SSI limit for max (300) is below the cap
+        // Physical limit for max (300) is below the cap
         assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
-        // Economic limit for min (500) is the tightest, SSI limit for max (1000) is capped
+        // Economic limit for min (500) is the tightest, physical limit for max (1000) is capped
         assertRange(cracCreationContext, "ct-mixed-limits", 500, 500);
     }
 
@@ -199,7 +199,7 @@ class CounterTradingRangeActionCreatorTest {
         assertRaNotImported(cracCreationContext, "ct-empty-range", ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action ct-empty-range will not be imported because its range is empty: the min range 2500.0 is greater than the max range 1000.0.");
 
-        // Different SSI limits in the CountertradeRemedialAction and the RemedialActionGroup
+        // Different physical limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRaNotImported(cracCreationContext, "ct-different-ctra-and-group-limits", ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action ct-different-ctra-and-group-limits will not be imported because the maxRegulatingUp/maxRegulatingDown values of the CountertradeRemedialAction"
                     + " (1000.0/1500.0) and of the RemedialActionGroup (1000.0/10.0) are different.");
