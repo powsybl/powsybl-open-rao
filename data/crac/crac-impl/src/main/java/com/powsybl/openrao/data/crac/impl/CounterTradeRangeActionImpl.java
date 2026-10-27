@@ -114,7 +114,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             order, GeneratorOrderingComputer.stageAllocation(order, Math.abs(setpoint)));
 
         double sign = upward ? 1.0 : -1.0;
-        dispatch.forEach((generatorId, p) -> applyCT(network, generatorId, sign * p));
+        generatorOrdering.initialTargetP().forEach((generatorId, p0) -> {
+                    double targetP = p0 + sign * dispatch.getOrDefault(generatorId, 0.0);
+                    applyCT(network, generatorId, targetP);
+                });
     }
 
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
@@ -123,7 +126,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             new GeneratorActionBuilder().withId("id")
                                         .withGeneratorId(generatorId)
                                         .withActivePowerRelativeValue(false)
-                                        .withActivePowerValue(generator.getTargetP() + targetSetpoint)
+                                        .withActivePowerValue(targetSetpoint)
                                         .build()
                                         .toModification()
                                         .apply(network, true, ReportNode.NO_OP);
@@ -201,9 +204,6 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private static double pseudoTargetP(Generator generator) {
         return Math.max(1e-5, Math.abs(generator.getTargetP()));
     }
-//    static Map<String, String> CODES_BY_COUNTRY = Map.ofEntries(Map.entry("ES", "10YES-REE------0"), Map.entry("FR", "10YFR-RTE------C"), Map.entry("PT", "10YPT-REN------W"));
-//    static Map<String, String> COUNTRY_BY_CODE = Map.ofEntries(Map.entry("10YES-REE------0", "ES"), Map.entry("10YFR-RTE------C", "FR"), Map.entry("10YPT-REN------W", "PT"));
-
 
     private static Map<String, Double> computeProportionalShares(Network network, String areaId) {
         Objects.requireNonNull(network);
