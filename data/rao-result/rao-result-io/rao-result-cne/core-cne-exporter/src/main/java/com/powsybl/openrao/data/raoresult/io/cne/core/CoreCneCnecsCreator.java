@@ -262,8 +262,9 @@ public final class CoreCneCnecsCreator {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
 
-        double ptdfZonalSum = cneHelper.getFlowResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec));
-        return absoluteMargin > 0 ? absoluteMargin / ptdfZonalSum : absoluteMargin;
+        return absoluteMargin > 0
+            ? absoluteMargin / cneHelper.getFlowResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec))
+            : absoluteMargin;
     }
 
     private Analog createFlowMeasurement(FlowCnec cnec, Instant optimizedInstant, Unit unit, boolean shouldInvertBranchDirection) {

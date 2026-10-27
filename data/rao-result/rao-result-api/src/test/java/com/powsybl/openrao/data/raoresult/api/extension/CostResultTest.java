@@ -7,18 +7,15 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.data.crac.api.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -27,12 +24,13 @@ import static org.mockito.Mockito.when;
 class CostResultTest {
 
     private CostResult costResult;
+    private CostResult.CostResultBuilder costResultBuilder;
     private Instant preventive;
     private Instant curative;
 
     @BeforeEach
     void setUp() {
-        costResult = new CostResult();
+        costResultBuilder = CostResult.build();
         preventive = Mockito.mock(Instant.class);
         curative = Mockito.mock(Instant.class);
 
@@ -49,11 +47,13 @@ class CostResultTest {
 
     @Test
     void getName() {
-        assertEquals("cost-results", costResult.getName());
+        assertEquals("cost-results", costResultBuilder.build().getName());
     }
 
     @Test
     void testEmptyCostResult() {
+        costResult = costResultBuilder.build();
+
         // Initial instant (null)
         assertTrue(Double.isNaN(costResult.getFunctionalCost(null)));
         assertEquals(0.0, costResult.getVirtualCost(null));
@@ -67,9 +67,10 @@ class CostResultTest {
 
     @Test
     void testAddAndGetFunctionalCost() {
-        costResult.addFunctionalCostResult(null, 100.0);
-        costResult.addFunctionalCostResult(preventive, 200.0);
-        costResult.addFunctionalCostResult(curative, 300.0);
+        costResultBuilder.addFunctionalCostResult(null, 100.0)
+            .addFunctionalCostResult(preventive, 200.0)
+            .addFunctionalCostResult(curative, 300.0);
+        costResult = costResultBuilder.build();
 
         assertEquals(100.0, costResult.getFunctionalCost(null));
         assertEquals(200.0, costResult.getFunctionalCost(preventive));
@@ -78,10 +79,11 @@ class CostResultTest {
 
     @Test
     void testAddAndGetVirtualCost() {
-        costResult.addVirtualCostResult(null, "v1", 10.0);
-        costResult.addVirtualCostResult(null, "v2", 20.0);
-        costResult.addVirtualCostResult(preventive, "v1", 50.0);
-        costResult.addVirtualCostResult(curative, "v3", 100.0);
+        costResultBuilder.addVirtualCostResult(null, "v1", 10.0)
+            .addVirtualCostResult(null, "v2", 20.0)
+            .addVirtualCostResult(preventive, "v1", 50.0)
+            .addVirtualCostResult(curative, "v3", 100.0);
+        costResult = costResultBuilder.build();
 
         assertEquals(10.0, costResult.getVirtualCost(null, "v1"));
         assertEquals(20.0, costResult.getVirtualCost(null, "v2"));
@@ -101,35 +103,11 @@ class CostResultTest {
 
     @Test
     void testGetCost() {
-        costResult.addFunctionalCostResult(preventive, 200.0);
-        costResult.addVirtualCostResult(preventive, "v1", 50.0);
-        costResult.addVirtualCostResult(preventive, "v2", 25.0);
+        costResultBuilder.addFunctionalCostResult(preventive, 200.0)
+            .addVirtualCostResult(preventive, "v1", 50.0)
+            .addVirtualCostResult(preventive, "v2", 25.0);
+        costResult = costResultBuilder.build();
 
         assertEquals(275.0, costResult.getCost(preventive));
-    }
-
-    @Test
-    void testSerialize() throws IOException {
-        costResult.addFunctionalCostResult(null, 10.0);
-        costResult.addVirtualCostResult(null, "v1", 1.0);
-        costResult.addFunctionalCostResult(preventive, 20.0);
-        costResult.addVirtualCostResult(preventive, "v2", 2.0);
-        costResult.addFunctionalCostResult(curative, 30.0);
-        costResult.addVirtualCostResult(curative, "v3", 3.0);
-
-        StringWriter writer = new StringWriter();
-        JsonFactory factory = new JsonFactory();
-        try (JsonGenerator gen = factory.createGenerator(writer)) {
-            costResult.serialize(gen);
-        }
-
-        String expectedJson = "{\"initial\":"
-            + "{\"functionalCost\":10.0,\"virtualCost\":{\"v1\":1.0}},"
-            + "\"preventive\":"
-            + "{\"functionalCost\":20.0,\"virtualCost\":{\"v2\":2.0}},"
-            + "\"curative\":"
-            + "{\"functionalCost\":30.0,\"virtualCost\":{\"v3\":3.0}}"
-            + "}";
-        assertEquals(expectedJson, writer.toString());
     }
 }

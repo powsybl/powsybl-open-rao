@@ -30,27 +30,27 @@ final class CostResultMapDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion, Crac crac) throws IOException {
-        CostResult costResult = new CostResult();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
         while (!jsonParser.nextToken().isStructEnd()) {
             String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.currentName(), jsonFileVersion, crac);
             Instant instant = "initial".equals(optimizedInstantId) ? null : crac.getInstant(optimizedInstantId);
             jsonParser.nextToken();
-            deserializeCostResult(jsonParser, costResult, instant);
+            deserializeCostResult(jsonParser, costResultBuilder, instant);
         }
-        raoResult.addExtension(CostResult.class, costResult);
+        raoResult.addExtension(CostResult.class, costResultBuilder.build());
     }
 
-    private static void deserializeCostResult(JsonParser jsonParser, CostResult costResult, Instant optimizedInstant) throws IOException {
+    private static void deserializeCostResult(JsonParser jsonParser, CostResult.CostResultBuilder costResultBuilder, Instant optimizedInstant) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
                 case FUNCTIONAL_COST:
                     jsonParser.nextToken();
-                    costResult.addFunctionalCostResult(optimizedInstant, jsonParser.getDoubleValue());
+                    costResultBuilder.addFunctionalCostResult(optimizedInstant, jsonParser.getDoubleValue());
                     break;
 
                 case VIRTUAL_COSTS:
                     jsonParser.nextToken();
-                    deserializeVirtualCosts(jsonParser, optimizedInstant, costResult);
+                    deserializeVirtualCosts(jsonParser, optimizedInstant, costResultBuilder);
                     break;
 
                 default:
@@ -59,11 +59,11 @@ final class CostResultMapDeserializer {
         }
     }
 
-    private static void deserializeVirtualCosts(JsonParser jsonParser, Instant optimizedInstant, CostResult costResult) throws IOException {
+    private static void deserializeVirtualCosts(JsonParser jsonParser, Instant optimizedInstant, CostResult.CostResultBuilder costResultBuilder) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             String costName = jsonParser.currentName();
             jsonParser.nextToken();
-            costResult.addVirtualCostResult(optimizedInstant, costName, jsonParser.getDoubleValue());
+            costResultBuilder.addVirtualCostResult(optimizedInstant, costName, jsonParser.getDoubleValue());
         }
     }
 }

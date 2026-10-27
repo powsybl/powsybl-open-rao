@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -17,12 +19,15 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.commons.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -95,7 +100,7 @@ public class CastorFullOptimization {
         final ReportNode optimizationReportNode = CastorReports.reportCastorFullOptimization(reportNode);
         String currentStep = "data initialization";
         String initialVariantName = network.getVariantManager().getWorkingVariantId();
-        Unit flowUnit = RaoUtil.getFlowUnit(raoParameters); // TODO: use as attribute
+        Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
 
         try {
             boolean costOptimization = raoParameters.getObjectiveFunctionParameters().getType().costOptimization();

@@ -23,6 +23,13 @@
           "min-margin-violation-evaluator" : 0.0,
           "sensitivity-failure-cost" : 0.0
         }
+      },
+      "curative" : {
+        "functionalCost" : 65030.0,
+        "virtualCost" : {
+          "min-margin-violation-evaluator" : 0.0,
+          "sensitivity-failure-cost" : 0.0
+        }
       }
     }
   }

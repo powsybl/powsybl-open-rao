@@ -394,77 +394,6 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static CostResult duplicateCastorCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
-    }
-
-    public static com.powsybl.openrao.data.raoresult.api.extension.FlowResult duplicateFlowResult(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult, Crac crac) {
-        com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy = new com.powsybl.openrao.data.raoresult.api.extension.FlowResult();
-        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-            // copy initial measurements
-            copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, null);
-            // copy other measurements
-            for (Instant instant : crac.getSortedInstants()) {
-                if (!instant.isOutage()) {
-                    copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, instant);
-                }
-            }
-        }
-        return flowResultCopy;
-    }
-
-    private static void copyFlowMeasurements(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult,
-                                             com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy,
-                                             FlowCnec flowCnec,
-                                             Instant instant) {
-        List<Unit> possibleUnits = List.of(Unit.AMPERE, Unit.MEGAWATT);
-        List<TwoSides> possibleSides = List.of(TwoSides.ONE, TwoSides.TWO);
-        for (Unit unit : possibleUnits) {
-            for (TwoSides side : possibleSides) {
-                copyFlowMeasurements(flowResult, flowResultCopy, flowCnec, unit, side, instant);
-            }
-        }
-
-    }
-
-    private static void copyFlowMeasurements(com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResult,
-                                             com.powsybl.openrao.data.raoresult.api.extension.FlowResult flowResultCopy,
-                                             FlowCnec flowCnec,
-                                             Unit unit,
-                                             TwoSides side,
-                                             Instant instant) {
-        double flow = flowResult.getFlow(instant, flowCnec, side, unit);
-        if (!Double.isNaN(flow)) {
-            flowResultCopy.addFlowMeasurement(flow, instant, flowCnec, side, unit);
-        }
-
-        double commercialFlow = flowResult.getCommercialFlow(instant, flowCnec, side, unit);
-        if (!Double.isNaN(commercialFlow)) {
-            flowResultCopy.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, unit);
-        }
-
-        double ptdfZonalSum = flowResult.getPtdfZonalSum(instant, flowCnec, side);
-        if (!Double.isNaN(ptdfZonalSum)) {
-            flowResultCopy.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
-        }
-    }
-
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
-    }
-
     public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult, OptimizationResult preventiveOptimizationResult, State preventiveState) {
         fillForState(raoResult, preventiveOptimizationResult, preventiveState);
     }
@@ -485,5 +414,4 @@ public final class RaoUtil {
             ra -> raoResult.getAndCreateIfAbsentRangeActionResult(ra).addActivationForState(state, optimizationResult.getOptimizedSetpoint(ra, state))
         );
     }
-
 }

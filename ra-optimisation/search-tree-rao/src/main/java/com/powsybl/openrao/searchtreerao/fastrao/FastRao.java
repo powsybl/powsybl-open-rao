@@ -403,10 +403,10 @@ public class FastRao implements RaoProvider {
         });
 
         // TODO: this is not quite proper since CASTOR may not be the inner loop provider
-        fastRaoResult.addExtension(CostResult.class, RaoUtil.duplicateCastorCostResult(raoResult.getExtension(CostResult.class), crac));
+        fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));
         fastRaoResult.addExtension(
             com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
-            RaoUtil.duplicateFlowResult(raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class), crac)
+            new com.powsybl.openrao.data.raoresult.api.extension.FlowResult(raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class))
         );
         fastRaoResult.addExtension(Metadata.class, regenerateMetadata(
             raoResult.getExtension(Metadata.class),
@@ -424,15 +424,15 @@ public class FastRao implements RaoProvider {
                                                PrePerimeterResult postPraSensi,
                                                PrePerimeterResult postAraSensi,
                                                PrePerimeterResult postCraSensi) {
-        Metadata metadataCopy = new Metadata();
-        metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadata.getExecutionDetails().ifPresent(metadataBuilder::addExecutionDetails);
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadataCopy.setComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
-        return metadataCopy;
+        return metadataBuilder.build();
     }
 
     private static PrePerimeterResult getAppropriateResult(State state,
@@ -444,26 +444,6 @@ public class FastRao implements RaoProvider {
             case AUTO -> postAraSensi;
             case CURATIVE -> postCraSensi;
         };
-    }
-
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
-    }
-
-    private static CostResult duplicateCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(

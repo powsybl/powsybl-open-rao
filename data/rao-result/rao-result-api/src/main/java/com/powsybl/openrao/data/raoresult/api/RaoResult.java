@@ -58,7 +58,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default ComputationStatus getComputationStatus() {
         Metadata metadata = getExtension(Metadata.class);
-        return metadata == null ? ComputationStatus.DEFAULT : metadata.getComputationStatus();
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getComputationStatus();
     }
 
     /**
@@ -69,7 +72,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default ComputationStatus getComputationStatus(State state) {
         Metadata metadata = getExtension(Metadata.class);
-        return metadata == null ? ComputationStatus.DEFAULT : metadata.getComputationStatus(state);
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getComputationStatus(state);
     }
 
     /**
@@ -87,7 +93,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getFlow(optimizedInstant, flowCnec, side, unit);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getFlow(optimizedInstant, flowCnec, side, unit);
     }
 
     /**
@@ -104,10 +113,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleResult angleResult = getExtension(AngleResult.class);
-        if (angleResult != null) {
-            return angleResult.getAngle(optimizedInstant, angleCnec, unit);
+        if (angleResult == null) {
+            throw new OpenRaoException("RaoResult does not contain an AngleResult extension.");
         }
-        return Double.NaN;
+        return angleResult.getAngle(optimizedInstant, angleCnec, unit);
     }
 
     /**
@@ -124,10 +133,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
-        if (voltageResult != null) {
-            return voltageResult.getMinVoltage(optimizedInstant, voltageCnec, unit);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
         }
-        return Double.NaN;
+        return voltageResult.getMinVoltage(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -144,10 +153,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
-        if (voltageResult != null) {
-            return voltageResult.getMaxVoltage(optimizedInstant, voltageCnec, unit);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
         }
-        return Double.NaN;
+        return voltageResult.getMaxVoltage(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -165,7 +174,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getMargin(optimizedInstant, flowCnec, unit);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getMargin(optimizedInstant, flowCnec, unit);
     }
 
     /**
@@ -183,10 +195,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
         AngleResult angleResult = getExtension(AngleResult.class);
-        if (angleResult != null) {
-            return angleResult.getMargin(optimizedInstant, angleCnec, unit);
+        if (angleResult == null) {
+            throw new OpenRaoException("RaoResult does not contain an AngleResult extension.");
         }
-        return Double.NaN;
+        return angleResult.getMargin(optimizedInstant, angleCnec, unit);
     }
 
     /**
@@ -204,10 +216,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         VoltageResult voltageResult = getExtension(VoltageResult.class);
-        if (voltageResult != null) {
-            return voltageResult.getMargin(optimizedInstant, voltageCnec, unit);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
         }
-        return Double.NaN;
+        return voltageResult.getMargin(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -228,7 +240,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getRelativeMargin(optimizedInstant, flowCnec, unit);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getRelativeMargin(optimizedInstant, flowCnec, unit);
     }
 
     /**
@@ -246,7 +261,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getCommercialFlow(optimizedInstant, flowCnec, side, unit);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getCommercialFlow(optimizedInstant, flowCnec, side, unit);
     }
 
     /**
@@ -264,7 +282,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getLoopFlow(optimizedInstant, flowCnec, side, unit);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getLoopFlow(optimizedInstant, flowCnec, side, unit);
     }
 
     /**
@@ -281,7 +302,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         FlowResult flowResult = getExtension(FlowResult.class);
-        return flowResult == null ? Double.NaN : flowResult.getPtdfZonalSum(optimizedInstant, flowCnec, side);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getPtdfZonalSum(optimizedInstant, flowCnec, side);
     }
 
     /**
@@ -310,7 +334,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getFunctionalCost(Instant optimizedInstant) {
         CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getFunctionalCost(optimizedInstant);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getFunctionalCost(optimizedInstant);
     }
 
     /**
@@ -326,7 +353,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getVirtualCost(Instant optimizedInstant) {
         CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCost(optimizedInstant);
     }
 
     /**
@@ -340,7 +370,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default Set<String> getVirtualCostNames() {
         CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Set.of() : costResult.getVirtualCostNames();
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCostNames();
     }
 
     /**
@@ -357,7 +390,10 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         CostResult costResult = getExtension(CostResult.class);
-        return costResult == null ? Double.NaN : costResult.getVirtualCost(optimizedInstant, virtualCostName);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCost(optimizedInstant, virtualCostName);
     }
 
     /**
@@ -552,15 +588,17 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.5.0")
     default String getExecutionDetails() {
         Metadata metadata = getExtension(Metadata.class);
-        return metadata == null ? "Not provided." : metadata.getExecutionDetails().orElse("Not provided.");
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getExecutionDetails().orElse("Not provided.");
     }
 
     @Deprecated(since = "7.5.0")
     default void setExecutionDetails(String executionDetails) {
         Metadata metadata = getExtension(Metadata.class);
         if (metadata == null) {
-            metadata = new Metadata();
-            addExtension(Metadata.class, metadata);
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
         }
         metadata.setExecutionDetails(executionDetails);
     }

@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -34,8 +35,12 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private final Map<FlowCnec, FlowCnecResult> results;
 
-    public FlowResult() {
-        this.results = new HashMap<>();
+    private FlowResult(Map<FlowCnec, FlowCnecResult> results) {
+        this.results = new HashMap<>(results);
+    }
+
+    public FlowResult(FlowResult flowResultToCopy) {
+        this(flowResultToCopy.results);
     }
 
     /**
@@ -68,7 +73,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     /**
      * Returns the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
-     * {@link Instant} and in a given {@link Unit}. If the margin is negative Returns it directly (same
+     * {@link Instant} and in a given {@link Unit}. If the margin is negative, returns it directly (same
      * value as {@code getMargin} method. If the margin is positive Returns this value divided by the sum of the zonal
      * PTDFs on this branch of the studied zone. Zones to include in this computation are defined in the
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
@@ -124,22 +129,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         return safeGetResult(flowCnec).flatMap(flowCnecResult -> flowCnecResult.getPtdfZonalSum(instant, side)).orElse(Double.NaN);
     }
 
-    public void addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        getOrCreateResult(flowCnec).addFlowMeasurement(flow, instant, side, unit);
-    }
-
-    public void addCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        getOrCreateResult(flowCnec).addCommercialFlowMeasurement(commercialFlow, instant, side, unit);
-    }
-
-    public void addPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
-        getOrCreateResult(flowCnec).addPtdfZonalSumMeasurement(ptdfZonalSum, instant, side);
-    }
-
-    private FlowCnecResult getOrCreateResult(FlowCnec flowCnec) {
-        return results.computeIfAbsent(flowCnec, k -> FlowCnecResult.of(flowCnec));
-    }
-
     private Optional<FlowCnecResult> safeGetResult(FlowCnec flowCnec) {
         return Optional.ofNullable(results.get(flowCnec));
     }
@@ -147,16 +136,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     @Override
     public String getName() {
         return EXTENSION_NAME;
-    }
-
-    // serialization
-
-    public void serialize(JsonGenerator jsonGenerator, Set<Unit> flowUnits) throws IOException {
-        jsonGenerator.writeStartArray();
-        for (FlowCnec flowCnec : results.keySet().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList()) {
-            results.get(flowCnec).serialize(jsonGenerator, flowUnits);
-        }
-        jsonGenerator.writeEndArray();
     }
 
     // result data model
@@ -217,83 +196,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return actualInstant == null ? initialMeasurement : measurementsPerInstant.get(actualInstant);
         }
 
-        void serialize(JsonGenerator jsonGenerator, Set<Unit> flowUnits) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("flowCnecId", flowCnec.getId());
-            if (!initialMeasurement.isEmpty()) {
-                serializeForInstant(jsonGenerator, initialMeasurement, "initial", flowUnits);
-            }
-            for (Instant instant : measurementsPerInstant.keySet().stream().sorted().toList()) {
-                serializeForInstant(jsonGenerator, measurementsPerInstant.get(instant), instant.getId(), flowUnits);
-            }
-            jsonGenerator.writeEndObject();
-        }
-
-        private void serializeForInstant(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, String instantId, Set<Unit> flowUnits) throws IOException {
-            if (!measurement.isEmpty()) {
-                jsonGenerator.writeObjectFieldStart(instantId);
-                for (Unit unit : measurement.getUnitsWithResults()) {
-                    if (flowUnits.contains(unit)) {
-                        serializeForUnit(jsonGenerator, measurement, unit);
-                    }
-                }
-                jsonGenerator.writeEndObject();
-            }
-        }
-
-        private void serializeForUnit(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, Unit unit) throws IOException {
-            jsonGenerator.writeObjectFieldStart(unit.name().toLowerCase());
-
-            // serialize margin
-            Optional<Double> margin = measurement.getMargin(unit);
-            if (margin.isPresent() && margin.get() != Double.POSITIVE_INFINITY) {
-                jsonGenerator.writeNumberField("margin", margin.get());
-            }
-
-            // serialize relative margin
-            Optional<Double> relativeMargin = measurement.getRelativeMargin(unit);
-            if (relativeMargin.isPresent() && relativeMargin.get() != Double.POSITIVE_INFINITY) {
-                jsonGenerator.writeNumberField("relativeMargin", relativeMargin.get());
-            }
-
-            for (TwoSides side : measurement.getSidesWithResults(unit)) {
-                serializeForSide(jsonGenerator, measurement, unit, side);
-            }
-            jsonGenerator.writeEndObject();
-        }
-
-        private void serializeForSide(JsonGenerator jsonGenerator, ElementaryFlowCnecMeasurement measurement, Unit unit, TwoSides side) throws IOException {
-            jsonGenerator.writeObjectFieldStart("side" + side.getNum());
-
-            // serialize flow
-            Optional<Double> flow = measurement.getFlow(side, unit);
-            if (flow.isPresent()) {
-                jsonGenerator.writeNumberField("flow", flow.get());
-            }
-
-            // serialize commercial flow
-            Optional<Double> commercialFlow = measurement.getCommercialFlow(side, unit);
-            if (commercialFlow.isPresent()) {
-                jsonGenerator.writeNumberField("commercialFlow", commercialFlow.get());
-            }
-
-            // serialize loop flow
-            Optional<Double> loopFlow = measurement.getLoopFlow(side, unit);
-            if (loopFlow.isPresent()) {
-                jsonGenerator.writeNumberField("loopFlow", loopFlow.get());
-            }
-
-            // serialize PTDF zonal sum -> TODO: kept here to mimic RAO Result, might have a better place
-            if (unit == Unit.MEGAWATT) {
-                Optional<Double> ptdfZonalSum = measurement.getPtdfZonalSum(side);
-                if (ptdfZonalSum.isPresent()) {
-                    jsonGenerator.writeNumberField("zonalPtdfSum", ptdfZonalSum.get());
-                }
-            }
-
-            jsonGenerator.writeEndObject();
-        }
-
         private Instant getPreviousInstantWithResult(Instant instant) {
             if (instant == null) {
                 return null;
@@ -309,8 +211,21 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             }
         }
 
-        static FlowCnecResult of(FlowCnec flowCnec) {
-            return new FlowCnecResult(flowCnec);
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            FlowCnecResult that = (FlowCnecResult) o;
+            return flowCnec.equals(that.flowCnec);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(flowCnec) * 31;
         }
     }
 
@@ -397,32 +312,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         Optional<Double> getPtdfZonalSum(TwoSides side) {
             return Optional.ofNullable(ptdfZonalSums.get(side));
         }
-
-        boolean isEmpty() {
-            return flows.isEmpty();
-        }
-
-        private Set<Unit> getUnitsWithResults() {
-            SortedSet<Unit> unitsWithResults = new TreeSet<>();
-            flows.keySet()
-                .stream()
-                .map(SidedUnit::unit)
-                .sorted(Comparator.comparing(Unit::name))
-                .forEach(unitsWithResults::add);
-            return unitsWithResults;
-        }
-
-        private Set<TwoSides> getSidesWithResults(Unit unit) {
-            SortedSet<TwoSides> sidesWithResults = new TreeSet<>();
-            flows.keySet()
-                .stream()
-                .filter(sidedUnit -> sidedUnit.unit() == unit)
-                .map(SidedUnit::side)
-                .sorted(Comparator.comparing(TwoSides::getNum))
-                .forEach(sidesWithResults::add);
-            return sidesWithResults;
-        }
-
     }
 
     private record SidedUnit(TwoSides side, Unit unit) {
@@ -437,5 +326,38 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private static double computeRelativeMargin(double margin, double ptdfZonalSum) {
         return margin <= 0 ? margin : Math.min(Double.POSITIVE_INFINITY, margin / ptdfZonalSum);
+    }
+
+    // builder
+
+    public static FlowResultBuilder build() {
+        return new FlowResultBuilder();
+    }
+
+    public static final class FlowResultBuilder {
+        private final Map<FlowCnec, FlowCnecResult> results;
+
+        private FlowResultBuilder() {
+            results = new HashMap<>();
+        }
+
+        public FlowResultBuilder addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addFlowMeasurement(flow, instant, side, unit);
+            return this;
+        }
+
+        public FlowResultBuilder addCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addCommercialFlowMeasurement(commercialFlow, instant, side, unit);
+            return this;
+        }
+
+        public FlowResultBuilder addPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
+            results.computeIfAbsent(flowCnec, FlowCnecResult::new).addPtdfZonalSumMeasurement(ptdfZonalSum, instant, side);
+            return this;
+        }
+
+        public FlowResult build() {
+            return new FlowResult(results);
+        }
     }
 }

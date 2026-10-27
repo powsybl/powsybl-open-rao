@@ -73,9 +73,9 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         List<Extension<RaoResult>> extensions = Collections.emptyList();
 
-        Metadata metadata = new Metadata();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
 
-        String jsonFileVersion = isValid(jsonParser, metadata);
+        String jsonFileVersion = isValid(jsonParser);
         Version version = Version.parse(jsonFileVersion);
         if (checkHeaderOnly) {
             return null;
@@ -93,31 +93,30 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     if (version.major() == 1) {
                         jsonParser.nextToken();
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadata' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadataBuilder' extension.");
                     }
                     break;
 
                 case OPTIMIZATION_STEPS_EXECUTED:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
-                    metadata.setExecutionDetails(jsonParser.nextTextValue());
+                    metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
                     break;
 
                 case EXECUTION_DETAILS:
                     if (version.major() == 1) {
-                        // jsonParser.nextToken();
-                        metadata.setExecutionDetails(jsonParser.nextTextValue());
+                        metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
                         break;
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadata' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadataBuilder' extension.");
                     }
 
                 case COMPUTATION_STATUS_MAP:
                     if (version.major() == 1) {
                         jsonParser.nextToken();
-                        ComputationStatusMapDeserializer.deserialize(jsonParser, raoResult, crac, metadata);
+                        ComputationStatusMapDeserializer.deserialize(jsonParser, crac, metadataBuilder);
                         break;
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadata' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadataBuilder' extension.");
                     }
 
                 case COST_RESULTS:
@@ -190,7 +189,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case "extensions":
                     jsonParser.nextToken();
-                    deserializationContext.setAttribute("version", version);
                     deserializationContext.setAttribute("crac", crac);
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;
@@ -199,13 +197,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
             }
         }
         if (version.major() == 1) {
-            raoResult.addExtension(Metadata.class, metadata);
+            raoResult.addExtension(Metadata.class, metadataBuilder.build());
         }
         extensions.forEach(extension -> raoResult.addExtension((Class) extension.getClass(), extension));
         return raoResult;
     }
 
-    public static String isValid(JsonParser jsonParser, Metadata metadata) throws IOException {
+    public static String isValid(JsonParser jsonParser) throws IOException {
         String firstFieldName = jsonParser.nextFieldName();
         String jsonFileVersion;
 
@@ -216,7 +214,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
              */
             jsonFileVersion = "1.0";
             jsonParser.nextToken();
-            // metadata.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
         } else {
             if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
                 throw new OpenRaoException(String.format("type of document must be %s", RAO_RESULT_TYPE));

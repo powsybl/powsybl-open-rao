@@ -27,8 +27,7 @@ class CneHelperTest {
     void testInitFromProperties() {
         Crac crac = Mockito.mock(Crac.class);
         RaoResult raoResult = Mockito.mock(RaoResult.class);
-        FlowResult flowResult = new FlowResult();
-        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(FlowResult.build().build());
 
         Properties properties = new Properties();
         properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");

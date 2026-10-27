@@ -7,12 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,9 +26,15 @@ public class CostResult extends AbstractExtension<RaoResult> {
     private final ElementaryCostResult initialCostResult;
     private final Map<Instant, ElementaryCostResult> costResultPerInstant;
 
-    public CostResult() {
+    private CostResult(ElementaryCostResult initialCostResult, Map<Instant, ElementaryCostResult> costResultPerInstant) {
         this.initialCostResult = new ElementaryCostResult();
-        this.costResultPerInstant = new HashMap<>();
+        this.initialCostResult.functionalCost = initialCostResult.functionalCost;
+        this.initialCostResult.virtualCosts.putAll(initialCostResult.virtualCosts);
+        this.costResultPerInstant = costResultPerInstant;
+    }
+
+    public CostResult(CostResult costResultToCopy) {
+        this(costResultToCopy.initialCostResult, costResultToCopy.costResultPerInstant);
     }
 
     /**
@@ -95,14 +99,6 @@ public class CostResult extends AbstractExtension<RaoResult> {
         return getAppropriateResult(optimizedInstant).getVirtualCost(virtualCostName);
     }
 
-    public void addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {
-        getOrCreateAppropriateResult(optimizedInstant).setFunctionalCost(functionalCost);
-    }
-
-    public void addVirtualCostResult(Instant optimizedInstant, String virtualCostName, double virtualCost) {
-        getOrCreateAppropriateResult(optimizedInstant).setVirtualCost(virtualCostName, virtualCost);
-    }
-
     private ElementaryCostResult getAppropriateResult(Instant optimizedInstant) {
         Instant actualInstant = getPreviousInstantWithResult(optimizedInstant);
         return actualInstant == null ? initialCostResult : costResultPerInstant.get(actualInstant);
@@ -120,23 +116,6 @@ public class CostResult extends AbstractExtension<RaoResult> {
                 .max(Comparator.comparing(Instant::getOrder))
                 .orElse(null);
         }
-    }
-
-    private ElementaryCostResult getOrCreateAppropriateResult(Instant optimizedInstant) {
-        return optimizedInstant == null ?
-            initialCostResult :
-            costResultPerInstant.computeIfAbsent(optimizedInstant, k -> new ElementaryCostResult());
-    }
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartObject();
-        initialCostResult.serialize(jsonGenerator, "initial");
-        for (Instant instant : costResultPerInstant.keySet().stream().sorted().toList()) {
-            if (!instant.isOutage()) {
-                getAppropriateResult(instant).serialize(jsonGenerator, instant.getId());
-            }
-        }
-        jsonGenerator.writeEndObject();
     }
 
     @Override
@@ -177,16 +156,42 @@ public class CostResult extends AbstractExtension<RaoResult> {
         private Set<String> getVirtualCostNames() {
             return virtualCosts.keySet();
         }
+    }
 
-        private void serialize(JsonGenerator jsonGenerator, String instantId) throws IOException {
-            jsonGenerator.writeObjectFieldStart(instantId);
-            jsonGenerator.writeNumberField("functionalCost", functionalCost);
-            jsonGenerator.writeObjectFieldStart("virtualCost");
-            for (String virtualCostName : getVirtualCostNames().stream().sorted().toList()) {
-                jsonGenerator.writeNumberField(virtualCostName, virtualCosts.get(virtualCostName));
+    // builder
+
+    public static CostResultBuilder build() {
+        return new CostResultBuilder();
+    }
+
+    public static final class CostResultBuilder {
+        private final ElementaryCostResult initialCostResult;
+        private final Map<Instant, ElementaryCostResult> costResultPerInstant;
+
+        private CostResultBuilder() {
+            initialCostResult = new ElementaryCostResult();
+            costResultPerInstant = new HashMap<>();
+        }
+
+        public CostResultBuilder addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {
+            getOrCreateAppropriateResult(optimizedInstant).setFunctionalCost(functionalCost);
+            return this;
+        }
+
+        public CostResultBuilder addVirtualCostResult(Instant optimizedInstant, String virtualCostName, double virtualCost) {
+            getOrCreateAppropriateResult(optimizedInstant).setVirtualCost(virtualCostName, virtualCost);
+            return this;
+        }
+
+        private ElementaryCostResult getOrCreateAppropriateResult(Instant optimizedInstant) {
+            if (optimizedInstant == null) {
+                return initialCostResult;
             }
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
+            return costResultPerInstant.computeIfAbsent(optimizedInstant, k -> new ElementaryCostResult());
+        }
+
+        public CostResult build() {
+            return new CostResult(initialCostResult, costResultPerInstant);
         }
     }
 }

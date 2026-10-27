@@ -24,16 +24,23 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
@@ -435,18 +442,18 @@ public final class RaoResultHelper {
                                            PrePerimeterResult postPreventiveResults,
                                            Map<State, PostPerimeterResult> postMergingContingencyResults,
                                            String executionDetails) {
-        Metadata metadata = new Metadata();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
         if (executionDetails != null) {
-            metadata.setExecutionDetails(executionDetails);
+            metadataBuilder.addExecutionDetails(executionDetails);
         }
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPreventiveResults, postMergingContingencyResults)
                 .getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadata.setComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
-        raoResult.addExtension(Metadata.class, metadata);
+        raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
 
     private static PrePerimeterResult getAppropriateResult(State state,

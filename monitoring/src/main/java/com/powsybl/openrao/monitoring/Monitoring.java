@@ -201,7 +201,7 @@ public class Monitoring {
         );
 
         if (raoResultWithMonitoring.getExtension(Metadata.class) == null) {
-            raoResultWithMonitoring.addExtension(Metadata.class, new Metadata());
+            raoResultWithMonitoring.addExtension(Metadata.class, Metadata.build().build());
         }
         Metadata metadata = raoResultWithMonitoring.getExtension(Metadata.class);
         metadata.getExecutionDetails().ifPresentOrElse(

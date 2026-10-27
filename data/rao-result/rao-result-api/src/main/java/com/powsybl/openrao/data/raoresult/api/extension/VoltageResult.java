@@ -7,17 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,13 +21,13 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageResult extends AbstractExtension<RaoResult> {
+public final class VoltageResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "voltage-results";
 
     private final Map<VoltageCnec, VoltageCnecResult> results;
 
-    public VoltageResult() {
-        this.results = new HashMap<>();
+    private VoltageResult(Map<VoltageCnec, VoltageCnecResult> results) {
+        this.results = new HashMap<>(results);
     }
 
     @Override
@@ -82,25 +78,10 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         return results.getOrDefault(voltageCnec, VoltageCnecResult.of(voltageCnec)).getMargin(optimizedInstant).orElse(Double.NaN);
     }
 
-    public void addMeasurement(double minVoltage, double maxVoltage, Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        checkUnit(unit);
-        results.computeIfAbsent(voltageCnec, k -> VoltageCnecResult.of(voltageCnec)).addVoltageMeasurement(optimizedInstant, minVoltage, maxVoltage);
-    }
-
     private static void checkUnit(Unit unit) {
         if (!Unit.KILOVOLT.equals(unit)) {
             throw new OpenRaoException("VoltageCNEC results are only allowed for kilovolts.");
         }
-    }
-
-    // serialization
-
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartArray();
-        for (VoltageCnec voltageCnec : results.keySet().stream().sorted(Comparator.comparing(Identifiable::getId)).toList()) {
-            results.get(voltageCnec).serialize(jsonGenerator);
-        }
-        jsonGenerator.writeEndArray();
     }
 
     // result data model
@@ -122,10 +103,6 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
             this.minVoltagePerInstant = new HashMap<>();
             this.maxVoltagePerInstant = new HashMap<>();
             this.marginPerInstant = new HashMap<>();
-        }
-
-        public VoltageCnec getVoltageCnec() {
-            return voltageCnec;
         }
 
         public Optional<Double> getMinVoltage(Instant instant) {
@@ -162,35 +139,29 @@ public class VoltageResult extends AbstractExtension<RaoResult> {
         public static VoltageCnecResult of(VoltageCnec voltageCnec) {
             return new VoltageCnecResult(voltageCnec);
         }
+    }
 
-        public void serialize(JsonGenerator jsonGenerator) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("voltageCnecId", voltageCnec.getId());
-            serializeInitialResults(jsonGenerator);
-            for (Instant instant : minVoltagePerInstant.keySet().stream().sorted().toList()) {
-                serializeMeasurementsForInstant(jsonGenerator, instant);
-            }
-            jsonGenerator.writeEndObject();
+    // builder
+
+    public static VoltageResult.VoltageResultBuilder build() {
+        return new VoltageResult.VoltageResultBuilder();
+    }
+
+    public static final class VoltageResultBuilder {
+        private final Map<VoltageCnec, VoltageCnecResult> results;
+
+        private VoltageResultBuilder() {
+            results = new HashMap<>();
         }
 
-        private void serializeInitialResults(JsonGenerator jsonGenerator) throws IOException {
-            if (initialMinVoltage != null && initialMaxVoltage != null && initialMargin != null) {
-                serializeResults(jsonGenerator, "initial", initialMinVoltage, initialMaxVoltage, initialMargin);
-            }
+        public VoltageResult.VoltageResultBuilder addMeasurement(double minVoltage, double maxVoltage, Instant instant, VoltageCnec voltageCnec, Unit unit) {
+            checkUnit(unit);
+            results.computeIfAbsent(voltageCnec, VoltageCnecResult::new).addVoltageMeasurement(instant, minVoltage, maxVoltage);
+            return this;
         }
 
-        private void serializeMeasurementsForInstant(JsonGenerator jsonGenerator, Instant instant) throws IOException {
-            serializeResults(jsonGenerator, instant.getId(), minVoltagePerInstant.get(instant), maxVoltagePerInstant.get(instant), marginPerInstant.get(instant));
-        }
-
-        private static void serializeResults(JsonGenerator jsonGenerator, String instantId, double minVoltage, double maxVoltage, double margin) throws IOException {
-            jsonGenerator.writeObjectFieldStart(instantId);
-            jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
-            jsonGenerator.writeNumberField("minVoltage", minVoltage);
-            jsonGenerator.writeNumberField("maxVoltage", maxVoltage);
-            jsonGenerator.writeNumberField("margin", margin);
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
+        public VoltageResult build() {
+            return new VoltageResult(results);
         }
     }
 }

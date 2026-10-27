@@ -35,7 +35,7 @@ final class AngleCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        AngleResult angleResult = new AngleResult();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(ANGLECNEC_ID)) {
@@ -48,32 +48,42 @@ final class AngleCnecResultArrayDeserializer {
             if (angleCnec == null) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
-            deserializeAngleCnecResult(jsonParser, angleCnec, angleResult, jsonFileVersion, crac);
+            deserializeAngleCnecResult(jsonParser, angleCnec, angleResultBuilder, jsonFileVersion, crac);
         }
 
-        raoResult.addExtension(AngleResult.class, angleResult);
+        raoResult.addExtension(AngleResult.class, angleResultBuilder.build());
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleResult angleResult, String jsonFileVersion, Crac crac) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser,
+                                                   AngleCnec angleCnec,
+                                                   AngleResult.AngleResultBuilder angleResultBuilder,
+                                                   String jsonFileVersion,
+                                                   Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.currentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
-            deserializeElementaryAngleCnecResult(jsonParser, angleCnec, angleResult, optimizedInstant);
+            deserializeElementaryAngleCnecResult(jsonParser, angleCnec, angleResultBuilder, optimizedInstant);
         }
     }
 
-    private static void deserializeElementaryAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleResult angleResult, Instant optimizedInstant) throws IOException {
+    private static void deserializeElementaryAngleCnecResult(JsonParser jsonParser,
+                                                             AngleCnec angleCnec,
+                                                             AngleResult.AngleResultBuilder angleResultBuilder,
+                                                             Instant optimizedInstant) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             if (!jsonParser.currentName().equals(DEGREE_UNIT)) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.currentName()));
             } else {
                 jsonParser.nextToken();
-                deserializeElementaryAngleCnecResultForUnit(jsonParser, angleCnec, angleResult, optimizedInstant);
+                deserializeElementaryAngleCnecResultForUnit(jsonParser, angleCnec, angleResultBuilder, optimizedInstant);
             }
         }
     }
 
-    private static void deserializeElementaryAngleCnecResultForUnit(JsonParser jsonParser, AngleCnec angleCnec, AngleResult angleResult, Instant optimizedInstant) throws IOException {
+    private static void deserializeElementaryAngleCnecResultForUnit(JsonParser jsonParser,
+                                                                    AngleCnec angleCnec,
+                                                                    AngleResult.AngleResultBuilder angleResultBuilder,
+                                                                    Instant optimizedInstant) throws IOException {
         double angle = Double.NaN;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
@@ -89,7 +99,7 @@ final class AngleCnecResultArrayDeserializer {
             }
         }
         if (!Double.isNaN(angle)) {
-            angleResult.addMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
+            angleResultBuilder.addMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
         }
     }
 }

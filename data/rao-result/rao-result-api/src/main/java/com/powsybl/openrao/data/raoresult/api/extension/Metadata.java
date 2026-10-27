@@ -7,33 +7,27 @@
 
 package com.powsybl.openrao.data.raoresult.api.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class Metadata extends AbstractExtension<RaoResult> {
+public final class Metadata extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "metadata";
 
     private final Map<State, ComputationStatus> computationStatusPerState;
     private String executionDetails;
 
-    public Metadata() {
-        this.computationStatusPerState = new HashMap<>();
-        this.executionDetails = null;
+    private Metadata(Map<State, ComputationStatus> computationStatusPerState, String executionDetails) {
+        this.computationStatusPerState = new HashMap<>(computationStatusPerState);
+        this.executionDetails = executionDetails;
     }
 
     /**
@@ -72,12 +66,6 @@ public class Metadata extends AbstractExtension<RaoResult> {
         return Optional.ofNullable(executionDetails);
     }
 
-    public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        if (computationStatus != null) {
-            this.computationStatusPerState.put(state, computationStatus);
-        }
-    }
-
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
     }
@@ -87,38 +75,32 @@ public class Metadata extends AbstractExtension<RaoResult> {
         return EXTENSION_NAME;
     }
 
-    public void serialize(JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(getComputationStatus()));
-        if (executionDetails != null) {
-            jsonGenerator.writeStringField("executionDetails", executionDetails);
-        }
-        if (!computationStatusPerState.isEmpty()) {
-            jsonGenerator.writeArrayFieldStart("computationStatusMap");
-            for (State state : getSortedStates()) {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(computationStatusPerState.get(state)));
-                jsonGenerator.writeStringField("instant", state.getInstant().getId());
-                Optional<Contingency> contingency = state.getContingency();
-                if (contingency.isPresent()) {
-                    jsonGenerator.writeStringField("contingency", contingency.get().getId());
-                }
-                Optional<OffsetDateTime> timestamp = state.getTimestamp();
-                if (timestamp.isPresent()) {
-                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(timestamp.get()));
-                }
-                jsonGenerator.writeEndObject();
-            }
-            jsonGenerator.writeEndArray();
-        }
-        jsonGenerator.writeEndObject();
+    // builder
+
+    public static MetadataBuilder build() {
+        return new MetadataBuilder();
     }
 
-    private List<State> getSortedStates() {
-        return computationStatusPerState.keySet().stream().sorted().toList();
-    }
+    public static final class MetadataBuilder {
+        private final Map<State, ComputationStatus> computationStatusPerState;
+        private String executionDetails = null;
 
-    private static String getComputationStatusAsString(ComputationStatus computationStatus) {
-        return computationStatus.name().toLowerCase().replace("_", "-");
+        private MetadataBuilder() {
+            this.computationStatusPerState = new HashMap<>();
+        }
+
+        public MetadataBuilder addComputationStatus(State state, ComputationStatus computationStatus) {
+            this.computationStatusPerState.put(state, computationStatus);
+            return this;
+        }
+
+        public MetadataBuilder addExecutionDetails(String executionDetails) {
+            this.executionDetails = executionDetails;
+            return this;
+        }
+
+        public Metadata build() {
+            return new Metadata(computationStatusPerState, executionDetails);
+        }
     }
 }

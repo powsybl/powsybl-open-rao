@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Version;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -24,8 +24,13 @@ import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,30 +39,74 @@ import java.util.Map;
 public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Metadata> {
     @Override
     public void serialize(Metadata metadata, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        metadata.serialize(jsonGenerator);
+        Crac crac = (Crac) serializerProvider.getAttribute("crac");
+        if (crac == null) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Metadata cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            return;
+        }
+
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(metadata.getComputationStatus()));
+
+        Optional<String> executionDetails = metadata.getExecutionDetails();
+        if (executionDetails.isPresent()) {
+            jsonGenerator.writeStringField("executionDetails", executionDetails.get());
+        }
+
+        List<State> nonDefaultStates = getStatesWithNonDefaultComputationStatus(metadata, crac.getStates());
+        if (!nonDefaultStates.isEmpty()) {
+            jsonGenerator.writeArrayFieldStart("computationStatusMap");
+            for (State state : nonDefaultStates) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("computationStatus", getComputationStatusAsString(metadata.getComputationStatus(state)));
+                jsonGenerator.writeStringField("instant", state.getInstant().getId());
+                Optional<Contingency> contingency = state.getContingency();
+                if (contingency.isPresent()) {
+                    jsonGenerator.writeStringField("contingency", contingency.get().getId());
+                }
+                Optional<OffsetDateTime> timestamp = state.getTimestamp();
+                if (timestamp.isPresent()) {
+                    jsonGenerator.writeStringField("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(timestamp.get()));
+                }
+                jsonGenerator.writeEndObject();
+            }
+            jsonGenerator.writeEndArray();
+        }
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private static List<State> getStatesWithNonDefaultComputationStatus(Metadata metadata, Set<State> states) {
+        return states.stream()
+            .filter(state -> !metadata.getComputationStatus(state).equals(ComputationStatus.DEFAULT))
+            .sorted(State::compareTo)
+            .toList();
+    }
+
+    private static String getComputationStatusAsString(ComputationStatus computationStatus) {
+        return computationStatus.name().toLowerCase().replace("_", "-");
     }
 
     @Override
     public Metadata deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Version version = (Version) deserializationContext.getAttribute("version");
-        if (version.major() == 1) {
-            throw new OpenRaoException("Metadata extension is only available for JSON RAO Result versions >= 2.");
-        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        Metadata metadata = new Metadata();
+        if (crac == null) {
+            throw new OpenRaoException("Metadata cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+        }
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "computationStatus" -> jsonParser.nextToken();
-                case "executionDetails" -> metadata.setExecutionDetails(jsonParser.nextTextValue());
+                case "executionDetails" -> metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
                 case "computationStatusMap" -> {
                     jsonParser.nextToken();
-                    getComputationStatusMap(jsonParser, crac).forEach(metadata::setComputationStatus);
+                    getComputationStatusMap(jsonParser, crac).forEach(metadataBuilder::addComputationStatus);
                 }
                 default ->
-                    throw new OpenRaoException("Unknown metadata field: %s.".formatted(jsonParser.currentName()));
+                    throw new OpenRaoException("Unknown metadataBuilder field: %s.".formatted(jsonParser.currentName()));
             }
         }
-        return metadata;
+        return metadataBuilder.build();
     }
 
     @Override
@@ -95,7 +144,8 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
                     case "computationStatus" -> computationStatus = getComputationStatus(jsonParser.nextTextValue());
                     case "instant" -> instant = crac.getInstant(jsonParser.nextTextValue());
                     case "contingency" -> contingency = crac.getContingency(jsonParser.nextTextValue());
-                    default -> throw new OpenRaoException("Unknown computationStatusMap field in metadata: %s.".formatted(jsonParser.currentName()));
+                    default ->
+                        throw new OpenRaoException("Unknown computationStatusMap field in metadata: %s.".formatted(jsonParser.currentName()));
                 }
             }
             if (computationStatus != null && instant != null) {
