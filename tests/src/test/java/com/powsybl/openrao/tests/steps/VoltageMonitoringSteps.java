@@ -21,7 +21,6 @@ import io.cucumber.java.en.When;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -55,12 +54,7 @@ public class VoltageMonitoringSteps {
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(
-            isSecure(
-                CommonTestData.getRaoResult(),
-                CommonTestData.getCrac(),
-                CommonTestData.getRaoParameters(),
-                PhysicalParameter.VOLTAGE
-            ),
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.VOLTAGE),
             "secure".equalsIgnoreCase(expectedStatus)
         );
     }

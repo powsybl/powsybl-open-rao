@@ -18,6 +18,15 @@ public class ElementaryVoltageCnecResult {
     private double minVoltage = Double.NaN;
     private double maxVoltage = Double.NaN;
     private double margin = Double.NaN;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
+
+    ElementaryVoltageCnecResult() {
+        this(null);
+    }
+
+    ElementaryVoltageCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
+        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
+    }
 
     private void checkUnit(Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
@@ -53,5 +62,8 @@ public class ElementaryVoltageCnecResult {
     public void setMargin(double margin, Unit unit) {
         checkUnit(unit);
         this.margin = margin;
+        if (raoSecurityStatusHolder != null && margin < 0) {
+            raoSecurityStatusHolder.updateVoltageSecurityStatus(false);
+        }
     }
 }

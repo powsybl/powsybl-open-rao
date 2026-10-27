@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -21,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.HashSet;
@@ -45,13 +47,15 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     private final RaoResult filteredRaoResult;
     private final Crac crac;
     private String executionDetails;
+    private final boolean isFlowSecure;
 
     public FastRaoResultImpl(PrePerimeterResult initialResult,
                              PrePerimeterResult afterPraResult,
                              PrePerimeterResult afterAraResult,
                              PrePerimeterResult finalResult,
                              RaoResult filteredRaoResult,
-                             Crac crac) {
+                             Crac crac,
+                             Unit flowUnit) {
         this.initialResult = initialResult;
         this.afterPraResult = afterPraResult;
         this.afterAraResult = afterAraResult;
@@ -61,6 +65,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
         excludeDuplicateCnecs();
+        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), finalResult, flowUnit);
     }
 
     private void excludeDuplicateCnecs() {
@@ -289,5 +294,10 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in FastRAO.", physicalParameters);
     }
 }

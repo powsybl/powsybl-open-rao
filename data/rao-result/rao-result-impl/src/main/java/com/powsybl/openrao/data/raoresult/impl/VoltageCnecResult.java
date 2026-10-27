@@ -19,9 +19,15 @@ public class VoltageCnecResult {
 
     private static final ElementaryVoltageCnecResult DEFAULT_RESULT = new ElementaryVoltageCnecResult();
     private final Map<Instant, ElementaryVoltageCnecResult> results;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     VoltageCnecResult() {
-        results = new HashMap<>();
+        this(null);
+    }
+
+    VoltageCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
+        this.results = new HashMap<>();
+        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
     }
 
     public ElementaryVoltageCnecResult getResult(Instant optimizedInstant) {
@@ -29,7 +35,7 @@ public class VoltageCnecResult {
     }
 
     public ElementaryVoltageCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        results.putIfAbsent(optimizedInstant, new ElementaryVoltageCnecResult());
+        results.putIfAbsent(optimizedInstant, new ElementaryVoltageCnecResult(raoSecurityStatusHolder));
         return results.get(optimizedInstant);
     }
 }

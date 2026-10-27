@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -25,6 +27,7 @@ import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +48,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
@@ -59,6 +63,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
+        this.raoSecurityStatusHolder = new RaoSecurityStatusHolder();
     }
 
     public void setComputationStatus(ComputationStatus computationStatus) {
@@ -149,17 +154,17 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
+        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult(raoSecurityStatusHolder));
         return flowCnecResults.get(flowCnec);
     }
 
     public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
-        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
+        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult(raoSecurityStatusHolder));
         return angleCnecResults.get(angleCnec);
     }
 
     public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {
-        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult());
+        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult(raoSecurityStatusHolder));
         return voltageCnecResults.get(voltageCnec);
     }
 
@@ -340,5 +345,16 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public String getExecutionDetails() {
         return executionDetails;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = List.of(physicalParameters);
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        return (crac.getFlowCnecs().isEmpty() || raoSecurityStatusHolder.getFlowSecurityStatus())
+            && (crac.getAngleCnecs().isEmpty() || raoSecurityStatusHolder.getAngleSecurityStatus())
+            && (crac.getVoltageCnecs().isEmpty() || raoSecurityStatusHolder.getVoltageSecurityStatus());
     }
 }

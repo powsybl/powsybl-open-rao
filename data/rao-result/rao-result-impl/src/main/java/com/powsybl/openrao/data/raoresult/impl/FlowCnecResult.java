@@ -19,9 +19,15 @@ public class FlowCnecResult {
 
     private static final ElementaryFlowCnecResult DEFAULT_RESULT = new ElementaryFlowCnecResult();
     private final Map<Instant, ElementaryFlowCnecResult> results;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     FlowCnecResult() {
-        results = new HashMap<>();
+        this(null);
+    }
+
+    FlowCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
+        this.results = new HashMap<>();
+        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
     }
 
     public ElementaryFlowCnecResult getResult(Instant optimizedInstant) {
@@ -29,7 +35,7 @@ public class FlowCnecResult {
     }
 
     public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        results.putIfAbsent(optimizedInstant, new ElementaryFlowCnecResult());
+        results.putIfAbsent(optimizedInstant, new ElementaryFlowCnecResult(raoSecurityStatusHolder));
         return results.get(optimizedInstant);
     }
 }

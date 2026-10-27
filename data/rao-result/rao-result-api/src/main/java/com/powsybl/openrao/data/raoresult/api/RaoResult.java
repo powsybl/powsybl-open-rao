@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
@@ -436,6 +437,14 @@ public interface RaoResult extends Extendable<RaoResult> {
     String getExecutionDetails();
 
     void setExecutionDetails(String executionDetails);
+
+    /**
+     * Check if the RaoResult is secure for the given physical parameters.
+     *
+     * @param physicalParameters The physical parameters to check (any non-empty combination of FLOW, ANGLE and VOLTAGE).
+     * @return True if the RaoResult is secure for the given physical parameters, false otherwise.
+     */
+    boolean isSecure(PhysicalParameter... physicalParameters);
 
     /**
      * Import RaoResult from a file

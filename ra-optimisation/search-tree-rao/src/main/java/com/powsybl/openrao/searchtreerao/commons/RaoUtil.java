@@ -14,8 +14,15 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -35,7 +42,15 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -375,6 +390,26 @@ public final class RaoUtil {
     // TODO: find a better place for this function
     public static Unit getFlowUnit(final RaoParameters raoParameters) {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
+    }
+
+    public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit) {
+        return flowCnecs.stream().allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
+    }
+
+    public static boolean getFlowSecurityStatus(boolean computedStatus,
+                                                String nonFlowBanReason,
+                                                PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = List.of(physicalParameters);
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        if (parameters.contains(PhysicalParameter.ANGLE)) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Angle security check " + nonFlowBanReason);
+        }
+        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Voltage security check " + nonFlowBanReason);
+        }
+        return computedStatus;
     }
 
 }

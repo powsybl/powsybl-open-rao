@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -825,6 +826,19 @@ class ImporterRetrocompatibilityTest {
         assertEquals(3331., importedRaoResult.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3435., importedRaoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3431., importedRaoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+
+        // Security status -> all margins are positive
+        checkSecurityStatus(importedRaoResult);
+    }
+
+    private static void checkSecurityStatus(RaoResult importedRaoResult) {
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.VOLTAGE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.ANGLE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     private void testBaseContentOfV1Point3RaoResult(RaoResult importedRaoResult, Crac crac) {

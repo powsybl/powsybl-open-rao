@@ -21,7 +21,9 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,5 +124,20 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = new ArrayList<>(List.of(physicalParameters));
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        if (parameters.remove(PhysicalParameter.VOLTAGE)) {
+            return voltageMonitoringResult.getStatus() == Cnec.SecurityStatus.SECURE;
+        }
+        if (parameters.isEmpty()) {
+            return true;
+        }
+        return raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
     }
 }

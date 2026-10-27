@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -22,6 +23,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
@@ -62,6 +64,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     private final RemedialActionActivationResult remedialActionActivationResult;
     private final ObjectiveFunctionResult singleTimestampObjectiveFunctionResult;
     private String executionDetails = "RAO went through independent topological optimization and global time-coupled linear optimization";
+    private boolean isFlowSecure;
 
     public PostOptimizationResult(final RaoInput raoInput,
                                   final PrePerimeterResult initialResult,
@@ -75,6 +78,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
+        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), postMipResult, RaoUtil.getFlowUnit(raoParameters));
     }
 
     @Override
@@ -241,5 +245,10 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in time-coupled computations.", physicalParameters);
     }
 }

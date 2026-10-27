@@ -55,8 +55,6 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
-import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -165,12 +163,7 @@ public class RaoSteps {
     public void statusShouldBe(String status) {
         assertEquals(
             "secured".equalsIgnoreCase(status),
-            isSecure(
-                CommonTestData.getRaoResult(),
-                crac,
-                raoParameters,
-                PhysicalParameter.FLOW
-            )
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW)
         );
     }
 

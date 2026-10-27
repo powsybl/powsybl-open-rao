@@ -19,9 +19,15 @@ public class AngleCnecResult {
 
     private static final ElementaryAngleCnecResult DEFAULT_RESULT = new ElementaryAngleCnecResult();
     private final Map<Instant, ElementaryAngleCnecResult> results;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     AngleCnecResult() {
-        results = new HashMap<>();
+        this(null);
+    }
+
+    AngleCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
+        this.results = new HashMap<>();
+        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
     }
 
     public ElementaryAngleCnecResult getResult(Instant optimizedInstant) {
@@ -29,7 +35,7 @@ public class AngleCnecResult {
     }
 
     public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        results.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult());
+        results.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult(raoSecurityStatusHolder));
         return results.get(optimizedInstant);
     }
 }

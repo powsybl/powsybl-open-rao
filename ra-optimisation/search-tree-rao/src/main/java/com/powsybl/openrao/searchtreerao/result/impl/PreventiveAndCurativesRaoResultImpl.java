@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -29,6 +30,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
@@ -71,6 +73,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
     private final Crac crac;
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
     private final RaoParameters raoParameters;
+    private boolean isFlowSecure;
 
     private final Map<Instant, Map<State, State>> optimizedStateForInstantAndState = new HashMap<>();
 
@@ -122,6 +125,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         completePostContingencyResultsMap(stateTree, reportNode);
         excludeContingencies(getContingenciesToExclude(stateTree));
         excludeDuplicateCnecs();
+        computeFlowSecurityStatus();
     }
 
     private OptimizationResult generatePreventiveAndOutageOnlyResult(final ReportNode reportNode) {
@@ -287,6 +291,33 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             result.optimizationResult().excludeContingencies(contingenciesToExclude);
             result.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
         });
+    }
+
+    private void computeFlowSecurityStatus() {
+        Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
+        Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
+        crac.getStates().forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
+
+        boolean preventiveAndOutageStatus = RaoUtil.computeSecurityStatus(
+            preventiveAndOutageCnecs, finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit);
+        if (!preventiveAndOutageStatus) {
+            this.isFlowSecure = false;
+            return;
+        }
+
+        Set<State> postOutageStates = crac.getStates().stream()
+            .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
+            .collect(Collectors.toSet());
+        for (State state : postOutageStates) {
+            boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(
+                crac.getFlowCnecs(state), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates(), flowUnit);
+            if (!stateSecurityStatus) {
+                this.isFlowSecure = false;
+                return;
+            }
+        }
+
+        this.isFlowSecure = true;
     }
 
     @Override
@@ -669,5 +700,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
     @Override
     public String getExecutionDetails() {
         return executionDetails;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not supported in CASTOR.", physicalParameters);
     }
 }

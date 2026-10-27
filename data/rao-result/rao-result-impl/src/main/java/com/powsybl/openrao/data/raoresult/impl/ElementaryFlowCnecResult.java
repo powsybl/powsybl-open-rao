@@ -24,6 +24,7 @@ public class ElementaryFlowCnecResult {
 
     private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
     private final Map<TwoSides, Double> ptdfZonalSum;
+    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     private static final class FlowCnecResultPerUnit {
         private final Map<TwoSides, Double> flow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
@@ -34,8 +35,13 @@ public class ElementaryFlowCnecResult {
     }
 
     ElementaryFlowCnecResult() {
+        this(null);
+    }
+
+    ElementaryFlowCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
         this.resultPerUnit = new EnumMap<>(Unit.class);
         this.ptdfZonalSum = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
+        this.raoSecurityStatusHolder = raoSecurityStatusHolder;
     }
 
     public double getFlow(TwoSides side, Unit unit) {
@@ -79,11 +85,17 @@ public class ElementaryFlowCnecResult {
     public void setMargin(double margin, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).margin = margin;
+        if (raoSecurityStatusHolder != null && margin < 0) {
+            raoSecurityStatusHolder.updateFlowSecurityStatus(false);
+        }
     }
 
     public void setRelativeMargin(double relativeMargin, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).relativeMargin = relativeMargin;
+        if (raoSecurityStatusHolder != null && relativeMargin < 0) {
+            raoSecurityStatusHolder.updateFlowSecurityStatus(false);
+        }
     }
 
     public void setLoopFlow(TwoSides side, double loopFlow, Unit unit) {
