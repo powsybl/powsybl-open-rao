@@ -1,6 +1,7 @@
 package com.powsybl.openrao.commons;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public record CounterTradeGeneratorOrdering(
@@ -8,4 +9,5 @@ public record CounterTradeGeneratorOrdering(
         List<GlskGeneratorAllocation> downwardOrder,
         int upwardLastStage,
         int downwardLastStage,
+        Map<String, Double> initialTargetP,
         Set<String> zeroWeightGeneratorIds) { }

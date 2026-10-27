@@ -72,4 +72,13 @@ public class AreaGraph {
         }
         return neighbours;
     }
+
+    public Set<String> getAllAreas() {
+        Set<String> ids = new HashSet<>();
+        for (AreaPairBoundary boundary : boundaries) {
+            ids.add(boundary.getAreaLeft());
+            ids.add(boundary.getAreaRight());
+        }
+        return ids;
+    }
 }
