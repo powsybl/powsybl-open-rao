@@ -786,9 +786,9 @@ class CracImportExportTest {
 
     @Test
     void testTwoThresholdOnSameSide() {
-        // Check that two thresholds (one in megawatt, one in ampere) defined on same side and bound is not allowed
+        // Check that two min thresholds (one in megawatt, one in ampere) defined on same side is not allowed
         CracCreationContext cracCreationContext = new JsonImport().importData(
-            CracImportExportTest.class.getResourceAsStream("/crac_two_thresholds.json"),
+            CracImportExportTest.class.getResourceAsStream("/crac_two_min_side_one.json"),
             new CracCreationParameters(),
             Network.read(
                 "3Nodes_FFR3AA1_disconnected.xiidm",
@@ -796,7 +796,33 @@ class CracImportExportTest {
             )
         );
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals("[ERROR] Lower bound can only be defined once for side ONE since CRAC v2.13",
+        assertEquals("[ERROR] Min threshold can only be defined once for side ONE since CRAC v2.13",
             cracCreationContext.getCreationReport().getReport().get(0));
+
+        // Check that two max thresholds (one in megawatt, one in ampere) defined on same side is not allowed
+        cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_two_max_side_two.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Max threshold can only be defined once for side TWO since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+
+        // Check that two thresholds (one max in megawatt, one min in ampere) defined on same side is allowed
+        cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_min_max_same_side_diff_unit.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+
+        assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
+
     }
 }

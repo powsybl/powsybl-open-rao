@@ -68,15 +68,24 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public Set<BranchThreshold> getThresholds() {
+        // Reconstruct from lower and upper bound the BranchThreshold objects
+        // Only return the thresholds in the unit they were declared in
         Set<BranchThreshold> listBranchThresholds = new HashSet<>();
 
         for (TwoSides side : TwoSides.values()) {
             for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
-                if (getUpperBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.UPPER)] ||
-                    getLowerBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.LOWER)]) {
-                    Double lowerBound = getLowerBound(side, unit).orElse(null);
-                    Double upperBound = getUpperBound(side, unit).orElse(null);
 
+                Double lowerBound = null;
+                Double upperBound = null;
+
+                if (getUpperBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.UPPER)]) {
+                    upperBound = getUpperBound(side, unit).get();
+                }
+                if (getLowerBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.LOWER)]) {
+                    lowerBound = getLowerBound(side, unit).get();
+                }
+
+                if (lowerBound != null || upperBound != null) {
                     listBranchThresholds.add(new BranchThresholdImpl(
                         side,
                         unit,
@@ -123,17 +132,12 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public Set<TwoSides> getMonitoredSides() {
+        // A side is considered monitored if at least one bound was defined on this side
         Set<TwoSides> sides = new TreeSet<>();
-        if (getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
-            getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
-            getUpperBound(TwoSides.ONE, Unit.AMPERE).isPresent() ||
-            getLowerBound(TwoSides.ONE, Unit.AMPERE).isPresent()) {
+        if (boundProvided[0] || boundProvided[2] || boundProvided[4] || boundProvided[6]) {
             sides.add(TwoSides.ONE);
         }
-        if (getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
-            getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
-            getUpperBound(TwoSides.TWO, Unit.AMPERE).isPresent() ||
-            getLowerBound(TwoSides.TWO, Unit.AMPERE).isPresent()) {
+        if (boundProvided[1] || boundProvided[3] || boundProvided[5] || boundProvided[7]) {
             sides.add(TwoSides.TWO);
         }
         return sides;

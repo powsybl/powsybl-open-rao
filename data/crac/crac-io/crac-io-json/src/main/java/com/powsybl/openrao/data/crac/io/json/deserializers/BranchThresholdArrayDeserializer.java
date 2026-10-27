@@ -124,12 +124,12 @@ public final class BranchThresholdArrayDeserializer {
         }
         if (hasMin) {
             if (!thresholdSideBounds.get(side).add("min")) {
-                throw new OpenRaoException(String.format("Lower bound can only be defined once for side %s since CRAC v2.13", side));
+                throw new OpenRaoException(String.format("Min threshold can only be defined once for side %s since CRAC v2.13", side));
             }
         }
         if (hasMax) {
             if (!thresholdSideBounds.get(side).add("max")) {
-                throw new OpenRaoException(String.format("Upper bound can only be defined once for side %s since CRAC v2.13", side));
+                throw new OpenRaoException(String.format("Max threshold can only be defined once for side %s since CRAC v2.13", side));
             }
         }
     }
