@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
@@ -41,7 +40,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     FlowCnecImpl(String id,
                  String name,
-                 NetworkElement networkElement,
+                 String networkElementId,
                  String operator,
                  String border,
                  State state,
@@ -53,7 +52,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                  Double nominalVRight,
                  Double iMaxLeft,
                  Double iMaxRight) {
-        super(id, name, Collections.singleton(networkElement), operator, border, state, optimized, monitored, frm);
+        super(id, name, Collections.singleton(networkElementId), operator, border, state, optimized, monitored, frm);
         this.thresholds = thresholds;
         this.nominalVoltages[0] = nominalVLeft;
         this.nominalVoltages[1] = nominalVRight;
@@ -62,13 +61,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public NetworkElement getNetworkElement() {
-        return networkElements.iterator().next();
-    }
-
-    @Override
     public String getNetworkElementId() {
-        return networkElements.iterator().next().getId();
+        return networkElementsIds.iterator().next();
     }
 
     @Override

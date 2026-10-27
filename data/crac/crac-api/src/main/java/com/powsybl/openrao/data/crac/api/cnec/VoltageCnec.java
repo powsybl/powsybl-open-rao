@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.api.cnec;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.Optional;
@@ -21,14 +20,6 @@ import java.util.Set;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public interface VoltageCnec extends Cnec<VoltageCnec> {
-
-    /**
-     * Getter of the {@link NetworkElement} of the monitored VoltageLevel.
-     *
-     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getNetworkElement();
 
     /**
      * Getter of the network element of the monitored VoltageLevel.
