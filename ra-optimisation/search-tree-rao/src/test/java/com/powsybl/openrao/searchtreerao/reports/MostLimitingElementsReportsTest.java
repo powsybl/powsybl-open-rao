@@ -12,13 +12,19 @@ import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -30,6 +36,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -650,5 +657,29 @@ class MostLimitingElementsReportsTest {
         softly.assertThat(businessLogs.list.get(4)).hasToString(relativeMarginLog(4, 100, null, AMPERE, cnec5));
         softly.assertThat(businessLogs.list.get(5)).hasToString(relativeMarginLog(5, 200, null, AMPERE, cnec3));
         softly.assertAll();
+    }
+
+    @Test
+    void runRaoWithComplexPerimetersAndEnsureAllCnecsAreLogged() throws IOException {
+        Network network = Network.read("16Nodes.uct", getClass().getResourceAsStream("/network/16Nodes.uct"));
+        Crac crac = Crac.read("crac-3-curatives-no-cra.json", getClass().getResourceAsStream("/crac/crac-3-curatives-no-cra.json"), network);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_int_PST_max_margin_dc.json"), reportNode);
+
+        new Castor().run(RaoInput.build(network, crac).build(), raoParameters, reportNode);
+
+        ListAppender<ILoggingEvent> businessLogs = ReportsTestUtils.getBusinessLogs();
+        List<String> logMessages = businessLogs.list.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
+
+        // the CRAC does not have CRAs so all curative CNECs are optimized in the same perimeter at curative 1
+        // we need to ensure that all CNECs are properly logged, and not only the CNECs from curative 1
+
+        final SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(logMessages).containsExactly(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            absoluteMarginLog(2, 21.52, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative2")),
+            absoluteMarginLog(3, 71.86, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - preventive")),
+            absoluteMarginLog(4, 131.52, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative1")),
+            absoluteMarginLog(5, 333.33, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"))
+        );
     }
 }
