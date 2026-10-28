@@ -252,7 +252,7 @@ public final class MostLimitingElementsReports {
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
                         ReportUtils.getMostLimitingElementsAndMargins(
                             contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
-                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            curativePerimeter.getAllStates(),
                             unit,
                             relativePositiveMargins,
                             numberOfLoggedElements
