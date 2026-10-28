@@ -34,16 +34,17 @@ The OpenRAO importer only supports NC version `2.4` (see
 ```
 
 Each NC profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different NC
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 6 different NC
 profiles, the keyword and purpose of which are gathered in the following table:
 
-| Keyword | Full Name                | Purpose                                |
-|---------|--------------------------|----------------------------------------|
-| AE      | Assessed Element         | Definition of CNECs.                   |
-| CO      | Contingency              | Definition of contingencies.           |
-| ER      | Equipment Reliability    | Definition of AngleCNECs' thresholds.  |
-| RA      | Remedial Action          | Definition of remedial actions.        |
-| SSI     | Steady State Instruction | Overriding data for specific instants. |
+| Keyword | Full Name                  | Purpose                                    |
+|---------|----------------------------|--------------------------------------------|
+| AE      | Assessed Element           | Definition of CNECs.                       |
+| CO      | Contingency                | Definition of contingencies.               |
+| ER      | Equipment Reliability      | Definition of AngleCNECs' thresholds.      |
+| RA      | Remedial Action            | Definition of remedial actions.            |
+| SIS     | State Instruction Schedule | Overriding data with daily time schedules. |
+| SSI     | Steady State Instruction   | Overriding data for specific instants.     |
 
 Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
 required) in the header. If the time at which the import occurs is outside this time interval, the profile is ignored.
@@ -855,6 +856,37 @@ The counter-trade remedial action is imported only if the `normalAvailable` fiel
 
 > The remedial action can still be imported if `normalAvailable` is set to `false` if the remedial action is also
 > defined in the SSI profile with its field `available` set to `true`.
+
+The availability can also be overridden by the SIS profile, through a `GenericAvailableSchedule` pointing to the
+remedial action and its `AvailabilityTimePoint`s:
+
+```xml
+<rdf:RDF ...>
+    ...
+    <nc:GenericAvailableSchedule rdf:ID="_schedule-1">
+        <cim:IdentifiedObject.mRID>schedule-1</cim:IdentifiedObject.mRID>
+        <nc:BaseTimeSeries.interpolationKind 
+                rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+        <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_counter-trade-remedial-action"/>
+    </nc:GenericAvailableSchedule>
+    <nc:AvailabilityTimePoint rdf:ID="_time-point-1">
+        <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_schedule-1"/>
+        <nc:AvailabilityTimePoint.atTime>2025-01-01T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+        <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+    </nc:AvailabilityTimePoint>
+    ...
+</rdf:RDF>
+```
+
+Only the `next` interpolation kind is supported: the availability is the one of the first `AvailabilityTimePoint` whose
+`atTime` is at or after the import timestamp. If this time point has no `available` field, the availability is not
+overridden. A `GenericAvailableSchedule` whose `interpolationKind` is not `next` is ignored with a warning. If several
+`GenericAvailableSchedule`s with the `next` interpolation kind point to the remedial action, only the one with the
+smallest identifier is read, with a warning. The SIS profile is also ignored for the remedial action, with a warning, if
+its `GenericAvailableSchedule` has no `AvailabilityTimePoint` at or after the import timestamp.
+
+> The availability is overridden in the following order: the SIS profile overrides the `normalAvailable` field of the
+> RA profile, and the SSI profile overrides both.
 
 As for other remedial actions, the `mRID` is used as the remedial action's identifier and the instant of the remedial 
 action is determined by the `kind` which can be either `preventive` or `curative`.

@@ -61,7 +61,7 @@ class CounterTradingRangeActionCreatorTest {
     void importCounterTradeRangeActionsWithValidRanges() {
         NcCracCreationContext cracCreationContext = importCrac();
 
-        assertEquals(12, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
+        assertEquals(17, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
 
         // Ranges are relative to the FR net position (500), and the min range cannot make it negative (min range >= -500)
         // Economic limit is the tightest for max
@@ -203,6 +203,53 @@ class CounterTradingRangeActionCreatorTest {
         assertRaNotImported(cracCreationContext, "ct-different-ctra-and-group-limits", ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action ct-different-ctra-and-group-limits will not be imported because the maxRegulatingUp/maxRegulatingDown values of the CountertradeRemedialAction"
                     + " (1000.0/1500.0) and of the RemedialActionGroup (1000.0/10.0) are different.");
+    }
+
+    @Test
+    void overrideAvailabilityWithSis() {
+        NcCracCreationContext cracCreationContext = importCrac();
+
+        // The availability of the first SIS time point at or after the import timestamp overrides normalAvailable,
+        // whatever the order in which the time points are defined
+        assertRaNotImported(cracCreationContext, "ct-unavailable-in-sis", ImportStatus.NOT_FOR_RAO,
+                "Remedial action ct-unavailable-in-sis will not be imported it is not set to be available.");
+        assertRange(cracCreationContext, "ct-available-in-sis", -500, 500);
+        // The SSI availability overrides the SIS one
+        assertRange(cracCreationContext, "ct-sis-overridden-by-ssi", -500, 500);
+        // The applicable SIS time point has no availability: normalAvailable is kept
+        assertRaNotImported(cracCreationContext, "ct-sis-without-availability", ImportStatus.NOT_FOR_RAO,
+                "Remedial action ct-sis-without-availability will not be imported it is not set to be available.");
+        // Several SIS schedules: only the "next" one with the smallest id is read
+        assertRaNotImported(cracCreationContext, "ct-sis-several-schedules", ImportStatus.NOT_FOR_RAO,
+                "Remedial action ct-sis-several-schedules will not be imported it is not set to be available.");
+    }
+
+    @Test
+    void ignoreUnsupportedSisSchedules() {
+        ListAppender<ILoggingEvent> listAppender = NcCracCreationTestUtil.getLogs(RaoBusinessWarns.class);
+        NcCracCreationContext cracCreationContext = importCrac();
+
+        // The SIS profile is ignored: normalAvailable is kept
+        assertRange(cracCreationContext, "ct-sis-no-next-time-point", -500, 500);
+        assertRange(cracCreationContext, "ct-sis-unsupported-interpolation", -500, 500);
+        // Outdated SIS profile is ignored without warning
+        assertRange(cracCreationContext, "ct-outdated-sis", -500, 500);
+
+        // No warning for the schedule of a remedial action that is not a CountertradeRemedialAction
+        Set<String> sisWarnings = listAppender.list.stream()
+                .map(ILoggingEvent::getFormattedMessage)
+                .filter(message -> message.contains("SIS profile"))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of(
+                "Remedial action ct-sis-no-next-time-point: the GenericAvailableSchedule ct-sis-no-next-time-point-schedule of the SIS profile will be ignored "
+                    + "because it has no AvailabilityTimePoint at or after the import timestamp 2023-03-29T12:00Z.",
+                "Remedial action ct-sis-unsupported-interpolation: the GenericAvailableSchedule ct-sis-unsupported-interpolation-schedule of the SIS profile will be ignored "
+                    + "because its interpolation kind http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none is not supported, only http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next is.",
+                "Remedial action ct-sis-several-schedules: the GenericAvailableSchedule ct-sis-several-schedules-schedule-2 of the SIS profile will be ignored "
+                    + "because its interpolation kind http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none is not supported, only http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next is.",
+                "Remedial action ct-sis-several-schedules: several GenericAvailableSchedules with the http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next interpolation kind "
+                    + "are defined in the SIS profile, only ct-sis-several-schedules-schedule-1 will be used."),
+                sisWarnings);
     }
 
     @Test

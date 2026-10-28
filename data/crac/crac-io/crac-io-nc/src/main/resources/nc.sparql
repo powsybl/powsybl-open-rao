@@ -675,6 +675,33 @@ SELECT *
     }
 }
 
+# query: genericAvailableSchedule
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?genericAvailableSchedule
+            rdf:type nc:GenericAvailableSchedule ;
+            nc:BaseTimeSeries.interpolationKind ?interpolationKind ;
+            nc:GenericAvailableSchedule.RemedialAction ?remedialAction .
+    }
+}
+
+# query: availabilityTimePoint
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?availabilityTimePoint
+            rdf:type nc:AvailabilityTimePoint ;
+            nc:AvailabilityTimePoint.GenericAvailableSchedule ?genericAvailableSchedule ;
+            nc:AvailabilityTimePoint.atTime ?atTime .
+        OPTIONAL {
+            ?availabilityTimePoint nc:AvailabilityTimePoint.available ?available .
+        }
+    }
+}
+
 # query: gridStateAlterationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>

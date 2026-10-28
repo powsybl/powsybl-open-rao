@@ -131,6 +131,11 @@ public final class NcConstants {
     public static final String BIDDING_ZONE = "biddingZone";
     public static final String CREATOR = "creator";
     public static final String REMEDIAL_ACTION_SYSTEM_OPERATOR = "remedialActionSystemOperator";
+    public static final String GENERIC_AVAILABLE_SCHEDULE = "genericAvailableSchedule";
+    public static final String AVAILABILITY_TIME_POINT = "availabilityTimePoint";
+    public static final String INTERPOLATION_KIND = "interpolationKind";
+    public static final String NEXT_INTERPOLATION_KIND = "http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next";
+    public static final String AT_TIME = "atTime";
 
     /**
      * requests for flow cnec
