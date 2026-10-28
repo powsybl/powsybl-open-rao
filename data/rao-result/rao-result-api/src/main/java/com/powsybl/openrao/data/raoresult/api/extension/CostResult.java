@@ -30,7 +30,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
         this.initialCostResult = new ElementaryCostResult();
         this.initialCostResult.functionalCost = initialCostResult.functionalCost;
         this.initialCostResult.virtualCosts.putAll(initialCostResult.virtualCosts);
-        this.costResultPerInstant = costResultPerInstant;
+        this.costResultPerInstant = new HashMap<>(costResultPerInstant);
     }
 
     public CostResult(CostResult costResultToCopy) {
