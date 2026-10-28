@@ -131,7 +131,7 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
         @Override
         public int hashCode() {
-            return Objects.hash(angleCnec) * 31;
+            return Objects.hash(angleCnec);
         }
     }
 

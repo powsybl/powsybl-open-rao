@@ -93,7 +93,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     if (version.major() == 1) {
                         jsonParser.nextToken();
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadataBuilder' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadata' extension.");
                     }
                     break;
 
@@ -107,7 +107,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                         metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
                         break;
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadataBuilder' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadata' extension.");
                     }
 
                 case COMPUTATION_STATUS_MAP:
@@ -116,7 +116,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                         ComputationStatusMapDeserializer.deserialize(jsonParser, crac, metadataBuilder);
                         break;
                     } else {
-                        throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadataBuilder' extension.");
+                        throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadata' extension.");
                     }
 
                 case COST_RESULTS:

@@ -37,7 +37,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     public void serialize(FlowResult flowResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("FlowResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("FlowResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
         Set<Unit> flowUnits = (Set<Unit>) serializerProvider.getAttribute("flowUnits");
@@ -64,7 +64,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         if (crac == null) {
-            throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+            throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
         FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {

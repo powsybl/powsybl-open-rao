@@ -35,7 +35,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
     public void serialize(AngleResult angleResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("AngleResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("AngleResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
 
@@ -53,7 +53,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
     public AngleResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         if (crac == null) {
-            throw new OpenRaoException("AngleResult cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+            throw new OpenRaoException("AngleResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
         AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {

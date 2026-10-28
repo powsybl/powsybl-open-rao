@@ -35,7 +35,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
     public void serialize(VoltageResult voltageResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("VoltageResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("VoltageResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
 
@@ -53,7 +53,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
     public VoltageResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         if (crac == null) {
-            throw new OpenRaoException("VoltageResult cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+            throw new OpenRaoException("VoltageResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
 
         VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
@@ -78,7 +78,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
     private static void serializeForVoltageCnec(JsonGenerator jsonGenerator, VoltageCnec voltageCnec, VoltageResult voltageResult, List<Instant> instants) throws IOException {
         if (hasVoltageMeasurements(voltageCnec, voltageResult, instants)) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("voltageCnecId", voltageCnec .getId());
+            jsonGenerator.writeStringField("voltageCnecId", voltageCnec.getId());
 
             // serialize initial results
             if (hasVoltageMeasurements(voltageCnec, voltageResult, (Instant) null)) {

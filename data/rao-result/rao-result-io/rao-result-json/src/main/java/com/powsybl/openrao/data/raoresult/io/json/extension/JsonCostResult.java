@@ -32,7 +32,7 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
     public void serialize(CostResult costResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("CostResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("CostResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
 
@@ -55,7 +55,7 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
     public CostResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         if (crac == null) {
-            throw new OpenRaoException("CostResult cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+            throw new OpenRaoException("CostResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
         CostResult.CostResultBuilder costResultBuilder = CostResult.build();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
