@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -124,12 +125,14 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
+
+        AtomicBoolean isSecure = new AtomicBoolean(true);
         if (parameters.remove(PhysicalParameter.ANGLE)) {
-            return angleMonitoringResult.getStatus() == SecurityStatus.SECURE;
+            isSecure.set(angleMonitoringResult.getStatus() == SecurityStatus.SECURE);
         }
         if (parameters.isEmpty()) {
-            return true;
+            return isSecure.get();
         }
-        return raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
+        return isSecure.get() && raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
     }
 }
