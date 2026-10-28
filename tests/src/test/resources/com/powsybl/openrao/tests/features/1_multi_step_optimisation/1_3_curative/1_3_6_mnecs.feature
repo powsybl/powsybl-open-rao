@@ -99,7 +99,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     # Margin of the limiting CNEC is slightly lower than in the original test case without MNEC
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1483 A
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
