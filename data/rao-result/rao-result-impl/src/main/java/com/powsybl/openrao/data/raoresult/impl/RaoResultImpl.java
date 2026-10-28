@@ -214,7 +214,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     public void setSecurityStatus(boolean status, PhysicalParameter physicalParameter) {
-        securityStatusPerPhysicalParameter.put(physicalParameter, crac.getCnecs(physicalParameter).isEmpty() || status);
+        securityStatusPerPhysicalParameter.put(physicalParameter, status);
     }
 
     @Override
