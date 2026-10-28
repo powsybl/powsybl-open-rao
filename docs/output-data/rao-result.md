@@ -122,30 +122,31 @@ Example:
 
 ### Security status
 
-This field contains the security status of the network for a given optimized instant, and for a given list of physical
-parameters among:
-- FLOW
-- ANGLE
-- VOLTAGE
+This field contains the security status of the network for a given physical parameters among: `FLOW`, `ANGLE` and 
+`VOLTAGE`.
+
+> **Important notes:**
+> - At least one physical parameter among `FLOW`, `ANGLE` and `VOLTAGE` must be provided;
+> - This method only deals with the final flows of the CNECs;
+> - MNECs and curative FlowCNECs belonging to TSOs not sharing CRAs are excluded from the security status computation.
 
 ::::{tabs}
 :::{group-tab} JAVA API
 
-~~~java
-    // Indicates whether all the CNECs of a given type at a given instant are secure.
-    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
-
-    // Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO).
-    boolean isSecure(PhysicalParameter... u);
-
-    // Indicates whether all the CNECs are secure at last instant (i.e. after RAO).
-    boolean isSecure();
-~~~
+```java
+boolean isSecure(PhysicalParameter... physicalParameters);
+```
 
 :::
 :::{group-tab} JSON File
 
-This information is not written in the JSON file, it is deduced from the values of the CNECs' margins (see below).
+```json
+"securityStatus" : {
+  "flow" : false,
+  "angle" : true,
+  "voltage" : true
+}
+```
 
 :::
 ::::
