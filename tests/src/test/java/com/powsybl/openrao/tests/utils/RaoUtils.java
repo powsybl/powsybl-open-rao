@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -115,8 +116,9 @@ public final class RaoUtils {
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        Unit flowUnit = RaoUtil.getFlowUnit(CommonTestData.getRaoParameters());
+        String unitForExport = flowUnit == Unit.AMPERE ? "amperes" : "megawatts";
+        properties.setProperty("rao-result.export.json.flows-in-" + unitForExport, "true");
         raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
