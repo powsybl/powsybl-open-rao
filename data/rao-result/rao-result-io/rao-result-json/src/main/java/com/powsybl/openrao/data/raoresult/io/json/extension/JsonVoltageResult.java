@@ -78,7 +78,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
     private static void serializeForVoltageCnec(JsonGenerator jsonGenerator, VoltageCnec voltageCnec, VoltageResult voltageResult, List<Instant> instants) throws IOException {
         if (hasVoltageMeasurements(voltageCnec, voltageResult, instants)) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("voltageCnecId", voltageCnec .getId());
+            jsonGenerator.writeStringField("voltageCnecId", voltageCnec.getId());
 
             // serialize initial results
             if (hasVoltageMeasurements(voltageCnec, voltageResult, (Instant) null)) {
