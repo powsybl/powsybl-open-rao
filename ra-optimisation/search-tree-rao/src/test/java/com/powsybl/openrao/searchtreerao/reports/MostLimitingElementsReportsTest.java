@@ -676,8 +676,8 @@ class MostLimitingElementsReportsTest {
 
         assertEquals(5, mostLimitingElementsReportNodes.getChildren().size());
 
-
-        assertEquals( // this CNEC used not to be reported
+        // this CNEC used not to be reported
+        assertEquals(
             absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
             infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
         );
