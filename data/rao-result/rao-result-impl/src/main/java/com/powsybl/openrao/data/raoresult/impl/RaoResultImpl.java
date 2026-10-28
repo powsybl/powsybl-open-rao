@@ -360,10 +360,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
         return parameters.stream().allMatch(
-            physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(
-                physicalParameter,
-                crac.getCnecs(physicalParameter).isEmpty()
-            )
+            physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(physicalParameter, true)
         );
     }
 }

@@ -126,7 +126,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         Set<String> contingenciesToExclude = getContingenciesToExclude(stateTree);
         excludeContingencies(contingenciesToExclude);
         excludeDuplicateCnecs();
-        computeFlowSecurityStatus(contingenciesToExclude);
+        computeFlowSecurityStatus(contingenciesToExclude, stateTree.getOperatorsNotSharingCras());
     }
 
     private OptimizationResult generatePreventiveAndOutageOnlyResult(final ReportNode reportNode) {
@@ -294,7 +294,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         });
     }
 
-    private void computeFlowSecurityStatus(Set<String> contingenciesToExclude) {
+    private void computeFlowSecurityStatus(Set<String> contingenciesToExclude, Set<String> operatorsNotSharingCras) {
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
         crac.getStates(crac.getOutageInstant())
@@ -303,7 +303,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             .forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
 
         boolean preventiveAndOutageStatus = RaoUtil.computeSecurityStatus(
-            preventiveAndOutageCnecs, finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit);
+            preventiveAndOutageCnecs, finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit, Set.of());
         if (!preventiveAndOutageStatus) {
             this.isFlowSecure = false;
             return;
@@ -315,7 +315,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             .collect(Collectors.toSet());
         for (State state : postOutageStates) {
             boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(
-                crac.getFlowCnecs(state), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates(), flowUnit);
+                crac.getFlowCnecs(state), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates(), flowUnit, operatorsNotSharingCras);
             if (!stateSecurityStatus) {
                 this.isFlowSecure = false;
                 return;

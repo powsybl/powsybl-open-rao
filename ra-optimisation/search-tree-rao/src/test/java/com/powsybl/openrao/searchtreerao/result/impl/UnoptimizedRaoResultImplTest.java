@@ -49,7 +49,7 @@ class UnoptimizedRaoResultImplTest {
         autoInstant = Mockito.mock(Instant.class);
         curativeInstant = Mockito.mock(Instant.class);
         initialResult = Mockito.mock(PrePerimeterResult.class);
-        output = new UnoptimizedRaoResultImpl(initialResult, Set.of(), null);
+        output = new UnoptimizedRaoResultImpl(initialResult, Set.of(), null, Set.of());
         flowCnec = Mockito.mock(FlowCnec.class);
     }
 

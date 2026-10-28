@@ -38,9 +38,12 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
     private final boolean isFlowSecure;
 
-    public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult, Set<FlowCnec> consideredCnecs, Unit flowUnit) {
+    public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult,
+                                    Set<FlowCnec> consideredCnecs,
+                                    Unit flowUnit,
+                                    Set<String> operatorsNotSharingCras) {
         this.initialResult = initialResult;
-        this.isFlowSecure = RaoUtil.computeSecurityStatus(consideredCnecs, initialResult, flowUnit);
+        this.isFlowSecure = RaoUtil.computeSecurityStatus(consideredCnecs, initialResult, flowUnit, operatorsNotSharingCras);
     }
 
     @Override

@@ -78,7 +78,8 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
         this.remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
-        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), postMipResult, RaoUtil.getFlowUnit(raoParameters));
+        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), postMipResult,
+            RaoUtil.getFlowUnit(raoParameters), crac.findOperatorsNotSharingCras());
     }
 
     @Override

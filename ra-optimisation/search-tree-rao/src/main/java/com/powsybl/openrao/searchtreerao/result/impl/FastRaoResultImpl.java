@@ -55,7 +55,8 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
                              PrePerimeterResult finalResult,
                              RaoResult filteredRaoResult,
                              Crac crac,
-                             Unit flowUnit) {
+                             Unit flowUnit,
+                             Set<String> operatorsNotSharingCras) {
         this.initialResult = initialResult;
         this.afterPraResult = afterPraResult;
         this.afterAraResult = afterAraResult;
@@ -65,7 +66,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
         excludeDuplicateCnecs();
-        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), finalResult, flowUnit);
+        this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), finalResult, flowUnit, operatorsNotSharingCras);
     }
 
     private void excludeDuplicateCnecs() {
@@ -114,9 +115,9 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return FAILURE;
         }
         if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
-                finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
-                afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
-                afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
+            finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
+            afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
+            afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
         ) {
             return PARTIAL_FAILURE;
         }
@@ -150,7 +151,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return initialResult;
         }
         Instant minInstant = optimizedInstant.comesBefore(flowCnec.getState().getInstant()) ?
-                optimizedInstant : flowCnec.getState().getInstant();
+            optimizedInstant : flowCnec.getState().getInstant();
         return getAppropriateResult(minInstant);
     }
 

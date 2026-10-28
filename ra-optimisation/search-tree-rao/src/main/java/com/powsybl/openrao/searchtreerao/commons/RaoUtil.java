@@ -392,9 +392,11 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit) {
+    public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
         return flowCnecs.stream()
             .filter(FlowCnec::isOptimized) // ignore MNECs
+            .filter(flowCnec -> !flowCnec.getState().getInstant().isCurative()
+                || !operatorsNotSharingCras.contains(flowCnec.getOperator()))
             .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
     }
 

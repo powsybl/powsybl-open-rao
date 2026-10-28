@@ -67,7 +67,7 @@ class FastRaoResultImplTest {
         filteredRaoResult = Mockito.mock(RaoResult.class);
         when(filteredRaoResult.getExecutionDetails()).thenReturn(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
         result = new FastRaoResultImpl(
-            initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac, Unit.MEGAWATT
+            initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac, Unit.MEGAWATT, Set.of()
         );
     }
 
@@ -86,7 +86,7 @@ class FastRaoResultImplTest {
         when(afterAraResult.getSensitivityStatus()).thenReturn(PARTIAL_FAILURE);
         when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
         result = new FastRaoResultImpl(
-            initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac, Unit.MEGAWATT
+            initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac, Unit.MEGAWATT, Set.of()
         );
         status = result.getComputationStatus();
         assertSame(FAILURE, status);
