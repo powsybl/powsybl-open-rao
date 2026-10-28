@@ -146,7 +146,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     # Here the margin should not be below -122 MW because the initial margin is -72 MW (taking acceptable diminution parameter into account).
     # Flow is -643 MW with PRA and CRA, and threshold -700 MW. Margin is positive.
     Then the margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -152.56 A
-    # Curative RA need to be used in order to respect the MNEC constraint (the MNEC is violated by 30 A in the root leaf of the curative perimeter)
+    # Curative RA need to be used in order to respect the MNEC constraint (the MNEC is violated by 30 MW in the root leaf of the curative perimeter)
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be -2 after "co1_fr2_fr3_1" at "curative"
