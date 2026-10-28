@@ -30,8 +30,10 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -116,13 +118,24 @@ public final class RaoUtils {
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
-        Unit flowUnit = RaoUtil.getFlowUnit(CommonTestData.getRaoParameters());
-        String unitForExport = flowUnit == Unit.AMPERE ? "amperes" : "megawatts";
-        properties.setProperty("rao-result.export.json.flows-in-" + unitForExport, "true");
+        getUnitsForExport(CommonTestData.getRaoParameters()).forEach(unit -> addUnitExportProperty(properties, unit));
         raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         return RaoResult.read(inputStream, crac);
+    }
+
+    private static Set<Unit> getUnitsForExport(RaoParameters raoParameters) {
+        Set<Unit> units = new HashSet<>(Set.of(RaoUtil.getFlowUnit(CommonTestData.getRaoParameters())));
+        // if relative margins, need to export in MW because of zonal PTDF sums only exported in MW
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            units.add(Unit.MEGAWATT);
+        }
+        return units;
+    }
+
+    private static void addUnitExportProperty(Properties properties, Unit unit) {
+        properties.setProperty("rao-result.export.json.flows-in-" + unit.name().toLowerCase() + "s", "true");
     }
 }
