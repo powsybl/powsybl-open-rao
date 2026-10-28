@@ -188,6 +188,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
 
     @Override
     public boolean isSecure(PhysicalParameter... physicalParameters) {
-        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not supported in CASTOR.", physicalParameters);
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in CASTOR.", physicalParameters);
     }
 }

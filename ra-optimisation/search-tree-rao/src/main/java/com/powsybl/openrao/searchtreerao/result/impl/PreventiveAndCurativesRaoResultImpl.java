@@ -709,6 +709,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
 
     @Override
     public boolean isSecure(PhysicalParameter... physicalParameters) {
-        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not supported in CASTOR.", physicalParameters);
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in CASTOR.", physicalParameters);
     }
 }

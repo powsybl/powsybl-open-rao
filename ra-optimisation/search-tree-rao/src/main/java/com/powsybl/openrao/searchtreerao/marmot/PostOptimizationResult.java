@@ -250,6 +250,6 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isSecure(PhysicalParameter... physicalParameters) {
-        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in time-coupled computations.", physicalParameters);
+        return RaoUtil.getFlowSecurityStatus(isFlowSecure, "is not implemented in MARMOT.", physicalParameters);
     }
 }
