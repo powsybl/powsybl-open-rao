@@ -23,7 +23,7 @@ class ElementaryVoltageCnecResultTest {
     @Test
     void defaultValuesTest() {
         Instant preventiveInstant = mock(Instant.class);
-        VoltageCnecResult defaultVoltageCnecResult = new VoltageCnecResult(RaoSecurityStatusHolder.DEFAULT);
+        VoltageCnecResult defaultVoltageCnecResult = new VoltageCnecResult();
         assertEquals(Double.NaN, defaultVoltageCnecResult.getResult(null).getMinVoltage(Unit.KILOVOLT), 1e-3);
         assertEquals(Double.NaN, defaultVoltageCnecResult.getResult(null).getMaxVoltage(Unit.KILOVOLT), 1e-3);
         assertEquals(Double.NaN, defaultVoltageCnecResult.getResult(preventiveInstant).getMargin(Unit.KILOVOLT), 1e-3);
@@ -31,7 +31,7 @@ class ElementaryVoltageCnecResultTest {
 
     @Test
     void testGetAndCreateIfAbsent() {
-        VoltageCnecResult voltageCnecResult = new VoltageCnecResult(RaoSecurityStatusHolder.DEFAULT);
+        VoltageCnecResult voltageCnecResult = new VoltageCnecResult();
         assertEquals(Double.NaN, voltageCnecResult.getResult(null).getMinVoltage(Unit.KILOVOLT));
         assertEquals(Double.NaN, voltageCnecResult.getResult(null).getMaxVoltage(Unit.KILOVOLT));
 
@@ -46,7 +46,7 @@ class ElementaryVoltageCnecResultTest {
 
     @Test
     void testWrongUnit() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new VoltageCnecResult(RaoSecurityStatusHolder.DEFAULT).getResult(null).getMinVoltage(Unit.AMPERE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new VoltageCnecResult().getResult(null).getMinVoltage(Unit.AMPERE));
         assertEquals("Voltage results are only available in KILOVOLT", exception.getMessage());
     }
 }

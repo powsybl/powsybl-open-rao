@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.raoresult.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -20,11 +18,6 @@ public class ElementaryAngleCnecResult {
     private double angle = Double.NaN;
     private double margin = Double.NaN;
     private static final String ANGLE_IN_DEGREE = "Angle results are only available in DEGREE";
-    private final AtomicBoolean angleSecurityStatus;
-
-    ElementaryAngleCnecResult(AtomicBoolean angleSecurityStatus) {
-        this.angleSecurityStatus = angleSecurityStatus;
-    }
 
     public double getAngle(Unit unit) {
         if (unit.equals(Unit.DEGREE)) {
@@ -53,9 +46,6 @@ public class ElementaryAngleCnecResult {
     public void setMargin(double margin, Unit unit) {
         if (unit.equals(Unit.DEGREE)) {
             this.margin = margin;
-            if (angleSecurityStatus != null) {
-                angleSecurityStatus.set(margin >= 0);
-            }
         } else {
             throw new OpenRaoException(ANGLE_IN_DEGREE);
         }

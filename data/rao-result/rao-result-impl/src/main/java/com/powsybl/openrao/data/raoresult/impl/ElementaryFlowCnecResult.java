@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -25,7 +24,6 @@ public class ElementaryFlowCnecResult {
 
     private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
     private final Map<TwoSides, Double> ptdfZonalSum;
-    private final AtomicBoolean flowSecurityStatus;
 
     private static final class FlowCnecResultPerUnit {
         private final Map<TwoSides, Double> flow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
@@ -35,10 +33,9 @@ public class ElementaryFlowCnecResult {
         private final Map<TwoSides, Double> commercialFlow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
     }
 
-    ElementaryFlowCnecResult(AtomicBoolean flowSecurityStatus) {
+    ElementaryFlowCnecResult() {
         this.resultPerUnit = new EnumMap<>(Unit.class);
         this.ptdfZonalSum = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
-        this.flowSecurityStatus = flowSecurityStatus;
     }
 
     public double getFlow(TwoSides side, Unit unit) {
@@ -82,19 +79,11 @@ public class ElementaryFlowCnecResult {
     public void setMargin(double margin, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).margin = margin;
-        if (flowSecurityStatus != null) {
-            // WARNING: if both A and MW results coexist with opposite margin signs, the results will be random
-            flowSecurityStatus.set(margin >= 0);
-        }
     }
 
     public void setRelativeMargin(double relativeMargin, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).relativeMargin = relativeMargin;
-        if (flowSecurityStatus != null) {
-            // WARNING: if both A and MW results coexist with opposite margin signs, the results will be random
-            flowSecurityStatus.set(relativeMargin >= 0);
-        }
     }
 
     public void setLoopFlow(TwoSides side, double loopFlow, Unit unit) {

@@ -24,7 +24,7 @@ class FlowCnecResultTest {
     void defaultValuesTest() {
         Instant preventiveInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
-        FlowCnecResult defaultFlowCnecResult = new FlowCnecResult(RaoSecurityStatusHolder.DEFAULT, false);
+        FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(TwoSides.ONE, Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.AMPERE), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(preventiveInstant).getMargin(Unit.MEGAWATT), 1e-3);
@@ -35,7 +35,7 @@ class FlowCnecResultTest {
 
     @Test
     void testGetAndCreateIfAbsent() {
-        FlowCnecResult flowCnecResult = new FlowCnecResult(RaoSecurityStatusHolder.DEFAULT, false);
+        FlowCnecResult flowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.MEGAWATT));
 

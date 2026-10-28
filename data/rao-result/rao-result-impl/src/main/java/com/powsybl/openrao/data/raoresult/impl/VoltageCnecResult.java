@@ -7,28 +7,21 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class VoltageCnecResult {
 
-    private static final ElementaryVoltageCnecResult DEFAULT_RESULT = new ElementaryVoltageCnecResult(null);
+    private static final ElementaryVoltageCnecResult DEFAULT_RESULT = new ElementaryVoltageCnecResult();
     private final Map<Instant, ElementaryVoltageCnecResult> results;
-    private Instant lastInstantAdded;
-    private final AtomicBoolean voltageSecurityStatus;
 
-    VoltageCnecResult(RaoSecurityStatusHolder raoSecurityStatusHolder) {
+    VoltageCnecResult() {
         this.results = new HashMap<>();
-        this.lastInstantAdded = null;
-        this.voltageSecurityStatus = new AtomicBoolean(true);
-        raoSecurityStatusHolder.registerSecurityStatus(this.voltageSecurityStatus, PhysicalParameter.VOLTAGE);
     }
 
     public ElementaryVoltageCnecResult getResult(Instant optimizedInstant) {
@@ -36,17 +29,7 @@ public class VoltageCnecResult {
     }
 
     public ElementaryVoltageCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        boolean latestInstantUpdated = false;
-        if (lastInstantAdded == null) {
-            lastInstantAdded = optimizedInstant;
-            latestInstantUpdated = true;
-        } else if (optimizedInstant != null && !lastInstantAdded.comesAfter(optimizedInstant)) {
-            lastInstantAdded = optimizedInstant;
-            latestInstantUpdated = true;
-        }
-
-        // update security status holder only if posterior result added
-        results.putIfAbsent(optimizedInstant, new ElementaryVoltageCnecResult(latestInstantUpdated ? voltageSecurityStatus : null));
+        results.putIfAbsent(optimizedInstant, new ElementaryVoltageCnecResult());
         return results.get(optimizedInstant);
     }
 }

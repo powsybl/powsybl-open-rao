@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,15 +41,14 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult(RaoSecurityStatusHolder.DEFAULT, false);
-    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult(RaoSecurityStatusHolder.DEFAULT);
-    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult(RaoSecurityStatusHolder.DEFAULT);
+    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
+    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
+    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
-    private final RaoSecurityStatusHolder raoSecurityStatusHolder;
 
     private ComputationStatus computationStatus;
     private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
@@ -58,12 +58,12 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
+    private final EnumMap<PhysicalParameter, Boolean> securityStatusPerPhysicalParameter = new EnumMap<>(PhysicalParameter.class);
 
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
-        this.raoSecurityStatusHolder = new RaoSecurityStatusHolder();
     }
 
     public void setComputationStatus(ComputationStatus computationStatus) {
@@ -155,21 +155,18 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         if (!flowCnecResults.containsKey(flowCnec)) {
-            // exclude MNECs and CNECs belonging to diverging states
-            boolean shouldIncludeCnec = !flowCnec.isMonitored()
-                && computationStatusPerState.getOrDefault(flowCnec.getState(), ComputationStatus.DEFAULT) == ComputationStatus.DEFAULT;
-            flowCnecResults.put(flowCnec, new FlowCnecResult(raoSecurityStatusHolder, shouldIncludeCnec));
+            flowCnecResults.put(flowCnec, new FlowCnecResult());
         }
         return flowCnecResults.get(flowCnec);
     }
 
     public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
-        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult(raoSecurityStatusHolder));
+        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
         return angleCnecResults.get(angleCnec);
     }
 
     public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {
-        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult(raoSecurityStatusHolder));
+        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult());
         return voltageCnecResults.get(voltageCnec);
     }
 
@@ -214,6 +211,10 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
         networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
         return networkActionResults.get(networkAction);
+    }
+
+    void setSecurityStatus(boolean status, PhysicalParameter physicalParameter) {
+        securityStatusPerPhysicalParameter.put(physicalParameter, crac.getCnecs(physicalParameter).isEmpty() || status);
     }
 
     @Override
@@ -358,9 +359,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
-        if (computationStatus == ComputationStatus.FAILURE) {
-            return false;
-        }
-        return parameters.stream().allMatch(raoSecurityStatusHolder::getSecurityStatus);
+        return parameters.stream().allMatch(securityStatusPerPhysicalParameter::get);
     }
 }
