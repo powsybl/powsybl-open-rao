@@ -41,7 +41,7 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
     public void serialize(Metadata metadata, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Metadata cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Metadata cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
 
@@ -91,7 +91,7 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
     public Metadata deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         if (crac == null) {
-            throw new OpenRaoException("Metadata cannot be deserialized because the deserializationContext does not contain a 'crac` attribute.");
+            throw new OpenRaoException("Metadata cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
         Metadata.MetadataBuilder metadataBuilder = Metadata.build();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
