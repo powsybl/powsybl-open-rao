@@ -175,7 +175,7 @@ public final class MostLimitingElementsReports {
             .withUntypedValue("roundedCnecMargin", element.roundedCnecMargin())
             .withUntypedValue("unit", Objects.toString(element.unit()))
             .withUntypedValue("ptdfIfRelative", element.ptdfIfRelative())
-            .withUntypedValue("cnecNetworkElementName", element.cnecNetworkElementName())
+            .withUntypedValue("cnecNetworkElementName", element.cnecNetworkElementId())
             .withUntypedValue("cnecStateId", element.cnecStateId())
             .withUntypedValue("cnecId", element.cnecId())
             .withSeverity(reportSeverity)
@@ -187,7 +187,7 @@ public final class MostLimitingElementsReports {
             element.roundedCnecMargin(),
             element.unit(),
             element.ptdfIfRelative(),
-            element.cnecNetworkElementName(),
+            element.cnecNetworkElementId(),
             element.cnecStateId(),
             element.cnecId());
     }
@@ -212,7 +212,7 @@ public final class MostLimitingElementsReports {
             final double roundedCnecMargin = roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue();
             final TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction, unit);
             final String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            final String cnecNetworkElementName = cnec.getNetworkElement().getName();
+            final String cnecNetworkElementId = cnec.getNetworkElementId();
             final String cnecStateId = cnec.getState().getId();
             final String cnecId = cnec.getId();
 
@@ -222,7 +222,7 @@ public final class MostLimitingElementsReports {
                 roundedCnecMargin,
                 unit,
                 ptdfIfRelative,
-                cnecNetworkElementName,
+                cnecNetworkElementId,
                 cnecStateId,
                 cnecId));
         }
@@ -273,11 +273,11 @@ public final class MostLimitingElementsReports {
             final int limitingElementIndex = i + 1;
             final String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             final double roundedCnecMargin = roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue();
-            final String cnecNetworkElementName = cnec.getNetworkElement().getName();
+            final String cnecNetworkElementId = cnec.getNetworkElementId();
             final String cnecStateId = cnec.getState().getId();
             final String cnecId = cnec.getId();
 
-            mostLimitingElements.add(new MostLimitingElementRecord(limitingElementIndex, isRelativeMargin, roundedCnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnecId));
+            mostLimitingElements.add(new MostLimitingElementRecord(limitingElementIndex, isRelativeMargin, roundedCnecMargin, unit, "", cnecNetworkElementId, cnecStateId, cnecId));
         }
         return mostLimitingElements;
     }
@@ -300,7 +300,7 @@ public final class MostLimitingElementsReports {
                                             double roundedCnecMargin,
                                             Unit unit,
                                             String ptdfIfRelative,
-                                            String cnecNetworkElementName,
+                                            String cnecNetworkElementId,
                                             String cnecStateId,
                                             String cnecId) {
     }

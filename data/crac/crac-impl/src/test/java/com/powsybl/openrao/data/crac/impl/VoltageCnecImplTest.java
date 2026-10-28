@@ -166,7 +166,6 @@ class VoltageCnecImplTest {
     @Test
     void testNetworkElement() {
         VoltageCnec voltageCnec = initPreventiveCnecAdder().newThreshold().withUnit(Unit.KILOVOLT).withMax(500.).add().add();
-        assertEquals(new NetworkElementImpl("networkElement"), voltageCnec.getNetworkElement());
         assertEquals("networkElement", voltageCnec.getNetworkElementId());
     }
 

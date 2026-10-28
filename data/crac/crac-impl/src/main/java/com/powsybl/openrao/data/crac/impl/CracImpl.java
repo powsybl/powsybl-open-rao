@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -62,9 +61,8 @@ import static java.lang.String.format;
  */
 public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
-    private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
 
-    private final Map<String, NetworkElement> networkElements = new HashMap<>();
+    private final Set<String> networkElementIds = new HashSet<>();
     private final Map<String, Contingency> contingencies = new HashMap<>();
     private final Map<String, Instant> instants = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
@@ -105,17 +103,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // region NetworkElements management
     // ========================================
 
-    Set<NetworkElement> getNetworkElements() {
-        return new HashSet<>(networkElements.values());
+    Set<String> getNetworkElementIds() {
+        return new HashSet<>(networkElementIds);
     }
 
-    NetworkElement getNetworkElement(String id) {
-        return networkElements.getOrDefault(id, null);
+    boolean hasNetworkElement(String id) {
+        return networkElementIds.contains(id);
     }
 
     /**
-     * Removes NetworkElement objects from the Crac, if they are not used within other objects of the Crac.
-     * Only NetworkElement objects that are not referenced are removed.
+     * Removes network element IDs from the Crac, if they are not used within other objects of the Crac.
+     * Only network element IDs that are not referenced are removed.
      *
      * @param networkElementIds IDs of the network elements to remove
      */
@@ -123,7 +121,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Set<String> referencedNetworkElementIds = getReferencedNetworkElementIds();
         networkElementIds.stream()
             .filter(networkElementId -> !referencedNetworkElementIds.contains(networkElementId))
-            .forEach(networkElements::remove);
+            .forEach(this.networkElementIds::remove);
     }
 
     /**
@@ -140,25 +138,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     /**
-     * This method add a network element to the crac internal set and returns a network element of this set.
-     * If an element with the same data is already added, the element of the internal set will be returned,
-     * otherwise it is created and then returned. An error is thrown when an element with an already
-     * existing ID is added with a different name.
+     * This method adds a network element ID to the crac internal set of network elements.
      *
      * @param networkElementId network element ID as in network files
-     * @param networkElementName network element name for more human readable name
-     * @return a network element object that is already defined in the crac
      */
-    NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
-        String name = (networkElementName != null) ? networkElementName : networkElementId;
-        NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
-        if (cracNetworkElement == null) {
-            cracNetworkElement = new NetworkElementImpl(networkElementId, name);
-        } else if (!cracNetworkElement.getName().equals(name)) {
-            throw new OpenRaoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
-        }
-        networkElements.put(networkElementId, cracNetworkElement);
-        return cracNetworkElement;
+    void addNetworkElement(String networkElementId) {
+        networkElementIds.add(networkElementId);
     }
 
     //endregion
@@ -583,7 +568,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
         Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElementId()).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(FlowCnec::getNetworkElementId).collect(Collectors.toSet());
         // do not remove preventive state
         Set<String> statesToRemove = flowCnecsToRemove.stream().filter(cnec -> !cnec.getState().isPreventive()).map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         flowCnecsToRemove.forEach(flowCnecToRemove ->

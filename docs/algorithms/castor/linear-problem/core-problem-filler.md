@@ -1,4 +1,4 @@
-# Modelling CNECs and range actions
+# Modeling CNECs and range actions
 
 This page gathers core constraints, i.e constraints that need to be defined at the beginning of the optimization problem.
 
@@ -10,7 +10,7 @@ This page gathers core constraints, i.e constraints that need to be defined at t
 | RangeActions                  | $r,s \in \mathcal{RA}$   | set of RangeActions and state on which they are applied, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                   |
 | RangeActions                  | $r \in \mathcal{RA(s)}$  | set of RangeActions available at state $s$, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                                |
 | InjectionRangeActions         | $r \in \mathcal{IRA}(s)$ | set of InjectionRangeActions available at state $s$                                                                                                                                                                                                                                                                         |
-| Injection Distribution keys   | $d \in \mathcal{DK(r)}$  | set of distribution keys of InjectionRangeAction $r$. Each distribution key is linked to a NetworkElement.                                                                                                                                                                                                                  |
+| Injection Distribution keys   | $d \in \mathcal{DK(r)}$  | set of distribution keys of InjectionRangeAction $r$. Each distribution key is linked to a network element.                                                                                                                                                                                                                  |
 | Iteration number              | $n$                      | number of current iteration                                                                                                                                                                                                                                                                                                 |
 | ReferenceFlow                 | $f_{n}(c)$               | reference flow, for FlowCnec $c$. <br>The reference flow is the flow at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                     |
 | PrePerimeterSetpoints         | $\alpha _0(r)$           | set-point of RangeAction $r$ at the beginning of the optimization                                                                                                                                                                                                                                                           |
@@ -129,7 +129,7 @@ $$\sum_{r \in \mathcal{IRA}(s)} \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \r
 
 ### Margin optimization
 
-Small penalisation for the use of RangeActions:
+Small penalization for the use of RangeActions:
 
 $$
 \begin{equation}
