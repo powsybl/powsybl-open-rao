@@ -213,7 +213,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         return networkActionResults.get(networkAction);
     }
 
-    void setSecurityStatus(boolean status, PhysicalParameter physicalParameter) {
+    public void setSecurityStatus(boolean status, PhysicalParameter physicalParameter) {
         securityStatusPerPhysicalParameter.put(physicalParameter, crac.getCnecs(physicalParameter).isEmpty() || status);
     }
 
@@ -359,6 +359,11 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
-        return parameters.stream().allMatch(securityStatusPerPhysicalParameter::get);
+        return parameters.stream().allMatch(
+            physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(
+                physicalParameter,
+                crac.getCnecs(physicalParameter).isEmpty()
+            )
+        );
     }
 }

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.impl.utils;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -206,6 +207,11 @@ public final class ExhaustiveRaoResultCreation {
         RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
         irar.setInitialSetpoint(100);
         irar.addActivationForState(crac.getState("contingency1Id", curativeInstant), -300);
+
+        // security status
+        raoResult.setSecurityStatus(true, PhysicalParameter.FLOW);
+        raoResult.setSecurityStatus(false, PhysicalParameter.ANGLE);
+        raoResult.setSecurityStatus(true, PhysicalParameter.VOLTAGE);
 
         return raoResult;
     }

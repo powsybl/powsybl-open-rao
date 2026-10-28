@@ -17,6 +17,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURITY_STATUS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
@@ -100,6 +102,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case COMPUTATION_STATUS_MAP:
                     jsonParser.nextToken();
                     ComputationStatusMapDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
+                case SECURITY_STATUS:
+                    jsonParser.nextToken();
+                    RaoResultJsonConstants.deserializeSecurityStatus(raoResult, jsonParser);
                     break;
 
                 case COST_RESULTS:
