@@ -46,6 +46,7 @@ import java.util.Set;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -662,24 +663,39 @@ class MostLimitingElementsReportsTest {
     @Test
     void runRaoWithComplexPerimetersAndEnsureAllCnecsAreLogged() throws IOException {
         Network network = Network.read("16Nodes.uct", getClass().getResourceAsStream("/network/16Nodes.uct"));
-        Crac crac = Crac.read("crac-3-curatives-no-cra.json", getClass().getResourceAsStream("/crac/crac-3-curatives-no-cra.json"), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_int_PST_max_margin_dc.json"), reportNode);
+        Crac crac = Crac.read("crac-3-curatives-no-cra.json", getClass().getResourceAsStream("/crac/crac-3-curatives-no-C3RA.json"), network);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_approximated_integers.json"), reportNode);
 
         new Castor().run(RaoInput.build(network, crac).build(), raoParameters, reportNode);
 
-        ListAppender<ILoggingEvent> businessLogs = ReportsTestUtils.getBusinessLogs();
-        List<String> logMessages = businessLogs.list.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
+        ReportNode mostLimitingElementsReportNodes = reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst();
+        String infoPrefix = "[INFO] ";
 
         // the CRAC does not have CRAs so all curative CNECs are optimized in the same perimeter at curative 1
         // we need to ensure that all CNECs are properly logged, and not only the CNECs from curative 1
 
-        final SoftAssertions softly = new SoftAssertions();
-        softly.assertThat(logMessages).containsExactly(
+        assertEquals(5, mostLimitingElementsReportNodes.getChildren().size());
+
+
+        assertEquals( // this CNEC used not to be reported
             absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
-            absoluteMarginLog(2, 21.52, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative2")),
-            absoluteMarginLog(3, 71.86, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - preventive")),
-            absoluteMarginLog(4, 131.52, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative1")),
-            absoluteMarginLog(5, 333.33, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"))
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
         );
     }
 }

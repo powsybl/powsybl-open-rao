@@ -1,7 +1,7 @@
 {
   "version" : "3.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
+    "type" : "SECURE_FLOW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
