@@ -35,7 +35,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
     public void serialize(AngleResult angleResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("AngleResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("AngleResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
 
