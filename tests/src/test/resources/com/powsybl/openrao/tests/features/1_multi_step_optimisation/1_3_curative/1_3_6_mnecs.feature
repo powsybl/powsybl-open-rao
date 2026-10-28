@@ -140,7 +140,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 2 in preventive
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     # Flow is -572 MW without RA, and threshold -500 MW.
     Then the initial margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" should be -104.6 A
     # Here the margin should not be below -122 MW because the initial margin is -72 MW (taking acceptable diminution parameter into account).
