@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 1
+Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 1
 
   Presentation of the US
   ----------------------

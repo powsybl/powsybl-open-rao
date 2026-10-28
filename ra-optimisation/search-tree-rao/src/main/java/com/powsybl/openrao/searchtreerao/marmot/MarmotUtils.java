@@ -29,11 +29,15 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -45,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -346,4 +351,35 @@ public final class MarmotUtils {
             availableRangeActions.put(state, rangeActions);
         }
     }
+
+    public static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
+        Set<FlowCnec> allFlowCnecs = new HashSet<>();
+        cracs.map(Crac::getFlowCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
+        Set<State> allOptimizedStates = new HashSet<>();
+        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
+        return ObjectiveFunction.build(allFlowCnecs,
+                new HashSet<>(), // no loop flows for now
+                globalInitialFlowResult,
+                globalInitialFlowResult, // always building from preventive so prePerimeter = initial
+                Collections.emptySet(),
+                raoParameters,
+                allOptimizedStates);
+    }
+
+    public static LinearOptimizationResult getInitialObjectiveFunctionResult(final TemporalData<PrePerimeterResult> prePerimeterResults,
+                                                                             final ObjectiveFunction objectiveFunction,
+                                                                             final ReportNode reportNode) {
+        TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
+        TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
+        return new GlobalLinearOptimizationResult(
+                prePerimeterResults.map(PrePerimeterResult::getFlowResult),
+                prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
+                rangeActionActivationResults,
+                networkActionsResults,
+                objectiveFunction,
+                LinearProblemStatus.OPTIMAL,
+                reportNode
+        );
+    }
+
 }

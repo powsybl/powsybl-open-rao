@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 2
+Feature: 4.1.3: Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 2
 
   Presentation of the US
   ----------------------
@@ -13,7 +13,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
   - startUp allowed
 
   ----------------------
-  Scenario: 4.3.1: No constraints, specifically : StartUp allowed
+  Scenario: 4.1.3.1: No constraints, specifically : StartUp allowed
   From 04:30 onwards, redispatching is required.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "epic93/time-coupled-constraints-without-constraints.json" and rao inputs are:
@@ -38,7 +38,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 05:30" is 2500.0 MW
     Then the remedial action "redispatchingAction" is used at timestamp "2025-11-04 05:30" in preventive
 
-  Scenario: 4.3.2: Same as 4.3.1, but StartUp not allowed
+  Scenario: 4.1.3.2: Same as 4.3.1, but StartUp not allowed
     From 04:30 onwards, redispatching is required. Nevertheless, BBE1AA1_generator is not available
     since startup is prohibited.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
@@ -89,7 +89,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 21:30" is 0.0 MW
     Then the remedial action "redispatchingAction" is not used at timestamp "2025-11-04 21:30" in preventive
 
-  Scenario: 4.3.4: ShutDown not allowed
+  Scenario: 4.1.3.4: ShutDown not allowed
   Redispatching action is necessary at 19:30 but not afterwards. Since shutdown isn't possible, redispatching action
   is set at its Pmin afterwards.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"

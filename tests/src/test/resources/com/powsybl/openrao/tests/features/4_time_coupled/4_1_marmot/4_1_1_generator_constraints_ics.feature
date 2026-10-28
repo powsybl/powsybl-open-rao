@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
+Feature: 4.1.1: Time-coupled generator constraints with MARMOT with ICS files
   Presentation of the US
   ----------------------
 
@@ -23,7 +23,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   ----------------------
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.1: Test simple upward gradient
+  Scenario: 4.1.1.1: Test simple upward gradient
     Redispatching actions are only necessary at 01:30.
     They're applied as soon as 00:30 because of upward gradient on BBE1AA1
     They're applied at 02:30 because of upward gradient on DDE1AA1
@@ -69,7 +69,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.2: Topological action and redispatching solve overload
+  Scenario: 4.1.1.2: Topological action and redispatching solve overload
     At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to resolve MNEC constraint,
     resulting in the application of topological action PRA_topo 1 at 01:30.
     Given network files are in folder "epic93/TestCases_93_2_2"
@@ -101,7 +101,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.3: PST and redispatching solve overload
+  Scenario: 4.1.1.3: PST and redispatching solve overload
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_3.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -131,7 +131,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.4: Curative topological action taken into account
+  Scenario: 4.1.1.4: Curative topological action taken into account
     Curative topo action and redispatching actions solved 01:30 overload during topological optimization, and 
     were applied during sensi computation in global range actions optimization.
     Here, global range actions optimization doesn't change results.
@@ -165,7 +165,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.4.bis: Curative PST and preventive redispatching
+  Scenario: 4.1.1.4.bis: Curative PST and preventive redispatching
     Similar to 4.1.3, but PST is curative. Overload is on curative cnec.
     Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
     curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
@@ -200,7 +200,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.5: 2 iterations of MARMOT via MNEC overloads
+  Scenario: 4.1.1.5: 2 iterations of MARMOT via MNEC overloads
     At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to solve MNEC constraint,
     resulting in the application of topological action PRA_topo 1 and redispatching actions at 01:30.
     Nevertheless these redispatching actions have gradient constraints; upon entering global optimization, topological optimization
@@ -238,7 +238,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
 
     # TODO to be modified when check on generator constraint is performed at import
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
+  Scenario: 4.1.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
     FR generator's program starts up even though startUp is not allowed.
     Given network files are in folder "epic93/TestCases_93_2_6"
     Given crac file is "epic93/cbcora_93_2_6.xml"
