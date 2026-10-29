@@ -1,24 +1,24 @@
-# Multi-step Optimisation
+# Multi-step Optimization
 
 ## Introduction
 
 To be able to face the combinatorial complexity of the problem, without having to simplify / linearize the impact of the
 available remedial actions available, the problem is divided into preventive and curative perimeters.  
-The definition of CNEC and associated usage rules allows to distinguish four temporal situations or instants in the
+The definition of CNEC and associated usage rules allows distinguishing four temporal situations or instants in the
 problem:
 
 - **Before outage situation**: immediately before the occurrence of a fault.
 - **After outage situation**: immediately after the occurrence of a fault and prior to the potential application
   of post-fault actions (if applicable).
 - **After automatons**: grid situations which follow the application of automatic remedial actions (automatons)
-  (if applicable) in the case of a particular contingency. *Note that this perimeter is simulated, not optimised*
+  (if applicable) in the case of a particular contingency. *Note that this perimeter is simulated, not optimized*
 - **After curative situations**: grid situations which follow the application of curative actions
   (if applicable) in the case of a particular contingency.
 
-This leads to the consideration of different **optimisation perimeters**. Each perimeter calls for the application of one
-set of remedial actions. The preventive perimeter is the first computed. Optimisation will try to maximise the objective
+This leads to the consideration of different **optimization perimeters**. Each perimeter calls for the application of one
+set of remedial actions. The preventive perimeter is the first computed. Optimization will try to maximize the objective
 function value on this first perimeter (or just secure it, depending on the stop criterion). Then, each contingency in
-curative defines one perimeter of curative optimisation. Optimisation will try to maximise the objective function value
+curative defines one perimeter of curative optimization. Optimization will try to maximize the objective function value
 of each of these perimeters (or just secure it, depending on the stop criterion).
 
 ## Preventive perimeter
@@ -117,7 +117,7 @@ often suffice to solve the constraints which may appear in the curative situatio
 preventive stage due to a TATL higher than PATL).
 
 Only TSOs owning curative actions allow CNECs to have a TATL which exceeds the PATL value. Operating the system with
-curative actions allows to overload a line temporarily, thus allowing more flexibility in grid operations.
+curative actions allows overloading a line temporarily, thus allowing more flexibility in grid operations.
 
 Operationally, curative actions are sized in order to overcome the difference between these two limits (TATL-PATL).  
 While during preventive actions, only the TATL has to be respected (active flow should remain below this value),
@@ -127,12 +127,12 @@ curative actions (if properly sized), should be able to reduce the active flow i
 
 When curative actions are not sized properly and are not sufficient to respect the two limits, CASTOR will then
 investigate additional preventive remedial actions, by running
-a [second preventive optimisation](#second-preventive-rao).  
+a [second preventive optimization](#second-preventive-rao).  
 When no curative actions are available to secure a given CNEC, CASTOR will investigate additional preventive remedial
 actions by [extending the preventive perimeter](#extension-of-the-preventive-perimeter-to-the-curative-situation).
 
-Therefore, preventive optimisation is more permissive with CNECs defined with a TATL larger than the PATL: this allows
-preventive optimisation to focus preferably on CNECs with a low TATL (in particular where TSOs do not define curative
+Therefore, preventive optimization is more permissive with CNECs defined with a TATL larger than the PATL: this allows
+preventive optimization to focus preferably on CNECs with a low TATL (in particular where TSOs do not define curative
 actions).  
 When switching to the curative problem, the PATL applies, and the potential negative impact of previously found
 preventive actions (limited by the consideration of TATL) should be overcome by the available curative actions.
@@ -152,13 +152,13 @@ function value can be increased through the application of this action) when com
 
 When a CNEC is monitored in a curative state for which no remedial action exists, this CNEC has no chance of being
 explicitly secured by remedial actions other than preventive.  
-The availability of curative actions is first assessed prior to the preventive optimisation:  
-In the case where no curative action is available for a given CNEC which is to be optimised in the curative problem,
-the curative CNEC will be treated directly within the preventive optimisation perimeter (outage 2 in figure below).  
-As a result, the current limit considered in the preventive optimisation of this particular CNEC will be the PATL
+The availability of curative actions is first assessed prior to the preventive optimization:  
+In the case where no curative action is available for a given CNEC which is to be optimized in the curative problem,
+the curative CNEC will be treated directly within the preventive optimization perimeter (outage 2 in figure below).  
+As a result, the current limit considered in the preventive optimization of this particular CNEC will be the PATL
 and not the TATL.
 
-This ensures that the optimisation avoids finding a preventive solution where the flow of this CNEC would lie between
+This ensures that the optimization avoids finding a preventive solution where the flow of this CNEC would lie between
 the PATL and TATL value. If such preventive solution were selected, due to the unavailability of curative actions,
 the flow in curative would remain higher than the PATL value, which would correspond to an overload on the grid element
 (situation for Outage 2 in the figure below).
@@ -168,13 +168,13 @@ the flow in curative would remain higher than the PATL value, which would corres
 ### Multiple curative instants
 
 It is possible to define multiple curative instants in the CRAC to monitor more gradually the flow variations on lines
-and get closer to a "real-time" modelling. Curative instants are optimized sequentially and greedily, i.e. the results
+and get closer to a "real-time" modeling. Curative instants are optimized sequentially and greedily, i.e. the results
 of the first curative instant are applied and considered definitive before entering the second curative instant
 optimization. This optimization is carried out using a search-tree algorithm just as
 [described above](#curative-perimeters).
 
 What was described in the [previous section](#extension-of-the-preventive-perimeter-to-the-curative-situation) also
-stands for multi-curative situations. If a curative instant has no remedial actions available, all its FlowCNECs will be
+stands for multi-curative situations. If a curative instant has no remedial actions available, all its flow CNECs will be
 included in its previous instant's perimeter.
 
 ![PATL vs TATL](../../_static/img/tatl-instant.png){.forced-white-background}
@@ -187,7 +187,7 @@ After the curative RAO is complete, the user has the possibility
 to [run a second preventive RAO](../../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters).  
 The differences with the first preventive RAO are that, in this run:
 
-- **all CNECs** are optimised, whatever their state;
+- **all CNECs** are optimized, whatever their state;
 - **automatic remedial actions** that were selected in the automaton perimeter are supposed activated, in order for
   the preventive RAO to focus on constraints that cannot be solved by automatons;
 - **curative remedial actions** that were selected in the curative perimeter are supposed activated*, in order for

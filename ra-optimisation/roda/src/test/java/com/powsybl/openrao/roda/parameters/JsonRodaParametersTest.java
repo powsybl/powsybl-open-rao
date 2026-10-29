@@ -10,8 +10,8 @@ import com.powsybl.action.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -86,10 +86,10 @@ class JsonRodaParametersTest extends AbstractSerDeTest {
             .build());
         actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id23")
-            .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .withStaticVarCompensatorId("svc").withRegulationMode(RegulationMode.VOLTAGE)
             .withVoltageSetpoint(56.0).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
-            .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+            .withStaticVarCompensatorId("svc").withRegulationMode(RegulationMode.REACTIVE_POWER)
             .withReactivePowerSetpoint(120.0).build());
         actions.add(new TerminalsConnectionAction("id4", "transformerId25", ThreeSides.THREE, true)); // only one side.
         actions.add(new AreaInterchangeTargetAction("id99", "AreaA", 101.0));

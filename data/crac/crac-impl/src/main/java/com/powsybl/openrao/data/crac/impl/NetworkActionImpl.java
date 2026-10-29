@@ -11,7 +11,6 @@ import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
@@ -29,13 +28,13 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     private static final double EPSILON = 0.1;
     private final Set<Action> elementaryActions;
-    private final Set<NetworkElement> networkElements;
+    private final Set<String> networkElementsIds;
 
     public NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
-                             Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<NetworkElement> networkElements) {
+                             Set<Action> elementaryNetworkActions, Integer speed, Double activationCost, Set<String> networkElementsIds) {
         super(id, name, operator, usageRules, speed, activationCost);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
-        this.networkElements = new HashSet<>(networkElements);
+        this.networkElementsIds = new HashSet<>(networkElementsIds);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     public boolean hasImpactOnNetwork(Network network) {
         return elementaryActions.stream().anyMatch(elementaryAction -> {
             if (elementaryAction instanceof SwitchPair switchPair) {
-                return !network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() || network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
+                return !network.getSwitch(switchPair.getSwitchToOpenId()).isOpen() || network.getSwitch(switchPair.getSwitchToCloseId()).isOpen();
             } else {
                 return elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
@@ -69,7 +68,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         return elementaryActions.stream().allMatch(elementaryAction -> {
             if (elementaryAction instanceof SwitchPair switchPair) {
                 // It is only applicable if, initially, one switch was closed and the other was open.
-                return network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() != network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
+                return network.getSwitch(switchPair.getSwitchToOpenId()).isOpen() != network.getSwitch(switchPair.getSwitchToCloseId()).isOpen();
             } else {
                 return elementaryAction.toModification().hasImpactOnNetwork(network) != NetworkModificationImpact.CANNOT_BE_APPLIED;
             }
@@ -82,8 +81,8 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     }
 
     @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return this.networkElements;
+    public Set<String> getNetworkElementsIds() {
+        return this.networkElementsIds;
     }
 
     @Override
@@ -113,7 +112,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
             networkAction.getElementaryActions(),
             networkAction.getSpeed().orElse(null),
             networkAction.getActivationCost().orElse(null),
-            networkAction.getNetworkElements()
+            networkAction.getNetworkElementsIds()
         );
     }
 

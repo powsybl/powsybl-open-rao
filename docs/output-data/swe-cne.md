@@ -4,7 +4,7 @@
 
 The SWE CNE file is the standard RAO output file for the SWE CC process.  
 The [OpenRAO toolbox](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-io/rao-result-cne/swe-cne-exporter/src/main/java/com/powsybl/openrao/data/raoresult/io/cne/swe/SweCneExporter.java)
-allows exporting [RAO results](rao-result.md) (containing [angle results](../algorithms/monitoring.md#the-monitoring-result) if the CRAC contains [Angle CNECs](../input-data/crac/json.md#angle-cnecs))
+allows exporting [RAO results](rao-result.md) (containing [angle results](../algorithms/monitoring.md#the-monitoring-result) if the CRAC contains [angle CNECs](../input-data/crac/json.md#angle-cnecs))
 in a SWE CNE file using a [CimCracCreationContext](../input-data/crac/creation-context.md#cim-implementation), and specific properties.
 
 ![SWE CNE](../_static/img/swe-cne.png){.forced-white-background}
@@ -20,13 +20,13 @@ public void write(String format, CracCreationContext cracCreationContext, Proper
 
 With:
 - **raoResult**: the [RaoResult](rao-result.md) object containing selected remedial actions and flow
-  results, as well as [angle results](../algorithms/monitoring.md) if the CRAC contains [Angle CNECs](../input-data/crac/json.md#angle-cnecs)
+  results, as well as [angle results](../algorithms/monitoring.md) if the CRAC contains [angle CNECs](../input-data/crac/json.md#angle-cnecs)
 - **cracCreationContext**: the [CimCracCreationContext object](../input-data/crac/creation-context.md#cim-implementation) generated during
   [CRAC creation](../input-data/crac/import.md) from a native [CIM CRAC file](../input-data/crac/cim.md).
   > ⚠️  **NOTE**  
   > The exporter will fail if angle CNECs are present in the CRAC, but the RAO result does not contain angle results.  
   > See how to compute angle results [here](../algorithms/monitoring.md#the-monitoring-algorithm).
-- **properties**: a specific object that te user should define, containing meta-information that will be written
+- **properties**: a specific object that the user should define, containing meta-information that will be written
   in the header of the CNE file as well as relevant RAO parameters:
     - **`"document-id"`**: document ID to be written in "mRID" field
     - **`"revision-number"`**: integer to be written in "revisionNumber" field
@@ -303,7 +303,7 @@ Exists if the CNEC is monitored after a contingency (if the CNEC is preventive, 
 
 #### Reason (optional)
 
-When sensitivity computation fails in a given perimeter (in basecase or after a specific contingency identified by
+When sensitivity computation fails in a given perimeter (in base case or after a specific contingency identified by
 **Contingency_Series**), this tag is present with the following information:
 - **code**: "B18"
 - **text**: "Rao failure"
@@ -312,12 +312,12 @@ Then no more results are exported for the failed perimeter.
 
 #### AdditionalConstraint_Series (optional)
 
-If angle CNECs are monitored in the actual perimeter (in basecase or after a specific contingency identified by
+If angle CNECs are monitored in the actual perimeter (in base case or after a specific contingency identified by
 **Contingency_Series**), this tag contains angle values from the angle monitoring module.
 
 ##### mRID
 
-Unique ID of the angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Unique ID of the angle CNEC, as defined in the [original CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### businessType
 
@@ -325,7 +325,7 @@ One possible value: **B87** (angle monitoring).
 
 ##### name
 
-Name of the angle CNEC, as defined in the [orignal CRAC file](../input-data/crac/cim.md#anglecnecs).
+Name of the angle CNEC, as defined in the [original CRAC file](../input-data/crac/cim.md#anglecnecs).
 
 ##### quantity.quantity
 
@@ -366,7 +366,7 @@ Only in the hypothetical case of a [relative margins objective function](../para
 - **pTDF_Quantity.quantity**: value of the PTDF associated to the bidding zone for the critical network element
 > ⚠️  **NOTE**  
 > This tag is currently not supported in OpenRAO, since the SWE CC process (only process to use the SWE CNE format)
-> does not optimise relative margins
+> does not optimize relative margins
 
 ##### Measurements
 - measurementType: type of measurement, possible values are:
@@ -446,4 +446,4 @@ one angle constraints).
 </Reason>
 ~~~
 This means that the RAO or the angle monitoring could not be conducted normally because at least one perimeter lead to
-a load-flow divergence. This perimeter can be identified by looking at the [B57 Constraint_Series](#cnec-results).
+a load flow divergence. This perimeter can be identified by looking at the [B57 Constraint_Series](#cnec-results).

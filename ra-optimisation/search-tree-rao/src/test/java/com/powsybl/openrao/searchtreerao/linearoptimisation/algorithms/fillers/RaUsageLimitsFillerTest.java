@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -38,10 +37,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.rangeActionBinaryVariableId;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -83,29 +88,29 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(pst1.getId()).thenReturn("pst1");
         when(pst1.getOperator()).thenReturn("opA");
         when(pst1.getTapToAngleConversionMap()).thenReturn(Map.of(-1, -5.0, 0, -2.3, 1, 1.9));
-        when(pst1.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(pst1.getNetworkElementsIds()).thenReturn(Set.of("pst1"));
 
         pst2 = mock(PstRangeAction.class);
         when(pst2.getId()).thenReturn("pst2");
         when(pst2.getOperator()).thenReturn("opA");
         when(pst2.getTapToAngleConversionMap()).thenReturn(Map.of(0, 5.0, 1, 8.0));
-        when(pst2.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(pst2.getNetworkElementsIds()).thenReturn(Set.of("pst2"));
 
         pst3 = mock(PstRangeAction.class);
         when(pst3.getId()).thenReturn("pst3");
         when(pst3.getOperator()).thenReturn("opB");
         when(pst3.getTapToAngleConversionMap()).thenReturn(Map.of(-10, -4.0, -7, -8.5));
-        when(pst3.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(pst3.getNetworkElementsIds()).thenReturn(Set.of("pst3"));
 
         hvdc = mock(HvdcRangeAction.class);
         when(hvdc.getId()).thenReturn("hvdc");
         when(hvdc.getOperator()).thenReturn("opA");
-        when(hvdc.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(hvdc.getNetworkElementsIds()).thenReturn(Set.of("hvdc"));
 
         injection = mock(InjectionRangeAction.class);
         when(injection.getId()).thenReturn("injection");
         when(injection.getOperator()).thenReturn("opC");
-        when(injection.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(injection.getNetworkElementsIds()).thenReturn(Set.of("injection"));
 
         rangeActions = Set.of(pst1, pst2, pst3, hvdc, injection);
 

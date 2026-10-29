@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 /**
  * A range action interface specifying an action on a HVDC
@@ -21,7 +20,7 @@ public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
     /**
      * Get the HVDC Network Element on which the remedial action applies
      */
-    NetworkElement getNetworkElement();
+    String getNetworkElementId();
 
     boolean isAngleDroopActivePowerControlEnabled(Network network);
 

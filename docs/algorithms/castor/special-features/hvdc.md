@@ -10,7 +10,7 @@ An HVDC line can operate in **two modes**:
    In this mode, the power flow on the HVDC line is directly controlled via its **active power setpoint**.
 
 2. **AC Emulation Mode**  
-   The HVDC line operates in AC Emulation mode when the extension [**angle-droop active power control**](inv:powsyblecore:*:*#hvdc-angle-droop-active-power-control-extension) is enabled. In this mode, the flow is determined by the **phase difference**:  
+   The HVDC line operates in AC Emulation mode when the extension [**angle-droop active power control**](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension) is enabled. In this mode, the flow is determined by the **phase difference**:  
   
   $$ P = P_0 + k (\phi_1 - \phi_2)$$
    and **ignores the active power setpoint and converters mode**.
@@ -20,13 +20,13 @@ An HVDC line can operate in **two modes**:
 - An HVDC range action moves the active setpoint field of the HVDC line. When a line is in AC Emulation mode, applying an **HVDC range action** has no effect because the line cannot be directly controlled via its active power setpoint.  
 In order to use and optimize the setpoint of an HVDC range action, the HVDC line associated needs to be switched to fix setpoint mode before hand more info on that in the following sections.
 
-- For the same reason, attempting to define a sensitivity for an HVDC range action with a line still in AC emulation will result in an **OLF error**. See [Open Load Flow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/sensitivity/getting_started.html).
+- For the same reason, attempting to define a sensitivity for an HVDC range action with a line still in AC emulation will result in an **Open Load Flow error**. See [PowSyBl Open Load Flow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/sensitivity/getting_started.html).
 
 --- 
 
 ## HVDC range action setpoint field vs HVDC line active power setpoint field
 
-First read [powsybl specification](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#hvdc-line) on the flow sign convention for HVDC line. 
+First read [PowSyBl specification](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#hvdc-line) on the flow sign convention for HVDC line.
 
 For **HVDC line** the two things to note are that in **fixed setpoint** mode:
 - The active power setpoint field should always be positive 
@@ -41,7 +41,7 @@ Whereas **HVDC range action** setpoint is not always positive. The setpoint foll
 
 ## HVDC Range Action in some capacity calculation processes
 
-### Italy Nord Process (CSE CRAC)
+### Italy North Process (CSE CRAC)
 
 As HVDC line cannot be modeled in UCTE format, an equivalent model is used: the HVDC is represented through two injections (one on each side of the line, with opposite keys of 1 and -1) as illustrated in the following diagram.
 
@@ -124,12 +124,12 @@ After updating the setpoint, a **sensitivity calculation** is run, and the HVDC 
 
 ## Additional Warnings
 
-- **Terminology:** An HVDC line can be in AC Emulation mode even if the load flow is run in DC mode; these concepts are independent. See [powsybl-open-loadflow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/loadflow.html).
+- **Terminology:** An HVDC line can be in AC Emulation mode even if the load flow is run in DC mode; these concepts are independent. See [PowSyBl Open Load Flow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/loadflow/loadflow.html).
 > ⚠️ WARNING ⚠️
 > 
-> OpenLoadFlow support DC loadflow run with HVDC lines in AC Emulation mode. However, it **does NOT support DC sensitivity calculation with HVDC lines in AC Emulation mode** !
+> PowSyBl Open Load Flow supports DC load flow run with HVDC lines in AC Emulation mode. However, it **does NOT support DC sensitivity calculation with HVDC lines in AC Emulation mode** !
 > Meaning that the  **`hvdcAcEmulation`** parameter will automatically be set to **`false`** in such cases in OLF's code and the HVDC lines will be considered in fixed setpoint mode. 
 >
 > So be careful when using HVDC lines in AC Emulation mode with DC sensitivity calculation.
 
-- Loadflow parameter **`hvdcAcEmulation`:** This should always be `true`, if set to `false` all the HVDC lines' angle-droop active power control extension are ignored and all the lines are considered in fixed setpoint mode. See [PowSyBl Core documentation](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/simulation/loadflow/configuration.html).  
+- Load flow parameter **`hvdcAcEmulation`:** This should always be `true`, if set to `false` all the HVDC lines' angle-droop active power control extension are ignored and all the lines are considered in fixed setpoint mode. See [PowSyBl Core documentation](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/simulation/loadflow/configuration.html).  

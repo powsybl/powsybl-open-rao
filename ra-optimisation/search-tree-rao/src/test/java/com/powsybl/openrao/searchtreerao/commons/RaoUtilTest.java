@@ -397,22 +397,16 @@ class RaoUtilTest {
         Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
         Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
 
-        NetworkElement pst = Mockito.mock(NetworkElement.class);
-        Mockito.when(pst.getId()).thenReturn("pst");
-
         RangeAction<?> rangeAction1 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction1.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction1.getNetworkElementsIds()).thenReturn(Set.of("pst"));
         Mockito.when(rangeAction1.getId()).thenReturn("range-action-1");
 
         RangeAction<?> rangeAction2 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction2.getNetworkElementsIds()).thenReturn(Set.of("pst"));
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
-        NetworkElement anotherNetworkElement = Mockito.mock(NetworkElement.class);
-        Mockito.when(anotherNetworkElement.getId()).thenReturn("another-network-element");
-
         RangeAction<?> rangeAction3 = Mockito.mock(RangeAction.class);
-        Mockito.when(rangeAction3.getNetworkElements()).thenReturn(Set.of(pst, anotherNetworkElement));
+        Mockito.when(rangeAction3.getNetworkElementsIds()).thenReturn(Set.of("pst", "another-network-element"));
         Mockito.when(rangeAction3.getId()).thenReturn("range-action-3");
 
         OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
@@ -521,10 +515,8 @@ class RaoUtilTest {
             .withNetworkElementId("FFR2AA1  DDE3AA1  1")
             .withOpen(true)
             .build();
-        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
-        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
         NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
-            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of("DDE2AA1  NNL3AA1  1", "FFR2AA1  DDE3AA1  1"));
         networkActionThatCreateAnIsland.apply(network);
         assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
     }

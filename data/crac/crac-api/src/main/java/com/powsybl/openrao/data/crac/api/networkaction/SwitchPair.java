@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.networkaction;
 
 import com.powsybl.action.Action;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 /**
  * A SwitchPair action is an Elementary Action which consists in changing
@@ -20,21 +19,21 @@ public interface SwitchPair extends Action {
     /**
      * Get the switch that should be opened by the elementary action
      */
-    NetworkElement getSwitchToOpen();
+    String getSwitchToOpenId();
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    NetworkElement getSwitchToClose();
+    String getSwitchToCloseId();
 
     default boolean isCompatibleWith(Action otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return getSwitchToOpen().equals(switchPair.getSwitchToOpen())
-                    && getSwitchToClose().equals(switchPair.getSwitchToClose())
-                || !getSwitchToOpen().equals(switchPair.getSwitchToOpen())
-                    && !getSwitchToOpen().equals(switchPair.getSwitchToClose())
-                    && !getSwitchToClose().equals(switchPair.getSwitchToClose())
-                    && !getSwitchToClose().equals(switchPair.getSwitchToOpen());
+            return getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
+                    && getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
+                || !getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
+                    && !getSwitchToOpenId().equals(switchPair.getSwitchToCloseId())
+                    && !getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
+                    && !getSwitchToCloseId().equals(switchPair.getSwitchToOpenId());
         }
         return true;
     }

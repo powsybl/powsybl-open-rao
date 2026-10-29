@@ -82,4 +82,16 @@ public class CountryGraph {
         }
         return false;
     }
+
+    public Set<Country> getNeighbors(Country country) {
+        Set<Country> neighbors = new HashSet<>();
+        boundaries.forEach(boundary -> {
+            if (boundary.getCountryLeft().equals(country)) {
+                neighbors.add(boundary.getCountryRight());
+            } else if (boundary.getCountryRight().equals(country)) {
+                neighbors.add(boundary.getCountryLeft());
+            }
+        });
+        return neighbors;
+    }
 }
