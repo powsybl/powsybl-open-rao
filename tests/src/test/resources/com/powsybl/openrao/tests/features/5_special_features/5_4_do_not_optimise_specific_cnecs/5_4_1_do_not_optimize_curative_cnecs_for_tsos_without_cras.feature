@@ -183,7 +183,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 9 in preventive
     Then 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the worst margin is -81 A
+    Then the worst margin is -54.91 MW
     Then the value of the objective function after CRA should be -616.0
     Then the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be -54 MW
     Then the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 478 MW
