@@ -56,9 +56,9 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         ComputationStatus computationStatus = raoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
         jsonGenerator.writeStringField(EXECUTION_DETAILS, raoResult.getExecutionDetails());
-        serializeSecurityStatus(crac, raoResult, jsonGenerator);
 
         if (!ComputationStatus.FAILURE.equals(computationStatus)) {
+            serializeSecurityStatus(crac, raoResult, jsonGenerator);
             CostResultMapSerializer.serialize(raoResult, crac, jsonGenerator);
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);

@@ -169,6 +169,6 @@ public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implement
 
     @Override
     public boolean isSecure(PhysicalParameter... physicalParameters) {
-        return false;
+        throw new OpenRaoException(exceptionMessage);
     }
 }
