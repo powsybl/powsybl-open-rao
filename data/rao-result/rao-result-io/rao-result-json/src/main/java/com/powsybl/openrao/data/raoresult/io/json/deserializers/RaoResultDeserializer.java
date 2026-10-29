@@ -39,7 +39,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURITY_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
@@ -104,7 +104,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     ComputationStatusMapDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
-                case SECURITY_STATUS:
+                case SECURE:
                     jsonParser.nextToken();
                     RaoResultJsonConstants.deserializeSecurityStatus(raoResult, jsonParser);
                     break;

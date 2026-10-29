@@ -141,7 +141,7 @@ boolean isSecure(PhysicalParameter... physicalParameters);
 :::{group-tab} JSON File
 
 ```json
-"securityStatus" : {
+"secure" : {
   "flow" : false,
   "angle" : true,
   "voltage" : true

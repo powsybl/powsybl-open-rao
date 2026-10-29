@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -356,6 +357,10 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         List<PhysicalParameter> parameters = List.of(physicalParameters);
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        if (computationStatus == ComputationStatus.FAILURE) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO failed, security status is unknown. Returning false by default.");
+            return false;
         }
         return parameters.stream().allMatch(
             physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(physicalParameter, true)

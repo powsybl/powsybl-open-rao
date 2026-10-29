@@ -143,7 +143,7 @@ public final class RaoResultJsonConstants {
     public static final String CRITICAL_CNECS_SET = "critical-cnecs";
 
     // security status
-    public static final String SECURITY_STATUS = "securityStatus";
+    public static final String SECURE = "secure";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {
@@ -265,7 +265,7 @@ public final class RaoResultJsonConstants {
     }
 
     public static void serializeSecurityStatus(Crac crac, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(SECURITY_STATUS);
+        jsonGenerator.writeObjectFieldStart(SECURE);
         for (PhysicalParameter physicalParameter : List.of(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)) {
             if (!crac.getCnecs(physicalParameter).isEmpty()) {
                 jsonGenerator.writeBooleanField(physicalParameter.name().toLowerCase(), raoResult.isSecure(physicalParameter));
