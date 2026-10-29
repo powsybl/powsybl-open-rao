@@ -105,7 +105,7 @@
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <junit.bom.version>5.14.4</junit.bom.version>
         <maven.jvnet.jaxb.version>4.0.12</maven.jvnet.jaxb.version>
-        <powsybl.core.version>7.4.0</powsybl.core.version>
+        <powsybl.core.version>7.4.2</powsybl.core.version>
         <powsybl.entsoe.version>3.4.0</powsybl.entsoe.version>
         <powsybl.openloadflow.version>2.4.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.18</slf4j.version>
