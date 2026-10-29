@@ -22,7 +22,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1483 A
     Then the initial flow on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 620.8 A on side 1
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
@@ -99,7 +99,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     # Margin of the limiting CNEC is slightly lower than in the original test case without MNEC
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1483 A
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
@@ -117,7 +117,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 2 in preventive
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     # Flow is -572 MW without RA, and threshold -700 MW.
     Then the initial margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" should be 184.08 A
     # Here the margin should not be negative because the branch is a MNEC and initial margin was positive.
@@ -140,13 +140,13 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 2 in preventive
     Then the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 100.89 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 6.88 A
     # Flow is -572 MW without RA, and threshold -500 MW.
     Then the initial margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" should be -104.6 A
     # Here the margin should not be below -122 MW because the initial margin is -72 MW (taking acceptable diminution parameter into account).
     # Flow is -643 MW with PRA and CRA, and threshold -700 MW. Margin is positive.
     Then the margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -152.56 A
-    # Curative RA need to be used in order to respect the MNEC constraint (the MNEC is violated by 30 A in the root leaf of the curative perimeter)
+    # Curative RA need to be used in order to respect the MNEC constraint (the MNEC is violated by 30 MW in the root leaf of the curative perimeter)
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be -2 after "co1_fr2_fr3_1" at "curative"

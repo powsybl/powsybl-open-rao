@@ -35,11 +35,11 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.2: Multi-curative with PST range actions and Topological actions
-    The network has three parallel lines. Initially, two of them are opened and the third one is a CNEC
-    The flow on the CNEC is initially smaller than the PATL and the first TATL so no PRA is needed
-    1. First a PST is activated to go under the first curative TATL (500 MW)
-    2. One of the two other lines is parallel is closed to divide the flow by 2 and make it go under the second curative TATL (300 MW)
-    3. The second line is closed to go under the third curative TATL (250 MW)
+  The network has three parallel lines. Initially, two of them are opened and the third one is a CNEC
+  The flow on the CNEC is initially smaller than the PATL and the first TATL so no PRA is needed
+  1. First a PST is activated to go under the first curative TATL (500 MW)
+  2. One of the two other lines is parallel is closed to divide the flow by 2 and make it go under the second curative TATL (300 MW)
+  3. The second line is closed to go under the third curative TATL (250 MW)
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_2.json"
@@ -616,9 +616,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.18: Multi-curative CNECs with PRAs only
-    This is a copy of 1.5.1.2 but CRAs are transformed into PRAs
-    Curative CNECs are now part of the preventive perimeter
-    -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
+  This is a copy of 1.5.1.2 but CRAs are transformed into PRAs
+  Curative CNECs are now part of the preventive perimeter
+  -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_16.json"
@@ -639,8 +639,8 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.19: Multi-curative CNECs with simple 2nd PRAO
-    This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
-    -> Then the same PRAs should be applied in 2nd PRAO
+  This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
+  -> Then the same PRAs should be applied in 2nd PRAO
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_17.json"
@@ -661,9 +661,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.20: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative1 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
+  This is a copy of 1.5.1.2 but only CRA that was available in curative1 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_18.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -702,9 +702,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.21: Multi-curative CNECs with no CRA for curative2 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative2 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
+  This is a copy of 1.5.1.2 but only CRA that was available in curative2 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_19.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -738,9 +738,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.22: Multi-curative CNECs with no CRA for curative3 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative3 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
+  This is a copy of 1.5.1.2 but only CRA that was available in curative3 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_20.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
