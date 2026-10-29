@@ -107,7 +107,7 @@ public final class TimeCoupledRaoSteps {
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
-    static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
+    static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/4_time_coupled/CracCreationParameters_4_1.json";
     static final double TOLERANCE_REDISPATCHING_VALUE = 1.0;
 
     public TimeCoupledRaoSteps() {

@@ -9,8 +9,8 @@ Feature: 0.1.0.1: Handle elementName tag
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.1.0.1.1: line defined with order code
-    Given network file is "epic2/US2-3-case1-standard.uct" for CORE CC
-    Given crac file is "epic8/12nodes_pst_topo_frm_cbcora.xml"
+    Given network file is "common/TestCase12Nodes_standard.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/12nodes_pst_topo_frm_cbcora.xml"
     Given configuration file is "common/RaoParameters_default.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -21,8 +21,8 @@ Feature: 0.1.0.1: Handle elementName tag
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.1.0.1.2: line defined with element name
-    Given network file is "epic8/US2-3-case1-elementName.uct" for CORE CC
-    Given crac file is "epic8/12nodes_pst_topo_frm_cbcora_elementName.xml"
+    Given network file is "0_import_export/0_1_import/0_1_0_generic/TestCase12Nodes_elementName.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_0_generic/12nodes_pst_topo_frm_cbcora_elementName.xml"
     Given configuration file is "common/RaoParameters_default.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

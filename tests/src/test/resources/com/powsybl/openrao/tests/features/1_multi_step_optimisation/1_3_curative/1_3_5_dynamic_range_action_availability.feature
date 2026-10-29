@@ -9,7 +9,7 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.1: Preventive and curative PST RA, with same taps in both states
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us5case1.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_5_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -27,7 +27,7 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.2: Preventive and curative PST RA, with different taps in each state
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us5case2.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_5_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -50,7 +50,7 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.3: Preventive and curative PST RA, with an activation in the curative state limited by a RELATIVE_DYNAMIC range
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us5case3.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_5_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -72,7 +72,7 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.4: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us5case4.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_5_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -93,8 +93,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.5: Preventive and curative optimization with absolute limit on curative PST
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
@@ -107,8 +107,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.6: Preventive and curative optimization with relative limit on curative PST
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
@@ -120,8 +120,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.7: Preventive and curative optimization with wrong absolute limit on curative PST
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
@@ -134,8 +134,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @crac
   Scenario: 1.3.5.8: PST filtering
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/12nodes_oneCorrectPreventivePst.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I import crac at "2019-01-08 12:00"
     Then it should have 2 range actions
@@ -144,8 +144,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 1.3.5.9: Preventive optimization after PST filtering
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/12nodes_oneCorrectPreventivePst.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
@@ -157,8 +157,8 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.5.10: CBCORA, CRA and PRA on same PSTs (as done in CORE CC data)
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us5case10.xml"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_5_10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -182,9 +182,9 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   Scenario: 1.3.5.11: CBCORA, CRA and PRA on same PSTs, with 2P optimisation
     # same results as previous test case, but important to test as RaoResult implementation
     # is not the same with 2d preventive optimisation
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us5case10.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_5_10.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pra_pst_fr" should be -14 in preventive
@@ -204,9 +204,9 @@ Feature: 1.3.5: Dynamic of range actions available in several instants
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.3.5.11.bis: CBCORA, CRA and PRA on same PSTs, with global 2P optimisation
     # slightly better results thanks to the global 2P optimization
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us5case10.xml"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_2p_global.json"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_5_10.xml"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_maxMargin_ampere_2p_global.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"

@@ -10,9 +10,9 @@ Feature: 3.4.1: Costly network actions optimization
   Scenario: 3.4.1.1: Selection of cheapest of 3 equivalent network actions
   The network contains two nodes linked with 4 parallel lines: one of the lines is the overloaded CNEC,
   and the three other are open. 3 remedial actions with different costs: close one of the three lines.
-    Given network file is "epic92/2Nodes4ParallelLines.uct"
-    Given crac file is "epic92/crac-92-1-1.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_1.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 250.0 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -29,9 +29,9 @@ Feature: 3.4.1: Costly network actions optimization
   Line BE-FR-3 has a higher resistance than line BE-FR-2 which means that closing the latter will lead
   to a higher margin on the optimized CNEC. However, closing line BE-FR-3 is cheaper and still secures
   the CNEC so it will be chosen by the RAO.
-    Given network file is "epic92/2Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic92/crac-92-1-2.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes3ParallelLines_disconnected.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_2.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 83.0 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -45,9 +45,9 @@ Feature: 3.4.1: Costly network actions optimization
   Scenario: 3.4.1.2.bis: Duplicate of 3.4.1.2 in MAX_MIN_MARGIN mode
   The situation is the same as in 3.4.1.2 but the RAO maximizes the minimum margin.
   As activation costs are not taken in account, both lines will be closed.
-    Given network file is "epic92/2Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic92/crac-92-1-2.json"
-    Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes3ParallelLines_disconnected.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_2.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_margin_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 464.29 MW
     Then the margin on cnec "cnecBeFrPreventive" after PRA should be 464.29 MW
@@ -63,9 +63,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @preventive-only @costly @rao
   Scenario: 3.4.1.3: Selection of the two cheapest network actions
   Same as 3.4.1.1, but two network actions are needed to secure the CNEC.
-    Given network file is "epic92/2Nodes4ParallelLines.uct"
-    Given crac file is "epic92/crac-92-1-3.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_3.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -83,9 +83,9 @@ Feature: 3.4.1: Costly network actions optimization
   Only one network action can be used (behavior set in the RAO parameters) so the RAO chooses the cheapest
   remedial action available to reduce the overload and thus the penalty cost. The total cost is:
   100 (overload in MW) * 10000 (penalty cost in currency/MW) + 220 (cost of the chosen remedial action)
-    Given network file is "epic92/2Nodes4ParallelLines.uct"
-    Given crac file is "epic92/crac-92-1-3.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_maxDepth1.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_3.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_maxDepth1.json"
     When I launch rao
     Then the worst margin is -100.0 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -104,9 +104,9 @@ Feature: 3.4.1: Costly network actions optimization
   for a total expense of 50. Yet, because of the penalty cost for overloads, the RAO still counts an over-cost
   of 100000 because closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW.
     #TODO: I reordered this text, but the last sentence above is still not clear to me
-    Given network file is "epic92/2Nodes4ParallelLinesDifferentResistances.uct"
-    Given crac file is "epic92/crac-92-1-5.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLinesDifferentResistances.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_5.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -119,9 +119,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.6: Preventive and auto optimization - 1 scenario
   Overload in preventive (activation of 1 RA), no overload in auto (activation of a 2nd RA)
-    Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-6.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines2LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_6.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -139,9 +139,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.7: Preventive and auto optimization - 2 scenarios
   Each scenario secured by a different RA in auto.
-    Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-7.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines3LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_7.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -157,9 +157,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.8: Preventive and auto optimization - 2 scenarios with PRA
   Each scenario secured by a different RA in auto, after one PRA.
-    Given network file is "epic92/2Nodes5ParallelLines3LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-8.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes5ParallelLines3LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_8.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 10.0 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -179,9 +179,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.9: Preventive and curative optimization - 1 scenario - no auto instant
   The curative scenario is secured by one PRA and one CRA.
-    Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-9.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines2LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_9.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -199,9 +199,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.9.bis: Preventive and curative optimization - 1 scenario - with auto instant
   The curative scenario is secured by one PRA and one CRA, but instants auto and preventive are unsecure.
-    Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-9-bis.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLines2LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_9_bis.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -220,9 +220,9 @@ Feature: 3.4.1: Costly network actions optimization
   @fast @costly @rao
   Scenario: 3.4.1.10: Preventive, auto and curative optimization - 1 scenario
   One RA applied after each instant, only curative is secure.
-    Given network file is "epic92/2Nodes5ParallelLines2LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-10.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes5ParallelLines2LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_10.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 16.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -248,9 +248,9 @@ Feature: 3.4.1: Costly network actions optimization
   - scenario 2: forced ARA and no CRA
   - scenario 3: no ARA and available CRA
   - scenario 4: forced ARA and available CRA
-    Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-11.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes8ParallelLines5LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_11.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -50.00 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -284,9 +284,9 @@ Feature: 3.4.1: Costly network actions optimization
   - scenario 2: forced ARA and no CRA -> 66.67 MW overload
   - scenario 3: no ARA and available CRA -> 41.67 MW overload
   - scenario 4: forced ARA and available CRA -> 10 MW overload
-    Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
-    Given crac file is "epic92/crac-92-1-12.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes8ParallelLines5LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_1_12.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -320,10 +320,10 @@ Feature: 3.4.1: Costly network actions optimization
   action "Close Line NL2 BE3 2" but applying it violates the MNEC constraints during the first Fast RAO iteration and increases significantly
   the virtual cost during the second Fast RAO iteration on top of also violating MNEC constraints.
   Since no redispatching action is available, the RAO cannot resolve the overload.
-    Given network file is "epic93/TestCases_93_2_2/12Nodes_0130.uct"
-    Given crac file is "epic93/cbcora_93_2_2.xml"
+    Given network file is "3_objective_functions/3_4_min_cost/12Nodes_0130.uct"
+    Given crac file is "common/cbcora_3_4_13.xml"
     # The CRAC file defines 2 CNECs, 1 MNEC and 1 topological action (Close Line NL2 BE3 2)
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     When I launch rao at "2019-01-08 01:30"
     # No curative perimeter
     Then the execution details should be "The RAO only went through first preventive"

@@ -9,9 +9,9 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.5.1 : Loop flow computation with one virtual hub on a classic UCTE node - MEGAWATT
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2_crac_lf.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes_virtual_1.xml"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/refProg_virtual_1.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_1.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
     Then the loopflow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after loopflow computation should be -909.0 MW
@@ -35,9 +35,9 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   Perform exactly the same test as 5.1.1.5.1, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2_crac_lf.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes_virtual_1.xml"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/refProg_virtual_1.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_1.xml"
     Given configuration file is "common/RaoParameters_default_ampere.json"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
@@ -59,10 +59,10 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.5.2 Loop flow computation with one virtual hub on a external Xnode border - MEGAWATT
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_xnodes.json"
+    Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_crac_lf_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/refProg_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
     Then the loopflow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after loopflow computation should be -931.0 MW
@@ -85,10 +85,10 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   Scenario: 5.1.1.5.2bis Loop flow computation with one virtual hub on a external Xnode border - AMPERE
   Perform exactly the same test as 5.1.1.5.2, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_xnodes.json"
+    Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_crac_lf_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/refProg_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
     Given configuration file is "common/RaoParameters_default_ampere.json"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
@@ -111,12 +111,12 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.1.5.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
   Scenario: 7.18.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
-    Given network file is "epic7/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_cbcora_xnodes.xml"
+    Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/TestCase12Nodes_with_Xnodes_boundary.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_7_18_3_crac_lf_rao_3_cbcora_xnodes.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/refProg_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
+    Given configuration file is "5_special_features/5_1_loopflow/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

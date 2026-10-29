@@ -9,8 +9,8 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
   @fast @crac
   Scenario: 0.1.1.5.0: Import different thresholds (absolute) on two half-lines of the same tie-line
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
-    Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct" for CORE CC
-    Given crac file is "epic15/ls-Xnodes-and-half-lines.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines.json"
     When I import crac
     Then it should have the following flow CNECs:
       | Name            | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
@@ -28,8 +28,8 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.5.1: Run a rao with different thresholds (absolute) on two half-lines of the same tie-line
-    Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
-    Given crac file is "epic15/ls-Xnodes-and-half-lines.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -41,8 +41,8 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.5.2: Run a rao with different thresholds (relative) on two half-lines of the same tie-line
-    Given network file is "epic15/TestCase12Nodes_with_Xnodes_different_imax.uct"
-    Given crac file is "epic15/ls-Xnodes-and-half-lines-relative.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes_different_imax.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines-relative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

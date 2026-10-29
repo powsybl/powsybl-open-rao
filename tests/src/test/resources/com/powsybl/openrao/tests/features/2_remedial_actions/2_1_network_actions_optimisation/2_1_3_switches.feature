@@ -8,8 +8,8 @@ Feature: 2.1.3: Handle the opening/closing of switches as topological actions
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 2.1.3: Enable the use of switches as network actions
-    Given network file is "epic15/TestCase12NodesWithSwitch.uct"
-    Given crac file is "epic15/SL_ep15us1_withSwitchRA.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12NodesWithSwitch.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_3_withSwitchRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

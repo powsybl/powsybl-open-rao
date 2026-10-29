@@ -10,8 +10,8 @@ Feature: 1.4.2: Handle MNECs in second preventive optimization
   @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: 1.4.2.1: MNEC constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us4case1.xml"
-    Given configuration file is "epic20/RaoParameters_20_4.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_2_1.xml"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_1_4_2.json"
     When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     Then the execution details should be "Second preventive improved first preventive results"
@@ -27,8 +27,8 @@ Feature: 1.4.2: Handle MNECs in second preventive optimization
   @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: 1.4.2.2: MNEC constraint in curative is solved by CRA + 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us4case2.xml"
-    Given configuration file is "epic20/RaoParameters_20_4.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_2_2.xml"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_1_4_2.json"
     When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     Then the execution details should be "Second preventive improved first preventive results"
@@ -45,8 +45,8 @@ Feature: 1.4.2: Handle MNECs in second preventive optimization
   @fast @rao @ac @second-preventive @mnec @max-min-margin
   Scenario: 1.4.2.3: MNEC constraint avoided on preventive MNEC in 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us4case3.xml"
-    Given configuration file is "epic20/RaoParameters_20_4.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_2_3.xml"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_1_4_2.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"

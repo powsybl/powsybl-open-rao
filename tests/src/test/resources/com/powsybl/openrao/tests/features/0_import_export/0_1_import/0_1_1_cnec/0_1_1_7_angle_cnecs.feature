@@ -9,8 +9,8 @@ Feature: 0.1.1.7: Import angle CNECs
 
   @fast @crac
   Scenario: 0.1.1.7.1: Import angle CNECs
-    Given network file is "epic21/MicroGrid.zip"
-    Given crac file is "epic21/CIM_21_7_1.xml"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/MicroGrid.zip"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cim_0_1_1_7_1.xml"
     When I import crac at "2021-04-02 05:00"
     Then it should have the following angle CNECs:
       | AngleCnecId | Name            | ImportingElementId                    | ExportingElementId                    | Instant  | Contingency | Optimized | Monitored | UpperBound | LowerBound |

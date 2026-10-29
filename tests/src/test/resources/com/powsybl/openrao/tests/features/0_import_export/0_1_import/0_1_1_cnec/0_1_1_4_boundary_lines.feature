@@ -8,8 +8,8 @@ Feature: US 14.6: Boundary lines
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 14.6.1 : Boundary line with no generation, RAO in MW
-    Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us6.xml"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12NodesXnodeNoGen.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -20,8 +20,8 @@ Feature: US 14.6: Boundary lines
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 14.6.2 : Boundary line with no generation, RAO in A (same case as the previous scenario, but in A)
-    Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us6.xml"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12NodesXnodeNoGen.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -32,8 +32,8 @@ Feature: US 14.6: Boundary lines
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 14.6.3 : Boundary line with generation, RAO in MW
-    Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us6.xml"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12NodesXnodeWithGen.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -44,8 +44,8 @@ Feature: US 14.6: Boundary lines
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 14.6.4 : Boundary line with generation, RAO in A (same case as the previous scenario, but in A)
-    Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us6.xml"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12NodesXnodeWithGen.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

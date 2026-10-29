@@ -10,7 +10,7 @@ Feature: 2.1.1: Security assessment without any remedial action
   Scenario: 2.1.1.1
   No remedial action, several unsecure CNECs.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic1/SL_ep1us0_withoutRA.json"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_1_1_withoutRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

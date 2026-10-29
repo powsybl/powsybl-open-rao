@@ -29,11 +29,11 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   using 1160MW of redispatching and setting the PST to 14. However, the global MIP strictly respects the constraint which
   forces the generator to stay OFF and relies heavily on the other generator pushing it to 580MW. This change of power
   leads to the re-optimization of the curative PST tap from 14 to 2 in order to keep the curative CNEC secure.
-  Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-  Given time-coupled constraints are in file "epic93/time-coupled-constraints-startup-not-allowed.json" and rao inputs are:
+  Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
+  Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-startup-not-allowed.json" and rao inputs are:
     | Network                                    | Timestamp        | CRAC                                   |
-    | epic93/TestCases_93_4_1/3NodesPST_1930.uct | 2025-11-04 19:30 | epic93/us93_4_1/crac_202511041930.json |
-    | epic93/TestCases_93_4_1/3NodesPST_2030.uct | 2025-11-04 20:30 | epic93/us93_4_1/crac_202511042030.json |
+    | 4_time_coupled/TestCases_4_5_1/3NodesPST_1930.uct | 2025-11-04 19:30 | 4_time_coupled/4_5_1/crac_202511041930.json |
+    | 4_time_coupled/TestCases_4_5_1/3NodesPST_2030.uct | 2025-11-04 20:30 | 4_time_coupled/4_5_1/crac_202511042030.json |
   When I launch marmot
   # Timestamp 19:30 : basecase, no overloads, no actions needed
   Then the preventive power of generator "FFR2AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
@@ -71,12 +71,12 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   - 20:30 : it ramps up to 396MW respecting the 200MW/h constraint, this changes the flows and leads to the need of
   reoptimizing the pst tap to +1 in curative to avoid new overloads.
   - 21:30 : it reaches the 500MW needed to solve the overload on line 2 by adding 104MW < 200MW.
-  Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-  Given time-coupled constraints are in file "epic93/time-coupled-power-gradient-constraint.json" and rao inputs are:
+  Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
+  Given time-coupled constraints are in file "4_time_coupled/time-coupled-power-gradient-constraint.json" and rao inputs are:
     | Network                                    | Timestamp        | CRAC                                   |
-    | epic93/TestCases_93_4_2/2NodesPST_1930.uct | 2025-11-04 19:30 | epic93/us93_4_2/crac_202511041930.json |
-    | epic93/TestCases_93_4_2/2NodesPST_2030.uct | 2025-11-04 20:30 | epic93/us93_4_2/crac_202511042030.json |
-    | epic93/TestCases_93_4_2/2NodesPST_2130.uct | 2025-11-04 21:30 | epic93/us93_4_2/crac_202511042130.json |
+    | 4_time_coupled/TestCases_4_5_2/2NodesPST_1930.uct | 2025-11-04 19:30 | 4_time_coupled/4_5_2/crac_202511041930.json |
+    | 4_time_coupled/TestCases_4_5_2/2NodesPST_2030.uct | 2025-11-04 20:30 | 4_time_coupled/4_5_2/crac_202511042030.json |
+    | 4_time_coupled/TestCases_4_5_2/2NodesPST_2130.uct | 2025-11-04 21:30 | 4_time_coupled/4_5_2/crac_202511042130.json |
   When I launch marmot
   # Timestamp 19:30: pre-heating the generator to 196MW, cost = 10(activation) + 196MW * 10(variation) = 1970
   Then the total cost for timestamp "2025-11-04 19:30" is 1970.0

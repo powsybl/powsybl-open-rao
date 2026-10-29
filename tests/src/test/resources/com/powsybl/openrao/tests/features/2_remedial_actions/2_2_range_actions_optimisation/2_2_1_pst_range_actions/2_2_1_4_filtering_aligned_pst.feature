@@ -8,10 +8,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.1: Do not select French PST, because of max-curative-ra
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case1.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_5.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_1.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -22,10 +22,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.2: Only select German PST, because of max-curative-ra
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case2.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_5.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_1.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -35,10 +35,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.3: Only select Belgian PST, because of max-curative-ra
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case3.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_3.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_7.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -48,10 +48,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.4: Only select French PST, because of max-curative-ra
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case1.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_7.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -61,10 +61,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.5: Do not select second PST, because of max-curative-pst-to-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case9.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_5.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_9.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_5.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -75,10 +75,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.6: Only select third PST, because of max-curative-pst-to-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case10.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_9.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_5.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -88,10 +88,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.7:  Only select first PST, because of max-curative-pst-to-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case11.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_7.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_11.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_7.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -101,10 +101,10 @@ Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.8: Only select second PST, because of max-curative-pst-to-tso
-    Given network file is "epic19/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
-    Given crac file is "epic19/CBCORA_ep19us8case9.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_3PSTs_NullInitialTaps.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_4_5.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given crac creation parameters file is "epic19/us19_8_11.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_4_7.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

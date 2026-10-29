@@ -8,8 +8,8 @@ Feature: 0.1.0.2: Asterisks* as wildcards in UCTE CRACs importers
 
   @fast @crac
   Scenario: 0.1.0.2.1: Import of a valid CSE CRAC with asterisks
-    Given network file is "crac90/TestCase_severalVoltageLevels_Xnodes_8characters.uct"
-    Given crac file is "crac90/cseCrac_ep90us2case1.xml"
+    Given network file is "0_import_export/0_1_import/0_1_0_generic/TestCase_severalVoltageLevels_Xnodes_8characters.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_0_generic/cseCrac_ep90us2case1.xml"
     When I import crac
     Then all the CNECs should be imported successfully
     Then all the remedial actions should be imported successfully
@@ -20,8 +20,8 @@ Feature: 0.1.0.2: Asterisks* as wildcards in UCTE CRACs importers
 
   @fast @crac
   Scenario: 0.1.0.2.2: Ambiguous CSE CRAC with filtered elements
-    Given network file is "crac90/TestCase_severalVoltageLevels_Xnodes_8characters.uct"
-    Given crac file is "crac90/cseCrac_ep90us2case2.xml"
+    Given network file is "0_import_export/0_1_import/0_1_0_generic/TestCase_severalVoltageLevels_Xnodes_8characters.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_0_generic/cseCrac_ep90us2case2.xml"
     When I import crac
     Then it should have 8 cnecs
     Then the native CNEC "basecase_branch_3 - DDE1AA1* - DDE2AA1* - basecase" should not be imported

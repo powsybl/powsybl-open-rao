@@ -8,9 +8,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.2.4.1: Test fix apply auto for curative CNECs post 2P
-    Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
-    Given crac file is "epic15/crac_15_11_5_1bis.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-1.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_1_1bis.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_1.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
@@ -21,9 +21,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @second-preventive @secure-flow
   Scenario: 1.2.4.2: Test fix condition 2P
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
-    Given crac file is "epic15/crac_15_11_5_2bis.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-2.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_4.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_2_2bis.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_2.json"
     When I launch rao
     Then the margin on cnec "de2_nl3_co1 - DDE2AA11->NNL3AA11  - co1_de2_nl3 - curative" after PRA should be -2519.05 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -31,9 +31,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 1.2.4.3.1: Test get highest functional cost worst CNEC is a curative after 1PRAO
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
-    Given crac file is "epic15/crac_15_11_5_3_1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_4.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_3_1_3_1.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -41,9 +41,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 1.2.4.3.2: Test get highest functional cost worst CNEC is auto after 1ARAO
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
-    Given crac file is "epic15/crac_15_11_5_3_2.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_4.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_3_2_3_2.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -51,9 +51,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 1.2.4.3.3: Test get highest functional cost worst CNEC is curative after 1CRAO
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
-    Given crac file is "epic15/crac_15_11_5_3_3.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_4.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_3_3_3_3.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -61,9 +61,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
     
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.2.4.4: RaoResult AFTER PRA fixed for curative CNECs, with 2P
-    Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
-    Given crac file is "epic15/crac_15_11_5_1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-1.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_4_1.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_1.json"
     When I launch rao
     Then the remedial action "open_de1_de2_open_nl2_be3 - prev" is used in preventive
     Then the remedial action "open_de2_nl3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
@@ -77,9 +77,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 1.2.4.5: RaoResult AFTER PRA fixed for curative CNECs, without 2P
-    Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
-    Given crac file is "epic15/crac_15_11_5_1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_1_2_4_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_4_1.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_3.json"
     When I launch rao
     Then the remedial action "open_de1_de2_open_nl2_be3 - prev" is not used in preventive
     Then the remedial action "open_de2_nl3 - co1 - auto" is not used after "co1_fr2_de3" at "auto"
@@ -93,9 +93,9 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.2.4.6: Considering ARA in 2P improves 2P optimization
-    Given network file is "epic15/TestCase12Nodes_15_automaton.uct" for CORE CC
-    Given crac file is "epic15/crac_15_11_5_2.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-1.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase12Nodes_automaton.uct" for CORE CC
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_6_2.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_4_1.json"
     When I launch rao
     Then the remedial action "Open line BE1-BE2" is used in preventive
     Then the remedial action "Open line FR2-DE3" is used after "Contingency_FR1_FR2" at "auto"

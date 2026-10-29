@@ -12,9 +12,9 @@ Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   Two ways to secure the network:
   1. move PST to tap -5 => cost of 25
   2. (optimal) close line BE-FR 2 and move PST to tap -2 => cost of 20
-    Given network file is "epic92/2Nodes3ParallelLinesPST2LinesClosed.uct"
-    Given crac file is "epic92/crac-92-3-1.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes3ParallelLinesPST2LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_3_1.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 32.13 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -32,9 +32,9 @@ Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   (20 for activation + 5 * 15 for variation). Then, there are two ways to secure the curative perimeter:
   1. move PST to tap -8 => cost of 20 + 3 * 15 = 65
   2. (optimal) close line BE-FR 3 and move PST to tap -6 => cost of 10 + 20 + 1 * 15 = 45
-    Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
-    Given crac file is "epic92/crac-92-3-2.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLinesPST3LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_3_2.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
@@ -56,9 +56,9 @@ Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   @fast @costly @rao @second-preventive
   Scenario: 3.4.3.3: Preventive and curative PST + curative topological action with 2nd preventive optimization
   The PST is moved to tap -6 straight from preventive to only activate the remedial action once.
-    Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
-    Given crac file is "epic92/crac-92-3-2.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes4ParallelLinesPST3LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_3_2.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_discretePst_2P.json"
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW
@@ -79,9 +79,9 @@ Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   Scenario: 3.4.3.4: Preventive and curative PST + curative topological action - 2 scenarios
   One preventive range action, then the same range action is used also in both curatives (along with a topological action),
   but no second preventive to choose preventive tap among the taps chosen in curative.
-    Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"
-    Given crac file is "epic92/crac-92-3-4.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes5ParallelLinesPST4LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_3_4.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 3.73 MW
@@ -107,9 +107,9 @@ Feature: 3.4.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   @fast @costly @rao @second-preventive
   Scenario: 3.4.3.5: Preventive and curative PST + curative topological action - 2 scenarios with 2nd preventive optimization
   To cut activation cost expenses, the PST is moved to tap -7 straight from preventive optimization.
-    Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"
-    Given crac file is "epic92/crac-92-3-4.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
+    Given network file is "3_objective_functions/3_4_min_cost/2Nodes5ParallelLinesPST4LinesClosed.uct"
+    Given crac file is "3_objective_functions/3_4_min_cost/crac_3_4_3_4.json"
+    Given configuration file is "3_objective_functions/3_4_min_cost/RaoParameters_dc_minObjective_discretePst_2P.json"
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 21.8 MW

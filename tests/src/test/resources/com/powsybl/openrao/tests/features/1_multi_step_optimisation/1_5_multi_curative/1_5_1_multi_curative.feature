@@ -9,9 +9,9 @@ Feature: 1.5.1: Multi-curative
   @fast @rao @ac @max-min-margin
   Scenario: 1.5.1.1: All combinations of auto and curative states
     # Test state tree algorithm
-    Given network file is "epic91/TestCase12Nodes_16ParallelLines.uct"
-    Given crac file is "epic91/crac_12Nodes_16ParallelLines.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase12Nodes_16ParallelLines.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_1_crac_12Nodes_16ParallelLines.json"
+    Given configuration file is "common/RaoParameters_case_91_1_12.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -42,8 +42,8 @@ Feature: 1.5.1: Multi-curative
     3. The second line is closed to go under the third curative TATL (250 MW)
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_2.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -70,9 +70,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.3: Multi-curative with AUTO + curative instant 1 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative1_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_3_crac_91_12_auto_curative1_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -112,8 +112,8 @@ Feature: 1.5.1: Multi-curative
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.4: Same case as previous one with ra limitations : 0 curative1 RAs, 0 curative2 RAs
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2_with_ra_limits.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_4_with_ra_limits.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -129,8 +129,8 @@ Feature: 1.5.1: Multi-curative
   Since one RA is used in curative2 we reached the limit and since the limit in curative3 is set to 1 no more RAs can be used in curative3.
   Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 19.12.3).
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2_with_ra_limits_2.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_crac_91_12_2_with_ra_limits_2_with_ra_limits_2.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
@@ -139,9 +139,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.5: Multi-curative with AUTO + curative instant 2 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative2_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_5_crac_91_12_auto_curative2_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -179,9 +179,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.6: Multi-curative with AUTO + curative instant 3 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative3_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_6_crac_91_12_auto_curative3_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -219,9 +219,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.7: Multi-curative with curative instant 1 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative1_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_7_crac_91_12_curative1_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -253,9 +253,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.8: Multi-curative with curative instant 2 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative2_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_8_crac_91_12_curative2_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -289,9 +289,9 @@ Feature: 1.5.1: Multi-curative
   Scenario: 1.5.1.9: Multi-curative with curative instant 3 without CRAs
     # CNECs are already secure when entering curative2 perimeter
     # C2RAs must be activated anyway in anticipation of curative3
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative3_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_9_crac_91_12_curative3_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -323,9 +323,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.10: Multi-curative with ARA and no CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_ARA_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_10_crac_91_12_ARA_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -362,9 +362,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @secure-flow
   Scenario: 1.5.1.11: Multi-curative without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_11_crac_91_12_noCRA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -394,9 +394,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.12: Multi-curative with ARA and only C1RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C1RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_12_crac_91_12_auto_C1RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -434,9 +434,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.13: Multi-curative with ARA and only C2RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C2RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_13_crac_91_12_auto_C2RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -474,9 +474,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.14: Multi-curative with ARA and only C3RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C3RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_14_crac_91_12_auto_C3RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -514,9 +514,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.15: Multi-curative with only C1RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C1RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_15_crac_91_12_C1RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -548,9 +548,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.16: Multi-curative with only C2RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C2RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_16_crac_91_12_C2RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -582,9 +582,9 @@ Feature: 1.5.1: Multi-curative
 
   @fast @rao @ac @multi-curative @max-min-margin
   Scenario: 1.5.1.17: Multi-curative with only C3RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C3RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/TestCase16Nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_17_crac_91_12_C3RA.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -621,8 +621,8 @@ Feature: 1.5.1: Multi-curative
     -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_16.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_18.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -643,7 +643,7 @@ Feature: 1.5.1: Multi-curative
     -> Then the same PRAs should be applied in 2nd PRAO
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_17.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_19.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
@@ -665,7 +665,7 @@ Feature: 1.5.1: Multi-curative
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_18.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_20.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
@@ -706,7 +706,7 @@ Feature: 1.5.1: Multi-curative
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_19.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_21.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
@@ -742,7 +742,7 @@ Feature: 1.5.1: Multi-curative
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_20.json"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_22.json"
     Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"

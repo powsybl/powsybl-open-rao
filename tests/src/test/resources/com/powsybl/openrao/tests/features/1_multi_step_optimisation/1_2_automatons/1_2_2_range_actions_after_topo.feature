@@ -8,8 +8,8 @@ Feature: 1.2.2: Simulate range action automatons right after topological automat
 
   @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin
   Scenario: 1.2.2.1: 1 auto HVDC
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
+    Given network file is "common/TestCase16NodesWithHvdc_AC_emulation.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/jsonCrac_ep15us11-3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -27,8 +27,8 @@ Feature: 1.2.2: Simulate range action automatons right after topological automat
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.2.2.2: 1 auto PST
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-3case2.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_2_2_3case2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -46,8 +46,8 @@ Feature: 1.2.2: Simulate range action automatons right after topological automat
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.2.2.3: 2 auto range actions
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-3case3.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_2_3_3case3.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -68,8 +68,8 @@ Feature: 1.2.2: Simulate range action automatons right after topological automat
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.2.2.4: auto range actions and topological range actions
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-3case4.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_2_4_3case4.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -96,8 +96,8 @@ Feature: 1.2.2: Simulate range action automatons right after topological automat
     # in auto at -8
     # in curative at -16
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-3case2_withPstCra.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_2_2_3case2_withPstCra.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

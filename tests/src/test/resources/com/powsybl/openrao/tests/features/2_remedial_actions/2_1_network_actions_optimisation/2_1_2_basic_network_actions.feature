@@ -10,7 +10,7 @@ Feature: 2.1.2: Security assessment with network actions
   Scenario: 2.1.2.1: selection of topological action
     Two network actions and one PST setpoint action available, only one network action is activated.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
+    Given crac file is "common/crac_2_1_2_1_selectionTopoRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -35,7 +35,7 @@ Feature: 2.1.2: Security assessment with network actions
   Scenario: 2.1.2.2: selection of PST setpoint remedial action
   One network action and one PST setpoint action available, only the PST setpoint action is activated.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
+    Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -50,7 +50,7 @@ Feature: 2.1.2: Security assessment with network actions
   One network action and one PST setpoint action available, only the PST setpoint action is activated but the situation
   remains unsecure.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant2.json"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_2_3_selectionTopoRA_variant2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

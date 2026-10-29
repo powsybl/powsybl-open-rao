@@ -9,7 +9,7 @@ Feature: 0.1.2.1: HVDC
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 0.1.2.1.1 : Outage HVDC modelling 1 (CORE's Cobra)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us4case1.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_2_outage/cbcora_0_1_2_1_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -25,7 +25,7 @@ Feature: 0.1.2.1: HVDC
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 0.1.2.1.2 : Outage HVDC modelling 2 (CORE's Alegro)
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
-    Given crac file is "epic14/cbcora_ep14us4case2.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_2_outage/cbcora_0_1_2_1_2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -43,9 +43,9 @@ Feature: 0.1.2.1: HVDC
   German HVDC are set as preventive remedial actions and should be used at preventive state.
   Aligned generators (generators of the same station) should be moved together and have the same value.
   The two generators involved in one HVDC line should have opposite values.
-    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
-    Given crac file is "epic14/crac_hvdc_preventive.xml"
-    Given crac creation parameters file is "epic14/ccp.json"
+    Given network file is "0_import_export/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "0_import_export/crac_0_2_2_1_4_crac_hvdc_preventive.xml"
+    Given crac creation parameters file is "0_import_export/CimCracCreationParameters_default.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
@@ -74,8 +74,8 @@ Feature: 0.1.2.1: HVDC
   Scenario: 0.1.2.1.3b : German HVDC Preventive (CORE's german HVDC) with VirtualHubs file as input
   Same test as scenario 0.1.2.1.3 but using a VirtualHubs file as input (from which the internal-hvdcs data will be extracted)
   instead of a CracCreationContext where internal-hvdcs data would already be stored
-    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
-    Given crac file is "epic14/crac_hvdc_preventive.xml"
+    Given network file is "0_import_export/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "0_import_export/crac_0_2_2_1_4_crac_hvdc_preventive.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
@@ -106,9 +106,9 @@ Feature: 0.1.2.1: HVDC
   German HVDC are set as curative remedial actions and should be used at curative state, but not at preventive state.
   Aligned generators (generators of the same station) should be moved together and have the same value.
   The two generators involved in one HVDC line should have opposite values.
-    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
-    Given crac file is "epic14/crac_hvdc_curative.xml"
-    Given crac creation parameters file is "epic14/ccp.json"
+    Given network file is "0_import_export/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "0_import_export/crac_0_2_2_2_6_crac_hvdc_curative.xml"
+    Given crac creation parameters file is "0_import_export/CimCracCreationParameters_default.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
     Then the remedial action "D7_RA_99991 + D4_RA_99991" is not used in preventive
@@ -148,8 +148,8 @@ Feature: 0.1.2.1: HVDC
   Scenario: 0.1.2.1.4b : German HVDC Curative (CORE's german HVDC) with VirtualHubs file as input
   Same test as scenario 0.1.2.1.4 but using a VirtualHubs file as input (from which the internal-hvdcs data will be extracted)
   instead of a CracCreationContext where internal-hvdcs data would already be stored
-    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
-    Given crac file is "epic14/crac_hvdc_curative.xml"
+    Given network file is "0_import_export/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "0_import_export/crac_0_2_2_2_6_crac_hvdc_curative.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_internal_hvdc.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
@@ -192,9 +192,9 @@ Feature: 0.1.2.1: HVDC
   Two parallel German HVDC lines are defined but one is set as preventive and the other is set as curative.
   In such a situation, generators alignment would not work and generators could be moved separately.
   To avoid inconsistent behaviour, inconsistent RAs are removed from Crac before the RAO is launched to avoid using them during the optimisation.
-    Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
-    Given crac file is "epic14/crac_hvdc_preventive_and_curative.xml"
-    Given crac creation parameters file is "epic14/ccp.json"
+    Given network file is "0_import_export/TestCase12NodesUltranet_v2.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_2_outage/crac_0_1_2_1_5_crac_hvdc_preventive_and_curative.xml"
+    Given crac creation parameters file is "0_import_export/CimCracCreationParameters_default.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
     # HVDC remedial actions have different usage rules => they should not be used during optimisation

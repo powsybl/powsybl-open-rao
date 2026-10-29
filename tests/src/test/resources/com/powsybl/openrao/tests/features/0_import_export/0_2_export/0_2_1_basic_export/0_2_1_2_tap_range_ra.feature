@@ -9,7 +9,7 @@ Feature: 0.2.1.2: Export the selected tap for a range RA in the basic output fil
   @fast @rao  @ac @preventive-only @secure-flow
   Scenario: 0.2.1.2.1
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic2/SL_ep2us2case1.json"
+    Given crac file is "common/crac_2_2_1_1_1.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     Then I launch rao
     Then the execution details should be "The RAO only went through first preventive"

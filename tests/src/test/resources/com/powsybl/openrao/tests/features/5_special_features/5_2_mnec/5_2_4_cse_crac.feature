@@ -9,8 +9,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.2.4.1: only network actions - ref run, no MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_1.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_1.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -23,8 +23,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: 5.2.4.2: only network actions - one unconstrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_2.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_2.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -39,8 +39,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: 5.2.4.3: only network actions - one constrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_3.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_3.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -55,8 +55,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.2.4.4: pst range action - reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_4.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_4.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -70,8 +70,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: 5.2.4.5: pst range action - one unconstrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_5.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_5.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -87,8 +87,8 @@ Feature: 5.2.4: Handle MNECs in rao with a CSE CRAC
   @fast @rao @ac @preventive-only @mnec @secure-flow
   Scenario: 5.2.4.6: pst range action - one constrained MNEC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic11/CSE_CRAC_11_6_6.xml"
-    Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
+    Given crac file is "5_special_features/5_2_mnec/cse_5_2_4_6.xml"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

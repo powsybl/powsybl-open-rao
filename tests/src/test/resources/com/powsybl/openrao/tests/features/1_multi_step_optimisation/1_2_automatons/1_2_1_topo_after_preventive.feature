@@ -9,8 +9,8 @@ Feature: 1.2.1: Simulate topological automatons right after preventive optimizat
   @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: 1.2.1.1: onConstraint automaton not applied
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-2case1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_1_1_2case1.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_1.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -28,8 +28,8 @@ Feature: 1.2.1: Simulate topological automatons right after preventive optimizat
   @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: 1.2.1.2: onConstraint automaton applied
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-2case2.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_1_2_2case2.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_1.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -48,8 +48,8 @@ Feature: 1.2.1: Simulate topological automatons right after preventive optimizat
   @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: 1.2.1.3: OnContingencyState automaton applied
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/SL_ep15us11-2case3.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_1_3_2case3.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/RaoParameters_1_2_1.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

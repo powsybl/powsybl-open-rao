@@ -9,7 +9,7 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.3.4.1: Inverted PstRangeAction in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic90/SL_ep90us3case1.json"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/crac_0_1_3_4_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -22,7 +22,7 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.3.4.2: Inverted PstSetpoint in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
+    Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -35,7 +35,7 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.3.4.3: Inverted PstRangeAction in CBCORA
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic90/cbcora_ep90us3case3.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/cbcora_0_1_3_4_3.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 21:30"
     Then the execution details should be "The RAO only went through first preventive"
@@ -49,17 +49,17 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   @fast @cne-export @max-min-margin
   Scenario: 0.1.3.4.3.CNE: Inverted PstRangeAction in CBCORA (CNE export)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic90/cbcora_ep90us3case3.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/cbcora_0_1_3_4_3.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    Given RaoResult file is "epic90/RaoResult_90_3_3.json"
+    Given RaoResult file is "0_import_export/0_1_import/0_1_3_remedial_actions/RaoResult_0_1_3_4_3_RaoResult_90_3_3.json"
     When I export CORE CNE at "2019-01-08 21:30"
     Then the CORE CNE file is xsd-compliant
-    Then the exported CNE file is similar to "epic90/ExpectedCNE_90_3_3.xml"
+    Then the exported CNE file is similar to "0_import_export/0_1_import/0_1_3_remedial_actions/ExpectedCNE_0_1_3_4_3_ExpectedCNE_90_3_3.xml"
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.3.4.4: Inverted PstRangeAction in CSE CRAC
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic90/cseCrac_ep90us3case4.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/cseCrac_ep90us3case4.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"

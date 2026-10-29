@@ -10,7 +10,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.1: Three allowed CRAs
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case1.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -23,7 +23,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.2: Two allowed CRAs
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case2.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -38,7 +38,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.3: One allowed CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case3.json"
+    Given crac file is "2_remedial_actions/crac_2_6_3_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -50,7 +50,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.4: One allowed CRA, BE PST not allowed
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case4.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -64,7 +64,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.5: No allowed CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case5.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -75,7 +75,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.6: Three topological CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case6.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -89,7 +89,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.7: Two topological CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case7.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -102,7 +102,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.8: One topological CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case8.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -114,7 +114,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.9: One topological CRA, best FR topo not allowed
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case9.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -126,7 +126,7 @@ Feature: 2.6.3: Max number of CRAs
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.3.10: Test that the parameter is ignored in preventive
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case10.json"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_3_10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -142,10 +142,10 @@ Feature: 2.6.3: Max number of CRAs
     A network action is used in curative after "CO1_fr2_fr3_1".
     => the max-ra-usage-limit being 1 we should not optimize any CRAs in the second preventive optimization.
     Not being able to optimize CRAs in the 2P slightly worsen the worst margin : go from 721 A to 717 A.
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us3case10.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    Given crac creation parameters file is "epic19/CracCreationParameters_max_ra_usage_limit.json"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "common/cbcora_2_6_3_11.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac creation parameters file is "2_remedial_actions/2_6_ra_usage_limits/CracCreationParameters_2_6_3_11.json"
     When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 3 in preventive
@@ -164,10 +164,10 @@ Feature: 2.6.3: Max number of CRAs
     For CO1_fr2_fr3_1, we use one network action => so no range action can be optimized in 2P
     For CO2_fr1_fr2_1, no network action used => pst_be can be optimized after "CO2_fr1_fr2_1" at "curative"
     The RAO is able to update the max RA usage limit for each curative state independently.
-    Given network file is "epic19/TestCase16Nodes_19_5_12.uct"
-    Given crac file is "epic19/CBCORA_ep19us5case12.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    Given crac creation parameters file is "epic19/CracCreationParameters_max_ra_usage_limit.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/TestCase16Nodes_2_6_3_12.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/cbcora_2_6_3_12.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac creation parameters file is "2_remedial_actions/2_6_ra_usage_limits/CracCreationParameters_2_6_3_11.json"
     When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be -5 in preventive

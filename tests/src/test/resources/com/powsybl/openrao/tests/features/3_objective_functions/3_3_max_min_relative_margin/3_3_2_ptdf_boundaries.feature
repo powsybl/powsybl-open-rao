@@ -10,8 +10,8 @@ Feature: 3.3.2: Define ptdfBoundaries with EIcode instead of Country codes
   @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: 3.3.2.1: Compute relative margins with PTDFs on bidding-zones which are countries
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic10/cbcora_ep10us2case1.xml"
-    Given configuration file is "epic10/conf_ep10us2case1.json"
+    Given crac file is "3_objective_functions/3_3_max_min_relative_margin/cbcora_3_3_2_1.xml"
+    Given configuration file is "3_objective_functions/3_3_max_min_relative_margin/RaoParameters_3_3_2_1.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -31,9 +31,9 @@ Feature: 3.3.2: Define ptdfBoundaries with EIcode instead of Country codes
   @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: 3.3.2.2: Compute relative margins with PTDFs on bidding-zones which are NOT countries
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic10/cbcora_ep10us2case1.xml"
-    Given configuration file is "epic10/conf_ep10us2case2.json"
-    Given loopflow glsk file is "epic10/glsk_ep10us2case2.xml"
+    Given crac file is "3_objective_functions/3_3_max_min_relative_margin/cbcora_3_3_2_1.xml"
+    Given configuration file is "3_objective_functions/3_3_max_min_relative_margin/RaoParameters_3_3_2_2.json"
+    Given loopflow glsk file is "3_objective_functions/3_3_max_min_relative_margin/glsk_3_3_2_2.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

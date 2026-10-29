@@ -8,9 +8,9 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
 
   @fast @rao @dc @preventive-only @search-tree-rao @secure-flow
   Scenario: 3.1.1.1: Interrupt search tree depth early
-    Given network file is "epic91/TestCase4Nodes.uct"
-    Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
-    Given configuration file is "epic91/RaoParameters_interrupt_search_tree.json"
+    Given network file is "3_objective_functions/3_1_secure_flow/TestCase4Nodes.uct"
+    Given crac file is "3_objective_functions/3_1_secure_flow/cbcora_3_1_1_1_CBCORA_interrupt_search_tree.xml"
+    Given configuration file is "3_objective_functions/3_1_secure_flow/RaoParameters_interrupt_search_tree.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -20,9 +20,9 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
 
   @fast @rao @dc @preventive-only @search-tree-rao @secure-flow
   Scenario: 3.1.1.2: Interrupt search tree depth early two threads
-    Given network file is "epic91/TestCase4Nodes.uct"
-    Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
-    Given configuration file is "epic91/RaoParameters_interrupt_search_tree_2_threads.json"
+    Given network file is "3_objective_functions/3_1_secure_flow/TestCase4Nodes.uct"
+    Given crac file is "3_objective_functions/3_1_secure_flow/cbcora_3_1_1_1_CBCORA_interrupt_search_tree.xml"
+    Given configuration file is "3_objective_functions/3_1_secure_flow/RaoParameters_interrupt_search_tree_2_threads.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -32,8 +32,8 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
 
   @fast @rao @dc @contingency-scenarios @secure-flow
   Scenario: 3.1.1.3: Skip curative optimization
-    Given network file is "epic13/TestCase12NodesForCurative.uct"
-    Given crac file is "epic91/CBCORA_ep91us11case3.xml"
+    Given network file is "common/TestCase12NodesForCurative.uct"
+    Given crac file is "3_objective_functions/3_1_secure_flow/cbcora_3_1_1_3.xml"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"

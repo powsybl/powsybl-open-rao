@@ -9,7 +9,7 @@ Feature: 2.2.1.3: Handle parallel PSTs with different initial taps
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: 2.2.1.3.1: Preventive search tree RAO with two aligned PSTs with different initial taps
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic15/CBCORA_15_5_1.xml"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_2_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

@@ -9,10 +9,10 @@ Feature: 0.2.2.3: Export of PTDF factors and relative margins in Core CNE
   @fast @cne-export
   Scenario: 0.2.2.3.1
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic12/MergedCB_12_2_1.xml"
-    Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
+    Given crac file is "0_import_export/0_2_export/0_2_2_core_cne/MergedCB_12_2_1.xml"
+    Given configuration file is "common/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given RaoResult file is "epic12/RaoResult_12_2_1.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_2_core_cne/RaoResult_0_2_2_3_1_RaoResult_12_2_1.json"
     When I export CORE CNE at "2019-01-08 22:59"
     Then the CORE CNE file is xsd-compliant
-    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_2_1.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_2_core_cne/ExpectedCNE_0_2_2_3_1_ExpectedCNE_12_2_1.xml"
