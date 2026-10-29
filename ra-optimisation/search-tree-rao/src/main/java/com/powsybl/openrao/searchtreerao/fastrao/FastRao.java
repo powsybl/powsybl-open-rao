@@ -157,7 +157,7 @@ public class FastRao implements RaoProvider {
             );
 
             if (crac.getFlowCnecs().isEmpty()) {
-                return new UnoptimizedRaoResultImpl(initialResult);
+                return new UnoptimizedRaoResultImpl(initialResult, Set.of(), RaoUtil.getFlowUnit(parameters), Set.of());
             }
 
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -389,7 +389,9 @@ public class FastRao implements RaoProvider {
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
             postCraSensi.get().prePerimeterResultForAllFollowingStates(),
             raoResult,
-            raoInput.getCrac()
+            raoInput.getCrac(),
+            RaoUtil.getFlowUnit(parameters),
+            operatorsNotSharingCras
         );
 
     }
